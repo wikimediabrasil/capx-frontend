@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       offset: searchParams.get("offset") || undefined,
       user__username: searchParams.get("username") || undefined,
       territory: searchParams.get("territory") || undefined,
-      language: searchParams.get("language") || undefined,
+      languageproficiency__language: searchParams.get("language") || undefined,
       skills_wanted: searchParams.get("skills_wanted") || undefined,
       skills_available: searchParams.get("skills_available") || undefined,
       has_any_skills: searchParams.get("has_any_skills") === "true" ? true : undefined,

@@ -70,7 +70,6 @@ export function useCapacity(capacityId?: string | null) {
   const [capacity, setCapacity] = useState<CapacityResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  console.log("useCapacity")
 
   useEffect(() => {
     const fetchCapacity = async () => {

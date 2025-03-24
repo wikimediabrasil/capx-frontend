@@ -12,7 +12,7 @@ export default function VideoSection() {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const videoUrl =
-    "https://upload.wikimedia.org/wikipedia/commons/c/cd/Capacity_Exchange_-_Launch_Video.webm";
+    "https://upload.wikimedia.org/wikipedia/commons/5/59/Meet_the_Capacity_Exchange.webm";
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 

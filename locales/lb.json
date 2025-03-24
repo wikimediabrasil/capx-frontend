@@ -80,6 +80,7 @@
 	"edit-profile-update": "Aktualiséieren",
 	"edit-profile-welcome": "Wëllkomm!",
 	"edit-profile-use-wikidata": "Wikidata-Element benotzen",
+	"edit-profile-delete-profile": "Profil läschen",
 	"edit-profile-save": "Profil späicheren",
 	"edit-profile-choose-an-option": "Wielt eng Optioun",
 	"edit-profile-add-link": "Link derbäisetzen",
@@ -95,6 +96,8 @@
 	"edit-profile-wikimedia-projects": "Informéiert d'Wikimedia-Projeten, un deenen Dir interesséiert sidd.",
 	"edit-profile-insert-project": "Projet asetzen",
 	"edit-profile-insert-link": "URL vum Dokument asetzen",
+	"edit-profile-delete-profile-confirm": "Jo, läscht mäi CapX-Profil",
+	"edit-profile-delete-profile-cancel": "Neen, ech wëll mäi CapX-Profil halen",
 	"capacity-card-info": "Informatiounen",
 	"privacy-policy-link-toolforge": "Toolforge",
 	"privacy-policy-private-information-topic01": "Wikimedia-Benotzernimm;",
@@ -106,5 +109,9 @@
 	"not-found-page-back-home": "Zréck op d'Haaptsäit",
 	"filters-user-profile": "Benotzerprofil",
 	"filters-show-results": "Resultater weisen",
-	"filters-title": "Filteren"
+	"filters-title": "Filteren",
+	"pagination-previous": "Vireg",
+	"pagination-next": "Nächst",
+	"pagination-page": "Säit",
+	"feed-no-data-message": "Keng Donnéeë fonnt"
 }

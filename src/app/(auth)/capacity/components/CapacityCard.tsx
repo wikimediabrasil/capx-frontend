@@ -57,24 +57,54 @@ export function CapacityCard({
     }
   }, [isExpanded]);
 
-  const handleInfoClick = async () => {
+  const handleInfoClick = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the click event from propagating to the card
     if (!showInfo && onInfoClick) {
       await onInfoClick(code);
     }
     setShowInfo(!showInfo);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent default behavior to avoid navigation
+    e.preventDefault();
+    // Only expand/collapse the card
+    onExpand();
+  };
+
+  const handleTitleClick = (e: React.MouseEvent) => {
+    // Allow navigation when clicking on the title
+    e.stopPropagation();
+    router.push(`/feed/${code}`);
+  };
+
   const renderExpandedContent = () => {
     if (!showInfo) return null;
+
+    let buttonBgColor = "#000000";
+    
+    if (parentCapacity?.parentCapacity) {
+      buttonBgColor = "#4B5563";
+    } else if (parentCapacity?.color) {
+      buttonBgColor = getCapacityColor(parentCapacity.color);
+    } else {
+      buttonBgColor = getCapacityColor(color);
+    }
 
     return (
       <div
         className={`flex flex-col gap-6 mt-6 mb-16 ${
           isRoot ? "px-3" : "px-12"
         }`}
+        onClick={(e) => e.stopPropagation()}
       >
         {wd_code && (
-          <a href={wd_code}>
+          <a
+            href={`https://www.wikidata.org/wiki/${wd_code}`}
+            onClick={(e) => e.stopPropagation()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <div className="flex flex-row items-center gap-2">
               <div className="relative w-[36px] h-[36px]">
                 <Image src={BarCodeIcon} alt="BarCode" fill priority />
@@ -90,15 +120,13 @@ export function CapacityCard({
             {capitalizeFirstLetter(description)}
           </p>
         )}
-        <BaseButton
-          label={pageContent["capacity-card-explore-capacity"]}
-          customClass={`w-[224px] flex justify-center items-center gap-2 px-3 py-3 rounded-lg bg-${
-            parentCapacity?.parentCapacity?.color ||
-            parentCapacity?.color ||
-            color
-          } text-[#F6F6F6] font-extrabold text-3.5 sm:text-3.5 rounded-[4px] text-center text-[24px] not-italic leading-[normal]`}
-          onClick={() => router.push(`/feed?capacityId=${code}`)}
-        />
+        <div style={{ backgroundColor: buttonBgColor }} className="rounded-lg">
+          <BaseButton
+            label={pageContent["capacity-card-explore-capacity"]}
+            customClass="w-[224px] flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold text-3.5 sm:text-3.5 rounded-[4px] text-center text-[24px] not-italic leading-[normal]"
+            onClick={() => router.push(`/feed?capacityId=${code}`)}
+          />
+        </div>
       </div>
     );
   };
@@ -117,9 +145,10 @@ export function CapacityCard({
           fill
           priority
           style={{
-            filter: isRoot || isSearch || parentCapacity?.parentCapacity
-              ? "brightness(0) invert(1)"
-              : getHueRotate(parentCapacity?.color),
+            filter:
+              isRoot || isSearch || parentCapacity?.parentCapacity
+                ? "brightness(0) invert(1)"
+                : getHueRotate(parentCapacity?.color),
           }}
         />
       </div>
@@ -142,9 +171,10 @@ export function CapacityCard({
           fill
           priority
           style={{
-            filter: isRoot || isSearch || parentCapacity?.parentCapacity
-              ? "brightness(0) invert(1)"
-              : getHueRotate(parentCapacity?.color || color),
+            filter:
+              isRoot || isSearch || parentCapacity?.parentCapacity
+                ? "brightness(0) invert(1)"
+                : getHueRotate(parentCapacity?.color || color),
           }}
         />
       </div>
@@ -152,7 +182,13 @@ export function CapacityCard({
   );
 
   const renderArrowButton = (size: number, icon: string) => (
-    <button onClick={onExpand} className="p-2 flex-shrink-0">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onExpand();
+      }}
+      className="p-2 flex-shrink-0"
+    >
       <div
         style={{ width: `${size}px`, height: `${size}px` }}
         className={`relative transition-transform duration-300 ${
@@ -165,9 +201,10 @@ export function CapacityCard({
           fill
           priority
           style={{
-            filter: isRoot || isSearch || parentCapacity?.parentCapacity
-              ? "brightness(0) invert(1)"
-              : getHueRotate(parentCapacity?.color),
+            filter:
+              isRoot || isSearch || parentCapacity?.parentCapacity
+                ? "brightness(0) invert(1)"
+                : getHueRotate(parentCapacity?.color),
           }}
         />
       </div>
@@ -195,12 +232,14 @@ export function CapacityCard({
     return (
       <div className="w-full">
         <div
+          onClick={handleCardClick}
           className={`flex flex-col w-full ${
-            isSearch && !isRoot 
+            isSearch && !isRoot
               ? `bg-${parentCapacity?.color || cardColor}`
               : `bg-${cardColor}`
           } shadow-sm hover:shadow-md transition-shadow
           ${isMobile ? "rounded-[4px]" : "rounded-lg"}
+          cursor-pointer
           `}
         >
           <div
@@ -218,7 +257,7 @@ export function CapacityCard({
               }`}
             >
               <div className="flex items-center w-[378px] h-full">
-                <Link href={`/?capacityId=${code}`}>
+                <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     className={`font-extrabold text-white ${
                       isMobile ? "text-[20px]" : "text-[48px]"
@@ -255,7 +294,10 @@ export function CapacityCard({
             </div>
           </div>
           {showInfo && (
-            <div className="bg-white rounded-b-lg p-8">
+            <div
+              className="bg-white rounded-b-lg p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
               {renderExpandedContent()}
             </div>
           )}
@@ -263,11 +305,9 @@ export function CapacityCard({
         {isExpanded && !isSearch && (
           <div
             ref={childrenContainerRef}
-            className={`mt-4 overflow-x-auto scrollbar-hide ${
-              hasOverflow ? "w-screen" : "w-fit"
-            }`}
+            className="mt-4 w-full overflow-x-auto scrollbar-hide"
           >
-            <div className="flex gap-4 pb-4">
+            <div className="flex flex-nowrap gap-4 pb-4">
               {/* the expanded content will be rendered here by the parent component */}
             </div>
           </div>
@@ -278,9 +318,14 @@ export function CapacityCard({
 
   return (
     <div className="w-full">
-      <div className={`flex flex-col w-full rounded-lg ${
-        parentCapacity?.parentCapacity ? "bg-gray-600 text-white" : "bg-capx-light-box-bg"
-      }`}>
+      <div
+        onClick={handleCardClick}
+        className={`flex flex-col w-full rounded-lg ${
+          parentCapacity?.parentCapacity
+            ? "bg-gray-600 text-white"
+            : "bg-capx-light-box-bg"
+        } cursor-pointer`}
+      >
         <div className="flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-12">
           <div
             className={`flex items-center gap-4 ${
@@ -293,19 +338,17 @@ export function CapacityCard({
                 isMobile ? "w-max" : ""
               }`}
             >
-              <Link href={`/feed?capacityId${code}`} className="w-full">
+              <Link href={`/feed?capacityId=${code}`} className="w-full">
                 <h3
                   className={`font-extrabold ${
                     isMobile ? "text-[20px]" : "text-[36px]"
-                  } ${
-                    parentCapacity?.parentCapacity ? "text-white" : ""
-                  }`}
+                  } ${parentCapacity?.parentCapacity ? "text-white" : ""}`}
                   style={{
-                    color: parentCapacity?.parentCapacity 
+                    color: parentCapacity?.parentCapacity
                       ? "#FFFFFF"
-                      : parentCapacity?.color 
-                        ? getCapacityColor(parentCapacity.color) 
-                        : "#000000",
+                      : parentCapacity?.color
+                      ? getCapacityColor(parentCapacity.color)
+                      : "#000000",
                   }}
                 >
                   {capitalizeFirstLetter(name)}
@@ -326,7 +369,14 @@ export function CapacityCard({
           </div>
         </div>
       </div>
-      {showInfo && renderExpandedContent()}
+      {showInfo && (
+        <div
+          className="bg-white rounded-b-lg p-8"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {renderExpandedContent()}
+        </div>
+      )}
     </div>
   );
 }

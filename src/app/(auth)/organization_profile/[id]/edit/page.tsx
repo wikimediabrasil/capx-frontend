@@ -57,6 +57,7 @@ import LoadingState from "@/components/LoadingState";
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { getProfileImage } from "@/lib/utils/getProfileImage";
 import { useAvatars } from "@/hooks/useAvatars";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 
 interface ProfileOption {
   value: string;
@@ -77,6 +78,7 @@ export default function EditOrganizationProfilePage() {
   
   const [profileOptions, setProfileOptions] = useState<ProfileOption[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<ProfileOption | null>(null);
+  const {showSnackbar} = useSnackbar();
 
   // Documents setters
   const {
@@ -96,11 +98,9 @@ export default function EditOrganizationProfilePage() {
     organizations,
     isLoading: isOrganizationLoading,
     error: organizationError,
-    isOrgManager,
     refetch,
     updateOrganization,
   } = useOrganization(token, Number(organizationId));
-
 
   // Projects setters
   const {
@@ -303,6 +303,7 @@ export default function EditOrganizationProfilePage() {
               }));
             setDiffTagsData(validTags);
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-fetch-tags-failed"],"error")
             console.error("Error fetching tags:", error);
           }
         };
@@ -357,11 +358,13 @@ export default function EditOrganizationProfilePage() {
   const handleSubmit = async () => {
     try {
       if (!token) {
+        showSnackbar(pageContent["snackbar-edit-profile-organization-not-authenticated"],"error")
         console.error("No authentication token found");
         return;
       }
 
       if (!organizationId) {
+        showSnackbar(pageContent["snackbar-edit-profile-organization-no-organization"],"error")
         console.error(
           "No organization ID found. User might not be a manager of any organization."
         );
@@ -380,9 +383,10 @@ export default function EditOrganizationProfilePage() {
               related_skills: project.related_skills,
               organization: Number(organizationId),
             });
-
+            showSnackbar(pageContent["snackbar-edit-profile-organization-success"],"success")
             return project.id;
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-update-project-failed"],"error")
             console.error(`Error updating project ${project.id}:`, error);
             return project.id;
           }
@@ -403,11 +407,15 @@ export default function EditOrganizationProfilePage() {
               organization: Number(organizationId),
             });
             if (!newProject || !newProject.id) {
+              // TODO confirm this snackbar error message
+              showSnackbar(pageContent["snackbar-edit-profile-organization-processing-document-failed"],"error")
               console.error("Invalid project response:", newProject);
               return null;
             }
+            showSnackbar(pageContent["snackbar-edit-profile-organization-success"],"success")
             return newProject?.id;
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-create-project-failed"],"error")
             console.error("Error creating project:", error);
             return null;
           }
@@ -436,8 +444,10 @@ export default function EditOrganizationProfilePage() {
               time_begin: event.time_begin,
               time_end: event.time_end,
             });
+            showSnackbar(pageContent["snackbar-edit-profile-organization-success"],"success")
             return event.id;
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-update-event-failed"],"error")
             console.error(`Error updating event ${event.id}:`, error);
             return event.id;
           }
@@ -463,11 +473,15 @@ export default function EditOrganizationProfilePage() {
             });
 
             if (!newEvent || !newEvent.id) {
+              // TODO confirm this snackbar error message
+              showSnackbar(pageContent["snackbar-edit-profile-organization-processing-document-failed"],"error")
               console.error("Invalid event response:", newEvent);
               return null;
             }
+            showSnackbar(pageContent["snackbar-edit-profile-organization-success"],"success")
             return newEvent.id;
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-create-event-failed"],"error")
             console.error("Error creating event:", error);
             return null;
           }
@@ -497,16 +511,18 @@ export default function EditOrganizationProfilePage() {
               const response = await createTag(tagPayload);
 
               if (!response || !response.id) {
+                showSnackbar(pageContent["snackbar-edit-profile-organization-create-tag-failed"],"error")
                 console.error("Invalid tag response:", response);
                 throw new Error("Invalid response from tag creation");
               }
-
+              showSnackbar(pageContent["snackbar-edit-profile-organization-success"],"success")
               return response.id;
             } else {
               // If it's an existing tag, just return its ID
               return tag.id;
             }
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-processing-tag-failed"],"error")
             console.error("Error processing tag:", error);
             return null;
           }
@@ -524,6 +540,7 @@ export default function EditOrganizationProfilePage() {
               const response = await createDocument(documentPayload);
 
               if (!response || !response.id) {
+                showSnackbar(pageContent["snackbar-edit-profile-organization-create-document-failed"],"error")
                 console.error("Invalid document response:", response);
                 throw new Error("Invalid response from document creation");
               }
@@ -533,6 +550,7 @@ export default function EditOrganizationProfilePage() {
               return document.id;
             }
           } catch (error) {
+            showSnackbar(pageContent["snackbar-edit-profile-organization-processing-document-failed"],"error")
             console.error("Error processing document:", error);
             return null;
           }
@@ -564,6 +582,11 @@ export default function EditOrganizationProfilePage() {
       // Update the redirection to include the organization ID
       router.push(`/organization_profile/${organizationId}`);
     } catch (error) {
+      if (error.response.status == 409){
+        showSnackbar(pageContent["snackbar-edit-profile-failed-capacities"],"error")
+      } else{
+        showSnackbar(pageContent["snackbar-edit-profile-organization-processing-form-failed"],"error")
+      }
       console.error("Error processing form:", error);
     }
   };
@@ -601,11 +624,11 @@ export default function EditOrganizationProfilePage() {
         });
         return;
       }
-
       await deleteProject(projectId);
-
       setProjectsData((prev) => prev.filter((p) => p.id !== projectId));
+      showSnackbar(pageContent["snackbar-edit-profile-organization-delete-project-success"],"success")
     } catch (error) {
+      showSnackbar(pageContent["snackbar-edit-profile-organization-delete-project-failed"],"error")
       console.error("Error deleting project:", error);
     }
   };
@@ -663,11 +686,11 @@ export default function EditOrganizationProfilePage() {
         });
         return;
       }
-
       await deleteEvent(eventId);
-
+      showSnackbar(pageContent["snackbar-edit-profile-organization-delete-event-success"],"success")
       setEventsData((prev) => prev.filter((e) => e.id !== eventId));
     } catch (error) {
+      showSnackbar(pageContent["snackbar-edit-profile-organization-delete-event-failed"],"error")
       console.error("Error deleting event:", error);
     }
   };
@@ -747,18 +770,20 @@ export default function EditOrganizationProfilePage() {
 
   const handleCapacitySelect = (capacity: Capacity) => {
     setFormData((prev) => {
-      const capacityField =
-        `${currentCapacityType}_capacities` as keyof typeof prev;
+      const capacityField = `${currentCapacityType}_capacities` as keyof typeof prev;
       const currentCapacities = (prev[capacityField] as number[]) || [];
 
-      if (capacity.id && !currentCapacities.includes(capacity.id)) {
+      if (capacity.code && !currentCapacities.includes(capacity.code)) {
         return {
           ...prev,
-          [capacityField]: [...currentCapacities, capacity.id],
+          [capacityField]: [...currentCapacities, capacity.code],
         };
       }
       return prev;
     });
+    
+    // Close modal after selection
+    setIsModalOpen(false);
   };
 
   const capacityIds = useMemo(
@@ -987,6 +1012,91 @@ export default function EditOrganizationProfilePage() {
                 />
               </div>
             </div>
+
+      <div className="flex items-center gap-2 mb-2">
+        <Image
+          src={darkMode ? UserCircleIconWhite : UserCircleIcon}
+          alt="User circle icon"
+          style={{ width: "auto", height: "auto" }}
+          width={20}
+          height={20}
+        />
+        <span
+          className={`text-center font-[Montserrat] text-[20px] md:text-[24px] not-italic font-extrabold leading-[normal] pl-2 ${
+            darkMode ? "text-white" : "text-capx-dark-box-bg"
+          }`}
+        >
+          {organization?.display_name}
+        </span>
+      </div>
+
+      <div className="mt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="relative w-[48px] h-[48px]">
+              <Image
+                src={darkMode ? WikimediaIconWhite : WikimediaIcon}
+                alt="Organization logo"
+                className="object-contain"
+              />
+            </div>
+            <h2 className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold`}>
+              {pageContent["edit-profile-organization-logo"]}
+            </h2>
+          </div>
+
+          <div className={`flex flex-col gap-4 ${darkMode ? "text-white" : "text-[#053749]"}`}>
+            <input
+              type="text"
+              placeholder="Wikimedia Commons image's link (ex: File:Example.jpg)"
+              className={`w-full p-2 md:p-3 text-[14px] md:text-[24px] border rounded-md ${
+                darkMode
+                  ? "bg-transparent border-white text-white placeholder-gray-400"
+                  : "border-gray-300 text-[#829BA4]"
+              }`}
+              value={formData.profile_image || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  profile_image: e.target.value,
+                })
+              }
+            />
+            <p className={`text-[12px] md:text-[20px] ${darkMode ? "text-white" : "text-[#053749]"} mt-1`}>
+              {pageContent["edit-profile-organization-logo-help"]}
+            </p>
+
+            {/* Preview da imagem */}
+            <div className="w-full h-[200px] bg-[#EFEFEF] rounded-md flex items-center justify-center overflow-hidden">
+              {formData.profile_image ? (
+                <div className="relative w-full h-full">
+                  <Image
+                    src={formatWikiImageUrl(formData.profile_image)}
+                    alt="Organization logo preview"
+                    className="object-contain"
+                    fill
+                    onError={(e) => {
+                      console.error('Erro ao carregar preview:', e);
+                      e.currentTarget.src = NoAvatarIcon;
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <Image
+                    src={NoAvatarIcon}
+                    alt="No image"
+                    width={100}
+                    height={100}
+                    className="opacity-50"
+                  />
+                  <span className="text-gray-500 mt-2">
+                    {pageContent["edit-profile-no-image"]}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
             {/* Report of Activities Section */}
             <div className="mt-6">
               <div className="flex items-center gap-2 mb-4">
@@ -1720,6 +1830,73 @@ export default function EditOrganizationProfilePage() {
               </div>
             </div>
           </div>
+          <div className="mt-6">
+  <div className="flex items-center gap-2 mb-4">
+    <div className="relative w-[48px] h-[48px]">
+      <Image
+        src={darkMode ? WikimediaIconWhite : WikimediaIcon}
+        alt="Organization logo"
+        className="object-contain"
+      />
+    </div>
+    <h2 className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold`}>
+      {pageContent["edit-profile-organization-logo"]}
+    </h2>
+  </div>
+
+  <div className={`flex flex-col gap-4 ${darkMode ? "text-white" : "text-[#053749]"}`}>
+    <input
+      type="text"
+      placeholder="Wikimedia Commons image's link (ex: File:Example.jpg)"
+      className={`w-full p-2 md:p-3 text-[14px] md:text-[24px] border rounded-md ${
+        darkMode
+          ? "bg-transparent border-white text-white placeholder-gray-400"
+          : "border-gray-300 text-[#829BA4]"
+      }`}
+      value={formData.profile_image || ""}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          profile_image: e.target.value,
+        })
+      }
+    />
+    <p className={`text-[12px] md:text-[20px] ${darkMode ? "text-white" : "text-[#053749]"} mt-1`}>
+      {pageContent["edit-profile-organization-logo-help"]}
+    </p>
+
+    {/* Preview da imagem */}
+    <div className="w-full h-[200px] bg-[#EFEFEF] rounded-md flex items-center justify-center overflow-hidden">
+      {formData.profile_image ? (
+        <div className="relative w-full h-full">
+          <Image
+            src={formatWikiImageUrl(formData.profile_image)}
+            alt="Organization logo preview"
+            className="object-contain"
+            fill
+            onError={(e) => {
+              console.error('Erro ao carregar preview:', e);
+              e.currentTarget.src = NoAvatarIcon;
+            }}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center">
+          <Image
+            src={NoAvatarIcon}
+            alt="Sem imagem"
+            width={100}
+            height={100}
+            className="opacity-50"
+          />
+          <span className="text-gray-500 mt-2">
+            {pageContent["edit-profile-no-image"]}
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
           {/* Report of Activities Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">

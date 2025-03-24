@@ -6,7 +6,6 @@ import { NewsProps, Post } from "@/types/news";
 import { useEffect, useState } from "react";
 import { useTagDiff } from "@/hooks/useTagDiff";
 import { useSession } from "next-auth/react";
-import { tagDiff } from "@/types/tagDiff";
 import { useApp } from "@/contexts/AppContext";
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -82,7 +81,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
 
   return (
     <section className="w-full max-w-screen-xl py-8">
-      <div className="flex flex-row flex pl-0 pr-[13px] py-[6px] items-center gap-4 rounded-[8px] mb-6">
+      <div className="flex flex-row pl-0 pr-[13px] py-[6px] items-center gap-4 rounded-[8px] mb-6">
         <div className="relative w-[20px] h-[20px] md:w-[42px] md:h-[48px]">
           <Image
             src={darkMode ? WikimediaIconWhite : WikimediaIcon}
@@ -99,50 +98,95 @@ export const NewsSection = ({ ids }: NewsProps) => {
           {pageContent["edit-profile-news"]}
         </h2>
       </div>
-      <div className="flex flex-row gap-4 overflow-x-auto scrollbar-hide">
-        {posts.map((post, index) => (
-          <div
-            key={index}
-            className={`flex flex-col w-[350px] px-[12px] py-[24px] items-center gap-[12px] rounded-[16px] ${
-              darkMode ? "bg-[#04222F]" : "bg-[#EFEFEF]"
-            }`}
-          >
-            <div className="relative w-[300px] h-[200px] rounded-[16px] overflow-hidden">
-              {post.featured_image ? (
-                <Image
-                  src={post.featured_image}
-                  alt={post.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover w-full h-full"
-                  unoptimized
-                />
-              ) : (
-                <div className="flex items-center justify-center w-full h-full text-gray-400">
-                  {pageContent["organization-profile-no-image-available"]}
-                </div>
-              )}
-            </div>
-            <h1
-              className={`text-center font-[Montserrat] text-[20px] font-bold not-italic leading-[normal] text-start ${
-                darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+      
+      {/* Carousel's container */}
+      <div className="w-full relative">
+        {/* Navigation buttons for desktop */}
+        {posts.length > 3 && (
+          <>
+            <button 
+              className={`hidden md:flex absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center ${
+                darkMode ? "bg-[#04222F] text-white" : "bg-[#EFEFEF] text-[#003649]"
+              }`}
+              onClick={() => {
+                const container = document.getElementById('news-carousel');
+                if (container) container.scrollBy({ left: -370, behavior: 'smooth' });
+              }}
+            >
+              {/* TODO: Add arrow left icon */}
+              &#10094;
+            </button>
+            <button 
+              className={`hidden md:flex absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center ${
+                darkMode ? "bg-[#04222F] text-white" : "bg-[#EFEFEF] text-[#003649]"
+              }`}
+              onClick={() => {
+                const container = document.getElementById('news-carousel');
+                if (container) container.scrollBy({ left: 370, behavior: 'smooth' });
+              }}
+            >
+              {/* TODO: Add arrow right icon */}
+              &#10095;
+            </button>
+          </>
+        )}
+        
+        {/* Carousel*/}
+        <div 
+          id="news-carousel"
+          className="flex flex-row gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+          style={{ 
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
+          {posts.map((post, index) => (
+            <div
+              key={index}
+              className={`flex-shrink-0 snap-start flex flex-col w-[300px] md:w-[350px] px-[12px] py-[24px] items-center gap-[12px] rounded-[16px] ${
+                darkMode ? "bg-[#04222F]" : "bg-[#EFEFEF]"
               }`}
             >
-              {post.title}
-            </h1>
-            <div className="flex flex-row gap-2">
-              <p
-                className={`text-center font-[Montserrat] text-[16px] font-normal not-italic leading-[normal] text-start ${
+              <div className="relative w-full h-[200px] rounded-[16px] overflow-hidden">
+                {post.featured_image ? (
+                  <Image
+                    src={post.featured_image}
+                    alt={post.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover w-full h-full"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full text-gray-400">
+                    {pageContent["organization-profile-no-image-available"]}
+                  </div>
+                )}
+              </div>
+              <a
+                href={post.URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`text-center font-[Montserrat] text-[20px] font-bold not-italic leading-[normal] text-start ${
                   darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
                 }`}
               >
-                {dateFormatter.format(new Date(post.date))}
-                &nbsp;por&nbsp;
-                {post.author.name}
-              </p>
+                {post.title}
+              </a>
+              <div className="flex flex-row gap-2">
+                <p
+                  className={`text-center font-[Montserrat] text-[16px] font-normal not-italic leading-[normal] text-start ${
+                    darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                  }`}
+                >
+                  {dateFormatter.format(new Date(post.date))}
+                  &nbsp;{pageContent["organization-profile-news-section-by"]}&nbsp;
+                  {post.author.name}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

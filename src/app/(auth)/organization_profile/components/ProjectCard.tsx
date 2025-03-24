@@ -72,7 +72,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
       </div>
       <div className="p-6">
         <BaseButton
-          customClass="inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
+          customClass="inline-flex h-[32px] px-[18px] py-[8px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] md:text-[24px] h-[64px] not-italic font-extrabold leading-[normal]"
           label={pageContent["organization-profile-open-project"]}
           onClick={() => project.url && window.open(project.url, "_blank")}
         />

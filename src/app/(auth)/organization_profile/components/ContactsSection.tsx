@@ -24,40 +24,55 @@ export const ContactsSection = ({
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
 
+  const formatContactInfo = (info: string) => {
+    if (!info) return "";
+    
+    if (info.includes('@')) {
+      return {
+        display: info,
+        url: `mailto:${info}`,
+        isLink: true
+      };
+    }
+    
+    if (info.startsWith('http://') || info.startsWith('https://')) {
+      const url = new URL(info);
+      return {
+        display: info.length > 30 ? url.hostname : info,
+        url: info,
+        isLink: true
+      };
+    }
+    
+    return {
+      display: info,
+      url: "",
+      isLink: false
+    };
+  };
+
   const contacts = [
     {
-      name: meta_page,
+      ...formatContactInfo(meta_page),
       icon: darkMode ? ContactMetaIconWhite : ContactMetaIcon,
+      type: "Meta Page"
     },
     {
-      name: email,
+      ...formatContactInfo(email),
       icon: darkMode ? ContactEmailIconWhite : ContactEmailIcon,
+      type: "Email"
     },
     {
-      name: website,
+      ...formatContactInfo(website),
       icon: darkMode ? ContactPortalIconWhite : ContactPortalIcon,
+      type: "Website"
     },
-  ];
-
-  const mobileContacts = [
-    {
-      name: meta_page,
-      icon: darkMode ? ContactMetaIconWhite : ContactMetaIcon,
-    },
-    {
-      name: email,
-      icon: darkMode ? ContactEmailIconWhite : ContactEmailIcon,
-    },
-    {
-      name: website,
-      icon: darkMode ? ContactPortalIconWhite : ContactPortalIcon,
-    },
-  ];
+  ].filter(contact => contact.display);
 
   if (isMobile) {
     return (
       <section className="w-full mx-auto">
-        <div className="flex flex-row flex pl-0 pr-[13px] py-[6px] items-center gap-[4px] rounded-[8px] mb-[14px]">
+        <div className="flex flex-row pl-0 pr-[13px] py-[6px] items-center gap-[4px] rounded-[8px] mb-[14px]">
           <div className="relative w-[20px] h-[20px]">
             <Image
               src={darkMode ? WikimediaIconWhite : WikimediaIcon}
@@ -83,21 +98,36 @@ export const ContactsSection = ({
                   : "bg-[#EFEFEF]"
               }`}
             >
-              <div className="relative w-[16px] h-[16px]">
+              <div className="relative min-w-[16px] w-[16px] h-[16px] mr-2">
                 <Image
                   src={contact.icon}
-                  alt={contact.name}
+                  alt={contact.type}
                   fill
                   style={{ objectFit: "contain" }}
                 />
               </div>
-              <p
-                className={` font-[Montserrat] text-[13px] not-italic font-normal leading-[normal] ${
-                  darkMode ? "text-[#829BA4]" : "text-[#003649]"
-                }`}
-              >
-                {contact.name}
-              </p>
+              {contact.isLink ? (
+                <a
+                  href={contact.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`font-[Montserrat] text-[13px] not-italic font-normal leading-[normal] truncate hover:underline ${
+                    darkMode ? "text-[#829BA4]" : "text-[#003649]"
+                  }`}
+                  title={contact.url}
+                >
+                  {contact.display}
+                </a>
+              ) : (
+                <p
+                  className={`font-[Montserrat] text-[13px] not-italic font-normal leading-[normal] truncate ${
+                    darkMode ? "text-[#829BA4]" : "text-[#003649]"
+                  }`}
+                  title={contact.display}
+                >
+                  {contact.display}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -107,7 +137,7 @@ export const ContactsSection = ({
 
   return (
     <section className="w-full max-w-screen-xl py-8">
-      <div className="flex flex-row flex pl-0 pr-[13px] py-[6px] items-center gap-4 rounded-[8px] mb-6">
+      <div className="flex flex-row pl-0 pr-[13px] py-[6px] items-center gap-4 rounded-[8px] mb-6">
         <div className="relative w-[48px] h-[48px]">
           <Image
             src={darkMode ? WikimediaIconWhite : WikimediaIcon}
@@ -128,25 +158,38 @@ export const ContactsSection = ({
         {contacts.map((contact, index) => (
           <div
             key={index}
-            className={`flex flex-row flex w-[1179px] px-[12px] py-[24px] items-center gap-[12px] rounded-[16px] ${
+            className={`flex flex-row w-full px-[12px] py-[24px] items-center gap-[12px] rounded-[16px] ${
               darkMode ? "bg-[#04222F]" : "bg-[#EFEFEF]"
             }`}
           >
-            <div className="relative w-[48px] h-[48px]">
+            <div className="relative min-w-[48px] w-[48px] h-[48px]">
               <Image
                 src={contact.icon}
-                alt={contact.name}
+                alt={contact.type}
                 fill
                 className="object-contain"
               />
             </div>
-            <p
-              className={`text-center font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] ${
-                darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
-              }`}
-            >
-              {contact.name}
-            </p>
+            {contact.isLink ? (
+              <a
+                href={contact.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] break-all hover:underline ${
+                  darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                }`}
+              >
+                {contact.display}
+              </a>
+            ) : (
+              <p
+                className={`font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] break-all ${
+                  darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                }`}
+              >
+                {contact.display}
+              </p>
+            )}
           </div>
         ))}
       </div>

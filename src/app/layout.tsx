@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import Providers from "./provider";
 import { AppProvider } from "@/contexts/AppContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SnackbarProvider } from "./providers/SnackbarProvider";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -25,7 +26,9 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionWrapper>
             <AppProvider>
-              <Providers>{children}</Providers>
+              <SnackbarProvider>
+                <Providers>{children}</Providers>
+              </SnackbarProvider>
             </AppProvider>
           </SessionWrapper>
         </ThemeProvider>

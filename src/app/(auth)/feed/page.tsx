@@ -31,6 +31,7 @@ const createProfilesFromOrganizations = (organizations: Organization[], type: Pr
         username: org.display_name,
         capacities: type === ProfileCapacityType.Learner ? org.wanted_capacities : org.available_capacities,
         type,
+        profile_image: org.profile_image,
         territory: org.territory?.[0],
         avatar: org.profile_image || undefined,
         isOrganization: true
@@ -47,6 +48,7 @@ const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapacityType
       username: user.user.username,
       capacities: type === ProfileCapacityType.Sharer ? user.skills_available : user.skills_wanted,
       type,
+      profile_image: user.profile_image,
       territory: user.territory?.[0],
       avatar: user.avatar,
       isOrganization: false
@@ -61,7 +63,7 @@ export default function FeedPage() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const capacityId = searchParams.get('capacityId');
+  const capacityCode = searchParams.get('capacityId');
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
@@ -71,7 +73,6 @@ export default function FeedPage() {
     languages: [] as string[],
     profileFilter: ProfileFilterType.Both
   });
-  const [searchCapacity, setSearchCapacity] = useState('');
   const [showSkillModal, setShowSkillModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,28 +80,28 @@ export default function FeedPage() {
   const itemsPerPage = itemsPerList * 2; // Total of profiles per page
   const offset = (currentPage - 1) * itemsPerList;
 
-  const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityId);
+  const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityCode);
 
   // Get data from capacityById
   useEffect(() => {
-    if (capacityId && capacity) {
+    if (capacityCode && capacity) {
       const capacityExists = activeFilters.capacities.some(
-        cap => cap.id === Number(capacityId)
+        cap => cap.code == Number(capacityCode)
       );
-  
+
       if (capacityExists) {
         return;
       }
-  
+
       setActiveFilters(prev => ({
         ...prev,
         capacities: [{
-          id: Number(capacityId),
-          name: capacity.name || `Capacity ${capacityId}`,
+          code: Number(capacity.code),
+          name: capacity.name,
         }]
       }));
     }
-  }, [capacityId, isLoadingCapacity]);
+  }, [capacityCode, isLoadingCapacity]);
 
   const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
   const { organizations: organizationsLearner, count: organizationsLearnerCount, isLoading: isOrganizationsLearnerLoading } = useOrganizations(
@@ -202,7 +203,7 @@ export default function FeedPage() {
 
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = activeFilters.capacities.some(
-      cap => cap.id === capacity.code
+      cap => cap.code == capacity.code
     );
 
     if (capacityExists) {
@@ -212,22 +213,22 @@ export default function FeedPage() {
     setActiveFilters(prev => ({
       ...prev,
       capacities: [...prev.capacities, {
-        id: Number(capacity.id),
+        code: capacity.code,
         name: capacity.name,
       }]
     }));
   };
 
-  const handleRemoveCapacity = (capacityId: number) => {
+  const handleRemoveCapacity = (capacityCode: number) => {
     setActiveFilters(prev => ({
       ...prev,
-      capacities: prev.capacities.filter(cap => cap.id !== capacityId)
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode)
     }));
 
     const urlCapacityId = searchParams.get('capacityId');
     
     // If the capacity removed is the same as the URL, update the URL
-    if (urlCapacityId && urlCapacityId.toString() === capacityId.toString()) {
+    if (urlCapacityId && urlCapacityId.toString() == capacityCode.toString() || urlCapacityId && urlCapacityId.toString() == capacity?.code?.toString()) {
       router.replace('/feed', { scroll: false });
     }
   };
@@ -290,7 +291,7 @@ export default function FeedPage() {
                     >
                       <span className="truncate">{capacity.name}</span>
                       <button
-                        onClick={() => handleRemoveCapacity(capacity.id)}
+                        onClick={() => handleRemoveCapacity(capacity.code)}
                         className="hover:opacity-80 flex-shrink-0"
                       >
                         <Image
@@ -308,7 +309,6 @@ export default function FeedPage() {
                     <input
                       readOnly
                       type="text"
-                      value={searchCapacity}
                       onFocus={() => setShowSkillModal(true)}
                       placeholder={activeFilters.capacities.length === 0 ? pageContent["filters-search-by-capacities"] : ''}
                       className={`
@@ -355,6 +355,7 @@ export default function FeedPage() {
               <ProfileCard 
                 id={profile.id}
                 key={index}
+                profile_image={profile.profile_image}
                 username={profile.username}
                 type={profile.type}
                 capacities={profile.capacities}

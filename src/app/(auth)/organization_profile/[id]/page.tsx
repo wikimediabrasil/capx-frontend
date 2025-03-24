@@ -27,9 +27,9 @@ import { DocumentsList } from "../components/DocumentsList";
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
 import LoadingState from "@/components/LoadingState";
-import { useUserProfile } from "@/hooks/useUserProfile";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
+import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 
 export default function OrganizationProfilePage() {
   const { darkMode } = useTheme();
@@ -37,7 +37,6 @@ export default function OrganizationProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const [showPopup, setShowPopup] = useState(false);
 
   const params = useParams();
   const organizationId = Number(params.id);
@@ -52,11 +51,13 @@ export default function OrganizationProfilePage() {
 
   const organization = organizations.find((org) => org.id === organizationId);
 
-  const {
-    userProfile,
-    isLoading: isUserLoading,
-    error: isUserError,
-  } = useUserProfile();
+  const allCapacityIds = [
+    ...(organization?.known_capacities || []),
+    ...(organization?.available_capacities || []),
+    ...(organization?.wanted_capacities || [])
+  ];
+  
+  const { getCapacityName } = useCapacityDetails(allCapacityIds);
 
   useEffect(() => {
     const refreshData = async () => {
@@ -72,7 +73,7 @@ export default function OrganizationProfilePage() {
     }
   }, [error, organization]);
 
-  if (isOrganizationLoading || isUserLoading) {
+  if (isOrganizationLoading) {
     return <LoadingState />;
   }
 
@@ -170,7 +171,7 @@ export default function OrganizationProfilePage() {
               </div>
 
               {/* Report Activity Image */}
-              <div className="w-full flex flex-col flex-shrink-0 rounded-[4px] bg-[#04222F] justify-center items-center p-6">
+              {organization?.report_link && <div className="w-full flex flex-col flex-shrink-0 rounded-[4px] bg-[#04222F] justify-center items-center p-6">
                 <div className="relative w-[220px] h-[96px] mb-[30px]">
                   <Image
                     src={ReportActivityIcon}
@@ -187,30 +188,33 @@ export default function OrganizationProfilePage() {
                     }
                   </h2>
                   <BaseButton
-                    onClick={() => setShowPopup(true)}
+                    onClick={() => organization?.report_link && window.open(organization.report_link, "_blank")}
                     label={pageContent["organization-profile-click-here"]}
                     customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
                   />
                 </div>
-              </div>
+              </div>}
 
               {/* Capacities Lists */}
               <div className="space-y-6 mt-4">
                 <ProfileItem
                   items={organization?.known_capacities || []}
                   icon={darkMode ? NeurologyIconWhite : NeurologyIcon}
+                  getItemName={(id) => getCapacityName(id)}
                   title={pageContent["body-profile-known-capacities-title"]}
                   customClass={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]`}
                 />
                 <ProfileItem
                   items={organization?.available_capacities || []}
                   icon={darkMode ? EmojiIconWhite : EmojiIcon}
+                  getItemName={(id) => getCapacityName(id)}
                   title={pageContent["body-profile-available-capacities-title"]}
                   customClass={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]
                     `}
                 />
                 <ProfileItem
                   items={organization?.wanted_capacities || []}
+                  getItemName={(id) => getCapacityName(id)}
                   icon={darkMode ? TargetIconWhite : TargetIcon}
                   title={pageContent["body-profile-wanted-capacities-title"]}
                   customClass={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]
@@ -252,16 +256,6 @@ export default function OrganizationProfilePage() {
               />
             </div>
           </section>
-          {showPopup && (
-            <Popup
-              onContinue={() => setShowPopup(false)}
-              onClose={() => setShowPopup(false)}
-              image={capxPersonIcon}
-              title={pageContent["component-under-development-dialog"]}
-              closeButtonLabel={pageContent["auth-dialog-button-close"]}
-              customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
-            />
-          )}
         </div>
       </>
     );
@@ -362,7 +356,7 @@ export default function OrganizationProfilePage() {
             </div>
 
             {/* Report Activity Image */}
-            <div className="flex flex-row justify-between px-[85px] py-[64px] items-center rounded-[4px] bg-[#04222F] w-full h-[399px] flex-shrink-0">
+            {organization?.report_link && <div className="flex flex-row justify-between px-[85px] py-[64px] items-center rounded-[4px] bg-[#04222F] w-full h-[399px] flex-shrink-0">
               <div className="relative w-[619px] h-[271px]">
                 <Image
                   src={ReportActivityIcon}
@@ -378,12 +372,12 @@ export default function OrganizationProfilePage() {
                   {pageContent["organization-profile-report-activities-title"]}
                 </h2>
                 <BaseButton
-                  onClick={() => setShowPopup(true)}
+                  onClick={() => organization?.report_link && window.open(organization.report_link, "_blank")}
                   label={pageContent["organization-profile-click-here"]}
                   customClass="inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
                 />
               </div>
-            </div>
+            </div>}
 
             {/* Capacities Lists */}
             <div className="space-y-6 mt-4">
@@ -391,6 +385,7 @@ export default function OrganizationProfilePage() {
                 items={organization?.known_capacities || []}
                 icon={darkMode ? NeurologyIconWhite : NeurologyIcon}
                 title={pageContent["body-profile-known-capacities-title"]}
+                getItemName={(id) => getCapacityName(id)}
                 customClass={`text-center text-[24px] not-italic font-extrabold leading-[29px] font-[Montserrat] ${
                   darkMode ? "text-white" : "text-capx-dark-box-bg"
                 }`}
@@ -398,8 +393,9 @@ export default function OrganizationProfilePage() {
               <ProfileItem
                 items={organization?.available_capacities || []}
                 icon={darkMode ? EmojiIconWhite : EmojiIcon}
+                getItemName={(id) => getCapacityName(id)}
                 title={
-                  pageContent["body-profile-section-title-available-capacity"]
+                  pageContent["body-profile-available-capacities-title"]
                 }
                 customClass={`text-center text-[24px] not-italic font-extrabold leading-[29px] font-[Montserrat] ${
                   darkMode ? "text-white" : "text-capx-dark-box-bg"
@@ -408,6 +404,7 @@ export default function OrganizationProfilePage() {
               <ProfileItem
                 items={organization?.wanted_capacities || []}
                 icon={darkMode ? TargetIconWhite : TargetIcon}
+                getItemName={(id) => getCapacityName(id)}
                 title={pageContent["body-profile-wanted-capacities-title"]}
                 customClass={`text-center text-[24px] not-italic font-extrabold leading-[29px] font-[Montserrat] ${
                   darkMode ? "text-white" : "text-capx-dark-box-bg"
@@ -450,16 +447,6 @@ export default function OrganizationProfilePage() {
             />
           </div>
         </section>
-        {showPopup && (
-          <Popup
-            onContinue={() => setShowPopup(false)}
-            onClose={() => setShowPopup(false)}
-            image={capxPersonIcon}
-            title={pageContent["component-under-development-dialog"]}
-            closeButtonLabel={pageContent["auth-dialog-button-close"]}
-            customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
-          />
-        )}
       </div>
     </>
   );

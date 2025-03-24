@@ -18,6 +18,7 @@ import { useWikimediaProject } from "@/hooks/useWikimediaProject";
 import { useAvatars } from "@/hooks/useAvatars";
 import ProfileEditDesktopView from "./ProfileEditDesktopView";
 import ProfileEditMobileView from "./ProfileEditMobileView";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 
 const fetchWikidataQid = async (name: string) => {
   try {
@@ -72,10 +73,11 @@ const fetchWikidataImage = async (qid: string) => {
 export default function EditProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { isMobile } = useApp();
+  const { isMobile, pageContent } = useApp();
   const { avatars } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id;
+  const { showSnackbar } = useSnackbar();
 
   const { profile, isLoading, error, updateProfile, refetch, deleteProfile } =
     useProfile(token, Number(userId));
@@ -181,8 +183,14 @@ export default function EditProfilePage() {
 
     try {
       await updateProfile(formData);
+      showSnackbar(pageContent["snackbar-edit-profile-success"],"success")
       router.push("/profile");
     } catch (error) {
+      if (error.response.status == 409){
+        showSnackbar(pageContent["snackbar-edit-profile-failed-capacities"],"error")
+      }else{
+        showSnackbar(pageContent["snackbar-edit-profile-failed-generic"],"error")
+      }
       console.error("Error updating profile:", error);
     }
   };

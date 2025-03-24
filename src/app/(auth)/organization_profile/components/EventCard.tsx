@@ -73,7 +73,7 @@ export const EventCard = ({ eventId, token }: EventCardProps) => {
         <BaseButton
           customClass="inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
           label={pageContent["organization-profile-view-event"]}
-          onClick={() => window.open(event.url, "_blank")}
+          onClick={() => event.url && window.open(event.url, "_blank")}
         />
       </div>
     </div>

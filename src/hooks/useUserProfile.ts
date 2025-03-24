@@ -93,10 +93,10 @@ export function useAllUsers(params: UseAllUsersParams) {
         const filters: UserFilters = {
           ...(params.activeFilters?.capacities?.length && {
             skills_available: params.activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Sharer) 
-              ? params.activeFilters?.capacities.map(cap => cap.id)
+              ? params.activeFilters?.capacities.map(cap => cap.code)
               : undefined,
             skills_wanted: params.activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Learner) 
-              ? params.activeFilters?.capacities.map(cap => cap.id)
+              ? params.activeFilters?.capacities.map(cap => cap.code)
               : undefined,
           }),
           ...(params.activeFilters?.territories?.length && {

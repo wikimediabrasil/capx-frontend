@@ -60,7 +60,6 @@ export function useOrganization(
     try {
       // First, fetch the IDs of the managed organizations
       const managedIds = await fetchUserProfile(token);
-      console.log("managedIds!!!!!!!!!!!!", managedIds)
       setManagedOrganizationIds(managedIds);
       setIsPermissionsLoaded(true);
 
@@ -153,10 +152,10 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
           offset,
           ...(activeFilters?.capacities?.length && {
             available_capacities: activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) 
-              ? activeFilters.capacities.map(cap => cap.id)
+              ? activeFilters.capacities.map(cap => cap.code)
               : undefined,
             wanted_capacities: activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) 
-              ? activeFilters.capacities.map(cap => cap.id)
+              ? activeFilters.capacities.map(cap => cap.code)
               : undefined,
           }),
           ...(activeFilters?.territories?.length && {

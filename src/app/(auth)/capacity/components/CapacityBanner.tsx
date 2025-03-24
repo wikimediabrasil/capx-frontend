@@ -29,7 +29,7 @@ export function CapacityBanner() {
         </div>
 
         <div
-          className={`w-[324px] mr-[120px] ${
+          className={`w-[324px] ${
             isMobile
               ? "items-center mr-0 w-full pb-6"
               : "items-start mr-[120px] w-[324px]"

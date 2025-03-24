@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
@@ -57,7 +57,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
   
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = filters.capacities.some(
-      cap => cap.id === capacity.id
+      cap => cap.code == capacity.code
     );
 
     if(capacityExists) {
@@ -67,16 +67,16 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
     setFilters(prev => ({
       ...prev,
       capacities: [...prev.capacities, {
-        id: Number(capacity.id),
         name: capacity.name,
+        code: capacity.code,
       }]
     }));
   };
 
-  const handleRemoveCapacity = (capacityId: number) => {
+  const handleRemoveCapacity = (capacityCode: number) => {
     setFilters(prev => ({
       ...prev,
-      capacities: prev.capacities.filter(cap => cap.id !== capacityId)
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode)
     }));
   };
 
@@ -207,7 +207,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
                     >
                       <span className="truncate" title={capacity.name}>{capacity.name}</span>
                       <button
-                        onClick={() => handleRemoveCapacity(capacity.id)}
+                        onClick={() => handleRemoveCapacity(capacity.code)}
                         className="hover:opacity-80 flex-shrink-0"
                       >
                         <Image

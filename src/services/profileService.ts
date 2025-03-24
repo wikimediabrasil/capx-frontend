@@ -21,7 +21,7 @@ export const profileService = {
         params: queryData.params,
         headers: queryData.headers,
       });
-      return response.data.results;
+      return response.data;
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
       throw error;

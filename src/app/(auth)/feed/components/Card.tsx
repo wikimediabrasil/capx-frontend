@@ -21,10 +21,14 @@ import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import { useTerritories } from "@/hooks/useTerritories";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useSession } from "next-auth/react";
+import { useAvatars } from "@/hooks/useAvatars";
+import { getProfileImage } from "@/lib/utils/getProfileImage";
+import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
 
 interface ProfileCardProps {
   id: string;
   username: string;
+  profile_image: string;
   type: ProfileCapacityType;
   capacities: (number | string)[];
   languages?: string[];
@@ -37,6 +41,7 @@ interface ProfileCardProps {
 export const ProfileCard = ({
   id,
   username,
+  profile_image,
   type = ProfileCapacityType.Learner,
   capacities = [],
   languages = [],
@@ -52,6 +57,7 @@ export const ProfileCard = ({
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
+  const { avatars } = useAvatars();
 
   const capacitiesTitle =
     type === "learner"
@@ -73,24 +79,6 @@ export const ProfileCard = ({
       : "text-[#05A300] border-[#05A300]";
 
   const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
-  
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  // To avoid image errors
-  const avatarSrc = React.useMemo(() => {
-    if (!avatar || typeof avatar !== 'string' || !avatar.trim()) {
-      return defaultAvatar;
-    }
-
-    return isValidUrl(avatar) ? avatar : defaultAvatar;
-  }, [avatar, darkMode, defaultAvatar]);
 
   return (
     <div
@@ -125,20 +113,32 @@ export const ProfileCard = ({
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
-                {avatarSrc ? (
+                {profile_image || avatar ? (
                   <Image
-                    src={avatarSrc}
+                    src={
+                      isOrganization
+                      ? formatWikiImageUrl(
+                       profile_image || ""
+                      )
+                      : getProfileImage(
+                      profile_image,
+                      avatar ? Number(avatar) : null,
+                      avatars
+                    )}
                     alt={username || "User profile"}
                     fill
-                    className="object-cover rounded-[4px]"
+                    className="object-contain rounded-[4px]"
                     unoptimized
                     loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    {React.createElement(defaultAvatar, {
-                      className: "w-full h-full"
-                    })}
+                    <Image src={defaultAvatar}
+                      alt="User profile"
+                      fill
+                      className="object-contain rounded-[4px]"
+                      unoptimized
+                      loading="lazy" />
                   </div>
                 )}
                 </div>
@@ -194,7 +194,6 @@ export const ProfileCard = ({
                 darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
               }`}
               onClick={() => {
-                const decodedUsername = decodeURIComponent(username);
                 const routePath = isOrganization ? `/organization_profile/${id}` : `/profile/${encodeURIComponent(username)}`;
                 router.push(routePath);
               }}
