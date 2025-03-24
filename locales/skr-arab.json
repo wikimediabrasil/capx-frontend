@@ -64,5 +64,8 @@
 	"edit-profile-save": "فائل بچاؤ",
 	"edit-profile-add-language": "زبان شامل کرو",
 	"edit-profile-wikidata-item": "وکی ڈیٹا آئٹم",
+	"pagination-previous": "پچھلا",
+	"pagination-next": "اڳلا",
+	"pagination-page": "ورقہ",
 	"snackbar-edit-profile-organization-create-event-failed": "ایونٹ بݨاوݨ وچ خرابی۔ مہربانی کر تے چیک کرو اَتے ولدی کوشش کرو"
 }
