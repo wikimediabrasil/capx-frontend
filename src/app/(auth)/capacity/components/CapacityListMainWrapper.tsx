@@ -8,10 +8,29 @@ import { CapacityBanner } from "./CapacityBanner";
 import { CapacitySearch } from "./CapacitySearch";
 import { useCapacityList } from "@/hooks/useCapacityList";
 import LoadingState from "@/components/LoadingState";
+import { clientApi } from "@/lib/utils/api";
 
 export default function CapacityListMainWrapper() {
-  const { language, isMobile } = useApp();
+  const { language } = useApp();
   const { status, data: session } = useSession();
+  const token = session?.user?.token;
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        console.log("Fetching profile...");
+        const response = await clientApi.get("/api/profile", {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+        console.log("Profile response:", response.data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const {
     rootCapacities,
