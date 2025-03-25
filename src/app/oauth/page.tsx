@@ -99,7 +99,7 @@ function OAuthContent() {
         throw new Error("Missing OAuth tokens");
       }
 
-      setLoginStatus("Finalizando Login...");
+      setLoginStatus("Finishing Login...");
       const result = await signIn("credentials", {
         oauth_token,
         oauth_token_secret,
@@ -111,7 +111,7 @@ function OAuthContent() {
       });
       if (result?.error) {
         console.error("Login error:", result.error);
-        setLoginStatus("Erro: " + result.error);
+        setLoginStatus("Error: " + result.error);
         router.push("/");
       }
     } catch (error) {
