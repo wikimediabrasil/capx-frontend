@@ -332,7 +332,6 @@ export function useCapacityList(token?: string, language: string = "pt-br") {
               }
 
               // if didnt find the parent, create a fake parent
-              console.log("Creating a fake parent for:", item.name);
               return {
                 code: item.code,
                 name: item.name,

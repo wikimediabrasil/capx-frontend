@@ -1,5 +1,6 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import { fetchWikidata, fetchMetabase } from "@/lib/utils/capacitiesUtils";
 
 export async function GET(
   req: NextRequest,
@@ -29,38 +30,32 @@ export async function GET(
 
     const relevantCodes = Object.entries(codesResponse.data)
       .filter(([key]) => skillIds.includes(Number(key)))
-      .reduce(
-        (acc, [key, value]) => {
-          acc[key] = value as string;
-          return acc;
-        },
-        {} as Record<string, string>
-      );
+      .reduce((acc, [key, value]) => {
+        acc[key] = value as string;
+        return acc;
+      }, {} as Record<string, string>);
 
     if (Object.keys(relevantCodes).length === 0) {
       return NextResponse.json({});
     }
 
-    const wdCodeList = Object.values(relevantCodes).map((code) => "wd:" + code);
-    const queryText = encodeURIComponent(
-      `SELECT ?item ?itemLabel WHERE {
-        VALUES ?item {${wdCodeList.join(" ")}}
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "${language},en".}
-      }`
+    const metabaseResponse = await fetchMetabase(
+      relevantCodes,
+      language ?? "en"
     );
 
-    const wikidataResponse = await axios.get(
-      `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`
+    const wikidataResponse = await fetchWikidata(
+      relevantCodes,
+      language ?? "en"
     );
 
-    const nameMap = wikidataResponse.data.results.bindings.reduce(
-      (acc, item) => {
+    const nameMap =
+      metabaseResponse ||
+      wikidataResponse.reduce((acc, item) => {
         const wd_code = item.item.value.split("/").slice(-1)[0];
         acc[wd_code] = item.itemLabel.value;
         return acc;
-      },
-      {} as Record<string, string>
-    );
+      }, {} as Record<string, string>);
 
     const result = Object.entries(relevantCodes).reduce(
       (acc, [code, wd_code]) => {
