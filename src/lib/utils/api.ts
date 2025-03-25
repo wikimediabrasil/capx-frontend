@@ -1,5 +1,4 @@
 import axios from "axios";
-import { signOut } from "next-auth/react";
 
 export const serverApi = axios.create({
   baseURL: process.env.BASE_URL,
@@ -8,6 +7,11 @@ export const serverApi = axios.create({
 export const clientApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
+
+const showSessionExpiredPopup = () => {
+  // Trigger a custom event that will be listened by the AuthContext
+  window.dispatchEvent(new CustomEvent("showSessionExpiredPopup"));
+};
 
 if (typeof window !== "undefined") {
   // Add interceptor for request
@@ -32,27 +36,8 @@ if (typeof window !== "undefined") {
         error.config?.headers?.Authorization
       ) {
         console.log("Token expired detected, starting logout...");
-
-        try {
-          // Force local data cleanup
-          localStorage.clear();
-          sessionStorage.clear();
-
-          // Force logout
-          await signOut({
-            redirect: false,
-          });
-
-          // Force redirect
-          console.log("Redirecting to home...");
-          window.location.href = "/";
-
-          return new Promise(() => {});
-        } catch (e) {
-          console.error("Error during logout:", e);
-          window.location.href = "/";
-          return Promise.reject(error);
-        }
+        showSessionExpiredPopup();
+        return new Promise(() => {});
       }
 
       return Promise.reject(error);

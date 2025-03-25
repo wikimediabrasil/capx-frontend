@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import Providers from "./provider";
 import { AppProvider } from "@/contexts/AppContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { SnackbarProvider } from "./providers/SnackbarProvider";
 
 export const metadata: Metadata = {
@@ -24,13 +25,15 @@ export default function RootLayout({
     <html lang="pt-br">
       <body id="root" className="min-h-screen">
         <ThemeProvider>
-          <SessionWrapper>
-            <AppProvider>
-              <SnackbarProvider>
-                <Providers>{children}</Providers>
-              </SnackbarProvider>
-            </AppProvider>
-          </SessionWrapper>
+          <AuthProvider>
+            <SessionWrapper>
+              <AppProvider>
+                <SnackbarProvider>
+                  <Providers>{children}</Providers>
+                </SnackbarProvider>
+              </AppProvider>
+            </SessionWrapper>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

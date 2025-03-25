@@ -14,7 +14,7 @@ function OAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const [loginStatus, setLoginStatus] = useState<string | null>("Iniciando...");
+  const [loginStatus, setLoginStatus] = useState<string | null>("Starting...");
   const isCheckingTokenRef = useRef(false); // Ref para controlar a execução do checkToken
 
   const oauth_verifier = searchParams.get("oauth_verifier");
