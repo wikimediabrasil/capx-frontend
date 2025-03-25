@@ -1,36 +1,33 @@
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import { serverApi } from "@/lib/utils/api";
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const userId = searchParams.get("userId");
-
   const authHeader = request.headers.get("authorization");
 
-  try {
-    const response = await axios.get(
-      `${process.env.BASE_URL}/profile/${encodeURIComponent(userId || "")}`,
-      {
-        headers: {
-          Authorization: authHeader,
-        },
-      }
-    );
+  if (!authHeader) {
+    return Response.json({ error: "Authentication required" }, { status: 401 });
+  }
 
-    if (response.data) {
-      return NextResponse.json(response.data.results);
-    } else {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+  try {
+    const response = await serverApi.get("/profile/", {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    return Response.json(response.data);
   } catch (error: any) {
-    console.error(
-      "Error fetching user profile:",
-      error.response?.data || error.message
-    );
-    return NextResponse.json(
-      { error: "Failed to fetch user profile", details: error.message },
-      { status: 500 }
-    );
+    // If the backend returned 401, it means the token is invalid
+    if (error.response?.status === 401) {
+      return new Response(JSON.stringify({ detail: "Invalid token." }), {
+        status: 401,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    return Response.json({ error: "Failed to fetch profile" }, { status: 500 });
   }
 }
 
@@ -52,7 +49,7 @@ export async function PUT(request: NextRequest) {
   });
 
   try {
-    const response = await axios.put(
+    const response = await serverApi.put(
       `${process.env.BASE_URL}/profile/${userId}/?${searchParams.toString()}`,
       formData,
       {
@@ -85,7 +82,7 @@ export async function OPTIONS(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
 
   try {
-    const response = await axios.options(
+    const response = await serverApi.options(
       `${process.env.BASE_URL}/profile/${userId}`,
       {
         headers: {
@@ -111,7 +108,7 @@ export async function DELETE(request: NextRequest) {
   const userId = body.user.id;
 
   try {
-    const response = await axios.delete(
+    const response = await serverApi.delete(
       process.env.BASE_URL + "/profile/" + userId,
       {
         headers: {
