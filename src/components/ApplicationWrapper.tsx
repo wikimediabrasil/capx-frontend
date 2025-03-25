@@ -1,5 +1,5 @@
 "use client";
-import { useApp } from "@/contexts/AppContext";
+
 import BaseWrapper from "./BaseWrapper";
 import MainSection from "@/components/MainSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -9,9 +9,9 @@ import VideoSection from "@/components/VideoSection";
 export default function ApplicationWrapper() {
   return (
     <BaseWrapper>
-      <MainSection/>
+      <MainSection />
       <FeaturesSection />
-      <VideoSection/>
+      <VideoSection />
       <CallToActionSection />
     </BaseWrapper>
   );
