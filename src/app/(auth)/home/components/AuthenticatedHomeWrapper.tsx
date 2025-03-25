@@ -5,20 +5,42 @@ import Popup from "@/components/Popup";
 import FirstLoginImage from "@/public/static/images/capx_complete_profile.svg";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
+import { clientApi } from "@/lib/utils/api";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 interface AuthenticatedHomeWrapperProps {
   isFirstLogin: boolean;
 }
 
-export default function AuthenticatedHomeWrapper({}: AuthenticatedHomeWrapperProps) {
+export default function AuthenticatedHomeWrapper({
+  isFirstLogin,
+}: AuthenticatedHomeWrapperProps) {
   const router = useRouter();
   const { darkMode } = useTheme();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        await clientApi.get("/api/profile", {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   const handleContinue = () => {
     router.push("/profile/edit");
   };
-  const {pageContent} = useApp();
-
-  const isFirstLogin = true; // TODO: remove this
+  const { pageContent } = useApp();
 
   return (
     <>
