@@ -77,6 +77,7 @@ export default function OrganizationProfileEditMobileView({
   const { avatars } = useAvatars();
   const { organization } = useOrganization();
   const router = useRouter();
+
   return (
     <div
       className={`relative w-full overflow-x-hidden min-h-screen ${
@@ -579,7 +580,7 @@ export default function OrganizationProfileEditMobileView({
           </div>
 
           {/* Events Section */}
-          {/* <div className="">
+          <div className="">
             <div className="flex items-center gap-2 mb-4">
               <div className="relative w-[20px] h-[20px]">
                 <Image
@@ -628,7 +629,7 @@ export default function OrganizationProfileEditMobileView({
             >
               {pageContent["body-profile-section-title-events"]}
             </p>
-          </div> */}
+          </div>
 
           {/* News Section */}
           <div className="">

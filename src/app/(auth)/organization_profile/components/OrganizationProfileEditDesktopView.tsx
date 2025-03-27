@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getProfileImage } from "@/lib/utils/getProfileImage";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
 import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
@@ -73,12 +72,12 @@ export default function OrganizationProfileEditMobileView({
   handleDocumentChange,
 }) {
   const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const { pageContent } = useApp();
   const { data: session } = useSession();
   const { userProfile, isLoading: isUserLoading } = useUserProfile();
   const { avatars } = useAvatars();
-  const { organization } = useOrganization();
   const router = useRouter();
+
   return (
     <div
       className={`relative w-full overflow-x-hidden min-h-screen ${
@@ -567,7 +566,7 @@ export default function OrganizationProfileEditMobileView({
           </div>
 
           {/* Events Section */}
-          {/*           <div className="mt-6">
+          <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="relative w-[48px] h-[48px]">
                 <Image
@@ -617,7 +616,7 @@ export default function OrganizationProfileEditMobileView({
             >
               {pageContent["edit-profile-display-events"]}
             </p>
-          </div> */}
+          </div>
 
           {/* News Section */}
           <div className="mt-6">
