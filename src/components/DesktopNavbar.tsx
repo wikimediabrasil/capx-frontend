@@ -26,7 +26,9 @@ export default function DesktopNavbar({
   const { darkMode } = useTheme();
 
   const menuItems = [
-    { title: pageContent["navbar-link-home"], to: "/home", active: true },
+    { title: pageContent["navbar-link-home"], 
+      to: "/home", 
+      active: true },
     {
       title: pageContent["navbar-link-capacities"],
       to: "/capacity",
@@ -35,6 +37,11 @@ export default function DesktopNavbar({
     {
       title: pageContent["navbar-link-feed"],
       to: "/feed",
+      active: true,
+    },
+    {
+      title: pageContent["navbar-link-reports"],
+      to: "/report_bug",
       active: true,
     },
   ];
@@ -74,7 +81,7 @@ export default function DesktopNavbar({
           </div>
         ) : null}
 
-        <div className="flex flex-[1.5] items-center justify-end gap-[24px]">
+        <div className="flex flex-[1.5] items-center justify-end gap-[24px] pl-4">
           <DarkModeButton />
           {session ? <ProfileSelect /> : null}
           <LanguageSelect
