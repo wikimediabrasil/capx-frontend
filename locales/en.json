@@ -302,5 +302,19 @@
   "edit-profile-invalid-image-url": "Please enter a valid Wikimedia Commons URL",
   "saved-profiles-title": "Saved Profiles",
   "saved-profiles-delete-item": "Delete item",
-  "saved-profiles-view-profile": "View profile"
+  "saved-profiles-view-profile": "View profile",
+  "report-bug-icon":"report-bug-icon",
+  "report-bug-banner-desktop":"report-bug-banner-desktop",
+  "report-bug-banner-mobile":"report-bug-banner-mobile",
+  "report-bug-submit": "Submit",
+  "report-bug-submission": "Submission",
+  "report-bug-heading": "Submit Bug Reports",
+  "report-bug-tittle": "Tittle",
+  "report-bug-title-placeholder":"Saved Profile Not Displayed in Library",
+  "report-bug-description": "Description",
+  "report-bug-description-placeholder":"A bug is causing saved profiles not to appear in the library section of the application. After saving a profile, users navigate to the library, but the profile is not displayed as expected.",
+  "report-bug-types-of-reports": "Types of reports",
+  "report-bug-types-of-reports-placeholder":"Insert item",
+  "report-bug-submit-button":"Submit bug report",
+  "report-bug-submit-cancel-button":"Cancel report"
 }
