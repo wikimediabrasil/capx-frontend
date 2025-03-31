@@ -35,7 +35,6 @@ export async function GET(req: NextRequest) {
         wd_code: value,
       }));
     const metabaseResponse = await fetchMetabase(codes, language ?? "en");
-
     const wikidataResponse = await fetchWikidata(codes, language ?? "en");
 
     const codesWithNames = codes.map((obj1) => {
@@ -45,10 +44,11 @@ export async function GET(req: NextRequest) {
       const wikidataMatch = wikidataResponse.find(
         (wd) => wd.wd_code === obj1.wd_code
       );
-
       return {
         ...obj1,
         name: metabaseMatch?.name || wikidataMatch?.name || obj1.wd_code,
+        description:
+          metabaseMatch?.description || wikidataMatch?.description || "",
         color: getCapacityColor(obj1.code.toString()),
       };
     });
