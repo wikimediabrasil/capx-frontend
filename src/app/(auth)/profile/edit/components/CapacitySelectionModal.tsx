@@ -217,10 +217,10 @@ export default function CapacitySelectionModal({
         <div
           className={`flex flex-col w-full bg-${
             capacity.color
-          } rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full
+          } rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full
             ${
               isSelected ? "ring-2 ring-capx-primary-green" : ""
-            } cursor-pointer`}
+            } cursor-pointer hover:brightness-90 hover:scale-[1.02] transition-all`}
           onClick={() => handleCategorySelect(capacity)}
         >
           <div className="flex p-3 h-[80px] items-center justify-between">
@@ -239,10 +239,10 @@ export default function CapacitySelectionModal({
               <Link
                 href={`/feed?capacityId=${capacity.code}`}
                 onClick={(e) => e.stopPropagation()}
+                title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
+                className={`text-white font-bold text-base truncate hover:underline hover:text-yellow-200 transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-blue-700 hover:after:w-full after:transition-all block overflow-hidden text-ellipsis whitespace-nowrap`}
               >
-                <h3 className="font-bold text-white text-base truncate hover:underline">
-                  {capitalizeFirstLetter(capacity.name)}
-                </h3>
+                {capitalizeFirstLetter(capacity.name)}
               </Link>
             </div>
             <div className="flex items-center">
@@ -294,7 +294,7 @@ export default function CapacitySelectionModal({
                   href={wd_code}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline mt-2 inline-block text-xs"
+                  className="text-blue-500 hover:underline hover:text-blue-700 mt-2 inline-block text-xs transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {pageContent["capacity-selection-modal-see-more-information"]}
@@ -309,8 +309,8 @@ export default function CapacitySelectionModal({
     // Style for child cards
     return (
       <div
-        className={`flex flex-col w-full bg-capx-light-box-bg rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full
-          ${isSelected ? "ring-2 ring-capx-primary-green" : ""} cursor-pointer`}
+        className={`flex flex-col w-full bg-capx-light-box-bg rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full
+          ${isSelected ? "ring-2 ring-capx-primary-green" : ""} cursor-pointer hover:bg-gray-200 hover:scale-[1.02] transition-all`}
         onClick={() => handleCategorySelect(capacity)}
       >
         <div className="flex p-3 h-[80px] items-center justify-between">
@@ -333,8 +333,7 @@ export default function CapacitySelectionModal({
             <Link
               href={`/feed?capacityId=${capacity.code}`}
               onClick={(e) => e.stopPropagation()}
-              className={`text-gray-700
-              font-bold text-base truncate hover:underline`}
+              className={`text-gray-700 font-bold text-base truncate hover:underline hover:text-blue-700 transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-blue-700 hover:after:w-full after:transition-all block overflow-hidden text-ellipsis whitespace-nowrap`}
             >
               {capitalizeFirstLetter(capacity.name)}
             </Link>
