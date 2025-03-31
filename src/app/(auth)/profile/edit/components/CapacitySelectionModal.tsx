@@ -8,7 +8,7 @@ import BaseButton from "@/components/BaseButton";
 import { useApp } from "@/contexts/AppContext";
 import Image from "next/image";
 import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
-import { getCapacityColor, getHueRotate } from "@/lib/utils/capacitiesUtils";
+import { getHueRotate } from "@/lib/utils/capacitiesUtils";
 import InfoIcon from "@/public/static/images/info.svg";
 import InfoFilledIcon from "@/public/static/images/info_filled.svg";
 import Link from "next/link";
@@ -476,19 +476,7 @@ export default function CapacitySelectionModal({
           </div>
 
           {/* Capacity list */}
-          <div className="space-y-2 max-h-[60vh] md:max-h-[65vh] overflow-y-auto p-1">
-            <h3
-              className={`font-medium mb-2 ${
-                darkMode ? "text-white" : "text-gray-700"
-              }`}
-            >
-              {selectedPath.length === 0
-                ? pageContent["capacity-selection-modal-root-capacities"]
-                : `${pageContent["capacity-selection-modal-select-capacity"]} ${
-                    findCapacityByCode(selectedPath[selectedPath.length - 1])
-                      ?.name || ""
-                  }`}
-            </h3>
+          <div className="space-y-2 max-h-[60vh] md:max-h-[65vh] overflow-y-auto scrollbar-hide p-1">
             {isLoading?.root ? (
               <div
                 className={`text-center py-4 ${
@@ -498,7 +486,7 @@ export default function CapacitySelectionModal({
                 {pageContent["capacity-selection-modal-loading"]}
               </div>
             ) : getCurrentCapacities().length > 0 ? (
-              <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-2">
                 {getCurrentCapacities().map((capacity, index) => {
                   const isRoot = selectedPath.length === 0;
                   const uniqueKey = `${capacity.code}-${selectedPath.join(
@@ -506,7 +494,7 @@ export default function CapacitySelectionModal({
                   )}-${index}`;
 
                   return (
-                    <div key={uniqueKey} className="flex flex-col h-full">
+                    <div key={uniqueKey} className="flex flex-col h-full gap-2">
                       {renderCapacityCard(capacity, isRoot)}
                       {selectedCapacity?.code === capacity.code && (
                         <div
