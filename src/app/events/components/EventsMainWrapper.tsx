@@ -2,7 +2,7 @@ import { EventsBanner } from "./EventsBanner";
 
 export default function EventsMainWrapper() {
   return (
-    <div>
+    <div className="flex flex-col gap-4 mx-12">
       <EventsBanner />
     </div>
   );

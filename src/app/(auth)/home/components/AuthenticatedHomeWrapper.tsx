@@ -16,7 +16,7 @@ export default function AuthenticatedHomeWrapper({}: AuthenticatedHomeWrapperPro
   const handleContinue = () => {
     router.push("/profile/edit");
   };
-  const {pageContent} = useApp();
+  const { pageContent } = useApp();
 
   const isFirstLogin = true; // TODO: remove this
 

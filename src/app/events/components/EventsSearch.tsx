@@ -1,0 +1,164 @@
+"use client";
+
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
+import { useApp } from "@/contexts/AppContext";
+import BaseInput from "@/components/BaseInput";
+import EventsCard from "./EventsCard";
+import SearchIcon from "@/public/static/images/search.svg";
+import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
+import { useEvents } from "@/hooks/useEvents";
+import LoadingState from "@/components/LoadingState";
+import { useTheme } from "@/contexts/ThemeContext";
+
+interface CapacitySearchProps {
+  onSearchStart?: () => void;
+  onSearchEnd?: () => void;
+}
+
+// simple debounce
+function useDebounce<T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+) {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedFunction = useCallback(
+    (...args: Parameters<T>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay]
+  );
+
+  // Function to cancel the debounce
+  const cancel = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  // Clear the timeout when the component is unmounted
+  useEffect(() => {
+    return () => {
+      cancel();
+    };
+  }, [cancel]);
+
+  return { debouncedFunction, cancel };
+}
+
+export function CapacitySearch({
+  onSearchStart,
+  onSearchEnd,
+}: CapacitySearchProps) {
+  const { data: session } = useSession();
+  const { language, isMobile, pageContent } = useApp();
+  const { darkMode } = useTheme();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [expandedCapacities, setExpandedCapacities] = useState<
+    Record<string, boolean>
+  >({});
+  const {
+    events,
+    isLoading: isEventsLoading,
+    error: eventsError,
+  } = useEvents([], session?.user?.token);
+
+  // Store the last search term to avoid duplicate requests
+  const lastSearchRef = useRef<string>("");
+
+  // Search function
+  const search = useCallback(
+    async (term: string) => {
+      // If the search term is the same as the last search, do nothing
+      if (term === lastSearchRef.current) {
+        return;
+      }
+
+      if (term) {
+        setIsLoading(true);
+        onSearchStart?.();
+        await fetchCapacitySearch(term);
+        // Store the current search term
+        lastSearchRef.current = term;
+        setIsLoading(false);
+      } else {
+        setSearchResults([]);
+        onSearchEnd?.();
+        // Clear the last search
+        lastSearchRef.current = "";
+      }
+    },
+    [fetchCapacitySearch, onSearchStart, onSearchEnd, setSearchResults]
+  );
+
+  // Use the custom debounce hook
+  const { debouncedFunction: debouncedSearch, cancel } = useDebounce(
+    search,
+    300
+  );
+
+  // Effect to call the debounce function when the search term changes
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+  }, [searchTerm, debouncedSearch]);
+
+  const toggleCapacity = useCallback(
+    async (parentCode: string) => {
+      if (expandedCapacities[parentCode]) {
+        setExpandedCapacities((prev) => ({ ...prev, [parentCode]: false }));
+        return;
+      }
+
+      const children = await fetchCapacitiesByParent(parentCode);
+      for (const child of children) {
+        if (child.code) {
+          fetchCapacityDescription(child.code);
+        }
+      }
+
+      setExpandedCapacities((prev) => ({ ...prev, [parentCode]: true }));
+    },
+    [expandedCapacities, fetchCapacitiesByParent, fetchCapacityDescription]
+  );
+
+  return (
+    <div className="w-full">
+      <BaseInput
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder={pageContent["capacity-search-placeholder"]}
+        className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
+          darkMode
+            ? "text-white border-white"
+            : "text-capx-dark-box-bg border-capx-dark-box-bg "
+        } ${isMobile ? "text-[12px]" : "text-[24px]"}`}
+        icon={darkMode ? SearchIconWhite : SearchIcon}
+        iconPosition="right"
+      />
+
+      <div className="grid gap-4 mt-4">
+        {isLoading ? (
+          <LoadingState />
+        ) : (
+          searchResults.map((capacity) => {
+            return (
+              <div key={capacity.code} className="w-full">
+                <EventsCard />
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}

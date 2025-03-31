@@ -109,7 +109,6 @@ export const useDocument = (
   // Load all documents when the component is initialized
   useEffect(() => {
     if (token && !id) {
-      console.log("Fetching documents with token:", token);
       fetchAllDocuments();
     }
   }, [token]);
