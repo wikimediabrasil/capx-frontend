@@ -8,13 +8,13 @@ import { useApp } from "@/contexts/AppContext";
 import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from "./types";
 import { useOrganizations } from "@/hooks/useOrganizationProfile";
 import { useAllUsers } from "@/hooks/useUserProfile";
-import { PaginationButtons } from "./components/PaginationButtons";
 import CapacitySelectionModal from "../profile/edit/components/CapacitySelectionModal";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from "@/hooks/useCapacityDetails";
 import { Capacity } from "@/types/capacity";
 import { useSavedItems } from "@/hooks/useSavedItems";
 import { createProfilesFromOrganizations, createProfilesFromUsers } from "./types";
+import { PaginationButtons } from "@/components/PaginationButtons";
 
 import { SearchBar } from "./components/SearchBar";
 
