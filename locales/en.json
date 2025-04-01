@@ -309,9 +309,14 @@
   "report-bug-submit": "Submit",
   "report-bug-submission": "Submission",
   "report-bug-heading": "Submit Bug Reports",
-  "report-bug-tittle": "Tittle",
+  "report-bug-title": "Title",
   "report-bug-title-placeholder":"Saved Profile Not Displayed in Library",
   "report-bug-description": "Description",
+  "report-bug-status": "Status",
+  "report-bug-created-at": "Created at",
+  "report-bug-type": "Type",
+  "report-bug-view": "View",
+  "report-bug-hide": "Hide",
   "report-bug-description-placeholder":"A bug is causing saved profiles not to appear in the library section of the application. After saving a profile, users navigate to the library, but the profile is not displayed as expected.",
   "report-bug-description-informative-text":"Please describe the bug or problem you have encountered. Try to be as much descriptive as possible.",
   "report-bug-types-of-reports": "Types of reports",
@@ -325,5 +330,7 @@
   "bug-report-status-pending": "Pending",
   "bug-report-status-in-progress": "In progress",
   "bug-report-status-resolved": "Resolved",
-  "bug-report-status-closed": "Closed"
+  "bug-report-status-closed": "Closed",
+  "snackbar-submit-report-bug-failed-generic": "Error submitting report. Please check and try again.",
+  "snackbar-submit-report-bug-success-title": "Congratulations! You can now track its progress in the 'Submissions' tab."
 }
