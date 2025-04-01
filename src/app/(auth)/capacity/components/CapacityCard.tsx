@@ -239,7 +239,7 @@ export function CapacityCard({
               : `bg-${cardColor}`
           } shadow-sm hover:shadow-md transition-shadow
           ${isMobile ? "rounded-[4px]" : "rounded-lg"}
-          cursor-pointer
+          cursor-pointer hover:brightness-95 transition-all
           `}
         >
           <div
@@ -259,7 +259,8 @@ export function CapacityCard({
               <div className="flex items-center w-[378px] h-full">
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
-                    className={`font-extrabold text-white ${
+                    onClick={handleTitleClick}
+                    className={`font-extrabold text-white hover:underline ${
                       isMobile ? "text-[20px]" : "text-[48px]"
                     }`}
                   >
@@ -324,7 +325,7 @@ export function CapacityCard({
           parentCapacity?.parentCapacity
             ? "bg-gray-600 text-white"
             : "bg-capx-light-box-bg"
-        } cursor-pointer`}
+        } cursor-pointer hover:shadow-md transition-shadow`}
       >
         <div className="flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-12">
           <div
@@ -340,7 +341,8 @@ export function CapacityCard({
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full">
                 <h3
-                  className={`font-extrabold ${
+                  onClick={handleTitleClick}
+                  className={`font-extrabold hover:underline ${
                     isMobile ? "text-[20px]" : "text-[36px]"
                   } ${parentCapacity?.parentCapacity ? "text-white" : ""}`}
                   style={{

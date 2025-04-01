@@ -233,6 +233,7 @@
   "capacity-selection-modal-select-capacity": "Select capacity",
   "capacity-selection-modal-no-capacities-found": "No capacities found for this category",
   "capacity-selection-modal-see-more-information": "See more information",
+  "capacity-selection-modal-hover-view-capacity-feed": "Click to view it in the Capacity Feed",
   "capacity-selection-modal-select-capacity-placeholder": "Search for a capacity",
   "capacity-selection-modal-select-capacity-button": "Select capacity",
   "capacity-selection-modal-select-capacity-button-error": "Error selecting capacity",
