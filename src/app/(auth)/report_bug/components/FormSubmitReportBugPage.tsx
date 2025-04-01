@@ -7,6 +7,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import { useRouter } from "next/navigation";
 import { BugReport } from "@/types/report";
+import Popup from "@/components/Popup";
 
 import Image from "next/image";
 import IconBug from "@/public/static/images/bug_icon.svg";
@@ -17,6 +18,7 @@ import Uploadicon from "@/public/static/images/upload.svg";
 import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
 import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
 import ButtonDesktopReportBugPage from "./ButtonDesktop";
+import SuccessSubmissionSVG from "@/public/static/images/capx_person_12.svg";
 
 export default function FormSubmitReportBugPage(){
   const { darkMode } = useTheme();
@@ -25,8 +27,9 @@ export default function FormSubmitReportBugPage(){
     title: "",
     description: "",
     author: "",
-    // type: ""
+    type: ""
   });
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const { showSnackbar } = useSnackbar();
   const router = useRouter();
@@ -38,27 +41,34 @@ export default function FormSubmitReportBugPage(){
   };  
 
   const {
-    isSubmitting,
     showTypeSelector,
     setShowTypeSelector,
-    handleCancel,
-    submitBugReport
+    submitBugReport,
   } = useBugReport();
     
   const handleSubmit = async () => {
     try {
       await submitBugReport(formData);
-      showSnackbar(pageContent["snackbar-edit-profile-success"],"success")
+      setShowSuccessPopup(true);
+      setFormData({
+        title: "",
+        description: "",
+        author: "",
+        type: ""
+      });
     } catch (error) {
-      if (error.response.status == 409) {
-        showSnackbar(pageContent["snackbar-edit-profile-failed-capacities"],"error")
-      } else {
-        showSnackbar(pageContent["snackbar-edit-profile-failed-generic"],"error")
-      }
-      console.error("Error updating profile:", error);
+      console.error("Error submitting bug report:", error);
+      showSnackbar(pageContent["snackbar-submit-report-bug-failed-generic"],"error");
     }
   };
 
+  const handleContinue = () => {
+    setShowSuccessPopup(false);
+  };
+
+  const handleClosePopup = () => {
+    setShowSuccessPopup(false);
+  };
 
   return (
     <section className="w-full h-full flex flex-col gap-4 px-4 py-4 md:min-h-41 mx-auto md:max-w-full">
@@ -78,7 +88,7 @@ export default function FormSubmitReportBugPage(){
         <h4 className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
             ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
         >
-            {pageContent["report-bug-tittle"]}
+            {pageContent["report-bug-title"]}
         </h4>
         <input
           type="text"
@@ -120,9 +130,8 @@ export default function FormSubmitReportBugPage(){
             : "text-gray-500"
           }`}>
           {pageContent["report-bug-description-informative-text"]}
-        </p>          
+        </p>
       </div>
-
 
       <div className="mt-4">
         <h4 className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px]
@@ -132,6 +141,7 @@ export default function FormSubmitReportBugPage(){
         </h4>
         <div className="relative">
           <button
+            type="button"
             onClick={() => setShowTypeSelector(!showTypeSelector)}
             className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
               darkMode
@@ -164,7 +174,10 @@ export default function FormSubmitReportBugPage(){
                       ? "text-white hover:bg-[#053749]"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
-                  onClick={() => setFormData({ ...formData, type})}
+                  onClick={() => {
+                    setFormData({ ...formData, type });
+                    setShowTypeSelector(false);
+                  }}
                 >
                   {reportTypeLabels[type]}
                 </button>
@@ -205,6 +218,19 @@ export default function FormSubmitReportBugPage(){
       <div className="hidden md:block">
         <ButtonDesktopReportBugPage handleSubmit={handleSubmit} />
       </div>
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <Popup
+          title={pageContent["snackbar-submit-report-bug-success-title"]}
+          closeButtonLabel={pageContent["auth-dialog-button-close"]}
+          continueButtonLabel={pageContent["auth-dialog-button-continue"]}
+          onClose={handleClosePopup}
+          onContinue={handleContinue}
+          image={SuccessSubmissionSVG}
+          customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
+          />
+      )}
     </section>
-  )
+  );
 }
