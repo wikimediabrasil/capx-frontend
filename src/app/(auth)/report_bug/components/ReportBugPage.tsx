@@ -1,17 +1,12 @@
 "use client"
+
 import Image from "next/image";
 import BugReportsDesktop from "@/public/static/images/bug_reports_desktop.svg";
-import NavBarReportBugPage from "./DesktopNavBar";
-import FormSubmitReportBugPage from "./ReportSubmitForm";
-
-
+import NavBarReportBugPage from "./NavBar";
 import BugReports from "@/public/static/images/bug_reports.svg";
-
-import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 
-export default function ReportBugPage(){
-    const { darkMode } = useTheme();
+export default function ReportBugPage() {
     const { pageContent } = useApp();
 
     return (
@@ -24,11 +19,11 @@ export default function ReportBugPage(){
                 />
                 <Image
                     src={BugReports}
-                    alt={pageContent["eport-bug-banner-mobile"]}
+                    alt={pageContent["report-bug-banner-mobile"]}
                     className="block md:hidden w-full h-auto md:max-h-[600px]"
                 />
             </div>
             <NavBarReportBugPage />
-            <FormSubmitReportBugPage />
         </section>
-    )}
+    )
+}
