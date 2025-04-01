@@ -1,7 +1,7 @@
 import ReportBugPage from "./components/ReportBugPage"
 
-export default function PrivacyPolicy(){
-
+export default function ReportBugWrapper() {
     return (
         <ReportBugPage/>
-    )}
+    )
+}

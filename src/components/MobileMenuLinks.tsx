@@ -123,7 +123,7 @@ export default function MobileMenuLinks({
     {
       title: pageContent["navbar-link-reports"],
       to: "/reports",
-      active: false,
+      active: true,
     },
     {
       title: pageContent["navbar-link-dark-mode"],

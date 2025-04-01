@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import { useApp } from "@/contexts/AppContext";
 import { BugReportService } from "@/services/bugReportService";
+import { BugReport } from "@/types/report";
 
 export enum ReportType {
   BUG = "bug",
@@ -32,46 +33,15 @@ export function useBugReport() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTypeSelector, setShowTypeSelector] = useState(false);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      title: e.target.value,
-    }));
-  };
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      description: e.target.value,
-    }));
-  };
-
-  const handleTypeChange = (type: ReportType) => {
-    setFormData((prev) => ({
-      ...prev,
-      type,
-    }));
-    setShowTypeSelector(false);
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.title || !formData.description || !formData.type) {
-      showSnackbar(
-        pageContent["bug-report-fill-all-fields"] || "Por favor, preencha todos os campos", 
-        "error"
-      );
-      return;
-    }
-
+  const submitBugReport = async (bugReport: Partial<BugReport>) => {
+    console.log("formData", formData)
     setIsSubmitting(true);
 
     try {
-      await BugReportService.submitReport(
-        formData.title,
-        formData.description,
-        formData.type,
-        token
-      );
+      await BugReportService.submitReport({
+        bugReport,
+        token: session?.user.token ?? ""
+      });
 
       showSnackbar(
         pageContent["bug-report-success"] || "Relatório enviado com sucesso", 
@@ -98,10 +68,7 @@ export function useBugReport() {
     isSubmitting,
     showTypeSelector,
     setShowTypeSelector,
-    handleTitleChange,
-    handleDescriptionChange,
-    handleTypeChange,
-    handleSubmit,
+    submitBugReport,
     handleCancel,
   };
 }

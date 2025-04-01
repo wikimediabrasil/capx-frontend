@@ -9,6 +9,11 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get("limit");
   const offset = searchParams.get("offset");
 
+  
+  console.log("GET bugs limit ", limit)
+  console.log("GET bugs authorization ", authHeader)
+  console.log("GETbugs  offset ", offset)
+
   try {
     const req_url = reportId ? `/bugs/${reportId}` : "/bugs";
     const response = await axios.get(`${process.env.BASE_URL}${req_url}`, {
@@ -20,6 +25,8 @@ export async function GET(request: NextRequest) {
         offset,
       },
     });
+
+    console.log("GET bugs", response)
 
     return NextResponse.json(response.data.results);
   } catch (error: any) {

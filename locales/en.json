@@ -313,8 +313,17 @@
   "report-bug-title-placeholder":"Saved Profile Not Displayed in Library",
   "report-bug-description": "Description",
   "report-bug-description-placeholder":"A bug is causing saved profiles not to appear in the library section of the application. After saving a profile, users navigate to the library, but the profile is not displayed as expected.",
+  "report-bug-description-informative-text":"Please describe the bug or problem you have encountered. Try to be as much descriptive as possible.",
   "report-bug-types-of-reports": "Types of reports",
   "report-bug-types-of-reports-placeholder":"Insert item",
+  "report-bug-types-of-reports-informative-text":"Select the type of report you are creating. You can report a problem (error), propose the creation of new features, or suggest specific tool improvements.",
   "report-bug-submit-button":"Submit bug report",
-  "report-bug-submit-cancel-button":"Cancel report"
+  "report-bug-submit-cancel-button":"Cancel report",
+  "bug-report-type-bug": "Problem (Error)",
+  "bug-report-type-feature": "New Feature",
+  "bug-report-type-improvement": "Improvement",
+  "bug-report-status-pending": "Pending",
+  "bug-report-status-in-progress": "In progress",
+  "bug-report-status-resolved": "Resolved",
+  "bug-report-status-closed": "Closed"
 }
