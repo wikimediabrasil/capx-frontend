@@ -9,11 +9,6 @@ export async function GET(request: NextRequest) {
   const limit = searchParams.get("limit");
   const offset = searchParams.get("offset");
 
-  
-  console.log("GET bugs limit ", limit)
-  console.log("GET bugs authorization ", authHeader)
-  console.log("GETbugs  offset ", offset)
-
   try {
     const req_url = reportId ? `/bugs/${reportId}` : "/bugs";
     const response = await axios.get(`${process.env.BASE_URL}${req_url}`, {
@@ -25,8 +20,6 @@ export async function GET(request: NextRequest) {
         offset,
       },
     });
-
-    console.log("GET bugs", response)
 
     return NextResponse.json(response.data.results);
   } catch (error: any) {
@@ -43,11 +36,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { report: reportId, ...postBody } = body;
 
-    const response = await axios.put(
-      `${process.env.BASE_URL}/bugs/${reportId}/`,
-      postBody,
+    const response = await axios.post(
+      `${process.env.BASE_URL}/bugs/`,
+      body,
       {
         headers: {
           Authorization: authHeader,
@@ -58,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to update report" },
+      { error: "Failed to create report" },
       { status: error.response?.status || 500 }
     );
   }

@@ -11,42 +11,56 @@ export class BugReportService {
     bugReport,
     token
   }: BugReportServiceParams): Promise<any> {
-    const response = await axios.post(
-      "/api/report",
-      {
-        // report: "", // Deixe vazio para criar um novo relatorio
-        title: bugReport.title,
-        description: bugReport.description,
-        // type: bugReport.type,
-      },
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.post(
+        "/api/report",
+        {
+          title: bugReport.title,
+          description: bugReport.description,
+          author: bugReport.author,
+          type: bugReport.type,
         },
-      }
-    );
-    return response.data;
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to submit report:", error);
+      throw error;
+    }
   }
 
   static async getReports(token?: string): Promise<BugReport[]> {
-    const response = await axios.get("/api/report", {
-      headers: {
-        Authorization: `Token ${token}`,
+    try {
+      const response = await axios.get("/api/report", {
+        headers: {
+          Authorization: `Token ${token}`,
         "Content-Type": "application/json",
       },
     });
-    console.log("getReports response", response)
     return response.data;
+    } catch (error) {
+      console.error("Failed to get reports:", error);
+      throw error;
+    }
   }
 
   static async getReportById(reportId: string, token?: string): Promise<BugReport> {
-    const response = await axios.get(`/api/report?reportId=${reportId}`, {
-      headers: {
-        Authorization: `Token ${token}`,
-        "Content-Type": "application/json",
+    try {
+      const response = await axios.get(`/api/report?reportId=${reportId}`, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
       },
     });
     return response.data;
+    } catch (error) {
+      console.error("Failed to get report by id:", error);
+      throw error;
+    }
   }
 }
