@@ -17,11 +17,11 @@ import { useOrganizations } from "@/hooks/useOrganizationProfile";
 import { Organization } from "@/types/organization";
 import { UserProfile } from "@/types/user";
 import { useAllUsers } from "@/hooks/useUserProfile";
-import { PaginationButtons } from "./components/PaginationButtons";
 import CapacitySelectionModal from "../profile/edit/components/CapacitySelectionModal";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from "@/hooks/useCapacityDetails";
 import { Capacity } from "@/types/capacity";
+import { PaginationButtons } from "@/components/PaginationButtons";
 
 const createProfilesFromOrganizations = (organizations: Organization[], type: ProfileCapacityType) => {
   const profiles: any[] = [];
