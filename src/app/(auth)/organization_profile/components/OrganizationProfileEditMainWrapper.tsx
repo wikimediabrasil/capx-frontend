@@ -4,7 +4,6 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import { Organization, OrganizationType } from "@/types/organization";
 import { Capacity } from "@/types/capacity";
@@ -27,7 +26,8 @@ import { useAvatars } from "@/hooks/useAvatars";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
 import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
-
+import EventsFormItem from "./EventsFormItem";
+import EventFormItem from "./EventsFormItem";
 interface ProfileOption {
   value: string;
   label: string | null | undefined;
@@ -40,7 +40,6 @@ export default function EditOrganizationProfilePage() {
   const organizationId = params.id as string;
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,7 +126,7 @@ export default function EditOrganizationProfilePage() {
   const eventsLoaded = useRef(false);
 
   // State for existing and new events
-  const [newEvents, setNewEvents] = useState<Event[]>([]);
+  const [newEvent, setNewEvent] = useState<Event>();
   const [eventId, setEventId] = useState<number>(0);
   const { createEvent, updateEvent, deleteEvent } = useEvent(eventId, token);
 
@@ -709,8 +708,10 @@ export default function EditOrganizationProfilePage() {
   };
 
   // Events handlers
+  const [showEventModal, setShowEventModal] = useState(false);
+
   const handleAddEvent = () => {
-    const newEvent = {
+    const eventData = {
       id: 0,
       name: "New Event",
       type_of_location: "virtual",
@@ -729,7 +730,8 @@ export default function EditOrganizationProfilePage() {
       openstreetmap_id: "",
       wikidata_qid: "",
     };
-    setEventsData((prev) => [...prev, newEvent]);
+    setNewEvent(eventData);
+    setShowEventModal(true);
   };
 
   const handleDeleteEvent = async (eventId: number) => {
@@ -969,6 +971,14 @@ export default function EditOrganizationProfilePage() {
     avatars,
   ]);
 
+  // Adicione esta nova função
+  const handleCreateEvent = () => {
+    if (newEvent) {
+      setEventsData((prev) => [...prev, newEvent]);
+      setShowEventModal(false);
+    }
+  };
+
   if (isUserLoading || isOrganizationLoading) {
     return <LoadingState />;
   }
@@ -1007,36 +1017,93 @@ export default function EditOrganizationProfilePage() {
     );
   }
   return (
-    <OrganizationProfileEditDesktopView
-      handleSubmit={handleSubmit}
-      handleRemoveCapacity={handleRemoveCapacity}
-      handleAddCapacity={handleAddCapacity}
-      handleAddDocument={handleAddDocument}
-      handleDeleteEvent={handleDeleteEvent}
-      getCapacityName={getCapacityName}
-      formData={formData}
-      setFormData={setFormData}
-      contactsData={contactsData}
-      setContactsData={setContactsData}
-      documentsData={documentsData}
-      setDocumentsData={setDocumentsData}
-      isModalOpen={isModalOpen}
-      setIsModalOpen={setIsModalOpen}
-      currentCapacityType={currentCapacityType}
-      handleCapacitySelect={handleCapacitySelect}
-      projectsData={projectsData}
-      handleDeleteProject={handleDeleteProject}
-      handleProjectChange={handleProjectChange}
-      handleAddProject={handleAddProject}
-      diffTagsData={diffTagsData}
-      handleDeleteDiffTag={handleDeleteDiffTag}
-      handleDiffTagChange={handleDiffTagChange}
-      handleAddDiffTag={handleAddDiffTag}
-      eventsData={eventsData}
-      handleEventChange={handleEventChange}
-      handleAddEvent={handleAddEvent}
-      handleDeleteDocument={handleDeleteDocument}
-      handleDocumentChange={handleDocumentChange}
-    />
+    <>
+      <OrganizationProfileEditDesktopView
+        handleSubmit={handleSubmit}
+        handleRemoveCapacity={handleRemoveCapacity}
+        handleAddCapacity={handleAddCapacity}
+        handleAddDocument={handleAddDocument}
+        handleDeleteEvent={handleDeleteEvent}
+        getCapacityName={getCapacityName}
+        formData={formData}
+        setFormData={setFormData}
+        contactsData={contactsData}
+        setContactsData={setContactsData}
+        documentsData={documentsData}
+        setDocumentsData={setDocumentsData}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        currentCapacityType={currentCapacityType}
+        handleCapacitySelect={handleCapacitySelect}
+        projectsData={projectsData}
+        handleDeleteProject={handleDeleteProject}
+        handleProjectChange={handleProjectChange}
+        handleAddProject={handleAddProject}
+        diffTagsData={diffTagsData}
+        handleDeleteDiffTag={handleDeleteDiffTag}
+        handleDiffTagChange={handleDiffTagChange}
+        handleAddDiffTag={handleAddDiffTag}
+        eventsData={eventsData}
+        handleEventChange={handleEventChange}
+        handleAddEvent={handleAddEvent}
+        handleDeleteDocument={handleDeleteDocument}
+        handleDocumentChange={handleDocumentChange}
+      />
+      {showEventModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowEventModal(false)}
+          />
+          <div className="relative bg-white dark:bg-capx-dark-bg rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowEventModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-[#053749] dark:text-white mb-4">
+                {pageContent["organization-profile-new-event"]}
+              </h2>
+              <EventsFormItem
+                eventData={newEvent as Event}
+                index={eventsData.length}
+                onDelete={() => setShowEventModal(false)}
+                onChange={handleEventChange}
+              />
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+              <button
+                onClick={() => setShowEventModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:border-gray-400"
+              >
+                {pageContent["cancel"]}
+              </button>
+              <button
+                onClick={handleCreateEvent}
+                className="px-4 py-2 bg-[#851970] text-white font-medium rounded-md hover:bg-[#6d145c]"
+              >
+                {pageContent["create-event"]}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
