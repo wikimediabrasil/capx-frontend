@@ -27,7 +27,8 @@ import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
 import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
 import EventsFormItem from "./EventsFormItem";
-import EventFormItem from "./EventsFormItem";
+import { useTheme } from "@/contexts/ThemeContext";
+
 interface ProfileOption {
   value: string;
   label: string | null | undefined;
@@ -43,6 +44,7 @@ export default function EditOrganizationProfilePage() {
   const { isMobile, pageContent } = useApp();
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { darkMode } = useTheme();
 
   const [profileOptions, setProfileOptions] = useState<ProfileOption[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<ProfileOption | null>(
@@ -472,6 +474,7 @@ export default function EditOrganizationProfilePage() {
               time_begin: event.time_begin,
               time_end: event.time_end,
               creator: Number(session?.user?.id),
+              organized_by: organization?.display_name || "",
               team: [],
               related_skills: [],
               type_of_location: "virtual",
@@ -720,6 +723,7 @@ export default function EditOrganizationProfilePage() {
       time_begin: new Date().toISOString(),
       time_end: new Date().toISOString(),
       organization: Number(organizationId),
+      organized_by: organization?.display_name || "",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       creator: Number(session?.user?.id),
@@ -971,7 +975,6 @@ export default function EditOrganizationProfilePage() {
     avatars,
   ]);
 
-  // Adicione esta nova função
   const handleCreateEvent = () => {
     if (newEvent) {
       setEventsData((prev) => [...prev, newEvent]);
@@ -1055,7 +1058,11 @@ export default function EditOrganizationProfilePage() {
             className="absolute inset-0 bg-black bg-opacity-50"
             onClick={() => setShowEventModal(false)}
           />
-          <div className="relative bg-white dark:bg-capx-dark-bg rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div
+            className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
+              darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+            }`}
+          >
             <button
               onClick={() => setShowEventModal(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"

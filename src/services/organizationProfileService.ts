@@ -46,14 +46,14 @@ export const organizationProfileService = {
     }
 
     try {
-      const response = await axios.get("/api/organizations/", {
+    const response = await axios.get("/api/organizations/", {
         params,
-        headers: { Authorization: `Token ${token}` },
+      headers: { Authorization: `Token ${token}` },
         paramsSerializer: {
           indexes: null // Ensure arrays are serialized correctly
         }
-      });
-      return response.data;
+    });
+    return response.data;
     } catch (error) {
       console.error('Error fetching organizations:', error);
       return { count: 0, results: [] };

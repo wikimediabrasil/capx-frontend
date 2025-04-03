@@ -9,6 +9,11 @@ import Image from "next/image";
 import { Event } from "@/types/event";
 import { useApp } from "@/contexts/AppContext";
 import BaseSelect from "@/components/BaseSelect";
+import { useState } from 'react';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { Capacity } from '@/types/capacity';
+import BaseButton from '@/components/BaseButton';
+import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
 
 interface EventFormItemProps {
   eventData: Event;
@@ -68,7 +73,7 @@ const validateImageUrl = (url: string) => {
   }
 };
 
-export default function EventFormItem({
+export default function EventsFormItem({
   eventData,
   index,
   onDelete,
@@ -76,6 +81,20 @@ export default function EventFormItem({
 }: EventFormItemProps) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
+
+  console.log("eventData", eventData);
+
+  const handleCapacitySelect = (capacity: Capacity) => {
+    if (!selectedCapacities.find(cap => cap.code === capacity.code)) {
+      setSelectedCapacities([...selectedCapacities, capacity]);
+    }
+  };
+
+  const handleRemoveCapacity = (capacityCode: number) => {
+    setSelectedCapacities(selectedCapacities.filter(cap => cap.code !== capacityCode));
+  };
 
   if (isMobile) {
     return (
@@ -208,53 +227,6 @@ export default function EventFormItem({
             }`}
           />
         </div>
-        {/* <div className="flex flex-row gap-2">
-          <div className="flex items-center gap-2 p-2 text-[24px] border rounded-md w-1/2 bg-transparent">
-            <Image
-              src={ImagesModeIcon}
-              alt="Project image icon"
-              width={32}
-              height={32}
-              className="opacity-50"
-            />
-            <input
-              type="text"
-              placeholder={pageContent["organization-profile-project-image"]}
-              className={`w-full text-[24px] bg-transparent border-none outline-none ${
-                darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#829BA4] placeholder-[#829BA4]"
-              }`}
-              value={eventData.image_url}
-              onChange={(e) => {
-                const validatedUrl = validateImageUrl(e.target.value);
-                onChange(index, "image_url", validatedUrl);
-              }}
-            />
-          </div>
-          <div className="flex items-center gap-2 p-2 text-[24px] border rounded-md items-center w-1/2 bg-transparent">
-            <div className="relative w-[32px] h-[32px]">
-              <Image
-                src={AddLinkIcon}
-                alt="Add link icon"
-                className="object-contain"
-                width={32}
-                height={32}
-              />
-            </div>
-            <input
-              type="text"
-              placeholder={pageContent["organization-profile-project-link"]}
-              className={`w-full bg-transparent border-none items-center text-[24px] outline-none ${
-                darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#829BA4] placeholder-[#829BA4]"
-              }`}
-              value={eventData.url}
-              onChange={(e) => onChange(index, "url", e.target.value)}
-            />
-          </div>
-        </div> */}
         <div className="flex flex-col">
           <h2
             className={`text-[24px] font-Montserrat font-bold py-2 ${
@@ -267,6 +239,7 @@ export default function EventFormItem({
             <input
               type="text"
               placeholder={
+                eventData.organized_by ||
                 pageContent["organization-profile-event-organized-by"]
               }
               className={`w-full bg-transparent border-none outline-none ${
@@ -274,6 +247,7 @@ export default function EventFormItem({
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
+              value={eventData.organized_by || ""}
             />
           </div>
         </div>
@@ -385,18 +359,22 @@ export default function EventFormItem({
             {pageContent["organization-profile-event-format"]}
           </h2>
           <div className="flex flex-row gap-2 w-full items-center text-[24px] p-2 border rounded-md bg-transparent">
-            <input
-              type="text"
-              placeholder={pageContent["organization-profile-event-format"]}
+            <select
               className={`w-full bg-transparent border-none outline-none ${
                 darkMode
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
-            />
+              value={eventData.type_of_location}
+              onChange={(e) => onChange(index, "type_of_location", e.target.value)}
+            >
+              <option value="virtual">Virtual</option>
+              <option value="in person">In person</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
           </div>
         </div>
-        <div className="flex flex-col border-none">
+        <div className="flex flex-col gap-4 w-full border-none">
           <h2
             className={`text-[24px] font-Montserrat font-bold py-2 ${
               darkMode ? "text-white" : "text-capx-dark-box-bg"
@@ -404,26 +382,69 @@ export default function EventFormItem({
           >
             {pageContent["organization-profile-event-choose-capacities"]}
           </h2>
-          <div className="flex flex-row gap-2 w-full items-center text-[24px] bg-transparent">
-            <BaseSelect
-              options={[
-                "communication",
-                "leadership",
-                "organization",
-                "problem-solving",
-                "team-work",
-              ]}
-              onChange={() => {}}
-              value={""}
-              placeholder={
-                pageContent["organization-profile-event-choose-capacities"]
-              }
-              name={""}
-              isMobile={false}
-              darkMode={darkMode}
-              className="w-full"
-            />
+          
+          <div className="flex flex-col w-full">
+            <div 
+              onClick={() => setIsModalOpen(true)}
+              className={`flex items-center justify-between w-full px-4 py-3 border rounded-lg cursor-pointer ${
+                darkMode 
+                  ? "bg-transparent border-white text-white" 
+                  : "bg-white border-gray-300 text-gray-700"
+              }`}
+            >
+              <div className="flex-1 flex flex-wrap gap-2">
+                {selectedCapacities.length > 0 ? (
+                  selectedCapacities.map((capacity) => (
+                    <div
+                      key={capacity.code}
+                      className={`flex items-center gap-2 px-3 py-1 rounded-full ${
+                        darkMode ? "bg-gray-700" : "bg-gray-100"
+                      }`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span className={`text-sm ${darkMode ? "text-white" : "text-gray-800"}`}>
+                        {capacity.name}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveCapacity(capacity.code);
+                        }}
+                        className={`w-4 h-4 flex items-center justify-center rounded-full hover:bg-opacity-80 ${
+                          darkMode ? "text-white hover:bg-gray-600" : "text-gray-600 hover:bg-gray-200"
+                        }`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <span className={`${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}>
+                    {pageContent["organization-profile-event-choose-capacities"]}
+                  </span>
+                )}
+              </div>
+              <div className="flex-shrink-0 ml-2">
+                <Image
+                  src={ArrowDownIcon}
+                  alt="Expand"
+                  width={24}
+                  height={24}
+                  className={darkMode ? "filter invert" : ""}
+                />
+              </div>
+            </div>
           </div>
+
+          {/* Modal de seleção de capacidades */}
+          <CapacitySelectionModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSelect={handleCapacitySelect}
+            title={pageContent["organization-profile-event-choose-capacities"]}
+          />
         </div>
         <div className="flex flex-col">
           <h2
