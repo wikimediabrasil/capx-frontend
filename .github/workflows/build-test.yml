@@ -18,6 +18,12 @@ jobs:
         with:
           node-version: '14'
 
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set Yarn version
+        run: corepack prepare yarn@4.1.1 --activate
+
       - name: Install dependencies
         run: yarn install
 
