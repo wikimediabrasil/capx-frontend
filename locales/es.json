@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Adamw",
+			"HylianAngel",
 			"Vlasta x"
 		]
 	},
@@ -233,6 +234,7 @@
 	"capacity-selection-modal-select-capacity": "Seleccionar la capacidad",
 	"capacity-selection-modal-no-capacities-found": "No se encontraron capacidades para esta categoría",
 	"capacity-selection-modal-see-more-information": "Más información",
+	"capacity-selection-modal-hover-view-capacity-feed": "Haga clic para verlo en el feed de capacidad",
 	"capacity-selection-modal-select-capacity-placeholder": "Buscar una capacidad",
 	"capacity-selection-modal-select-capacity-button": "Elegir una capacidad",
 	"capacity-selection-modal-select-capacity-button-error": "Error al seleccionar la capacidad",
