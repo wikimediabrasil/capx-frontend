@@ -27,7 +27,7 @@ export default function FormSubmitReportBugPage(){
     title: "",
     description: "",
     author: "",
-    type: ""
+    bug_type: ""
   });
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
@@ -35,9 +35,10 @@ export default function FormSubmitReportBugPage(){
   const router = useRouter();
 
   const reportTypeLabels: Record<string, string> = {
-    [ReportType.BUG]: pageContent["bug-report-type-bug"],
-    [ReportType.FEATURE]: pageContent["bug-report-type-feature"],
-    [ReportType.IMPROVEMENT]: pageContent["bug-report-type-improvement"],
+    [ReportType.ERROR]: pageContent["report-bug-type-error"],
+    [ReportType.FEATURE]: pageContent["report-bug-type-feature"],
+    [ReportType.IMPROVEMENT]: pageContent["report-bug-type-improvement"],
+    [ReportType.TEST_CASE]: pageContent["report-bug-type-test-case"],
   };  
 
   const {
@@ -54,7 +55,7 @@ export default function FormSubmitReportBugPage(){
         title: "",
         description: "",
         author: "",
-        type: ""
+        bug_type: ""
       });
     } catch (error) {
       console.error("Error submitting bug report:", error);
@@ -79,16 +80,22 @@ export default function FormSubmitReportBugPage(){
             className="w-4 h-5 md:w-[42px] md:h-[42px]"
         />
         <h1 className={`text-[14px] font-[Montserrat] font-bold md:text-[32px] 
-            ${darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"}`}
+          ${darkMode 
+            ? "text-capx-light-bg"
+            : "text-capx-dark-box-bg"
+          }`}
         >
-            {pageContent["report-bug-heading"]}
+          {pageContent["report-bug-heading"]}
         </h1>
       </div>
       <div className="mt-4 md:mb-14 ">
         <h4 className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
-            ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
+          ${darkMode 
+            ? "text-capx-light-bg"
+            : "text-[#507380]"
+          }`}
         >
-            {pageContent["report-bug-title"]}
+          {pageContent["report-bug-title"]}
         </h4>
         <input
           type="text"
@@ -98,16 +105,19 @@ export default function FormSubmitReportBugPage(){
             setFormData({ ...formData, title: e.target.value })
           }
           className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-            darkMode
-              ? "bg-transparent border-[#FFFFFF] text-white"
-              : "border-[#053749] text-[#829BA4]"
+          darkMode
+            ? "bg-transparent border-[#FFFFFF] text-white"
+            : "border-[#053749] text-[#829BA4]"
           }`}
           placeholder={pageContent["report-bug-title-placeholder"]}
         />                
       </div>
       <div className="mt-4 md:mb-14">
-        <h4 className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px] 
-          ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
+        <h4 className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px] ${
+          darkMode
+            ? "text-capx-light-bg"
+            : "text-[#507380]"
+          }`}
         >
           {pageContent["report-bug-description"]}
         </h4>
@@ -126,8 +136,8 @@ export default function FormSubmitReportBugPage(){
         </textarea>
         <p className={`mt-1 text-[10px] md:text-[20px] ${
           darkMode
-            ? "text-gray-400"
-            : "text-gray-500"
+            ? "text-[#FFFFFF]"
+            : "text-[#053749]"
           }`}>
           {pageContent["report-bug-description-informative-text"]}
         </p>
@@ -145,12 +155,12 @@ export default function FormSubmitReportBugPage(){
             onClick={() => setShowTypeSelector(!showTypeSelector)}
             className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
               darkMode
-                ? "bg-transparent border-[#FFFFFF] text-white"
+                ? "bg-[#04222F] border-[#FFFFFF] text-[#FFFFFF]"
                 : "border-[#053749] text-[#829BA4]"
             } flex justify-between items-center`}
           >
-            {formData.type
-              ? reportTypeLabels[formData.type]
+            {formData.bug_type
+              ? reportTypeLabels[formData.bug_type]
               : pageContent["report-bug-types-of-reports-placeholder"]}
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
@@ -163,23 +173,25 @@ export default function FormSubmitReportBugPage(){
           {showTypeSelector && (
             <div
               className={`absolute z-10 w-full mt-1 rounded-md shadow-lg ${
-                darkMode ? "bg-[#04222F] border-gray-700" : "bg-white border-gray-200"
+                darkMode
+                ? "bg-[#04222F] border-gray-700"
+                : "bg-[#FFFFFF] border-gray-200"
               } border`}
             >
-              {Object.values(ReportType).map((type) => (
+              {Object.values(ReportType).map((bug_type) => (
                 <button
-                  key={type}
+                  key={bug_type}
                   className={`block w-full text-left px-4 py-2 text-sm ${
                     darkMode
                       ? "text-white hover:bg-[#053749]"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                   onClick={() => {
-                    setFormData({ ...formData, type });
+                    setFormData({ ...formData, bug_type });
                     setShowTypeSelector(false);
                   }}
                 >
-                  {reportTypeLabels[type]}
+                  {reportTypeLabels[bug_type]}
                 </button>
               ))}
             </div>
@@ -187,8 +199,8 @@ export default function FormSubmitReportBugPage(){
         </div>
         <p className={`mt-1 text-[10px] md:text-[20px] ${
           darkMode
-            ? "text-gray-400"
-            : "text-gray-500"
+            ? "text-[#FFFFFF]"
+            : "text-[#053749]"
           }`}>
           {pageContent["report-bug-types-of-reports-informative-text"]}
         </p>
