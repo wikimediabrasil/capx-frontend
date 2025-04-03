@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import axios from "axios";
+import { serverApi } from "@/lib/utils/api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
       throw new Error("LOGIN_STEP01_URL não está configurada");
     }
 
-    const startLoginResponse = await axios.post(
+    const startLoginResponse = await serverApi.post(
       process.env.LOGIN_STEP01_URL,
       {
         oauth_callback: process.env.NEXTAUTH_URL + "/oauth",

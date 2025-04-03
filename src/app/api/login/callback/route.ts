@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
+import { serverApi } from "@/lib/utils/api";
 
 export async function POST(request: Request) {
   try {
@@ -20,11 +20,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const response = await axios.post(process.env.LOGIN_STEP03_URL as string, {
-      oauth_token,
-      oauth_verifier,
-      oauth_token_secret: stored_token_secret,
-    });
+    const response = await serverApi.post(
+      process.env.LOGIN_STEP03_URL as string,
+      {
+        oauth_token,
+        oauth_verifier,
+        oauth_token_secret: stored_token_secret,
+      }
+    );
 
     if (response.data && response.data.token) {
       return NextResponse.json({

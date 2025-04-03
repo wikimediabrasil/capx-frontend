@@ -21,15 +21,15 @@ import { NewsSection } from "../components/NewsSection";
 import { useApp } from "@/contexts/AppContext";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import { DocumentsList } from "../components/DocumentsList";
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
 import LoadingState from "@/components/LoadingState";
-import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
-import Popup from "@/components/Popup";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
+
+import { clientApi } from "@/lib/utils/api";
 
 export default function OrganizationProfilePage() {
   const { darkMode } = useTheme();
@@ -37,6 +37,23 @@ export default function OrganizationProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const token = session?.user?.token;
+
+  // Check if the user is authenticated
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        await clientApi.get("/api/profile", {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const params = useParams();
   const organizationId = Number(params.id);
@@ -54,9 +71,9 @@ export default function OrganizationProfilePage() {
   const allCapacityIds = [
     ...(organization?.known_capacities || []),
     ...(organization?.available_capacities || []),
-    ...(organization?.wanted_capacities || [])
+    ...(organization?.wanted_capacities || []),
   ];
-  
+
   const { getCapacityName } = useCapacityDetails(allCapacityIds);
 
   useEffect(() => {
@@ -171,29 +188,34 @@ export default function OrganizationProfilePage() {
               </div>
 
               {/* Report Activity Image */}
-              {organization?.report_link && <div className="w-full flex flex-col flex-shrink-0 rounded-[4px] bg-[#04222F] justify-center items-center p-6">
-                <div className="relative w-[220px] h-[96px] mb-[30px]">
-                  <Image
-                    src={ReportActivityIcon}
-                    alt="Report activity icon"
-                    className="object-contain"
-                  />
+              {organization?.report_link && (
+                <div className="w-full flex flex-col flex-shrink-0 rounded-[4px] bg-[#04222F] justify-center items-center p-6">
+                  <div className="relative w-[220px] h-[96px] mb-[30px]">
+                    <Image
+                      src={ReportActivityIcon}
+                      alt="Report activity icon"
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-center items-center gap-2">
+                    <h2 className="text-[#FFF] font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] text-center">
+                      {
+                        pageContent[
+                          "organization-profile-report-activities-title"
+                        ]
+                      }
+                    </h2>
+                    <BaseButton
+                      onClick={() =>
+                        organization?.report_link &&
+                        window.open(organization.report_link, "_blank")
+                      }
+                      label={pageContent["organization-profile-click-here"]}
+                      customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-col justify-center items-center gap-2">
-                  <h2 className="text-[#FFF] font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] text-center">
-                    {
-                      pageContent[
-                        "organization-profile-report-activities-title"
-                      ]
-                    }
-                  </h2>
-                  <BaseButton
-                    onClick={() => organization?.report_link && window.open(organization.report_link, "_blank")}
-                    label={pageContent["organization-profile-click-here"]}
-                    customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-                  />
-                </div>
-              </div>}
+              )}
 
               {/* Capacities Lists */}
               <div className="space-y-6 mt-4">
@@ -225,7 +247,9 @@ export default function OrganizationProfilePage() {
               {/* Projects and Events */}
               <div className="space-y-6 mt-4">
                 <ProjectsEventsList
-                  title={pageContent["body-profile-section-title-main-projects"]}
+                  title={
+                    pageContent["body-profile-section-title-main-projects"]
+                  }
                   type="projects"
                   itemIds={organization?.projects || []}
                   token={token}
@@ -356,28 +380,37 @@ export default function OrganizationProfilePage() {
             </div>
 
             {/* Report Activity Image */}
-            {organization?.report_link && <div className="flex flex-row justify-between px-[85px] py-[64px] items-center rounded-[4px] bg-[#04222F] w-full h-[399px] flex-shrink-0">
-              <div className="relative w-[619px] h-[271px]">
-                <Image
-                  src={ReportActivityIcon}
-                  alt="Report activity icon"
-                  className="object-contain"
-                  width={619}
-                  height={271}
-                  priority
-                />
+            {organization?.report_link && (
+              <div className="flex flex-row justify-between px-[85px] py-[64px] items-center rounded-[4px] bg-[#04222F] w-full h-[399px] flex-shrink-0">
+                <div className="relative w-[619px] h-[271px]">
+                  <Image
+                    src={ReportActivityIcon}
+                    alt="Report activity icon"
+                    className="object-contain"
+                    width={619}
+                    height={271}
+                    priority
+                  />
+                </div>
+                <div className="flex flex-col justify-center items-center gap-2">
+                  <h2 className="text-[#FFF] text-[30px] not-italic font-extrabold leading-[37px] mb-6">
+                    {
+                      pageContent[
+                        "organization-profile-report-activities-title"
+                      ]
+                    }
+                  </h2>
+                  <BaseButton
+                    onClick={() =>
+                      organization?.report_link &&
+                      window.open(organization.report_link, "_blank")
+                    }
+                    label={pageContent["organization-profile-click-here"]}
+                    customClass="inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
+                  />
+                </div>
               </div>
-              <div className="flex flex-col justify-center items-center gap-2">
-                <h2 className="text-[#FFF] text-[30px] not-italic font-extrabold leading-[37px] mb-6">
-                  {pageContent["organization-profile-report-activities-title"]}
-                </h2>
-                <BaseButton
-                  onClick={() => organization?.report_link && window.open(organization.report_link, "_blank")}
-                  label={pageContent["organization-profile-click-here"]}
-                  customClass="inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
-                />
-              </div>
-            </div>}
+            )}
 
             {/* Capacities Lists */}
             <div className="space-y-6 mt-4">
@@ -394,9 +427,7 @@ export default function OrganizationProfilePage() {
                 items={organization?.available_capacities || []}
                 icon={darkMode ? EmojiIconWhite : EmojiIcon}
                 getItemName={(id) => getCapacityName(id)}
-                title={
-                  pageContent["body-profile-available-capacities-title"]
-                }
+                title={pageContent["body-profile-available-capacities-title"]}
                 customClass={`text-center text-[24px] not-italic font-extrabold leading-[29px] font-[Montserrat] ${
                   darkMode ? "text-white" : "text-capx-dark-box-bg"
                 }`}
