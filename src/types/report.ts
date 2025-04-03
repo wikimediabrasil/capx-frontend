@@ -2,7 +2,7 @@ export interface BugReport {
     id: number;
     author: string;
     title: string;
-    type: string;
+    bug_type: string;
     status: string;
     description: string;
     created_at: string;
