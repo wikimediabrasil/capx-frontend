@@ -8,10 +8,12 @@ import BaseButton from "@/components/BaseButton";
 import { useApp } from "@/contexts/AppContext";
 import Image from "next/image";
 import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
-import { getCapacityColor, getHueRotate } from "@/lib/utils/capacitiesUtils";
+import { getHueRotate } from "@/lib/utils/capacitiesUtils";
 import InfoIcon from "@/public/static/images/info.svg";
 import InfoFilledIcon from "@/public/static/images/info_filled.svg";
 import Link from "next/link";
+import LinkIcon from "@/public/static/images/link_icon.svg";
+import LinkIconWhite from "@/public/static/images/link_icon_white.svg";
 
 interface CapacitySelectionModalProps {
   isOpen: boolean;
@@ -217,10 +219,10 @@ export default function CapacitySelectionModal({
         <div
           className={`flex flex-col w-full bg-${
             capacity.color
-          } rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full
+          } rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full
             ${
               isSelected ? "ring-2 ring-capx-primary-green" : ""
-            } cursor-pointer`}
+            } hover:brightness-90 transform hover:scale-[1.01] transition-all`}
           onClick={() => handleCategorySelect(capacity)}
         >
           <div className="flex p-3 h-[80px] items-center justify-between">
@@ -239,10 +241,17 @@ export default function CapacitySelectionModal({
               <Link
                 href={`/feed?capacityId=${capacity.code}`}
                 onClick={(e) => e.stopPropagation()}
+                title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
+                className={`text-white font-bold text-base truncate hover:underline hover:text-yellow-200 transition-colors cursor-pointer block overflow-hidden text-ellipsis whitespace-nowrap flex items-center`}
               >
-                <h3 className="font-bold text-white text-base truncate hover:underline">
-                  {capitalizeFirstLetter(capacity.name)}
-                </h3>
+                {capitalizeFirstLetter(capacity.name)}
+                <Image
+                  src={LinkIconWhite}
+                  alt="External link icon"
+                  width={16}
+                  height={16}
+                  className="ml-1 inline-block"
+                />
               </Link>
             </div>
             <div className="flex items-center">
@@ -294,7 +303,7 @@ export default function CapacitySelectionModal({
                   href={wd_code}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline mt-2 inline-block text-xs"
+                  className="text-blue-500 hover:underline hover:text-blue-700 mt-2 inline-block text-xs transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {pageContent["capacity-selection-modal-see-more-information"]}
@@ -309,8 +318,8 @@ export default function CapacitySelectionModal({
     // Style for child cards
     return (
       <div
-        className={`flex flex-col w-full bg-capx-light-box-bg rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden h-full
-          ${isSelected ? "ring-2 ring-capx-primary-green" : ""} cursor-pointer`}
+        className={`flex flex-col w-full bg-capx-light-box-bg rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full
+          ${isSelected ? "ring-2 ring-capx-primary-green" : ""} hover:bg-gray-200 transform hover:scale-[1.01] transition-all`}
         onClick={() => handleCategorySelect(capacity)}
       >
         <div className="flex p-3 h-[80px] items-center justify-between">
@@ -333,10 +342,16 @@ export default function CapacitySelectionModal({
             <Link
               href={`/feed?capacityId=${capacity.code}`}
               onClick={(e) => e.stopPropagation()}
-              className={`text-gray-700
-              font-bold text-base truncate hover:underline`}
+              className={`text-gray-700 font-bold text-base truncate hover:underline hover:text-blue-700 transition-colors cursor-pointer block overflow-hidden text-ellipsis whitespace-nowrap flex items-center`}
             >
               {capitalizeFirstLetter(capacity.name)}
+              <Image
+                src={LinkIcon}
+                alt="External link icon"
+                width={16}
+                height={16}
+                className="ml-1 inline-block"
+              />
             </Link>
           </div>
           <div className="flex items-center">
@@ -476,29 +491,17 @@ export default function CapacitySelectionModal({
           </div>
 
           {/* Capacity list */}
-          <div className="space-y-2 max-h-[60vh] md:max-h-[65vh] overflow-y-auto p-1">
-            <h3
-              className={`font-medium mb-2 ${
-                darkMode ? "text-white" : "text-gray-700"
-              }`}
-            >
-              {selectedPath.length === 0
-                ? pageContent["capacity-selection-modal-root-capacities"]
-                : `${pageContent["capacity-selection-modal-select-capacity"]} ${
-                    findCapacityByCode(selectedPath[selectedPath.length - 1])
-                      ?.name || ""
-                  }`}
-            </h3>
+          <div className="space-y-4 max-h-[60vh] md:max-h-[65vh] overflow-y-auto scrollbar-hide p-2 pb-4">
             {isLoading?.root ? (
               <div
-                className={`text-center py-4 ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                {pageContent["capacity-selection-modal-loading"]}
-              </div>
+              className={`text-center py-4 ${
+                darkMode ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              {pageContent["capacity-selection-modal-loading"]}
+            </div>
             ) : getCurrentCapacities().length > 0 ? (
-              <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-2">
                 {getCurrentCapacities().map((capacity, index) => {
                   const isRoot = selectedPath.length === 0;
                   const uniqueKey = `${capacity.code}-${selectedPath.join(
@@ -506,7 +509,7 @@ export default function CapacitySelectionModal({
                   )}-${index}`;
 
                   return (
-                    <div key={uniqueKey} className="flex flex-col h-full">
+                    <div key={uniqueKey} className="transform-gpu">
                       {renderCapacityCard(capacity, isRoot)}
                       {selectedCapacity?.code === capacity.code && (
                         <div
