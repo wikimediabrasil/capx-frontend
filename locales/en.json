@@ -90,7 +90,6 @@
   "organization-profile-event-image-tooltip": "Upload an image of your event.",
   "organization-profile-event-link": "Link",
   "organization-profile-event-link-tooltip": "Enter the link of your event.",
-
   "organization-profile-click-here": "Click here",
   "organization-profile-add-a-diff-tag": "Add a Diff Tag",
   "organization-profile-edit-org-profile": "Edit org. profile",
@@ -321,5 +320,7 @@
   "edit-profile-organization-logo-help": "Enter the Wikimedia Commons image link. Ex: https://commons.wikimedia.org/wiki/File:Example.jpg",
   "edit-profile-no-image": "No image selected",
   "edit-profile-invalid-image-url": "Please enter a valid Wikimedia Commons URL",
-  "events-banner-title": "Events"
+  "events-banner-title": "Events",
+  "organization-profile-event-popup-cancel": "Cancel",
+  "organization-profile-event-popup-create-event": "Create event"
 }

@@ -1099,13 +1099,13 @@ export default function EditOrganizationProfilePage() {
                 onClick={() => setShowEventModal(false)}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:border-gray-400"
               >
-                {pageContent["cancel"]}
+                {pageContent["organization-profile-event-popup-cancel"]}
               </button>
               <button
                 onClick={handleCreateEvent}
                 className="px-4 py-2 bg-[#851970] text-white font-medium rounded-md hover:bg-[#6d145c]"
               >
-                {pageContent["create-event"]}
+                {pageContent["organization-profile-event-popup-create-event"]}
               </button>
             </div>
           </div>
