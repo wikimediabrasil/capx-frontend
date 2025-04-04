@@ -55,7 +55,7 @@ const Popup = ({
           >
             <button
               onClick={onCloseTab}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              className="absolute top-4 right-4 hover:text-gray-700"
             >
               <svg
                 className="w-6 h-6"
@@ -149,7 +149,7 @@ const Popup = ({
               <div className="flex flex-row justify-start gap-4">
                 {closeButtonLabel && (
                   <BaseButton
-                    customClass="bg-capx-light-bg hover:bg-capx-primary-green border-capx-dark-box-bg border-2 text-capx-dark-box-bg font-extrabold rounded-lg text-center text-xl py-2 px-8"
+                    customClass="bg-white hover:bg-capx-primary-green border-capx-dark-box-bg border-2 text-capx-dark-box-bg font-extrabold rounded-lg text-center text-xl py-2 px-8"
                     label={closeButtonLabel}
                     onClick={onCloseTab}
                   />
