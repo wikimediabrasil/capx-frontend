@@ -18,7 +18,7 @@ export class BugReportService {
           title: bugReport.title,
           description: bugReport.description,
           author: bugReport.author,
-          type: bugReport.type,
+          type: bugReport.bug_type,
         },
         {
           headers: {
