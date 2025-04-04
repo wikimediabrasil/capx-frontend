@@ -80,17 +80,45 @@ export async function DELETE(
   const authHeader = request.headers.get("authorization");
   const id = params.id;
 
+  if (!authHeader) {
+    return NextResponse.json(
+      { error: "Authorization header missing" },
+      { status: 401 }
+    );
+  }
+
   try {
+    console.log(
+      `Tentando deletar evento ${id} com token ${authHeader.substring(
+        0,
+        10
+      )}...`
+    );
+
     const response = await axios.delete(
       `${process.env.BASE_URL}/events/${id}/`,
       {
-        headers: { Authorization: `Token ${authHeader}` },
+        headers: {
+          Authorization: authHeader,
+          "Content-Type": "application/json",
+        },
       }
     );
-    return NextResponse.json(response.data);
+
+    console.log(`Evento ${id} deletado com sucesso`);
+    return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error(`Erro ao deletar evento ${id}:`, {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+
     return NextResponse.json(
-      { error: "Failed to delete event with id " + id, details: error.message },
+      {
+        error: `Failed to delete event with id ${id}`,
+        details: error.response?.data || error.message,
+      },
       { status: error.response?.status || 500 }
     );
   }

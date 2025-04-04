@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
+  const token = request.headers.get("Authorization");
   const searchParams = request.nextUrl.searchParams;
   const limit = searchParams.get("limit");
   const offset = searchParams.get("offset");
@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
   try {
     const response = await axios.get(`${process.env.BASE_URL}/events/`, {
       headers: {
-        Authorization: authHeader,
+        Authorization: token,
+        "Content-Type": "application/json",
       },
       params: {
         limit,
@@ -19,15 +20,9 @@ export async function GET(request: NextRequest) {
     });
     return NextResponse.json(response.data.results);
   } catch (error: any) {
-    console.error("Events fetch error:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-    });
-
     return NextResponse.json(
       {
-        error: "Failed to fetch events",
+        error: "Falha ao buscar eventos",
         details: error.response?.data || error.message,
       },
       { status: error.response?.status || 500 }
@@ -58,7 +53,8 @@ export async function POST(request: NextRequest) {
       status: error.response?.status,
       event: event,
       headers: {
-        Authorization: authHeader ? "Present" : "Missing",
+        Authorization: authHeader,
+        "Content-Type": "application/json",
       },
     });
     return NextResponse.json(

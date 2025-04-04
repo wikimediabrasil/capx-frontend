@@ -88,35 +88,34 @@ export function useEvent(
   };
 }
 
-export function useEvents(eventIds?: number[], token?: string) {
+export function useEvents(token: string, limit?: number, offset?: number) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
-      if (!token || !eventIds?.length) return;
+      if (!token) {
+        console.error("Token não disponível, não é possível buscar eventos");
+        return;
+      }
 
       setIsLoading(true);
       try {
-        const eventPromises = eventIds.map((id) =>
-          eventsService.getEventById(id, token)
-        );
-        const eventsData = await Promise.all(eventPromises);
+        const eventsData = await eventsService.getEvents(token, limit, offset);
         setEvents(eventsData);
         setError(null);
+        setIsLoading(false);
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error("Failed to fetch events")
         );
-        setEvents([]);
-      } finally {
         setIsLoading(false);
       }
     };
 
     fetchEvents();
-  }, [eventIds, token]);
+  }, [token, limit, offset]);
 
   return {
     events,

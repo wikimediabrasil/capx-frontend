@@ -2,21 +2,37 @@ import { Event } from "@/types/event";
 import axios from "axios";
 
 export const eventsService = {
-  async getEventById(
-    eventId: number,
+  async getEvents(
     token: string,
     limit?: number,
     offset?: number
-  ): Promise<Event> {
+  ): Promise<Event[]> {
+    const headers = { Authorization: `Token ${token}` };
+    const params = { limit, offset };
+
+    try {
+      const response = await axios.get("/api/events/", {
+        headers,
+        params,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar eventos:", error);
+      throw error;
+    }
+  },
+
+  async getEventById(eventId: number, token: string): Promise<Event> {
     try {
       const response = await axios.get(`/api/events/${eventId}`, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: token,
         },
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching event:", error);
+      console.error(`Erro ao buscar evento ${eventId}:`, error);
       throw error;
     }
   },
@@ -24,7 +40,7 @@ export const eventsService = {
   async createEvent(event: Partial<Event>, token: string): Promise<Event> {
     try {
       const response = await axios.post("/api/events/", event, {
-        headers: { Authorization: `Token ${token}` },
+        headers: { Authorization: token },
       });
       return response.data;
     } catch (error) {
@@ -40,12 +56,11 @@ export const eventsService = {
   ): Promise<Event> {
     const payload = {
       ...event,
-      type_of_location: event.type_of_location || "virtual",
     };
 
     const response = await axios.put(`/api/events/${eventId}/`, payload, {
       headers: {
-        Authorization: `Token ${token}`,
+        Authorization: token,
         "Content-Type": "application/json",
       },
     });
@@ -53,8 +68,13 @@ export const eventsService = {
   },
 
   async deleteEvent(eventId: number, token: string): Promise<void> {
-    await axios.delete(`/api/events/${eventId}/`, {
-      headers: { Authorization: `Token ${token}` },
-    });
+    try {
+      await axios.delete(`/api/events/${eventId}/`, {
+        headers: { Authorization: token },
+      });
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      throw error;
+    }
   },
 };

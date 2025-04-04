@@ -9,7 +9,7 @@ import Image from "next/image";
 import { Event } from "@/types/event";
 import { useApp } from "@/contexts/AppContext";
 import BaseSelect from "@/components/BaseSelect";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { Capacity } from '@/types/capacity';
 import BaseButton from '@/components/BaseButton';
@@ -84,16 +84,41 @@ export default function EventsFormItem({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
 
-  console.log("eventData", eventData);
+  console.log("EventsFormItem renderizado com dados:", eventData);
+
+  useEffect(() => {
+    // Inicializar as capacidades selecionadas a partir de eventData
+    if (eventData.related_skills && eventData.related_skills.length > 0) {
+      // Aqui você precisaria ter um método para converter os IDs em objetos Capacity
+      // Por exemplo:
+      // const capacities = eventData.related_skills.map(id => getCapacityById(id));
+      // setSelectedCapacities(capacities);
+    }
+  }, [eventData.related_skills]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
     if (!selectedCapacities.find(cap => cap.code === capacity.code)) {
-      setSelectedCapacities([...selectedCapacities, capacity]);
+      const newCapacities = [...selectedCapacities, capacity];
+      setSelectedCapacities(newCapacities);
+      
+      // Atualizar related_skills no evento
+      const skillIds = newCapacities.map(cap => cap.code);
+      onChange(index, "related_skills", JSON.stringify(skillIds));
     }
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    setSelectedCapacities(selectedCapacities.filter(cap => cap.code !== capacityCode));
+    const newCapacities = selectedCapacities.filter(cap => cap.code !== capacityCode);
+    setSelectedCapacities(newCapacities);
+    
+    // Atualizar related_skills no evento
+    const skillIds = newCapacities.map(cap => cap.code);
+    onChange(index, "related_skills", JSON.stringify(skillIds));
+  };
+
+  const handleChange = (field: keyof Event, value: string) => {
+    console.log(`EventsFormItem handleChange: campo ${field} valor ${value}`);
+    onChange(index, field, value);
   };
 
   if (isMobile) {
@@ -105,7 +130,7 @@ export default function EventsFormItem({
               type="text"
               placeholder={pageContent["organization-profile-event-name"]}
               value={eventData.name || ""}
-              onChange={(e) => onChange(index, "name", e.target.value)}
+              onChange={(e) => handleChange("name", e.target.value)}
               className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
                 darkMode
                   ? "text-white placeholder-gray-400"
@@ -123,46 +148,14 @@ export default function EventsFormItem({
                   height={24}
                 />
               </div>
-              <input
-                type="text"
-                placeholder={pageContent["organization-profile-project-image"]}
-                className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
-                  darkMode
-                    ? "text-white placeholder-gray-400"
-                    : "text-[#829BA4] placeholder-[#829BA4]"
-                }`}
-                value={eventData.image_url}
-                onChange={(e) => {
-                  const validatedUrl = validateImageUrl(e.target.value);
-                  onChange(index, "image_url", validatedUrl);
-                }}
-              />
+              
             </div>
             <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent">
-              <div className="relative w-[24px] h-[24px]">
-                <Image
-                  src={AddLinkIcon}
-                  alt="Add link icon"
-                  className="object-contain"
-                  width={24}
-                  height={24}
-                />
-              </div>
-              <input
-                type="text"
-                placeholder={pageContent["organization-profile-project-link"]}
-                className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
-                  darkMode
-                    ? "text-white placeholder-gray-400"
-                    : "text-[#829BA4] placeholder-[#829BA4]"
-                }`}
-                value={eventData.url}
-                onChange={(e) => onChange(index, "url", e.target.value)}
-              />
+              
             </div>
           </div>
         </div>
-        <button onClick={() => onDelete(eventData.id)}>
+        <button onClick={() => onDelete(eventData.id || 0)}>
           <div className="relative w-[24px] h-[24px]">
             <Image
               src={darkMode ? CancelIconWhite : CancelIcon}
@@ -198,6 +191,8 @@ export default function EventsFormItem({
                 ? "text-white placeholder-gray-400"
                 : "text-[#829BA4] placeholder-[#829BA4]"
             }`}
+            value={eventData.url || ""}
+            onChange={(e) => handleChange("url", e.target.value)}
           />
         </div>
         <p
@@ -219,7 +214,7 @@ export default function EventsFormItem({
             type="text"
             placeholder={pageContent["organization-profile-event-name"]}
             value={eventData.name || ""}
-            onChange={(e) => onChange(index, "name", e.target.value)}
+            onChange={(e) => handleChange("name", e.target.value)}
             className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
               darkMode
                 ? "text-white placeholder-gray-400"
@@ -238,10 +233,7 @@ export default function EventsFormItem({
           <div className="flex flex-row gap-2 w-full items-center text-[24px] p-2 border rounded-md bg-transparent">
             <input
               type="text"
-              placeholder={
-                eventData.organized_by ||
-                pageContent["organization-profile-event-organized-by"]
-              }
+              disabled={true}
               className={`w-full bg-transparent border-none outline-none ${
                 darkMode
                   ? "text-white placeholder-gray-400"
@@ -262,10 +254,9 @@ export default function EventsFormItem({
           <div className="flex flex-row gap-2 w-full items-center text-[24px]">
             <div className="flex w-1/2 flex-row gap-2 border-capx-dark-box-bg rounded-md">
               <input
-                type="date"
-                placeholder={
-                  pageContent["organization-profile-event-start-date"]
-                }
+                type="datetime-local"
+                value={eventData.time_begin ? new Date(eventData.time_begin).toISOString().slice(0, 16) : ""}
+                onChange={(e) => handleChange("time_begin", e.target.value)}
                 className={`w-full bg-transparent border border-capx-dark-box-bg border-2 rounded-md p-2 outline-none ${
                   darkMode
                     ? "text-white placeholder-gray-400"
@@ -299,8 +290,9 @@ export default function EventsFormItem({
           <div className="flex flex-row gap-2 w-full items-center text-[24px]">
             <div className="flex w-1/2 flex-row gap-2 border-capx-dark-box-bg rounded-md">
               <input
-                type="date"
-                placeholder={pageContent["organization-profile-event-end-date"]}
+                type="datetime-local"
+                value={eventData.time_end ? new Date(eventData.time_end).toISOString().slice(0, 16) : ""}
+                onChange={(e) => handleChange("time_end", e.target.value)}
                 className={`w-full bg-transparent border border-capx-dark-box-bg border-2 rounded-md p-2 outline-none ${
                   darkMode
                     ? "text-white placeholder-gray-400"
@@ -340,6 +332,8 @@ export default function EventsFormItem({
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
+              value={eventData.date ? new Date(eventData.date).toISOString().split('T')[0] : ""}
+              onChange={(e) => handleChange("date", e.target.value)}
             />
           </div>
           <p
@@ -365,11 +359,11 @@ export default function EventsFormItem({
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
-              value={eventData.type_of_location}
-              onChange={(e) => onChange(index, "type_of_location", e.target.value)}
+              value={eventData.type_of_location || "virtual"}
+              onChange={(e) => handleChange("type_of_location", e.target.value)}
             >
               <option value="virtual">Virtual</option>
-              <option value="in person">In person</option>
+              <option value="in_person">In person</option>
               <option value="hybrid">Hybrid</option>
             </select>
           </div>
@@ -386,6 +380,7 @@ export default function EventsFormItem({
           <div className="flex flex-col w-full">
             <div 
               onClick={() => setIsModalOpen(true)}
+              onChange={(e) => handleChange("related_skills", e.target.value)}
               className={`flex items-center justify-between w-full px-4 py-3 border rounded-lg cursor-pointer ${
                 darkMode 
                   ? "bg-transparent border-white text-white" 
@@ -461,6 +456,8 @@ export default function EventsFormItem({
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
+              value={eventData.description || ""}
+              onChange={(e) => handleChange("description", e.target.value)}
             />
           </div>
           <p
@@ -473,7 +470,7 @@ export default function EventsFormItem({
         </div>
       </div>
 
-      <button onClick={() => onDelete(eventData.id)}>
+      <button onClick={() => onDelete(eventData.id || 0)}>
         <div className="relative w-[32px] h-[32px] items-center">
           <Image
             src={darkMode ? CancelIconWhite : CancelIcon}

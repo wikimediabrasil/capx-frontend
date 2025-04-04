@@ -63,7 +63,7 @@ export default function OrganizationProfilePage() {
         isMobile={isMobile}
         organization={organization}
         organizationId={organizationId}
-        token={token}
+                  token={token}
         isOrgManager={isOrgManager}
         getCapacityName={getCapacityName}
         allCapacityIds={allCapacityIds}
@@ -78,7 +78,7 @@ export default function OrganizationProfilePage() {
       isMobile={isMobile}
       organization={organization}
       organizationId={organizationId}
-      token={token}
+                token={token}
       isOrgManager={isOrgManager}
       getCapacityName={getCapacityName}
       allCapacityIds={allCapacityIds}

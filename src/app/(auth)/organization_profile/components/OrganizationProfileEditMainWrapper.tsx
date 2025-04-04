@@ -136,25 +136,48 @@ export default function EditOrganizationProfilePage() {
     [key: number]: boolean;
   }>({});
 
-  // Effect to load events
+  // Adicione este log para verificar os IDs dos eventos
   useEffect(() => {
-    if (!organization || !events) {
-      eventsLoaded.current = false;
-      return;
+    if (organization) {
+      console.log('IDs de eventos da organização:', organization.events);
     }
+  }, [organization]);
 
-    if (
-      !eventsLoaded.current &&
-      !isEventsLoading &&
-      organization?.events &&
-      organization?.events?.length > 0 &&
-      events &&
-      events.length > 0
-    ) {
-      setEventsData(events);
-      eventsLoaded.current = true;
-    }
-  }, [organization, events, isEventsLoading]);
+  // Modifique o useEffect de carregamento de eventos
+  useEffect(() => {
+    const loadEvents = async () => {
+      if (!organization?.events || !token) {
+        return;
+      }
+
+      console.log('Tentando carregar eventos com IDs:', organization.events);
+      
+      if (!eventsLoaded.current && !isEventsLoading && organization.events.length > 0) {
+        try {
+          // Carregar eventos diretamente pela API, um por um
+          const eventPromises = organization.events.map(eventId => 
+            eventsService.getEventById(eventId, token as string)
+          );
+          
+          const loadedEvents = await Promise.all(eventPromises);
+          console.log('Eventos carregados diretamente:', loadedEvents);
+          
+          const validEvents = loadedEvents.filter(event => event !== null && event !== undefined);
+          setEventsData(validEvents);
+          eventsLoaded.current = true;
+        } catch (error) {
+          console.error('Erro ao carregar eventos:', error);
+        }
+      }
+    };
+    
+    loadEvents();
+  }, [organization?.events, token, isEventsLoading]);
+
+  // Adicionar um useEffect para debug
+  useEffect(() => {
+    console.log('Estado atual dos eventos:', eventsData);
+  }, [eventsData]);
 
   // Tags setters
   const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } =
@@ -433,91 +456,36 @@ export default function EditOrganizationProfilePage() {
       const validNewProjectIds = validNewIds(newProjectIds as number[]);
       const allProjectIds = [...validUpdatedProjectIds, ...validNewProjectIds];
 
+      // Atualizar eventos existentes
       const updateEventPromises = eventsData
-        .filter((event) => event.id !== 0)
-        .map(async (event) => {
-          try {
-            await updateEvent(event.id, {
-              name: event.name,
-              image_url: event.image_url,
-              url: event.url,
-              organizations: [Number(organizationId)],
-              time_begin: event.time_begin,
-              time_end: event.time_end,
-            });
-            showSnackbar(
-              pageContent["snackbar-edit-profile-organization-success"],
-              "success"
-            );
-            return event.id;
-          } catch (error) {
-            showSnackbar(
-              pageContent[
-                "snackbar-edit-profile-organization-update-event-failed"
-              ],
-              "error"
-            );
-            console.error(`Error updating event ${event.id}:`, error);
-            return event.id;
-          }
-        });
+      .filter((event) => event.id !== 0)
+      .map((event) => updateEvent(event.id, event));
 
-      const eventPromises = eventsData
-        .filter((event) => event.id === 0)
-        .map(async (event) => {
-          try {
-            const newEvent = await createEvent({
-              name: event.name,
-              image_url: event.image_url,
-              url: event.url,
-              organizations: [Number(organizationId)],
-              time_begin: event.time_begin,
-              time_end: event.time_end,
-              creator: Number(session?.user?.id),
-              organized_by: organization?.display_name || "",
-              team: [],
-              related_skills: [],
-              type_of_location: "virtual",
-              openstreetmap_id: event.openstreetmap_id || "",
-              wikidata_qid: event.wikidata_qid || "",
-            });
+      // Criar novos eventos
+      const createEventPromises = eventsData
+      .filter((event) => event.id === 0)
+      .map((event) => createEvent({
+        ...event,
+        organizations: [Number(organizationId)],
+        creator: Number(session?.user?.id),
+      }));
 
-            if (!newEvent || !newEvent.id) {
-              // TODO confirm this snackbar error message
-              showSnackbar(
-                pageContent[
-                  "snackbar-edit-profile-organization-processing-document-failed"
-                ],
-                "error"
-              );
-              console.error("Invalid event response:", newEvent);
-              return null;
-            }
-            showSnackbar(
-              pageContent["snackbar-edit-profile-organization-success"],
-              "success"
-            );
-            return newEvent.id;
-          } catch (error) {
-            showSnackbar(
-              pageContent[
-                "snackbar-edit-profile-organization-create-event-failed"
-              ],
-              "error"
-            );
-            console.error("Error creating event:", error);
-            return null;
-          }
-        });
-
-      const [updatedEventIds, newEventIds] = await Promise.all([
-        Promise.all(updateEventPromises),
-        Promise.all(eventPromises),
+      const [updatedEvents, newEvents] = await Promise.all([
+      Promise.all(updateEventPromises),
+      Promise.all(createEventPromises),
       ]);
 
-      const validUpdatedEventIds = validUpdatedIds(updatedEventIds as number[]);
-      const validNewEventIds = validNewIds(newEventIds as number[]);
-      const allEventIds = [...validUpdatedEventIds, ...validNewEventIds];
+      const allEventIds = [
+      ...updatedEvents.map(event => event.id),
+      ...newEvents.map(event => event.id),
+      ].filter(id => id !== undefined && id !== null) as number[];
+
+  
+      await updateOrganization(updatedFormData);
+      showSnackbar(
+      pageContent["snackbar-edit-profile-organization-success"],
+      "success"
+      );
 
       const tagResults = await Promise.all(
         diffTagsData.map(async (tag) => {
@@ -714,12 +682,12 @@ export default function EditOrganizationProfilePage() {
   const [showEventModal, setShowEventModal] = useState(false);
 
   const handleAddEvent = () => {
-    const eventData = {
+    const eventData: Event = {
       id: 0,
-      name: "New Event",
+      name: "",
       type_of_location: "virtual",
-      url: "https://example.com",
-      image_url: "https://commons.wikimedia.org/wiki/File:example.svg",
+      url: "",
+      image_url: "",
       time_begin: new Date().toISOString(),
       time_end: new Date().toISOString(),
       organization: Number(organizationId),
@@ -730,7 +698,7 @@ export default function EditOrganizationProfilePage() {
       team: [],
       description: "",
       related_skills: [],
-      organizations: [],
+      organizations: [Number(organizationId)],
       openstreetmap_id: "",
       wikidata_qid: "",
     };
@@ -741,29 +709,57 @@ export default function EditOrganizationProfilePage() {
   const handleDeleteEvent = async (eventId: number) => {
     try {
       if (eventId === 0) {
-        setEventsData((prev) => {
-          const index = prev.findIndex((e) => e.id === 0);
-          if (index !== -1) {
-            const updated = [...prev];
-            updated.splice(index, 1);
-            return updated;
-          }
-          return prev;
-        });
+        setEventsData((prev) => prev.filter(e => e.id !== 0));
         return;
       }
-      await deleteEvent(eventId);
-      showSnackbar(
-        pageContent["snackbar-edit-profile-organization-delete-event-success"],
-        "success"
-      );
+      
+      console.log(`Iniciando processo de deleção do evento ${eventId}`);
+      
+      // Verificar se temos token
+      if (!token) {
+        console.error("Token não disponível para deleção de evento");
+        showSnackbar(
+          "Você precisa estar autenticado para deletar eventos",
+          "error"
+        );
+        return;
+      }
+      
+      // Atualizar o estado local primeiro (para feedback imediato)
       setEventsData((prev) => prev.filter((e) => e.id !== eventId));
+      
+      // Atualizar o formData
+      setFormData(prev => ({
+        ...prev,
+        events: (prev.events || []).filter(id => id !== eventId)
+      }));
+      
+      // Definir o eventId para ser usado pelo hook useEvent
+      setEventId(eventId);
+      
+      // Pequeno atraso para garantir que o eventId foi atualizado
+      setTimeout(async () => {
+        try {
+          await deleteEvent(eventId);
+          console.log(`Evento ${eventId} deletado com sucesso`);
+          showSnackbar(
+            pageContent["snackbar-edit-profile-organization-delete-event-success"],
+            "success"
+          );
+        } catch (deleteError) {
+          console.error("Erro ao deletar evento:", deleteError);
+          showSnackbar(
+            pageContent["snackbar-edit-profile-organization-delete-event-failed"],
+            "error"
+          );
+        }
+      }, 100);
     } catch (error) {
+      console.error("Error in handleDeleteEvent:", error);
       showSnackbar(
         pageContent["snackbar-edit-profile-organization-delete-event-failed"],
         "error"
       );
-      console.error("Error deleting event:", error);
     }
   };
 
@@ -772,30 +768,65 @@ export default function EditOrganizationProfilePage() {
     field: keyof Event,
     value: string
   ) => {
-    const event = eventsData[index];
-    const updatedEvent = {
-      ...event,
-      [field]: value,
-      type_of_location: event.type_of_location || "virtual",
-    };
-
-    // First update in the backend if it's an existing event
-    if (event.id > 0 && token) {
-      try {
-        await updateEvent(event.id, updatedEvent);
-      } catch (error) {
-        console.error("Error updating event:", error);
-        return; // If the update fails, do not update the local state
-      }
+    console.log(`handleEventChange chamado para campo ${field} com valor ${value}`);
+    
+    if (showEventModal && newEvent) {
+      setNewEvent(prev => {
+        if (!prev) return prev;
+        
+        let updatedValue = value;
+        
+        // Tratamento especial para campos específicos
+        if (field === 'time_begin' || field === 'time_end') {
+          updatedValue = new Date(value).toISOString();
+        } else if (field === 'related_skills' && value.startsWith('[')) {
+          try {
+            updatedValue = JSON.parse(value);
+          } catch (e) {
+            console.error('Erro ao analisar related_skills:', e);
+          }
+        }
+        
+        const updatedEvent = {
+          ...prev,
+          [field]: updatedValue,
+          updated_at: new Date().toISOString()
+        };
+        
+        console.log('Novo estado do evento no modal:', updatedEvent);
+        return updatedEvent;
+      });
+    } else {
+      setEventsData(prev => {
+        const updated = [...prev];
+        if (!updated[index]) return prev;
+        
+        let updatedValue = value;
+        
+        // Tratamento especial para campos específicos
+        if (field === 'time_begin' || field === 'time_end') {
+          updatedValue = new Date(value).toISOString();
+        } else if (field === 'related_skills' && value.startsWith('[')) {
+          try {
+            updatedValue = JSON.parse(value);
+          } catch (e) {
+            console.error('Erro ao analisar related_skills:', e);
+          }
+        }
+        
+        // Atualizar o evento com o novo valor
+        updated[index] = {
+          ...updated[index],
+          [field]: updatedValue,
+          updated_at: new Date().toISOString()
+        };
+        
+        console.log('Evento atualizado:', updated[index]);
+        return updated;
+      });
     }
-
-    // Then update the local state
-    setEventsData((prev) => {
-      const updated = [...prev];
-      updated[index] = updatedEvent;
-      return updated;
-    });
   };
+  
 
   // Diff tags handlers
   const handleAddDiffTag = () => {
@@ -975,10 +1006,74 @@ export default function EditOrganizationProfilePage() {
     avatars,
   ]);
 
-  const handleCreateEvent = () => {
-    if (newEvent) {
-      setEventsData((prev) => [...prev, newEvent]);
-      setShowEventModal(false);
+  const handleCreateEvent = async () => {
+    try {
+      if (!newEvent) return;
+      
+      console.log('Tentando criar evento com dados:', newEvent);
+      
+      // Garantir que todos os campos necessários estejam presentes
+      const newEventData = {
+        ...newEvent,
+        organizations: [Number(organizationId)],
+        organization: Number(organizationId),
+        creator: Number(session?.user?.id),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        team: newEvent.team || [Number(session?.user?.id)],
+        type_of_location: newEvent.type_of_location || "virtual",
+        url: newEvent.url || "",
+        image_url: newEvent.image_url || "",
+        organized_by: newEvent.organized_by || organization?.display_name || "",
+        description: newEvent.description || "",
+        related_skills: newEvent.related_skills || [],
+        openstreetmap_id: newEvent.openstreetmap_id || "",
+        wikidata_qid: newEvent.wikidata_qid || ""
+      };
+      
+      console.log('Dados do evento a serem enviados para API:', newEventData);
+      
+      // Define o ID do evento como 0 para criar um novo
+      setEventId(0);
+      
+      // Pequeno atraso para garantir que o eventId foi atualizado
+      setTimeout(async () => {
+        try {
+          const createdEvent = await createEvent(newEventData);
+          console.log('Resposta da API após criar evento:', createdEvent);
+          
+          if (createdEvent && createdEvent.id) {
+            // Atualizar o estado dos eventos
+            setEventsData(prev => [...prev, createdEvent]);
+            
+            // Atualizar o formData com o novo evento
+            setFormData(prev => ({
+              ...prev,
+              events: [...(prev.events || []), createdEvent.id]
+            }));
+            
+            setShowEventModal(false);
+            setNewEvent(undefined);
+            
+            showSnackbar(
+              pageContent["snackbar-edit-profile-organization-create-event-success"],
+              "success"
+            );
+          }
+        } catch (createError) {
+          console.error('Erro ao criar evento:', createError);
+          showSnackbar(
+            pageContent["snackbar-edit-profile-organization-create-event-failed"],
+            "error"
+          );
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Erro ao criar evento:', error);
+      showSnackbar(
+        pageContent["snackbar-edit-profile-organization-create-event-failed"],
+        "error"
+      );
     }
   };
 
