@@ -3,7 +3,7 @@ import { capacityService } from "@/services/capacityService";
 import { getCapacityColor, getCapacityIcon } from "@/lib/utils/capacitiesUtils";
 import { CapacityResponse, Capacity } from "@/types/capacity";
 
-export function useCapacityList(token?: string, language: string = "pt-br") {
+export function useCapacityList(token?: string, language: string = "en") {
   const [rootCapacities, setRootCapacities] = useState<Capacity[]>([]);
   const [childrenCapacities, setChildrenCapacities] = useState<
     Record<string, Capacity[]>
@@ -332,7 +332,6 @@ export function useCapacityList(token?: string, language: string = "pt-br") {
               }
 
               // if didnt find the parent, create a fake parent
-              console.log("Creating a fake parent for:", item.name);
               return {
                 code: item.code,
                 name: item.name,

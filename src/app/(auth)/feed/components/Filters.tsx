@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
@@ -57,7 +57,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
   
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = filters.capacities.some(
-      cap => cap.code === capacity.code || cap.id === Number(capacity.id)
+      cap => cap.code == capacity.code
     );
 
     if(capacityExists) {
@@ -67,7 +67,6 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
     setFilters(prev => ({
       ...prev,
       capacities: [...prev.capacities, {
-        id: Number(capacity.id),
         name: capacity.name,
         code: capacity.code,
       }]

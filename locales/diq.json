@@ -34,10 +34,22 @@
 	"body-profile-contact-image-alt": "Pela irtıbati",
 	"footer-link-documentation": "Dokumantasyon",
 	"footer-link-wikimedia": "Meta-wikimedia",
+	"aria-language-input": "Yew zıwan weçine",
 	"sign-in-button": "Cıkewtış",
 	"body-profile-languages-title": "Zıwani",
 	"body-profile-wikimedia-projects-title": "Proceyê wikimedya",
 	"body-profile-contact-title": "İrtıbat",
 	"edit-profile-welcome": "Xeyr amey!",
-	"edit-profile-cancel": "Vurnayışi bıtexelne"
+	"edit-profile-delete-profile": "Profili bestere",
+	"edit-profile-cancel": "Vurnayışi bıtexelne",
+	"capacity-card-expand-capacity": "Hera ke",
+	"capacity-card-info": "Melumat",
+	"capacity-search-no-results": "Neticeyi nêvêniyayi",
+	"capacity-selection-modal-select-capacity-button-cancel": "Bıtexelne",
+	"capacity-selection-modal-loading": "Bar beno...",
+	"filters-user-profile": "Profilê karberi",
+	"filters-profiles": "Profili",
+	"pagination-previous": "Verên",
+	"pagination-next": "Bahdoyên",
+	"pagination-page": "Pele"
 }

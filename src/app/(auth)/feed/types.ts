@@ -10,7 +10,6 @@ export enum ProfileFilterType {
 }
 
 export interface Skill {
-  id: number;
   name: string;
   code: number;
 }

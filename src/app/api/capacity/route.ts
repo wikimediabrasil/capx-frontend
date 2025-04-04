@@ -1,5 +1,7 @@
+import { getCapacityColor } from "@/lib/utils/capacitiesUtils";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import { fetchMetabase, fetchWikidata } from "@/lib/utils/capacitiesUtils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,29 +34,24 @@ export async function GET(req: NextRequest) {
         code: Number(key),
         wd_code: value,
       }));
-
-    // Continue with Wikidata query...
-    const wdCodeList = codes.map((code) => "wd:" + code.wd_code);
-    const queryText = `SELECT ?item ?itemLabel WHERE {VALUES ?item {${wdCodeList.join(
-      " "
-    )}} SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'.}}`;
-
-    const wikidataResponse = await axios.get(
-      `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`
-    );
-
-    const organizedData = wikidataResponse.data.results.bindings.map(
-      (wdItem) => ({
-        wd_code: wdItem.item.value.split("/").slice(-1)[0],
-        name: wdItem.itemLabel.value,
-      })
-    );
+    const metabaseResponse = await fetchMetabase(codes, language ?? "en");
+    const wikidataResponse = await fetchWikidata(codes, language ?? "en");
 
     const codesWithNames = codes.map((obj1) => {
-      const obj2 = organizedData.find((obj2) => obj2.wd_code === obj1.wd_code);
-      return obj2 ? { ...obj1, ...obj2 } : { ...obj1, name: obj1.wd_code };
+      const metabaseMatch = metabaseResponse.find(
+        (mb) => mb.wd_code === obj1.wd_code
+      );
+      const wikidataMatch = wikidataResponse.find(
+        (wd) => wd.wd_code === obj1.wd_code
+      );
+      return {
+        ...obj1,
+        name: metabaseMatch?.name || wikidataMatch?.name || obj1.wd_code,
+        description:
+          metabaseMatch?.description || wikidataMatch?.description || "",
+        color: getCapacityColor(obj1.code.toString()),
+      };
     });
-
     return NextResponse.json(codesWithNames);
   } catch (error) {
     console.error("Error details:", error);

@@ -63,7 +63,7 @@ export default function FeedPage() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const capacityId = searchParams.get('capacityId');
+  const capacityCode = searchParams.get('capacityId');
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
@@ -80,15 +80,15 @@ export default function FeedPage() {
   const itemsPerPage = itemsPerList * 2; // Total of profiles per page
   const offset = (currentPage - 1) * itemsPerList;
 
-  const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityId);
+  const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityCode);
 
   // Get data from capacityById
   useEffect(() => {
-    if (capacityId && capacity) {
+    if (capacityCode && capacity) {
       const capacityExists = activeFilters.capacities.some(
-        cap => cap.id === Number(capacityId) || cap.code === Number(capacityId)
+        cap => cap.code == Number(capacityCode)
       );
-  
+
       if (capacityExists) {
         return;
       }
@@ -96,13 +96,12 @@ export default function FeedPage() {
       setActiveFilters(prev => ({
         ...prev,
         capacities: [{
-          id: Number(capacityId),
           code: Number(capacity.code),
-          name: capacity.name || `Capacity ${capacityId}`,
+          name: capacity.name,
         }]
       }));
     }
-  }, [capacityId, isLoadingCapacity]);
+  }, [capacityCode, isLoadingCapacity]);
 
   const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
   const { organizations: organizationsLearner, count: organizationsLearnerCount, isLoading: isOrganizationsLearnerLoading } = useOrganizations(
@@ -204,7 +203,7 @@ export default function FeedPage() {
 
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = activeFilters.capacities.some(
-      cap => cap.code === capacity.code || cap.id === Number(capacity.id)
+      cap => cap.code == capacity.code
     );
 
     if (capacityExists) {
@@ -214,7 +213,6 @@ export default function FeedPage() {
     setActiveFilters(prev => ({
       ...prev,
       capacities: [...prev.capacities, {
-        id: Number(capacity.id),
         code: capacity.code,
         name: capacity.name,
       }]
@@ -230,7 +228,7 @@ export default function FeedPage() {
     const urlCapacityId = searchParams.get('capacityId');
     
     // If the capacity removed is the same as the URL, update the URL
-    if (urlCapacityId && urlCapacityId.toString() === capacityCode.toString() || urlCapacityId && urlCapacityId.toString() === capacityId?.toString()) {
+    if (urlCapacityId && urlCapacityId.toString() == capacityCode.toString() || urlCapacityId && urlCapacityId.toString() == capacity?.code?.toString()) {
       router.replace('/feed', { scroll: false });
     }
   };

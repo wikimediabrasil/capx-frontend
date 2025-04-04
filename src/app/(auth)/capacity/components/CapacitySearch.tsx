@@ -6,8 +6,10 @@ import { useApp } from "@/contexts/AppContext";
 import BaseInput from "@/components/BaseInput";
 import { CapacityCard } from "./CapacityCard";
 import SearchIcon from "@/public/static/images/search.svg";
+import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
 import { useCapacityList } from "@/hooks/useCapacityList";
 import LoadingState from "@/components/LoadingState";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface CapacitySearchProps {
   onSearchStart?: () => void;
@@ -58,6 +60,7 @@ export function CapacitySearch({
 }: CapacitySearchProps) {
   const { data: session } = useSession();
   const { language, isMobile, pageContent } = useApp();
+  const { darkMode } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [expandedCapacities, setExpandedCapacities] = useState<
@@ -145,10 +148,12 @@ export function CapacitySearch({
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder={pageContent["capacity-search-placeholder"]}
-        className={`w-full py-6 px-3 text-capx-dark-box-bg rounded-[16px] opacity-50 border border-capx-dark-box-bg ${
-          isMobile ? "text-[12px]" : "text-[24px]"
-        }`}
-        icon={SearchIcon}
+        className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
+          darkMode
+            ? "text-white border-white"
+            : "text-capx-dark-box-bg border-capx-dark-box-bg "
+        } ${isMobile ? "text-[12px]" : "text-[24px]"}`}
+        icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />
 

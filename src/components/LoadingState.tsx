@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useTheme } from "@/contexts/ThemeContext";
 import CapxLogo from "@/public/static/images/capx_detailed_logo.svg";
-
+import CapxLogoWhite from "@/public/static/images/capx_detailed_logo_white.svg";
 export default function LoadingState() {
   const { darkMode } = useTheme();
 
@@ -16,7 +16,7 @@ export default function LoadingState() {
     >
       <div className="relative w-16 h-16">
         <Image
-          src={CapxLogo}
+          src={darkMode ? CapxLogoWhite : CapxLogo}
           alt="CAPX Logo"
           className="animate-pulse-fade"
           width={64}
