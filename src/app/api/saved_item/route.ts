@@ -44,8 +44,6 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const body = await request.json();
 
-    console.log("POST body", body);
-
     if (!authHeader) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

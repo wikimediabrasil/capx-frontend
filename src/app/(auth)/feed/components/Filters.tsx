@@ -194,7 +194,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
               </div>
 
               {/* Selected Capacities */}
-              {filters.capacities.length > 0 && (
+              {filters.capacities?.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {filters.capacities.map((capacity, index) => (
                     <div

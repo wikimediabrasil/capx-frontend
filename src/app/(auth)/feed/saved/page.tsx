@@ -1,73 +1,68 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import { PaginationButtons } from "@/app/(auth)/feed/components/PaginationButtons";
 import { ProfileCard } from "@/app/(auth)/feed/components/Card";
-import { useSavedItems, } from "@/hooks/useSavedItems";
-import Image from "next/image";
-import FilterIcon from "@/public/static/images/filter_icon.svg";
-import FilterIconWhite from "@/public/static/images/filter_icon_white.svg";
-import SearchIcon from "@/public/static/images/search_icon.svg";
-import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
+import { useSavedItems } from "@/hooks/useSavedItems";
 import { Filters } from "@/app/(auth)/feed/components/Filters";
 import LoadingState from "@/components/LoadingState";
-import { ProfileCapacityType, ProfileFilterType } from "../types";
+import { FilterState, ProfileCapacityType, ProfileFilterType, Skill } from "../types";
 import { LanguageProficiency } from "@/types/language";
+import { SearchBar } from "../components/SearchBar";
+import { NoResults } from "../components/NoResults";
+import CapacitySelectionModal from "../../profile/edit/components/CapacitySelectionModal";
+import { Capacity } from "@/types/capacity";
 
 export default function SavedProfilesPage() {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [showSkillModal, setShowSkillModal] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
-    type: [],
-    territory: [],
-    language: [],
+    capacities: [] as Skill[],
+    profileCapacityTypes: [ProfileCapacityType.Learner, ProfileCapacityType.Sharer] as ProfileCapacityType[],
+    territories: [] as string[],
+    languages: [] as string[],
+    profileFilter: ProfileFilterType.Both
   });
-
-  const offset = (currentPage - 1) * itemsPerPage;
   
   const { 
-    savedProfiles, 
+    paginatedProfiles,
+    applyFilters,
     isLoading, 
     error, 
     count, 
     deleteSavedItem,
-  } = useSavedItems(itemsPerPage, offset);
+  } = useSavedItems();
 
-  const filteredProfiles = savedProfiles.filter(profile => {
-    const matchesSearch = searchTerm === "" || 
-      profile.username.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = activeFilters.type.length === 0 || 
-      activeFilters.type.includes(profile.type as never);
-    
-    const matchesTerritory = activeFilters.territory.length === 0 || 
-      (profile.territory && activeFilters.territory.includes(profile.territory as never));
-    
-    const matchesLanguage = activeFilters.language.length === 0 || 
-      (profile.languages && profile.languages.some(lang => 
-        activeFilters.language.includes(lang as never)
-      ));
-    
-    return matchesSearch && matchesType && matchesTerritory && matchesLanguage;
-  });
+  const handleFiltersChange = useCallback(() => {
+    applyFilters({
+      profileCapacityTypes: activeFilters.profileCapacityTypes,
+      territories: activeFilters.territories,
+      languages: activeFilters.languages,
+      capacities: activeFilters.capacities,
+      profileFilter: activeFilters.profileFilter
+    });
+    setCurrentPage(1);
+  }, [activeFilters, applyFilters]);
 
-  const totalPages = Math.ceil(filteredProfiles.length / itemsPerPage);
-  const paginatedProfiles = filteredProfiles.slice(
-    0,
-    itemsPerPage
-  );
+  useEffect(() => {
+    handleFiltersChange();
+  }, [handleFiltersChange]);
+
+  const currentProfiles = paginatedProfiles(currentPage, itemsPerPage);
+  
+  const totalPages = Math.ceil(count / itemsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const handleApplyFilters = (filters: any) => {
+  const handleApplyFilters = (filters: FilterState) => {
     setActiveFilters(filters);
     setShowFilters(false);
     setCurrentPage(1);
@@ -75,6 +70,31 @@ export default function SavedProfilesPage() {
 
   const handleRemoveSavedItem = async (savedItemId: number) => {
     await deleteSavedItem(savedItemId);
+  };
+
+  const handleCapacitySelect = (capacity: Capacity) => {
+    const capacityExists = activeFilters.capacities.some(
+      cap => cap.code == capacity.code
+    );
+
+    if (capacityExists) {
+      return;
+    }
+
+    setActiveFilters(prev => ({
+      ...prev,
+      capacities: [...prev.capacities, {
+        code: capacity.code,
+        name: capacity.name,
+      }]
+    }));
+  };
+
+  const handleRemoveCapacity = (capacityCode: number) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode)
+    }));
   };
 
   return (
@@ -87,64 +107,23 @@ export default function SavedProfilesPage() {
           </h1>
           
           {/* SearchBar and Filters Button */}
-          <div className="flex gap-2 mb-6">
-            {/* Search Field Container */}
-            <div className="flex-1 relative">
-              <div className={`
-                flex flex-col rounded-lg border
-                ${darkMode 
-                  ? 'bg-capx-dark-box-bg border-gray-700 text-white' 
-                  : 'bg-white border-gray-300'
-                }
-              `}>
-                {/* Search Icon */}
-                <div className="absolute right-3 top-4">
-                  <Image
-                    src={darkMode ? SearchIconWhite : SearchIcon}
-                    alt="Search"
-                    width={20}
-                    height={20}
-                  />
-                </div>
+          <SearchBar
+            showCapacitiesSearch={true}
+            selectedCapacities={activeFilters.capacities}
+            onRemoveCapacity={handleRemoveCapacity}
+            onCapacityInputFocus={() => setShowSkillModal(true)}
+            capacitiesPlaceholder={pageContent["filters-search-by-capacities"]}
+            removeItemAltText={pageContent["filters-remove-item-alt-icon"]}
+            onFilterClick={() => setShowFilters(true)}
+            filterAriaLabel={pageContent["saved-profiles-filters-button"]}
+          />
 
-                {/* Search Input */}
-                <input
-                  type="text"
-                  placeholder={pageContent["saved-profiles-search-placeholder"] || "Buscar perfis..."}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={`
-                    w-full py-3 px-4 rounded-lg
-                    ${darkMode 
-                      ? 'bg-capx-dark-box-bg text-white placeholder-gray-400' 
-                      : 'bg-white text-gray-900 placeholder-gray-500'
-                    }
-                    focus:outline-none
-                  `}
-                />
-              </div>
-            </div>
-
-            {/* Filters Button */}
-            <button
-              onClick={() => setShowFilters(true)}
-              className={`
-                p-3 rounded-lg border
-                ${darkMode 
-                  ? 'bg-capx-dark-box-bg border-gray-700 hover:bg-gray-700' 
-                  : 'bg-white border-gray-300 hover:bg-gray-100'
-                }
-              `}
-              aria-label={pageContent["saved-profiles-filters-button"] || "Filtros"}
-            >
-              <Image
-                src={darkMode ? FilterIconWhite : FilterIcon}
-                alt="Filters"
-                width={20}
-                height={20}
-              />
-            </button>
-          </div>
+          <CapacitySelectionModal
+            isOpen={showSkillModal}
+            onClose={() => setShowSkillModal(false)}
+            onSelect={handleCapacitySelect}
+            title={pageContent["select-capacity"]}
+          />
 
           {/* Loading state */}
           {isLoading ? (
@@ -153,9 +132,9 @@ export default function SavedProfilesPage() {
             <div className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-white' : 'bg-red-100 text-red-800'}`}>
               {error}
             </div>
-          ) : paginatedProfiles.length > 0 ? (
+          ) : count > 0 ? (
             <div className="w-full mx-auto space-y-6">
-              {paginatedProfiles.map((profile, index) => (
+              {currentProfiles.map((profile, index) => (
                 <ProfileCard 
                   id={String(profile.id)}
                   key={index}
@@ -173,20 +152,16 @@ export default function SavedProfilesPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <p className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
-                {pageContent["saved-profiles-no-data-message"] || "Nenhum perfil salvo encontrado"}
-              </p>
-              <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {pageContent["saved-profiles-no-data-description"] || "Tente ajustar os filtros ou salve alguns perfis"}
-              </p>
-            </div>
+            <NoResults
+              title={pageContent["feed-no-data-message"]}
+              description={pageContent["feed-no-data-description"]}
+            />
           )}
         </div>
       </div>
       
       {/* Pagination buttons */}
-      {filteredProfiles.length > 0 && (
+      {count > 0 && (
         <PaginationButtons
           currentPage={currentPage}
           totalPages={totalPages || 1}
@@ -198,14 +173,7 @@ export default function SavedProfilesPage() {
       {showFilters && <Filters
         onClose={() => setShowFilters(false)}
         onApplyFilters={handleApplyFilters}
-        initialFilters={{
-          ...activeFilters,
-          capacities: [],
-          profileCapacityTypes: [],
-          territories: [],
-          languages: [],
-          profileFilter: ProfileFilterType.Both
-        }}
+        initialFilters={activeFilters}
       />}
     </div>
   );

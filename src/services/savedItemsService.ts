@@ -45,10 +45,9 @@ export const savedItemService = {
     if (!token || !itemId) return false;
 
     try {
-      const response = await axios.delete(`/api/saved_item/${itemId}/`, {
+      await axios.delete(`/api/saved_item/${itemId}/`, {
         headers: { Authorization: `Token ${token}` },
       });
-      console.log("deleteSavedItem response", response);
       return true;
     } catch (error) {
       console.error(`Error deleting saved item with ID ${itemId}:`, error);

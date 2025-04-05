@@ -107,7 +107,6 @@ export const ProfileCard = ({
     : (darkMode ? BookmarkWhite : Bookmark);
 
   const toggleSaved = (e: React.MouseEvent) => {
-    console.log("toggleSaved")
     e.stopPropagation();
     onToggleSaved();
   };

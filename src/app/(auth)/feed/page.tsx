@@ -6,16 +6,10 @@ import Image from "next/image";
 import ProfileCard from "./components/Card";
 import FilterIcon from "@/public/static/images/filter_icon.svg";
 import FilterIconWhite from "@/public/static/images/filter_icon_white.svg";
-import SearchIcon from "@/public/static/images/search_icon.svg";
-import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
 import { Filters } from "./components/Filters";
 import { useApp } from "@/contexts/AppContext";
 import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from "./types";
 import { useOrganizations } from "@/hooks/useOrganizationProfile";
-import { Organization } from "@/types/organization";
-import { UserProfile } from "@/types/user";
 import { useAllUsers } from "@/hooks/useUserProfile";
 import { PaginationButtons } from "./components/PaginationButtons";
 import CapacitySelectionModal from "../profile/edit/components/CapacitySelectionModal";
@@ -23,41 +17,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from "@/hooks/useCapacityDetails";
 import { Capacity } from "@/types/capacity";
 import { useSavedItems } from "@/hooks/useSavedItems";
+import { createProfilesFromOrganizations, createProfilesFromUsers } from "./types";
 
-const createProfilesFromOrganizations = (organizations: Organization[], type: ProfileCapacityType) => {
-  const profiles: any[] = [];
-  organizations.forEach(org => {
-      profiles.push({
-        id: org.id,
-        username: org.display_name,
-        capacities: type === ProfileCapacityType.Learner ? org.wanted_capacities : org.available_capacities,
-        type,
-        profile_image: org.profile_image,
-        territory: org.territory?.[0],
-        avatar: org.profile_image || undefined,
-        isOrganization: true
-      });
-  });
-  return profiles;
-};
-
-const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapacityType) => {
-  const profiles: any[] = [];
-  users.forEach(user => {
-    profiles.push({
-      id: user.user.id,
-      username: user.user.username,
-      capacities: type === ProfileCapacityType.Sharer ? user.skills_available : user.skills_wanted,
-      type,
-      languages: user.language,
-      profile_image: user.profile_image,
-      territory: user.territory?.[0],
-      avatar: user.avatar,
-      isOrganization: false
-    });
-  });
-  return profiles;
-};
+import { SearchBar } from "./components/SearchBar";
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
@@ -282,7 +244,6 @@ export default function FeedPage() {
   }
 
   const handleToggleSaved = (profile: any) => {
-    console.log("handleToggleSaved profile", profile);
     if (profile.isSaved) {
       const savedItem = savedItems?.find(item => 
         item.entity_id === profile.id && 
@@ -291,13 +252,12 @@ export default function FeedPage() {
       
       if (savedItem) {
         deleteSavedItem(savedItem.id);
-        console.log("deleteSavedItem HERE", savedItem);
       }
     } else {
       createSavedItem(
-        profile.type,
         profile.isOrganization ? 'org' : 'user',
-        profile.id
+        profile.id,
+        profile.type,
       );
     }
   };
@@ -307,99 +267,23 @@ export default function FeedPage() {
       <div className="container mx-auto px-4">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           {/* SearchBar and Filters Button */}
-          <div className="flex gap-2 mb-6">
-            {/* Search Field Container */}
-            <div className="flex-1 relative">
-              <div className={`
-                flex flex-col rounded-lg border
-                ${darkMode 
-                  ? 'bg-capx-dark-box-bg border-gray-700 text-white' 
-                  : 'bg-white border-gray-300'
-                }
-              `}>
-                {/* Search Icon */}
-                <div className="absolute right-3 top-4">
-                  <Image
-                    src={darkMode ? SearchIconWhite : SearchIcon}
-                    alt="Search"
-                    width={20}
-                    height={20}
-                  />
-                </div>
+          <SearchBar
+            showCapacitiesSearch={true}
+            selectedCapacities={activeFilters.capacities}
+            onRemoveCapacity={handleRemoveCapacity}
+            onCapacityInputFocus={() => setShowSkillModal(true)}
+            capacitiesPlaceholder={pageContent["filters-search-by-capacities"]}
+            removeItemAltText={pageContent["filters-remove-item-alt-icon"]}
+            onFilterClick={() => setShowFilters(true)}
+            filterAriaLabel={pageContent["saved-profiles-filters-button"]}
+          />
 
-                {/* Container for the selected capacities and the input */}
-                <div className={`
-                  flex flex-wrap items-start gap-2 p-3 pr-12
-                  ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}
-                `}>
-                  {/* Selected Capacities */}
-                  {activeFilters.capacities.map((capacity, index) => (
-                    <span
-                      key={index}
-                      className={`
-                        inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px]
-                        ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}
-                      `}
-                    >
-                      <span className="truncate">{capacity.name}</span>
-                      <button
-                        onClick={() => handleRemoveCapacity(capacity.code)}
-                        className="hover:opacity-80 flex-shrink-0"
-                      >
-                        <Image
-                          src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt={pageContent["filters-remove-item-alt-icon"]}
-                          width={16}
-                          height={16}
-                        />
-                      </button>
-                    </span>
-                  ))}
-
-                  {/* Search Input */}
-                  <div className="flex-1 min-w-[120px]">
-                    <input
-                      readOnly
-                      type="text"
-                      onFocus={() => setShowSkillModal(true)}
-                      placeholder={activeFilters.capacities.length === 0 ? pageContent["filters-search-by-capacities"] : ''}
-                      className={`
-                        w-full outline-none overflow-ellipsis bg-transparent
-                        ${darkMode ? 'text-white placeholder:text-gray-400' : 'text-gray-900 placeholder:text-gray-500'}
-                      `}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <CapacitySelectionModal
-              isOpen={showSkillModal}
-              onClose={() => setShowSkillModal(false)}
-              onSelect={handleCapacitySelect}
-              title={pageContent["select-capacity"]}
-            />
-
-            {/* Filters Button */}
-            <button
-              onClick={() => setShowFilters(true)}
-              className={`
-                w-12 h-12 flex-shrink-0 rounded-lg flex items-center justify-center
-                ${darkMode 
-                  ? 'bg-capx-dark-box-bg text-white hover:bg-gray-700' 
-                  : 'bg-white border border-gray-300 hover:bg-gray-50'
-                }
-              `}
-              aria-label="Open filters"
-            >
-              <Image
-                src={darkMode ? FilterIconWhite : FilterIcon}
-                alt={pageContent["filters-icon"]}
-                width={24}
-                height={24}
-              />
-            </button>
-          </div>
+          <CapacitySelectionModal
+            isOpen={showSkillModal}
+            onClose={() => setShowSkillModal(false)}
+            onSelect={handleCapacitySelect}
+            title={pageContent["select-capacity"]}
+          />
 
           {filteredProfiles.length > 0 ? (
           <div className="w-full mx-auto space-y-6">
