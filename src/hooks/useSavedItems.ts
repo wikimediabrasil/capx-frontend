@@ -228,7 +228,6 @@ export function useSavedItems() {
 
   const createSavedItem = useCallback(async (entity: string, entityId: number, relation: string) => {
     if (!session?.user?.token) return false;
-    console.log("createSavedItem", entity, entityId, relation);
 
     try {
       const newItem = await savedItemService.createSavedItem(
