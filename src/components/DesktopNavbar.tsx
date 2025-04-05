@@ -37,6 +37,11 @@ export default function DesktopNavbar({
       to: "/feed",
       active: true,
     },
+    {
+      title: pageContent["navbar-link-saved-profiles"],
+      to: "/feed/saved",
+      active: true,
+    },
   ];
 
   return (
