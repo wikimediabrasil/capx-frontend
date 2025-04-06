@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -14,6 +15,7 @@ import { SearchBar } from "../components/SearchBar";
 import { NoResults } from "../components/NoResults";
 import CapacitySelectionModal from "../../profile/edit/components/CapacitySelectionModal";
 import { Capacity } from "@/types/capacity";
+import SavedItemsIllustration from "@/public/static/images/capx_person_4.svg";
 
 export default function SavedProfilesPage() {
   const { darkMode } = useTheme();
@@ -98,13 +100,32 @@ export default function SavedProfilesPage() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center pt-24 md:pt-8">
+    <div className="w-full flex flex-col items-center mx-auto pt-24 md:pt-8">
       <div className="container mx-auto px-4">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
-          {/* Page title */}
-          <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            {pageContent["saved-profiles-title"]}
-          </h1>
+          {/* Banner */}
+          <div className="w-full bg-[#04222F] rounded-lg overflow-hidden">
+            <div className="relative flex flex-col md:flex-row md:items-center px-4 md:px-16 py-6">
+              {/* Image */}
+              <div className="flex justify-center md:ml-auto md:mr-auto md:justify-start">
+                <Image
+                  src={SavedItemsIllustration}
+                  alt="SavedItemsIllustration"
+                  width={180}
+                  height={180}
+                  className="h-auto w-[140px] md:w-[160px]"
+                  priority
+                />
+              </div>
+              
+              {/* Title */}
+              <div className="mt-4 md:mt-0 md:ml-auto md:mr-auto flex justify-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                  {pageContent["saved-profiles-title"]}
+                </h1>
+              </div>
+            </div>
+          </div>
           
           {/* SearchBar and Filters Button */}
           <SearchBar
