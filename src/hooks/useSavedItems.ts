@@ -249,7 +249,7 @@ export function useSavedItems() {
       console.error("Error creating saved item:", error);
       return false;
     }
-  }, [session?.user?.token, savedItems, fetchProfileDetails]);
+  }, [session?.user?.token, fetchProfileDetails]);
 
   const isProfileSaved = useCallback((profileId: number, isOrganization: boolean) => {
     return savedItems.some(item => 

@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import Image from "next/image";
 import ProfileCard from "./components/Card";
-import FilterIcon from "@/public/static/images/filter_icon.svg";
-import FilterIconWhite from "@/public/static/images/filter_icon_white.svg";
 import { Filters } from "./components/Filters";
 import { useApp } from "@/contexts/AppContext";
 import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from "./types";
@@ -49,24 +46,26 @@ export default function FeedPage() {
 
   // Get data from capacityById
   useEffect(() => {
-    if (capacityCode && capacity) {
-      const capacityExists = activeFilters.capacities.some(
-        cap => cap.code == Number(capacityCode)
-      );
-
-      if (capacityExists) {
-        return;
+    if (capacity) {
+      try {
+        const capacityExists = activeFilters.capacities.some(
+          cap => cap.code == Number(capacity.code)
+        );
+        
+        if (!capacityExists) {
+          setActiveFilters(prev => ({
+            ...prev,
+            capacities: [...prev.capacities, {
+              code: Number(capacity.code),
+              name: capacity.name
+            }]
+          }));
+        }
+      } catch (error) {
+        console.error("Error parsing capacity from URL:", error);
       }
-
-      setActiveFilters(prev => ({
-        ...prev,
-        capacities: [{
-          code: Number(capacity.code),
-          name: capacity.name,
-        }]
-      }));
     }
-  }, [capacityCode, isLoadingCapacity]);
+  }, [capacity, activeFilters.capacities]);
 
   const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
   const { organizations: organizationsLearner, count: organizationsLearnerCount, isLoading: isOrganizationsLearnerLoading } = useOrganizations(
