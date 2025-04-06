@@ -300,5 +300,7 @@
   "edit-profile-organization-logo-help": "Enter the Wikimedia Commons image link. Ex: https://commons.wikimedia.org/wiki/File:Example.jpg",
   "edit-profile-no-image": "No image selected",
   "edit-profile-invalid-image-url": "Please enter a valid Wikimedia Commons URL",
-  "saved-profiles-title": "Saved Profiles"
+  "saved-profiles-title": "Saved Profiles",
+  "saved-profiles-delete-item": "Delete item",
+  "saved-profiles-view-profile": "View profile"
 }
