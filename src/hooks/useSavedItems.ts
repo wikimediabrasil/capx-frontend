@@ -26,7 +26,6 @@ export function useSavedItems() {
   const { data: session } = useSession();
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [allProfiles, setAllProfiles] = useState<SavedProfile[]>([]);
-  const [filteredProfiles, setFilteredProfiles] = useState<SavedProfile[]>([]);
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +89,6 @@ export function useSavedItems() {
         }
         
         setAllProfiles(profiles);
-        setFilteredProfiles(profiles);
         setCount(profiles.length);
       } catch (err) {
         console.error("Error fetching saved items:", err);
@@ -122,7 +120,6 @@ export function useSavedItems() {
           };
           
           setAllProfiles(prev => [...prev, newProfile]);
-          setFilteredProfiles(prev => [...prev, newProfile]);
           setCount(prev => prev + 1);
         }
       } else if (savedItem.entity === 'org') {
@@ -141,7 +138,6 @@ export function useSavedItems() {
           };
           
           setAllProfiles(prev => [...prev, newProfile]);
-          setFilteredProfiles(prev => [...prev, newProfile]);
           setCount(prev => prev + 1);
         }
       }
@@ -150,61 +146,11 @@ export function useSavedItems() {
     }
   }, []);
 
-  const applyFilters = useCallback((
-    filters: {
-      profileCapacityTypes?: ProfileCapacityType[];
-      territories?: string[];
-      languages?: string[];
-      capacities?: any[];
-      profileFilter?: ProfileFilterType;
-    } = {}
-  ) => {
-    let filtered = [...allProfiles];
-
-    if (filters.profileFilter === ProfileFilterType.User) {
-      filtered = filtered.filter(profile => profile.isOrganization === false);
-    } else if (filters.profileFilter === ProfileFilterType.Organization) {
-      filtered = filtered.filter(profile => profile.isOrganization === true);
-    }
-    
-    if (filters.profileCapacityTypes && filters.profileCapacityTypes.length > 0) {
-      filtered = filtered.filter(profile => 
-        filters.profileCapacityTypes?.includes(profile.type as ProfileCapacityType)
-      );
-    }
-    
-    if (filters.territories && filters.territories.length > 0) {
-      filtered = filtered.filter(profile => 
-        profile.territory && filters.territories?.includes(profile.territory.toString())
-      );
-    }
-
-    // TODO confirm if we want to show orgs or not here (they don't have language). currently it's not showing
-    if (filters.languages && filters.languages.length > 0) {
-      filtered = filtered.filter(profile => 
-        profile.languages?.some(lang => 
-          filters.languages?.includes(lang.id.toString())
-        )
-      );
-    }
-    if (filters.capacities && filters.capacities.length > 0) {
-      filtered = filtered.filter(profile => 
-        profile.capacities && profile.capacities.some(capacity => 
-          filters.capacities?.some(c => c.code == capacity)
-        )
-      );
-    }
-    setFilteredProfiles(filtered);
-    setCount(filtered.length);
-    
-    return filtered;
-  }, [allProfiles]);
-
   const paginatedProfiles = useCallback((page: number, itemsPerPage: number) => {
     const start = (page - 1) * itemsPerPage;
     const end = start + itemsPerPage;
-    return filteredProfiles.slice(start, end);
-  }, [filteredProfiles]);
+    return allProfiles.slice(start, end);
+  }, [allProfiles]);
 
   const deleteSavedItem = useCallback(async (itemId: number) => {
     if (!session?.user?.token) return false;
@@ -215,7 +161,6 @@ export function useSavedItems() {
       if (success) {
         setSavedItems(prevItems => prevItems.filter(item => item.id !== itemId));
         setAllProfiles(prevProfiles => prevProfiles.filter(profile => profile.savedItemId !== itemId));
-        setFilteredProfiles(prevProfiles => prevProfiles.filter(profile => profile.savedItemId !== itemId));
         setCount(prevCount => prevCount - 1);
         return true;
       }
@@ -268,9 +213,7 @@ export function useSavedItems() {
 
   return { 
     savedItems, 
-    savedProfiles: filteredProfiles,
     paginatedProfiles,
-    applyFilters,
     isLoading, 
     error, 
     count, 
