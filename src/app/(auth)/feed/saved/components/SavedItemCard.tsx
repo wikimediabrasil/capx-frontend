@@ -107,25 +107,25 @@ export const SavedItemCard = ({
                 router.push(routePath);
               }}
               label={pageContent["saved-profiles-view-profile"]}
-              customClass={`w-full flex justify-center items-center px-4 py-2 rounded-md border ${
-                darkMode 
-                  ? "bg-transparent border-white text-white" 
-                  : "bg-transparent border-gray-300 text-gray-800"
+              customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] text-[14px] border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
+                darkMode
+                  ? "bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]"
+                  : "bg-[#F6F6F6] border-[#053749] text-[#053749]"
               }`}
               imageUrl={darkMode ? AccountCircleWhite : AccountCircle}
               imageAlt="View profile"
-              imageWidth={16}
-              imageHeight={16}
+              imageWidth={20}
+              imageHeight={20}
             />
             
             <BaseButton
               onClick={onDelete}
               label={pageContent["saved-profiles-delete-item"]}
-              customClass="w-full flex justify-center items-center px-4 py-2 rounded-md bg-[#E53935] text-white"
+              customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] text-[14px]  text-[#053749] rounded-md py-3 font-bold bg-[#E53935] mb-0 text-white`}
               imageUrl={DeleteIcon}
               imageAlt="Delete"
-              imageWidth={16}
-              imageHeight={16}
+              imageWidth={20}
+              imageHeight={20}
             />
           </div>
         </div>
@@ -195,25 +195,25 @@ export const SavedItemCard = ({
                   router.push(routePath);
                 }}
                 label={pageContent["saved-profiles-view-profile"]}
-                customClass={`w-full flex justify-center items-center px-4 py-2 rounded-md border ${
-                  darkMode 
-                    ? "bg-transparent border-white text-white" 
-                    : "bg-transparent border-gray-300 text-gray-800"
-                }`}
+                customClass={`w-full flex items-center text-[24px] px-8 py-4 border ${
+                    darkMode
+                      ? "border-white text-white"
+                      : "border-[#053749] text-[#053749]"
+                  } rounded-md py-3 font-bold mb-0`}
                 imageUrl={darkMode ? AccountCircleWhite : AccountCircle}
                 imageAlt="View profile"
-                imageWidth={20}
-                imageHeight={20}
+                imageWidth={30}
+                imageHeight={30}
               />
               
               <BaseButton
                 onClick={onDelete}
                 label={pageContent["saved-profiles-delete-item"]}
-                customClass="w-full flex justify-center items-center px-4 py-2 rounded-md bg-[#E53935] text-white"
+                customClass={`w-full flex items-center text-[24px] px-8 py-4  bg-[#E53935] text-white rounded-md py-3 font-bold mb-0`}
                 imageUrl={DeleteIcon}
                 imageAlt="Delete"
-                imageWidth={20}
-                imageHeight={20}
+                imageWidth={30}
+                imageHeight={30}
               />
             </div>
           </div>
