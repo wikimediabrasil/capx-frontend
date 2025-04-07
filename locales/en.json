@@ -322,5 +322,7 @@
   "edit-profile-invalid-image-url": "Please enter a valid Wikimedia Commons URL",
   "events-banner-title": "Events",
   "organization-profile-event-popup-cancel": "Cancel",
-  "organization-profile-event-popup-create-event": "Create event"
+  "organization-profile-event-popup-create-event": "Create event",
+  "events-search-placeholder": "Search for events...",
+  "events-search-error": "Error loading events. Please try again."
 }

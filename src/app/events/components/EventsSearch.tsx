@@ -4,14 +4,15 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useApp } from "@/contexts/AppContext";
 import BaseInput from "@/components/BaseInput";
-import EventsCard from "./EventsCard";
+import EventCard from "./EventCard";
 import SearchIcon from "@/public/static/images/search.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
 import { useEvents } from "@/hooks/useEvents";
 import LoadingState from "@/components/LoadingState";
 import { useTheme } from "@/contexts/ThemeContext";
+import { Event } from "@/types/event";
 
-interface CapacitySearchProps {
+interface EventsSearchProps {
   onSearchStart?: () => void;
   onSearchEnd?: () => void;
 }
@@ -54,23 +55,23 @@ function useDebounce<T extends (...args: any[]) => any>(
   return { debouncedFunction, cancel };
 }
 
-export function CapacitySearch({
+export function EventsSearch({
   onSearchStart,
   onSearchEnd,
-}: CapacitySearchProps) {
+}: EventsSearchProps) {
   const { data: session } = useSession();
   const { language, isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedCapacities, setExpandedCapacities] = useState<
-    Record<string, boolean>
-  >({});
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  
   const {
     events,
     isLoading: isEventsLoading,
     error: eventsError,
-  } = useEvents([], session?.user?.token);
+  } = useEvents(session?.user?.token, 50, 0);
+  // TODO: change pagination if necessary
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>("");
@@ -83,21 +84,30 @@ export function CapacitySearch({
         return;
       }
 
-      if (term) {
+      if (term && events && events.length > 0) {
         setIsLoading(true);
         onSearchStart?.();
-        await fetchCapacitySearch(term);
+        
+        // Filter events based on the search term
+        const filtered = events.filter(event => 
+          event.name.toLowerCase().includes(term.toLowerCase()) ||
+          (event.type_of_location && event.type_of_location.toLowerCase().includes(term.toLowerCase()))
+        );
+        
+        setFilteredEvents(filtered);
+        
         // Store the current search term
         lastSearchRef.current = term;
         setIsLoading(false);
+        onSearchEnd?.();
       } else {
-        setSearchResults([]);
+        setFilteredEvents([]);
         onSearchEnd?.();
         // Clear the last search
         lastSearchRef.current = "";
       }
     },
-    [fetchCapacitySearch, onSearchStart, onSearchEnd, setSearchResults]
+    [events, onSearchStart, onSearchEnd]
   );
 
   // Use the custom debounce hook
@@ -111,24 +121,12 @@ export function CapacitySearch({
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
 
-  const toggleCapacity = useCallback(
-    async (parentCode: string) => {
-      if (expandedCapacities[parentCode]) {
-        setExpandedCapacities((prev) => ({ ...prev, [parentCode]: false }));
-        return;
-      }
-
-      const children = await fetchCapacitiesByParent(parentCode);
-      for (const child of children) {
-        if (child.code) {
-          fetchCapacityDescription(child.code);
-        }
-      }
-
-      setExpandedCapacities((prev) => ({ ...prev, [parentCode]: true }));
-    },
-    [expandedCapacities, fetchCapacitiesByParent, fetchCapacityDescription]
-  );
+  // Load all events when there is no search term
+  useEffect(() => {
+    if (!searchTerm && events) {
+      setFilteredEvents(events);
+    }
+  }, [searchTerm, events]);
 
   return (
     <div className="w-full">
@@ -136,7 +134,7 @@ export function CapacitySearch({
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder={pageContent["capacity-search-placeholder"]}
+        placeholder={pageContent["events-search-placeholder"] || "Search for events..."}
         className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
           darkMode
             ? "text-white border-white"
@@ -147,16 +145,22 @@ export function CapacitySearch({
       />
 
       <div className="grid gap-4 mt-4">
-        {isLoading ? (
+        {isLoading || isEventsLoading ? (
           <LoadingState />
+        ) : eventsError ? (
+          <div className="text-red-500">
+            {pageContent["events-search-error"] || "Error loading events. Please try again."}
+          </div>
+        ) : filteredEvents.length === 0 ? (
+          <div className="text-center py-4">
+            {searchTerm ? "Nenhum evento encontrado para sua busca." : "Nenhum evento disponível."}
+          </div>
         ) : (
-          searchResults.map((capacity) => {
-            return (
-              <div key={capacity.code} className="w-full">
-                <EventsCard />
-              </div>
-            );
-          })
+          filteredEvents.map((event) => (
+            <div key={event.id} className="w-full">
+              <EventCard event={event} />
+            </div>
+          ))
         )}
       </div>
     </div>
