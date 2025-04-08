@@ -6,7 +6,6 @@ import { BugReport } from "@/types/report";
 export function useBugReportSubmissions() {
   const { data: session } = useSession();
   const token = session?.user?.token;
-  console.log("token", token)
 
   const [reports, setReports] = useState<BugReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);

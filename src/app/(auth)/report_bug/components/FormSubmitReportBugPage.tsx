@@ -54,7 +54,6 @@ export default function FormSubmitReportBugPage(){
       setFormData({
         title: "",
         description: "",
-        author: "",
         bug_type: ""
       });
     } catch (error) {

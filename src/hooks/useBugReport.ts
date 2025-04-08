@@ -5,9 +5,9 @@ import { BugReport } from "@/types/report";
 
 export enum ReportType {
   ERROR = "error",
-  FEATURE = "feature",
+  FEATURE = "new_feature",
   IMPROVEMENT = "improvement",
-  TEST_CASE = 'test_case'
+  TEST_CASE = "test_case"
 }
 
 export interface BugReportFormData {
