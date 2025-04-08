@@ -308,6 +308,7 @@
   "report-bug-icon":"report-bug-icon",
   "report-bug-banner-desktop":"report-bug-banner-desktop",
   "report-bug-banner-mobile":"report-bug-banner-mobile",
+  "report-bug-banner-page":"Bug reports",
   "report-bug-submit": "Submit",
   "report-bug-submission": "Submission",
   "report-bug-heading": "Submit Bug Reports",
