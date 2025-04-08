@@ -11,6 +11,7 @@
   "component-under-development-dialog": "Oops! This component is currently under construction.",
   "navbar-link-about": "About",
   "navbar-link-feed": "Feed",
+  "navbar-link-saved-profiles": "Saved profiles",
   "navbar-link-profiles": "My profiles",
   "navbar-link-capacities": "Directory",
   "navbar-link-events": "Events",
@@ -298,5 +299,8 @@
   "edit-profile-organization-logo": "Organization Logo",
   "edit-profile-organization-logo-help": "Enter the Wikimedia Commons image link. Ex: https://commons.wikimedia.org/wiki/File:Example.jpg",
   "edit-profile-no-image": "No image selected",
-  "edit-profile-invalid-image-url": "Please enter a valid Wikimedia Commons URL"
+  "edit-profile-invalid-image-url": "Please enter a valid Wikimedia Commons URL",
+  "saved-profiles-title": "Saved Profiles",
+  "saved-profiles-delete-item": "Delete item",
+  "saved-profiles-view-profile": "View profile"
 }

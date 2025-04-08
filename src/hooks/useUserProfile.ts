@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { UserProfile } from "@/types/user";
 import { UserFilters, userService } from "@/services/userService";
@@ -16,12 +16,13 @@ export function useUserProfile() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (session?.user?.id && session?.user?.token) {
         try {
           const data = await userService.fetchUserProfile(
-            session.user.id,
+            parseInt(session.user.id),
             session.user.token
           );
           setUserProfile(data);
@@ -47,9 +48,10 @@ export function useUserByUsername(username?: string) {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
     const fetchAllUsers = async () => {
-      if (session?.user?.id && session?.user?.token) {
+      if (session?.user?.id && session?.user?.token && username) {
         try {
           const data = await userService.fetchAllUsers({
             token: session.user.token,
@@ -70,7 +72,7 @@ export function useUserByUsername(username?: string) {
     };
 
     fetchAllUsers();
-  }, [session]);
+  }, [session, username]);
 
   return { userByUsername, isLoading, error };
 }
@@ -81,6 +83,37 @@ export function useAllUsers(params: UseAllUsersParams) {
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const capacitiesCodes = useMemo(() => 
+    params.activeFilters?.capacities?.map(cap => cap.code) || [],
+    [params.activeFilters?.capacities]
+  );
+  
+  const territories = useMemo(() => 
+    params.activeFilters?.territories || [],
+    [params.activeFilters?.territories]
+  );
+  
+  const languages = useMemo(() => 
+    params.activeFilters?.languages || [],
+    [params.activeFilters?.languages]
+  );
+  
+  const profileCapacityTypes = useMemo(() => 
+    params.activeFilters?.profileCapacityTypes || [],
+    [params.activeFilters?.profileCapacityTypes]
+  );
+  
+  const hasSharer = useMemo(() => 
+    profileCapacityTypes.includes(ProfileCapacityType.Sharer),
+    [profileCapacityTypes]
+  );
+  
+  const hasLearner = useMemo(() => 
+    profileCapacityTypes.includes(ProfileCapacityType.Learner),
+    [profileCapacityTypes]
+  );
+  
   useEffect(() => {
     const fetchAllUsers = async () => {
       if (!session?.user?.token) {
@@ -91,22 +124,18 @@ export function useAllUsers(params: UseAllUsersParams) {
       setIsLoading(true);
       try {
         const filters: UserFilters = {
-          ...(params.activeFilters?.capacities?.length && {
-            skills_available: params.activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Sharer) 
-              ? params.activeFilters?.capacities.map(cap => cap.code)
-              : undefined,
-            skills_wanted: params.activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Learner) 
-              ? params.activeFilters?.capacities.map(cap => cap.code)
-              : undefined,
+          ...(capacitiesCodes.length > 0 && {
+            skills_available: hasSharer ? capacitiesCodes : undefined,
+            skills_wanted: hasLearner ? capacitiesCodes : undefined,
           }),
-          ...(params.activeFilters?.territories?.length && {
-            territory: params.activeFilters?.territories
+          ...(territories.length > 0 && {
+            territory: territories
           }),
-          ...(params.activeFilters?.languages?.length && {
-            language: params.activeFilters?.languages
+          ...(languages.length > 0 && {
+            language: languages
           }),
-          has_skills_available: params.activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ?? undefined,
-          has_skills_wanted: params.activeFilters?.profileCapacityTypes?.includes(ProfileCapacityType.Learner) ?? undefined,
+          has_skills_available: hasSharer || undefined,
+          has_skills_wanted: hasLearner || undefined,
         };
 
         const data = await userService.fetchAllUsers({
@@ -126,11 +155,15 @@ export function useAllUsers(params: UseAllUsersParams) {
     };
 
     fetchAllUsers();
-  }, [session?.user?.token, params.limit, params.offset,
-    JSON.stringify(params.activeFilters?.capacities),
-    JSON.stringify(params.activeFilters?.territories),
-    JSON.stringify(params.activeFilters?.profileCapacityTypes),
-    JSON.stringify(params.activeFilters?.languages)
+  }, [
+    session?.user?.token, 
+    params.limit, 
+    params.offset,
+    capacitiesCodes,
+    territories,
+    languages,
+    hasSharer,
+    hasLearner
   ]);
 
   return { allUsers, isLoading, error, count };

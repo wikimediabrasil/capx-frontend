@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -15,6 +15,10 @@ import TerritoryIcon from "@/public/static/images/territory.svg";
 import TerritoryIconWhite from "@/public/static/images/territory_white.svg";
 import AccountCircle from "@/public/static/images/account_circle.svg";
 import AccountCircleWhite from "@/public/static/images/account_circle_white.svg";
+import Bookmark from "@/public/static/images/bookmark.svg";
+import BookmarkWhite from "@/public/static/images/bookmark_white.svg";
+import BookmarkFilled from "@/public/static/images/bookmark_filled.svg";
+import BookmarkFilledWhite from "@/public/static/images/bookmark_filled_white.svg";
 import { ProfileItem } from '@/components/ProfileItem';
 import { useRouter } from "next/navigation";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
@@ -24,8 +28,9 @@ import { useSession } from "next-auth/react";
 import { useAvatars } from "@/hooks/useAvatars";
 import { getProfileImage } from "@/lib/utils/getProfileImage";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
+import { LanguageProficiency } from "@/types/language";
 
-interface ProfileCardProps {
+export interface ProfileCard {
   id: string;
   username: string;
   profile_image: string;
@@ -34,8 +39,23 @@ interface ProfileCardProps {
   languages?: string[];
   territory?: string;
   avatar?: string;
+  isOrganization?: boolean;
+  isSaved?: boolean;
+}
+
+interface ProfileCardProps {
+  id: string;
+  username: string;
+  profile_image: string;
+  type: ProfileCapacityType;
+  capacities: (number | string)[];
+  languages?: LanguageProficiency[];
+  territory?: string;
+  avatar?: string;
   pageContent?: Record<string, string>;
   isOrganization?: boolean;
+  isSaved?: boolean;
+  onToggleSaved: () => void;
 }
 
 export const ProfileCard = ({
@@ -47,7 +67,9 @@ export const ProfileCard = ({
   languages = [],
   territory,
   avatar,
-  isOrganization = false
+  isOrganization = false,
+  isSaved = false,
+  onToggleSaved,
 }: ProfileCardProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -79,6 +101,15 @@ export const ProfileCard = ({
       : "text-[#05A300] border-[#05A300]";
 
   const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
+  
+  const bookmarkIcon = isSaved 
+    ? (darkMode ? BookmarkFilledWhite : BookmarkFilled)
+    : (darkMode ? BookmarkWhite : Bookmark);
+
+  const toggleSaved = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleSaved();
+  };
 
   return (
     <div
@@ -173,7 +204,7 @@ export const ProfileCard = ({
             <ProfileItem
               icon={darkMode ? LanguageIconWhite : LanguageIcon}
               title={pageContent["body-profile-languages-title"]}
-              items={languages}
+              items={languages.map(language => language.id)}
               showEmptyDataText={false}
               getItemName={(id) => availableLanguages[id]}
               customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
@@ -189,24 +220,43 @@ export const ProfileCard = ({
               showEmptyDataText={false}
             />
 
-            <button
-              className={`inline-flex p-2 rounded-full mr-auto ${
-                darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-              }`}
-              onClick={() => {
-                const routePath = isOrganization ? `/organization_profile/${id}` : `/profile/${encodeURIComponent(username)}`;
-                router.push(routePath);
-              }}
-            >
-              <Image
-                src={darkMode ? AccountCircleWhite : AccountCircle}
-                alt={pageContent["body-profile-languages-title"]}
-                width={27}
-                height={27}
-                className="w-[27px] h-[27px] md:w-[42px] md:h-[42px]"
-                sizes="(min-width: 768px) 42px, 27px"
-              />
-            </button>
+            <div className="flex flex-row gap-1 mt-2">
+              {/* Profile Button */}
+              <button
+                className={`inline-flex items-center justify-center p-1.5 rounded-full ${
+                  darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  const routePath = isOrganization ? `/organization_profile/${id}` : `/profile/${encodeURIComponent(username)}`;
+                  router.push(routePath);
+                }}
+              >
+                <Image
+                  src={darkMode ? AccountCircleWhite : AccountCircle}
+                  alt={pageContent["body-profile-languages-title"]}
+                  width={32}
+                  height={32}
+                  className="w-[32px] h-[32px] md:w-[42px] md:h-[42px]"
+                />
+              </button>
+
+              {/* Bookmark Button */}
+              <button
+                className={`inline-flex items-center justify-center p-1.5 rounded-full ${
+                  darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                }`}
+                onClick={toggleSaved}
+                aria-label={isSaved ? "Remove dos salvos" : "Salvar perfil"}
+              >
+                <Image
+                  src={bookmarkIcon}
+                  alt={isSaved ? "Perfil salvo" : "Salvar perfil"}
+                  width={32}
+                  height={32}
+                  className="w-[32px] h-[32px]"
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>

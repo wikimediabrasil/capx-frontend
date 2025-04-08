@@ -116,6 +116,11 @@ export default function MobileMenuLinks({
       active: true,
     },
     {
+      title: pageContent["navbar-link-saved-profiles"],
+      to: "/feed/saved",
+      active: true,
+    },
+    {
       title: pageContent["navbar-link-reports"],
       to: "/reports",
       active: false,
