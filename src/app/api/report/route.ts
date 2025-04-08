@@ -36,11 +36,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { report: reportId, ...postBody } = body;
 
-    const response = await axios.put(
-      `${process.env.BASE_URL}/bugs/${reportId}/`,
-      postBody,
+    const response = await axios.post(
+      `${process.env.BASE_URL}/bugs/`,
+      body,
       {
         headers: {
           Authorization: authHeader,
@@ -51,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to update report" },
+      { error: "Failed to create report" },
       { status: error.response?.status || 500 }
     );
   }

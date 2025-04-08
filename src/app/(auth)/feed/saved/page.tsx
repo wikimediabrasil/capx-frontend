@@ -4,12 +4,12 @@ import Image from "next/image";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
-import { PaginationButtons } from "@/app/(auth)/feed/components/PaginationButtons";
 import { useSavedItems } from "@/hooks/useSavedItems";
 import LoadingState from "@/components/LoadingState";
 import { NoResults } from "../components/NoResults";
 import SavedItemsIllustration from "@/public/static/images/capx_person_4.svg";
 import SavedItemCard from "./components/SavedItemCard";
+import { PaginationButtons } from "@/components/PaginationButtons";
 
 export default function SavedProfilesPage() {
   const { darkMode } = useTheme();
