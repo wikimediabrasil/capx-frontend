@@ -10,6 +10,7 @@
   "auth-dialog-button-close": "Close Tab",
   "component-under-development-dialog": "Oops! This component is currently under construction.",
   "navbar-link-about": "About",
+  "navbar-link-organizations": "Org. list",
   "navbar-link-feed": "Feed",
   "navbar-link-saved-profiles": "Saved profiles",
   "navbar-link-profiles": "My profiles",
