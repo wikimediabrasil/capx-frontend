@@ -18,11 +18,21 @@ export async function GET(request: NextRequest) {
         offset,
       },
     });
-    return NextResponse.json(response.data.results);
+
+    // Return both the results and the total count
+    return NextResponse.json({
+      results: response.data.results || [],
+      count: response.data.count || response.data.results?.length || 0,
+    });
   } catch (error: any) {
+    console.error(
+      "Error fetching events:",
+      error.message,
+      error.response?.data
+    );
     return NextResponse.json(
       {
-        error: "Falha ao buscar eventos",
+        error: "Failed to fetch events",
         details: error.response?.data || error.message,
       },
       { status: error.response?.status || 500 }

@@ -866,6 +866,7 @@ export default function OrganizationProfileEditMobileView({
               onClick={() => router.back()}
               label={pageContent["edit-profile-cancel"]}
               customClass="flex border w-1/2 rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg !px-[32px] !py-[16px] rounded-md font-[Montserrat] text-[24px] font-bold pb-[6px]"
+              
               imageUrl={CancelIcon}
               imageAlt="Cancel icon"
               imageWidth={32}

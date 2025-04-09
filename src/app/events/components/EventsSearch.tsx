@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useApp } from "@/contexts/AppContext";
 import BaseInput from "@/components/BaseInput";
-import EventCard from "./EventCard";
 import SearchIcon from "@/public/static/images/search.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
 import { useEvents } from "@/hooks/useEvents";
@@ -15,9 +14,11 @@ import { Event } from "@/types/event";
 interface EventsSearchProps {
   onSearchStart?: () => void;
   onSearchEnd?: () => void;
+  onSearchResults?: (results: Event[]) => void;
+  onSearchStatusChange?: (isActive: boolean) => void;
+  organizationId?: number;
 }
 
-// simple debounce
 function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
@@ -58,60 +59,84 @@ function useDebounce<T extends (...args: any[]) => any>(
 export function EventsSearch({
   onSearchStart,
   onSearchEnd,
+  onSearchResults,
+  onSearchStatusChange,
+  organizationId,
 }: EventsSearchProps) {
   const { data: session } = useSession();
-  const { language, isMobile, pageContent } = useApp();
+  const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   
+  // Search all events to enable search
   const {
     events,
     isLoading: isEventsLoading,
     error: eventsError,
-  } = useEvents(session?.user?.token, 50, 0);
-  // TODO: change pagination if necessary
+  } = useEvents(session?.user?.token, 100, 0, organizationId);
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>("");
 
   // Search function
   const search = useCallback(
-    async (term: string) => {
+    async (term: string) => {      
+      // Notify search status
+      onSearchStatusChange?.(!!term);
+      
       // If the search term is the same as the last search, do nothing
       if (term === lastSearchRef.current) {
         return;
       }
+      
+      // Store the current search term
+      lastSearchRef.current = term;
 
-      if (term && events && events.length > 0) {
-        setIsLoading(true);
-        onSearchStart?.();
-        
-        // Filter events based on the search term
-        const filtered = events.filter(event => 
-          event.name.toLowerCase().includes(term.toLowerCase()) ||
-          (event.type_of_location && event.type_of_location.toLowerCase().includes(term.toLowerCase()))
-        );
-        
-        setFilteredEvents(filtered);
-        
-        // Store the current search term
-        lastSearchRef.current = term;
+      if (!term) {
+        // No search term, clear results
+        onSearchResults?.([]);
+        onSearchEnd?.();
+        return;
+      }
+      
+      if (!events || events.length === 0) {
+        onSearchResults?.([]);
+        onSearchEnd?.();
+        return;
+      }
+      
+      setIsLoading(true);
+      onSearchStart?.();
+      
+      try {
+        // Safely check for null/undefined values during filtering
+        const filtered = events.filter(event => {
+          const name = (event.name || '').toLowerCase();
+          const desc = (event.description || '').toLowerCase();
+          const loc = (event.type_of_location || '').toLowerCase();
+          const termLower = term.toLowerCase();
+          
+          return name.includes(termLower) || 
+                 desc.includes(termLower) || 
+                 loc.includes(termLower);
+        });
+                
+        // Send results to parent component (even if empty)
+        onSearchResults?.(filtered);
+      } catch (error) {
+        console.error('🔍 Error:', error);
+        onSearchResults?.([]);
+      } finally {
         setIsLoading(false);
         onSearchEnd?.();
-      } else {
-        setFilteredEvents([]);
-        onSearchEnd?.();
-        // Clear the last search
-        lastSearchRef.current = "";
       }
     },
-    [events, onSearchStart, onSearchEnd]
+    [events, onSearchStart, onSearchEnd, onSearchResults, onSearchStatusChange]
   );
 
   // Use the custom debounce hook
-  const { debouncedFunction: debouncedSearch, cancel } = useDebounce(
+  const { debouncedFunction: debouncedSearch } = useDebounce(
     search,
     300
   );
@@ -121,12 +146,12 @@ export function EventsSearch({
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
 
-  // Load all events when there is no search term
+  // When component unmounts or search is cleared, reset search state
   useEffect(() => {
-    if (!searchTerm && events) {
-      setFilteredEvents(events);
-    }
-  }, [searchTerm, events]);
+    return () => {
+      onSearchStatusChange?.(false);
+    };
+  }, [onSearchStatusChange]);
 
   return (
     <div className="w-full">
@@ -134,7 +159,7 @@ export function EventsSearch({
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder={pageContent["events-search-placeholder"] || "Search for events..."}
+        placeholder={pageContent?.["events-search-placeholder"] || "Search for events..."}
         className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
           darkMode
             ? "text-white border-white"
@@ -143,26 +168,12 @@ export function EventsSearch({
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />
-
-      <div className="grid gap-4 mt-4">
-        {isLoading || isEventsLoading ? (
+      
+      {(isLoading || isEventsLoading) && (
+        <div className="flex justify-center py-2 mt-2">
           <LoadingState />
-        ) : eventsError ? (
-          <div className="text-red-500">
-            {pageContent["events-search-error"] || "Error loading events. Please try again."}
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <div className="text-center py-4">
-            {searchTerm ? "Nenhum evento encontrado para sua busca." : "Nenhum evento disponível."}
-          </div>
-        ) : (
-          filteredEvents.map((event) => (
-            <div key={event.id} className="w-full">
-              <EventCard event={event} />
-            </div>
-          ))
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -22,7 +22,7 @@ import { useOrganizations } from "@/hooks/useOrganizationProfile";
 import { Organization } from "@/types/organization";
 import { UserProfile } from "@/types/user";
 import { useAllUsers } from "@/hooks/useUserProfile";
-import { PaginationButtons } from "./components/PaginationButtons";
+import { PaginationButtons } from "@/components/PaginationButtons";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCapacity } from "@/hooks/useCapacityDetails";

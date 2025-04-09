@@ -87,10 +87,9 @@ export default function EventsFormItem({
   console.log("EventsFormItem renderizado com dados:", eventData);
 
   useEffect(() => {
-    // Inicializar as capacidades selecionadas a partir de eventData
+    // Initialize selected capacities from eventData
     if (eventData.related_skills && eventData.related_skills.length > 0) {
-      // Aqui você precisaria ter um método para converter os IDs em objetos Capacity
-      // Por exemplo:
+
       // const capacities = eventData.related_skills.map(id => getCapacityById(id));
       // setSelectedCapacities(capacities);
     }
@@ -101,7 +100,7 @@ export default function EventsFormItem({
       const newCapacities = [...selectedCapacities, capacity];
       setSelectedCapacities(newCapacities);
       
-      // Atualizar related_skills no evento
+      // Update related_skills in event
       const skillIds = newCapacities.map(cap => cap.code);
       onChange(index, "related_skills", JSON.stringify(skillIds));
     }
@@ -111,7 +110,7 @@ export default function EventsFormItem({
     const newCapacities = selectedCapacities.filter(cap => cap.code !== capacityCode);
     setSelectedCapacities(newCapacities);
     
-    // Atualizar related_skills no evento
+    // Update related_skills in event
     const skillIds = newCapacities.map(cap => cap.code);
     onChange(index, "related_skills", JSON.stringify(skillIds));
   };
@@ -433,7 +432,6 @@ export default function EventsFormItem({
             </div>
           </div>
 
-          {/* Modal de seleção de capacidades */}
           <CapacitySelectionModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}

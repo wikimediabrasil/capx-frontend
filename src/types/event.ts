@@ -11,6 +11,7 @@ export interface Event {
   created_at: string;
   updated_at: string;
   creator: number;
+  description: string;
   team: number[];
   organizations: number[];
   related_skills: number[];

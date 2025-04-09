@@ -9,6 +9,8 @@ import AlarmDarkIcon from "@/public/static/images/alarm_dark.svg";
 import LocationDarkIcon from "@/public/static/images/location_on_dark.svg";
 import CalendarDarkIcon from "@/public/static/images/calendar_month_dark.svg";
 import HourglassDarkIcon from "@/public/static/images/hourglass_dark.svg";
+import EmojiObjectsDarkIcon from "@/public/static/images/emoji_objects_events.svg";
+import EmojiObjectsIcon from "@/public/static/images/emoji_objects_white.svg";
 import { useSession } from "next-auth/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -20,9 +22,6 @@ interface EventCardProps {
 export default function EventCard({ event }: EventCardProps) {
   const { darkMode } = useTheme();
   const { pageContent, isMobile } = useApp();
-  
-  console.log("event no card: ", event);
-
 
   // Função para formatar horário no formato desejado (2:00 PM - 2:40 PM (UTC))
   const formatTimeRange = (startDateStr: string, endDateStr: string) => {
@@ -99,14 +98,14 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <div className={`"flex flex-col gap-4 border border-[#8B97A8] 
-    rounded-[4px] p-4" ${darkMode ? "text-white" : "bg-white text-gray-800"}`}>
+    rounded-[4px] p-4" ${darkMode ? "text-white" : "bg-white text-dark-box-bg"}`}>
       <div className="flex flex-col md:flex-row gap-4 mx-4 my-4"> 
         <div className="flex-1">
-          <h2 className="text-xl font-bold mb-2">{event.name}</h2>
+          <h2 className="text-xl font-bold mb-2 text-dark-box-bg">{event.name}</h2>
           
           {event.organized_by && (
             <p className="text-lg mb-2">
-              <span className="font-semibold">Organized by:</span> {event.organized_by}
+              <span className="font-normal">Organized by:</span> {event.organized_by}
             </p>
           )}
           
@@ -114,8 +113,10 @@ export default function EventCard({ event }: EventCardProps) {
             {event.time_begin && event.time_end && (
               <div className="flex flex-row gap-2">
                 <Image src={darkMode ?  AlarmIcon :  AlarmDarkIcon} 
+                  width={24}
+                  height={24}
                   alt="Alarm" />
-                <p className="text-lg font-extrabold">
+                <p className="text-lg font-extrabold text-[#507380]">
                   {formatTimeRange(event.time_begin, event.time_end)}
                 </p>
               </div>
@@ -124,28 +125,34 @@ export default function EventCard({ event }: EventCardProps) {
             {event.time_begin && (
               <div className="flex flex-row gap-2">
                 <Image src={darkMode ? CalendarIcon : CalendarDarkIcon} 
+                  width={24}
+                  height={24}
                   alt="Calendar" />
-                <p className="text-lg font-extrabold">
+                <p className="text-lg font-extrabold text-[#507380]">
                   {formatMonthYear(event.time_begin)}
                 </p>
               </div>
             )}
             {event.type_of_location && (
               <div className="flex flex-row gap-2">
-                <Image src={darkMode ?  LocationIcon :  LocationDarkIcon} 
+                  <Image src={darkMode ?  LocationIcon :  LocationDarkIcon} 
+                  width={24}
+                  height={24}
                   alt="Location" />
-                <p className="text-lg font-extrabold">
+                <p className="text-lg font-extrabold text-[#507380]">
                   {event.type_of_location === "virtual" ? "Online event" : event.type_of_location === "in-person" ? "In-person event" : "Hybrid event"}
                 </p>
               </div>
             )}
 
-            {event.related_tags && (
+            {event.related_skills && (
               <div className="flex flex-row gap-2">
-                <Image src={darkMode ?  TagIcon :  TagDarkIcon} 
-                  alt="Tag" />
-                <p className="text-lg font-extrabold">
-                  {event.related_tags}
+                <Image src={darkMode ?  EmojiObjectsIcon :  EmojiObjectsDarkIcon}
+                  width={24}
+                  height={24}
+                  alt="Emoji" />
+                <p className="text-lg font-extrabold text-[#507380]">
+                  {pageContent["events-related-skills"] || "Related skills"}
                 </p>
               </div>
             )}
@@ -155,8 +162,8 @@ export default function EventCard({ event }: EventCardProps) {
         </div>
       </div>
       <div className="flex flex-row gap-2 my-4 mx-4">
-        <BaseButton customClass={` bg-white text-capx-dark-bg border border-capx-dark-bg ${isMobile ? "text-sm" : "text-md"}`} label="Contact" />
-        <BaseButton customClass={`text-md ${isMobile ? "text-sm" : "text-md"}`} label="View Event" />
+        <BaseButton customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg bg-white hover:bg-capx-primary-green text-capx-dark-box-bg border border-capx-dark-box-bg hover:text-capx-dark-bg font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center text-md not-italic leading-[normal] ${isMobile ? "text-sm" : "text-md"}`} label="Contact" />
+        <BaseButton customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center text-md not-italic leading-[normal] ${isMobile ? "text-sm" : "text-md"}`} label="View Event" />
       </div>
       
     </div>

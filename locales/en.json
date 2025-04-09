@@ -324,5 +324,11 @@
   "organization-profile-event-popup-cancel": "Cancel",
   "organization-profile-event-popup-create-event": "Create event",
   "events-search-placeholder": "Search for events...",
-  "events-search-error": "Error loading events. Please try again."
+  "events-search-error": "Error loading events. Please try again.",
+  "events-related-skills": "Related skills",
+  "events-search-results": "Showing search results: ",
+  "events-search-results-singular": "event found",
+  "events-search-results-plural": "events found",
+  "events-search-results-no-results": "No results found for your search.",
+  "events-search-results-error": "Error loading events. Please try again."
 }
