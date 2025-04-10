@@ -2,26 +2,27 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useApp } from "@/contexts/AppContext";
+import { useOrganizations } from "@/hooks/useOrganizationProfile";
+import { Organization } from "@/types/organization";
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useCapacity } from "@/hooks/useCapacityDetails";
+import { Capacity } from "@/types/capacity";
+import { PaginationButtons } from "@/components/PaginationButtons";
+import { FilterState, ProfileCapacityType, ProfileFilterType, Skill } from "@/app/(auth)/feed/types";
+import { Filters } from "@/app/(auth)/feed/components/Filters";
+
+import ProfileCard from "@/app/(auth)/feed/components/Card";
 import Image from "next/image";
-import ProfileCard from "../components/Card";
 import FilterIcon from "@/public/static/images/filter_icon.svg";
 import FilterIconWhite from "@/public/static/images/filter_icon_white.svg";
 import SearchIcon from "@/public/static/images/search_icon.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
 import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
 import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
-import { Filters } from "../components/Filters";
-import { useApp } from "@/contexts/AppContext";
-import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from "../types";
-import { useOrganizations } from "@/hooks/useOrganizationProfile";
-import { Organization } from "@/types/organization";
-// import { UserProfile } from "@/types/user";
-// import { useAllUsers } from "@/hooks/useUserProfile";
-import { PaginationButtons } from "../components/PaginationButtons";
-import CapacitySelectionModal from "../../profile/edit/components/CapacitySelectionModal";
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useCapacity } from "@/hooks/useCapacityDetails";
-import { Capacity } from "@/types/capacity";
+import CapacitySelectionModal from "@/app/(auth)/profile/edit/components/CapacitySelectionModal";
+import OrgList from "@/public/static/images/org_list.svg";
+import OrgListDesktop from "@/public/static/images/org_list_desktop.svg";
 
 const createProfilesFromOrganizations = (organizations: Organization[], type: ProfileCapacityType) => {
   const profiles: any[] = [];
@@ -40,23 +41,6 @@ const createProfilesFromOrganizations = (organizations: Organization[], type: Pr
   return profiles;
 };
 
-// const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapacityType) => {
-//   const profiles: any[] = [];
-//   users.forEach(user => {
-//     profiles.push({
-//       id: user.user.id,
-//       username: user.user.username,
-//       capacities: type === ProfileCapacityType.Sharer ? user.skills_available : user.skills_wanted,
-//       type,
-//       profile_image: user.profile_image,
-//       territory: user.territory?.[0],
-//       avatar: user.avatar,
-//       isOrganization: false
-//     });
-//   });
-//   return profiles;
-// };
-
 export default function FeedPage() {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -71,14 +55,14 @@ export default function FeedPage() {
     profileCapacityTypes: [ProfileCapacityType.Learner, ProfileCapacityType.Sharer] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    profileFilter: ProfileFilterType.Both
+    profileFilter: ProfileFilterType.Organization
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerList = 5; // For each type of profile (user or organization)
-  const itemsPerPage = itemsPerList * 2; // Total of profiles per page
-  const offset = (currentPage - 1) * itemsPerList;
+  const items = 10;
+  const itemsPerPage = items * 2; // Total of profiles per page
+  const offset = (currentPage - 1) * items;
 
   const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityCode);
 
@@ -103,67 +87,29 @@ export default function FeedPage() {
     }
   }, [capacityCode, isLoadingCapacity]);
 
-  const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
   const { organizations: organizationsLearner, count: organizationsLearnerCount, isLoading: isOrganizationsLearnerLoading } = useOrganizations(
-    shouldFetchOrgs ? itemsPerList : 0,
-    shouldFetchOrgs ? offset : 0,
-    shouldFetchOrgs ? {
+    items,
+    offset,
+    {
       ...activeFilters,
       profileCapacityTypes: [ProfileCapacityType.Learner]
-    } : undefined
+    }
   );
 
-//   const shouldFetchUsers = activeFilters.profileFilter !== ProfileFilterType.Organization;
-//   const { allUsers: usersLearner, count: usersLearnerCount, isLoading: isUsersLearnerLoading } = useAllUsers({
-//     limit: shouldFetchUsers ? itemsPerList : 0,
-//     offset: shouldFetchUsers ? offset : 0,
-//     activeFilters: shouldFetchUsers ? {
-//       ...activeFilters,
-//       profileCapacityTypes: [ProfileCapacityType.Learner]
-//     } : undefined
-//   });
-
-  const shouldFetchSharerOrgs = activeFilters.profileFilter !== ProfileFilterType.User && activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
   const { organizations: organizationsSharer, count: organizationsSharerCount, isLoading: isOrganizationsSharerLoading } = useOrganizations(
-    shouldFetchSharerOrgs ? itemsPerList : 0,
-    shouldFetchSharerOrgs ? offset : 0,
-    shouldFetchSharerOrgs ? {
+    items,
+    offset,
+    {
       ...activeFilters,
       profileCapacityTypes: [ProfileCapacityType.Sharer]
-    } : undefined
+    }
   );
-
-//   const shouldFetchSharerUsers = activeFilters.profileFilter !== ProfileFilterType.Organization && activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
-//   const { allUsers: usersSharer, count: usersSharerCount, isLoading: isUsersSharerLoading } = useAllUsers({
-//     limit: shouldFetchSharerUsers ? itemsPerList : 0,
-//     offset: shouldFetchSharerUsers ? offset : 0,
-//     activeFilters: shouldFetchSharerUsers ? {
-//       ...activeFilters,
-//       profileCapacityTypes: [ProfileCapacityType.Sharer]
-//     } : undefined
-//   });
 
   // Total of records according to the profileFilter
   let totalRecords = 0;
 
-  switch(activeFilters.profileFilter) {
-    // case ProfileFilterType.User:
-    //   totalRecords = (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) ? usersLearnerCount : 0) +
-    //                 (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? usersSharerCount : 0);
-    //   break;
-    case ProfileFilterType.Organization:
-      totalRecords = (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) ? organizationsLearnerCount : 0) +
-                    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? organizationsSharerCount : 0);
-      break;
-    case ProfileFilterType.Both:
-    default:
-      totalRecords = (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) ? 
-                    (organizationsLearnerCount) : 0) +
-                    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? 
-                    (organizationsSharerCount) : 0);
-  }
 
-  // Create profiles (to create cards) from organizations and users
+  // Create profiles (to create cards) from organizations
   const filteredProfiles = useMemo(() => {
     const learnerOrgProfiles = createProfilesFromOrganizations(organizationsLearner || [], ProfileCapacityType.Learner);
     const availableOrgProfiles = createProfilesFromOrganizations(organizationsSharer || [], ProfileCapacityType.Sharer);
@@ -172,25 +118,9 @@ export default function FeedPage() {
     const orgProfilesLearner = activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) ? learnerOrgProfiles : [];
     const orgProfilesSharer = activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? availableOrgProfiles : [];
     const organizationProfiles = [...orgProfilesLearner, ...orgProfilesSharer];
+    return organizationProfiles;
+  }, [activeFilters, organizationsLearner, organizationsSharer, items]);
    
-    // const wantedUserProfiles = createProfilesFromUsers(usersLearner || [], ProfileCapacityType.Learner);
-    // const availableUserProfiles = createProfilesFromUsers(usersSharer || [], ProfileCapacityType.Sharer);
-  
-    // // Filter users based on activeFilters.profileCapacityTypes
-    // const userProfilesWanted = activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) ? wantedUserProfiles : [];
-    // const userProfilesAvailable = activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? availableUserProfiles : [];
-    // const userProfiles = [...userProfilesWanted, ...userProfilesAvailable];
-
-    // Filter based on activeFilters.profileFilter
-    switch (activeFilters.profileFilter) {
-      case ProfileFilterType.Organization:
-       return organizationProfiles;
-      case ProfileFilterType.Both:
-      default:
-       return [...organizationProfiles,];
-    }
-  }, [activeFilters, organizationsLearner, organizationsSharer]);
-
   // Calculate total of pages based on total profiles
   const numberOfPages = Math.ceil(totalRecords / (itemsPerPage));
 
@@ -250,6 +180,28 @@ export default function FeedPage() {
 
   return (
     <div className="w-full flex flex-col items-center pt-24 md:pt-8">
+        <div className="w-full mx-auto px-4 py-8 md:max-w-[1200px] md:pt-0 relative">
+          <div className="hidden md:block relative">
+            <Image
+                src={OrgListDesktop}
+                alt={pageContent["organization-list-banner-desktop"]}
+                className="w-full h-auto md:max-h-[600px]"
+            />
+            <h1 className="absolute left-[55%] top-[40%] text-[#FFFFFF] text-[48px] font-[Montserrat] font-bold">
+                {pageContent["organization-list-banner-page"]}
+            </h1>
+          </div>
+          <div className="block md:hidden relative">
+            <Image
+                src={OrgList}
+                alt={pageContent["organization-list-banner-mobile"]}
+                className="w-full h-auto md:max-h-[600px]"
+            />
+            <h1 className="absolute bottom-[8%] left-[30%] text-[#FFFFFF] text-center text-[20px] font-[Montserrat] font-bold ">
+                {pageContent["organization-list-banner-page"]}
+            </h1>
+          </div>
+        </div>
       <div className="container mx-auto px-4">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           {/* SearchBar and Filters Button */}
