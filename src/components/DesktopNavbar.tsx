@@ -220,12 +220,12 @@ export default function DesktopNavbar({
                             : "hover:bg-gray-100"
                         }`}
                       >
-                        <div className="w-[92%] mx-auto">
+                        <div className="w-[100%] mx-auto">
                           <AuthButton
                             message={pageContent["sign-out-button"]}
                             isSignOut={true}
                             imageUrl={MoveOutIcon}
-                            customClass="w-full h-[32px] flex items-center px-[6px] py-[8px] rounded-[4px] bg-[var(--Buttons-Default,_#851D6A)] font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] text-white justify-start pt-4 px-[8px] py-[0]"
+                            customClass="w-full h-[32px] flex items-center px-[6px] py-[8px] rounded-[4px] bg-[var(--Buttons-Default,_#851D6A)] font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] text-white justify-start pt-4 px-[8px] py-[0] !mb-0"
                           />
                         </div>
                       </div>
