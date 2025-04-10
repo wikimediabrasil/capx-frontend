@@ -126,6 +126,11 @@ export default function MobileMenuLinks({
       active: true,
     },
     {
+      title: pageContent["test"],
+      to: "/feed/organization",
+      active: true,
+    },
+    {
       title: pageContent["navbar-link-dark-mode"],
       action: () => {
         setDarkMode(!darkMode);
@@ -139,7 +144,7 @@ export default function MobileMenuLinks({
       active: true,
       image: ArrowDropDownBlack,
       isDarkBg: true,
-    },
+    },    
   ];
 
   const handleProfileClick = () => {

@@ -55,7 +55,7 @@ interface ProfileCardProps {
   pageContent?: Record<string, string>;
   isOrganization?: boolean;
   isSaved?: boolean;
-  onToggleSaved: () => void;
+  onToggleSaved?: () => void;
 }
 
 export const ProfileCard = ({
@@ -108,7 +108,7 @@ export const ProfileCard = ({
 
   const toggleSaved = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onToggleSaved();
+    onToggleSaved && onToggleSaved();
   };
 
   return (
@@ -241,13 +241,14 @@ export const ProfileCard = ({
               </button>
 
               {/* Bookmark Button */}
-              <button
+              {onToggleSaved &&
+                <button
                 className={`inline-flex items-center justify-center p-1.5 rounded-full ${
                   darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
                 }`}
                 onClick={toggleSaved}
                 aria-label={isSaved ? "Remove dos salvos" : "Salvar perfil"}
-              >
+                >
                 <Image
                   src={bookmarkIcon}
                   alt={isSaved ? "Perfil salvo" : "Salvar perfil"}
@@ -255,7 +256,8 @@ export const ProfileCard = ({
                   height={32}
                   className="w-[32px] h-[32px]"
                 />
-              </button>
+                </button>
+              }
             </div>
           </div>
         </div>
