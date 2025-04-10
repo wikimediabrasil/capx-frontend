@@ -49,12 +49,68 @@ export const eventsService = {
     const headers = { Authorization: `Token ${token}` };
 
     try {
+      console.log(`eventService: buscando evento ${eventId}`);
       const response = await axios.get(`/api/events/${eventId}`, {
         headers,
       });
+
+      // Verificar se a resposta é válida
+      if (!response.data) {
+        console.warn(
+          `eventService: resposta para evento ${eventId} está vazia`
+        );
+        throw new Error(`Resposta vazia ao buscar evento ${eventId}`);
+      }
+
+      // Verificar se a resposta contém os campos esperados
+      if (!response.data.id) {
+        console.warn(
+          `eventService: evento ${eventId} não contém ID na resposta`,
+          response.data
+        );
+      }
+
+      // Verificar se o campo organization existe
+      if (
+        response.data.organization === undefined ||
+        response.data.organization === null
+      ) {
+        console.warn(
+          `eventService: evento ${eventId} não tem campo organization`,
+          response.data
+        );
+      }
+
+      // Manter a compatibilidade com código que ainda espera organizations
+      if (
+        !response.data.organizations ||
+        !Array.isArray(response.data.organizations)
+      ) {
+        console.warn(
+          `eventService: evento ${eventId} não tem campo organizations, criando array compatível`,
+          response.data
+        );
+        // Criar um array vazio se o campo organizations não existir ou não for um array
+        response.data.organizations = [];
+
+        // Se temos organization, adicionar ao array organizations para manter compatibilidade
+        if (response.data.organization) {
+          response.data.organizations.push(Number(response.data.organization));
+        }
+      }
+
+      console.log(
+        `eventService: evento ${eventId} carregado com sucesso, nome: ${response.data.name}, organization: ${response.data.organization}`
+      );
       return response.data;
     } catch (error) {
       console.error(`Erro ao buscar evento ${eventId}:`, error);
+      if (error.response) {
+        console.error(`Detalhes do erro para evento ${eventId}:`, {
+          status: error.response.status,
+          data: error.response.data,
+        });
+      }
       throw error;
     }
   },

@@ -12,19 +12,39 @@ export function useOrganizationEvents(
 
   const organizationIdNum = Number(organizationId);
 
-  // Carregar eventos da organização
+  // Load events from organization
   const fetchOrganizationEvents = useCallback(async () => {
     if (!token || !organizationId) return [];
 
     setIsLoading(true);
     try {
-      // Busca todos os eventos
-      const allEvents = await eventsService.getEvents(token);
+      // Search all events
+      const response = await eventsService.getEvents(token);
 
-      // Filtra apenas os eventos relacionados a esta organização
+      // Verify if we got valid data
+      if (!response) {
+        console.error("Empty response from events API");
+        return [];
+      }
+
+      // Extract events list from response
+      const allEvents = response.results || [];
+
+      // Ensure allEvents is an array before using filter
+      if (!Array.isArray(allEvents)) {
+        console.error("Events data is not an array:", allEvents);
+        return [];
+      }
+
+      // Filter only events related to this organization
       const organizationEvents = allEvents.filter(
         (event) =>
-          event.organizations && event.organizations.includes(organizationIdNum)
+          event &&
+          (event.organization === organizationIdNum ||
+            Number(event.organization) === organizationIdNum ||
+            (event.organizations &&
+              Array.isArray(event.organizations) &&
+              event.organizations.includes(organizationIdNum)))
       );
 
       setEvents(organizationEvents);
@@ -40,31 +60,87 @@ export function useOrganizationEvents(
     }
   }, [token, organizationId, organizationIdNum]);
 
-  // Carregar eventos por IDs específicos
+  // Load events by specific IDs
   const fetchEventsByIds = useCallback(
     async (eventIds: number[]) => {
       if (!token || !eventIds.length) return [];
 
       setIsLoading(true);
       try {
-        const eventPromises = eventIds.map((id) =>
-          eventsService.getEventById(id, token)
+        console.log(
+          `Iniciando carregamento de ${eventIds.length} eventos por IDs:`,
+          eventIds
         );
 
-        const results = await Promise.allSettled(eventPromises);
+        // Create promises for each event
+        const eventPromises = eventIds.map((id) => {
+          // For each ID, create a promise that tries to search the event, but does not fail the entire promise
+          console.log(`Trying to load event ID ${id}`);
+          return eventsService
+            .getEventById(id, token)
+            .then((event) => {
+              console.log(
+                `Evento ID ${id} carregado com sucesso:`,
+                event
+                  ? `${event.name} (organizations: ${event.organizations})`
+                  : "Resposta nula"
+              );
+              return event;
+            })
+            .catch((error) => {
+              console.error(`Error loading event ID ${id}:`, error);
+              return null; // Return null in case of error to not interrupt the others
+            });
+        });
 
+        // Wait for all promises, even the ones that failed
+        const results = await Promise.all(eventPromises);
+        console.log(
+          `Raw results of ${results.length} events: `,
+          results.map((e) => (e ? `ID ${e.id} (OK)` : "failed"))
+        );
+
+        // Filter nulls and events without relation to the organization
         const loadedEvents = results
-          .filter(
-            (result): result is PromiseFulfilledResult<Event> =>
-              result.status === "fulfilled"
-          )
-          .map((result) => result.value)
-          // Validar se o evento pertence à organização
-          .filter(
-            (event) =>
-              event.organizations &&
-              event.organizations.includes(organizationIdNum)
-          );
+          .filter((event): event is Event => {
+            if (!event) {
+              return false;
+            }
+            return true;
+          })
+          .filter((event) => {
+            // Verify if the event belongs to the organization by the organization or organizations field
+            const hasOldOrganizations =
+              Array.isArray(event.organizations) &&
+              event.organizations.includes(organizationIdNum);
+
+            const matchesOrganization =
+              event.organization === organizationIdNum ||
+              Number(event.organization) === organizationIdNum;
+
+            if (!matchesOrganization && !hasOldOrganizations) {
+              console.warn(
+                `Event ID ${event.id} does not belong to organization ${organizationIdNum}`,
+                {
+                  organization: event.organization,
+                  organizations: event.organizations,
+                }
+              );
+            }
+
+            // Event belongs to the organization if organization is equal or organizations includes the ID
+            return matchesOrganization || hasOldOrganizations;
+          });
+
+        console.log("Events loaded successfully:", loadedEvents.length);
+        console.log(
+          "Details of loaded events:",
+          loadedEvents.map((e) => ({
+            id: e.id,
+            name: e.name,
+            organizations: e.organizations,
+          }))
+        );
 
         setEvents(loadedEvents);
         return loadedEvents;
@@ -80,40 +156,40 @@ export function useOrganizationEvents(
     [token, organizationIdNum]
   );
 
-  // Criar um novo evento para a organização
+  // Create a new event for the organization
   const createEvent = useCallback(
     async (eventData: Partial<Event>) => {
       if (!token) {
-        throw new Error("Token não disponível para criar evento");
+        throw new Error("Token not available to create event");
       }
 
       setIsLoading(true);
       try {
-        console.log(
-          "useOrganizationEvents - Dados iniciais do evento:",
-          eventData
-        );
+        console.log("useOrganizationEvents - Initial event data:", eventData);
 
-        // Verificar se o organizations já é um array, se não for, inicializar
-        let organizations = Array.isArray(eventData.organizations)
-          ? [...eventData.organizations]
-          : [];
-
-        // Garantir que a organização atual esteja incluída no array
-        if (!organizations.includes(organizationIdNum)) {
-          organizations.push(organizationIdNum);
-        }
-
-        // Garantir que a organização esteja nos dados do evento
+        // Ensure organization is configured correctly
         const preparedData = {
           ...eventData,
-          organizations, // Array já processado
-          organization: organizationIdNum, // Campo individual também é mantido para compatibilidade
+          organization: organizationIdNum, // Use mainly the organization field
         };
 
-        console.log("useOrganizationEvents - Dados processados do evento:", {
+        // Keep organizations for compatibility with legacy code
+        if (
+          !preparedData.organizations ||
+          !Array.isArray(preparedData.organizations)
+        ) {
+          preparedData.organizations = [];
+        }
+
+        // Ensure organizationId is in organizations for compatibility
+        if (!preparedData.organizations.includes(organizationIdNum)) {
+          preparedData.organizations.push(organizationIdNum);
+        }
+
+        console.log("useOrganizationEvents - Processed event data:", {
           organizationIdNum,
-          organizations,
+          organization: preparedData.organization,
+          organizations: preparedData.organizations,
           prepared: preparedData,
         });
 
@@ -122,34 +198,31 @@ export function useOrganizationEvents(
           token
         );
 
-        console.log("useOrganizationEvents - Evento criado:", createdEvent);
+        console.log("useOrganizationEvents - Event created:", createdEvent);
 
-        // Verificar se o evento foi criado corretamente com a organização
-        if (
-          !createdEvent.organizations ||
-          !createdEvent.organizations.includes(organizationIdNum)
-        ) {
+        // Verify if the event was created correctly with the organization
+        if (createdEvent.organization !== organizationIdNum) {
           console.warn(
-            "AVISO: O evento foi criado, mas sem a organização no campo 'organizations'",
+            "WARNING: The event was created, but with the wrong organization",
             {
               eventId: createdEvent.id,
               organizationId: organizationIdNum,
-              organizations: createdEvent.organizations,
+              eventOrganization: createdEvent.organization,
             }
           );
         }
 
-        // Atualizar a lista de eventos
+        // Update the events list
         setEvents((prevEvents) => [...prevEvents, createdEvent]);
 
         return createdEvent;
       } catch (err) {
-        const errorMessage = "Falha ao criar evento";
+        const errorMessage = "Failed to create event";
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
-        // Log detalhado do erro
+        // Detailed error log
         if (err.response) {
-          console.error("Detalhes do erro da API:", {
+          console.error("API error details:", {
             status: err.response.status,
             data: err.response.data,
           });
@@ -162,45 +235,45 @@ export function useOrganizationEvents(
     [token, organizationIdNum]
   );
 
-  // Atualizar um evento existente
+  // Update an existing event
   const updateEvent = useCallback(
     async (eventId: number, eventData: Partial<Event>) => {
       if (!token) {
-        throw new Error("Token não disponível para atualizar evento");
+        throw new Error("Token not available to update event");
       }
 
       setIsLoading(true);
       try {
-        console.log("useOrganizationEvents - Atualizando evento:", {
+        console.log("useOrganizationEvents - Updating event:", {
           eventId,
           data: eventData,
         });
 
-        // Verificar se o organizations já é um array, se não for, inicializar
-        let organizations = Array.isArray(eventData.organizations)
-          ? [...eventData.organizations]
-          : [];
-
-        // Garantir que a organização atual esteja incluída no array
-        if (!organizations.includes(organizationIdNum)) {
-          organizations.push(organizationIdNum);
-        }
-
-        // Preparar dados com organização garantida
+        // Ensure organization is defined correctly
         const preparedData = {
           ...eventData,
-          organizations, // Array já processado
-          organization: organizationIdNum, // Campo individual também é mantido para compatibilidade
+          organization: organizationIdNum,
         };
 
-        console.log(
-          "useOrganizationEvents - Dados processados para atualização:",
-          {
-            organizationIdNum,
-            organizations,
-            prepared: preparedData,
-          }
-        );
+        // Keep organizations for compatibility
+        if (
+          !preparedData.organizations ||
+          !Array.isArray(preparedData.organizations)
+        ) {
+          preparedData.organizations = [];
+        }
+
+        // Ensure organizationId is in organizations for compatibility
+        if (!preparedData.organizations.includes(organizationIdNum)) {
+          preparedData.organizations.push(organizationIdNum);
+        }
+
+        console.log("useOrganizationEvents - Processed data for update:", {
+          organizationIdNum,
+          organization: preparedData.organization,
+          organizations: preparedData.organizations,
+          prepared: preparedData,
+        });
 
         const updatedEvent = await eventsService.updateEvent(
           eventId,
@@ -208,24 +281,21 @@ export function useOrganizationEvents(
           token
         );
 
-        console.log("useOrganizationEvents - Evento atualizado:", updatedEvent);
+        console.log("useOrganizationEvents - Event updated:", updatedEvent);
 
-        // Verificar se o evento foi atualizado corretamente com a organização
-        if (
-          !updatedEvent.organizations ||
-          !updatedEvent.organizations.includes(organizationIdNum)
-        ) {
+        // Verify if the event was updated correctly
+        if (updatedEvent.organization !== organizationIdNum) {
           console.warn(
-            "AVISO: O evento foi atualizado, mas sem a organização no campo 'organizations'",
+            "WARNING: The event was updated, but with the wrong organization",
             {
               eventId: updatedEvent.id,
               organizationId: organizationIdNum,
-              organizations: updatedEvent.organizations,
+              eventOrganization: updatedEvent.organization,
             }
           );
         }
 
-        // Atualizar a lista de eventos
+        // Update the events list
         setEvents((prevEvents) =>
           prevEvents.map((event) =>
             event.id === eventId ? updatedEvent : event
@@ -234,12 +304,12 @@ export function useOrganizationEvents(
 
         return updatedEvent;
       } catch (err) {
-        const errorMessage = "Falha ao atualizar evento";
+        const errorMessage = "Failed to update event";
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
-        // Log detalhado do erro
+        // Detailed error log
         if (err.response) {
-          console.error("Detalhes do erro da API:", {
+          console.error("API error details:", {
             status: err.response.status,
             data: err.response.data,
           });
@@ -252,25 +322,25 @@ export function useOrganizationEvents(
     [token, organizationIdNum]
   );
 
-  // Deletar um evento
+  // Delete an event
   const deleteEvent = useCallback(
     async (eventId: number) => {
       if (!token) {
-        throw new Error("Token não disponível para deletar evento");
+        throw new Error("Token not available to delete event");
       }
 
       setIsLoading(true);
       try {
         await eventsService.deleteEvent(eventId, token);
 
-        // Remover o evento da lista
+        // Remove the event from the list
         setEvents((prevEvents) =>
           prevEvents.filter((event) => event.id !== eventId)
         );
 
         return true;
       } catch (err) {
-        const errorMessage = "Falha ao deletar evento";
+        const errorMessage = "Failed to delete event";
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
         throw err;
@@ -281,7 +351,7 @@ export function useOrganizationEvents(
     [token]
   );
 
-  // Carregar eventos automaticamente ao inicializar
+  // Load events automatically when initializing
   useEffect(() => {
     fetchOrganizationEvents();
   }, [fetchOrganizationEvents]);

@@ -13,6 +13,6 @@ export interface Event {
   creator: number;
   description: string;
   team: number[];
-  organizations: number[];
+  organization: number;
   related_skills: number[];
 }

@@ -15,6 +15,7 @@ import { Capacity } from '@/types/capacity';
 import BaseButton from '@/components/BaseButton';
 import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
 
+
 interface EventFormItemProps {
   eventData: Event;
   index: number;
@@ -84,8 +85,6 @@ export default function EventsFormItem({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
 
-  console.log("EventsFormItem renderizado com dados:", eventData);
-
   useEffect(() => {
     // Initialize selected capacities from eventData
     if (eventData.related_skills && eventData.related_skills.length > 0) {
@@ -116,7 +115,6 @@ export default function EventsFormItem({
   };
 
   const handleChange = (field: keyof Event, value: string) => {
-    console.log(`EventsFormItem handleChange: campo ${field} valor ${value}`);
     onChange(index, field, value);
   };
 
