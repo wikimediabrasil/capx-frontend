@@ -124,6 +124,7 @@ export default function OrganizationList() {
         <Banner 
           image={OrgListBanner}
           title={pageContent["organization-list-banner-page"]}
+          alt={pageContent["organization-list-alt-banner"]}
         />        
         <div className="container mx-auto px-4">
           <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">

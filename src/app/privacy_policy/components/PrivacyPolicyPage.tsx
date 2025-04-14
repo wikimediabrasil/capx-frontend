@@ -21,6 +21,7 @@ export default function PrivacyPolicyPage(){
             <Banner
                 image={PrivacyPolicy}
                 title={pageContent["privacy-policy-banner"]}
+                alt={pageContent["privacy-policy-alt-banner"]}
             />
             <div className="flex items-start gap-2 text-left pt-6 ">
                 <Image

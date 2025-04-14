@@ -5,9 +5,10 @@ import Image from "next/image";
 interface BannerProps {
   image: string;
   title: string;
+  alt: string;
 }
 
-export default function Banner({ image, title }: BannerProps) {
+export default function Banner({ image, title, alt }: BannerProps) {
     return (
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6 mb-6">
             {/* Banner */}
@@ -16,7 +17,7 @@ export default function Banner({ image, title }: BannerProps) {
                     {/* Image */}
                     <Image
                         src={image}
-                        alt="SavedItemsIllustration"
+                        alt={alt}
                         width={180}
                         height={180}
                         className="h-auto w-[140px] md:w-auto"

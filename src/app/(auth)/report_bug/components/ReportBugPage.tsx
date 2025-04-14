@@ -14,6 +14,7 @@ export default function ReportBugPage() {
             <Banner 
                 image={BugReport}
                 title={pageContent["report-bug-banner-page"]}
+                alt={pageContent["report-bug-alt-banner"]}
             />
             <NavBarReportBugPage />
         </section>
