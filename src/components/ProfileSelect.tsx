@@ -1,5 +1,5 @@
-import { useMemo, useEffect } from "react";
-import { useRouter, useParams, usePathname } from "next/navigation";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import BaseSelect from "./BaseSelect";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -14,12 +14,9 @@ interface ProfileOption {
 
 export default function ProfileSelect() {
   const router = useRouter();
-  const params = useParams();
-  const organizationId = params?.id;
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
   const { data: session } = useSession();
-  const pathname = usePathname();
 
   const { organizations } = useOrganization(session?.user?.token);
 
@@ -53,29 +50,16 @@ export default function ProfileSelect() {
     }
   };
 
-  // Define the initial value based on the current route
-  const currentValue = useMemo(() => {
-    if (organizationId && organizations) {
-      return organizations.find((org) => org.id === Number(organizationId));
-    }
-
-    if (pathname.includes("/profile")) {
-      return profileOptions[0]; // User profile option
-    }
-
-    return profileOptions[0]; // Default to user profile
-  }, [organizationId, pathname, profileOptions]);
-
   return (
     <BaseSelect
-      value={currentValue}
+      value={{ value: "", label: pageContent["navbar-link-profiles"]}}
       onChange={handleProfileChange}
       options={profileOptions}
       name={pageContent["navbar-link-profiles"]}
       className="w-[200px] text-[20px] w-max"
       darkMode={darkMode}
       isMobile={isMobile}
-      placeholder={currentValue?.label}
+      placeholder={pageContent["navbar-link-profiles"]}
     />
   );
 }
