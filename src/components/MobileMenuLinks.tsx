@@ -126,8 +126,8 @@ export default function MobileMenuLinks({
       active: true,
     },
     {
-      title: pageContent["test"],
-      to: "/feed/organization",
+      title: pageContent["navbar-organization-list"],
+      to: "/organization_list",
       active: true,
     },
     {

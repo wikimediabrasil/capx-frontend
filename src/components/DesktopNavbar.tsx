@@ -50,8 +50,8 @@ export default function DesktopNavbar({
       active: true,
     },
     {
-      title: pageContent["navbar-organization"],
-      to: "/organization",
+      title: pageContent["navbar-organization-list"],
+      to: "/organization_list",
       active: true,
     },
   ];
