@@ -122,5 +122,14 @@
 	"feed-no-data-message": "Keng Donnéeë fonnt",
 	"saved-profiles-title": "Gespäichert Profiller",
 	"saved-profiles-delete-item": "Element läschen",
-	"saved-profiles-view-profile": "Profil weisen"
+	"saved-profiles-view-profile": "Profil weisen",
+	"report-bug-title": "Titel",
+	"report-bug-description": "Beschreiwung",
+	"report-bug-status": "Status",
+	"report-bug-hide": "Verstoppen",
+	"report-bug-type-error": "Feeler",
+	"report-bug-type-improvement": "Verbesserung",
+	"report-bug-type-test-case": "Testfall",
+	"report-bug-status-resolved": "Geléist",
+	"report-bug-status-closed": "Zou"
 }
