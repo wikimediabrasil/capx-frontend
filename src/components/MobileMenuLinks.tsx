@@ -144,7 +144,7 @@ export default function MobileMenuLinks({
       active: true,
       image: ArrowDropDownBlack,
       isDarkBg: true,
-    },    
+    },
   ];
 
   const handleProfileClick = () => {
