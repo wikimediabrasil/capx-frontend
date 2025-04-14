@@ -8,6 +8,7 @@ import { useApp } from "@/contexts/AppContext";
 import { Organization, OrganizationType } from "@/types/organization";
 import { Capacity } from "@/types/capacity";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
+import { useCapacities } from "@/hooks/useCapacities";
 import { useProject, useProjects } from "@/hooks/useProjects";
 import { useDocument } from "@/hooks/useDocument";
 import { Project } from "@/types/project";
@@ -27,6 +28,7 @@ import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
 import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
 import EventsFormItem from "./EventsFormItem";
+import EventsCardList from "./EventsCardList";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface ProfileOption {
@@ -134,6 +136,7 @@ export default function EditOrganizationProfilePage() {
   // State for existing and new events
   const [newEvent, setNewEvent] = useState<Event>();
   const [showEventModal, setShowEventModal] = useState(false);
+  const [currentEditingEvent, setCurrentEditingEvent] = useState<Event | null>(null);
 
   const [editedEvents, setEditedEvents] = useState<{
     [key: number]: boolean;
@@ -142,7 +145,6 @@ export default function EditOrganizationProfilePage() {
   // Adicione este log para verificar os IDs dos eventos
   useEffect(() => {
     if (organization) {
-      console.log('IDs de eventos da organização:', organization.events);
       // Sempre que os eventos da organização mudarem, resetar a flag para forçar recarregamento
       eventsLoaded.current = false;
     }
@@ -152,72 +154,45 @@ export default function EditOrganizationProfilePage() {
   useEffect(() => {
     const loadEvents = async () => {
       if (!organization?.events || !token) {
-        console.log('Sem organização, eventos ou token para carregar');
         return;
       }
       
       if (organization.events.length === 0) {
-        console.log('Lista de eventos da organização está vazia');
         setEventsData([]);
         eventsLoaded.current = true;
         return;
       }
       
       if (!eventsLoaded.current && !isEventsLoading) {
-        console.log('Tentando carregar eventos, status de carregamento atual:', {
-          eventsLoaded: eventsLoaded.current,
-          isEventsLoading
-        });
+        
         
         try {
           // Use the new hook method to load events by IDs
           const validEventIds = organization.events.filter(id => id !== null && id !== undefined);
-          console.log('Carregando eventos com IDs:', validEventIds);
           
           if (validEventIds.length === 0) {
-            console.log('Nenhum ID de evento válido para carregar');
             setEventsData([]);
             eventsLoaded.current = true; // Marcar como carregado mesmo quando não há IDs válidos
             return;
           }
           
           const loadedEvents = await fetchEventsByIds(validEventIds);
-          console.log('Eventos carregados:', loadedEvents);
                     
           // Definir eventos mesmo que a lista esteja vazia, e marcar como carregado de qualquer forma
           setEventsData(loadedEvents || []);
           eventsLoaded.current = true;
           
-          if (!loadedEvents || loadedEvents.length === 0) {
-            console.log('Nenhum evento encontrado com os IDs fornecidos');
-          } else {
-            console.log(`Carregados ${loadedEvents.length} eventos com sucesso`);
-          }
+
         } catch (error) {
           console.error('Erro ao carregar eventos:', error);
           setEventsData([]);
           eventsLoaded.current = true; // Marcar como carregado mesmo em caso de erro
         }
-      } else {
-        console.log('Pulando carregamento de eventos porque:', {
-          eventsLoaded: eventsLoaded.current,
-          isEventsLoading
-        });
       }
     };
     
     loadEvents();
   }, [organization?.events, token, isEventsLoading, fetchEventsByIds]);
-
-  // Adicionar um useEffect para debug
-  useEffect(() => {
-    console.log('Estado atual dos eventos:', eventsData);
-  }, [eventsData]);
-
-  // Adicionar um debug para o evento no modal
-  useEffect(() => {
-    console.log('Estado atual do newEvent:', newEvent);
-  }, [newEvent]);
 
   // Tags setters
   const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } =
@@ -467,7 +442,6 @@ export default function EditOrganizationProfilePage() {
         // Atualizar o formData com a lista completa de eventos
         updatedFormData.events = updatedEventIds;
         
-        console.log('Lista atualizada de eventos da organização:', updatedEventIds);
       }
 
       await updateOrganization(updatedFormData);
@@ -571,13 +545,25 @@ export default function EditOrganizationProfilePage() {
       openstreetmap_id: "",
       wikidata_qid: "",
     };
-    setNewEvent(eventData);
+    setCurrentEditingEvent(eventData);
     setShowEventModal(true);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setCurrentEditingEvent(event);
+    setShowEventModal(true);
+  };
+
+  const handleChooseEvent = (event: Event) => {
+    // Implementar a lógica para escolha de evento como principal, se necessário
+    showSnackbar(
+      pageContent["organization-profile-event-selected"] || "Evento selecionado com sucesso",
+      "success"
+    );
   };
 
   const handleDeleteEvent = async (eventId: number) => {
     try {
-      console.log(`Tentando excluir evento com ID ${eventId}`);
       
       // Se for um evento novo (id = 0), apenas remova-o da lista
       if (eventId === 0) {
@@ -605,7 +591,6 @@ export default function EditOrganizationProfilePage() {
         };
         
         await updateOrganization(updatedOrgData);
-        console.log('Organização atualizada após exclusão de evento:', updatedOrgData);
       }
       
         showSnackbar(
@@ -634,7 +619,6 @@ export default function EditOrganizationProfilePage() {
       return;
     }
 
-    console.log(`Alterando evento ${index}, campo ${field} para ${value}`);
     
     setEventsData((prev) => {
       // Verificação de array adicional
@@ -692,30 +676,30 @@ export default function EditOrganizationProfilePage() {
     field: keyof Event,
     value: string
   ) => {
-    console.log(`Alterando evento no modal, campo ${field} para ${value}`);
+    if (!currentEditingEvent) return;
     
-    setNewEvent(prev => {
+    setCurrentEditingEvent(prev => {
       if (!prev) return prev;
         
-        let updatedValue = value;
+      let updatedValue = value;
         
-        // Tratamento especial para campos específicos
-        if (field === 'time_begin' || field === 'time_end') {
-          updatedValue = new Date(value).toISOString();
+      // Tratamento especial para campos específicos
+      if (field === 'time_begin' || field === 'time_end') {
+        updatedValue = new Date(value).toISOString();
       } else if (field === 'related_skills' && typeof value === 'string' && value.startsWith('[')) {
-          try {
-            updatedValue = JSON.parse(value);
-          } catch (e) {
-            console.error('Erro ao analisar related_skills:', e);
-          }
+        try {
+          updatedValue = JSON.parse(value);
+        } catch (e) {
+          console.error('Erro ao analisar related_skills:', e);
         }
+      }
         
       return {
         ...prev,
-          [field]: updatedValue,
-          updated_at: new Date().toISOString()
-        };
-      });
+        [field]: updatedValue,
+        updated_at: new Date().toISOString()
+      };
+    });
   };
 
   // Diff tags handlers
@@ -791,6 +775,7 @@ export default function EditOrganizationProfilePage() {
   );
 
   const { getCapacityName } = useCapacityDetails(capacityIds);
+  const { capacities, isLoading: isCapacitiesLoading } = useCapacities();
 
   const handleRemoveCapacity = (
     type: "known" | "available" | "wanted",
@@ -896,106 +881,103 @@ export default function EditOrganizationProfilePage() {
     avatars,
   ]);
 
-  const handleCreateEvent = async () => {
+  const handleSaveEventChanges = async () => {
     try {
-      if (!newEvent) return;
+      if (!currentEditingEvent) return;
       
-      console.log('Tentando criar evento com dados:', newEvent);
+      if (currentEditingEvent.id === 0) {
+        // Criar novo evento
+        const newEventData = {
+          ...currentEditingEvent,
+          organizations: [Number(organizationId)],
+          creator: Number(session?.user?.id),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          team: currentEditingEvent.team || [Number(session?.user?.id)],
+          type_of_location: currentEditingEvent.type_of_location || "virtual",
+          url: currentEditingEvent.url || "",
+          image_url: currentEditingEvent.image_url || "",
+          organized_by: currentEditingEvent.organized_by || organization?.display_name || "",
+          description: currentEditingEvent.description || "",
+          related_skills: currentEditingEvent.related_skills || [],
+          organization: Number(organizationId),
+        };
       
-      // Garantir que todos os campos necessários estejam presentes
-      const organizationIdNum = Number(organizationId);
-      const newEventData = {
-        ...newEvent,
-        organizations: [organizationIdNum], // Ensure the current organization is in the array
-        creator: Number(session?.user?.id),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        team: newEvent.team || [Number(session?.user?.id)],
-        type_of_location: newEvent.type_of_location || "virtual",
-        url: newEvent.url || "",
-        image_url: newEvent.image_url || "",
-        organized_by: newEvent.organized_by || organization?.display_name || "",
-        description: newEvent.description || "",
-        related_skills: newEvent.related_skills || [],
-        openstreetmap_id: newEvent.openstreetmap_id || "",
-        wikidata_qid: newEvent.wikidata_qid || "",
-        organization: organizationIdNum, // Garantir que o campo organization tenha o ID da organização
-      };
-      
-      // Log detalhado dos campos críticos para debug
-      console.log('Dados do evento a serem enviados para API:', {
-        ...newEventData,
-        organizations_debug: {
-          value: newEventData.organizations,
-          type: typeof newEventData.organizations,
-          isArray: Array.isArray(newEventData.organizations),
-          organizationIdNum
-        }
-      });
-      
-      try {
-        // Usar o método do novo hook para criar o evento
-        const createdEvent = await createEvent(newEventData);
-        console.log('Resposta da API após criar evento:', createdEvent);
-        
-        if (createdEvent && createdEvent.id) {
-          // Verificar se o campo organizations foi corretamente configurado na resposta
-          console.log('Campo organizations na resposta:', createdEvent.organizations);
-          
-          // Atualizar o estado dos eventos
-          setEventsData(prev => [...prev, createdEvent]);
-          
-          // Atualizar o formData com o novo evento
-          const updatedEvents = [...(formData.events || [])];
-          if (!updatedEvents.includes(createdEvent.id)) {
-            updatedEvents.push(createdEvent.id);
-          }
-          
-          setFormData(prev => ({
-            ...prev,
-            events: updatedEvents
-          }));
-          
-          // Agora atualizamos a organização com o novo evento
-          try {
-            const updatedOrgData = {
-              ...organization,
-              events: updatedEvents
-            };
+        try {
+          const createdEvent = await createEvent(newEventData);
+
+          if (createdEvent && createdEvent.id) {
+            setEventsData(prev => [...prev, createdEvent]);
             
-            await updateOrganization(updatedOrgData);
-            console.log('Organização atualizada com novo evento:', updatedOrgData);
-          } catch (updateOrgError) {
-            console.error('Erro ao atualizar organização com novo evento:', updateOrgError);
+            // Atualizar o formData com o novo evento
+            const updatedEvents = [...(formData.events || [])];
+            if (!updatedEvents.includes(createdEvent.id)) {
+              updatedEvents.push(createdEvent.id);
+            }
+            
+            setFormData(prev => ({
+              ...prev,
+              events: updatedEvents
+            }));
+            
+            // Atualizar a organização com o novo evento
+            try {
+              const updatedOrgData = {
+                ...organization,
+                events: updatedEvents
+              };
+              
+              await updateOrganization(updatedOrgData);
+            
+            } catch (updateOrgError) {
+              console.error('Erro ao atualizar organização com novo evento:', updateOrgError);
+            }
+            
+            showSnackbar(
+              pageContent["snackbar-edit-profile-organization-create-event-success"],
+              "success"
+            );
           }
-          
-          setShowEventModal(false);
-          setNewEvent(undefined);
-          
+        } catch (createError) {
+          console.error('Erro ao criar evento:', createError);
           showSnackbar(
-            pageContent["snackbar-edit-profile-organization-create-event-success"],
-            "success"
+            pageContent["snackbar-edit-profile-organization-create-event-failed"],
+            "error"
           );
         }
-      } catch (createError) {
-        console.error('Erro ao criar evento:', createError);
-        // Log adicional para entender a natureza do erro
-        if (createError.response) {
-          console.error('Detalhes do erro da API:', {
-            status: createError.response.status,
-            data: createError.response.data
-          });
+      } else {
+        // Atualizar evento existente
+        try {
+          const updatedEvent = await updateEvent(currentEditingEvent.id, currentEditingEvent);
+          
+          if (updatedEvent) {
+            // Atualizar a lista de eventos
+            setEventsData(prev => 
+              prev.map(event => event.id === updatedEvent.id ? updatedEvent : event)
+            );
+            
+            showSnackbar(
+              pageContent["snackbar-edit-profile-organization-update-event-success"] || "Evento atualizado com sucesso",
+              "success"
+            );
+          }
+        } catch (updateError) {
+          console.error('Erro ao atualizar evento:', updateError);
+          showSnackbar(
+            pageContent["snackbar-edit-profile-organization-update-event-failed"] || "Erro ao atualizar evento",
+            "error"
+          );
         }
-        
-        showSnackbar(
-          pageContent["snackbar-edit-profile-organization-create-event-failed"],
-          "error"
-        );
       }
+      
+      // Fechar o modal e limpar o evento em edição
+      setShowEventModal(false);
+      setCurrentEditingEvent(null);
+      
     } catch (error) {
-      console.error('Erro ao criar evento:', error);
+      console.error('Erro ao salvar evento:', error);
       showSnackbar(
-        pageContent["snackbar-edit-profile-organization-create-event-failed"],
+        pageContent["snackbar-edit-profile-organization-save-event-failed"] || "Erro ao salvar evento",
         "error"
       );
     }
@@ -1035,6 +1017,9 @@ export default function EditOrganizationProfilePage() {
         eventsData={eventsData}
         handleEventChange={handleEventChange}
         handleAddEvent={handleAddEvent}
+        capacities={capacities || []}
+        handleEditEvent={handleEditEvent}
+        handleChooseEvent={handleChooseEvent}
       />
     );
   }
@@ -1070,12 +1055,19 @@ export default function EditOrganizationProfilePage() {
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}
+        capacities={capacities || []}
+        handleEditEvent={handleEditEvent}
+        handleChooseEvent={handleChooseEvent}
       />
+      
       {showEventModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black bg-opacity-50"
-            onClick={() => setShowEventModal(false)}
+            onClick={() => {
+              setShowEventModal(false);
+              setCurrentEditingEvent(null);
+            }}
           />
           <div
             className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
@@ -1083,7 +1075,10 @@ export default function EditOrganizationProfilePage() {
             }`}
           >
             <button
-              onClick={() => setShowEventModal(false)}
+              onClick={() => {
+                setShowEventModal(false);
+                setCurrentEditingEvent(null);
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               <svg
@@ -1103,28 +1098,40 @@ export default function EditOrganizationProfilePage() {
 
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-[#053749] dark:text-white mb-4">
-                {pageContent["organization-profile-new-event"]}
+                {currentEditingEvent?.id === 0 
+                  ? pageContent["organization-profile-new-event"] 
+                  : pageContent["organization-profile-edit-event"]}
               </h2>
-              <EventsFormItem
-                eventData={newEvent as Event}
-                index={eventsData.length}
-                onDelete={() => setShowEventModal(false)}
-                onChange={handleModalEventChange}
-              />
+              {currentEditingEvent && (
+                <EventsFormItem
+                  eventData={currentEditingEvent}
+                  index={0}
+                  onDelete={() => {
+                    setShowEventModal(false);
+                    setCurrentEditingEvent(null);
+                  }}
+                  onChange={handleModalEventChange}
+                />
+              )}
             </div>
 
             <div className="flex justify-end gap-4 mt-6 border-t pt-4">
               <button
-                onClick={() => setShowEventModal(false)}
+                onClick={() => {
+                  setShowEventModal(false);
+                  setCurrentEditingEvent(null);
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:border-gray-400"
               >
                 {pageContent["organization-profile-event-popup-cancel"]}
               </button>
               <button
-                onClick={handleCreateEvent}
+                onClick={handleSaveEventChanges}
                 className="px-4 py-2 bg-[#851970] text-white font-medium rounded-md hover:bg-[#6d145c]"
               >
-                {pageContent["organization-profile-event-popup-create-event"]}
+                {currentEditingEvent?.id === 0
+                  ? pageContent["organization-profile-event-popup-create-event"]
+                  : pageContent["organization-profile-event-popup-save-changes"] || "Salvar alterações"}
               </button>
             </div>
           </div>

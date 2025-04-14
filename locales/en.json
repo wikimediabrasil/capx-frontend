@@ -82,8 +82,8 @@
   "organization-profile-event-date-tooltip": "The specific day on which the event is scheduled to occur.",
   "organization-profile-event-format": "Event format",
   "organization-profile-event-format-tooltip": "Select the format of your event.",
-  "organization-profile-event-choose-capacities": "Choose capacities",
-  "organization-profile-event-choose-capacities-tooltip": "Choose the capacities related to the event.",
+  "organization-profile-event-principal-capacity": "Principal capacity",
+  "organization-profile-event-principal-capacity-tooltip": "Choose the principal capacity of your event.",
   "organization-profile-event-description": "Event description",
   "organization-profile-event-description-tooltip": "Briefly describe your event. You may want to include its objectives, people involved, and key topics covered.",
   "organization-profile-event-image": "Image",
@@ -205,7 +205,7 @@
   "edit-profile-add-projects": "Add projects",
   "edit-profile-add-more-projects": "Add more projects",
   "edit-profile-add-more-events": "Add more events",
-  "edit-profile-add-events": "Add events",
+  "edit-profile-add-events": "Create a new event",
   "edit-profile-add-more-links": "Add more links",
   "edit-profile-add-diff-tags": "Add diff tags",
   "edit-profile-add-more-diff-tags": "Add more diff tags",
@@ -330,5 +330,8 @@
   "events-search-results-singular": "event found",
   "events-search-results-plural": "events found",
   "events-search-results-no-results": "No results found for your search.",
-  "events-search-results-error": "Error loading events. Please try again."
+  "events-search-results-error": "Error loading events. Please try again.",
+  "organization-profile-edit-event": "Edit event",
+  "organization-profile-choose-event": "Choose event",
+  "organization-profile-delete-event": "Delete event"
 }

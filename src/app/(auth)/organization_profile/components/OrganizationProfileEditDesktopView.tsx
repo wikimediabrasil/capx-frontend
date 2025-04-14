@@ -36,11 +36,13 @@ import TargetIconWhite from "@/public/static/images/target_white.svg";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
 import EventsFormItem from "./EventsFormItem";
+import EventsCardList from "./EventsCardList";
+import { Capacity } from "@/types/capacity";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
 
-export default function OrganizationProfileEditMobileView({
+export default function OrganizationProfileEditDesktopView({
   handleSubmit,
   handleRemoveCapacity,
   handleAddCapacity,
@@ -70,6 +72,9 @@ export default function OrganizationProfileEditMobileView({
   handleAddEvent,
   handleDeleteDocument,
   handleDocumentChange,
+  capacities,
+  handleEditEvent,
+  handleChooseEvent,
 }) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -87,11 +92,11 @@ export default function OrganizationProfileEditMobileView({
       <section
         className={`flex w-full h-full justify-between pb-6 pt-10 px-4 md:px-8 lg:px-12 max-w-screen-xl mx-auto`}
       >
-        <div className="flex flex-col gap-6 mx-auto">
+        <div className="flex flex-col gap-6 mx-auto w-full">
           {/* Header */}
-          <div className="flex flex-row gap-12">
+          <div className="flex flex-row gap-12 w-full">
             {/* Logo Section */}
-            <div className="w-1/2">
+            <div className="w-1/2 max-w-[320px] flex-shrink-0">
               <div className="rounded-[16px] h-full items-center justify-center flex bg-[#EFEFEF]">
                 <div className="relative w-[300px] h-[165px]">
                   <Image
@@ -105,7 +110,7 @@ export default function OrganizationProfileEditMobileView({
                 </div>
               </div>
             </div>
-            <div className="w-1/2">
+            <div className="w-1/2 flex-1">
               <div className="relative w-[114px] h-[114px] mb-[24px]">
                 <Image
                   src={getProfileImage(
@@ -142,11 +147,13 @@ export default function OrganizationProfileEditMobileView({
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="relative w-[42px] h-[42px]">
+                <div className="relative w-[42px] h-[42px] flex-shrink-0">
                   <Image
                     src={darkMode ? UserCircleIconWhite : UserCircleIcon}
                     alt="User circle icon"
                     className="object-contain"
+                    width={42}
+                    height={42}
                   />
                 </div>
 
@@ -192,10 +199,12 @@ export default function OrganizationProfileEditMobileView({
           </div>
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[48px] h-[48px]">
+              <div className="relative w-[48px] h-[48px] flex-shrink-0">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Organization logo"
+                  width={48}
+                  height={48}
                   className="object-contain"
                 />
               </div>
@@ -236,7 +245,7 @@ export default function OrganizationProfileEditMobileView({
               </p>
 
               {/* Preview da imagem */}
-              <div className="w-full h-[200px] bg-[#EFEFEF] rounded-md flex items-center justify-center overflow-hidden">
+              <div className="w-full max-w-[600px] h-[200px] bg-[#EFEFEF] rounded-md flex items-center justify-center overflow-hidden">
                 {formData.profile_image ? (
                   <div className="relative w-full h-full">
                     <Image
@@ -244,6 +253,7 @@ export default function OrganizationProfileEditMobileView({
                       alt="Organization logo preview"
                       className="object-contain"
                       fill
+                      sizes="600px"
                       onError={(e) => {
                         console.error("Erro ao carregar preview:", e);
                         e.currentTarget.src = NoAvatarIcon;
@@ -270,12 +280,13 @@ export default function OrganizationProfileEditMobileView({
           {/* Report of Activities Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[48px] h-[48px]">
+              <div className="relative w-[48px] h-[48px] flex-shrink-0">
                 <Image
                   src={darkMode ? ReportIconWhite : ReportIcon}
                   alt="Report icon"
                   className="object-contain"
-                  fill
+                  width={48}
+                  height={48}
                 />
               </div>
               <h2
@@ -568,11 +579,12 @@ export default function OrganizationProfileEditMobileView({
           {/* Events Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[48px] h-[48px]">
+              <div className="relative w-[48px] h-[48px] flex-shrink-0">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Event icon"
-                  fill
+                  width={48}
+                  height={48}
                   className="object-contain"
                 />
               </div>
@@ -585,34 +597,32 @@ export default function OrganizationProfileEditMobileView({
               </h2>
             </div>
 
-            <div className="flex w-full flex-col mb-2 gap-2">
-              {eventsData?.map((event, index) => (
-                <EventsFormItem
-                  key={event.id === 0 ? `new-${index}` : event.id}
-                  eventData={event}
-                  index={index}
-                  onDelete={handleDeleteEvent}
-                  onChange={handleEventChange}
-                />
-              ))}
-              <BaseButton
-                onClick={handleAddEvent}
-                label={pageContent["edit-profile-add-events"]}
-                customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
-                  darkMode
-                    ? "text-[#053749] bg-[#EFEFEF]"
-                    : "text-white bg-capx-dark-box-bg"
-                }`}
-                imageUrl={darkMode ? AddIcon : AddIconWhite}
-                imageAlt="Add icon"
-                imageWidth={32}
-                imageHeight={32}
-              />
-            </div>
+            <EventsCardList 
+              events={eventsData} 
+              capacities={capacities || []}
+              onEdit={handleEditEvent} 
+              onDelete={handleDeleteEvent} 
+              onChoose={handleChooseEvent} 
+            />
+            <BaseButton
+              onClick={handleAddEvent}
+              label={pageContent["edit-profile-add-events"]}
+              customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
+                darkMode
+                  ? "text-[#053749] bg-[#EFEFEF]"
+                  : "text-white bg-capx-dark-box-bg"
+              }`}
+              imageUrl={darkMode ? AddIcon : AddIconWhite}
+              imageAlt="Add icon"
+              imageWidth={32}
+              imageHeight={32}
+            />
+
+
             <p
               className={`text-[20px] ${
                 darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
+              } mt-4`}
             >
               {pageContent["edit-profile-display-events"]}
             </p>

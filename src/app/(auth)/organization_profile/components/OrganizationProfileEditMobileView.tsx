@@ -36,7 +36,7 @@ import TargetIcon from "@/public/static/images/target.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
-import EventsFormItem from "./EventsFormItem";
+import EventsCardList from "./EventsCardList";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
@@ -69,6 +69,9 @@ export default function OrganizationProfileEditMobileView({
   eventsData,
   handleEventChange,
   handleAddEvent,
+  capacities,
+  handleEditEvent,
+  handleChooseEvent,
 }) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
@@ -580,54 +583,40 @@ export default function OrganizationProfileEditMobileView({
           </div>
 
           {/* Events Section */}
-          <div className="">
+          <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[20px] h-[20px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Event icon"
+                  fill
                   className="object-contain"
                 />
               </div>
               <h2
-                className={`font-[Montserrat] text-[14px] font-bold ${
+                className={`font-[Montserrat] text-[16px] font-bold ${
                   darkMode ? "text-white" : "text-[#053749]"
                 }`}
               >
                 {pageContent["body-profile-section-title-events"]}
               </h2>
             </div>
-            <div className="flex flex-col w-full gap-2 mb-2">
-              {eventsData?.map((event, index) => (
-                <EventsFormItem
-                  key={event.id === 0 ? `new-${index}` : event.id}
-                  eventData={event}
-                  index={index}
-                  onDelete={handleDeleteEvent}
-                  onChange={handleEventChange}
-                />
-              ))}
-              <BaseButton
-                onClick={handleAddEvent}
-                label={pageContent["edit-profile-add-more-events"]}
-                customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
-                  darkMode
-                    ? "text-capx-dark-box-bg bg-white"
-                    : "text-white bg-capx-dark-box-bg"
-                }`}
-                imageUrl={darkMode ? AddIcon : AddIconWhite}
-                imageAlt="Add icon"
-                imageWidth={20}
-                imageHeight={20}
-              />
-            </div>
+
+            <EventsCardList 
+              events={eventsData} 
+              capacities={capacities || []}
+              onEdit={handleEditEvent} 
+              onDelete={handleDeleteEvent} 
+              onChoose={handleChooseEvent} 
+              onAdd={handleAddEvent} 
+            />
 
             <p
-              className={`text-[12px] ${
+              className={`text-[16px] ${
                 darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
+              } mt-4`}
             >
-              {pageContent["body-profile-section-title-events"]}
+              {pageContent["edit-profile-display-events"]}
             </p>
           </div>
 

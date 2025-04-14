@@ -4,7 +4,7 @@ import WikimediaIconWhite from "@/public/static/images/wikimedia_logo_white.svg"
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { ProjectCard } from "./ProjectCard";
-import { EventCard } from "./EventCard";
+import EventCard from "./EventCard";
 
 interface ProjectsEventsListProps {
   title: string;

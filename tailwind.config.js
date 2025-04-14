@@ -38,6 +38,7 @@ module.exports = {
         "capx-secondary-green": "#05a300",
         "capx-secondary-grey": "#717171",
         "capx-secondary-dark-grey": "#4c4c4c",
+        "capx-primary-orange": "#D43831",
         organizational: "#0078D4",
         communication: "#BE0078",
         learning: "#00965A",

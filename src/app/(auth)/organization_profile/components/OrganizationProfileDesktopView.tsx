@@ -18,10 +18,10 @@ import EditIconWhite from "@/public/static/images/edit_white.svg";
 import ReportActivityIcon from "@/public/static/images/report_of_activities.svg";
 import BaseButton from "@/components/BaseButton";
 import { ProfileItem } from "@/components/ProfileItem";
-import { ProjectsEventsList } from "../components/ProjectsEventsList";
-import { NewsSection } from "../components/NewsSection";
-import { DocumentsList } from "../components/DocumentsList";
-import { ContactsSection } from "../components/ContactsSection";
+import { ProjectsEventsList } from "./ProjectsEventsList";
+import { NewsSection } from "./NewsSection";
+import { DocumentsList } from "./DocumentsList";
+import { ContactsSection } from "./ContactsSection";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import LoadingState from "@/components/LoadingState";
 
