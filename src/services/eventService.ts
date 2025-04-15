@@ -1,5 +1,6 @@
 import { Event } from "@/types/event";
 import axios from "axios";
+import { EventFilterState, EventLocationType } from "@/app/events/types";
 
 interface EventsResponse {
   results: Event[];
@@ -10,10 +11,47 @@ export const eventsService = {
   async getEvents(
     token: string,
     limit?: number,
-    offset?: number
+    offset?: number,
+    filters?: EventFilterState
   ): Promise<EventsResponse> {
     const headers = { Authorization: `Token ${token}` };
-    const params = { limit, offset };
+    const params: any = { limit, offset };
+
+    // Adicionar filtros se presentes
+    if (filters) {
+      // Adicionar capacidades como query string
+      if (filters.capacities && filters.capacities.length > 0) {
+        params.capacities = filters.capacities.map((cap) => cap.code).join(",");
+      }
+
+      // Adicionar territórios
+      if (filters.territories && filters.territories.length > 0) {
+        params.territories = filters.territories.join(",");
+      }
+
+      // Adicionar filtro por tipo de local (online, presencial, híbrido)
+      if (
+        filters.locationType &&
+        filters.locationType !== EventLocationType.All
+      ) {
+        params.location_type = filters.locationType;
+      }
+
+      // Adicionar filtro por data de início
+      if (filters.dateRange?.startDate) {
+        params.start_date = filters.dateRange.startDate;
+      }
+
+      // Adicionar filtro por data de fim
+      if (filters.dateRange?.endDate) {
+        params.end_date = filters.dateRange.endDate;
+      }
+
+      // Adicionar filtro por organização
+      if (filters.organizationId) {
+        params.organization_id = filters.organizationId;
+      }
+    }
 
     try {
       const response = await axios.get("/api/events/", {

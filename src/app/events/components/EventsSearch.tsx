@@ -160,7 +160,7 @@ export function EventsSearch({
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder={pageContent?.["events-search-placeholder"] || "Search for events..."}
-        className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
+        className={`w-full h-16 py-6 px-3 rounded-[16px] opacity-50 ${
           darkMode
             ? "text-white border-white"
             : "text-capx-dark-box-bg border-capx-dark-box-bg "

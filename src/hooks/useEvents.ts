@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Event } from "@/types/event";
 import { eventsService } from "@/services/eventService";
+import { EventFilterState } from "@/app/events/types";
 
 export function useEvent(
   eventId?: number,
@@ -132,7 +133,8 @@ export function useEvents(
   token: string,
   limit?: number,
   offset?: number,
-  organizationId?: number
+  organizationId?: number,
+  filters?: EventFilterState
 ) {
   const [events, setEvents] = useState<Event[]>([]);
   const [count, setCount] = useState<number>(0);
@@ -148,7 +150,12 @@ export function useEvents(
 
       setIsLoading(true);
       try {
-        const response = await eventsService.getEvents(token, limit, offset);
+        const response = await eventsService.getEvents(
+          token,
+          limit,
+          offset,
+          filters
+        );
 
         // The API should return { results: Event[], count: number }
         const eventsData = Array.isArray(response)
@@ -186,7 +193,7 @@ export function useEvents(
     };
 
     fetchEvents();
-  }, [token, limit, offset, organizationId]);
+  }, [token, limit, offset, organizationId, filters]);
 
   // Method specific to search events by IDs
   const fetchEventsByIds = async (eventIds: number[]) => {
