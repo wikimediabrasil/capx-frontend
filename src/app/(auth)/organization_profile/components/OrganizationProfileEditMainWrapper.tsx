@@ -983,6 +983,10 @@ export default function EditOrganizationProfilePage() {
     }
   };
 
+  const handleViewAllEvents = () => {
+    router.push(`/organization_profile/${organizationId}/edit/events`);
+  };
+
   if (isUserLoading || isOrganizationLoading) {
     return <LoadingState />;
   }
@@ -1020,6 +1024,7 @@ export default function EditOrganizationProfilePage() {
         capacities={capacities || []}
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
+        handleViewAllEvents={handleViewAllEvents}
       />
     );
   }
@@ -1058,6 +1063,7 @@ export default function EditOrganizationProfilePage() {
         capacities={capacities || []}
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
+        handleViewAllEvents={handleViewAllEvents}
       />
       
       {showEventModal && (

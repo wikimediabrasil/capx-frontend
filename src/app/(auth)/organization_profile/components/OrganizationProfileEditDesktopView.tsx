@@ -40,6 +40,7 @@ import EventsCardList from "./EventsCardList";
 import { Capacity } from "@/types/capacity";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
+import ExpandAllIcon from "@/public/static/images/expand_all.svg";
 import { useAvatars } from "@/hooks/useAvatars";
 
 export default function OrganizationProfileEditDesktopView({
@@ -75,6 +76,7 @@ export default function OrganizationProfileEditDesktopView({
   capacities,
   handleEditEvent,
   handleChooseEvent,
+  handleViewAllEvents,
 }) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -96,7 +98,7 @@ export default function OrganizationProfileEditDesktopView({
           {/* Header */}
           <div className="flex flex-row gap-12 w-full">
             {/* Logo Section */}
-            <div className="w-1/2 max-w-[320px] flex-shrink-0">
+            <div className="w-1/2 flex-shrink-0">
               <div className="rounded-[16px] h-full items-center justify-center flex bg-[#EFEFEF]">
                 <div className="relative w-[300px] h-[165px]">
                   <Image
@@ -618,6 +620,19 @@ export default function OrganizationProfileEditDesktopView({
               imageHeight={32}
             />
 
+            <BaseButton
+              onClick={handleViewAllEvents}
+              label={pageContent["organization-profile-view-all-events"]}
+              customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] border border-capx-dark-box-bg ${
+                darkMode
+                  ? "text-white bg-capx-dark-box-bg" 
+                  : "text-capx-dark-box-bg bg-transparent"
+              }`}
+              imageUrl={ExpandAllIcon}
+              imageAlt="Expand all icon"
+              imageWidth={32}
+              imageHeight={32}
+            />
 
             <p
               className={`text-[20px] ${

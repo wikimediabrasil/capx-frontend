@@ -40,7 +40,7 @@ import EventsCardList from "./EventsCardList";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
-
+import ExpandAllIcon from "@/public/static/images/expand_all.svg";
 export default function OrganizationProfileEditMobileView({
   handleSubmit,
   handleRemoveCapacity,
@@ -72,6 +72,7 @@ export default function OrganizationProfileEditMobileView({
   capacities,
   handleEditEvent,
   handleChooseEvent,
+  handleViewAllEvents,
 }) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
@@ -609,6 +610,32 @@ export default function OrganizationProfileEditMobileView({
               onDelete={handleDeleteEvent} 
               onChoose={handleChooseEvent} 
               onAdd={handleAddEvent} 
+            />
+            <BaseButton
+              onClick={handleAddEvent}
+              label={pageContent["edit-profile-add-events"]}
+              customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
+                darkMode
+                  ? "bg-capx-light-box-bg text-[#04222F]"
+                  : "bg-[#053749] text-white"
+              }`}
+              imageUrl={darkMode ? AddIcon : AddIconWhite}
+              imageAlt="Add icon"
+              imageWidth={20}
+              imageHeight={20}
+            />
+            <BaseButton
+              onClick={handleViewAllEvents}
+              label={pageContent["organization-profile-view-all-events"]}
+              customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] border border-capx-dark-box-bg ${
+                darkMode
+                  ? "text-white bg-capx-dark-box-bg" 
+                  : "text-capx-dark-box-bg bg-transparent"
+              }`}
+              imageUrl={ExpandAllIcon}
+              imageAlt="Expand all icon"
+              imageWidth={20}
+              imageHeight={20}
             />
 
             <p
