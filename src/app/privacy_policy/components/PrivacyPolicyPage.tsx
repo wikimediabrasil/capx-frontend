@@ -1,9 +1,10 @@
 "use client"
 import Image from "next/image";
-import PrivacyPolicyFoto from "@/public/static/images/privacy_policy.svg";
 import IconEncrypted from "@/public/static/images/icon_encrypted.svg";
 import IconEncryptedWhite from "@/public/static/images/icon_encrypted_white.svg";
 import Link from "next/link";
+import PrivacyPolicy from "@/public/static/images/privacy_policy.svg";
+import Banner from "@/components/Banner";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -16,14 +17,12 @@ export default function PrivacyPolicyPage(){
     const privateInformationText = pageContent["privacy-policy-private-information-text03"]?.split(/\$\d/);
 
     return (
-        <section className="w-full flex flex-col min-h-screen gap-4 px-4 py-8 mx-auto md:max-w-[1200px]">
-            <div className=" w-full mx-auto pt-10 md:max-w-[1200px] md:bg-[#04222F] md:pt-[0px]" >
-                <Image
-                    src={PrivacyPolicyFoto}
-                    alt="PrivacyPolicyFoto"
-                    className="w-full h-auto md:max-h-[600px]"
-                />
-            </div>
+        <section className="w-full flex flex-col min-h-screen gap-4 pt-24 md:pt-8 mx-auto md:max-w-[1200px]">
+            <Banner
+                image={PrivacyPolicy}
+                title={pageContent["privacy-policy-banner"]}
+                alt={pageContent["privacy-policy-alt-banner"]}
+            />
             <div className="flex items-start gap-2 text-left pt-6 ">
                 <Image
                     src={darkMode ?  IconEncryptedWhite : IconEncrypted}

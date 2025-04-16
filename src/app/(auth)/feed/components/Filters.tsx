@@ -86,11 +86,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
 
   const handleClearAll = () => {
     setFilters({
-      capacities: [],
-      profileCapacityTypes: [ProfileCapacityType.Learner, ProfileCapacityType.Sharer],
-      territories: [],
-      languages: [],
-      profileFilter: ProfileFilterType.Both
+      ...initialFilters
     });
     setSearchCapacity('');
   };
@@ -282,133 +278,140 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
                 placeholder={pageContent["filters-add-territory"]}
             />
 
-            {/* Divider */}
-            <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+            {initialFilters.profileFilter == ProfileFilterType.Both && (
+            <>
+              {/* Divider */}
+              <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
-            {/* Languages */}
-            <LanguageSelector
-                languages={languages}
-                selectedLanguages={filters.languages}
-                onSelectLanguage={(languageId) => {
-                setFilters(prev => ({
-                    ...prev,
-                    languages: prev.languages.includes(languageId)
-                    ? prev.languages.filter(id => id !== languageId)
-                    : [...prev.languages, languageId]
-                }));
-                }}
-                placeholder={pageContent["edit-profile-add-language"]}
-            />
+              {/* Languages */}
+              <LanguageSelector
+                  languages={languages}
+                  selectedLanguages={filters.languages}
+                  onSelectLanguage={(languageId) => {
+                  setFilters(prev => ({
+                      ...prev,
+                      languages: prev.languages.includes(languageId)
+                      ? prev.languages.filter(id => id !== languageId)
+                      : [...prev.languages, languageId]
+                  }));
+                  }}
+                  placeholder={pageContent["edit-profile-add-language"]}
+              />
+            </>)}
 
-            {/* Divider */}
-            <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+            
+            {initialFilters.profileFilter !== ProfileFilterType.Organization && (
+            <>
+              {/* Divider */}
+              <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
-            {/* Profiles */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={darkMode ? ProfilesIconWhite : ProfilesIcon}
-                  alt={pageContent["filters-profiles-alt-icon"]}
-                  width={24}
-                  height={24}
-                />
-                <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
-                  {pageContent["filters-profiles"]}
-                </h2>
-              </div>
+              {/* Profiles */}
               <div className="space-y-2">
-                <button
-                  onClick={() => handleProfileFilterChange(ProfileFilterType.Both)}
-                  className={`w-full p-3 rounded-lg border flex justify-between items-center ${
-                    filters.profileFilter === ProfileFilterType.Both
-                      ? darkMode 
-                        ? 'bg-capx-dark-box-bg border-purple-500' 
-                        : 'bg-purple-100 border-purple-500'
-                      : darkMode 
-                        ? 'bg-capx-dark-box-bg border-gray-700' 
-                        : 'bg-white border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={darkMode ? AllProfilesIconWhite : AllProfilesIcon}
-                      alt={pageContent["filters-all-profiles-alt-icon"]}
-                      width={20}
-                      height={20}
-                    />
-                    <span className={darkMode ? 'text-white' : 'text-black'}>{pageContent["filters-all-profiles"]}</span>
-                  </div>
-                  <div className="ml-auto">
-                    <input
-                      type="checkbox"
-                      checked={filters.profileFilter === ProfileFilterType.Both}
-                      readOnly
-                      className="h-4 w-4"
-                    />
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleProfileFilterChange(ProfileFilterType.Organization)}
-                  className={`w-full p-3 rounded-lg border flex justify-between items-center ${
-                    filters.profileFilter === ProfileFilterType.Organization
-                      ? darkMode 
-                        ? 'bg-capx-dark-box-bg border-purple-500' 
-                        : 'bg-purple-100 border-purple-500'
-                      : darkMode 
-                        ? 'bg-capx-dark-box-bg border-gray-700' 
-                        : 'bg-white border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={darkMode ? OrganizationIconWhite : OrganizationIcon}
-                      alt={pageContent["filters-organization-profile-alt-icon"]}
-                      width={20}
-                      height={20}
-                    />
-                    <span className={darkMode ? 'text-white' : 'text-black'}>{pageContent["filters-organization-profile"]}</span>
-                  </div>
-                  <div className="ml-auto">
-                    <input
-                      type="checkbox"
-                      checked={filters.profileFilter === ProfileFilterType.Organization}
-                      readOnly
-                      className="h-4 w-4"
-                    />
-                  </div>
-                </button>
-                <button
-                  onClick={() => handleProfileFilterChange(ProfileFilterType.User)}
-                  className={`w-full p-3 rounded-lg border flex justify-between items-center ${
-                    filters.profileFilter === ProfileFilterType.User
-                      ? darkMode 
-                        ? 'bg-capx-dark-box-bg border-purple-500' 
-                        : 'bg-purple-100 border-purple-500'
-                      : darkMode 
-                        ? 'bg-capx-dark-box-bg border-gray-700' 
-                        : 'bg-white border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
-                      alt={pageContent["filters-user-profile-alt-icon"]}
-                      width={20}
-                      height={20}
-                    />
-                    <span className={darkMode ? 'text-white' : 'text-black'}>{pageContent["filters-profiles"]}</span>
-                  </div>
-                  <div className="ml-auto">
-                    <input
-                      type="checkbox"
-                      checked={filters.profileFilter === ProfileFilterType.User}
-                      readOnly
-                      className="h-4 w-4"
-                    />
-                  </div>
-                </button>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? ProfilesIconWhite : ProfilesIcon}
+                    alt={pageContent["filters-profiles-alt-icon"]}
+                    width={24}
+                    height={24}
+                  />
+                  <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
+                    {pageContent["filters-profiles"]}
+                  </h2>
+                </div>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleProfileFilterChange(ProfileFilterType.Both)}
+                    className={`w-full p-3 rounded-lg border flex justify-between items-center ${
+                      filters.profileFilter === ProfileFilterType.Both
+                        ? darkMode 
+                          ? 'bg-capx-dark-box-bg border-purple-500' 
+                          : 'bg-purple-100 border-purple-500'
+                        : darkMode 
+                          ? 'bg-capx-dark-box-bg border-gray-700' 
+                          : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={darkMode ? AllProfilesIconWhite : AllProfilesIcon}
+                        alt={pageContent["filters-all-profiles-alt-icon"]}
+                        width={20}
+                        height={20}
+                      />
+                      <span className={darkMode ? 'text-white' : 'text-black'}>{pageContent["filters-all-profiles"]}</span>
+                    </div>
+                    <div className="ml-auto">
+                      <input
+                        type="checkbox"
+                        checked={filters.profileFilter === ProfileFilterType.Both}
+                        readOnly
+                        className="h-4 w-4"
+                      />
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleProfileFilterChange(ProfileFilterType.Organization)}
+                    className={`w-full p-3 rounded-lg border flex justify-between items-center ${
+                      filters.profileFilter === ProfileFilterType.Organization
+                        ? darkMode 
+                          ? 'bg-capx-dark-box-bg border-purple-500' 
+                          : 'bg-purple-100 border-purple-500'
+                        : darkMode 
+                          ? 'bg-capx-dark-box-bg border-gray-700' 
+                          : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={darkMode ? OrganizationIconWhite : OrganizationIcon}
+                        alt={pageContent["filters-organization-profile-alt-icon"]}
+                        width={20}
+                        height={20}
+                      />
+                      <span className={darkMode ? 'text-white' : 'text-black'}>{pageContent["filters-organization-profile"]}</span>
+                    </div>
+                    <div className="ml-auto">
+                      <input
+                        type="checkbox"
+                        checked={filters.profileFilter === ProfileFilterType.Organization}
+                        readOnly
+                        className="h-4 w-4"
+                      />
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleProfileFilterChange(ProfileFilterType.User)}
+                    className={`w-full p-3 rounded-lg border flex justify-between items-center ${
+                      filters.profileFilter === ProfileFilterType.User
+                        ? darkMode 
+                          ? 'bg-capx-dark-box-bg border-purple-500' 
+                          : 'bg-purple-100 border-purple-500'
+                        : darkMode 
+                          ? 'bg-capx-dark-box-bg border-gray-700' 
+                          : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
+                        alt={pageContent["filters-user-profile-alt-icon"]}
+                        width={20}
+                        height={20}
+                      />
+                      <span className={darkMode ? 'text-white' : 'text-black'}>{pageContent["filters-profiles"]}</span>
+                    </div>
+                    <div className="ml-auto">
+                      <input
+                        type="checkbox"
+                        checked={filters.profileFilter === ProfileFilterType.User}
+                        readOnly
+                        className="h-4 w-4"
+                      />
+                    </div>
+                  </button>
+                </div>
               </div>
-            </div>
+              </>)}
           </div>
       </div>
 

@@ -4,8 +4,8 @@ import AuthButton from "./AuthButton";
 import LanguageSelect from "./LanguageSelect";
 import CapXLogo from "../../public/static/images/capx_minimalistic_logo.svg";
 import DarkModeButton from "./DarkModeButton";
-import { useTheme } from "@/contexts/ThemeContext";
 import ProfileSelect from "./ProfileSelect";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Session } from "@/types/user";
 import { useState, useRef, useEffect } from "react";
 import BurgerMenu from "@/public/static/images/burger_menu.svg";
@@ -73,6 +73,11 @@ export default function DesktopNavbar({
     {
       title: pageContent["navbar-link-reports"],
       to: "/report_bug",
+      active: true,
+    },
+    {
+      title: pageContent["navbar-organization-list"],
+      to: "/organization_list",
       active: true,
     },
   ];
