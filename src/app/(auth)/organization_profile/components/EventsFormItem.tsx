@@ -9,12 +9,11 @@ import Image from "next/image";
 import { Event } from "@/types/event";
 import { useApp } from "@/contexts/AppContext";
 import BaseSelect from "@/components/BaseSelect";
-import { useState, useEffect } from 'react';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import { Capacity } from '@/types/capacity';
-import BaseButton from '@/components/BaseButton';
+import { useState, useEffect } from "react";
+import CapacitySelectionModal from "@/components/CapacitySelectionModal";
+import { Capacity } from "@/types/capacity";
+import BaseButton from "@/components/BaseButton";
 import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
-
 
 interface EventFormItemProps {
   eventData: Event;
@@ -49,31 +48,6 @@ const DateSelector = ({ length }: { length: number }) => {
   );
 };
 
-const validateImageUrl = (url: string) => {
-  if (!url) return url;
-
-  try {
-    url = url.replace(/^@/, "");
-
-    const urlObj = new URL(url);
-
-    if (
-      urlObj.hostname === "commons.wikimedia.org" &&
-      url.includes("/wiki/File:")
-    ) {
-      return url;
-    } else if (
-      urlObj.hostname === "upload.wikimedia.org" &&
-      url.includes("/wikipedia/commons/")
-    ) {
-      return url;
-    }
-    return "";
-  } catch {
-    return "";
-  }
-};
-
 export default function EventsFormItem({
   eventData,
   index,
@@ -88,29 +62,30 @@ export default function EventsFormItem({
   useEffect(() => {
     // Initialize selected capacities from eventData
     if (eventData.related_skills && eventData.related_skills.length > 0) {
-
       // const capacities = eventData.related_skills.map(id => getCapacityById(id));
       // setSelectedCapacities(capacities);
     }
   }, [eventData.related_skills]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    if (!selectedCapacities.find(cap => cap.code === capacity.code)) {
+    if (!selectedCapacities.find((cap) => cap.code === capacity.code)) {
       const newCapacities = [...selectedCapacities, capacity];
       setSelectedCapacities(newCapacities);
-      
+
       // Update related_skills in event
-      const skillIds = newCapacities.map(cap => cap.code);
+      const skillIds = newCapacities.map((cap) => cap.code);
       onChange(index, "related_skills", JSON.stringify(skillIds));
     }
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    const newCapacities = selectedCapacities.filter(cap => cap.code !== capacityCode);
+    const newCapacities = selectedCapacities.filter(
+      (cap) => cap.code !== capacityCode
+    );
     setSelectedCapacities(newCapacities);
-    
+
     // Update related_skills in event
-    const skillIds = newCapacities.map(cap => cap.code);
+    const skillIds = newCapacities.map((cap) => cap.code);
     onChange(index, "related_skills", JSON.stringify(skillIds));
   };
 
@@ -145,11 +120,8 @@ export default function EventsFormItem({
                   height={24}
                 />
               </div>
-              
             </div>
-            <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent">
-              
-            </div>
+            <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent"></div>
           </div>
         </div>
         <button onClick={() => onDelete(eventData.id || 0)}>
@@ -170,6 +142,9 @@ export default function EventsFormItem({
   return (
     <div className="flex flex-row gap-2">
       <div className="flex flex-col gap-2 w-full">
+        <h1 className="text-[24px] text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2">
+          {pageContent["organization-profile-event-title"]}
+        </h1>
         <h2
           className={`text-[24px] font-Montserrat font-bold py-2 ${
             darkMode ? "text-white" : "text-[#053749]"
@@ -204,7 +179,7 @@ export default function EventsFormItem({
             darkMode ? "text-white" : "text-[#053749]"
           }`}
         >
-          {pageContent["organization-profile-event-title"]}
+          {pageContent["organization-profile-event-title-of-event"]}
         </h2>
         <div className="flex flex-row gap-2 w-full items-center text-[24px] p-2 border rounded-md bg-transparent">
           <input
@@ -236,7 +211,7 @@ export default function EventsFormItem({
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
-              value={eventData.organized_by || ""}
+              value={eventData.organization || ""}
             />
           </div>
         </div>
@@ -252,7 +227,11 @@ export default function EventsFormItem({
             <div className="flex w-1/2 flex-row gap-2 border-capx-dark-box-bg rounded-md">
               <input
                 type="datetime-local"
-                value={eventData.time_begin ? new Date(eventData.time_begin).toISOString().slice(0, 16) : ""}
+                value={
+                  eventData.time_begin
+                    ? new Date(eventData.time_begin).toISOString().slice(0, 16)
+                    : ""
+                }
                 onChange={(e) => handleChange("time_begin", e.target.value)}
                 className={`w-full bg-transparent border border-capx-dark-box-bg border-2 rounded-md p-2 outline-none ${
                   darkMode
@@ -288,7 +267,11 @@ export default function EventsFormItem({
             <div className="flex w-1/2 flex-row gap-2 border-capx-dark-box-bg rounded-md">
               <input
                 type="datetime-local"
-                value={eventData.time_end ? new Date(eventData.time_end).toISOString().slice(0, 16) : ""}
+                value={
+                  eventData.time_end
+                    ? new Date(eventData.time_end).toISOString().slice(0, 16)
+                    : ""
+                }
                 onChange={(e) => handleChange("time_end", e.target.value)}
                 className={`w-full bg-transparent border border-capx-dark-box-bg border-2 rounded-md p-2 outline-none ${
                   darkMode
@@ -329,8 +312,12 @@ export default function EventsFormItem({
                   ? "text-white placeholder-gray-400"
                   : "text-[#829BA4] placeholder-[#829BA4]"
               }`}
-              value={eventData.date ? new Date(eventData.date).toISOString().split('T')[0] : ""}
-              onChange={(e) => handleChange("date", e.target.value)}
+              value={
+                eventData.time_begin
+                  ? new Date(eventData.time_begin).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) => handleChange("time_begin", e.target.value)}
             />
           </div>
           <p
@@ -373,14 +360,13 @@ export default function EventsFormItem({
           >
             {pageContent["organization-profile-event-choose-capacities"]}
           </h2>
-          
+
           <div className="flex flex-col w-full">
-            <div 
+            <div
               onClick={() => setIsModalOpen(true)}
-              onChange={(e) => handleChange("related_skills", e.target.value)}
               className={`flex items-center justify-between w-full px-4 py-3 border rounded-lg cursor-pointer ${
-                darkMode 
-                  ? "bg-transparent border-white text-white" 
+                darkMode
+                  ? "bg-transparent border-white text-white"
                   : "bg-white border-gray-300 text-gray-700"
               }`}
             >
@@ -394,7 +380,11 @@ export default function EventsFormItem({
                       }`}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <span className={`text-sm ${darkMode ? "text-white" : "text-gray-800"}`}>
+                      <span
+                        className={`text-sm ${
+                          darkMode ? "text-white" : "text-gray-800"
+                        }`}
+                      >
                         {capacity.name}
                       </span>
                       <button
@@ -403,7 +393,9 @@ export default function EventsFormItem({
                           handleRemoveCapacity(capacity.code);
                         }}
                         className={`w-4 h-4 flex items-center justify-center rounded-full hover:bg-opacity-80 ${
-                          darkMode ? "text-white hover:bg-gray-600" : "text-gray-600 hover:bg-gray-200"
+                          darkMode
+                            ? "text-white hover:bg-gray-600"
+                            : "text-gray-600 hover:bg-gray-200"
                         }`}
                       >
                         ×
@@ -411,10 +403,16 @@ export default function EventsFormItem({
                     </div>
                   ))
                 ) : (
-                  <span className={`${
-                    darkMode ? "text-gray-400" : "text-gray-500"
-                  }`}>
-                    {pageContent["organization-profile-event-choose-capacities"]}
+                  <span
+                    className={`${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {
+                      pageContent[
+                        "organization-profile-event-choose-capacities"
+                      ]
+                    }
                   </span>
                 )}
               </div>
