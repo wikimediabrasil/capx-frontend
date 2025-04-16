@@ -8,6 +8,7 @@ import { useApp } from "@/contexts/AppContext";
 import Image from "next/image";
 import AddIcon from "@/public/static/images/add_dark.svg";
 import AddIconWhite from "@/public/static/images/add.svg";
+import { useMemo } from "react";
 
 interface EventsCardListProps {
   events: Event[];
@@ -29,26 +30,35 @@ export default function EventsCardList({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
 
-  // Ordenar eventos do mais recente para o mais antigo com base na data de atualização
-  const sortedEvents = [...events].sort((a, b) => 
-    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  // Usar useMemo para ordenar eventos apenas quando a lista mudar
+  const sortedEvents = useMemo(() => 
+    [...events].sort((a, b) => 
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    ),
+    [events]
+  );
+
+  // Renderizar a mensagem de "sem eventos" como um componente separado
+  const NoEventsMessage = () => (
+    <div className={`w-full py-8 text-center ${darkMode ? "text-white" : "text-[#053749]"}`}>
+      {pageContent["organization-profile-no-events"] || "Não há eventos"}
+    </div>
   );
 
   return (
     <div className="flex flex-col w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className={`text-2xl font-bold ${darkMode ? "text-white" : "text-[#053749]"}`}>
-          {pageContent["organization-profile-events"]}
+          {pageContent["organization-profile-events"] || "Eventos"}
         </h2>
-        
       </div>
 
       <div className="overflow-x-auto scrollbar-hide pb-4">
         <div className="flex flex-nowrap gap-2">
-          {sortedEvents && sortedEvents.length > 0 ? (
+          {sortedEvents.length > 0 ? (
             sortedEvents.map((event) => (
               <EventCard
-                key={event.id}
+                key={event.id || `temp-${event.name}`}
                 event={event}
                 capacities={capacities}
                 onEdit={onEdit}
@@ -57,9 +67,7 @@ export default function EventsCardList({
               />
             ))
           ) : (
-            <div className={`w-full py-8 text-center ${darkMode ? "text-white" : "text-[#053749]"}`}>
-              {pageContent["organization-profile-no-events"]}
-            </div>
+            <NoEventsMessage />
           )}
         </div>
       </div>

@@ -53,9 +53,17 @@ export default function CapacitySelectionModal({
 
   useEffect(() => {
     if (isOpen && session?.user?.token) {
-      fetchRootCapacities();
-      setSelectedPath([]);
-      setSelectedCapacity(null);
+      // Usar um try/catch para evitar que erros interrompam o fluxo
+      try {
+        fetchRootCapacities().catch(err => {
+          console.error("Erro ao carregar capacidades raiz:", err);
+          // Continue mesmo com erro
+        });
+        setSelectedPath([]);
+        setSelectedCapacity(null);
+      } catch (error) {
+        console.error("Erro na inicialização do modal:", error);
+      }
     }
   }, [isOpen, session?.user?.token, fetchRootCapacities]);
 
@@ -73,10 +81,11 @@ export default function CapacitySelectionModal({
       }
     } catch (err) {
       console.error("Erro ao selecionar categoria:", err);
+      // Continue mesmo com erro
     }
   };
 
-  // New function to handle expansion separately
+  // Function to handle expansion separately
   const handleCategoryExpand = async (
     e: React.MouseEvent,
     category: Capacity
@@ -95,12 +104,17 @@ export default function CapacitySelectionModal({
 
       // Check if we need to fetch children
       if (!childrenCapacities[categoryId.toString()]) {
-        const children = await fetchCapacitiesByParent(categoryId.toString());
+        try {
+          const children = await fetchCapacitiesByParent(categoryId.toString());
 
-        if (children && children.length > 0) {
-          setSelectedPath((prev) => [...prev, categoryId]);
-          return;
+          if (children && children.length > 0) {
+            setSelectedPath((prev) => [...prev, categoryId]);
+          }
+        } catch (error) {
+          console.error(`Erro ao buscar filhos para categoria ${categoryId}:`, error);
+          // Continue mesmo com erro
         }
+        return;
       }
 
       // If it has children, expand it
@@ -109,6 +123,7 @@ export default function CapacitySelectionModal({
       }
     } catch (err) {
       console.error("Erro ao expandir categoria:", err);
+      // Continue mesmo com erro
     }
   };
 
@@ -172,28 +187,55 @@ export default function CapacitySelectionModal({
   ) => {
     e.stopPropagation(); // Prevent the click event from propagating to the card
 
-    const capacityCode = capacity.code;
+    try {
+      const capacityCode = capacity.code;
 
-    // If the description is not loaded, search for it
-    if (
-      !capacityDescriptions[capacityCode] &&
-      !showInfoMap[capacityCode] &&
-      fetchCapacityDescription
-    ) {
-      const description = await fetchCapacityDescription(capacityCode);
-      if (description) {
+      // Se já temos a descrição no cache local, usar ela
+      if (capacityDescriptions[capacityCode]) {
+        setShowInfoMap((prev) => ({
+          ...prev,
+          [capacityCode]: !prev[capacityCode],
+        }));
+        return;
+      }
+
+      // Se temos a descrição no cache global, copiar para o cache local
+      if (descriptions[capacityCode.toString()]) {
         setCapacityDescriptions((prev) => ({
           ...prev,
-          [capacityCode]: description,
+          [capacityCode]: descriptions[capacityCode.toString()],
         }));
+        setShowInfoMap((prev) => ({
+          ...prev,
+          [capacityCode]: !prev[capacityCode],
+        }));
+        return;
       }
-    }
 
-    // Toggle the display of the description
-    setShowInfoMap((prev) => ({
-      ...prev,
-      [capacityCode]: !prev[capacityCode],
-    }));
+      // Se não temos a descrição em nenhum lugar, buscar
+      if (fetchCapacityDescription) {
+        try {
+          const description = await fetchCapacityDescription(capacityCode);
+          // description pode ser string vazia em caso de erro
+          setCapacityDescriptions((prev) => ({
+            ...prev,
+            [capacityCode]: description || "",
+          }));
+        } catch (error) {
+          console.error(`Erro ao buscar descrição para capacidade ${capacityCode}:`, error);
+          // Continue mesmo com erro
+        }
+      }
+
+      // Toggle the display of the description regardless of fetch success
+      setShowInfoMap((prev) => ({
+        ...prev,
+        [capacityCode]: !prev[capacityCode],
+      }));
+    } catch (error) {
+      console.error("Erro ao alternar informações da capacidade:", error);
+      // Continue mesmo com erro
+    }
   };
 
   // Function to render a custom capacity card for the modal
