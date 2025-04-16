@@ -58,7 +58,7 @@ export default function EventsFormItem({
   const { isMobile, pageContent } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
-
+  const [showMobile, setShowMobile] = useState(false);
   useEffect(() => {
     // Initialize selected capacities from eventData
     if (eventData.related_skills && eventData.related_skills.length > 0) {
@@ -66,6 +66,11 @@ export default function EventsFormItem({
       // setSelectedCapacities(capacities);
     }
   }, [eventData.related_skills]);
+
+  // Efeito para atualizar o estado de exibição baseado no tamanho da tela
+  useEffect(() => {
+    setShowMobile(isMobile);
+  }, [isMobile]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
     if (!selectedCapacities.find((cap) => cap.code === capacity.code)) {
@@ -76,6 +81,8 @@ export default function EventsFormItem({
       const skillIds = newCapacities.map((cap) => cap.code);
       onChange(index, "related_skills", JSON.stringify(skillIds));
     }
+
+    setIsModalOpen(false);
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
@@ -93,22 +100,48 @@ export default function EventsFormItem({
     onChange(index, field, value);
   };
 
-  if (isMobile) {
-    return (
-      <div className="flex flex-row gap-2">
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-row gap-2 w-full items-center text-[12px] md:text-[24px] text-[16px] p-2 border rounded-md bg-transparent">
-            <input
-              type="text"
-              placeholder={pageContent["organization-profile-event-name"]}
-              value={eventData.name || ""}
-              onChange={(e) => handleChange("name", e.target.value)}
-              className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
-                darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#053749] placeholder-[#829BA4]"
-              }`}
-            />
+  // Renderizar o componente de delete (sempre disponível)
+  const DeleteButton = () => (
+    <button onClick={() => onDelete(eventData.id || 0)}>
+      <div className="relative w-[24px] h-[24px]">
+        <Image
+          src={darkMode ? CancelIconWhite : CancelIcon}
+          alt="Delete icon"
+          className="object-contain"
+          width={24}
+          height={24}
+        />
+      </div>
+    </button>
+  );
+
+  // Separar o componente mobile
+  const MobileView = () => (
+    <div className="flex flex-row gap-2">
+      <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-row gap-2 w-full items-center text-[12px] md:text-[24px] text-[16px] p-2 border rounded-md bg-transparent">
+          <input
+            type="text"
+            placeholder={pageContent["organization-profile-event-name"]}
+            value={eventData.name || ""}
+            onChange={(e) => handleChange("name", e.target.value)}
+            className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
+              darkMode
+                ? "text-white placeholder-gray-400"
+                : "text-[#053749] placeholder-[#829BA4]"
+            }`}
+          />
+        </div>
+        <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent">
+            <div className="relative w-[24px] h-[24px]">
+              <Image
+                src={ImagesModeIcon}
+                alt="Project image icon"
+                width={24}
+                height={24}
+              />
+            </div>
           </div>
           <div className="flex flex-col md:flex-row gap-2">
             <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent">
@@ -124,22 +157,13 @@ export default function EventsFormItem({
             <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent"></div>
           </div>
         </div>
-        <button onClick={() => onDelete(eventData.id || 0)}>
-          <div className="relative w-[24px] h-[24px]">
-            <Image
-              src={darkMode ? CancelIconWhite : CancelIcon}
-              alt="Delete icon"
-              className="object-contain"
-              width={24}
-              height={24}
-            />
-          </div>
-        </button>
       </div>
-    );
-  }
+      <DeleteButton />
+    </div>
+  );
 
-  return (
+  // Separar o componente desktop
+  const DesktopView = () => (
     <div className="flex flex-row gap-2">
       <div className="flex flex-col gap-2 w-full">
         <h1 className="text-[24px] text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2">
@@ -463,18 +487,10 @@ export default function EventsFormItem({
           </p>
         </div>
       </div>
-
-      <button onClick={() => onDelete(eventData.id || 0)}>
-        <div className="relative w-[32px] h-[32px] items-center">
-          <Image
-            src={darkMode ? CancelIconWhite : CancelIcon}
-            alt="Delete icon"
-            className="object-contain"
-            width={32}
-            height={32}
-          />
-        </div>
-      </button>
+      <DeleteButton />
     </div>
   );
+
+  // Condicional usando variável de estado em vez de verificar isMobile diretamente
+  return showMobile ? <MobileView /> : <DesktopView />;
 }

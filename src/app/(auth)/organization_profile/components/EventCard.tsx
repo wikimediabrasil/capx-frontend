@@ -18,7 +18,8 @@ import EditIcon from "@/public/static/images/edit.svg";
 import EditIconWhite from "@/public/static/images/edit_white.svg";
 import DeleteIcon from "@/public/static/images/delete.svg";
 import BaseButton from "@/components/BaseButton";
-import { useState } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
 
 interface EventCardProps {
   event?: Event;
@@ -42,6 +43,8 @@ export default function EventCard({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const [isSelected, setIsSelected] = useState(false);
+  const [showAllCapacities, setShowAllCapacities] = useState(false);
+  const capacitiesContainerRef = useRef<HTMLDivElement>(null);
 
   // Search for the event by ID if the event is not provided directly
   const { event: fetchedEvent, isLoading, error } = useEvent(eventId, token);
@@ -79,6 +82,23 @@ export default function EventCard({
     }
   };
 
+  const toggleCapacitiesView = () => {
+    setShowAllCapacities(!showAllCapacities);
+  };
+
+  // Renderização condicional para estados de loading e erro
+  if (isLoading) {
+    return (
+      <div className="min-w-[280px] max-w-[320px] h-[300px] flex items-center justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  if (error || !event) {
+    return null;
+  }
+
   return (
     <div
       className={`flex flex-col p-4 rounded-[4px] border border-capx-dark-box-bg shadow-md min-w-[280px] max-w-[320px] h-[300px] m-2 ${
@@ -101,33 +121,48 @@ export default function EventCard({
         <div className="flex-1 overflow-y-auto mb-3">
           {capacities.length > 0 && (
             <>
-              <div className="flex flex-row items-center gap-2">
+              <div className="flex flex-row items-center gap-2 mb-4">
                 <Image
                   src={darkMode ? EmojiObjectsIconWhite : EmojiObjectsIcon}
                   alt="Emoji objects"
-                  className="w-4 h-4"
+                  className="w-6 h-6"
                 />
-                <div className="text-sm font-semibold mb-1">
+                <div className="text-sm font-semibold">
                   {pageContent[
                     "organization-profile-event-available-capacities"
                   ] || "Available capacities"}
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {eventCapacities.length > 0 ? (
-                  eventCapacities.map((capacity) => (
-                    <span
-                      key={capacity.code}
-                      className={`text-xs px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px]`}
-                    >
-                      {capacity.name}
+              <div className="relative">
+                <div
+                  ref={capacitiesContainerRef}
+                  className={`flex flex-wrap gap-2 ${
+                    !showAllCapacities ? "max-h-[25px] overflow-hidden" : ""
+                  }`}
+                >
+                  {eventCapacities.length > 0 ? (
+                    eventCapacities.map((capacity) => (
+                      <span
+                        key={capacity.code}
+                        className={`text-xs px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px]`}
+                      >
+                        {capacity.name}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs opacity-70">
+                      {pageContent["organization-profile-no-capacities"] ||
+                        "No capacities"}
                     </span>
-                  ))
-                ) : (
-                  <span className="text-xs opacity-70">
-                    {pageContent["organization-profile-no-capacities"] ||
-                      "No capacities"}
-                  </span>
+                  )}
+                </div>
+                {eventCapacities.length > 1 && (
+                  <button
+                    onClick={toggleCapacitiesView}
+                    className="absolute right-0 top-0 p-1"
+                  >
+                    <Image src={MoreHorizIcon} alt="More" className="w-5 h-5" />
+                  </button>
                 )}
               </div>
             </>
@@ -136,11 +171,11 @@ export default function EventCard({
       </div>
 
       {onEdit && onDelete && onChoose && (
-        <div className="flex flex-col gap-1/2 mt-auto">
+        <div className="flex flex-col gap-2 mt-auto pb-2">
           <BaseButton
             label={pageContent["organization-profile-edit-event"] || "Edit"}
             onClick={() => onEdit(event)}
-            customClass={`py-2 px-3 rounded-md text-sm font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center gap-2 hover:opacity-90 transition-opacity !pb-2`}
+            customClass={`py-2 px-3 rounded-md text-md font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center !mb-0 hover:opacity-90 transition-opacity !pb-2`}
             imageUrl={darkMode ? EditIconWhite : EditIcon}
             imageAlt="Edit icon"
             imageWidth={24}
@@ -150,7 +185,7 @@ export default function EventCard({
           <BaseButton
             label={pageContent["organization-profile-choose-event"] || "Choose"}
             onClick={() => handleChoose(event)}
-            customClass={`py-2 px-3 rounded-md border border-capx-dark-box-bg text-sm font-extrabold bg-white text-start text-capx-dark-box-bg flex flex-row items-center gap-2 hover:opacity-90 transition-opacity !pb-2`}
+            customClass={`py-2 px-3 rounded-md border border-capx-dark-box-bg text-md font-extrabold bg-white text-start text-capx-dark-box-bg flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0`}
             imageUrl={
               isSelected
                 ? darkMode
@@ -168,7 +203,7 @@ export default function EventCard({
           <BaseButton
             label={pageContent["organization-profile-delete-event"] || "Delete"}
             onClick={() => onDelete(event.id || 0)}
-            customClass={`py-2 px-3 rounded-md text-sm bg-capx-primary-orange flex flex-row items-center gap-2 text-start text-white font-extrabold hover:opacity-90 transition-opacity !pb-2`}
+            customClass={`py-2 px-3 rounded-md text-md bg-capx-primary-orange flex flex-row items-center !mb-0 text-start text-white font-extrabold hover:opacity-90 transition-opacity !pb-2`}
             imageUrl={DeleteIcon}
             imageAlt="Delete icon"
             imageWidth={24}

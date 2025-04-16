@@ -550,7 +550,18 @@ export default function EditOrganizationProfilePage() {
   };
 
   const handleEditEvent = (event: Event) => {
-    setCurrentEditingEvent(event);
+    // Assegurar que o evento tenha a propriedade related_skills definida como um array
+    const eventToEdit = {
+      ...event,
+      related_skills: Array.isArray(event.related_skills) 
+        ? event.related_skills 
+        : typeof event.related_skills === 'string'
+          ? JSON.parse(event.related_skills)
+          : []
+    };
+    
+    console.log("Evento para edição:", eventToEdit);
+    setCurrentEditingEvent(eventToEdit);
     setShowEventModal(true);
   };
 
@@ -678,6 +689,8 @@ export default function EditOrganizationProfilePage() {
   ) => {
     if (!currentEditingEvent) return;
     
+    console.log(`Campo alterado: ${field}, valor: ${value}`);
+    
     setCurrentEditingEvent(prev => {
       if (!prev) return prev;
         
@@ -686,11 +699,21 @@ export default function EditOrganizationProfilePage() {
       // Tratamento especial para campos específicos
       if (field === 'time_begin' || field === 'time_end') {
         updatedValue = new Date(value).toISOString();
-      } else if (field === 'related_skills' && typeof value === 'string' && value.startsWith('[')) {
+      } else if (field === 'related_skills') {
         try {
-          updatedValue = JSON.parse(value);
+          // Se o valor é uma string JSON, analisá-la
+          if (typeof value === 'string' && value.startsWith('[')) {
+            updatedValue = JSON.parse(value);
+            console.log("Capacidades atualizadas:", updatedValue);
+          } else {
+            // Manter o valor existente se não for um JSON válido
+            updatedValue = prev.related_skills || [];
+            console.log("Mantendo capacidades existentes:", updatedValue);
+          }
         } catch (e) {
           console.error('Erro ao analisar related_skills:', e);
+          // Em caso de erro, manter o valor existente
+          updatedValue = prev.related_skills || [];
         }
       }
         
@@ -1109,15 +1132,21 @@ export default function EditOrganizationProfilePage() {
                   : pageContent["organization-profile-edit-event"]}
               </h2>
               {currentEditingEvent && (
-                <EventsFormItem
-                  eventData={currentEditingEvent}
-                  index={0}
-                  onDelete={() => {
-                    setShowEventModal(false);
-                    setCurrentEditingEvent(null);
-                  }}
-                  onChange={handleModalEventChange}
-                />
+                <>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {currentEditingEvent.related_skills && Array.isArray(currentEditingEvent.related_skills) && 
+                      `Evento com ${currentEditingEvent.related_skills.length} capacidades`}
+                  </p>
+                  <EventsFormItem
+                    eventData={currentEditingEvent}
+                    index={0}
+                    onDelete={() => {
+                      setShowEventModal(false);
+                      setCurrentEditingEvent(null);
+                    }}
+                    onChange={handleModalEventChange}
+                  />
+                </>
               )}
             </div>
 
