@@ -5,9 +5,6 @@ export const getProfileImage = (
   avatarId: number | null | undefined,
   avatars?: Avatar[]
 ) => {
-  console.log("profileImage", profileImage);
-  console.log("avatarId", avatarId);
-  console.log("avatars", avatars);
 
   if (profileImage) {
     return profileImage;

@@ -3,7 +3,7 @@ import { capacityService } from "@/services/capacityService";
 import { getCapacityColor, getCapacityIcon } from "@/lib/utils/capacitiesUtils";
 import { CapacityResponse, Capacity } from "@/types/capacity";
 
-export function useCapacityList(token?: string, language: string = "pt-br") {
+export function useCapacityList(token?: string, language: string = "en") {
   const [rootCapacities, setRootCapacities] = useState<Capacity[]>([]);
   const [childrenCapacities, setChildrenCapacities] = useState<
     Record<string, Capacity[]>

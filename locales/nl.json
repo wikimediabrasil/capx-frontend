@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"ABPMAB",
 			"McDutchie",
 			"Siebrand"
 		]
@@ -83,6 +84,7 @@
 	"organization-profile-view-event": "Evenement bekijken",
 	"organization-profile-view-document": "Document bekijken",
 	"organization-profile-no-image-available": "Geen afbeelding beschikbaar",
+	"organization-profile-news-section-by": "door",
 	"body-profile-edit-organization-button": "Organisatieprofiel bewerken",
 	"body-profile-edit-user-button": "Gebruikersprofiel bewerken",
 	"logo-not-available": "Logo niet beschikbaar",
@@ -151,6 +153,7 @@
 	"no-user-profile": "Er zijn geen gebruikers met deze gebruikersnaam geregistreerd in CapX",
 	"no-report-rights": "U heeft ofwel geen toestemming om dit verslag bij te werken, of het verslag bestaat niet!",
 	"body-profile-languages-title": "Talen",
+	"body-profile-languages-alt-icon": "Talen-icoon",
 	"body-profile-known-capacities-title": "Bekende capaciteiten",
 	"body-profile-available-capacities-title": "Beschikbare capaciteiten",
 	"body-profile-wanted-capacities-title": "Gezochte capaciteiten",
@@ -166,6 +169,7 @@
 	"edit-profile-choose-avatar": "Avatar kiezen",
 	"edit-profile-use-wikidata": "Afbeelding van Wikidata-item gebruiken",
 	"edit-profile-consent-wikidata": "Door hier te klikken ga ik ermee akkoord dat de afbeelding van mijn Wikidata-item op het profiel van CapX wordt weergegeven. De tool zoekt in Wikidata naar een QID die verband houdt met uw gebruikersnaam en geeft deze indien gevonden weer.",
+	"edit-profile-delete-profile": "Profiel verwijderen",
 	"edit-profile-save": "Profiel opslaan",
 	"edit-profile-cancel": "Bewerking annuleren",
 	"edit-profile-mini-bio": "Mini-biografie",
@@ -204,6 +208,11 @@
 	"edit-profile-wikimedia-projects": "De Wikimedia-projecten informeren waarin u geïnteresseerd bent.",
 	"edit-profile-insert-project": "Project toevoegen",
 	"edit-profile-insert-link": "Document-URL toevoegen",
+	"edit-profile-delete-profile-confirm": "Ja, verwijder mijn CapX-profiel",
+	"edit-profile-delete-profile-cancel": "Nee, ik wil mijn CapX-profiel behouden.",
+	"capacity-card-expand-capacity": "Uitvouwen",
+	"capacity-card-info": "Informatie",
+	"capacity-search-no-results": "Geen resultaten gevonden",
 	"privacy-policy-icon": "Pictogram privacybeleid",
 	"privacy-policy-title": "Privacybeleid van Capacity Exchange",
 	"privacy-policy-capacity-exchange-text": "Deze site is een internationaal project dat momenteel wordt gecoördineerd door $1. Het draait op Wikimedia Cloud Services, specifiek op $2 , en is daarom onderhevig aan de $3 , waarbij beperkt gebruik wordt gemaakt van privé-informatie. Alle inhoud heeft de licentie CC-BY-SA. Codebijdragen zijn welkom.",
@@ -219,5 +228,24 @@
 	"privacy-policy-private-information-text01": "Als u dat wenst, kunt u informatie over uzelf verwijderen door onderaan de pagina van het gebruikersprofiel op de rode knop \"Profiel verwijderen\" te klikken.",
 	"privacy-policy-private-information-text02": "Als u een beheerder van een organisatie bent en de rechten hebt om het profiel te bewerken, kunt u de gegevens opschonen door het profiel van de organisatie te bewerken en alle velden leeg te maken. Om te worden verwijderd uit de rol van profielbeheerder kunt u het team e-mailen. Zodra er niemand is gekoppeld als beheerder, wordt het profiel niet meer weergegeven in de lijst met organisaties.",
 	"privacy-policy-private-information-text03": "Gegevensgebruik en gegevensretentie worden beheerd door de $1. Dit hulpprogramma voldoet aan de AVG.",
-	"privacy-policy-private-information-text03-link": "Gebruiksvoorwaarden van Wikimedia Cloud Service"
+	"capacity-selection-modal-see-more-information": "Zie meer informatie",
+	"capacity-selection-modal-select-capacity-button-cancel": "Annuleren",
+	"capacity-selection-modal-selected": "Geselecteerd",
+	"capacity-selection-modal-loading": "Laden...",
+	"privacy-policy-private-information-text03-link": "Gebruiksvoorwaarden van Wikimedia Cloud Service",
+	"filters-all-profiles": "Alle profielen",
+	"filters-all-profiles-alt-icon": "Alle profielen-icoon",
+	"filters-organization-profile": "Organisatieprofiel",
+	"filters-organization-profile-alt-icon": "Organisatieprofiel-icoon",
+	"filters-user-profile": "Gebruikersprofiel",
+	"filters-user-profile-alt-icon": "Gebruikersprofielicoon",
+	"filters-show-results": "Toon resultaten",
+	"filters-title": "Filters",
+	"pagination-previous": "Vorige",
+	"pagination-next": "Volgende",
+	"pagination-page": "Pagina",
+	"pagination-of": "van",
+	"feed-no-data-message": "Geen gegevens gevonden",
+	"snackbar-edit-profile-organization-success": "Succesvol opgeslagen",
+	"snackbar-edit-profile-organization-delete-project-success": "Project succesvol verwijderd"
 }

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
+import { fetchMetabase, fetchWikidata } from "@/lib/utils/capacitiesUtils";
 
 export async function GET(
   req: NextRequest,
@@ -7,7 +8,7 @@ export async function GET(
 ) {
   try {
     const id = params.id;
-    const language = req.nextUrl.searchParams.get("language");
+    const language = req.nextUrl.searchParams.get("language") || "en";
     const authHeader = req.headers.get("authorization");
 
     const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`, {
@@ -32,24 +33,39 @@ export async function GET(
       users: userList.data,
     };
 
-    const capWikidataCode = "wd:" + capacityCodes.wd_code;
-    const queryText = `SELECT ?item ?itemLabel ?itemDescription WHERE {VALUES ?item {${capWikidataCode}} SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'.}}`;
+    // fetch details using fetchMetabase first
+    const metabaseResults = await fetchMetabase([capacityCodes], language);
+    let capacityData = {};
 
-    const wikidataResponse = await axios.get(
-      `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`
-    );
+    if (metabaseResults.length > 0 && metabaseResults[0].name) {
+      // use Metabase data
+      capacityData = {
+        name: metabaseResults[0].name,
+        description: metabaseResults[0].description || "",
+      };
+    } else {
+      // fallback for Wikidata
+      const wikidataResults = await fetchWikidata([capacityCodes], language);
 
-    const capacityData = {
-      name: wikidataResponse.data.results.bindings[0].itemLabel.value,
-      description: wikidataResponse.data.results.bindings[0].itemDescription
-        ? wikidataResponse.data.results.bindings[0].itemDescription.value
-        : undefined,
-    };
+      if (wikidataResults.length > 0) {
+        capacityData = {
+          name: wikidataResults[0].name,
+          description: wikidataResults[0].description || "",
+        };
+      } else {
+        // if no result is found
+        capacityData = {
+          name: capacityCodes.wd_code,
+          description: "",
+        };
+      }
+    }
 
     return NextResponse.json({ ...capacityCodes, ...capacityData });
   } catch (error) {
+    console.error("Error fetching capacity details:", error);
     return NextResponse.json(
-      { error: "Failed to fetch data." },
+      { error: "Failed to fetch data.", details: error.message },
       { status: 500 }
     );
   }
