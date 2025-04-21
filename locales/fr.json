@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Alien333",
+			"Bananax47",
 			"EPorto (WMB)",
 			"EmDashUser002",
 			"MacOS Weed",
@@ -84,6 +85,7 @@
 	"oh-no-message": "Oh, non !",
 	"no-user-profile": "Il n' y a pas d' utilisateurs avec ce nom d' utilisateur enregistré dans CapX",
 	"no-report-rights": "Vous n'avez pas la permission de mettre à jour ce rapport ou ce rapport n'existe pas !",
+	"privacy-policy-banner": "Politique de confidentialité",
 	"report-bug-banner-page": "Rapports de bogues",
 	"report-bug-submit": "Soumettre",
 	"report-bug-submission": "Soumettre",
