@@ -75,7 +75,7 @@ export default function DesktopNavbar({
       active: true,
     },
     {
-      title: pageContent["navbar-link-contact"],
+      title: pageContent["navbar-link-messages"],
       to: "/message",
       active: true,
     },    

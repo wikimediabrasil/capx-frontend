@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
-import FormMessagePage from "@/app/(auth)/message/components/formMessagePage"; //arrumar de onde vem
-import SentContactPage from "@/app/(auth)/report_bug/components/SubmissionsList"; //arrumar de onde vem
+import FormMessagePage from "@/app/(auth)/message/components/FormMessagePage";
+import SentMessagesList from "@/app/(auth)/message/components/SentMessagesList";
 
 enum ViewType {
     WRITE = "submit",
@@ -14,7 +14,6 @@ enum ViewType {
 export default function NavBar() {
     const { darkMode } = useTheme();
     const { pageContent } = useApp();
-    
     const [currentView, setCurrentView] = useState<ViewType>(ViewType.WRITE);
 
     return (
@@ -29,7 +28,7 @@ export default function NavBar() {
                                 : "text-capx-dark-box-bg border-b-2 border-capx-dark-box-bg"
                             : "text-gray-500 border-transparent"}`}
                 >
-                    {pageContent["contact-write"]}
+                    {pageContent["message-write"]}
                 </button>
                 <button
                     onClick={() => setCurrentView(ViewType.SENT)}
@@ -40,11 +39,11 @@ export default function NavBar() {
                                 : "text-capx-dark-box-bg border-b-2 border-capx-dark-box-bg"
                             : "text-gray-500 border-transparent"}`}
                 >
-                    {pageContent["contact-sent"]}
+                    {pageContent["message-sent"]}
                 </button>
             </nav>
             <div className="w-full mt-6">
-                {currentView === ViewType.WRITE ? <FormMessagePage /> : <SentContactPage />}
+                {currentView === ViewType.WRITE ? <FormMessagePage /> : <SentMessagesList />}
             </div>
         </section>
     );

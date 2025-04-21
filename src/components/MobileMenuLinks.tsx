@@ -86,14 +86,19 @@ export default function MobileMenuLinks({
     },
     {
       title: pageContent["navbar-link-reports"],
-      to: "/reports",
+      to: "/report_bug",
       active: true,
     },
     {
       title: pageContent["navbar-organization-list"],
       to: "/organization_list",
       active: true,
-    },    
+    },
+    {
+      title: pageContent["navbar-link-messages"],
+      to: "/message",
+      active: true,
+    },
     {
       title: pageContent["navbar-link-dark-mode"],
       action: () => {
