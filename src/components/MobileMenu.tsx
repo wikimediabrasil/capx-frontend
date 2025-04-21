@@ -5,14 +5,14 @@ import AuthButton from "@/components/AuthButton";
 import { useApp } from "@/contexts/AppContext";
 import MoveOutIcon from "@/public/static/images/move_item.svg";
 import { useTheme } from "@/contexts/ThemeContext";
-
+import { Session } from "next-auth";
 interface MobileMenuProps {
-  session: any;
-  pageContent: any;
+  session: Session | null;
 }
 
-export default function MobileMenu({ session, pageContent }: MobileMenuProps) {
-  const { darkMode, setDarkMode } = useTheme();
+export default function MobileMenu({ session }: MobileMenuProps) {
+  const { darkMode } = useTheme();
+  const { pageContent } = useApp();
   const { setMobileMenuStatus } = useApp();
   const animationVariants = {
     initial: {
@@ -53,7 +53,6 @@ export default function MobileMenu({ session, pageContent }: MobileMenuProps) {
     >
       <MobileMenuLinks
         session={session}
-        pageContent={pageContent}
         handleMenuStatus={() => setMobileMenuStatus(false)}
       />
       <div className="w-[92%] mx-auto">

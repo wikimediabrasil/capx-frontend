@@ -6,7 +6,7 @@ import CapXLogo from "../../public/static/images/capx_minimalistic_logo.svg";
 import DarkModeButton from "./DarkModeButton";
 import ProfileSelect from "./ProfileSelect";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Session } from "@/types/user";
+import { Session } from "next-auth";
 import { useState, useRef, useEffect } from "react";
 import BurgerMenu from "@/public/static/images/burger_menu.svg";
 import BurgerMenuDarkMode from "@/public/static/images/burger_menu_light.svg";
@@ -19,15 +19,13 @@ export interface DesktopNavbarProps {
   pageContent: any;
   language: string;
   setLanguage: (language: string) => void;
-  setPageContent: (pageContent: any) => void;
-  session: Session;
+  session: Session | null;
 }
 
 export default function DesktopNavbar({
   pageContent,
   language,
   setLanguage,
-  setPageContent,
   session,
 }: DesktopNavbarProps) {
   const { darkMode } = useTheme();
@@ -162,8 +160,6 @@ export default function DesktopNavbar({
             isMobile={false}
             language={language}
             setLanguage={setLanguage}
-            setPageContent={setPageContent}
-            pageContent={pageContent}
           />
 
           {/* Hamburger Menu Button (shows when logged in) */}
@@ -240,7 +236,7 @@ export default function DesktopNavbar({
                             message={pageContent["sign-out-button"]}
                             isSignOut={true}
                             imageUrl={MoveOutIcon}
-                            customClass="w-full h-[32px] flex items-center px-[6px] py-[8px] rounded-[4px] bg-[var(--Buttons-Default,_#851D6A)] font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] text-white justify-start pt-4 px-[8px] py-[0] !mb-0"
+                            customClass="w-full h-[32px] flex items-center px-[6px] py-[8px] rounded-[4px] !text-[16px] justify-start pt-4 px-[8px] py-[0] !mb-0"
                           />
                         </div>
                       </div>

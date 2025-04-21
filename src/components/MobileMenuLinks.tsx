@@ -14,7 +14,8 @@ import OrgProfileIcon from "@/public/static/images/check_box.svg";
 import OrgProfileIconWhite from "@/public/static/images/check_box_light.svg";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
-
+import { Session } from "next-auth";
+import { useApp } from "@/contexts/AppContext";
 interface MenuItem {
   title: string;
   to?: string;
@@ -32,22 +33,19 @@ interface SubMenuItem {
 }
 
 interface MobileMenuLinksProps {
-  session: any;
-  pageContent: {
-    [key: string]: string;
-  };
+  session: Session | null;
   handleMenuStatus: () => void;
 }
 
 export default function MobileMenuLinks({
   session,
-  pageContent,
   handleMenuStatus,
 }: MobileMenuLinksProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const { darkMode, setDarkMode } = useTheme();
   const params = useParams();
+  const { pageContent } = useApp();
   const organizationId = params?.id;
   const { organizations, isOrgManager } = useOrganization(
     session?.user?.token,

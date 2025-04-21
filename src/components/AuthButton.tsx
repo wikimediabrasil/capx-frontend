@@ -41,7 +41,7 @@ export default function AuthButton({
     }
 
     try {
-      // Limpar tokens antigos antes de iniciar novo fluxo
+      // Clean old tokens before starting new flow
       localStorage.removeItem("oauth_token");
       localStorage.removeItem("oauth_token_secret");
 
@@ -53,7 +53,7 @@ export default function AuthButton({
       });
 
       if (response.data?.redirect_url) {
-        // Armazenar os novos tokens
+        // Store new tokens
         localStorage.setItem("oauth_token", response.data.oauth_token);
         localStorage.setItem(
           "oauth_token_secret",
@@ -61,14 +61,14 @@ export default function AuthButton({
         );
         window.location.href = response.data.redirect_url;
       } else {
-        throw new Error("URL de redirecionamento não recebida");
+        throw new Error("Redirect URL not received");
       }
     } catch (error: any) {
-      console.error("Erro completo:", error);
-      console.error("Dados da resposta:", error.response?.data);
-      console.error("Status da resposta:", error.response?.status);
+      console.error("Error:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Response status:", error.response?.status);
       setShowPopup(false);
-      alert(`Erro no login: ${error.response?.data?.error || error.message}`);
+      alert(`Error on login: ${error.response?.data?.error || error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -82,13 +82,40 @@ export default function AuthButton({
     }
   };
 
+  const baseButtonClass = `
+    flex items-center justify-center
+    gap-[10px]
+    rounded-md
+    bg-capx-secondary-purple 
+    text-[#F6F6F6]
+    text-center 
+    font-[Montserrat]
+    font-extrabold 
+    not-italic 
+    leading-[normal]
+    text-[14px]
+    md:text-[24px]
+    transition-all
+    ${isSignOut ? 'w-full' : `
+      min-w-[120px]
+      max-w-[200px]
+      px-3 py-2.5
+      md:w-auto
+      md:min-w-[140px]
+      md:max-w-[280px]
+      md:px-6
+      md:py-3
+    `}
+    ${customClass || ''}
+  `.trim();
+
   return (
-    <div className="flex items-center h-full">
+    <div className={`flex items-center ${isSignOut ? '' : 'h-full shrink-0'}`}>
       <BaseButton
         label={message}
         onClick={handleRedirect}
         disabled={isLoading}
-        customClass={customClass}
+        customClass={baseButtonClass}
         imageUrl={imageUrl}
         imageAlt={imageAlt}
         imageWidth={imageWidth}
@@ -107,11 +134,4 @@ export default function AuthButton({
       )}
     </div>
   );
-}
-
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
-  return null;
 }

@@ -20,8 +20,6 @@ export default function Navbar({
   session,
   language,
   setLanguage,
-  pageContent,
-  setPageContent,
 }: Omit<
   NavbarProps,
   | "darkMode"
@@ -32,26 +30,18 @@ export default function Navbar({
 >) {
   const {
     isMobile,
-    darkMode,
-    setDarkMode,
-    mobileMenuStatus,
-    setMobileMenuStatus,
   } = useApp();
 
   return isMobile ? (
     <MobileNavbar
       language={language}
       setLanguage={setLanguage}
-      setPageContent={setPageContent}
       session={session}
-      pageContent={pageContent}
     />
   ) : (
     <DesktopNavbar
-      pageContent={pageContent}
       language={language}
       setLanguage={setLanguage}
-      setPageContent={setPageContent}
       session={session}
     />
   );

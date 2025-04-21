@@ -4,10 +4,12 @@ import Image from "next/image";
 import Illustration from "@/public/static/images/capx_people_illustration.svg";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useSession } from "next-auth/react";
 
 export default function CallToActionSection() {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
+  const { data: session } = useSession();
 
   if (isMobile) {
     return (
@@ -33,10 +35,10 @@ export default function CallToActionSection() {
           </p>
         </div>
         <div className="flex flex-col items-center justify-center mt-12 w-full gap-4">
-          <AuthButton
+          {!session && (<AuthButton
             message={pageContent["body-home-section01-call-to-action-button01"]}
-            customClass="inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] bg-capx-secondary-purple text-[#F6F6F6]  text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] rounded-md"
-          />
+            customClass="py-4 px-8"
+          />)}
           <BaseButton
             onClick={() => {
               window.location.href = 'https://meta.wikimedia.org/w/index.php?title=Special:CreateAccount&returnto=Main+Page';
@@ -77,12 +79,12 @@ export default function CallToActionSection() {
             {pageContent["body-home-section01-call-to-action-description"]}
           </p>
           <div className="flex flex-row items-start justify-start mt-12 gap-4">
-            <AuthButton
+            {!session && (<AuthButton
               message={
                 pageContent["body-home-section01-call-to-action-button01"]
               }
-              customClass="inline-flex justify-center items-center gap-[10px] bg-capx-secondary-purple text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] rounded-md py-4 px-8"
-            />
+              customClass="py-4 px-8"
+            />)}
             <BaseButton
               onClick={() => {
                 window.location.href = 'https://meta.wikimedia.org/w/index.php?title=Special:CreateAccount&returnto=Main+Page';

@@ -13,22 +13,18 @@ import { useApp } from "@/contexts/AppContext";
 import IconCloseMobileMenuLightMode from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
 import IconCloseMobileMenuDarkMode from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Session } from "@/types/user";
+import { Session } from "next-auth";
 
 interface MobileNavbarProps {
-  session: Session;
-  pageContent: any;
+  session: Session | null;
   language: string;
   setLanguage: (language: string) => void;
-  setPageContent: (pageContent: any) => void;
 }
 
 export default function MobileNavbar({
   session,
-  pageContent,
   language,
   setLanguage,
-  setPageContent,
 }: MobileNavbarProps) {
   const { isMobile, mobileMenuStatus, setMobileMenuStatus } = useApp();
   const { darkMode } = useTheme();
@@ -61,8 +57,6 @@ export default function MobileNavbar({
                 isMobile={isMobile}
                 language={language}
                 setLanguage={setLanguage}
-                setPageContent={setPageContent}
-                pageContent={pageContent}
               />
 
               <div className="flex items-center">
@@ -95,7 +89,7 @@ export default function MobileNavbar({
         </div>
         <AnimatePresence mode="wait">
           {isMobile && mobileMenuStatus && session && (
-            <MobileMenu session={session} pageContent={pageContent} />
+            <MobileMenu session={session} />
           )}
         </AnimatePresence>
       </>
@@ -124,14 +118,12 @@ export default function MobileNavbar({
             isMobile={isMobile}
             language={language}
             setLanguage={setLanguage}
-            setPageContent={setPageContent}
-            pageContent={pageContent}
           />
 
           <AuthButton
             message={pageContent["sign-in-button"]}
             isSignOut={false}
-            customClass="w-[73px] h-8 justify-center items-center gap-2 shrink-0 px-4 py-2 text-sm bg-capx-secondary-purple text-capx-light-bg rounded-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
+            customClass="w-[73px] h-8 px-4 py-2 text-sm rounded-[8px]"
           />
         </div>
       </div>
