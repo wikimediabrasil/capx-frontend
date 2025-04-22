@@ -1,4 +1,5 @@
 import { Event } from "@/types/event";
+import { Capacity } from "@/types/capacity";
 import BaseButton from "@/components/BaseButton";
 import Image from "next/image";
 import AlarmIcon from "@/public/static/images/alarm.svg";
@@ -20,21 +21,99 @@ import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
 import ArrowDropDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
 import ArrowDropDownWhiteIcon from "@/public/static/images/arrow_drop_down_circle_white.svg";
 import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
+import LoadingState from "@/components/LoadingState";
+import CheckBoxOutlineBlankIcon from "@/public/static/images/check_box_outline_blank.svg";
+import CheckBoxOutlineBlankIconLight from "@/public/static/images/check_box_outline_blank_light.svg";
+import CheckBoxIcon from "@/public/static/images/check_box.svg";
+import CheckBoxIconLight from "@/public/static/images/check_box_light.svg";
+import EditIcon from "@/public/static/images/edit.svg";
+import EditIconWhite from "@/public/static/images/edit_white.svg";
+import DeleteIcon from "@/public/static/images/delete.svg";
 
 interface EventCardProps {
   event: Partial<Event>;
+  isHorizontalScroll?: boolean;
+  onEdit?: (event: Event) => void;
+  onDelete?: (eventId: number) => void;
+  onChoose?: (event: Event) => void;
+  isLoading?: boolean;
+  error?: boolean;
 }
 
-export default function EventCard({ event }: EventCardProps) {
+export default function EventCard({
+  event,
+  isHorizontalScroll,
+  onEdit,
+  onDelete,
+  onChoose,
+  isLoading,
+  error,
+}: EventCardProps) {
   const { darkMode } = useTheme();
-  const { pageContent, isMobile } = useApp();
+  const { isMobile, pageContent } = useApp();
   const { data: session } = useSession();
   const token = session?.user?.token;
 
-  // Função para formatar horário no formato desejado (2:00 PM - 2:40 PM (UTC))
+  const { capacityNames } = useCapacityDetails(event.related_skills || []);
+  const { organization } = useOrganization(token, event.organization);
+
+  const [showAllCapacities, setShowAllCapacities] = useState(false);
+  const [isSelected, setIsSelected] = useState(false);
+  const [visibleCapacities, setVisibleCapacities] = useState(3);
+
+  const capacitiesContainerRef = useRef<HTMLDivElement>(null);
+  const [overflowing, setOverflowing] = useState(false);
+
+  // Detectar quando as capacidades causam overflow
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (capacitiesContainerRef.current) {
+        const container = capacitiesContainerRef.current;
+        setOverflowing(
+          container.scrollHeight > container.clientHeight ||
+            container.scrollWidth > container.clientWidth
+        );
+
+        // Ajustar o número de capacidades visíveis se estiver causando overflow
+        if (
+          !showAllCapacities &&
+          event.related_skills &&
+          event.related_skills.length > 2
+        ) {
+          let optimal = event.related_skills.length;
+          for (let i = event.related_skills.length; i > 0; i--) {
+            setVisibleCapacities(i);
+            // Precisamos aguardar a renderização
+            setTimeout(() => {
+              if (
+                container.scrollHeight <= container.clientHeight &&
+                container.scrollWidth <= container.clientWidth
+              ) {
+                optimal = i;
+              }
+            }, 0);
+          }
+          if (optimal < event.related_skills.length) {
+            // Deixar espaço para o botão "more"
+            setVisibleCapacities(Math.max(1, optimal - 1));
+          }
+        }
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+
+    return () => {
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [event.related_skills, showAllCapacities]);
+
+  // Function to format time in the desired format (2:00 PM - 2:40 PM (UTC))
   const formatTimeRange = (startDateStr: string, endDateStr: string) => {
     try {
-      // Criar objetos de data a partir das strings
+      // Create date objects from the strings
       const startDate = new Date(startDateStr);
       const endDate = new Date(endDateStr);
 
@@ -71,17 +150,17 @@ export default function EventCard({ event }: EventCardProps) {
     }
   };
 
-  // Função para formatar data como "Mon, Sep 2023"
+  // Function to format date as "Mon, Sep 2023"
   const formatMonthYear = (dateString: string) => {
     try {
       const date = new Date(dateString);
 
-      // Verificar se a data é válida
+      // Verify if the date is valid
       if (isNaN(date.getTime())) {
-        throw new Error("Data inválida");
+        throw new Error("Invalid date");
       }
 
-      // Array com os nomes abreviados dos dias da semana
+      // Array with the abbreviated names of the weekdays
       const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
       // Array com os nomes abreviados dos meses
@@ -100,40 +179,60 @@ export default function EventCard({ event }: EventCardProps) {
         "Dec",
       ];
 
-      // Obter o dia da semana abreviado
+      // Get the abbreviated weekday
       const weekday = weekdays[date.getDay()];
 
-      // Obter o mês abreviado
+      // Get the abbreviated month
       const month = months[date.getMonth()];
 
-      // Obter o ano
+      // Get the year
       const year = date.getFullYear();
 
-      // Retornar no formato "Mon, Sep 2023"
+      // Return in the format "Mon, Sep 2023"
       return `${weekday}, ${month} ${year}`;
     } catch (error) {
-      console.error("Erro ao formatar data:", error);
+      console.error("Error formatting date:", error);
       return dateString;
     }
   };
 
-  const { capacityNames } = useCapacityDetails(event.related_skills || []);
+  // Function to handle the event choice
+  const handleChoose = (event: Event) => {
+    setIsSelected(!isSelected);
+    if (onChoose) {
+      onChoose(event);
+    }
+  };
 
-  const { organization } = useOrganization(token, event.organization);
+  const toggleCapacitiesView = () => {
+    setShowAllCapacities(!showAllCapacities);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-w-[280px] max-w-[320px] h-[300px] flex items-center justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  if (error || !event) {
+    return null;
+  }
 
   return (
     <div
-      className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 ${
+      className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] h-fit ${
         darkMode ? "text-white" : "text-capx-dark-box-bg"
       }`}
     >
-      <div className="flex gap-4 mx-4 my-4 w-full justify-between">
+      <div className="flex flex-col gap-4 mx-4 my-4 w-full">
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-extrabold mb-2 text-capx-dark-box-bg font-Montserrat">
             {event.name}
           </h2>
 
-          {organization && (
+          {organization && !isHorizontalScroll && (
             <p className="text-md mb-2">
               <span className="font-Montserrat">
                 {pageContent["organization-profile-event-organized-by"] ||
@@ -213,52 +312,123 @@ export default function EventCard({ event }: EventCardProps) {
                 </div>
               )}
               <div className="flex flex-row gap-2 justify-between">
-                <div className="flex flex-row gap-2">
+                <div
+                  ref={capacitiesContainerRef}
+                  className={`flex flex-row flex-wrap gap-2 overflow-hidden ${
+                    showAllCapacities ? "" : "max-h-[40px]"
+                  }`}
+                >
                   {event.related_skills &&
-                    event.related_skills.map((skill) => (
-                      <p
-                        key={skill}
-                        className="text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit"
-                      >
-                        {capacityNames[skill]}
-                      </p>
-                    ))}
-                  {isMobile && <Image src={MoreHorizIcon} alt="More" />}
+                    event.related_skills
+                      .slice(
+                        0,
+                        showAllCapacities
+                          ? event.related_skills.length
+                          : visibleCapacities
+                      )
+                      .map((skill) => (
+                        <p
+                          key={skill}
+                          className="text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit"
+                        >
+                          {capacityNames[skill]}
+                        </p>
+                      ))}
                 </div>
+                {event.related_skills &&
+                  (event.related_skills.length > visibleCapacities ||
+                    overflowing) && (
+                    <button
+                      onClick={toggleCapacitiesView}
+                      className="flex items-center w-fit mr-4"
+                    >
+                      <Image
+                        src={MoreHorizIcon}
+                        alt={showAllCapacities ? "Show less" : "Show more"}
+                        className="cursor-pointer"
+                      />
+                    </button>
+                  )}
               </div>
               {isMobile && (
-                <div className="flex flex-row gap-2 justify-between">
-                  <Link
-                    className="flex flex-row gap-2"
-                    href={`/organization_profile/${event.organization}`}
-                  >
-                    <p className="text-md font-extrabold text-[#507380]">
-                      {pageContent["events-details-of-event"] ||
-                        "Details of event"}
-                    </p>
-                    <Image src={ArrowDropDownIcon} alt="Expand" />
-                  </Link>
-                </div>
+                <button
+                  className="flex flex-row gap-2 justify-between mr-4"
+                  onClick={() => {}}
+                >
+                  <p className="text-md font-extrabold text-[#507380]">
+                    {pageContent["events-details-of-event"] ||
+                      "Details of event"}
+                  </p>
+                  <Image src={ArrowDropDownIcon} alt="Expand" />
+                </button>
               )}
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-row gap-2 my-4 mx-4">
-        <BaseButton
-          onClick={() => {}}
-          customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg bg-capx-dark-box-bg text-center not-italic leading-[normal] ${
-            isMobile ? "text-[14px]" : "text-lg"
-          }`}
-          label="Contact"
-        />
-        <BaseButton
-          onClick={() => {}}
-          customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center not-italic leading-[normal] ${
-            isMobile ? "text-[14px]" : "text-lg"
-          }`}
-          label="View Event"
-        />
+        {onEdit && onDelete && onChoose && (
+          <div className="flex flex-col gap-2 mt-auto mr-4">
+            <BaseButton
+              label={pageContent["organization-profile-edit-event"] || "Edit"}
+              onClick={() => onEdit(event as Event)}
+              customClass={`py-2 px-3 rounded-md text-md font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center !mb-0 hover:opacity-90 transition-opacity !pb-2`}
+              imageUrl={darkMode ? EditIconWhite : EditIcon}
+              imageAlt="Edit icon"
+              imageWidth={24}
+              imageHeight={24}
+            />
+
+            <BaseButton
+              label={
+                pageContent["organization-profile-choose-event"] || "Choose"
+              }
+              onClick={() => handleChoose(event as Event)}
+              customClass={`py-2 px-3 rounded-md border border-capx-dark-box-bg text-md font-extrabold bg-white text-start text-capx-dark-box-bg flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0`}
+              imageUrl={
+                isSelected
+                  ? darkMode
+                    ? CheckBoxIconLight
+                    : CheckBoxIcon
+                  : darkMode
+                  ? CheckBoxOutlineBlankIconLight
+                  : CheckBoxOutlineBlankIcon
+              }
+              imageAlt="Checkbox icon"
+              imageWidth={24}
+              imageHeight={24}
+            />
+
+            <BaseButton
+              label={
+                pageContent["organization-profile-delete-event"] || "Delete"
+              }
+              onClick={() => onDelete(event.id || 0)}
+              customClass={`py-2 px-3 rounded-md text-md bg-capx-primary-orange flex flex-row items-center !mb-0 text-start text-white font-extrabold hover:opacity-90 transition-opacity !pb-2`}
+              imageUrl={DeleteIcon}
+              imageAlt="Delete icon"
+              imageWidth={24}
+              imageHeight={24}
+            />
+          </div>
+        )}
+
+        {!isHorizontalScroll && (
+          <div className="flex flex-row gap-2 my-4 mx-4">
+            <BaseButton
+              onClick={() => {}}
+              customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg bg-capx-dark-box-bg text-center not-italic leading-[normal] ${
+                isMobile ? "text-[14px]" : "text-lg"
+              }`}
+              label="Contact"
+            />
+            <BaseButton
+              onClick={() => {}}
+              customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center not-italic leading-[normal] ${
+                isMobile ? "text-[14px]" : "text-lg"
+              }`}
+              label="View Event"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -37,10 +37,12 @@ import TargetIconWhite from "@/public/static/images/target_white.svg";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
 import EventsCardList from "./EventsCardList";
+import EventsList from "@/app/events/components/EventsList";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
 import ExpandAllIcon from "@/public/static/images/expand_all.svg";
+import LoadingState from "@/components/LoadingState";
 
 export default function OrganizationProfileEditMobileView({
   handleSubmit,
@@ -79,7 +81,7 @@ export default function OrganizationProfileEditMobileView({
   const { isMobile, pageContent } = useApp();
   const { data: session } = useSession();
   const { userProfile, isLoading: isUserLoading } = useUserProfile();
-  const { avatars } = useAvatars();
+  const { avatars, isLoading: isAvatarsLoading } = useAvatars();
   const { organization } = useOrganization();
   const router = useRouter();
 
@@ -115,21 +117,25 @@ export default function OrganizationProfileEditMobileView({
                 </h2>
               </div>
               <div className="relative w-[75px] h-[75px]">
-                <Image
-                  src={getProfileImage(
-                    userProfile?.profile_image,
-                    userProfile?.avatar,
-                    avatars
-                  )}
-                  alt="Avatar"
-                  className="w-full h-full"
-                  width={75}
-                  height={75}
-                  priority
-                  style={{
-                    objectFit: "cover",
-                  }}
-                />
+                {isAvatarsLoading || isUserLoading ? (
+                  <LoadingState />
+                ) : (
+                  <Image
+                    src={getProfileImage(
+                      userProfile?.profile_image,
+                      userProfile?.avatar,
+                      avatars
+                    )}
+                    alt="Avatar"
+                    className="w-full h-full"
+                    width={75}
+                    height={75}
+                    priority
+                    style={{
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -590,13 +596,12 @@ export default function OrganizationProfileEditMobileView({
               </h2>
             </div>
 
-            <EventsCardList
+            <EventsList
               events={eventsData}
-              capacities={capacities || []}
-              onEdit={handleEditEvent}
+              isHorizontalScroll={true}
               onDelete={handleDeleteEvent}
+              onEdit={handleEditEvent}
               onChoose={handleChooseEvent}
-              onAdd={handleAddEvent}
             />
             <BaseButton
               onClick={handleAddEvent}

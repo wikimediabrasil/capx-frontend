@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import { useApp } from "@/contexts/AppContext";
-import { Organization, OrganizationType } from "@/types/organization";
+import { Organization } from "@/types/organization";
 import { Capacity } from "@/types/capacity";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import { useCapacities } from "@/hooks/useCapacities";
@@ -28,7 +28,6 @@ import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
 import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
 import EventsFormItem from "./EventsFormItem";
-import EventsCardList from "./EventsCardList";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface ProfileOption {
@@ -45,14 +44,48 @@ export default function EditOrganizationProfilePage() {
   const token = session?.user?.token;
   const { isMobile, pageContent } = useApp();
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const { darkMode } = useTheme();
+  const { showSnackbar } = useSnackbar();
+  const { userProfile, isLoading: isUserLoading } = useUserProfile();
+  const { avatars } = useAvatars();
 
+  /* State Management*/
+
+  // State for profile options
   const [profileOptions, setProfileOptions] = useState<ProfileOption[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<ProfileOption | null>(
     null
   );
-  const { showSnackbar } = useSnackbar();
+
+  // State for projects
+  const [projectsData, setProjectsData] = useState<Project[]>([]);
+  const projectsLoaded = useRef(false);
+
+  // State for existing and new projects
+  const [newProjects, setNewProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState<number>(0);
+
+  // State for diff tags
+  const [diffTagsData, setDiffTagsData] = useState<tagDiff[]>([]);
+
+  // State for events
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [currentEditingEvent, setCurrentEditingEvent] = useState<Event | null>(
+    null
+  );
+  const [editedEvents, setEditedEvents] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [eventsData, setEventsData] = useState<Event[]>([]);
+  const eventsLoaded = useRef(false);
+
+  // State for capacities
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentCapacityType, setCurrentCapacityType] = useState<
+    "known" | "available" | "wanted"
+  >("known");
+
+  /* Setters */
 
   // Documents setters
   const {
@@ -65,7 +98,6 @@ export default function EditOrganizationProfilePage() {
   } = useDocument(token);
 
   // Organization setters
-
   const {
     organization,
     organizations,
@@ -82,21 +114,89 @@ export default function EditOrganizationProfilePage() {
     error: projectsError,
   } = useProjects(organization?.projects, token);
 
-  // State for projects
-  const [projectsData, setProjectsData] = useState<Project[]>([]);
-  const projectsLoaded = useRef(false);
-
-  // State for existing and new projects
-  const [newProjects, setNewProjects] = useState<Project[]>([]);
-  const [projectId, setProjectId] = useState<number>(0);
   const { createProject, updateProject, deleteProject } = useProject(
     projectId,
     token
   );
 
-  const [editedProjects, setEditedProjects] = useState<{
-    [key: number]: boolean;
-  }>({});
+  // Tags setters
+  const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } =
+    useTagDiff(token);
+
+  // Documents setters
+  const [documentsData, setDocumentsData] = useState<OrganizationDocument[]>(
+    []
+  );
+
+  // Events setters
+  const {
+    events,
+    isLoading: isEventsLoading,
+    error: eventsError,
+    fetchEventsByIds,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+  } = useOrganizationEvents(organizationId, token);
+
+  // Contacts setters
+  const [contactsData, setContactsData] = useState<Contacts>({
+    id: "",
+    email: "",
+    meta_page: "",
+    website: "",
+  });
+
+  // Capacities setters
+  const { capacities, isLoading: isCapacitiesLoading } = useCapacities();
+
+  // Effect to load profile options
+  useEffect(() => {
+    if (userProfile && organizations) {
+      const managedOrgOptions = (userProfile.is_manager || [])
+        .map((orgId) => {
+          const org = organizations.find((o) => o.id === orgId);
+          if (!org) return null;
+
+          return {
+            value: `org_${org.id}`,
+            label: org.display_name || "",
+            image: org.profile_image
+              ? formatWikiImageUrl(org.profile_image)
+              : NoAvatarIcon,
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
+
+      const options: ProfileOption[] = [
+        {
+          value: "user",
+          label: userProfile.display_name || session?.user?.name || "",
+          image: getProfileImage(
+            userProfile?.profile_image,
+            userProfile?.avatar,
+            avatars
+          ),
+        },
+        ...managedOrgOptions,
+      ];
+
+      setProfileOptions(options);
+
+      const currentOrgOption = options.find(
+        (opt) => opt.value === `org_${organizationId}`
+      );
+      if (currentOrgOption) {
+        setSelectedProfile(currentOrgOption);
+      }
+    }
+  }, [
+    userProfile,
+    organizations,
+    organizationId,
+    session?.user?.name,
+    avatars,
+  ]);
 
   // Effect to load projects
   useEffect(() => {
@@ -118,93 +218,53 @@ export default function EditOrganizationProfilePage() {
     }
   }, [organization, projects, isProjectsLoading]);
 
-  // Events setters
-  const {
-    events,
-    isLoading: isEventsLoading,
-    error: eventsError,
-    fetchEventsByIds,
-    createEvent,
-    updateEvent,
-    deleteEvent
-  } = useOrganizationEvents(organizationId, token);
-
-  // State for events
-  const [eventsData, setEventsData] = useState<Event[]>([]);
-  const eventsLoaded = useRef(false);
-
-  // State for existing and new events
-  const [newEvent, setNewEvent] = useState<Event>();
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [currentEditingEvent, setCurrentEditingEvent] = useState<Event | null>(null);
-
-  const [editedEvents, setEditedEvents] = useState<{
-    [key: number]: boolean;
-  }>({});
-
-  // Adicione este log para verificar os IDs dos eventos
+  // Effect to reset the events loaded flag
   useEffect(() => {
     if (organization) {
-      // Sempre que os eventos da organização mudarem, resetar a flag para forçar recarregamento
       eventsLoaded.current = false;
     }
   }, [organization?.events]);
 
-  // Modificar o useEffect de carregamento de eventos para usar o novo hook
+  // Effect to load events
   useEffect(() => {
     const loadEvents = async () => {
       if (!organization?.events || !token) {
         return;
       }
-      
+
       if (organization.events.length === 0) {
         setEventsData([]);
         eventsLoaded.current = true;
         return;
       }
-      
+
       if (!eventsLoaded.current && !isEventsLoading) {
-        
-        
         try {
-          // Use the new hook method to load events by IDs
-          const validEventIds = organization.events.filter(id => id !== null && id !== undefined);
-          
+          const validEventIds = organization.events.filter(
+            (id) => id !== null && id !== undefined
+          );
+
           if (validEventIds.length === 0) {
             setEventsData([]);
-            eventsLoaded.current = true; // Marcar como carregado mesmo quando não há IDs válidos
+            eventsLoaded.current = true;
             return;
           }
-          
+
           const loadedEvents = await fetchEventsByIds(validEventIds);
-                    
-          // Definir eventos mesmo que a lista esteja vazia, e marcar como carregado de qualquer forma
+
+          // Set events even if the list is empty, and mark as loaded regardless of whether there are valid IDs
           setEventsData(loadedEvents || []);
           eventsLoaded.current = true;
-          
-
         } catch (error) {
-          console.error('Erro ao carregar eventos:', error);
+          console.error("Erro ao carregar eventos:", error);
           setEventsData([]);
-          eventsLoaded.current = true; // Marcar como carregado mesmo em caso de erro
+          eventsLoaded.current = true;
         }
       }
     };
-    
+
     loadEvents();
   }, [organization?.events, token, isEventsLoading, fetchEventsByIds]);
-
-  // Tags setters
-  const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } =
-    useTagDiff(token);
-
-  const [diffTagsData, setDiffTagsData] = useState<tagDiff[]>([]);
-
-  // Documents setters
-
-  const [documentsData, setDocumentsData] = useState<OrganizationDocument[]>(
-    []
-  );
 
   // Effect to load documents
   useEffect(() => {
@@ -228,14 +288,6 @@ export default function EditOrganizationProfilePage() {
 
     loadDocuments();
   }, [organization?.documents, documents]);
-
-  // Contacts setters
-  const [contactsData, setContactsData] = useState<Contacts>({
-    id: "",
-    email: "",
-    meta_page: "",
-    website: "",
-  });
 
   // Form data
   const [formData, setFormData] = useState<Partial<Organization>>({
@@ -282,7 +334,6 @@ export default function EditOrganizationProfilePage() {
         wanted_capacities: organization.wanted_capacities || [],
       });
 
-  
       // Initialize projects data
       if (organization.tag_diff && organization.tag_diff.length > 0) {
         const fetchTagsData = async () => {
@@ -351,37 +402,50 @@ export default function EditOrganizationProfilePage() {
     tagDiff,
   ]);
 
-  const validUpdatedIds = (updatedIds: number[]) => {
-    return updatedIds.filter(
-      (id): id is number => id !== null && id !== undefined
-    );
-  };
+  /* Capacity setters need formData to be initialized, therefore it's initialized here */
+  // Capacity IDs setters
+  const capacityIds = useMemo(
+    () =>
+      [
+        ...(formData?.known_capacities || []),
+        ...(formData?.available_capacities || []),
+        ...(formData?.wanted_capacities || []),
+      ].map((id) => Number(id)),
+    [formData]
+  );
 
-  const validNewIds = (newIds: number[]) => {
-    return newIds.filter((id): id is number => id !== null && id !== undefined);
-  };
+  // Capacity details setters
+  const { getCapacityName } = useCapacityDetails(capacityIds);
 
+  /* Handlers */
+
+  // Submit handler
   const handleSubmit = async () => {
     try {
       if (!token || !organizationId) {
         return;
       }
 
-      // Criar cópia dos dados do formulário para atualização
+      // Create a copy of the form data for updating
       const updatedFormData = { ...formData };
 
-      // Garantir que os IDs dos projetos válidos sejam incluídos
+      // Ensure valid project IDs are included
       const validProjectIds = projectsData
         .filter(
           (project) =>
-            project.id !== 0 && project.name && project.name.trim() !== ""
+            project.id !== 0 &&
+            project.display_name &&
+            project.display_name.trim() !== ""
         )
         .map((project) => project.id);
       updatedFormData.projects = validProjectIds;
 
-      // Criar/atualizar projetos sem IDs válidos
+      // Create/update projects without valid IDs
       const newProjects = projectsData.filter(
-        (project) => project.id === 0 && project.name && project.name.trim() !== ""
+        (project) =>
+          project.id === 0 &&
+          project.display_name &&
+          project.display_name.trim() !== ""
       );
 
       if (newProjects.length > 0) {
@@ -394,71 +458,71 @@ export default function EditOrganizationProfilePage() {
           )
         );
 
-        // Adicionar os IDs dos novos projetos ao array de projetos
+        // Add the IDs of the new projects to the array of projects
         updatedFormData.projects = [
           ...updatedFormData.projects,
-          ...createdProjects.map((project) => project.id),
+          ...createdProjects
+            .map((project) => project?.id)
+            .filter((id): id is number => id !== undefined),
         ];
       }
 
-      // Atualizar eventos existentes
+      // Update existing events
       const updateEventPromises = eventsData
-      .filter((event) => event.id !== 0)
-      .map((event) => updateEvent(event.id, event));
+        .filter((event) => event.id !== 0)
+        .map((event) => updateEvent(event.id, event));
 
-      // Criar novos eventos
+      // Create new events
       const createEventPromises = eventsData
-      .filter((event) => event.id === 0)
-      .map((event) => createEvent({
-        ...event,
-        organizations: [Number(organizationId)],
-          organization: Number(organizationId),
-        creator: Number(session?.user?.id),
-      }));
+        .filter((event) => event.id === 0)
+        .map((event) =>
+          createEvent({
+            ...event,
+            organization: Number(organizationId),
+            creator: Number(session?.user?.id),
+          })
+        );
 
       const [updatedEvents, newEvents] = await Promise.all([
-      Promise.all(updateEventPromises),
-      Promise.all(createEventPromises),
+        Promise.all(updateEventPromises),
+        Promise.all(createEventPromises),
       ]);
 
-      // Coletar todos os IDs de eventos (existentes e novos)
+      // Collect all event IDs (existing and new)
       const allEventIds = [
-      ...updatedEvents.map(event => event.id),
-      ...newEvents.map(event => event.id),
-      ].filter(id => id !== undefined && id !== null) as number[];
+        ...updatedEvents.map((event) => event.id),
+        ...newEvents.map((event) => event.id),
+      ].filter((id) => id !== undefined && id !== null) as number[];
 
-      // Atualizar a lista de eventos no formData
+      // Update the events list in formData
       if (allEventIds.length > 0) {
-        // Começar com os eventos que já existiam na organização
+        // Start with the events that already existed in the organization
         let updatedEventIds = [...(organization?.events || [])];
-        
-        // Adicionar novos eventos que não estejam já na lista
-        allEventIds.forEach(eventId => {
+
+        // Add new events that are not already in the list
+        allEventIds.forEach((eventId) => {
           if (!updatedEventIds.includes(eventId)) {
             updatedEventIds.push(eventId);
           }
         });
-        
-        // Atualizar o formData com a lista completa de eventos
+
+        // Update the formData with the complete list of events
         updatedFormData.events = updatedEventIds;
-        
       }
 
       await updateOrganization(updatedFormData);
-              showSnackbar(
-                pageContent["snackbar-edit-profile-organization-success"],
-                "success"
-              );
+      showSnackbar(
+        pageContent["snackbar-edit-profile-organization-success"],
+        "success"
+      );
       router.back();
-          } catch (error) {
-            showSnackbar(
+    } catch (error) {
+      showSnackbar(
         pageContent["snackbar-edit-profile-organization-error"],
-              "error"
-            );
+        "error"
+      );
     }
   };
-
-  // Handlers
 
   // Projects handlers
   const handleAddProject = () => {
@@ -534,14 +598,12 @@ export default function EditOrganizationProfilePage() {
       time_begin: new Date().toISOString(),
       time_end: new Date().toISOString(),
       organization: Number(organizationId),
-      organized_by: organization?.display_name || "",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       creator: Number(session?.user?.id),
       team: [],
       description: "",
       related_skills: [],
-      organizations: [Number(organizationId)],
       openstreetmap_id: "",
       wikidata_qid: "",
     };
@@ -553,13 +615,13 @@ export default function EditOrganizationProfilePage() {
     // Assegurar que o evento tenha a propriedade related_skills definida como um array
     const eventToEdit = {
       ...event,
-      related_skills: Array.isArray(event.related_skills) 
-        ? event.related_skills 
-        : typeof event.related_skills === 'string'
-          ? JSON.parse(event.related_skills)
-          : []
+      related_skills: Array.isArray(event.related_skills)
+        ? event.related_skills
+        : typeof event.related_skills === "string"
+        ? JSON.parse(event.related_skills)
+        : [],
     };
-    
+
     console.log("Evento para edição:", eventToEdit);
     setCurrentEditingEvent(eventToEdit);
     setShowEventModal(true);
@@ -568,52 +630,53 @@ export default function EditOrganizationProfilePage() {
   const handleChooseEvent = (event: Event) => {
     // Implementar a lógica para escolha de evento como principal, se necessário
     showSnackbar(
-      pageContent["organization-profile-event-selected"] || "Evento selecionado com sucesso",
+      pageContent["organization-profile-event-selected"] ||
+        "Evento selecionado com sucesso",
       "success"
     );
   };
 
   const handleDeleteEvent = async (eventId: number) => {
     try {
-      
       // Se for um evento novo (id = 0), apenas remova-o da lista
       if (eventId === 0) {
         setEventsData((prev) => prev.filter((e) => e.id !== 0));
         return;
       }
-      
+
       // Para eventos existentes, deletar no backend
       await deleteEvent(eventId);
-      
+
       // Remover o evento da lista de eventos exibida
       setEventsData((prev) => prev.filter((e) => e.id !== eventId));
-      
+
       // Atualizar o formData para remover o ID do evento excluído
       setFormData((prev) => ({
         ...prev,
         events: (prev.events || []).filter((id) => id !== eventId),
       }));
-      
+
       // Atualizar a organização no backend para remover o evento
       if (organization) {
         const updatedOrgData = {
           ...organization,
           events: (organization.events || []).filter((id) => id !== eventId),
         };
-        
+
         await updateOrganization(updatedOrgData);
       }
-      
-        showSnackbar(
-        pageContent["snackbar-edit-profile-organization-delete-event-success"] || 
-        "Evento excluído com sucesso",
-          "success"
-        );
+
+      showSnackbar(
+        pageContent[
+          "snackbar-edit-profile-organization-delete-event-success"
+        ] || "Evento excluído com sucesso",
+        "success"
+      );
     } catch (error) {
-      console.error('Erro ao excluir evento:', error);
+      console.error("Erro ao excluir evento:", error);
       showSnackbar(
         pageContent["snackbar-edit-profile-organization-delete-event-failed"] ||
-        "Erro ao excluir evento",
+          "Erro ao excluir evento",
         "error"
       );
     }
@@ -626,101 +689,217 @@ export default function EditOrganizationProfilePage() {
   ) => {
     // Garantir que eventsData é um array antes de tentar modificá-lo
     if (!Array.isArray(eventsData)) {
-      console.error('eventsData não é um array:', eventsData);
+      console.error("eventsData não é um array:", eventsData);
       return;
     }
 
-    
     setEventsData((prev) => {
       // Verificação de array adicional
       if (!Array.isArray(prev)) {
-        console.error('prev não é um array em handleEventChange:', prev);
+        console.error("prev não é um array em handleEventChange:", prev);
         return prev;
       }
 
       const updated = [...prev];
-      
+
       if (!updated[index]) {
         console.error(`Índice ${index} fora do range de eventos:`, updated);
         return prev;
       }
-      
-      // Tratamento especial para campos que podem precisar de conversão
-      if (field === 'related_skills') {
+
+      // Special treatment for fields that may need conversion
+      if (field === "related_skills") {
         try {
-          // Se o valor é uma string JSON, analisá-la
+          // If the value is a JSON string, parse it
           const parsedValue = JSON.parse(value);
           updated[index] = {
             ...updated[index],
-            [field]: parsedValue,
+            [field]: Array.isArray(parsedValue) ? parsedValue : [],
           };
-          } catch (e) {
-          // Se não for JSON válido, apenas atribuir como está
+        } catch (e) {
+          // If it's not a valid JSON, use empty array
           updated[index] = {
             ...updated[index],
-            [field]: value,
+            [field]: [],
           };
         }
       } else {
-        // Para outros campos, atribuir diretamente
+        // For other fields, assign directly
         updated[index] = {
           ...updated[index],
           [field]: value,
         };
       }
-      
+
       return updated;
     });
 
     // Marcar este evento como editado para acompanhamento
     if (eventsData[index] && eventsData[index].id) {
       setEditedEvents((prev) => ({
-          ...prev,
+        ...prev,
         [eventsData[index].id]: true,
       }));
     }
   };
-  
-  // Handler específico para alterações no evento do modal
+
+  const handleSaveEventChanges = async () => {
+    try {
+      if (!currentEditingEvent) return;
+
+      if (currentEditingEvent.id === 0) {
+        // Create new event
+        const newEventData = {
+          ...currentEditingEvent,
+          organizations: [Number(organizationId)],
+          creator: Number(session?.user?.id),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          team: currentEditingEvent.team || [Number(session?.user?.id)],
+          type_of_location: currentEditingEvent.type_of_location || "virtual",
+          url: currentEditingEvent.url || "",
+          image_url: currentEditingEvent.image_url || "",
+          description: currentEditingEvent.description || "",
+          related_skills: currentEditingEvent.related_skills || [],
+          organization: Number(organizationId),
+        };
+
+        try {
+          const createdEvent = await createEvent(newEventData);
+
+          if (createdEvent && createdEvent.id) {
+            setEventsData((prev) => [...prev, createdEvent]);
+
+            // Update the formData with the new event
+            const updatedEvents = [...(formData.events || [])];
+            if (!updatedEvents.includes(createdEvent.id)) {
+              updatedEvents.push(createdEvent.id);
+            }
+
+            setFormData((prev) => ({
+              ...prev,
+              events: updatedEvents,
+            }));
+
+            // Update the organization with the new event
+            try {
+              const updatedOrgData = {
+                ...organization,
+                events: updatedEvents,
+              };
+
+              await updateOrganization(updatedOrgData);
+            } catch (updateOrgError) {
+              console.error(
+                "Error updating organization with new event:",
+                updateOrgError
+              );
+            }
+
+            showSnackbar(
+              pageContent[
+                "snackbar-edit-profile-organization-create-event-success"
+              ],
+              "success"
+            );
+          }
+        } catch (createError) {
+          console.error("Error creating event:", createError);
+          showSnackbar(
+            pageContent[
+              "snackbar-edit-profile-organization-create-event-failed"
+            ],
+            "error"
+          );
+        }
+      } else {
+        // Update existing event
+        try {
+          const updatedEvent = await updateEvent(
+            currentEditingEvent.id,
+            currentEditingEvent
+          );
+
+          if (updatedEvent) {
+            // Update the events list
+            setEventsData((prev) =>
+              prev.map((event) =>
+                event.id === updatedEvent.id ? updatedEvent : event
+              )
+            );
+
+            showSnackbar(
+              pageContent[
+                "snackbar-edit-profile-organization-update-event-success"
+              ] || "Evento atualizado com sucesso",
+              "success"
+            );
+          }
+        } catch (updateError) {
+          console.error("Erro ao atualizar evento:", updateError);
+          showSnackbar(
+            pageContent[
+              "snackbar-edit-profile-organization-update-event-failed"
+            ] || "Erro ao atualizar evento",
+            "error"
+          );
+        }
+      }
+
+      // Close the modal and clear the event in edit
+      setShowEventModal(false);
+      setCurrentEditingEvent(null);
+    } catch (error) {
+      console.error("Erro ao salvar evento:", error);
+      showSnackbar(
+        pageContent["snackbar-edit-profile-organization-save-event-failed"] ||
+          "Erro ao salvar evento",
+        "error"
+      );
+    }
+  };
+
+  const handleViewAllEvents = () => {
+    router.push(`/organization_profile/${organizationId}/edit/events`);
+  };
+
+  // Handler to listen to event changes on the modal
   const handleModalEventChange = (
     index: number,
     field: keyof Event,
     value: string
   ) => {
     if (!currentEditingEvent) return;
-    
-    console.log(`Campo alterado: ${field}, valor: ${value}`);
-    
-    setCurrentEditingEvent(prev => {
+
+    setCurrentEditingEvent((prev) => {
       if (!prev) return prev;
-        
-      let updatedValue = value;
-        
-      // Tratamento especial para campos específicos
-      if (field === 'time_begin' || field === 'time_end') {
+
+      let updatedValue: any = value;
+
+      // Special treatment for specific fields
+      if (field === "time_begin" || field === "time_end") {
         updatedValue = new Date(value).toISOString();
-      } else if (field === 'related_skills') {
+      } else if (field === "related_skills") {
         try {
-          // Se o valor é uma string JSON, analisá-la
-          if (typeof value === 'string' && value.startsWith('[')) {
-            updatedValue = JSON.parse(value);
-            console.log("Capacidades atualizadas:", updatedValue);
+          // If the value is a JSON string, parse it
+          if (typeof value === "string" && value.startsWith("[")) {
+            const parsedArray = JSON.parse(value);
+            updatedValue = Array.isArray(parsedArray) ? parsedArray : [];
           } else {
-            // Manter o valor existente se não for um JSON válido
+            // Keep the existing value if it's not a valid JSON
             updatedValue = prev.related_skills || [];
-            console.log("Mantendo capacidades existentes:", updatedValue);
           }
         } catch (e) {
-          console.error('Erro ao analisar related_skills:', e);
-          // Em caso de erro, manter o valor existente
+          console.error("Error parsing related_skills:", e);
+          // Keep the existing value if there's an error
           updatedValue = prev.related_skills || [];
         }
       }
-        
+
       return {
         ...prev,
         [field]: updatedValue,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
     });
   };
@@ -757,11 +936,6 @@ export default function EditOrganizationProfilePage() {
     setDiffTagsData(newDiffTags);
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentCapacityType, setCurrentCapacityType] = useState<
-    "known" | "available" | "wanted"
-  >("known");
-
   // Capacities handlers
   const handleAddCapacity = (type: "known" | "available" | "wanted") => {
     setCurrentCapacityType(type);
@@ -786,19 +960,6 @@ export default function EditOrganizationProfilePage() {
     // Close modal after selection
     setIsModalOpen(false);
   };
-
-  const capacityIds = useMemo(
-    () =>
-      [
-        ...(formData?.known_capacities || []),
-        ...(formData?.available_capacities || []),
-        ...(formData?.wanted_capacities || []),
-      ].map((id) => Number(id)),
-    [formData]
-  );
-
-  const { getCapacityName } = useCapacityDetails(capacityIds);
-  const { capacities, isLoading: isCapacitiesLoading } = useCapacities();
 
   const handleRemoveCapacity = (
     type: "known" | "available" | "wanted",
@@ -851,163 +1012,6 @@ export default function EditOrganizationProfilePage() {
       };
       return newDocuments;
     });
-  };
-
-  // Load user profile data
-  const { userProfile, isLoading: isUserLoading } = useUserProfile();
-  const { avatars } = useAvatars();
-
-  useEffect(() => {
-    if (userProfile && organizations) {
-      const managedOrgOptions = (userProfile.is_manager || [])
-        .map((orgId) => {
-          const org = organizations.find((o) => o.id === orgId);
-          if (!org) return null;
-
-          return {
-            value: `org_${org.id}`,
-            label: org.display_name || "",
-            image: org.profile_image
-              ? formatWikiImageUrl(org.profile_image)
-              : NoAvatarIcon,
-          };
-        })
-        .filter((item): item is NonNullable<typeof item> => item !== null);
-
-      const options: ProfileOption[] = [
-        {
-          value: "user",
-          label: userProfile.display_name || session?.user?.name || "",
-          image: getProfileImage(
-            userProfile?.profile_image,
-            userProfile?.avatar,
-            avatars
-          ),
-        },
-        ...managedOrgOptions,
-      ];
-
-      setProfileOptions(options);
-
-      const currentOrgOption = options.find(
-        (opt) => opt.value === `org_${organizationId}`
-      );
-      if (currentOrgOption) {
-        setSelectedProfile(currentOrgOption);
-      }
-    }
-  }, [
-    userProfile,
-    organizations,
-    organizationId,
-    session?.user?.name,
-    avatars,
-  ]);
-
-  const handleSaveEventChanges = async () => {
-    try {
-      if (!currentEditingEvent) return;
-      
-      if (currentEditingEvent.id === 0) {
-        // Criar novo evento
-        const newEventData = {
-          ...currentEditingEvent,
-          organizations: [Number(organizationId)],
-          creator: Number(session?.user?.id),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          team: currentEditingEvent.team || [Number(session?.user?.id)],
-          type_of_location: currentEditingEvent.type_of_location || "virtual",
-          url: currentEditingEvent.url || "",
-          image_url: currentEditingEvent.image_url || "",
-          organized_by: currentEditingEvent.organized_by || organization?.display_name || "",
-          description: currentEditingEvent.description || "",
-          related_skills: currentEditingEvent.related_skills || [],
-          organization: Number(organizationId),
-        };
-      
-        try {
-          const createdEvent = await createEvent(newEventData);
-
-          if (createdEvent && createdEvent.id) {
-            setEventsData(prev => [...prev, createdEvent]);
-            
-            // Atualizar o formData com o novo evento
-            const updatedEvents = [...(formData.events || [])];
-            if (!updatedEvents.includes(createdEvent.id)) {
-              updatedEvents.push(createdEvent.id);
-            }
-            
-            setFormData(prev => ({
-              ...prev,
-              events: updatedEvents
-            }));
-            
-            // Atualizar a organização com o novo evento
-            try {
-              const updatedOrgData = {
-                ...organization,
-                events: updatedEvents
-              };
-              
-              await updateOrganization(updatedOrgData);
-            
-            } catch (updateOrgError) {
-              console.error('Erro ao atualizar organização com novo evento:', updateOrgError);
-            }
-            
-            showSnackbar(
-              pageContent["snackbar-edit-profile-organization-create-event-success"],
-              "success"
-            );
-          }
-        } catch (createError) {
-          console.error('Erro ao criar evento:', createError);
-          showSnackbar(
-            pageContent["snackbar-edit-profile-organization-create-event-failed"],
-            "error"
-          );
-        }
-      } else {
-        // Atualizar evento existente
-        try {
-          const updatedEvent = await updateEvent(currentEditingEvent.id, currentEditingEvent);
-          
-          if (updatedEvent) {
-            // Atualizar a lista de eventos
-            setEventsData(prev => 
-              prev.map(event => event.id === updatedEvent.id ? updatedEvent : event)
-            );
-            
-            showSnackbar(
-              pageContent["snackbar-edit-profile-organization-update-event-success"] || "Evento atualizado com sucesso",
-              "success"
-            );
-          }
-        } catch (updateError) {
-          console.error('Erro ao atualizar evento:', updateError);
-          showSnackbar(
-            pageContent["snackbar-edit-profile-organization-update-event-failed"] || "Erro ao atualizar evento",
-            "error"
-          );
-        }
-      }
-      
-      // Fechar o modal e limpar o evento em edição
-      setShowEventModal(false);
-      setCurrentEditingEvent(null);
-      
-    } catch (error) {
-      console.error('Erro ao salvar evento:', error);
-      showSnackbar(
-        pageContent["snackbar-edit-profile-organization-save-event-failed"] || "Erro ao salvar evento",
-        "error"
-      );
-    }
-  };
-
-  const handleViewAllEvents = () => {
-    router.push(`/organization_profile/${organizationId}/edit/events`);
   };
 
   if (isUserLoading || isOrganizationLoading) {
@@ -1088,7 +1092,7 @@ export default function EditOrganizationProfilePage() {
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
       />
-      
+
       {showEventModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
@@ -1127,14 +1131,15 @@ export default function EditOrganizationProfilePage() {
 
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-[#053749] dark:text-white mb-4">
-                {currentEditingEvent?.id === 0 
-                  ? pageContent["organization-profile-new-event"] 
+                {currentEditingEvent?.id === 0
+                  ? pageContent["organization-profile-new-event"]
                   : pageContent["organization-profile-edit-event"]}
               </h2>
               {currentEditingEvent && (
                 <>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {currentEditingEvent.related_skills && Array.isArray(currentEditingEvent.related_skills) && 
+                    {currentEditingEvent.related_skills &&
+                      Array.isArray(currentEditingEvent.related_skills) &&
                       `Evento com ${currentEditingEvent.related_skills.length} capacidades`}
                   </p>
                   <EventsFormItem
@@ -1166,7 +1171,9 @@ export default function EditOrganizationProfilePage() {
               >
                 {currentEditingEvent?.id === 0
                   ? pageContent["organization-profile-event-popup-create-event"]
-                  : pageContent["organization-profile-event-popup-save-changes"] || "Salvar alterações"}
+                  : pageContent[
+                      "organization-profile-event-popup-save-changes"
+                    ] || "Salvar alterações"}
               </button>
             </div>
           </div>

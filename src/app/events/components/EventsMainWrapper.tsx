@@ -329,6 +329,7 @@ export default function EventsMainWrapper() {
                   isSearchMode ? "search" : "normal"
                 }`}
                 events={displayedEvents}
+                isHorizontalScroll={false}
               />
 
               <div className="mt-6 flex justify-center">
