@@ -3,14 +3,19 @@
 import { EventsSearch } from "./EventsSearch";
 import { useSession } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from 'next/navigation';
-import { PaginationButtons } from "@/components/PaginationButtons";   
+import { useSearchParams } from "next/navigation";
+import { PaginationButtons } from "@/components/PaginationButtons";
 import { useEvents } from "@/hooks/useEvents";
 import EventsList from "./EventsList";
-import { EventsBanner } from "./EventsBanner";
+import Banner from "@/components/Banner";
 import LoadingState from "@/components/LoadingState";
 import { useApp } from "@/contexts/AppContext";
-import { EventFilterState, EventFilterType, EventLocationType, EventSkill } from "../types";
+import {
+  EventFilterState,
+  EventFilterType,
+  EventLocationType,
+  EventSkill,
+} from "../types";
 import { EventsFilters } from "./EventsFilters";
 import { useTheme } from "@/contexts/ThemeContext";
 import Image from "next/image";
@@ -21,25 +26,26 @@ import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_m
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import { Capacity } from "@/types/capacity";
 import { useRouter } from "next/navigation";
+import CapxPersonEvent from "@/public/static/images/capx_person_events.svg";
 
 export default function EventsMainWrapper() {
   const { data: session } = useSession();
   const { darkMode } = useTheme();
   const searchParams = useSearchParams();
-  const organizationId = searchParams.get('organization');
-  const capacityCode = searchParams.get('capacityId');
+  const organizationId = searchParams.get("organization");
+  const capacityCode = searchParams.get("capacityId");
   const { pageContent } = useApp();
   const router = useRouter();
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6; // Number of events per page
-  
+
   // Search mode state
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<EventFilterState>({
@@ -48,13 +54,13 @@ export default function EventsMainWrapper() {
     eventType: EventFilterType.All,
     locationType: EventLocationType.All,
     dateRange: undefined,
-    organizationId: organizationId ? Number(organizationId) : undefined
+    organizationId: organizationId ? Number(organizationId) : undefined,
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
-  
+
   // Calculate offset based on current page
   const offset = (currentPage - 1) * itemsPerPage;
-  
+
   // Search events from API with pagination - only used when NOT in search mode
   const {
     events,
@@ -62,37 +68,35 @@ export default function EventsMainWrapper() {
     isLoading: isEventsLoading,
     error: eventsError,
   } = useEvents(
-    session?.user?.token, 
+    session?.user?.token || "",
     itemsPerPage, // Limit the quantity per page
     offset, // Use offset for pagination with the server
     organizationId ? Number(organizationId) : undefined,
     activeFilters // Passar os filtros para a API
   );
-  
+
   // Calculate events to display and total pages
-  const displayedEvents = isSearchMode 
-    ? searchResults.slice(offset, offset + itemsPerPage) 
+  const displayedEvents = isSearchMode
+    ? searchResults.slice(offset, offset + itemsPerPage)
     : events || [];
-    
-  const totalItems = isSearchMode 
-    ? searchResults.length 
-    : eventsCount || 0;
-    
+
+  const totalItems = isSearchMode ? searchResults.length : eventsCount || 0;
+
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-  
+
   // Reset to the first page when changing mode or filters
   useEffect(() => {
     setCurrentPage(1);
   }, [isSearchMode, organizationId, activeFilters]);
-  
+
   // Initialize organizationId in filters when URL param changes
   useEffect(() => {
-    setActiveFilters(prev => ({
+    setActiveFilters((prev) => ({
       ...prev,
-      organizationId: organizationId ? Number(organizationId) : undefined
+      organizationId: organizationId ? Number(organizationId) : undefined,
     }));
   }, [organizationId]);
-  
+
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = activeFilters.capacities.some(
       (cap) => cap.code === capacity.code
@@ -127,59 +131,68 @@ export default function EventsMainWrapper() {
       router.replace("/events", { scroll: false });
     }
   };
-  
+
   // Functions to control the search
   const handleSearchStart = useCallback(() => {
     setIsSearching(true);
   }, []);
-  
+
   const handleSearchEnd = useCallback(() => {
     setIsSearching(false);
   }, []);
-  
+
   const handleSearchResults = useCallback((results) => {
     setSearchResults(results || []);
     setCurrentPage(1); // Return to the first page when receiving search results
   }, []);
-  
+
   const handleSearchStatusChange = useCallback((isActive) => {
     setIsSearchMode(isActive);
-    
+
     if (!isActive) {
       setSearchResults([]); // Clear search results when leaving search mode
     }
   }, []);
-  
-  const handlePageChange = useCallback((newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      window.scrollTo(0, 0); // Scroll to the top
-    }
-  }, [totalPages]);
+
+  const handlePageChange = useCallback(
+    (newPage) => {
+      if (newPage >= 1 && newPage <= totalPages) {
+        setCurrentPage(newPage);
+        window.scrollTo(0, 0); // Scroll to the top
+      }
+    },
+    [totalPages]
+  );
 
   const handleApplyFilters = (newFilters: EventFilterState) => {
     setActiveFilters(newFilters);
     setShowFilters(false);
   };
-  
+
   // Render the component
   return (
-    <>
-      <EventsBanner />
+    <section className="w-full flex flex-col min-h-screen pt-24 md:pt-8 gap-4 mx-auto md:max-w-[1200px]">
+      <Banner
+        image={CapxPersonEvent}
+        title={pageContent["events-banner-title"]}
+        alt={pageContent["events-banner-alt"]}
+      />
       <div className="flex flex-col min-h-screen">
         <div className="w-full max-w-screen-xl mx-auto p-4">
           {/* Search and Filters Container */}
           <div className="flex gap-2 mb-6">
             <div className="flex-1">
-              <EventsSearch 
+              <EventsSearch
                 onSearchStart={handleSearchStart}
                 onSearchEnd={handleSearchEnd}
                 onSearchResults={handleSearchResults}
                 onSearchStatusChange={handleSearchStatusChange}
-                organizationId={organizationId ? Number(organizationId) : undefined}
+                organizationId={
+                  organizationId ? Number(organizationId) : undefined
+                }
               />
             </div>
-            
+
             {/* Filters Button */}
             <button
               onClick={() => setShowFilters(true)}
@@ -201,7 +214,7 @@ export default function EventsMainWrapper() {
               />
             </button>
           </div>
-          
+
           {/* Filter chips */}
           {activeFilters.capacities.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4 items-center">
@@ -210,7 +223,11 @@ export default function EventsMainWrapper() {
                   key={index}
                   className={`
                     inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px]
-                    ${darkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"}
+                    ${
+                      darkMode
+                        ? "bg-gray-700 text-white"
+                        : "bg-gray-100 text-gray-800"
+                    }
                   `}
                 >
                   <span className="truncate">{capacity.name}</span>
@@ -220,7 +237,9 @@ export default function EventsMainWrapper() {
                   >
                     <Image
                       src={darkMode ? CloseIconWhite : CloseIcon}
-                      alt={pageContent["filters-remove-item-alt-icon"] || "Remove"}
+                      alt={
+                        pageContent["filters-remove-item-alt-icon"] || "Remove"
+                      }
                       width={16}
                       height={16}
                     />
@@ -229,78 +248,89 @@ export default function EventsMainWrapper() {
               ))}
             </div>
           )}
-          
+
           <CapacitySelectionModal
             isOpen={showSkillModal}
             onClose={() => setShowSkillModal(false)}
             onSelect={handleCapacitySelect}
             title={pageContent["select-capacity"] || "Selecionar capacidade"}
           />
-          
+
           {/* Applied filters summary */}
-          {(activeFilters.locationType !== EventLocationType.All || 
-              activeFilters.dateRange?.startDate || 
-              activeFilters.dateRange?.endDate || 
-              activeFilters.organizationId) && (
+          {(activeFilters.locationType !== EventLocationType.All ||
+            activeFilters.dateRange?.startDate ||
+            activeFilters.dateRange?.endDate ||
+            activeFilters.organizationId) && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <p className="text-blue-800 font-medium">
                 {pageContent["events-filters-applied"] || "Filtros aplicados:"}
                 {activeFilters.locationType !== EventLocationType.All && (
                   <span className="ml-2 inline-block">
-                    {activeFilters.locationType === EventLocationType.Online 
-                      ? (pageContent["filters-location-online"] || "Online") 
-                      : activeFilters.locationType === EventLocationType.InPerson 
-                      ? (pageContent["filters-location-in-person"] || "Presencial")
-                      : (pageContent["filters-location-hybrid"] || "Híbrido")}
+                    {activeFilters.locationType === EventLocationType.Online
+                      ? pageContent["filters-location-online"] || "Online"
+                      : activeFilters.locationType ===
+                        EventLocationType.InPerson
+                      ? pageContent["filters-location-in-person"] ||
+                        "Presencial"
+                      : pageContent["filters-location-hybrid"] || "Híbrido"}
                   </span>
                 )}
                 {activeFilters.dateRange?.startDate && (
                   <span className="ml-2 inline-block">
-                    {pageContent["filters-from-date"] || "De:"} {activeFilters.dateRange.startDate}
+                    {pageContent["filters-from-date"] || "De:"}{" "}
+                    {activeFilters.dateRange.startDate}
                   </span>
                 )}
                 {activeFilters.dateRange?.endDate && (
                   <span className="ml-2 inline-block">
-                    {pageContent["filters-to-date"] || "Até:"} {activeFilters.dateRange.endDate}
+                    {pageContent["filters-to-date"] || "Até:"}{" "}
+                    {activeFilters.dateRange.endDate}
                   </span>
                 )}
               </p>
             </div>
           )}
-          
+
           {isSearchMode && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <p>
-                {pageContent["events-search-results"] || "Resultados da busca:"} {searchResults.length} {searchResults.length === 1 
-                  ? pageContent["events-search-results-singular"] || "evento encontrado"
-                  : pageContent["events-search-results-plural"] || "eventos encontrados"}
+                {pageContent["events-search-results"] || "Resultados da busca:"}{" "}
+                {searchResults.length}{" "}
+                {searchResults.length === 1
+                  ? pageContent["events-search-results-singular"] ||
+                    "evento encontrado"
+                  : pageContent["events-search-results-plural"] ||
+                    "eventos encontrados"}
               </p>
             </div>
           )}
-          
+
           {(isEventsLoading && !isSearchMode) || isSearching ? (
             <div className="flex justify-center items-center py-10">
               <LoadingState />
             </div>
-          ) 
-          
-          : (eventsError && !isSearchMode) ? (
-            <div className="text-center py-8 text-red-500">{pageContent["events-search-results-error"] || "Erro ao buscar eventos"}</div>
-          ) 
-          
-          : displayedEvents.length === 0 ? (
-            <div className="text-center py-8">
-              {isSearchMode ? pageContent["events-search-results-no-results"] || "Nenhum evento encontrado" : pageContent["events-search-results-error"] || "Nenhum evento disponível"}
+          ) : eventsError && !isSearchMode ? (
+            <div className="text-center py-8 text-red-500">
+              {pageContent["events-search-results-error"] ||
+                "Erro ao buscar eventos"}
             </div>
-          ) 
-          
-          : (
+          ) : displayedEvents.length === 0 ? (
+            <div className="text-center py-8">
+              {isSearchMode
+                ? pageContent["events-search-results-no-results"] ||
+                  "Nenhum evento encontrado"
+                : pageContent["events-search-results-error"] ||
+                  "Nenhum evento disponível"}
+            </div>
+          ) : (
             <>
-              <EventsList 
-                key={`events-list-page-${currentPage}-${isSearchMode ? 'search' : 'normal'}`} 
-                events={displayedEvents} 
+              <EventsList
+                key={`events-list-page-${currentPage}-${
+                  isSearchMode ? "search" : "normal"
+                }`}
+                events={displayedEvents}
               />
-              
+
               <div className="mt-6 flex justify-center">
                 <PaginationButtons
                   currentPage={currentPage}
@@ -312,7 +342,7 @@ export default function EventsMainWrapper() {
           )}
         </div>
       </div>
-      
+
       {/* Filters Modal */}
       {showFilters && (
         <EventsFilters
@@ -321,6 +351,6 @@ export default function EventsMainWrapper() {
           initialFilters={activeFilters}
         />
       )}
-    </>
+    </section>
   );
 }

@@ -123,14 +123,13 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <div
-      className={`"flex flex-col gap-4 bg-[#EFEFEF]
-    rounded-[4px] p-4" ${
-      darkMode ? "text-white" : "bg-white text-dark-box-bg"
-    }`}
+      className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 ${
+        darkMode ? "text-white" : "text-capx-dark-box-bg"
+      }`}
     >
       <div className="flex gap-4 mx-4 my-4 w-full justify-between">
         <div className="flex flex-col gap-2">
-          <h2 className="text-xl font-extrabold mb-2 text-dark-box-bg font-Montserrat">
+          <h2 className="text-xl font-extrabold mb-2 text-capx-dark-box-bg font-Montserrat">
             {event.name}
           </h2>
 
@@ -249,14 +248,14 @@ export default function EventCard({ event }: EventCardProps) {
         <BaseButton
           onClick={() => {}}
           customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg bg-capx-dark-box-bg text-center not-italic leading-[normal] ${
-            isMobile ? "text-md" : "text-lg"
+            isMobile ? "text-[14px]" : "text-lg"
           }`}
           label="Contact"
         />
         <BaseButton
           onClick={() => {}}
           customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center not-italic leading-[normal] ${
-            isMobile ? "text-md" : "text-lg"
+            isMobile ? "text-[14px]" : "text-lg"
           }`}
           label="View Event"
         />

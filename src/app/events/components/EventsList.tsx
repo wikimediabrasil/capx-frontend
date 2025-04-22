@@ -1,4 +1,4 @@
-import { Event } from "@/app/api/events/types/Event";
+import { Event } from "@/types/event";
 import EventCard from "./EventCard";
 
 interface EventsListProps {

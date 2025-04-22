@@ -41,6 +41,7 @@ import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
 import ExpandAllIcon from "@/public/static/images/expand_all.svg";
+
 export default function OrganizationProfileEditMobileView({
   handleSubmit,
   handleRemoveCapacity,
@@ -196,30 +197,15 @@ export default function OrganizationProfileEditMobileView({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mb-2">
-            <Image
-              src={darkMode ? UserCircleIconWhite : UserCircleIcon}
-              alt="User circle icon"
-              style={{ width: "auto", height: "auto" }}
-              width={20}
-              height={20}
-            />
-            <span
-              className={`text-center font-[Montserrat] text-[20px] md:text-[24px] not-italic font-extrabold leading-[normal] pl-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
-              }`}
-            >
-              {organization?.display_name}
-            </span>
-          </div>
-
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[48px] h-[48px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Organization logo"
                   className="object-contain"
+                  width={32}
+                  height={32}
                 />
               </div>
               <h2
@@ -293,11 +279,12 @@ export default function OrganizationProfileEditMobileView({
           {/* Report of Activities Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[20px] h-[20px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? ReportIconWhite : ReportIcon}
                   alt="Report icon"
-                  className="object-contain"
+                  width={28}
+                  height={28}
                 />
               </div>
               <h2 className={`font-[Montserrat] text-[14px] font-bold`}>
@@ -334,7 +321,7 @@ export default function OrganizationProfileEditMobileView({
             {/* Known Capacities */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? NeurologyIconWhite : NeurologyIcon}
                     alt="Neurology icon"
@@ -397,7 +384,7 @@ export default function OrganizationProfileEditMobileView({
             {/* Available Capacities */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? EmojiIconWhite : EmojiIcon}
                     alt="Emoji icon"
@@ -463,7 +450,7 @@ export default function OrganizationProfileEditMobileView({
             {/* Wanted Capacities */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? TargetIconWhite : TargetIcon}
                     alt="Target icon"
@@ -530,7 +517,7 @@ export default function OrganizationProfileEditMobileView({
           {/* Projects Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[20px] h-[20px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Project icon"
@@ -603,13 +590,13 @@ export default function OrganizationProfileEditMobileView({
               </h2>
             </div>
 
-            <EventsCardList 
-              events={eventsData} 
+            <EventsCardList
+              events={eventsData}
               capacities={capacities || []}
-              onEdit={handleEditEvent} 
-              onDelete={handleDeleteEvent} 
-              onChoose={handleChooseEvent} 
-              onAdd={handleAddEvent} 
+              onEdit={handleEditEvent}
+              onDelete={handleDeleteEvent}
+              onChoose={handleChooseEvent}
+              onAdd={handleAddEvent}
             />
             <BaseButton
               onClick={handleAddEvent}
@@ -629,7 +616,7 @@ export default function OrganizationProfileEditMobileView({
               label={pageContent["organization-profile-view-all-events"]}
               customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] border border-capx-dark-box-bg ${
                 darkMode
-                  ? "text-white bg-capx-dark-box-bg" 
+                  ? "text-white bg-capx-dark-box-bg"
                   : "text-capx-dark-box-bg bg-transparent"
               }`}
               imageUrl={ExpandAllIcon}
@@ -650,7 +637,7 @@ export default function OrganizationProfileEditMobileView({
           {/* News Section */}
           <div className="">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[20px] h-[20px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="News icon"
@@ -701,7 +688,7 @@ export default function OrganizationProfileEditMobileView({
           {/* Documents Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="relative w-[20px] h-[20px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Document icon"
@@ -774,7 +761,7 @@ export default function OrganizationProfileEditMobileView({
 
           <section className="w-full max-w-screen-xl py-8">
             <div className="flex flex-row flex pl-0 pr-[13px] py-[6px] items-center gap-[4px] rounded-[8px] mb-6">
-              <div className="relative w-[20px] h-[20px]">
+              <div className="relative w-[32px] h-[32px]">
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Wikimedia"
@@ -796,7 +783,7 @@ export default function OrganizationProfileEditMobileView({
                   darkMode ? "bg-capx-dark-box-bg" : "bg-[#FFF]"
                 }`}
               >
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? ContactMetaIconWhite : ContactMetaIcon}
                     alt="Contact Meta"
@@ -825,7 +812,7 @@ export default function OrganizationProfileEditMobileView({
               <div
                 className={`flex flex-row border-[1px] border-[solid] w-full p-2 items-center gap-[12px] rounded-[4px]`}
               >
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? ContactEmailIconWhite : ContactEmailIcon}
                     alt="Contact Email"
@@ -854,7 +841,7 @@ export default function OrganizationProfileEditMobileView({
                   darkMode ? "bg-capx-dark-box-bg" : "bg-[#FFF]"
                 }`}
               >
-                <div className="relative w-[20px] h-[20px]">
+                <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? ContactPortalIconWhite : ContactPortalIcon}
                     alt="Contact Website"

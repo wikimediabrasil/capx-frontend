@@ -44,8 +44,7 @@ export function EventsBanner() {
                 : "text-start text-[48px]"
             }`}
           >
-            {/* {pageContent["events-banner-title"]} */}
-            Events
+            {pageContent["events-banner-title"]}
           </h1>
         </div>
       </div>
