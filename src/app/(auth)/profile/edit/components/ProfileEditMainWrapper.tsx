@@ -7,7 +7,6 @@ import { useState, useEffect, useMemo } from "react";
 
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { useProfile } from "@/hooks/useProfile";
-import { useSkills } from "@/hooks/useSkills";
 import { useTerritories } from "@/hooks/useTerritories";
 import { Profile } from "@/types/profile";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";

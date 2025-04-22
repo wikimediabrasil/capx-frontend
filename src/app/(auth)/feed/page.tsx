@@ -15,14 +15,14 @@ import { Capacity } from "@/types/capacity";
 import { useSavedItems } from "@/hooks/useSavedItems";
 import { createProfilesFromOrganizations, createProfilesFromUsers } from "./types";
 import { PaginationButtons } from "@/components/PaginationButtons";
-
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import { SearchBar } from "./components/SearchBar";
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const router = useRouter();
-
+  const { showSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
   const capacityCode = searchParams.get('capacityId');
 
@@ -127,12 +127,11 @@ export default function FeedPage() {
                       (usersSharerCount + organizationsSharerCount) : 0);
   }
 
-  const isProfileSaved = (profileId: number, isOrganization: boolean, profileType: ProfileCapacityType) => {
+  const isProfileSaved = (profileId: number, isOrganization: boolean) => {
     if (!savedItems) return false;
     
     return savedItems.some(item => 
       item.entity_id === profileId && 
-      item.relation === profileType &&
       item.entity === (isOrganization ? 'org' : 'user')
     );
   };
@@ -142,13 +141,13 @@ export default function FeedPage() {
     const learnerOrgProfiles = createProfilesFromOrganizations(organizationsLearner || [], ProfileCapacityType.Learner)
       .map(profile => ({
         ...profile,
-        isSaved: isProfileSaved(profile.id, true, profile.type)
+        isSaved: isProfileSaved(profile.id, true)
       }));
     
     const availableOrgProfiles = createProfilesFromOrganizations(organizationsSharer || [], ProfileCapacityType.Sharer)
       .map(profile => ({
         ...profile,
-        isSaved: isProfileSaved(profile.id, true, profile.type)
+        isSaved: isProfileSaved(profile.id, true)
       }));
 
     // Filter organizations based on activeFilters.profileCapacityTypes
@@ -159,13 +158,13 @@ export default function FeedPage() {
     const wantedUserProfiles = createProfilesFromUsers(usersLearner || [], ProfileCapacityType.Learner)
       .map(profile => ({
         ...profile,
-        isSaved: isProfileSaved(profile.id, false, profile.type)
+        isSaved: isProfileSaved(profile.id, false)
       }));
     
     const availableUserProfiles = createProfilesFromUsers(usersSharer || [], ProfileCapacityType.Sharer)
       .map(profile => ({
         ...profile,
-        isSaved: isProfileSaved(profile.id, false, profile.type)
+        isSaved: isProfileSaved(profile.id, false)
       }));
   
     // Filter users based on activeFilters.profileCapacityTypes
@@ -243,14 +242,16 @@ export default function FeedPage() {
   }
 
   const handleToggleSaved = (profile: any) => {
-    if (profile.isSaved) {
-      const savedItem = savedItems?.find(item => 
-        item.entity_id === profile.id && 
+    try {
+      if (profile.isSaved) {
+        const savedItem = savedItems?.find(item => 
+          item.entity_id === profile.id && 
         item.entity === (profile.isOrganization ? 'org' : 'user')
       );
       
       if (savedItem) {
         deleteSavedItem(savedItem.id);
+        showSnackbar(pageContent["saved-profiles-delete-success"], "success");
       }
     } else {
       createSavedItem(
@@ -258,6 +259,10 @@ export default function FeedPage() {
         profile.id,
         profile.type,
       );
+        showSnackbar(pageContent["saved-profiles-add-success"], "success");
+      }
+    } catch (error) {
+      showSnackbar(pageContent["saved-profiles-error"], "error");
     }
   };
 
