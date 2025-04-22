@@ -280,21 +280,25 @@ export default function CapacitySelectionModal({
               </div>
             )}
             <div className="flex-1 mx-2 overflow-hidden">
-              <Link
-                href={`/feed?capacityId=${capacity.code}`}
-                onClick={(e) => e.stopPropagation()}
-                title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
-                className={`text-white font-bold text-base truncate hover:underline hover:text-yellow-200 transition-colors cursor-pointer block overflow-hidden text-ellipsis whitespace-nowrap flex items-center`}
-              >
-                {capitalizeFirstLetter(capacity.name)}
-                <Image
-                  src={LinkIconWhite}
-                  alt="External link icon"
-                  width={16}
-                  height={16}
-                  className="ml-1 inline-block"
-                />
-              </Link>
+              <div className="flex items-center w-full">
+                <span className="text-white font-bold text-base truncate overflow-hidden text-ellipsis whitespace-nowrap mr-1 max-w-[calc(100%-24px)]">
+                  {capitalizeFirstLetter(capacity.name)}
+                </span>
+                <Link
+                  href={`/feed?capacityId=${capacity.code}`}
+                  onClick={(e) => e.stopPropagation()}
+                  title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
+                  className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
+                >
+                  <Image
+                    src={LinkIconWhite}
+                    alt="External link icon"
+                    width={16}
+                    height={16}
+                    className="inline-block"
+                  />
+                </Link>
+              </div>
             </div>
             <div className="flex items-center">
               <button
@@ -381,20 +385,25 @@ export default function CapacitySelectionModal({
             </div>
           )}
           <div className="flex-1 mx-2 overflow-hidden">
-            <Link
-              href={`/feed?capacityId=${capacity.code}`}
-              onClick={(e) => e.stopPropagation()}
-              className={`text-gray-700 font-bold text-base truncate hover:underline hover:text-blue-700 transition-colors cursor-pointer block overflow-hidden text-ellipsis whitespace-nowrap flex items-center`}
-            >
-              {capitalizeFirstLetter(capacity.name)}
-              <Image
-                src={LinkIcon}
-                alt="External link icon"
-                width={16}
-                height={16}
-                className="ml-1 inline-block"
-              />
-            </Link>
+            <div className="flex items-center w-full">
+              <span className="text-gray-700 font-bold text-base truncate overflow-hidden text-ellipsis whitespace-nowrap mr-1 max-w-[calc(100%-24px)]">
+                {capitalizeFirstLetter(capacity.name)}
+              </span>
+              <Link
+                href={`/feed?capacityId=${capacity.code}`}
+                onClick={(e) => e.stopPropagation()}
+                title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
+                className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
+              >
+                <Image
+                  src={LinkIcon}
+                  alt="External link icon"
+                  width={16}
+                  height={16}
+                  className="inline-block"
+                />
+              </Link>
+            </div>
           </div>
           <div className="flex items-center">
             <button
