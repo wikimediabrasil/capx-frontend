@@ -97,36 +97,68 @@ export default function MobileNavbar({
   }
 
   return (
-    <div className={navbarClasses}>
-      <div className="flex w-screen max-w-full justify-between items-center px-4 py-4">
-        <div className="relative flex items-center">
-          <NextLink href="/">
-            <Image
-              priority
-              src={CapXLogo}
-              alt="Capacity Exchange logo"
-              width={32}
-              height={32}
-              className="w-[32px] h-[32px]"
+    <>
+      <div className={navbarClasses}>
+        <div className="flex w-screen max-w-full justify-between items-center px-4 py-4">
+          <div className="relative flex items-center">
+            <NextLink href="/">
+              <Image
+                priority
+                src={CapXLogo}
+                alt="Capacity Exchange logo"
+                width={32}
+                height={32}
+                className="w-[32px] h-[32px]"
+              />
+            </NextLink>
+          </div>
+
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <DarkModeButton />
+            <LanguageSelect
+              isMobile={isMobile}
+              language={language}
+              setLanguage={setLanguage}
             />
-          </NextLink>
-        </div>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <DarkModeButton />
-          <LanguageSelect
-            isMobile={isMobile}
-            language={language}
-            setLanguage={setLanguage}
-          />
-
-          <AuthButton
-            message={pageContent["sign-in-button"]}
-            isSignOut={false}
-            customClass="w-[73px] h-8 px-4 py-2 text-sm rounded-[8px]"
-          />
+            <div className="flex items-center">
+              {mobileMenuStatus ? (
+                <button
+                  onClick={() => setMobileMenuStatus(false)}
+                  aria-label="close menu"
+                  className="p-2"
+                >
+                  <Image
+                    src={darkMode ? IconCloseMobileMenuDarkMode : IconCloseMobileMenuLightMode}
+                    alt="Close Menu"
+                    width={32}
+                    height={32}
+                  />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setMobileMenuStatus(true)}
+                  aria-label="open menu"
+                  className="p-2"
+                >
+                  <Image
+                    src={darkMode ? BurgerMenuDarkMode : BurgerMenu}
+                    alt="Burger Menu"
+                    width={32}
+                    height={32}
+                  />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <AnimatePresence mode="wait">
+        {isMobile && mobileMenuStatus && (
+          <MobileMenu session={session} />
+        )}
+      </AnimatePresence>
+    </>
   );
 }

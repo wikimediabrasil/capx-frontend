@@ -7,12 +7,6 @@ interface NavbarProps {
   session: any;
   language: string;
   setLanguage: (language: string) => void;
-  pageContent: any;
-  setPageContent: (pageContent: any) => void;
-  darkMode: boolean;
-  setDarkMode: (darkMode: boolean) => void;
-  mobileMenuStatus: boolean;
-  setMobileMenuStatus: (mobileMenuStatus: boolean) => void;
   isMobile: boolean;
 }
 
@@ -22,10 +16,6 @@ export default function Navbar({
   setLanguage,
 }: Omit<
   NavbarProps,
-  | "darkMode"
-  | "setDarkMode"
-  | "mobileMenuStatus"
-  | "setMobileMenuStatus"
   | "isMobile"
 >) {
   const {

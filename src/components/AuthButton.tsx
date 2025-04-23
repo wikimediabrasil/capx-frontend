@@ -16,6 +16,7 @@ interface AuthButtonProps {
   imageAlt?: string;
   imageWidth?: number;
   imageHeight?: number;
+  isMobileMenu?: boolean;
 }
 
 export default function AuthButton({
@@ -26,6 +27,7 @@ export default function AuthButton({
   imageAlt,
   imageWidth,
   imageHeight,
+  isMobileMenu = false,
 }: AuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -96,7 +98,7 @@ export default function AuthButton({
     text-[14px]
     md:text-[24px]
     transition-all
-    ${isSignOut ? 'w-full' : `
+    ${isMobileMenu ? 'w-full' : `
       min-w-[120px]
       max-w-[200px]
       px-3 py-2.5
@@ -110,7 +112,7 @@ export default function AuthButton({
   `.trim();
 
   return (
-    <div className={`flex items-center ${isSignOut ? '' : 'h-full shrink-0'}`}>
+    <div className={`flex items-center ${isMobileMenu ? '' : 'h-full shrink-0'}`}>
       <BaseButton
         label={message}
         onClick={handleRedirect}
