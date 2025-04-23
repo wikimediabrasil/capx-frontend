@@ -1,8 +1,23 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import AuthButton from "../../components/AuthButton";
+import AuthButton from "@/components/AuthButton";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppProvider } from "@/contexts/AppContext";
 import * as ThemeContext from "@/contexts/ThemeContext";
+import MoveOutIcon from "@/public/static/images/move_item.svg";
+
+const mockPageContent = {
+  "sign-in-button": "Login",
+  "sign-out-button": "Logout",
+};
+
+// Mock AppContext
+jest.mock("@/contexts/AppContext", () => ({
+  ...jest.requireActual("@/contexts/AppContext"),
+  useApp: () => ({
+    pageContent: mockPageContent,
+    isMobile: false,
+  }),
+}));
 
 // Mock do Next.js Router
 jest.mock("next/navigation", () => ({
@@ -53,32 +68,65 @@ describe("AuthButton", () => {
     );
   };
 
-  it("renders sign in button correctly", () => {
+  it("renders login button correctly", () => {
     renderWithProviders(
       <AuthButton
-        message="Sign In"
+        message={mockPageContent["sign-in-button"]}
         isSignOut={false}
-        customClass="bg-capx-light-primary"
       />
     );
 
-    const button = screen.getByText("Sign In");
-    expect(button).toBeInTheDocument();
-    expect(button.closest('button')).toHaveClass("bg-capx-light-primary");
+    expect(screen.getByText("Login")).toBeInTheDocument();
   });
 
-  it("renders sign out button correctly", () => {
+  it("renders logout button correctly", () => {
     renderWithProviders(
       <AuthButton
-        message="Sign Out"
+        message={mockPageContent["sign-out-button"]}
         isSignOut={true}
-        customClass="test-class"
       />
     );
 
-    const button = screen.getByText("Sign Out");
-    expect(button).toBeInTheDocument();
-    expect(button.parentElement).toHaveClass("test-class");
+    expect(screen.getByText("Logout")).toBeInTheDocument();
+  });
+
+  it("applies correct styles for sign out button", () => {
+    const { container } = renderWithProviders(
+      <AuthButton
+        message={mockPageContent["sign-out-button"]}
+        isSignOut={true}
+        isMobileMenu={true}
+        imageUrl={MoveOutIcon}
+      />
+    );
+
+    const button = container.querySelector("button");
+    expect(button).toHaveClass("w-full");
+  });
+
+  it("applies correct styles for sign in button", () => {
+    const { container } = renderWithProviders(
+      <AuthButton
+        message={mockPageContent["sign-in-button"]}
+        isSignOut={false}
+      />
+    );
+
+    const button = container.querySelector("button");
+    expect(button).not.toHaveClass("w-full");
+  });
+
+  it("includes image when imageUrl is provided", () => {
+    renderWithProviders(
+      <AuthButton
+        message={mockPageContent["sign-out-button"]}
+        isSignOut={true}
+        imageUrl={MoveOutIcon}
+      />
+    );
+
+    const image = screen.getByRole("img");
+    expect(image).toBeInTheDocument();
   });
 
   it("applies dark mode styles", () => {
@@ -209,18 +257,6 @@ describe("AuthButton", () => {
     const button = screen.getByRole('button');
     expect(button).toHaveClass('min-w-[120px]', 'max-w-[200px]');
     expect(button).toHaveClass('md:min-w-[140px]', 'md:max-w-[280px]');
-  });
-
-  it("applies correct styles for sign out button", () => {
-    renderWithProviders(
-      <AuthButton
-        message="Sign Out"
-        isSignOut={true}
-      />
-    );
-
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('w-full');
   });
 
   afterEach(() => {

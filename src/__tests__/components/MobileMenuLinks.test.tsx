@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppProvider } from "@/contexts/AppContext";
 import * as ThemeContext from "@/contexts/ThemeContext";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
+import { Session } from "next-auth";
 
 // Next.js Router's mock
 jest.mock("next/navigation", () => ({
@@ -15,12 +16,9 @@ jest.mock("next/navigation", () => ({
       back: () => jest.fn(),
     };
   },
-  usePathname() {
-    return "/";
-  },
-  useSearchParams() {
-    return new URLSearchParams();
-  },
+  usePathname: () => "/",
+  useParams: () => ({ organizationId: "1" }),
+  useSearchParams: () => new URLSearchParams()
 }));
 
 // useTheme's mock
@@ -38,14 +36,54 @@ jest.mock("@/hooks/useOrganizationProfile", () => ({
 }));
 
 const mockPageContent = {
+  "sign-in-button": "Login",
+  "sign-out-button": "Logout",
   "navbar-link-home": "Home",
   "navbar-link-capacities": "Capacities",
   "navbar-link-reports": "Reports",
+  "navbar-link-feed": "Feed",
+  "navbar-link-saved": "Saved",
+  "navbar-link-report-bug": "Report Bug",
   "navbar-link-dark-mode": "Dark Mode",
-  "navbar-link-profiles": "Profiles",
+  "navbar-link-profiles": "My Profiles",
   "navbar-link-organization-profile": "Organization Profile",
   "navbar-user-profile": "User Profile",
 };
+
+const validSession: Session = {
+  user: {
+    id: "123",
+    token: "test-token",
+    username: "test-user",
+    first_login: false,
+    name: "Test User",
+    email: "test@example.com",
+    image: "test-image.jpg",
+  },
+  expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+};
+
+// Mocking AppContext
+jest.mock("@/contexts/AppContext", () => ({
+  ...jest.requireActual("@/contexts/AppContext"),
+  useApp: () => ({
+    pageContent: mockPageContent,
+    isMobile: true,
+    mobileMenuStatus: true,
+    setMobileMenuStatus: jest.fn(),
+    language: "en",
+    setLanguage: jest.fn(),
+    darkMode: false,
+    setDarkMode: jest.fn(),
+    session: null,
+    setSession: jest.fn(),
+    setPageContent: jest.fn(),
+    isLoading: false,
+    setIsLoading: jest.fn(),
+    isMenuOpen: false,
+    setIsMenuOpen: jest.fn()
+  }),
+}));
 
 describe("MobileMenuLinks", () => {
   beforeEach(() => {
@@ -60,6 +98,11 @@ describe("MobileMenuLinks", () => {
       ],
       isOrgManager: true,
     });
+
+    // Ensure that the useParams hook returns the correct organizationId
+    jest.spyOn(require("next/navigation"), "useParams").mockReturnValue({ 
+      organizationId: "1" 
+    });
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
@@ -71,30 +114,26 @@ describe("MobileMenuLinks", () => {
   };
 
   it("renders menu links when logged in", () => {
-    const mockSession = { user: { name: "Test User" } };
     const handleMenuStatus = jest.fn();
 
     renderWithProviders(
       <MobileMenuLinks
-        session={mockSession}
-        pageContent={mockPageContent}
+        session={validSession}
         handleMenuStatus={handleMenuStatus}
       />
     );
 
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Dark Mode")).toBeInTheDocument();
-    expect(screen.getByText("Profiles")).toBeInTheDocument();
+    expect(screen.getByText("My Profiles")).toBeInTheDocument();
   });
 
   it("calls handleMenuStatus when a link is clicked", () => {
-    const mockSession = { user: { name: "Test User" } };
     const handleMenuStatus = jest.fn();
 
     renderWithProviders(
       <MobileMenuLinks
-        session={mockSession}
-        pageContent={mockPageContent}
+        session={validSession}
         handleMenuStatus={handleMenuStatus}
       />
     );
@@ -111,12 +150,9 @@ describe("MobileMenuLinks", () => {
       setDarkMode: jest.fn(),
     });
 
-    const mockSession = { user: { name: "Test User" } };
-
     renderWithProviders(
       <MobileMenuLinks
-        session={mockSession}
-        pageContent={mockPageContent}
+        session={validSession}
         handleMenuStatus={() => {}}
       />
     );
@@ -128,19 +164,14 @@ describe("MobileMenuLinks", () => {
   });
 
   it("renders organization profiles for org managers", async () => {
-    const mockSession = { user: { name: "Test User", token: "token" } };
-
     renderWithProviders(
       <MobileMenuLinks
-        session={mockSession}
-        pageContent={mockPageContent}
+        session={validSession}
         handleMenuStatus={jest.fn()}
       />
     );
 
-    const profilesButton = screen.getByText(
-      mockPageContent["navbar-link-profiles"]
-    );
+    const profilesButton = screen.getByText("My Profiles");
     fireEvent.click(profilesButton);
 
     expect(screen.getByText("Org 1")).toBeInTheDocument();
@@ -148,20 +179,16 @@ describe("MobileMenuLinks", () => {
   });
 
   it("navigates to correct organization profile", () => {
-    const mockSession = { user: { name: "Test User", token: "token" } };
     const handleMenuStatus = jest.fn();
 
     renderWithProviders(
       <MobileMenuLinks
-        session={mockSession}
-        pageContent={mockPageContent}
+        session={validSession}
         handleMenuStatus={handleMenuStatus}
       />
     );
 
-    const profilesButton = screen.getByText(
-      mockPageContent["navbar-link-profiles"]
-    );
+    const profilesButton = screen.getByText("My Profiles");
     fireEvent.click(profilesButton);
 
     const org1Button = screen.getByText("Org 1");

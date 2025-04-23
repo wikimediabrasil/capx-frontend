@@ -65,14 +65,48 @@ jest.mock("../../components/LanguageSelect", () => ({
   default: () => <div data-testid="language-select-mock">Language Select</div>,
 }));
 
-const mockPageContent = {
+const mockPageContent = { 
   "sign-in-button": "Login",
   "sign-out-button": "Logout",
   "navbar-link-home": "Home",
   "navbar-link-capacities": "Capacities",
   "navbar-link-reports": "Reports",
+  "navbar-link-feed": "Feed",
+  "navbar-link-saved": "Saved",
+  "navbar-link-report-bug": "Report Bug",
 };
 
+// Mocking AppContext
+jest.mock("@/contexts/AppContext", () => ({
+  ...jest.requireActual("@/contexts/AppContext"),
+  useApp: () => ({
+    pageContent: {
+      "sign-in-button": "Login",
+      "sign-out-button": "Logout",
+      "navbar-link-home": "Home",
+      "navbar-link-capacities": "Capacities",
+      "navbar-link-reports": "Reports",
+      "navbar-link-feed": "Feed",
+      "navbar-link-saved": "Saved",
+      "navbar-link-report-bug": "Report Bug",
+    },
+    isMobile: true,
+    mobileMenuStatus: true,
+    setMobileMenuStatus: jest.fn(),
+    language: "en",
+    setLanguage: jest.fn(),
+    darkMode: false,
+    setDarkMode: jest.fn(),
+    session: null,
+    setSession: jest.fn(),
+    setPageContent: jest.fn(),
+    isLoading: false,
+    setIsLoading: jest.fn(),
+    isMenuOpen: false,
+    setIsMenuOpen: jest.fn()
+  }),
+}));
+  
 describe("DesktopNavbar", () => {
   beforeEach(() => {
     // Mock do useSession
@@ -94,15 +128,6 @@ describe("DesktopNavbar", () => {
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
       setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' }
-        }
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#FFFFFF',
-      getTextColor: () => '#000000'
     });
   });
 
@@ -133,7 +158,6 @@ describe("DesktopNavbar", () => {
     renderWithProviders(
       <DesktopNavbar
         session={nullSession}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
       />
@@ -147,14 +171,13 @@ describe("DesktopNavbar", () => {
     renderWithProviders(
       <DesktopNavbar
         session={validSession}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
       />
     );
 
-    // Open menu
-    const menuButton = screen.getByRole('button', { name: /open menu/i });
+    // Search for the menu button
+    const menuButton = screen.getByRole('button', { name: /menu/i });
     fireEvent.click(menuButton);
 
     // Check the links
@@ -167,7 +190,6 @@ describe("DesktopNavbar", () => {
     renderWithProviders(
       <DesktopNavbar
         session={nullSession}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
       />
@@ -180,17 +202,18 @@ describe("DesktopNavbar", () => {
     renderWithProviders(
       <DesktopNavbar
         session={validSession}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
       />
     );
 
-    // Open menu
-    const menuButton = screen.getByRole('button', { name: /open menu/i });
+    // Search for the menu button
+    const menuButton = screen.getByRole('button', { name: /menu/i });
     fireEvent.click(menuButton);
 
-    expect(screen.getByText("Logout")).toBeInTheDocument();
+    // Check if the logout button is present
+    const logoutButton = screen.getByText(mockPageContent["sign-out-button"]);
+    expect(logoutButton).toBeInTheDocument();
   });
 
   it("applies dark mode styles", () => {
@@ -202,7 +225,6 @@ describe("DesktopNavbar", () => {
     const { container } = renderWithProviders(
       <DesktopNavbar
         session={nullSession}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
       />
@@ -222,7 +244,6 @@ describe("DesktopNavbar", () => {
     const { container } = renderWithProviders(
       <DesktopNavbar
         session={nullSession}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
       />
