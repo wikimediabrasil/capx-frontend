@@ -65,7 +65,7 @@ export default function EventCard({
   const capacitiesContainerRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState(false);
 
-  // Detectar quando as capacidades causam overflow
+  // Detect overflow of capacities
   useEffect(() => {
     const checkOverflow = () => {
       if (capacitiesContainerRef.current) {
@@ -75,7 +75,6 @@ export default function EventCard({
             container.scrollWidth > container.clientWidth
         );
 
-        // Ajustar o número de capacidades visíveis se estiver causando overflow
         if (
           !showAllCapacities &&
           event.related_skills &&
@@ -84,7 +83,6 @@ export default function EventCard({
           let optimal = event.related_skills.length;
           for (let i = event.related_skills.length; i > 0; i--) {
             setVisibleCapacities(i);
-            // Precisamos aguardar a renderização
             setTimeout(() => {
               if (
                 container.scrollHeight <= container.clientHeight &&
@@ -95,7 +93,6 @@ export default function EventCard({
             }, 0);
           }
           if (optimal < event.related_skills.length) {
-            // Deixar espaço para o botão "more"
             setVisibleCapacities(Math.max(1, optimal - 1));
           }
         }
@@ -117,35 +114,35 @@ export default function EventCard({
       const startDate = new Date(startDateStr);
       const endDate = new Date(endDateStr);
 
-      // Verificar se as datas são válidas
+      // Verify if the dates are valid
       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        throw new Error("Data inválida");
+        throw new Error("Invalid date");
       }
 
-      // Formatar horários no formato 12h (AM/PM)
+      // Format time in 12h (AM/PM) format
       const formatTime = (date: Date) => {
         let hours = date.getUTCHours();
         const minutes = date.getUTCMinutes();
         const ampm = hours >= 12 ? "PM" : "AM";
 
-        // Converter para formato 12h
+        // Convert to 12h format
         hours = hours % 12;
-        hours = hours ? hours : 12; // Se for 0, mostrar como 12
+        hours = hours ? hours : 12; // If it's 0, show as 12
 
-        // Adicionar zero à esquerda para minutos < 10
+        // Add zero to the left for minutes < 10
         const minutesStr = minutes < 10 ? "0" + minutes : minutes;
 
         return `${hours}:${minutesStr} ${ampm}`;
       };
 
-      // Formatar os horários de início e fim
+      // Format start and end times
       const startTime = formatTime(startDate);
       const endTime = formatTime(endDate);
 
-      // Retornar o formato desejado
+      // Return the desired format
       return `${startTime} - ${endTime} (UTC)`;
     } catch (error) {
-      console.error("Erro ao formatar datas:", error);
+      console.error("Error formatting dates:", error);
       return `${startDateStr} - ${endDateStr}`;
     }
   };
@@ -163,7 +160,7 @@ export default function EventCard({
       // Array with the abbreviated names of the weekdays
       const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-      // Array com os nomes abreviados dos meses
+      // Array with the abbreviated names of the months
       const months = [
         "Jan",
         "Feb",
@@ -226,7 +223,7 @@ export default function EventCard({
         darkMode ? "text-white" : "text-capx-dark-box-bg"
       }`}
     >
-      <div className="flex flex-col gap-4 mx-4 my-4 w-full">
+      <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-extrabold mb-2 text-capx-dark-box-bg font-Montserrat">
             {event.name}
@@ -340,7 +337,7 @@ export default function EventCard({
                     overflowing) && (
                     <button
                       onClick={toggleCapacitiesView}
-                      className="flex items-center w-fit mr-4"
+                      className="flex items-center w-fit mr-8"
                     >
                       <Image
                         src={MoreHorizIcon}
@@ -366,12 +363,12 @@ export default function EventCard({
           </div>
         </div>
         {onEdit && onDelete && onChoose && (
-          <div className="flex flex-col gap-2 mt-auto mr-4">
+          <div className="flex flex-col gap-2 mt-auto mr-2">
             <BaseButton
               label={pageContent["organization-profile-edit-event"] || "Edit"}
               onClick={() => onEdit(event as Event)}
               customClass={`py-2 px-3 rounded-md text-md font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center !mb-0 hover:opacity-90 transition-opacity !pb-2`}
-              imageUrl={darkMode ? EditIconWhite : EditIcon}
+              imageUrl={EditIcon}
               imageAlt="Edit icon"
               imageWidth={24}
               imageHeight={24}
@@ -379,18 +376,20 @@ export default function EventCard({
 
             <BaseButton
               label={
-                pageContent["organization-profile-choose-event"] || "Choose"
+                isSelected
+                  ? pageContent["organization-profile-hide-event"] ||
+                    "Hide event"
+                  : pageContent["organization-profile-choose-event"] ||
+                    "Choose event"
               }
               onClick={() => handleChoose(event as Event)}
-              customClass={`py-2 px-3 rounded-md border border-capx-dark-box-bg text-md font-extrabold bg-white text-start text-capx-dark-box-bg flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0`}
-              imageUrl={
+              customClass={`${
                 isSelected
-                  ? darkMode
-                    ? CheckBoxIconLight
-                    : CheckBoxIcon
-                  : darkMode
-                  ? CheckBoxOutlineBlankIconLight
-                  : CheckBoxOutlineBlankIcon
+                  ? "bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg"
+                  : "bg-capx-dark-box-bg text-white"
+              } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0`}
+              imageUrl={
+                isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight
               }
               imageAlt="Checkbox icon"
               imageWidth={24}

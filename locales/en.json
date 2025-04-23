@@ -344,6 +344,7 @@
   "events-search-results-error": "Error loading events. Please try again.",
   "organization-profile-edit-event": "Edit event",
   "organization-profile-choose-event": "Choose event",
+  "organization-profile-hide-event": "Hide event",
   "organization-profile-delete-event": "Delete event",
   "organization-profile-view-all-events": "View all events",
   "saved-profiles-title": "Saved Profiles",

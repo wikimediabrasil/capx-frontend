@@ -687,23 +687,23 @@ export default function EditOrganizationProfilePage() {
     field: keyof Event,
     value: string
   ) => {
-    // Garantir que eventsData é um array antes de tentar modificá-lo
+    // Ensure eventsData is an array before trying to modify it
     if (!Array.isArray(eventsData)) {
-      console.error("eventsData não é um array:", eventsData);
+      console.error("eventsData is not an array:", eventsData);
       return;
     }
 
     setEventsData((prev) => {
-      // Verificação de array adicional
+      // Additional array check
       if (!Array.isArray(prev)) {
-        console.error("prev não é um array em handleEventChange:", prev);
+        console.error("prev is not an array in handleEventChange:", prev);
         return prev;
       }
 
       const updated = [...prev];
 
       if (!updated[index]) {
-        console.error(`Índice ${index} fora do range de eventos:`, updated);
+        console.error(`Index ${index} out of range of events:`, updated);
         return prev;
       }
 
@@ -734,7 +734,7 @@ export default function EditOrganizationProfilePage() {
       return updated;
     });
 
-    // Marcar este evento como editado para acompanhamento
+    // Mark this event as edited for tracking
     if (eventsData[index] && eventsData[index].id) {
       setEditedEvents((prev) => ({
         ...prev,
@@ -1020,39 +1020,131 @@ export default function EditOrganizationProfilePage() {
 
   if (isMobile) {
     return (
-      <OrganizationProfileEditMobileView
-        handleSubmit={handleSubmit}
-        handleRemoveCapacity={handleRemoveCapacity}
-        handleAddCapacity={handleAddCapacity}
-        handleAddDocument={handleAddDocument}
-        handleDeleteEvent={handleDeleteEvent}
-        getCapacityName={getCapacityName}
-        formData={formData}
-        setFormData={setFormData}
-        contactsData={contactsData}
-        setContactsData={setContactsData}
-        documentsData={documentsData}
-        setDocumentsData={setDocumentsData}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        currentCapacityType={currentCapacityType}
-        handleCapacitySelect={handleCapacitySelect}
-        projectsData={projectsData}
-        handleDeleteProject={handleDeleteProject}
-        handleProjectChange={handleProjectChange}
-        handleAddProject={handleAddProject}
-        diffTagsData={diffTagsData}
-        handleDeleteDiffTag={handleDeleteDiffTag}
-        handleDiffTagChange={handleDiffTagChange}
-        handleAddDiffTag={handleAddDiffTag}
-        eventsData={eventsData}
-        handleEventChange={handleEventChange}
-        handleAddEvent={handleAddEvent}
-        capacities={capacities || []}
-        handleEditEvent={handleEditEvent}
-        handleChooseEvent={handleChooseEvent}
-        handleViewAllEvents={handleViewAllEvents}
-      />
+      <>
+        <OrganizationProfileEditMobileView
+          handleSubmit={handleSubmit}
+          handleRemoveCapacity={handleRemoveCapacity}
+          handleAddCapacity={handleAddCapacity}
+          handleAddDocument={handleAddDocument}
+          getCapacityName={getCapacityName}
+          formData={formData}
+          setFormData={setFormData}
+          contactsData={contactsData}
+          setContactsData={setContactsData}
+          documentsData={documentsData}
+          setDocumentsData={setDocumentsData}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          currentCapacityType={currentCapacityType}
+          handleCapacitySelect={handleCapacitySelect}
+          projectsData={projectsData}
+          handleDeleteProject={handleDeleteProject}
+          handleProjectChange={handleProjectChange}
+          handleAddProject={handleAddProject}
+          diffTagsData={diffTagsData}
+          handleDeleteDiffTag={handleDeleteDiffTag}
+          handleDiffTagChange={handleDiffTagChange}
+          handleAddDiffTag={handleAddDiffTag}
+          eventsData={eventsData}
+          handleEventChange={handleEventChange}
+          handleAddEvent={handleAddEvent}
+          handleDeleteEvent={handleDeleteEvent}
+          capacities={capacities || []}
+          handleChooseEvent={handleChooseEvent}
+          handleViewAllEvents={handleViewAllEvents}
+          handleEditEvent={handleEditEvent}
+        />
+
+        {showEventModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50"
+              onClick={() => {
+                setShowEventModal(false);
+                setCurrentEditingEvent(null);
+              }}
+            />
+            <div
+              className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
+                darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+              }`}
+            >
+              <button
+                onClick={() => {
+                  setShowEventModal(false);
+                  setCurrentEditingEvent(null);
+                }}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-[#053749] dark:text-white mb-4">
+                  {currentEditingEvent?.id === 0
+                    ? pageContent["organization-profile-new-event"]
+                    : pageContent["organization-profile-edit-event"]}
+                </h2>
+                {currentEditingEvent && (
+                  <>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      {currentEditingEvent.related_skills &&
+                        Array.isArray(currentEditingEvent.related_skills) &&
+                        `Evento com ${currentEditingEvent.related_skills.length} capacidades`}
+                    </p>
+                    <EventsFormItem
+                      eventData={currentEditingEvent}
+                      index={0}
+                      onDelete={() => {
+                        setShowEventModal(false);
+                        setCurrentEditingEvent(null);
+                      }}
+                      onChange={handleModalEventChange}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+                <button
+                  onClick={() => {
+                    setShowEventModal(false);
+                    setCurrentEditingEvent(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:border-gray-400"
+                >
+                  {pageContent["organization-profile-event-popup-cancel"] ||
+                    "Cancel"}
+                </button>
+                <button
+                  onClick={handleSaveEventChanges}
+                  className="px-4 py-2 bg-[#851970] text-white font-medium rounded-md hover:bg-[#6d145c]"
+                >
+                  {currentEditingEvent?.id === 0
+                    ? pageContent[
+                        "organization-profile-event-popup-create-event"
+                      ] || "Create event"
+                    : pageContent[
+                        "organization-profile-event-popup-save-changes"
+                      ] || "Save changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
   return (
@@ -1163,17 +1255,20 @@ export default function EditOrganizationProfilePage() {
                 }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:border-gray-400"
               >
-                {pageContent["organization-profile-event-popup-cancel"]}
+                {pageContent["organization-profile-event-popup-cancel"] ||
+                  "Cancel"}
               </button>
               <button
                 onClick={handleSaveEventChanges}
                 className="px-4 py-2 bg-[#851970] text-white font-medium rounded-md hover:bg-[#6d145c]"
               >
                 {currentEditingEvent?.id === 0
-                  ? pageContent["organization-profile-event-popup-create-event"]
+                  ? pageContent[
+                      "organization-profile-event-popup-create-event"
+                    ] || "Create event"
                   : pageContent[
                       "organization-profile-event-popup-save-changes"
-                    ] || "Salvar alterações"}
+                    ] || "Save changes"}
               </button>
             </div>
           </div>
