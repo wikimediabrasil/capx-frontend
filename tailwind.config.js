@@ -12,6 +12,37 @@ module.exports = {
         chunkfive: ["ChunkFive Ex", "serif"],
         montserrat: ["Montserrat", "sans-serif"],
       },
+
+      fontSize: {
+        "capx-font-size-mobile-sm": "12px",
+        "capx-font-size-mobile-md": "14px",
+        "capx-font-size-mobile-lg": "16px",
+        "capx-font-size-mobile-xl": "18px",
+        "capx-font-size-mobile-2xl": "20px",
+        "capx-font-size-mobile-3xl": "24px",
+        "capx-font-size-mobile-4xl": "32px",
+
+        "capx-font-size-desktop-sm": "14px",
+        "capx-font-size-desktop-md": "16px",
+        "capx-font-size-desktop-lg": "18px",
+        "capx-font-size-desktop-xl": "20px",
+        "capx-font-size-desktop-2xl": "24px",
+        "capx-font-size-desktop-3xl": "32px",
+        "capx-font-size-desktop-4xl": "36px",
+        "capx-font-size-desktop-5xl": "48px",
+        "capx-font-size-desktop-6xl": "72px",
+
+        // Pares de tamanhos responsivos (mobile/desktop)
+        "capx-text-xs": ["12px", "14px"], // sm -> sm
+        "capx-text-sm": ["14px", "16px"], // md -> md
+        "capx-text-base": ["16px", "18px"], // lg -> lg
+        "capx-text-lg": ["18px", "20px"], // xl -> xl
+        "capx-text-xl": ["20px", "24px"], // 2xl -> 2xl
+        "capx-text-2xl": ["24px", "32px"], // 3xl -> 3xl
+        "capx-text-3xl": ["32px", "36px"], // 4xl -> 4xl
+        "capx-text-4xl": ["32px", "48px"], // 4xl -> 5xl
+        "capx-text-5xl": ["32px", "72px"], // 4xl -> 6xl
+      },
       backgroundColor: {
         "capx-light-bg": "#FFFFFF",
         "capx-dark-bg": "#04222F",
