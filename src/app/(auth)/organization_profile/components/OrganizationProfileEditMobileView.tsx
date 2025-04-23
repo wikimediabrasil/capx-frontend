@@ -36,7 +36,6 @@ import TargetIcon from "@/public/static/images/target.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
-import EventsCardList from "./EventsCardList";
 import EventsList from "@/app/events/components/EventsList";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";

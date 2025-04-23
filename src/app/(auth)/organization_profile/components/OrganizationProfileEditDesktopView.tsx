@@ -35,12 +35,12 @@ import TargetIcon from "@/public/static/images/target.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
-import EventsCardList from "./EventsCardList";
 import { Capacity } from "@/types/capacity";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import ExpandAllIcon from "@/public/static/images/expand_all.svg";
 import { useAvatars } from "@/hooks/useAvatars";
+import EventsList from "@/app/events/components/EventsList";
 
 export default function OrganizationProfileEditDesktopView({
   handleSubmit,
@@ -597,14 +597,14 @@ export default function OrganizationProfileEditDesktopView({
                 {pageContent["body-profile-section-title-events"]}
               </h2>
             </div>
-
-            <EventsCardList 
-              events={eventsData} 
-              capacities={capacities || []}
-              onEdit={handleEditEvent} 
-              onDelete={handleDeleteEvent} 
-              onChoose={handleChooseEvent} 
+            <EventsList
+              events={eventsData}
+              isHorizontalScroll={true}
+              onDelete={handleDeleteEvent}
+              onEdit={handleEditEvent}
+              onChoose={handleChooseEvent}
             />
+
             <BaseButton
               onClick={handleAddEvent}
               label={pageContent["edit-profile-add-events"]}
@@ -624,7 +624,7 @@ export default function OrganizationProfileEditDesktopView({
               label={pageContent["organization-profile-view-all-events"]}
               customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] border border-capx-dark-box-bg ${
                 darkMode
-                  ? "text-white bg-capx-dark-box-bg" 
+                  ? "text-white bg-capx-dark-box-bg"
                   : "text-capx-dark-box-bg bg-transparent"
               }`}
               imageUrl={ExpandAllIcon}
@@ -890,7 +890,6 @@ export default function OrganizationProfileEditDesktopView({
               onClick={() => router.back()}
               label={pageContent["edit-profile-cancel"]}
               customClass="flex border w-1/2 rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg !px-[32px] !py-[16px] rounded-md font-[Montserrat] text-[24px] font-bold pb-[6px]"
-              
               imageUrl={CancelIcon}
               imageAlt="Cancel icon"
               imageWidth={32}

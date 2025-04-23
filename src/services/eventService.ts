@@ -17,19 +17,19 @@ export const eventsService = {
     const headers = { Authorization: `Token ${token}` };
     const params: any = { limit, offset };
 
-    // Adicionar filtros se presentes
+    // Add filters if present
     if (filters) {
-      // Adicionar capacidades como query string
+      // Add capacities as query string
       if (filters.capacities && filters.capacities.length > 0) {
         params.capacities = filters.capacities.map((cap) => cap.code).join(",");
       }
 
-      // Adicionar territórios
+      // Add territories
       if (filters.territories && filters.territories.length > 0) {
         params.territories = filters.territories.join(",");
       }
 
-      // Adicionar filtro por tipo de local (online, presencial, híbrido)
+      // Add location type filter (online, physical, hybrid)
       if (
         filters.locationType &&
         filters.locationType !== EventLocationType.All
@@ -37,17 +37,17 @@ export const eventsService = {
         params.location_type = filters.locationType;
       }
 
-      // Adicionar filtro por data de início
+      // Add start date filter
       if (filters.dateRange?.startDate) {
         params.start_date = filters.dateRange.startDate;
       }
 
-      // Adicionar filtro por data de fim
+      // Add end date filter
       if (filters.dateRange?.endDate) {
         params.end_date = filters.dateRange.endDate;
       }
 
-      // Adicionar filtro por organização
+      // Add organization filter
       if (filters.organizationId) {
         params.organization_id = filters.organizationId;
       }
@@ -59,7 +59,7 @@ export const eventsService = {
         params,
       });
 
-      // Se a resposta já estiver no formato { results, count }, retorná-la diretamente
+      // If the response is already in the format { results, count }, return it directly
       if (
         response.data &&
         typeof response.data === "object" &&
@@ -68,7 +68,7 @@ export const eventsService = {
         return response.data;
       }
 
-      // Caso contrário, formatar a resposta para o formato esperado
+      // Otherwise, format the response to the expected format
       return {
         results: Array.isArray(response.data) ? response.data : [],
         count: response.headers["x-total-count"]
@@ -87,34 +87,31 @@ export const eventsService = {
     const headers = { Authorization: `Token ${token}` };
 
     try {
-      console.log(`eventService: buscando evento ${eventId}`);
       const response = await axios.get(`/api/events/${eventId}`, {
         headers,
       });
 
-      // Verificar se a resposta é válida
+      // Check if the response is valid
       if (!response.data) {
-        console.warn(
-          `eventService: resposta para evento ${eventId} está vazia`
-        );
-        throw new Error(`Resposta vazia ao buscar evento ${eventId}`);
+        console.warn(`eventService: response for event ${eventId} is empty`);
+        throw new Error(`Empty response when searching for event ${eventId}`);
       }
 
-      // Verificar se a resposta contém os campos esperados
+      // Check if the response contains the expected fields
       if (!response.data.id) {
         console.warn(
-          `eventService: evento ${eventId} não contém ID na resposta`,
+          `eventService: event ${eventId} does not contain ID in the response`,
           response.data
         );
       }
 
-      // Verificar se o campo organization existe
+      // Check if the organization field exists
       if (
         response.data.organization === undefined ||
         response.data.organization === null
       ) {
         console.warn(
-          `eventService: evento ${eventId} não tem campo organization`,
+          `eventService: event ${eventId} does not have organization field`,
           response.data
         );
       }
@@ -125,26 +122,23 @@ export const eventsService = {
         !Array.isArray(response.data.organizations)
       ) {
         console.warn(
-          `eventService: evento ${eventId} não tem campo organizations, criando array compatível`,
+          `eventService: event ${eventId} does not have organizations field, creating compatible array`,
           response.data
         );
-        // Criar um array vazio se o campo organizations não existir ou não for um array
+        // Create an empty array if the organizations field does not exist or is not an array
         response.data.organizations = [];
 
-        // Se temos organization, adicionar ao array organizations para manter compatibilidade
+        // If we have organization, add it to the organizations array to maintain compatibility
         if (response.data.organization) {
           response.data.organizations.push(Number(response.data.organization));
         }
       }
 
-      console.log(
-        `eventService: evento ${eventId} carregado com sucesso, nome: ${response.data.name}, organization: ${response.data.organization}`
-      );
       return response.data;
     } catch (error) {
-      console.error(`Erro ao buscar evento ${eventId}:`, error);
+      console.error(`Error searching for event ${eventId}:`, error);
       if (error.response) {
-        console.error(`Detalhes do erro para evento ${eventId}:`, {
+        console.error(`Details of error for event ${eventId}:`, {
           status: error.response.status,
           data: error.response.data,
         });

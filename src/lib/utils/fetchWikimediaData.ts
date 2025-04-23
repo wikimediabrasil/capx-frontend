@@ -1,5 +1,6 @@
 import { WikimediaImage } from "@/types/wikidataImage";
 import { WikimediaDocument } from "@/types/document";
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 
 export const fetchWikimediaData = async (
   url: string
@@ -56,7 +57,7 @@ export const fetchWikimediaData = async (
 };
 
 export const formatWikiImageUrl = (url: string | undefined): string => {
-  if (!url) return "";
+  if (!url || url.trim() === "") return NoAvatarIcon;
 
   if (url.includes("upload.wikimedia.org")) {
     return url;
