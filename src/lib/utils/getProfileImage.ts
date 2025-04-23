@@ -1,4 +1,5 @@
 import { Avatar } from "@/types/avatar";
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 
 export const getProfileImage = (
   profileImage: string | null | undefined,
@@ -11,8 +12,10 @@ export const getProfileImage = (
 
   if (avatarId && avatars) {
     const avatar = avatars.find((a) => a.id === avatarId);
-    return avatar?.avatar_url || "";
+    if (avatar?.avatar_url) {
+      return avatar.avatar_url;
+    }
   }
 
-  return "";
+  return NoAvatarIcon;
 };
