@@ -63,6 +63,7 @@ export default function EventCard({
   const [isSelected, setIsSelected] = useState(false);
   const [visibleCapacities, setVisibleCapacities] = useState(3);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [showEventDetails, setShowEventDetails] = useState(false);
 
   const capacitiesContainerRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState(false);
@@ -184,11 +185,14 @@ export default function EventCard({
       // Get the abbreviated month
       const month = months[date.getMonth()];
 
+      // Get the day
+      const day = date.getDate();
+
       // Get the year
       const year = date.getFullYear();
 
-      // Return in the format "Mon, Sep 2023"
-      return `${weekday}, ${month} ${year}`;
+      // Return in the format "Mon, 15 Sep 2023"
+      return `${weekday}, ${day} ${month} ${year}`;
     } catch (error) {
       console.error("Error formatting date:", error);
       return dateString;
@@ -217,6 +221,10 @@ export default function EventCard({
     }
   };
 
+  const handleDetailsEvent = (clicked: boolean) => {
+    setShowEventDetails(clicked);
+  };
+
   if (isLoading) {
     return (
       <div className="min-w-[280px] max-w-[320px] h-[300px] flex items-center justify-center">
@@ -229,12 +237,15 @@ export default function EventCard({
     return null;
   }
 
+  console.log(event);
+  console.log(organization);
+  console.log(isHorizontalScroll);
   return (
     <>
       <div
         className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] h-fit ${
           darkMode ? "text-white" : "text-capx-dark-box-bg"
-        } ${!isMobile && "max-w-[350px]"}`}
+        } ${!isMobile && !isHorizontalScroll && "max-w-[350px]"}`}
       >
         <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">
           <div className="flex flex-col gap-2">
@@ -253,7 +264,6 @@ export default function EventCard({
                   href={`/organization_profile/${organization.id}`}
                   className="text-blue-600 hover:text-blue-800 visited:text-blue-800"
                 >
-                  {" "}
                   {organization.display_name}
                 </Link>
               </p>
@@ -365,18 +375,45 @@ export default function EventCard({
                       </button>
                     )}
                 </div>
-                {isMobile && (
+
+                <div
+                  className={`flex flex-col gap-2 ${
+                    showEventDetails ? "min-h-[100px]" : ""
+                  }`}
+                >
                   <button
                     className="flex flex-row gap-2 justify-between mr-4"
-                    onClick={() => {}}
+                    onClick={() => handleDetailsEvent(!showEventDetails)}
                   >
                     <p className="text-md font-extrabold text-[#507380]">
                       {pageContent["events-details-of-event"] ||
                         "Details of event"}
                     </p>
-                    <Image src={ArrowDropDownIcon} alt="Expand" />
+                    <Image
+                      src={
+                        darkMode ? ArrowDropDownWhiteIcon : ArrowDropDownIcon
+                      }
+                      alt="Expand"
+                      style={{
+                        transform: showEventDetails
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.3s ease",
+                      }}
+                    />
                   </button>
-                )}
+                  {showEventDetails && event.description && (
+                    <div className="flex flex-col gap-4 mt-2 bg-white bg-opacity-10 rounded">
+                      <p
+                        className={`text-sm ${
+                          darkMode ? "text-white" : "text-[#507380]"
+                        }`}
+                      >
+                        {event.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

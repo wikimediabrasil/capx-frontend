@@ -860,7 +860,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   const handleViewAllEvents = () => {
-    router.push(`/organization_profile/${organizationId}/edit/events`);
+    router.push(`/events`);
   };
 
   // Handler to listen to event changes on the modal
