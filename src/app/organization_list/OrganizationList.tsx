@@ -57,6 +57,7 @@ export default function OrganizationList() {
                 (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? 
                   (organizationsSharerCount) : 0);
 
+
   // Create profiles (to create cards) from organizations
   const filteredProfiles = useMemo(() => {
     const learnerOrgProfiles = createProfilesFromOrganizations(organizationsLearner || [], ProfileCapacityType.Learner);
@@ -190,6 +191,7 @@ export default function OrganizationList() {
           onClose={() => setShowFilters(false)}
           onApplyFilters={handleApplyFilters}
           initialFilters={activeFilters}
+          isOnlyOrganization={true}
         />
       )}
     </div>

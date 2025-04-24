@@ -13,8 +13,6 @@ export interface OrganizationFilters {
 
 export const organizationProfileService = {
   async getOrganizations(token: string, filters: OrganizationFilters) {
-    if (!token) return { count: 0, results: [] };
-
     const params = new URLSearchParams();
 
     if (filters.territory?.length) {

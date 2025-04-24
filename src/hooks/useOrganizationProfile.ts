@@ -139,11 +139,6 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    if (!session?.user?.token) {
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     const getOrganizations = async () => {
       try {
@@ -166,7 +161,7 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
         };
 
         const data = await organizationProfileService.getOrganizations(
-          session.user.token,
+          session?.user?.token ?? "",
           filters
         );
 

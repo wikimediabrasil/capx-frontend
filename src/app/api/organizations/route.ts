@@ -6,10 +6,6 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const searchParams = request.nextUrl.searchParams;
 
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const params = {
       limit: searchParams.get("limit") || undefined,
       offset: searchParams.get("offset") || undefined,
