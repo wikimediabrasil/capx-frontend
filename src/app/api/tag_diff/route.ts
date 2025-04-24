@@ -62,7 +62,7 @@ export async function POST(request: Request) {
         return NextResponse.json(existingTagResponse.data[0]);
       }
     } catch (error) {
-      console.log("Tag not found, creating new...");
+      console.error("Tag not found, creating new...");
     }
 
     const response = await axios.post(

@@ -88,13 +88,6 @@ export async function DELETE(
   }
 
   try {
-    console.log(
-      `Tentando deletar evento ${id} com token ${authHeader.substring(
-        0,
-        10
-      )}...`
-    );
-
     const response = await axios.delete(
       `${process.env.BASE_URL}/events/${id}/`,
       {
@@ -105,10 +98,9 @@ export async function DELETE(
       }
     );
 
-    console.log(`Evento ${id} deletado com sucesso`);
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error(`Erro ao deletar evento ${id}:`, {
+    console.error(`Error deleting event ${id}:`, {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,

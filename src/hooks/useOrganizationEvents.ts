@@ -41,10 +41,7 @@ export function useOrganizationEvents(
         (event) =>
           event &&
           (event.organization === organizationIdNum ||
-            Number(event.organization) === organizationIdNum ||
-            (event.organizations &&
-              Array.isArray(event.organizations) &&
-              event.organizations.includes(organizationIdNum)))
+            Number(event.organization) === organizationIdNum)
       );
 
       setEvents(organizationEvents);
@@ -67,24 +64,12 @@ export function useOrganizationEvents(
 
       setIsLoading(true);
       try {
-        console.log(
-          `Iniciando carregamento de ${eventIds.length} eventos por IDs:`,
-          eventIds
-        );
-
         // Create promises for each event
         const eventPromises = eventIds.map((id) => {
           // For each ID, create a promise that tries to search the event, but does not fail the entire promise
-          console.log(`Trying to load event ID ${id}`);
           return eventsService
             .getEventById(id, token)
             .then((event) => {
-              console.log(
-                `Evento ID ${id} carregado com sucesso:`,
-                event
-                  ? `${event.name} (organizations: ${event.organizations})`
-                  : "Resposta nula"
-              );
               return event;
             })
             .catch((error) => {
@@ -95,10 +80,6 @@ export function useOrganizationEvents(
 
         // Wait for all promises, even the ones that failed
         const results = await Promise.all(eventPromises);
-        console.log(
-          `Raw results of ${results.length} events: `,
-          results.map((e) => (e ? `ID ${e.id} (OK)` : "failed"))
-        );
 
         // Filter nulls and events without relation to the organization
         const loadedEvents = results
@@ -110,37 +91,22 @@ export function useOrganizationEvents(
           })
           .filter((event) => {
             // Verify if the event belongs to the organization by the organization or organizations field
-            const hasOldOrganizations =
-              Array.isArray(event.organizations) &&
-              event.organizations.includes(organizationIdNum);
 
             const matchesOrganization =
               event.organization === organizationIdNum ||
               Number(event.organization) === organizationIdNum;
 
-            if (!matchesOrganization && !hasOldOrganizations) {
+            if (!matchesOrganization) {
               console.warn(
                 `Event ID ${event.id} does not belong to organization ${organizationIdNum}`,
                 {
                   organization: event.organization,
-                  organizations: event.organizations,
                 }
               );
             }
 
-            // Event belongs to the organization if organization is equal or organizations includes the ID
-            return matchesOrganization || hasOldOrganizations;
+            return matchesOrganization;
           });
-
-        console.log("Events loaded successfully:", loadedEvents.length);
-        console.log(
-          "Details of loaded events:",
-          loadedEvents.map((e) => ({
-            id: e.id,
-            name: e.name,
-            organizations: e.organizations,
-          }))
-        );
 
         setEvents(loadedEvents);
         return loadedEvents;
@@ -165,8 +131,6 @@ export function useOrganizationEvents(
 
       setIsLoading(true);
       try {
-        console.log("useOrganizationEvents - Initial event data:", eventData);
-
         // Ensure organization is configured correctly
         const preparedData = {
           ...eventData,
@@ -174,31 +138,14 @@ export function useOrganizationEvents(
         };
 
         // Keep organizations for compatibility with legacy code
-        if (
-          !preparedData.organizations ||
-          !Array.isArray(preparedData.organizations)
-        ) {
-          preparedData.organizations = [];
+        if (!preparedData.organization) {
+          preparedData.organization = organizationIdNum;
         }
-
-        // Ensure organizationId is in organizations for compatibility
-        if (!preparedData.organizations.includes(organizationIdNum)) {
-          preparedData.organizations.push(organizationIdNum);
-        }
-
-        console.log("useOrganizationEvents - Processed event data:", {
-          organizationIdNum,
-          organization: preparedData.organization,
-          organizations: preparedData.organizations,
-          prepared: preparedData,
-        });
 
         const createdEvent = await eventsService.createEvent(
           preparedData,
           token
         );
-
-        console.log("useOrganizationEvents - Event created:", createdEvent);
 
         // Verify if the event was created correctly with the organization
         if (createdEvent.organization !== organizationIdNum) {
@@ -244,44 +191,17 @@ export function useOrganizationEvents(
 
       setIsLoading(true);
       try {
-        console.log("useOrganizationEvents - Updating event:", {
-          eventId,
-          data: eventData,
-        });
-
         // Ensure organization is defined correctly
         const preparedData = {
           ...eventData,
           organization: organizationIdNum,
         };
 
-        // Keep organizations for compatibility
-        if (
-          !preparedData.organizations ||
-          !Array.isArray(preparedData.organizations)
-        ) {
-          preparedData.organizations = [];
-        }
-
-        // Ensure organizationId is in organizations for compatibility
-        if (!preparedData.organizations.includes(organizationIdNum)) {
-          preparedData.organizations.push(organizationIdNum);
-        }
-
-        console.log("useOrganizationEvents - Processed data for update:", {
-          organizationIdNum,
-          organization: preparedData.organization,
-          organizations: preparedData.organizations,
-          prepared: preparedData,
-        });
-
         const updatedEvent = await eventsService.updateEvent(
           eventId,
           preparedData,
           token
         );
-
-        console.log("useOrganizationEvents - Event updated:", updatedEvent);
 
         // Verify if the event was updated correctly
         if (updatedEvent.organization !== organizationIdNum) {

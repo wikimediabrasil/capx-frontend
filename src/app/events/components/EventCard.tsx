@@ -68,6 +68,16 @@ export default function EventCard({
   const capacitiesContainerRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState(false);
 
+  // Check if the event is in the organization's choose_events list
+  useEffect(() => {
+    if (organization && event.id) {
+      const isEventChosen =
+        Array.isArray(organization.choose_events) &&
+        organization.choose_events.includes(event.id);
+      setIsSelected(isEventChosen);
+    }
+  }, [organization, event.id]);
+
   // Detect overflow of capacities
   useEffect(() => {
     const checkOverflow = () => {
@@ -201,7 +211,12 @@ export default function EventCard({
 
   // Function to handle the event choice
   const handleChoose = (event: Event) => {
+    if (!event.id) return;
+
+    // Update local state immediately for visual feedback
     setIsSelected(!isSelected);
+
+    // If the onChoose callback is available, use it to update the organization
     if (onChoose) {
       onChoose(event);
     }
@@ -237,9 +252,6 @@ export default function EventCard({
     return null;
   }
 
-  console.log(event);
-  console.log(organization);
-  console.log(isHorizontalScroll);
   return (
     <>
       <div

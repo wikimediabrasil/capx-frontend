@@ -18,12 +18,14 @@ import EditIconWhite from "@/public/static/images/edit_white.svg";
 import ReportActivityIcon from "@/public/static/images/report_of_activities.svg";
 import BaseButton from "@/components/BaseButton";
 import { ProfileItem } from "@/components/ProfileItem";
-import { ProjectsEventsList } from "./ProjectsEventsList";
+import ProjectsList from "./ProjectsList";
+import EventsSection from "./EventsSection";
 import { NewsSection } from "./NewsSection";
 import { DocumentsList } from "./DocumentsList";
 import { ContactsSection } from "./ContactsSection";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import LoadingState from "@/components/LoadingState";
+import { useEffect } from "react";
 
 export default function OrganizationProfileDesktopView({
   pageContent,
@@ -206,20 +208,27 @@ export default function OrganizationProfileDesktopView({
               />
             </div>
 
-            {/* Projects and Events */}
+            {/* Projects */}
             <div className="space-y-6 mt-4">
-              <ProjectsEventsList
+              <ProjectsList
                 title={pageContent["body-profile-section-title-main-projects"]}
-                type="projects"
                 itemIds={organization?.projects || []}
                 token={token}
               />
-              <ProjectsEventsList
-                title={pageContent["body-profile-section-title-events"]}
-                type="events"
-                itemIds={organization?.events || []}
-                token={token}
-              />
+              {/* Featured Events */}
+              {organization?.choose_events &&
+                organization.choose_events.length > 0 && (
+                  <div className="space-y-6 mt-4">
+                    <EventsSection
+                      title={
+                        pageContent["body-profile-section-title-events"] ||
+                        "Featured Events"
+                      }
+                      itemIds={organization?.choose_events || []}
+                      token={token}
+                    />
+                  </div>
+                )}
             </div>
 
             {/* News Section */}

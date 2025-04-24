@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import { useApp } from "@/contexts/AppContext";
@@ -78,6 +78,7 @@ export default function EditOrganizationProfilePage() {
   }>({});
   const [eventsData, setEventsData] = useState<Event[]>([]);
   const eventsLoaded = useRef(false);
+  const [loadingChooseEvent, setLoadingChooseEvent] = useState(false);
 
   // State for capacities
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -308,6 +309,7 @@ export default function EditOrganizationProfilePage() {
     known_capacities: organization?.known_capacities || [],
     available_capacities: organization?.available_capacities || [],
     wanted_capacities: organization?.wanted_capacities || [],
+    choose_events: organization?.choose_events || [],
   });
 
   // Use effect to initialize the form data
@@ -332,6 +334,7 @@ export default function EditOrganizationProfilePage() {
         known_capacities: organization.known_capacities || [],
         available_capacities: organization.available_capacities || [],
         wanted_capacities: organization.wanted_capacities || [],
+        choose_events: organization.choose_events || [],
       });
 
       // Initialize projects data
@@ -510,6 +513,9 @@ export default function EditOrganizationProfilePage() {
         updatedFormData.events = updatedEventIds;
       }
 
+      // Garantir que choose_events é mantido na atualização
+      updatedFormData.choose_events = formData.choose_events || [];
+
       await updateOrganization(updatedFormData);
       showSnackbar(
         pageContent["snackbar-edit-profile-organization-success"],
@@ -622,19 +628,69 @@ export default function EditOrganizationProfilePage() {
         : [],
     };
 
-    console.log("Evento para edição:", eventToEdit);
     setCurrentEditingEvent(eventToEdit);
     setShowEventModal(true);
   };
 
-  const handleChooseEvent = (event: Event) => {
-    // Implementar a lógica para escolha de evento como principal, se necessário
-    showSnackbar(
-      pageContent["organization-profile-event-selected"] ||
-        "Evento selecionado com sucesso",
-      "success"
-    );
-  };
+  const handleChooseEvent = useCallback(
+    async (event: Event) => {
+      try {
+        setLoadingChooseEvent(true);
+
+        // Update local state immediately for visual feedback
+        const isAlreadySelected = organization?.choose_events?.some(
+          (chosenEvent) => chosenEvent === event.id
+        );
+
+        // Create an updated copy of the organization
+        const updatedOrg = { ...organization };
+
+        // Ensure choose_events exists
+        if (!updatedOrg.choose_events) {
+          updatedOrg.choose_events = [];
+        }
+
+        if (isAlreadySelected) {
+          // Remove the event from the chosen events list
+          updatedOrg.choose_events = updatedOrg.choose_events.filter(
+            (chosenEvent) => chosenEvent !== event.id
+          );
+        } else {
+          // Add the event to the chosen events list
+          updatedOrg.choose_events.push(event.id);
+        }
+
+        // Send update to the backend
+        await updateOrganization({
+          ...updatedOrg,
+          // Ensuring only required fields are passed
+          choose_events: updatedOrg.choose_events,
+        });
+
+        showSnackbar(
+          isAlreadySelected
+            ? pageContent[
+                "snackbar-edit-profile-organization-remove-event-success"
+              ] || "Event removed successfully"
+            : pageContent[
+                "snackbar-edit-profile-organization-add-event-success"
+              ] || "Event added successfully",
+          "success"
+        );
+      } catch (error) {
+        console.error(error);
+        showSnackbar(
+          pageContent[
+            "snackbar-edit-profile-organization-update-event-failed"
+          ] || "Failed to update event",
+          "error"
+        );
+      } finally {
+        setLoadingChooseEvent(false);
+      }
+    },
+    [organization, updateOrganization, pageContent, showSnackbar]
+  );
 
   const handleDeleteEvent = async (eventId: number) => {
     try {
