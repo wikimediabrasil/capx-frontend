@@ -1,10 +1,6 @@
 "use client";
 
 import { useTheme } from "@/contexts/ThemeContext";
-import ImagesModeIcon from "@/public/static/images/images_mode.svg";
-import AddLinkIcon from "@/public/static/images/add_link.svg";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
 import Image from "next/image";
 import { Event } from "@/types/event";
 import { useApp } from "@/contexts/AppContext";
@@ -28,7 +24,7 @@ interface EventFormItemProps {
   onChange: (index: number, field: keyof Event, value: string) => void;
 }
 
-export default function EventsFormItem({
+export default function EventsForm({
   eventData,
   index,
   onDelete,
@@ -65,40 +61,39 @@ export default function EventsFormItem({
 
   const capacityIds = parseRelatedSkills();
 
-  // Usar o hook para obter detalhes das capacidades
+  // Use the hook to get capacity details
   const { capacityNames } = useCapacityDetails(capacityIds);
 
   useEffect(() => {
     setShowMobile(isMobile);
   }, [isMobile]);
 
-  // Efeito para sincronizar o input com eventData quando ele muda externamente
+  // Effect to sync the input with eventData when it changes externally
   useEffect(() => {
-    // Apenas atualizar o input se o eventData.url mudar e for diferente do valor atual
     if (eventData.url !== urlInput) {
       setUrlInput(eventData.url || "");
     }
-  }, [eventData.url, urlInput]);
+  }, [eventData.url]);
 
   const { organization: organizationName } = useOrganization(
     token,
     eventData.organization
   );
 
-  // Atualizar a lógica de inicialização das capacidades selecionadas
+  // Update the logic of initializing the selected capacities
   useEffect(() => {
     const skillIds = parseRelatedSkills();
 
-    // Se não temos capacidades, não há nada a fazer
+    // If we don't have capacities, there's nothing to do
     if (!skillIds.length) return;
 
-    // Verificar se já temos algum objeto de capacidade para cada ID
+    // Check if we already have a capacity object for each ID
     const existingCodes = new Set(selectedCapacities.map((cap) => cap.code));
     const needsUpdate =
       skillIds.some((id) => !existingCodes.has(id)) ||
       selectedCapacities.length !== skillIds.length;
 
-    // Se não precisamos atualizar as capacidades e não temos novos nomes, não faz nada
+    // If we don't need to update the capacities and we don't have new names, do nothing
     if (
       !needsUpdate &&
       !Object.keys(capacityNames).some((codeStr) => {
@@ -110,18 +105,18 @@ export default function EventsFormItem({
       return;
     }
 
-    // Caso seja necessário atualizar a lista de capacidades selecionadas
+    // If we need to update the list of selected capacities
     const existingCapacities = new Map(
       selectedCapacities.map((cap) => [cap.code, cap])
     );
 
     const capacities = skillIds.map((id: number) => {
-      // Se já temos esta capacidade, manter seus dados existentes
+      // If we already have this capacity, keep its existing data
       if (existingCapacities.has(id)) {
         const existing = existingCapacities.get(id);
-        // Garantir que existing existe antes de acessar suas propriedades
+        // Make sure existing exists before accessing its properties
         if (existing) {
-          // Atualizar o nome apenas se temos um nome do servidor e ele é diferente
+          // Update the name only if we have a server name and it's different
           if (
             capacityNames[id.toString()] &&
             capacityNames[id.toString()] !== existing.name
@@ -135,7 +130,7 @@ export default function EventsFormItem({
         }
       }
 
-      // Caso contrário, criar nova capacidade
+      // Otherwise, create a new capacity
       return {
         code: id,
         name: capacityNames[id.toString()] || `Capacity ${id}`,
@@ -150,11 +145,11 @@ export default function EventsFormItem({
     setSelectedCapacities(capacities);
   }, [capacityIds, capacityNames]);
 
-  // Esta função força uma nova busca dos nomes das capacidades caso eles não tenham sido carregados
+  // This function forces a new search for capacity names if they haven't been loaded
   const forceCapacityNamesUpdate = useCallback(() => {
     const skillIds = parseRelatedSkills();
     if (skillIds.length > 0 && selectedCapacities.length === 0) {
-      // Criar capacidades temporárias apenas com código e nome placeholder
+      // Create temporary capacities only with code and placeholder name
       const tempCapacities = skillIds.map((id: number) => ({
         code: id,
         name: `Capacity ${id}`,
@@ -169,20 +164,20 @@ export default function EventsFormItem({
     }
   }, [parseRelatedSkills, selectedCapacities.length]);
 
-  // Executar a força de atualização uma única vez após o componente montar
+  // Execute the force update once after the component mounts
   useEffect(() => {
     forceCapacityNamesUpdate();
   }, [forceCapacityNamesUpdate]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
     if (!selectedCapacities.find((cap) => cap.code === capacity.code)) {
-      // Adicionar a capacidade completa com seu nome real
-      // Garantir que preservamos o objeto capacity completo
+      // Add the full capacity with its real name
+      // Make sure we preserve the full capacity object
       const newCapacities = [...selectedCapacities, capacity];
 
       setSelectedCapacities(newCapacities);
 
-      // Atualizar related_skills no evento (apenas os IDs)
+      // Update related_skills in event (only the IDs)
       const skillIds = newCapacities.map((cap) => cap.code);
       onChange(index, "related_skills", JSON.stringify(skillIds));
     }
@@ -206,13 +201,14 @@ export default function EventsFormItem({
   };
 
   const handleUrlInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrlInput(e.target.value);
+    const newUrl = e.target.value;
+    setUrlInput(newUrl);
   };
 
   const handleUrlSubmit = () => {
-    // Atualizar o eventData.url
+    // Update the eventData.url
     handleChange("url", urlInput);
-    // Buscar os dados da URL
+    // Search for the data of the URL
     if (urlInput && urlInput.trim() !== "") {
       fetchEventData(urlInput);
     }
@@ -228,13 +224,13 @@ export default function EventsFormItem({
     try {
       let data;
 
-      // Verificar se o input é um QID ou uma URL
+      // Check if the input is a QID or a URL
       if (url.startsWith("Q")) {
         data = await fetchEventDataByQID(url);
       } else if (url.includes("wikidata.org")) {
         data = await fetchEventDataByURL(url);
       } else {
-        // Para URLs que não são do Wikidata (metawiki, learn.wiki, etc)
+        // For URLs that are not Wikidata (metawiki, learn.wiki, etc)
         data = await fetchEventDataByGenericURL(url);
       }
 
@@ -258,7 +254,7 @@ export default function EventsFormItem({
   };
 
   const updateEventDataFromFetch = (data: Partial<Event>) => {
-    // Atualizar todos os campos exceto URL (que já foi atualizado)
+    // Update all fields except URL (which has already been updated)
     if (data.name) {
       handleChange("name", data.name);
     }
@@ -281,14 +277,14 @@ export default function EventsFormItem({
       handleChange("wikidata_qid", data.wikidata_qid);
     }
 
-    // Atualizar a URL somente se for diferente da que acabamos de inserir
+    // Update the URL only if it's different from the one we just inserted
     if (data.url && data.url !== urlInput) {
       setUrlInput(data.url);
       handleChange("url", data.url);
     }
   };
 
-  // Função para renderizar as capacidades selecionadas
+  // Function to render the selected capacities
   const renderSelectedCapacities = () => {
     if (selectedCapacities.length === 0) {
       return (
@@ -357,7 +353,7 @@ export default function EventsFormItem({
                 type="text"
                 placeholder={
                   pageContent["organization-profile-event-url-placeholder"] ||
-                  "Insira uma URL (Wikidata, Wikimedia ou WikiLearn) ou um QID"
+                  "Insert an URL"
                 }
                 className={`w-full bg-transparent outline-none ${
                   darkMode
@@ -412,7 +408,7 @@ export default function EventsFormItem({
             }`}
           >
             {pageContent["organization-profile-event-url-tooltip"] ||
-              "Insert an event URL and click on Search to automatically fill in the data."}
+              "If your URL is a Meta event or a WikiLearn course, the tool will sync some fields automatically."}
           </p>
         </div>
 
@@ -491,7 +487,7 @@ export default function EventsFormItem({
             <div
               className={`flex ${
                 isMobile ? "w-full" : "w-1/2"
-              } flex-row gap-2 border-capx-dark-box-bg rounded-md`}
+              } flex-row gap-2 border border-capx-dark-box-bg rounded-md`}
             >
               <input
                 type="datetime-local"
