@@ -35,7 +35,6 @@ export async function GET(req: NextRequest) {
         wd_code: value,
       }));
     const metabaseResponse = await fetchMetabase(codes, language ?? "en");
-    console.log("metabaseResponse", metabaseResponse);
     const wikidataResponse = await fetchWikidata(codes, language ?? "en");
 
     const codesWithNames = codes.map((obj1) => {
