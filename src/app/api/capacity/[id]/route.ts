@@ -35,18 +35,21 @@ export async function GET(
 
     // fetch details using fetchMetabase first
     const metabaseResults = await fetchMetabase([capacityCodes], language);
+    console.log("Metabase results:", metabaseResults);
     let capacityData = {};
 
-    if (metabaseResults.length > 0 && metabaseResults[0].name) {
+    if (metabaseResults.length > 0) {
       // use Metabase data
+      console.log("metabaseResults", metabaseResults);
       capacityData = {
-        name: metabaseResults[0].name,
-        description: metabaseResults[0].description || "",
+        name: metabaseResults[0].itemLabel.value,
+        description: metabaseResults[0].itemDescription.value || "",
+        item: metabaseResults[0].item.value,
       };
     } else {
       // fallback for Wikidata
       const wikidataResults = await fetchWikidata([capacityCodes], language);
-
+      console.log("Wikidata results:", wikidataResults);
       if (wikidataResults.length > 0) {
         capacityData = {
           name: wikidataResults[0].name,
