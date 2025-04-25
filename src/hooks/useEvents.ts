@@ -3,12 +3,7 @@ import { Event } from "@/types/event";
 import { eventsService } from "@/services/eventService";
 import { EventFilterState } from "@/app/events/types";
 
-export function useEvent(
-  eventId?: number,
-  token: string,
-  limit?: number,
-  offset?: number
-) {
+export function useEvent(eventId?: number, token?: string) {
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -38,22 +33,10 @@ export function useEvent(
   const createEvent = async (data: Partial<Event>) => {
     if (!token) return;
     try {
-      // Ensure the organizations field is correctly initialized
       const eventData = {
         ...data,
-        organizations: data.organizations || [],
+        organization: data.organization,
       };
-
-      // If there is no explicit organization_id, but there is an organization, use this value
-      if (
-        !eventData.organizations.includes(Number(data.organization)) &&
-        data.organization
-      ) {
-        eventData.organizations = [
-          ...eventData.organizations,
-          Number(data.organization),
-        ];
-      }
 
       const response = await eventsService.createEvent(eventData, token);
       if (!response || !response.id) {
@@ -72,22 +55,9 @@ export function useEvent(
   const updateEvent = async (eventId: number, data: Partial<Event>) => {
     if (!token || !eventId) return;
     try {
-      // Ensure the organizations field is correctly maintained
       const eventData = {
         ...data,
       };
-
-      // If there is no explicit organization_id, but there is an organization, use this value
-      if (
-        data.organization &&
-        data.organizations &&
-        !data.organizations.includes(Number(data.organization))
-      ) {
-        eventData.organizations = [
-          ...data.organizations,
-          Number(data.organization),
-        ];
-      }
 
       const response = await eventsService.updateEvent(
         eventId,
@@ -130,7 +100,7 @@ export function useEvent(
 }
 
 export function useEvents(
-  token: string,
+  token?: string,
   limit?: number,
   offset?: number,
   organizationId?: number,
@@ -143,43 +113,22 @@ export function useEvents(
 
   useEffect(() => {
     const fetchEvents = async () => {
-      if (!token) {
-        console.error("Token not available, cannot search for events");
-        return;
-      }
-
       setIsLoading(true);
       try {
-        const response = await eventsService.getEvents(
-          token,
-          limit,
-          offset,
-          filters
-        );
+        const response = await eventsService.getEvents(limit, offset, filters);
 
-        // The API should return { results: Event[], count: number }
         const eventsData = Array.isArray(response)
           ? response
           : response.results || [];
-        const totalCount =
-          !Array.isArray(response) && response.count
-            ? response.count
-            : eventsData.length;
+        const totalCount = Array.isArray(response)
+          ? eventsData.length
+          : response.count !== undefined
+          ? response.count
+          : eventsData.length;
 
         // Update total count
         setCount(totalCount);
-
-        // If an organizationId was provided, filter events belonging to that organization
-        if (organizationId) {
-          const organizationEvents = eventsData.filter(
-            (event) =>
-              event.organizations &&
-              event.organizations.includes(organizationId)
-          );
-          setEvents(organizationEvents);
-        } else {
-          setEvents(eventsData);
-        }
+        setEvents(eventsData);
 
         setError(null);
       } catch (err) {
@@ -195,7 +144,6 @@ export function useEvents(
     fetchEvents();
   }, [token, limit, offset, organizationId, filters]);
 
-  // Method specific to search events by IDs
   const fetchEventsByIds = async (eventIds: number[]) => {
     if (!token || !eventIds.length) {
       return [];

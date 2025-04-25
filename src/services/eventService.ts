@@ -9,12 +9,10 @@ interface EventsResponse {
 
 export const eventsService = {
   async getEvents(
-    token: string,
     limit?: number,
     offset?: number,
     filters?: EventFilterState
   ): Promise<EventsResponse> {
-    const headers = { Authorization: `Token ${token}` };
     const params: any = { limit, offset };
 
     // Add filters if present
@@ -55,7 +53,6 @@ export const eventsService = {
 
     try {
       const response = await axios.get("/api/events/", {
-        headers,
         params,
       });
 

@@ -2,17 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 export async function GET(request: NextRequest) {
-  const token = request.headers.get("Authorization");
   const searchParams = request.nextUrl.searchParams;
   const limit = searchParams.get("limit");
   const offset = searchParams.get("offset");
 
   try {
     const response = await axios.get(`${process.env.BASE_URL}/events/`, {
-      headers: {
-        Authorization: token,
-        "Content-Type": "application/json",
-      },
       params: {
         limit,
         offset,
