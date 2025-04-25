@@ -275,6 +275,12 @@
   "not-found-page": "404 | Page Not Found",
   "not-found-page-back-home": "Back Home",
   "privacy-policy-private-information-text03-link": "Wikimedia Cloud Service Terms of use",
+  "events-filters-applied": "Filters applied:",
+  "filters-location-online": "Online",
+  "filters-location-hybrid": "Hybrid",
+  "filters-location-in-person": "In-person",
+  "filters-from-date": "From:",
+  "filters-to-date": "To:",
   "filters-learners": "Learners",
   "filters-sharers": "Sharers",
   "filters-search-by-capacities": "Search by capacities",
@@ -342,6 +348,8 @@
   "events-search-results-singular": "event found",
   "events-search-results-plural": "events found",
   "events-search-results-no-results": "No results found for your search.",
+  "events-no-results-with-filters": "No events correspond to the selected filters. Try removing some filters.",
+  "events-no-results": "No events available",
   "events-search-results-error": "Error loading events. Please try again.",
   "organization-profile-edit-event": "Edit event",
   "organization-profile-choose-event": "Choose event",
@@ -380,5 +388,6 @@
   "report-bug-status-pending": "Pending",
   "report-bug-status-in-progress": "In progress",
   "report-bug-status-resolved": "Resolved",
-  "report-bug-status-closed": "Closed"
+  "report-bug-status-closed": "Closed",
+  "events-main-wrapper-try-again": "Try again"
 }

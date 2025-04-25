@@ -7,19 +7,33 @@ interface EventsResponse {
   count: number;
 }
 
+const locationTypeToAPIMapping: Record<string, string> = {
+  [EventLocationType.Online]: "virtual",
+  [EventLocationType.InPerson]: "in_person",
+  [EventLocationType.Hybrid]: "hybrid",
+};
+
 export const eventsService = {
   async getEvents(
     limit?: number,
     offset?: number,
     filters?: EventFilterState
   ): Promise<EventsResponse> {
-    const params: any = { limit, offset };
+    const params: any = {};
+
+    // Adicionar parâmetros de paginação
+    if (limit !== undefined) params.limit = limit;
+    if (offset !== undefined) params.offset = offset;
 
     // Add filters if present
     if (filters) {
       // Add capacities as query string
       if (filters.capacities && filters.capacities.length > 0) {
-        params.capacities = filters.capacities.map((cap) => cap.code).join(",");
+        // Convert codes to string for the API
+        const capacityCodes = filters.capacities
+          .map((cap) => cap.code.toString())
+          .join(",");
+        params.capacities = capacityCodes;
       }
 
       // Add territories
@@ -32,7 +46,11 @@ export const eventsService = {
         filters.locationType &&
         filters.locationType !== EventLocationType.All
       ) {
-        params.location_type = filters.locationType;
+        // Convert frontend to API format
+        const locationValue =
+          locationTypeToAPIMapping[filters.locationType] ||
+          filters.locationType;
+        params.location_type = locationValue;
       }
 
       // Add start date filter
@@ -113,7 +131,7 @@ export const eventsService = {
         );
       }
 
-      // Manter a compatibilidade com código que ainda espera organizations
+      // Keep compatibility with code that still expects organizations
       if (
         !response.data.organizations ||
         !Array.isArray(response.data.organizations)

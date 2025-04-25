@@ -3,15 +3,41 @@ import axios from "axios";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
+
+  // Convert searchParams to object to pass all filters to the backend
+  const params: Record<string, string> = {};
+
+  // Extrair todos os parâmetros e adicionar ao objeto params
+  searchParams.forEach((value, key) => {
+    params[key] = value;
+  });
+
+  // Parâmetros específicos para garantir que estejam sendo enviados
   const limit = searchParams.get("limit");
   const offset = searchParams.get("offset");
+  const capacities = searchParams.get("capacities");
+  const territories = searchParams.get("territories");
+  const location_type = searchParams.get("location_type");
+  const start_date = searchParams.get("start_date");
+  const end_date = searchParams.get("end_date");
+  const organization_id = searchParams.get("organization_id");
+
+  // Garantir que todos os parâmetros estejam incluídos
+  if (limit) params.limit = limit;
+  if (offset) params.offset = offset;
+  if (capacities) params.capacities = capacities;
+  if (territories) params.territories = territories;
+  if (location_type) {
+    params.location_type = location_type;
+    console.log("API - Enviando location_type:", location_type);
+  }
+  if (start_date) params.start_date = start_date;
+  if (end_date) params.end_date = end_date;
+  if (organization_id) params.organization_id = organization_id;
 
   try {
     const response = await axios.get(`${process.env.BASE_URL}/events/`, {
-      params: {
-        limit,
-        offset,
-      },
+      params,
     });
 
     // Return both the results and the total count

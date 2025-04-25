@@ -58,6 +58,11 @@ export default function EventsMainWrapper() {
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 
+  // Log when activeFilters change
+  useEffect(() => {
+    // No need to log active filters
+  }, [activeFilters]);
+
   // Calculate offset based on current page
   const offset = (currentPage - 1) * itemsPerPage;
 
@@ -263,27 +268,26 @@ export default function EventsMainWrapper() {
             activeFilters.organizationId) && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <p className="text-blue-800 font-medium">
-                {pageContent["events-filters-applied"] || "Filtros aplicados:"}
+                {pageContent["events-filters-applied"] || "Filters applied:"}
                 {activeFilters.locationType !== EventLocationType.All && (
                   <span className="ml-2 inline-block">
                     {activeFilters.locationType === EventLocationType.Online
                       ? pageContent["filters-location-online"] || "Online"
                       : activeFilters.locationType ===
                         EventLocationType.InPerson
-                      ? pageContent["filters-location-in-person"] ||
-                        "Presencial"
-                      : pageContent["filters-location-hybrid"] || "Híbrido"}
+                      ? pageContent["filters-location-in-person"] || "In-person"
+                      : pageContent["filters-location-hybrid"] || "Hybrid"}
                   </span>
                 )}
                 {activeFilters.dateRange?.startDate && (
                   <span className="ml-2 inline-block">
-                    {pageContent["filters-from-date"] || "De:"}{" "}
+                    {pageContent["filters-from-date"] || "From:"}{" "}
                     {activeFilters.dateRange.startDate}
                   </span>
                 )}
                 {activeFilters.dateRange?.endDate && (
                   <span className="ml-2 inline-block">
-                    {pageContent["filters-to-date"] || "Até:"}{" "}
+                    {pageContent["filters-to-date"] || "To:"}{" "}
                     {activeFilters.dateRange.endDate}
                   </span>
                 )}
@@ -294,13 +298,14 @@ export default function EventsMainWrapper() {
           {isSearchMode && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <p>
-                {pageContent["events-search-results"] || "Resultados da busca:"}{" "}
+                {pageContent["events-search-results"] ||
+                  "Showing search results:"}{" "}
                 {searchResults.length}{" "}
                 {searchResults.length === 1
                   ? pageContent["events-search-results-singular"] ||
-                    "evento encontrado"
+                    "event found"
                   : pageContent["events-search-results-plural"] ||
-                    "eventos encontrados"}
+                    "events found"}
               </p>
             </div>
           )}
@@ -310,17 +315,40 @@ export default function EventsMainWrapper() {
               <LoadingState />
             </div>
           ) : eventsError && !isSearchMode ? (
-            <div className="text-center py-8 text-red-500">
-              {pageContent["events-search-results-error"] ||
-                "Erro ao buscar eventos"}
+            <div className="text-center py-8">
+              <div className="text-red-500 mb-2">
+                {pageContent["events-search-results-error"] ||
+                  "Error loading events"}
+              </div>
+              <div className="text-gray-600">
+                {eventsError.message || "Try again later"}
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                {pageContent["events-main-wrapper-try-again"] || "Try again"}
+              </button>
             </div>
           ) : displayedEvents.length === 0 ? (
             <div className="text-center py-8">
               {isSearchMode
                 ? pageContent["events-search-results-no-results"] ||
-                  "Nenhum evento encontrado"
-                : pageContent["events-search-results-error"] ||
-                  "Nenhum evento disponível"}
+                  "No events found"
+                : Object.keys(activeFilters).some(
+                    (key) =>
+                      (key === "capacities" &&
+                        activeFilters.capacities.length > 0) ||
+                      (key === "locationType" &&
+                        activeFilters.locationType !== EventLocationType.All) ||
+                      (key === "dateRange" &&
+                        (activeFilters.dateRange?.startDate ||
+                          activeFilters.dateRange?.endDate)) ||
+                      (key === "organizationId" && activeFilters.organizationId)
+                  )
+                ? pageContent["events-no-results-with-filters"] ||
+                  "No events correspond to the selected filters. Try removing some filters."
+                : pageContent["events-no-results"] || "No events available"}
             </div>
           ) : (
             <>

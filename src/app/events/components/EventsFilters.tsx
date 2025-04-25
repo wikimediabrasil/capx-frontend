@@ -16,8 +16,8 @@ import SearchIcon from "@/public/static/images/search_icon.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
 import CalendarIcon from "@/public/static/images/calendar_month_dark.svg";
 import CalendarIconWhite from "@/public/static/images/calendar_month.svg";
-import LocationIcon from "@/public/static/images/cake.svg";//TODO: change to location icon
-import LocationIconWhite from "@/public/static/images/cake.svg";//TODO: change to location icon
+import LocationIcon from "@/public/static/images/location_on_dark.svg";
+import LocationIconWhite from "@/public/static/images/location_on.svg";
 import OrganizationIcon from "@/public/static/images/supervised_user_circle.svg";
 import OrganizationIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
 
@@ -26,8 +26,6 @@ import { useSession } from "next-auth/react";
 import BaseButton from "@/components/BaseButton";
 import { Capacity } from "@/types/capacity";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 interface EventsFiltersProps {
   onClose: () => void;
@@ -44,13 +42,13 @@ export function EventsFilters({
   const { pageContent } = useApp();
   const { data: session } = useSession();
   const token = session?.user?.token;
-  
+
   const [searchCapacity, setSearchCapacity] = useState("");
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
   const [showSkillModal, setShowSkillModal] = useState(false);
-  
+
   // Fetch organizations for the organization filter
-  const { organizations } = useOrganizations(100, 0);
+  const { organizations } = useOrganizations();
 
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = filters.capacities.some(
@@ -71,6 +69,11 @@ export function EventsFilters({
         },
       ],
     }));
+
+    // Update search input display
+    setSearchCapacity(capacity.name);
+    // Close the modal after selection
+    setShowSkillModal(false);
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
@@ -81,18 +84,20 @@ export function EventsFilters({
   };
 
   const handleApply = () => {
-    onApplyFilters(filters);
+    onApplyFilters({ ...filters });
+    onClose();
   };
 
   const handleClearAll = () => {
-    setFilters({
+    const clearedFilters = {
       capacities: [],
       territories: [],
       eventType: EventFilterType.All,
       locationType: EventLocationType.All,
       dateRange: undefined,
-      organizationId: undefined
-    });
+      organizationId: undefined,
+    };
+    setFilters(clearedFilters);
     setSearchCapacity("");
   };
 
@@ -102,32 +107,34 @@ export function EventsFilters({
       locationType: type,
     }));
   };
-  
+
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters((prev) => ({
       ...prev,
       dateRange: {
         ...prev.dateRange,
-        startDate: e.target.value || undefined
-      }
+        startDate: e.target.value || undefined,
+      },
     }));
   };
-  
+
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters((prev) => ({
       ...prev,
       dateRange: {
         ...prev.dateRange,
-        endDate: e.target.value || undefined
-      }
+        endDate: e.target.value || undefined,
+      },
     }));
   };
-  
-  const handleOrganizationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+
+  const handleOrganizationChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const orgId = e.target.value ? Number(e.target.value) : undefined;
     setFilters((prev) => ({
       ...prev,
-      organizationId: orgId
+      organizationId: orgId,
     }));
   };
 
@@ -180,10 +187,13 @@ export function EventsFilters({
           <div className="p-4 space-y-6">
             {/* Capacities */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
+              {/* TODO: Add this back when the capacity selection filter is implemented */}
+              {/* <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? CapxIconWhite : CapxIcon}
-                  alt={pageContent["filters-capacities-alt-icon"] || "Capacities"}
+                  alt={
+                    pageContent["filters-capacities-alt-icon"] || "Capacities"
+                  }
                   width={24}
                   height={24}
                 />
@@ -194,14 +204,17 @@ export function EventsFilters({
                 >
                   {pageContent["filters-capacities"] || "Capacidades"}
                 </h2>
-              </div>
-              <div className="relative">
+              </div> */}
+              {/* <div className="relative">
                 <input
                   type="text"
                   readOnly
                   value={searchCapacity}
                   onFocus={() => setShowSkillModal(true)}
-                  placeholder={pageContent["filters-search-by-capacities"] || "Buscar por capacidades"}
+                  placeholder={
+                    pageContent["filters-search-by-capacities"] ||
+                    "Search by capacities"
+                  }
                   className={`
                     w-full p-2 rounded-lg border
                     ${
@@ -219,10 +232,11 @@ export function EventsFilters({
                     height={20}
                   />
                 </div>
-              </div>
+              </div> TODO: Add this back when the capacity selection filter is implemented */}
 
               {/* Selected Capacities */}
-              {filters.capacities.length > 0 && (
+              {/* TODO: Add this back when the capacity selection filter is implemented */}
+              {/* {filters.capacities.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {filters.capacities.map((capacity, index) => (
                     <div
@@ -242,7 +256,10 @@ export function EventsFilters({
                       >
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt={pageContent["filters-remove-item-alt-icon"] || "Remove"}
+                          alt={
+                            pageContent["filters-remove-item-alt-icon"] ||
+                            "Remove"
+                          }
                           width={16}
                           height={16}
                         />
@@ -250,16 +267,16 @@ export function EventsFilters({
                     </div>
                   ))}
                 </div>
-              )}
+              )} */}
             </div>
 
-            <CapacitySelectionModal
+            {/*  <CapacitySelectionModal
               isOpen={showSkillModal}
               onClose={() => setShowSkillModal(false)}
               onSelect={handleCapacitySelect}
               title={pageContent["select-capacity"] || "Selecionar capacidade"}
-            />
-            
+            /> */}
+
             {/* Event Date Range */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -277,10 +294,14 @@ export function EventsFilters({
                   {pageContent["filters-date"] || "Data do evento"}
                 </h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  <label
+                    className={`block text-sm font-medium mb-1 ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
                     {pageContent["filters-start-date"] || "Data inicial"}
                   </label>
                   <input
@@ -298,7 +319,11 @@ export function EventsFilters({
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium mb-1 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  <label
+                    className={`block text-sm font-medium mb-1 ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
                     {pageContent["filters-end-date"] || "Data final"}
                   </label>
                   <input
@@ -338,7 +363,9 @@ export function EventsFilters({
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 <button
-                  onClick={() => handleLocationTypeChange(EventLocationType.All)}
+                  onClick={() =>
+                    handleLocationTypeChange(EventLocationType.All)
+                  }
                   className={`
                     p-2 border rounded-lg flex items-center justify-center gap-2
                     ${
@@ -352,15 +379,15 @@ export function EventsFilters({
                     }
                   `}
                 >
-                  <span
-                    className={`${darkMode ? "text-white" : "text-black"}`}
-                  >
+                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
                     {pageContent["filters-location-all"] || "Todos"}
                   </span>
                 </button>
 
                 <button
-                  onClick={() => handleLocationTypeChange(EventLocationType.Online)}
+                  onClick={() =>
+                    handleLocationTypeChange(EventLocationType.Online)
+                  }
                   className={`
                     p-2 border rounded-lg flex items-center justify-center gap-2
                     ${
@@ -374,15 +401,15 @@ export function EventsFilters({
                     }
                   `}
                 >
-                  <span
-                    className={`${darkMode ? "text-white" : "text-black"}`}
-                  >
+                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
                     {pageContent["filters-location-online"] || "Online"}
                   </span>
                 </button>
-                
+
                 <button
-                  onClick={() => handleLocationTypeChange(EventLocationType.InPerson)}
+                  onClick={() =>
+                    handleLocationTypeChange(EventLocationType.InPerson)
+                  }
                   className={`
                     p-2 border rounded-lg flex items-center justify-center gap-2
                     ${
@@ -396,15 +423,15 @@ export function EventsFilters({
                     }
                   `}
                 >
-                  <span
-                    className={`${darkMode ? "text-white" : "text-black"}`}
-                  >
+                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
                     {pageContent["filters-location-in-person"] || "Presencial"}
                   </span>
                 </button>
-                
+
                 <button
-                  onClick={() => handleLocationTypeChange(EventLocationType.Hybrid)}
+                  onClick={() =>
+                    handleLocationTypeChange(EventLocationType.Hybrid)
+                  }
                   className={`
                     p-2 border rounded-lg flex items-center justify-center gap-2
                     ${
@@ -418,9 +445,7 @@ export function EventsFilters({
                     }
                   `}
                 >
-                  <span
-                    className={`${darkMode ? "text-white" : "text-black"}`}
-                  >
+                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
                     {pageContent["filters-location-hybrid"] || "Híbrido"}
                   </span>
                 </button>
@@ -432,7 +457,10 @@ export function EventsFilters({
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? OrganizationIconWhite : OrganizationIcon}
-                  alt={pageContent["filters-organization-alt-icon"] || "Organization"}
+                  alt={
+                    pageContent["filters-organization-alt-icon"] ||
+                    "Organization"
+                  }
                   width={24}
                   height={24}
                 />
@@ -444,7 +472,7 @@ export function EventsFilters({
                   {pageContent["filters-organization"] || "Organização"}
                 </h2>
               </div>
-              
+
               <select
                 value={filters.organizationId || ""}
                 onChange={handleOrganizationChange}
@@ -458,7 +486,8 @@ export function EventsFilters({
                 `}
               >
                 <option value="">
-                  {pageContent["filters-select-organization"] || "Selecione uma organização"}
+                  {pageContent["filters-select-organization"] ||
+                    "Selecione uma organização"}
                 </option>
                 {organizations?.map((org) => (
                   <option key={org.id} value={org.id}>
@@ -499,4 +528,4 @@ export function EventsFilters({
       </div>
     </div>
   );
-} 
+}
