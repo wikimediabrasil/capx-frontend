@@ -36,13 +36,14 @@ export default function MobileNavbar({
     darkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg"
   } ${mobileMenuStatus ? "shadow-lg" : ""}`;
 
+  const token = session?.user?.token;
   if (session) {
     return (
       <>
         <div className={navbarClasses}>
           <div className="flex w-screen max-w-full justify-between items-center px-4 py-4">
             <div className="relative flex items-center">
-              <NextLink href="/">
+              <NextLink href={token ? "/home" : "/"}>
                 <Image
                   priority
                   src={CapXLogo}

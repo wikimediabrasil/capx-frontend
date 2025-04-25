@@ -86,6 +86,7 @@
 	"no-user-profile": "Il n' y a pas d' utilisateurs avec ce nom d' utilisateur enregistré dans CapX",
 	"no-report-rights": "Vous n'avez pas la permission de mettre à jour ce rapport ou ce rapport n'existe pas !",
 	"privacy-policy-banner": "Politique de confidentialité",
+	"privacy-policy-private-information-text02": "Si vous êtes responsable d'une organisation et disposez des droits de modification de son profil, vous pouvez supprimer ses données en le modifiant et en le laissant vide. Pour retirer votre rôle de responsable du profil, vous pouvez envoyer un e-mail à l'équipe. Si personne n'est associé comme responsable, le profil n'apparaîtra plus dans la liste des organisations.",
 	"report-bug-banner-page": "Rapports de bogues",
 	"report-bug-submit": "Soumettre",
 	"report-bug-submission": "Soumettre",

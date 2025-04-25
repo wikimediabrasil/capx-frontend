@@ -33,28 +33,30 @@ export default function DesktopNavbar({
   const { darkMode } = useTheme();
   const [showMenu, setShowMenu] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  
+
+  const token = session?.user?.token;
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showMenu && 
-          menuButtonRef.current && 
-          !menuButtonRef.current.contains(event.target as Node) &&
-          !(event.target as Element).closest('#hamburger-menu')) {
+      if (
+        showMenu &&
+        menuButtonRef.current &&
+        !menuButtonRef.current.contains(event.target as Node) &&
+        !(event.target as Element).closest("#hamburger-menu")
+      ) {
         setShowMenu(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showMenu]);
 
   const menuItems = [
-    { title: pageContent["navbar-link-home"], 
-      to: "/home", 
-      active: true },
+    { title: pageContent["navbar-link-home"], to: "/home", active: true },
     {
       title: pageContent["navbar-link-capacities"],
       to: "/capacity",
@@ -81,11 +83,12 @@ export default function DesktopNavbar({
       active: true,
     },
   ];
-  
+
   const unauthenticatedMenuItems = [
-    { title: pageContent["navbar-link-organizations"], 
-      to: "/organizations_list", 
-      active: false // TODO: Activate on #189 Create organization list page
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organizations_list",
+      active: false, // TODO: Activate on #189 Create organization list page
     },
   ];
 
@@ -125,7 +128,7 @@ export default function DesktopNavbar({
     >
       <div className="flex w-full h-full justify-between pb-6 pt-10 px-4 md:px-8 lg:px-12 max-w-screen-xl mx-auto">
         <div className="flex-none relative my-auto ml-4 sm:ml-0">
-          <NextLink href="/">
+          <NextLink href={token ? "/home" : "/"}>
             <div className="relative w-[80px] h-[80px]">
               <Image
                 priority
@@ -136,7 +139,7 @@ export default function DesktopNavbar({
             </div>
           </NextLink>
         </div>
-        
+
         {/* Routes for unauthenticated users */}
         {!session && (
           <div className="flex items-center ml-10">
@@ -145,13 +148,13 @@ export default function DesktopNavbar({
                 key={`desktop-menu-item-${index}`}
                 href={item.to}
                 className="flex text-center font-[Montserrat] text-[20px] not-italic font-normal leading-[normal] my-auto cursor-pointer hover:border-b hover:border-current"
-            >
-              {item.title}
+              >
+                {item.title}
               </NextLink>
             ))}
           </div>
         )}
-        
+
         <div className="flex flex-[1.5] items-center justify-end gap-[24px] pl-4">
           <DarkModeButton />
           {session ? <ProfileSelect /> : null}
@@ -162,27 +165,32 @@ export default function DesktopNavbar({
             setPageContent={setPageContent}
             pageContent={pageContent}
           />
-          
+
           {/* Hamburger Menu Button (shows when logged in) */}
           {session && (
             <div className="relative">
-              <button 
+              <button
                 ref={menuButtonRef}
                 onClick={() => setShowMenu(!showMenu)}
                 className="focus:outline-none"
                 aria-label={showMenu ? "Close menu" : "Open menu"}
               >
                 <Image
-                  src={showMenu 
-                    ? (darkMode ? IconCloseMobileMenuDarkMode : IconCloseMobileMenuLightMode)
-                    : (darkMode ? BurgerMenuDarkMode : BurgerMenu)
+                  src={
+                    showMenu
+                      ? darkMode
+                        ? IconCloseMobileMenuDarkMode
+                        : IconCloseMobileMenuLightMode
+                      : darkMode
+                      ? BurgerMenuDarkMode
+                      : BurgerMenu
                   }
                   alt={showMenu ? "Close menu" : "Menu"}
                   width={32}
                   height={32}
                 />
               </button>
-              
+
               {/* Dropdown Menu */}
               <AnimatePresence>
                 {showMenu && (
@@ -205,24 +213,26 @@ export default function DesktopNavbar({
                           href={item.to}
                           onClick={() => setShowMenu(false)}
                           className={`flex items-center px-4 py-3 transition-colors ${
-                            darkMode
-                              ? "hover:bg-gray-700"
-                              : "hover:bg-gray-100"
+                            darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
                           }`}
                         >
-                          <span className="text-lg font-medium">{item.title}</span>
+                          <span className="text-lg font-medium">
+                            {item.title}
+                          </span>
                         </NextLink>
                       ))}
-                      
+
                       {/* Divider */}
-                      <div className={`my-2 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
-                      
+                      <div
+                        className={`my-2 border-t ${
+                          darkMode ? "border-gray-700" : "border-gray-200"
+                        }`}
+                      ></div>
+
                       {/* Logout button*/}
-                      <div 
+                      <div
                         className={`flex items-center px-4 py-3 transition-colors ${
-                          darkMode
-                            ? "hover:bg-gray-700"
-                            : "hover:bg-gray-100"
+                          darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
                         }`}
                       >
                         <div className="w-[100%] mx-auto">
@@ -240,7 +250,7 @@ export default function DesktopNavbar({
               </AnimatePresence>
             </div>
           )}
-          
+
           {/* Login button */}
           {!session && (
             <AuthButton
