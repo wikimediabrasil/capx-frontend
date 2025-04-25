@@ -10,6 +10,9 @@ export function useCapacityDetails(
   const [capacityNames, setCapacityNames] = useState<{ [key: string]: string }>(
     {}
   );
+  const [capacityLoadingState, setCapacityLoadingState] = useState<{
+    [key: string]: boolean;
+  }>({});
   const { data: session } = useSession();
   const { pageContent } = useApp();
 
@@ -19,6 +22,14 @@ export function useCapacityDetails(
     const uniqueIds = Array.from(
       new Set(capacityIds.map((id) => (typeof id === "object" ? id.code : id)))
     ).filter((id): id is number => typeof id === "number");
+
+    // Mark all capacities as loading
+    const loadingState = uniqueIds.reduce((acc, id) => {
+      acc[id.toString()] = true;
+      return acc;
+    }, {} as { [key: string]: boolean });
+
+    setCapacityLoadingState(loadingState);
 
     const fetchCapacities = async () => {
       try {
@@ -34,7 +45,10 @@ export function useCapacityDetails(
 
         const newNames = results.reduce((acc, capacity) => {
           if (capacity && typeof capacity === "object" && "name" in capacity) {
-            acc[capacity.code.toString()] = capacity.name;
+            const idStr = capacity.code.toString();
+            acc[idStr] = capacity.name;
+            // Mark as not loading anymore
+            setCapacityLoadingState((prev) => ({ ...prev, [idStr]: false }));
           }
           return acc;
         }, {} as { [key: string]: string });
@@ -50,16 +64,32 @@ export function useCapacityDetails(
 
   return {
     capacityNames,
+    capacityLoadingState,
     getCapacityName: useCallback(
       (capacity: Capacity | number | string) => {
         if (!capacity) return pageContent["loading"];
+
         const id =
           typeof capacity === "object"
             ? Number(capacity.code)
             : Number(capacity);
-        return capacityNames[id.toString()] || '';
+
+        const idStr = id.toString();
+
+        // If the name is available, return it
+        if (capacityNames[idStr]) {
+          return capacityNames[idStr];
+        }
+
+        // If it is still loading, show loading text
+        if (capacityLoadingState[idStr]) {
+          return pageContent["loading"];
+        }
+
+        // If it is not loading and the name is not available, use a generic name
+        return `Capacity ${id}`;
       },
-      [capacityNames]
+      [capacityNames, capacityLoadingState, pageContent]
     ),
   };
 }
@@ -74,19 +104,21 @@ export function useCapacity(capacityId?: string | null) {
   useEffect(() => {
     const fetchCapacity = async () => {
       if (!capacityId || !session?.user?.token) return;
-      
+
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const data = await capacityService.fetchCapacityById(capacityId, {
           params: { language },
-          headers: { Authorization: `Token ${session.user.token}` }
+          headers: { Authorization: `Token ${session.user.token}` },
         });
         setCapacity(data);
       } catch (err) {
         console.error("Error fetching capacity:", err);
-        setError(err instanceof Error ? err : new Error("Failed to fetch capacity"));
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch capacity")
+        );
       } finally {
         setIsLoading(false);
       }
@@ -98,6 +130,6 @@ export function useCapacity(capacityId?: string | null) {
   return {
     capacity,
     isLoading,
-    error
+    error,
   };
 }

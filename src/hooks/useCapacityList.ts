@@ -1,6 +1,10 @@
 import { useState, useCallback } from "react";
 import { capacityService } from "@/services/capacityService";
-import { getCapacityColor, getCapacityIcon } from "@/lib/utils/capacitiesUtils";
+import {
+  getCapacityColor,
+  getCapacityIcon,
+  sanitizeCapacityName,
+} from "@/lib/utils/capacitiesUtils";
 import { CapacityResponse, Capacity } from "@/types/capacity";
 
 export function useCapacityList(token?: string, language: string = "en") {
@@ -29,7 +33,7 @@ export function useCapacityList(token?: string, language: string = "en") {
         const baseCode = item.code.toString();
         return {
           code: baseCode,
-          name: item.name,
+          name: sanitizeCapacityName(item.name, baseCode),
           color: baseCode.startsWith("10")
             ? "organizational"
             : baseCode.startsWith("36")
@@ -75,7 +79,15 @@ export function useCapacityList(token?: string, language: string = "en") {
         );
 
         const capacityData = await Promise.all(
-          Object.entries(response).map(async ([code, name]) => {
+          Object.entries(response).map(async ([code, wd_code]) => {
+            const capacityDetails = await capacityService.fetchCapacityById(
+              code,
+              {
+                params: { language },
+                headers: { Authorization: `Token ${token}` },
+              }
+            );
+
             const childrenResponse =
               await capacityService.fetchCapacitiesByType(code, {
                 headers: { Authorization: `Token ${token}` },
@@ -83,8 +95,12 @@ export function useCapacityList(token?: string, language: string = "en") {
 
             return {
               code,
-              name,
+              name: sanitizeCapacityName(
+                capacityDetails?.name || `Capacity ${code}`,
+                code
+              ),
               hasChildren: Object.keys(childrenResponse).length > 0,
+              wd_code: capacityDetails?.wd_code || wd_code,
             };
           })
         );
@@ -97,12 +113,13 @@ export function useCapacityList(token?: string, language: string = "en") {
           const baseCode = item.code.toString();
           return {
             code: baseCode,
-            name: item.name,
+            name: sanitizeCapacityName(item.name, baseCode),
             color: getCapacityColor(parentCapacity?.color || "gray-200"),
             icon: getCapacityIcon(Number(parentCode)),
             hasChildren: item.hasChildren,
             skill_type: Number(parentCode),
             skill_wikidata_item: "",
+            wd_code: item.wd_code,
           };
         });
 
@@ -266,7 +283,7 @@ export function useCapacityList(token?: string, language: string = "en") {
 
               return {
                 code: item.code,
-                name: item.name,
+                name: sanitizeCapacityName(item.name, item.code),
                 color: rootCapacity?.color || item.color,
                 icon: rootCapacity?.icon || item.icon,
                 hasChildren: true,
@@ -288,7 +305,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                 // it is a direct child capacity
                 return {
                   code: item.code,
-                  name: item.name,
+                  name: sanitizeCapacityName(item.name, item.code),
                   color: rootParent.color,
                   icon: rootParent.icon,
                   hasChildren: false,
@@ -316,10 +333,11 @@ export function useCapacityList(token?: string, language: string = "en") {
                     // it is a grandchild capacity
                     return {
                       code: item.code,
-                      name: item.name,
+                      name: sanitizeCapacityName(item.name, item.code),
                       color: parent.color || grandparent.color || "gray-600",
                       icon: grandparent.icon,
                       hasChildren: false,
+                      metabase_code: "",
                       parentCapacity: {
                         ...parent,
                         parentCapacity: grandparent,
@@ -334,7 +352,7 @@ export function useCapacityList(token?: string, language: string = "en") {
               // if didnt find the parent, create a fake parent
               return {
                 code: item.code,
-                name: item.name,
+                name: sanitizeCapacityName(item.name, item.code),
                 color: "gray-600", // dark gray for grandchild capacities
                 icon: "",
                 hasChildren: false,
@@ -346,6 +364,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                   skill_type: 0,
                   skill_wikidata_item: "",
                   hasChildren: false,
+                  metabase_code: "",
                   parentCapacity: {
                     code: 0,
                     name: "Root",
@@ -364,7 +383,7 @@ export function useCapacityList(token?: string, language: string = "en") {
             // fallback for any other case
             return {
               code: item.code,
-              name: item.name,
+              name: sanitizeCapacityName(item.name, item.code),
               color: "gray-600", // dark gray for unknown capacities
               icon: "",
               hasChildren: false,

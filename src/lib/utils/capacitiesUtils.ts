@@ -159,3 +159,20 @@ export const fetchMetabase = async (codes: any, language: string) => {
     return [];
   }
 };
+
+export const sanitizeCapacityName = (
+  name: string | undefined,
+  code: string | number
+): string => {
+  // Case where the name is not defined or is empty
+  if (!name || name.trim() === "") {
+    return `Capacity ${code}`;
+  }
+
+  // Check if the name looks like a QID (common format with Q followed by numbers)
+  if (name.startsWith("Q") && /^Q\d+$/.test(name)) {
+    return `Capacity ${code}`;
+  }
+
+  return name;
+};
