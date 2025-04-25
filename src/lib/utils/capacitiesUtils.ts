@@ -135,10 +135,10 @@ export const fetchMetabase = async (codes: any, language: string) => {
     }
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>  
-  SELECT ?item ?itemLabel ?itemDescription ?value WHERE {  
-    VALUES ?value {${codes.map((code) => `"${code.wd_code}"`).join(" ")}}  
-    ?item wbt:P1 ?value.  
-    SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
+      SELECT ?item ?itemLabel ?itemDescription ?value WHERE {  
+      VALUES ?value {${codes.map((code) => `"${code.wd_code}"`).join(" ")}}  
+      ?item wbt:P67/wbt:P1 ?value.  
+      SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
     const response = await axios.post(
       "https://metabase.wikibase.cloud/query/sparql?format=json&query=" +
@@ -152,20 +152,7 @@ export const fetchMetabase = async (codes: any, language: string) => {
       }
     );
 
-    return (response.data.results.bindings || [])
-      .filter(
-        (mbItem) =>
-          mbItem.value &&
-          mbItem.value.value &&
-          mbItem.itemLabel &&
-          mbItem.itemLabel.value
-      )
-      .map((mbItem) => ({
-        code: codes.find((c) => c.wd_code === mbItem.value.value)?.code,
-        wd_code: mbItem.value.value,
-        name: mbItem.itemLabel.value,
-        description: mbItem.itemDescription?.value || "",
-      }));
+    return response.data.results.bindings;
   } catch (error) {
     console.error("Error in fetchMetabase:", error);
     console.error("Error stack:", error.stack);

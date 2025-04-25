@@ -48,7 +48,9 @@ export async function GET(req: NextRequest) {
         ...obj1,
         name: metabaseMatch?.name || wikidataMatch?.name || obj1.wd_code,
         description:
-          metabaseMatch?.description || wikidataMatch?.description || "",
+          metabaseMatch?.itemDescription?.value ||
+          wikidataMatch?.description ||
+          "",
         color: getCapacityColor(obj1.code.toString()),
       };
     });
