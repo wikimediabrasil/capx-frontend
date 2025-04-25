@@ -6,14 +6,10 @@ export async function GET(req: NextRequest) {
   try {
     const searchQuery = req.nextUrl.searchParams.get("q");
     const language = req.nextUrl.searchParams.get("language") || "en";
-    const authHeader = req.headers.get("authorization");
 
     // fetch all capacities
     const codesResponse = await axios.get(
-      `${process.env.BASE_URL}/list/skills/`,
-      {
-        headers: { Authorization: authHeader },
-      }
+      `${process.env.BASE_URL}/list/skills/`
     );
 
     const codes = Object.entries(codesResponse.data).map(([key, value]) => ({
@@ -53,10 +49,7 @@ export async function GET(req: NextRequest) {
         // fetch details of the capacity, including skill_type
         try {
           const detailsResponse = await axios.get(
-            `${process.env.BASE_URL}/skill/${item.code}/`,
-            {
-              headers: { Authorization: authHeader },
-            }
+            `${process.env.BASE_URL}/skill/${item.code}/`
           );
 
           return {

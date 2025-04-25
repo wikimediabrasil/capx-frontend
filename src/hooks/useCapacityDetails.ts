@@ -14,21 +14,15 @@ export function useCapacityDetails(
   const { pageContent } = useApp();
 
   useEffect(() => {
-    if (!session?.user?.token || !capacityIds?.length) return;
-
     const uniqueIds = Array.from(
       new Set(capacityIds.map((id) => (typeof id === "object" ? id.code : id)))
     ).filter((id): id is number => typeof id === "number");
 
     const fetchCapacities = async () => {
       try {
-        const queryData = {
-          headers: { Authorization: `Token ${session.user.token}` },
-        };
-
         const results = await Promise.all(
           uniqueIds.map((id) =>
-            capacityService.fetchCapacityById(id.toString(), queryData)
+            capacityService.fetchCapacityById(id.toString())
           )
         );
 
@@ -57,7 +51,7 @@ export function useCapacityDetails(
           typeof capacity === "object"
             ? Number(capacity.code)
             : Number(capacity);
-        return capacityNames[id.toString()] || '';
+        return capacityNames[id.toString()] || "";
       },
       [capacityNames]
     ),
@@ -74,19 +68,18 @@ export function useCapacity(capacityId?: string | null) {
   useEffect(() => {
     const fetchCapacity = async () => {
       if (!capacityId || !session?.user?.token) return;
-      
+
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        const data = await capacityService.fetchCapacityById(capacityId, {
-          params: { language },
-          headers: { Authorization: `Token ${session.user.token}` }
-        });
+        const data = await capacityService.fetchCapacityById(capacityId);
         setCapacity(data);
       } catch (err) {
         console.error("Error fetching capacity:", err);
-        setError(err instanceof Error ? err : new Error("Failed to fetch capacity"));
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch capacity")
+        );
       } finally {
         setIsLoading(false);
       }
@@ -98,6 +91,6 @@ export function useCapacity(capacityId?: string | null) {
   return {
     capacity,
     isLoading,
-    error
+    error,
   };
 }

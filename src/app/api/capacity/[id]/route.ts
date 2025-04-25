@@ -9,11 +9,8 @@ export async function GET(
   try {
     const id = params.id;
     const language = req.nextUrl.searchParams.get("language") || "en";
-    const authHeader = req.headers.get("authorization");
 
-    const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`, {
-      headers: { Authorization: authHeader },
-    });
+    const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`);
 
     if (!codeList.data.hasOwnProperty(id)) {
       return NextResponse.json(
@@ -23,8 +20,7 @@ export async function GET(
     }
 
     const userList = await axios.get(
-      `${process.env.BASE_URL}/users_by_skill/${id}/`,
-      { headers: { Authorization: authHeader } }
+      `${process.env.BASE_URL}/users_by_skill/${id}/`
     );
 
     const capacityCodes = {
