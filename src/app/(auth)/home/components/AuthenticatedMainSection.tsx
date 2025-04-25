@@ -8,9 +8,7 @@ import SecondarySectionIllustration03 from "@/public/static/images/capx_loggedin
 import BaseButton from "@/components/BaseButton";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useState } from "react";
-import Popup from "@/components/Popup";
-import capxUnderConstructionIcon from "@/public/static/images/capx_under_construction.svg";
+
 interface AuthenticatedMainSectionProps {
   pageContent: any;
 }
@@ -21,7 +19,6 @@ export default function AuthenticatedMainSection({
   const { isMobile } = useApp();
   const { darkMode } = useTheme();
   const router = useRouter();
-  const [showPopup, setShowPopup] = useState(false);
 
   const secondarySection = isMobile ? (
     <section
@@ -37,7 +34,7 @@ export default function AuthenticatedMainSection({
         </div>
         <button
           className="flex flex-col w-full h-full justify-center items-center"
-          onClick={() => setShowPopup(true)}
+          onClick={() => router.push("/feed")}
         >
           <Image
             src={SecondarySectionIllustration01}
@@ -73,7 +70,7 @@ export default function AuthenticatedMainSection({
         </button>
         <button
           className="flex flex-col w-full h-full justify-center items-center"
-          onClick={() => setShowPopup(true)}
+          onClick={() => router.push("/feed")}
         >
           <Image
             src={SecondarySectionIllustration03}
@@ -113,7 +110,7 @@ export default function AuthenticatedMainSection({
           <div className="flex items-center flex-col gap-[24px]">
             <button
               className="w-full h-full"
-              onClick={() => setShowPopup(true)}
+              onClick={() => router.push("/feed")}
             >
               <Image
                 src={SecondarySectionIllustration01}
@@ -163,7 +160,7 @@ export default function AuthenticatedMainSection({
           <div className="flex items-center flex-col gap-[24px]">
             <button
               className="w-full h-full"
-              onClick={() => setShowPopup(true)}
+              onClick={() => router.push("/feed")}
             >
               <Image
                 src={SecondarySectionIllustration03}
@@ -249,19 +246,6 @@ export default function AuthenticatedMainSection({
           </div>
         </section>
         {secondarySection}
-        {showPopup && (
-          <Popup
-            onContinue={() => setShowPopup(false)}
-            onClose={() => setShowPopup(false)}
-            image={capxUnderConstructionIcon}
-            title={pageContent["component-under-development-dialog"]}
-            closeButtonLabel={pageContent["auth-dialog-button-close"]}
-            continueButtonLabel={
-              pageContent["body-loggedin-home-main-section-button02"]
-            }
-            customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
-          />
-        )}
       </>
     );
   }
@@ -325,19 +309,6 @@ export default function AuthenticatedMainSection({
           </div>
         </div>
         {secondarySection}
-        {showPopup && (
-          <Popup
-            onContinue={() => setShowPopup(false)}
-            onClose={() => setShowPopup(false)}
-            image={capxUnderConstructionIcon}
-            title={pageContent["component-under-development-dialog"]}
-            closeButtonLabel={pageContent["auth-dialog-button-close"]}
-            continueButtonLabel={
-              pageContent["body-loggedin-home-main-section-button02"]
-            }
-            customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
-          />
-        )}
       </section>
     </>
   );
