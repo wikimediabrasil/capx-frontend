@@ -3,7 +3,6 @@ import axios from "axios";
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
     const searchParams = request.nextUrl.searchParams;
 
     const params = {
@@ -22,9 +21,6 @@ export async function GET(request: NextRequest) {
     );
 
     const response = await axios.get(`${process.env.BASE_URL}/organizations/`, {
-      headers: {
-        Authorization: authHeader,
-      },
       params: cleanParams
     });
     return NextResponse.json(response.data);
