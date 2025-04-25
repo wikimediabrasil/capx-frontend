@@ -45,8 +45,8 @@ export async function GET(
       // use Metabase data
       const name = sanitizeCapacityName(metabaseResults[0].itemLabel.value, id);
       capacityData = {
-        name,
-        description: metabaseResults[0].itemDescription?.value || "",
+        name: metabaseResults[0].itemLabel.value,
+        description: metabaseResults[0].itemDescription.value || "",
         item: metabaseResults[0].item.value,
       };
     } else {

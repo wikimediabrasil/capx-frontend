@@ -152,13 +152,7 @@ export const fetchMetabase = async (codes: any, language: string) => {
       }
     );
 
-    // Filter results to include only those that have a valid name (itemLabel)
-    return (response.data.results.bindings || []).filter(
-      (item) =>
-        item.itemLabel &&
-        item.itemLabel.value &&
-        item.itemLabel.value.trim() !== ""
-    );
+    return response.data.results.bindings;
   } catch (error) {
     console.error("Error in fetchMetabase:", error);
     console.error("Error stack:", error.stack);
@@ -166,7 +160,6 @@ export const fetchMetabase = async (codes: any, language: string) => {
   }
 };
 
-// Add a new utility to sanitize capacity names
 export const sanitizeCapacityName = (
   name: string | undefined,
   code: string | number
