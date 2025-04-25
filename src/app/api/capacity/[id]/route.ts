@@ -37,16 +37,16 @@ export async function GET(
     const metabaseResults = await fetchMetabase([capacityCodes], language);
     let capacityData = {};
 
-    if (metabaseResults.length > 0 && metabaseResults[0].name) {
+    if (metabaseResults.length > 0) {
       // use Metabase data
       capacityData = {
-        name: metabaseResults[0].name,
-        description: metabaseResults[0].description || "",
+        name: metabaseResults[0].itemLabel.value,
+        description: metabaseResults[0].itemDescription.value || "",
+        item: metabaseResults[0].item.value,
       };
     } else {
       // fallback for Wikidata
       const wikidataResults = await fetchWikidata([capacityCodes], language);
-
       if (wikidataResults.length > 0) {
         capacityData = {
           name: wikidataResults[0].name,

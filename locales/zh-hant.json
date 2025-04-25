@@ -66,6 +66,7 @@
 	"form-profile-known-capacities": "已知能力",
 	"form-profile-available-capacities": "可用能力",
 	"form-profile-wanted-capacities": "需求能力",
+	"form-profile-cancel": "取消",
 	"form-profile-delete-button": "是的，刪除我的 CapX 個人資料",
 	"form-profile-delete-cancel-button": "不，我想保留我的 CapX 個人資料",
 	"form-report-author": "作者",
@@ -79,5 +80,10 @@
 	"form-report-number": "報告編號",
 	"oh-no-message": "糟糕！",
 	"no-user-profile": "在 CapX 上沒有註冊這個名稱的使用者",
-	"no-report-rights": "您沒有更新此報告的權限，或是此報告不存在！"
+	"no-report-rights": "您沒有更新此報告的權限，或是此報告不存在！",
+	"body-profile-languages-title": "語言",
+	"body-profile-languages-alt-icon": "語言圖示",
+	"edit-profile-confirm": "確認",
+	"edit-profile-update": "更新",
+	"edit-profile-welcome": "歡迎！"
 }

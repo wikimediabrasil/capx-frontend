@@ -17,12 +17,12 @@ export default function Footer({ pageContent }: FooterProps) {
   const footerLinks = [
     {
       title: pageContent["footer-link-documentation"],
-      to: "https://github.com/WikiMovimentoBrasil/capx-backend/wiki",
+      to: "https://meta.m.wikimedia.org/wiki/Capacity_Exchange/FAQ",
     },
     {
       title: pageContent["footer-privacy-policy"],
       to: "/privacy_policy",
-    },      
+    },
     {
       title: pageContent["footer-link-github"],
       to: "https://github.com/WikiMovimentoBrasil/capx-backend",
@@ -30,7 +30,7 @@ export default function Footer({ pageContent }: FooterProps) {
     {
       title: pageContent["footer-link-wikimedia"],
       to: "https://meta.wikimedia.org/wiki/Capacity_Exchange",
-    },  
+    },
   ];
 
   const linksComponent = footerLinks.map((link, index) => {
