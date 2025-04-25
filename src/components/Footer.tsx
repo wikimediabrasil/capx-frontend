@@ -6,12 +6,8 @@ import LogoDesktop from "@/public/static/images/capx_minimalistic_logo.svg";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
-interface FooterProps {
-  pageContent: any;
-}
-
-export default function Footer({ pageContent }: FooterProps) {
-  const { isMobile } = useApp();
+export default function Footer() {
+  const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
 
   const footerLinks = [
