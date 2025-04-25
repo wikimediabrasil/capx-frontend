@@ -1,6 +1,10 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchMetabase, fetchWikidata } from "@/lib/utils/capacitiesUtils";
+import {
+  fetchMetabase,
+  fetchWikidata,
+  sanitizeCapacityName,
+} from "@/lib/utils/capacitiesUtils";
 
 export async function GET(
   req: NextRequest,
@@ -37,25 +41,27 @@ export async function GET(
     const metabaseResults = await fetchMetabase([capacityCodes], language);
     let capacityData = {};
 
-    if (metabaseResults.length > 0) {
+    if (metabaseResults.length > 0 && metabaseResults[0].itemLabel?.value) {
       // use Metabase data
+      const name = sanitizeCapacityName(metabaseResults[0].itemLabel.value, id);
       capacityData = {
-        name: metabaseResults[0].itemLabel.value,
-        description: metabaseResults[0].itemDescription.value || "",
+        name,
+        description: metabaseResults[0].itemDescription?.value || "",
         item: metabaseResults[0].item.value,
       };
     } else {
       // fallback for Wikidata
       const wikidataResults = await fetchWikidata([capacityCodes], language);
-      if (wikidataResults.length > 0) {
+      if (wikidataResults.length > 0 && wikidataResults[0].name) {
+        const name = sanitizeCapacityName(wikidataResults[0].name, id);
         capacityData = {
-          name: wikidataResults[0].name,
+          name,
           description: wikidataResults[0].description || "",
         };
       } else {
-        // if no result is found
+        // if no result is found, use a generic name rather than the QID
         capacityData = {
-          name: capacityCodes.wd_code,
+          name: `Capacity ${id}`,
           description: "",
         };
       }
