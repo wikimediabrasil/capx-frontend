@@ -1,4 +1,5 @@
 import axios from "axios";
+import { UserProfile } from "@/types/user";
 
 export interface UserFilters {
   username?: string;
@@ -18,13 +19,18 @@ export interface FetchAllUsersParams {
 }
 
 export const userService = {
-  async fetchUserProfile(userId: string, token: string) {
-    const response = await axios.get(`/api/users/${userId}`, {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    });
-    return response.data;
+  async fetchUserProfile(userId: number, token: string): Promise<UserProfile | null> {
+    if (!token || !userId) return null;
+
+    try {
+      const response = await axios.get(`/api/users/${userId}`, {
+        headers: { Authorization: `Token ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching user profile with ID ${userId}:`, error);
+      return null;
+    }
   },
   async fetchAllUsers(queryParams: FetchAllUsersParams) {
     if (!queryParams.token) return { count: 0, results: [] };

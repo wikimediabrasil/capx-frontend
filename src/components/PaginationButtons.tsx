@@ -1,6 +1,6 @@
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import SimpleButton from '../../profile/edit/components/SimpleButton';
+import SimpleButton from '@/components/SimpleButton';
 
 interface PaginationButtonsProps {
   currentPage: number;
