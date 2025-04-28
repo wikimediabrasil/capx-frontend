@@ -51,5 +51,10 @@
 	"filters-profiles": "Profili",
 	"pagination-previous": "Verên",
 	"pagination-next": "Bahdoyên",
-	"pagination-page": "Pele"
+	"pagination-page": "Pele",
+	"report-bug-title": "Sername",
+	"report-bug-description": "Şınasnayış",
+	"report-bug-status": "Weziyet",
+	"report-bug-hide": "Bınımne",
+	"report-bug-type-error": "Xeta"
 }
