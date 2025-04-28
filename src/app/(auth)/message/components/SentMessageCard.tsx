@@ -59,7 +59,6 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
             </p>
           </div>
         </div>
-
         {submission.status && (
           <div className="mt-4 md:mt-12">
             <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
@@ -81,32 +80,6 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
             </div>
           </div>
         )}
-
-        {isExpanded && (
-          <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["message-form-subject"]}
-            </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <p className={`text-[12px] md:text-[24px] font-light ${
-                darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#053749]'
-              }`}>
-                {submission.subject}
-              </p>
-            </div>
-          </div>
-        )}
-
         {submission.method && isExpanded && (
           <div className="mt-4 md:mt-12">
             <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
@@ -156,32 +129,6 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
             </div>
           </div>
         )}
-        
-      {isExpanded && (
-          <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["message-form-message"]}
-            </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                darkMode
-                  ? 'bg-[#053749] text-[#FFFFFF]'
-                  : 'bg-[#053749] text-[#FFFFFF]'
-                }`}>
-                {submission.message}
-              </span>
-            </div>
-          </div>
-        )}
-
         <div className="mt-4 md:mt-12 flex justify-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}

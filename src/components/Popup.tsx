@@ -123,25 +123,34 @@ const Popup = ({
             {/* Layout Desktop (≥md) */}
             <div className="hidden md:flex flex-col h-full p-8">
               <div className="flex flex-row flex-1 mb-8">
-                <div className="w-1/2 flex justify-center items-center mr-8 mb-8">
-                  {image && (
+              {image ? (
+                <>
+                  <div className="w-1/2 flex justify-center items-center mr-8 mb-8">
                     <Image
                       src={image}
                       alt="Popup Illustration"
                       className="w-full max-w-[300px] xl:max-w-[400px] h-auto"
                       priority
                     />
-                  )}
-                </div>
-
-                <div className="w-1/2 flex items-center justify-center">
+                  </div>
+                  <div className="w-1/2 flex items-center justify-center">
+                    <h2
+                      className={`text-4xl xl:text-5xl font-extrabold font-[Montserrat] leading-[normal] ${customClass}`}
+                    >
+                      {title}
+                    </h2>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full flex items-center justify-center mb-8">
                   <h2
-                    className={`text-4xl xl:text-5xl font-extrabold leading-tight font-[Montserrat] leading-[normal] ${customClass}`}
+                    className={`text-4xl xl:text-5xl font-extrabold font-[Montserrat] leading-[normal] text-center ${customClass}`}
                   >
                     {title}
                   </h2>
                 </div>
-              </div>
+              )}
+            </div>
 
               {/* Show children components */}
               <div className="mb-8">{children}</div>

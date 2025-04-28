@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
-import FormMessagePage from "@/app/(auth)/message/components/FormMessagePage";
+import FormMessage from "@/app/(auth)/message/components/FormMessage";
 import SentMessagesList from "@/app/(auth)/message/components/SentMessagesList";
 
-enum ViewType {
+export enum ViewType {
     WRITE = "submit",
     SENT = "submissions",
 }
@@ -43,7 +43,7 @@ export default function NavBar() {
                 </button>
             </nav>
             <div className="w-full mt-6">
-                {currentView === ViewType.WRITE ? <FormMessagePage /> : <SentMessagesList />}
+                {currentView === ViewType.WRITE ? <FormMessage /> : <SentMessagesList setCurrentView={setCurrentView} />}
             </div>
         </section>
     );

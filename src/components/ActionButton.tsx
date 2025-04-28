@@ -5,24 +5,31 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 
 import BaseButton from "@/components/BaseButton";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import SendIcon from "@/public/static/images/upload.svg";
 
 interface ActionButtonsProps {
-    handleSubmit: () => void;
+    handleAhead: () => void;
+    handleBack?: () => void;
+    labelButtonAhead: string;
+    labelButtonBack: string;
+    iconAhead: string;
+    iconBack: string;
+    iconAltAhead: string;
+    iconAltBack: string;
 }
 
-export default function ActionButtons({ handleSubmit }: ActionButtonsProps) {
+export default function ActionButtons({ handleAhead, handleBack, labelButtonAhead, labelButtonBack, iconAhead, iconBack, iconAltAhead, iconAltBack  }: ActionButtonsProps) {
     const router = useRouter();
     const { darkMode } = useTheme();
-    const { pageContent, isMobile } = useApp();
+    const { isMobile } = useApp();
+    const defaultBack = () => {
+        router.back()
+    }
 
     return (
-        <div className={`flex ${isMobile ? 'flex-col gap-2' : 'flex-row gap-6 w-3/4 mt-16'}`}>
+        <div className={`flex ${isMobile ? 'flex-col gap-2' : 'flex-row gap-6 w-3/4 mt-8'}`}>
             <BaseButton
-                onClick={handleSubmit}
-                label={pageContent["message-form-submit-button"]}
+                onClick={handleAhead}
+                label={labelButtonAhead}
                 customClass={`
                     flex items-center justify-between
                     ${isMobile 
@@ -31,14 +38,14 @@ export default function ActionButtons({ handleSubmit }: ActionButtonsProps) {
                     }
                     bg-[#851970] text-white rounded-md font-[Montserrat] font-bold
                 `}
-                imageUrl={SendIcon}
-                imageAlt="Send icon"
+                imageUrl={iconAhead}
+                imageAlt={iconAltAhead}
                 imageWidth={isMobile ? 20 : 30}
                 imageHeight={isMobile ? 20 : 30}
             />
             <BaseButton
-                onClick={() => router.back()}
-                label={pageContent["message-form-clean-button"]}
+                onClick={handleBack || defaultBack}
+                label={labelButtonBack}
                 customClass={`
                     flex items-center justify-between
                     ${isMobile 
@@ -51,8 +58,8 @@ export default function ActionButtons({ handleSubmit }: ActionButtonsProps) {
                         : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
                     }
                 `}
-                imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-                imageAlt="Cancel icon" 
+                imageUrl={iconBack}
+                imageAlt={iconAltBack}
                 imageWidth={isMobile ? 20 : 30}
                 imageHeight={isMobile ? 20 : 30}
             />

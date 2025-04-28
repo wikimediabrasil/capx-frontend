@@ -1,11 +1,5 @@
 "use client"
 
-import { use, useEffect, useState } from "react";
-import { useMessage } from "@/hooks/useMessage";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import { Message } from "@/types/message";
 import Popup from "@/components/Popup";
 import Image from "next/image";
 import IconChat from "@/public/static/images/chat.svg";
@@ -13,7 +7,19 @@ import IconChatWhite from "@/public/static/images/chat_white.svg";
 import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
 import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
 import SuccessSubmissionSVG from "@/public/static/images/capx_person_12.svg";
-import ActionButtons from "./ActionButtons";
+// import ActionButtons from "./ActionButtons";
+import ActionButtons from "@/components/ActionButton";
+import InfoIcon from "@/public/static/images/info.svg";
+import CleanIcon from "@/public/static/images/cleaning.svg";
+import CleanIconWhite from "@/public/static/images/cleaning_white.svg";
+import SendIcon from "@/public/static/images/send.svg";
+
+import { useEffect, useState } from "react";
+import { useMessage } from "@/hooks/useMessage";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useApp } from "@/contexts/AppContext";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import { Message } from "@/types/message";
 import { useSession } from "next-auth/react";
 
 export enum MessageMethod {
@@ -21,7 +27,7 @@ export enum MessageMethod {
     TALKPAGE = "talkpage",
   }
 
-export default function FormMessagePage() {
+export default function FormMessage() {
   const { darkMode } = useTheme();
   const { data: session } = useSession();
   const { pageContent } = useApp();
@@ -32,6 +38,8 @@ export default function FormMessagePage() {
     method: "",
   });
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showInfoMessagePopup, setShowInfoMessagePopup] = useState(false);
+  const [showInfoMethodPopup, setShowInfoMethodPopup] = useState(false);
 
   const { showSnackbar } = useSnackbar();
   
@@ -40,7 +48,6 @@ export default function FormMessagePage() {
     [MessageMethod.TALKPAGE]: pageContent["message-form-method-talkpage"],
   };  
 
-
   const {
     showMethodSelector,
     setShowMethodSelector,
@@ -48,6 +55,7 @@ export default function FormMessagePage() {
   } = useMessage();
     
   const handleSubmit = async () => {
+    setShowInfoMessagePopup(false);
     try {
       await sendMessage(formData);
       setShowSuccessPopup(true);
@@ -63,12 +71,28 @@ export default function FormMessagePage() {
     }
   };
 
-  const handleContinue = () => {
+  const handleContinueSuccessPopup = () => {
     setShowSuccessPopup(false);
   };
 
-  const handleClosePopup = () => {
+  const handleCloseSuccessPopup = () => {
     setShowSuccessPopup(false);
+  };
+
+  const handleCloseInfoMessagePopup = () => {
+    setShowInfoMessagePopup(false);
+  };
+
+  const handleShowInfoMessagePopup = () => {
+    setShowInfoMessagePopup(true);
+  };
+
+  const handleShowInfoMethodPopup = () => {
+    setShowInfoMethodPopup(true);
+  };
+
+  const handleCloseInfoMethodPopup = () => {
+    setShowInfoMethodPopup(false);
   };
 
   useEffect(() => {
@@ -194,13 +218,21 @@ export default function FormMessagePage() {
                 </div>
             )}
             </div>
-            <p className={`mt-1 text-[10px] md:text-[20px] ${
-                darkMode
-                    ? "text-[#FFFFFF]"
-                    : "text-[#053749]"
-                }`}>
-            {pageContent["message-form-method-informative-text"]}
-            </p>
+            <div className="flex gap-2">
+                <p className={` fmt-1 text-[10px] md:text-[20px] ${
+                    darkMode
+                        ? "text-[#FFFFFF]"
+                        : "text-[#053749]"
+                    }`}>
+                    {pageContent["message-form-method-informative-text"]}
+                </p>
+                <img
+                    src={InfoIcon}
+                    alt={pageContent["message-info-alt-icon"]}
+                    className="w-4 h-4 cursor-pointer"
+                    onClick={() => handleShowInfoMethodPopup}
+                />
+            </div>
         </div>
 
         <div className="mt-2">
@@ -266,20 +298,43 @@ export default function FormMessagePage() {
             </p>
         </div>
 
-      <ActionButtons handleSubmit={handleSubmit} />
+      <ActionButtons
+        handleAhead={handleShowInfoMessagePopup}
+        labelButtonAhead={pageContent["message-form-submit-button"]}
+        iconAhead={SendIcon}
+        iconAltAhead={pageContent["message-alt-icon"]}
+        labelButtonBack={pageContent["message-form-clean-button"]}
+        iconBack={darkMode ? CleanIconWhite : CleanIcon}
+        iconAltBack={pageContent["message-alt-back-to-home"]}
+      />
 
+      {/* Info Message Popup */}
+      {showInfoMessagePopup && (
+        <Popup
+          title={pageContent["message-info-popup-title"]}
+          closeButtonLabel={pageContent["message-button-cancel-message"]}
+          continueButtonLabel={pageContent["message-button-confirme-and-send"]}
+          onClose={handleCloseInfoMessagePopup}
+          onContinue={handleSubmit}
+          image={SuccessSubmissionSVG}
+          customClass={`!items-center  ${darkMode ? "bg-[#005B3F]" : "bg-[#FFFFFF]"}`}
+        >
+            {pageContent["message-info-popup"]}
+            
+        </Popup>
+      )}
       {/* Success Popup */}
       {showSuccessPopup && (
         <Popup
           title={pageContent["snackbar-submit-message-success-title"]}
           closeButtonLabel={pageContent["auth-dialog-button-close"]}
           continueButtonLabel={pageContent["auth-dialog-button-continue"]}
-          onClose={handleClosePopup}
-          onContinue={handleContinue}
+          onClose={handleCloseSuccessPopup}
+          onContinue={handleContinueSuccessPopup}
           image={SuccessSubmissionSVG}
           customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
           />
-      )}
+      )}      
     </section>
   );
 }
