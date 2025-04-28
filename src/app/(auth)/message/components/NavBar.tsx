@@ -18,7 +18,7 @@ export default function NavBar() {
 
     return (
         <section className="w-full px-4 py-4 mx-auto flex flex-col md:max-w-full">
-            <nav className="flex flex-row justify-between w-full border-b pb-2 md:justify-start md:gap-20">
+            <nav className="flex flex-row justify-center gap-20 w-full pb-4 md:pb-14 md:gap-20 md:justify-start">
                 <button
                     onClick={() => setCurrentView(ViewType.WRITE)}
                     className={`text-[20px] font-[Montserrat] font-bold md:text-[48px] px-4 py-2

@@ -27,7 +27,6 @@ export class MessageService {
           },
         }
       );
-      console.log("response", response);
       return response.data;
     } catch (error) {
       console.error("Failed to send message:", error);

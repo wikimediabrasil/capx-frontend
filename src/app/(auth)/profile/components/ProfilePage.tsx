@@ -28,19 +28,17 @@ import ContactImage from "@/public/static/images/capx_contact_person.svg";
 import ContactImageDesktop from "@/public/static/images/capx_contact_person_desktop.svg";
 import CakeIcon from "@/public/static/images/cake.svg";
 import CakeIconWhite from "@/public/static/images/cake_white.svg";
-import capxPersonIcon from "@/public/static/images/capx_person_18.svg";
 
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { useTerritories } from "@/hooks/useTerritories";
 import { useWikimediaProject } from "@/hooks/useWikimediaProject";
 import { useState, useEffect, useMemo } from "react";
-import Popup from "@/components/Popup";
 
 import { getWikiBirthday } from "@/lib/utils/fetchWikimediaData";
 import { UserProfile } from "@/types/user";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-
+import { useRouter } from "next/navigation";
 interface ProfilePageProps {
   isSameUser: boolean;
   profile: UserProfile;
@@ -125,8 +123,8 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
   const token = session?.user?.token;
+  const router = useRouter();
 
-  const [showPopup, setShowPopup] = useState(false);
   const { languages } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
   const { territories } = useTerritories(token);
@@ -420,7 +418,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 <BaseButton
                   label={pageContent["body-profile-contact-button"]}
                   customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-                  onClick={() => setShowPopup(true)}
+                  onClick={() => router.push(`/message?username=${profile?.user?.username}`)}
                 />
               </div>
             )}
@@ -438,25 +436,12 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 <BaseButton
                   label={pageContent["body-profile-contact-button"]}
                   customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-                  onClick={() => setShowPopup(true)}
+                  onClick={() => router.push(`/message?username=${profile?.user?.username}`)}
                 />
               </div>
             )}
           </div>
         </section>
-        {showPopup && (
-          <Popup
-            onContinue={() => setShowPopup(false)}
-            onClose={() => setShowPopup(false)}
-            image={capxPersonIcon}
-            title={pageContent["component-under-development-dialog"]}
-            closeButtonLabel={pageContent["auth-dialog-button-close"]}
-            continueButtonLabel={
-              pageContent["body-loggedin-home-main-section-button02"]
-            }
-            customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
-          />
-        )}
       </div>
     );
   }
@@ -679,25 +664,12 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
               <BaseButton
                 label={pageContent["body-profile-contact-button"]}
                 customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-                onClick={() => setShowPopup(true)}
-              />
+                onClick={() => router.push(`/message?username=${profile?.user?.username}`)}
+                />
             </div>
           </div>
         </section>
       </div>
-      {showPopup && (
-        <Popup
-          onContinue={() => setShowPopup(false)}
-          onClose={() => setShowPopup(false)}
-          image={capxPersonIcon}
-          title={pageContent["component-under-development-dialog"]}
-          closeButtonLabel={pageContent["auth-dialog-button-close"]}
-          continueButtonLabel={
-            pageContent["body-loggedin-home-main-section-button02"]
-          }
-          customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
-        />
-      )}
     </main>
   );
 }

@@ -7,11 +7,10 @@ import IconChatWhite from "@/public/static/images/chat_white.svg";
 import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
 import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
 import SuccessSubmissionSVG from "@/public/static/images/capx_person_12.svg";
-// import ActionButtons from "./ActionButtons";
 import ActionButtons from "@/components/ActionButton";
 import InfoIcon from "@/public/static/images/info.svg";
+import InfoIconBlue from "@/public/static/images/info_blue.svg";
 import CleanIcon from "@/public/static/images/cleaning.svg";
-import CleanIconWhite from "@/public/static/images/cleaning_white.svg";
 import SendIcon from "@/public/static/images/send.svg";
 
 import { useEffect, useState } from "react";
@@ -21,7 +20,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import { Message } from "@/types/message";
 import { useSession } from "next-auth/react";
-
+import {  useSearchParams } from "next/navigation";
 export enum MessageMethod {
     EMAIL = "email",
     TALKPAGE = "talkpage",
@@ -37,6 +36,16 @@ export default function FormMessage() {
     message: "",
     method: "",
   });
+
+  const searchParams = useSearchParams();
+  const username = searchParams.get('username');
+
+  useEffect(() => {
+    if (username) {
+      setFormData({ ...formData, receiver: username });
+    }
+  }, [username]);
+
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showInfoMessagePopup, setShowInfoMessagePopup] = useState(false);
   const [showInfoMethodPopup, setShowInfoMethodPopup] = useState(false);
@@ -53,7 +62,16 @@ export default function FormMessage() {
     setShowMethodSelector,
     sendMessage,
   } = useMessage();
-    
+  
+  const clearFormData = () => {
+    setFormData({
+        receiver: "",
+        subject: "",
+        message: "",
+        method: "",
+      });    
+  }
+
   const handleSubmit = async () => {
     setShowInfoMessagePopup(false);
     try {
@@ -95,10 +113,6 @@ export default function FormMessage() {
     setShowInfoMethodPopup(false);
   };
 
-  useEffect(() => {
-    console.log("formData",formData);
-  }, [formData]);
-
   return (
     <section className="w-full h-full flex flex-col gap-4 px-4 py-4 md:min-h-41 md:max-w-full">
         <div className="flex items-start gap-2 text-left">
@@ -126,17 +140,22 @@ export default function FormMessage() {
             >
                 {pageContent["message-form-from"]}
             </h4>
-            <input
-                type="text"
-                id="from"
-                value={session?.user?.name ?? ""}
-                readOnly
-                className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-                    darkMode
-                    ? "bg-transparent border-[#FFFFFF] text-white"
-                    : "border-[#053749] text-[#829BA4]"
+            <div 
+                className={`flex items-center px-4 py-2 rounded-md border ${darkMode 
+                        ? "border-white" 
+                        : "border-[#053749]"
+                }`}
+            >
+                <span 
+                    className={`px-2 py-1 text-[12px] md:text-[24px] rounded ${
+                        darkMode 
+                            ? "bg-[#FFFFFF] text-[#053749]" 
+                            : "bg-[#053749] text-white"
                     }`}
-            />                
+                >
+                    {session?.user?.name ?? ""}
+                </span>
+            </div>
         </div>
 
         <div className="mt-2">
@@ -218,19 +237,21 @@ export default function FormMessage() {
                 </div>
             )}
             </div>
-            <div className="flex gap-2">
-                <p className={` fmt-1 text-[10px] md:text-[20px] ${
+            <div className="flex gap-2 items-center">
+                <p className={`mt-1 text-[10px] md:text-[20px] ${
                     darkMode
                         ? "text-[#FFFFFF]"
                         : "text-[#053749]"
                     }`}>
                     {pageContent["message-form-method-informative-text"]}
                 </p>
-                <img
-                    src={InfoIcon}
+                <Image
+                    src={darkMode ? InfoIcon : InfoIconBlue}
                     alt={pageContent["message-info-alt-icon"]}
-                    className="w-4 h-4 cursor-pointer"
-                    onClick={() => handleShowInfoMethodPopup}
+                    width={16}
+                    height={16}
+                    className="cursor-pointer"
+                    onClick={handleShowInfoMethodPopup}
                 />
             </div>
         </div>
@@ -303,8 +324,9 @@ export default function FormMessage() {
         labelButtonAhead={pageContent["message-form-submit-button"]}
         iconAhead={SendIcon}
         iconAltAhead={pageContent["message-alt-icon"]}
+        handleBack={clearFormData}
         labelButtonBack={pageContent["message-form-clean-button"]}
-        iconBack={darkMode ? CleanIconWhite : CleanIcon}
+        iconBack={CleanIcon}
         iconAltBack={pageContent["message-alt-back-to-home"]}
       />
 
@@ -317,7 +339,6 @@ export default function FormMessage() {
           onClose={handleCloseInfoMessagePopup}
           onContinue={handleSubmit}
           image={SuccessSubmissionSVG}
-          customClass={`!items-center  ${darkMode ? "bg-[#005B3F]" : "bg-[#FFFFFF]"}`}
         >
             {pageContent["message-info-popup"]}
             
@@ -332,9 +353,19 @@ export default function FormMessage() {
           onClose={handleCloseSuccessPopup}
           onContinue={handleContinueSuccessPopup}
           image={SuccessSubmissionSVG}
-          customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
           />
-      )}      
+      )}
+      {/* Info Method Popup */}
+      {showInfoMethodPopup && (
+        <Popup
+          title={pageContent["message-info-popup-title"]}
+          closeButtonLabel={pageContent["auth-dialog-button-close"]}
+          onClose={handleCloseInfoMethodPopup}
+          image={SuccessSubmissionSVG}
+        >
+          {pageContent["message-info-popup"]}
+        </Popup>
+      )}
     </section>
   );
 }

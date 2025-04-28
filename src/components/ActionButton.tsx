@@ -54,7 +54,7 @@ export default function ActionButtons({ handleAhead, handleBack, labelButtonAhea
                     }
                     border rounded-md font-[Montserrat] font-bold
                     ${darkMode
-                        ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
+                        ? 'bg-[#FFFFFF] text-[#053749] border-[#F6F6F6] border-[2px]'
                         : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
                     }
                 `}

@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
         offset,
       },
     });
-    console.log("response", response.data);
     return NextResponse.json(response.data.results);
   } catch (error: any) {
     return NextResponse.json(
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    console.log("body", body);
     const response = await axios.post(
       `${process.env.BASE_URL}/messages/`,
       body,
@@ -46,7 +44,6 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-    console.log("response", response.data);
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(

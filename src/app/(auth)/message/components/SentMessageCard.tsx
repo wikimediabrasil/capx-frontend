@@ -48,13 +48,11 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
                 ? 'bg-[#04222F]'
                 : 'bg-[#EFEFEF]'
               }`}>
-            <p className={`text-[12px] md:text-[24px] font-light ${
+            <p className={`text-[12px] md:text-[24px] font-light px-3 ${
               darkMode 
                 ? 'text-[#FFFFFF]'
                 : 'text-[#053749]'
               }`}>
-
-                
               {submission.receiver}
             </p>
           </div>
@@ -73,7 +71,7 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
                 ? 'bg-[#04222F]'
                 : 'bg-[#EFEFEF]'
               }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-3 py-1 rounded-md inline-block ${
+              <span className={`text-[12px] md:text-[24px] font-light px-3 rounded-md inline-block ${
                 getStatusColor(submission.status)}`}>
                 {submission.status}
               </span>
@@ -94,10 +92,10 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
                 ? 'bg-[#04222F]'
                 : 'bg-[#EFEFEF]'
               }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
+              <span className={`text-[12px] md:text-[24px] font-light px-2 rounded-md ${
                 darkMode
-                  ? 'bg-[#053749] text-[#FFFFFF]'
-                  : 'bg-[#053749] text-[#FFFFFF]'
+                  ? 'bg-[#04222F] text-[#ffffff]'
+                  : 'text-[#053749]'
                 }`}>
                 {submission.method}
               </span>
@@ -119,10 +117,10 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
                 ? 'bg-[#04222F]'
                 : 'bg-[#EFEFEF]'
               }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
+              <span className={`text-[12px] md:text-[24px] font-light px-2 rounded-md ${
                 darkMode
-                  ? 'bg-[#053749] text-[#FFFFFF]'
-                  : 'bg-[#053749] text-[#FFFFFF]'
+                  ? 'bg-[#04222F] text-[#FFFFFF]'
+                  : 'text-[#053749]'
                 }`}>
                 {formatDateLocale(submission.date, language)}
               </span>

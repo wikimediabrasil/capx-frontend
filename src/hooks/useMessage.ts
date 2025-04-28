@@ -19,8 +19,6 @@ export function useMessage() {
       if (!response || !response.id) {
         throw new Error("Invalid message response from server");
       }
-      console.log("message", message);
-      console.log("response", response);
       return response;
     } catch (error) {
       console.error("Error sending message", error);

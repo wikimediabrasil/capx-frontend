@@ -72,7 +72,7 @@ export default function SentMessagesList({setCurrentView}:SentMessagesListProps)
         iconAltAhead={pageContent["message-alt-icon"]}
         handleBack={handleBack}
         labelButtonBack={pageContent["message-sent-back-to-home"]}
-        iconBack={HomeIcon}
+        iconBack={darkMode ? HomeIcon : HomeIcon}
         iconAltBack={pageContent["message-alt-back-to-home"]}
       />
       {totalPages > 1 && (
