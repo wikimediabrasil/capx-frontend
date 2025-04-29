@@ -10,7 +10,7 @@ interface BannerProps {
 
 export default function Banner({ image, title, alt }: BannerProps) {
   return (
-    <div className="md:max-w-[1200px] w-full mx-auto space-y-6 mb-6">
+    <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6 md:mb-6 px-4">
       {/* Banner */}
       <div className="w-full md:h-[350px] bg-[#04222F] rounded-lg overflow-hidden">
         <div className="flex flex-col md:flex-row items-center justify-center h-full px-4 md:px-16 py-6 space-y-4 md:space-y-0 md:space-x-48 text-center">

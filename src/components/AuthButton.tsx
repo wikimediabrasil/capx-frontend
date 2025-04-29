@@ -131,7 +131,6 @@ export default function AuthButton({
           title={pageContent["auth-dialog-content"]}
           closeButtonLabel={pageContent["auth-dialog-button-close"]}
           continueButtonLabel={pageContent["auth-dialog-button-continue"]}
-          customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
         />
       )}
     </div>

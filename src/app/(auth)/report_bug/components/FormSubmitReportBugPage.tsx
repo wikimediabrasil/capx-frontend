@@ -239,7 +239,6 @@ export default function FormSubmitReportBugPage(){
           onClose={handleClosePopup}
           onContinue={handleContinue}
           image={SuccessSubmissionSVG}
-          customClass={`${darkMode ? "bg-[#005B3F]" : "bg-white"}`}
           />
       )}
     </section>

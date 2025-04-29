@@ -74,6 +74,11 @@ export default function DesktopNavbar({
       to: "/report_bug",
       active: true,
     },
+    {
+      title: pageContent["navbar-link-messages"],
+      to: "/message",
+      active: true,
+    },    
   ];
 
   const unauthenticatedMenuItems = [
