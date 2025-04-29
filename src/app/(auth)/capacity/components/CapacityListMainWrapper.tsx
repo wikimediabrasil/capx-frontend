@@ -36,6 +36,16 @@ export default function CapacityListMainWrapper() {
     }
   }, [status, fetchRootCapacities]);
 
+  // Effect to load descriptions of root capacities
+  useEffect(() => {
+    if (rootCapacities.length > 0 && fetchCapacityDescription) {
+      // Search descriptions for each root capacity
+      rootCapacities.forEach((capacity) => {
+        fetchCapacityDescription(Number(capacity.code));
+      });
+    }
+  }, [rootCapacities, fetchCapacityDescription]);
+
   const toggleChildCapacities = useCallback(
     async (parentCode: string) => {
       if (expandedCapacities[parentCode]) {
@@ -62,6 +72,7 @@ export default function CapacityListMainWrapper() {
       </div>
     );
   }
+
   return (
     <section className="flex flex-col max-w-screen-xl mx-auto py-8 px-4 md:px-8 lg:px-12 gap-[40px]">
       <CapacityBanner />
@@ -85,8 +96,10 @@ export default function CapacityListMainWrapper() {
                 name={capacity.name}
                 color={capacity.color}
                 icon={capacity.icon}
-                description={descriptions[capacity.code] || ""}
-                wd_code={capacity.wd_code || ""}
+                description={
+                  descriptions[capacity.code] || capacity.description || ""
+                }
+                wd_code={wdCodes[capacity.code] || capacity.wd_code || ""}
                 onInfoClick={fetchCapacityDescription}
               />
             </div>
@@ -105,8 +118,10 @@ export default function CapacityListMainWrapper() {
                 isRoot={true}
                 color={capacity.color}
                 icon={capacity.icon}
-                description={descriptions[capacity.code] || ""}
-                wd_code={wdCodes[capacity.code] || ""}
+                description={
+                  descriptions[capacity.code] || capacity.description || ""
+                }
+                wd_code={wdCodes[capacity.code] || capacity.wd_code || ""}
                 onInfoClick={fetchCapacityDescription}
               />
               {expandedCapacities[capacity.code] && (
@@ -123,8 +138,10 @@ export default function CapacityListMainWrapper() {
                           hasChildren={child.hasChildren}
                           isRoot={false}
                           parentCapacity={capacity}
-                          description={descriptions[child.code] || ""}
-                          wd_code={wdCodes[child.code] || ""}
+                          description={
+                            descriptions[child.code] || child.description || ""
+                          }
+                          wd_code={wdCodes[child.code] || child.wd_code || ""}
                           onInfoClick={fetchCapacityDescription}
                         />
                         {expandedCapacities[child.code] && (
@@ -150,9 +167,15 @@ export default function CapacityListMainWrapper() {
                                       isRoot={false}
                                       parentCapacity={child}
                                       description={
-                                        descriptions[grandChild.code] || ""
+                                        descriptions[grandChild.code] ||
+                                        grandChild.description ||
+                                        ""
                                       }
-                                      wd_code={wdCodes[grandChild.code] || ""}
+                                      wd_code={
+                                        wdCodes[grandChild.code] ||
+                                        grandChild.wd_code ||
+                                        ""
+                                      }
                                       onInfoClick={fetchCapacityDescription}
                                       color={child.color}
                                     />

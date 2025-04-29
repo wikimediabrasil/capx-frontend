@@ -34,26 +34,34 @@ export async function GET(req: NextRequest) {
         code: Number(key),
         wd_code: value,
       }));
-    const metabaseResponse = await fetchMetabase(codes, language ?? "en");
-    const wikidataResponse = await fetchWikidata(codes, language ?? "en");
 
+    // Fetch from Metabase first
+    const metabaseResults = await fetchMetabase(codes, language ?? "en");
+
+    // Use Wikidata as fallback
+    const wikidataResults = await fetchWikidata(codes, language ?? "en");
+
+    // Combine results, prioritizing Metabase over Wikidata
     const codesWithNames = codes.map((obj1) => {
-      const metabaseMatch = metabaseResponse.find(
+      // Find matching data from Metabase
+      const metabaseMatch = metabaseResults.find(
         (mb) => mb.wd_code === obj1.wd_code
       );
-      const wikidataMatch = wikidataResponse.find(
+
+      // Use Wikidata as fallback
+      const wikidataMatch = wikidataResults.find(
         (wd) => wd.wd_code === obj1.wd_code
       );
+
       return {
         ...obj1,
         name: metabaseMatch?.name || wikidataMatch?.name || obj1.wd_code,
         description:
-          metabaseMatch?.itemDescription?.value ||
-          wikidataMatch?.description ||
-          "",
+          metabaseMatch?.description || wikidataMatch?.description || "",
         color: getCapacityColor(obj1.code.toString()),
       };
     });
+
     return NextResponse.json(codesWithNames);
   } catch (error) {
     console.error("Error details:", error);

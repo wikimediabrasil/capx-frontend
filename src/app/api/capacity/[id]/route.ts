@@ -75,18 +75,15 @@ export async function GET(
       // fetch details using fetchMetabase first
       const metabaseResults = await fetchMetabase([capacityCodes], language);
 
-      if (metabaseResults.length > 0 && metabaseResults[0].itemLabel?.value) {
+      if (metabaseResults.length > 0 && metabaseResults[0].name) {
         // use Metabase data
-        const name = sanitizeCapacityName(
-          metabaseResults[0].itemLabel.value,
-          id
-        );
+        const name = sanitizeCapacityName(metabaseResults[0].name, id);
 
         return NextResponse.json({
           ...capacityCodes,
-          name: metabaseResults[0].itemLabel.value,
-          description: metabaseResults[0].itemDescription?.value || "",
-          item: metabaseResults[0].item.value,
+          name,
+          description: metabaseResults[0].description || "",
+          item: metabaseResults[0].item,
         });
       }
 
