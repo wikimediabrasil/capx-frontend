@@ -5,6 +5,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import * as ThemeContext from "@/contexts/ThemeContext";
 import * as AppContext from "@/contexts/AppContext";
 import axios from "axios";
+import { Session } from "next-auth";
 
 // Mock do Next.js Router
 jest.mock("next/navigation", () => ({
@@ -76,6 +77,7 @@ describe("MobileNavbar", () => {
       isMobile: true,
       mobileMenuStatus: false,
       setMobileMenuStatus: jest.fn(),
+      pageContent: mockPageContent
     });
 
     // Clear axios's mocks after each test
@@ -94,10 +96,8 @@ describe("MobileNavbar", () => {
     renderWithProviders(
       <MobileNavbar
         session={null}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
-        setPageContent={() => {}}
       />
     );
 
@@ -106,7 +106,18 @@ describe("MobileNavbar", () => {
   });
 
   it("toggles mobile menu when burger menu is clicked", () => {
-    const mockSession = { user: { name: "Test User" } };
+    const validSession: Session = {
+      user: {
+        id: "123",
+        token: "test-token",
+        username: "test-user",
+        first_login: false,
+        name: "Test User",
+        email: "test@example.com",
+        image: "test-image.jpg",
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    };
     const setMobileMenuStatus = jest.fn();
 
     (AppContext.useApp as jest.Mock).mockReturnValue({
@@ -117,11 +128,9 @@ describe("MobileNavbar", () => {
 
     renderWithProviders(
       <MobileNavbar
-        session={mockSession}
-        pageContent={mockPageContent}
+        session={validSession}
         language="en"
         setLanguage={() => {}}
-        setPageContent={() => {}}
       />
     );
 
@@ -140,15 +149,13 @@ describe("MobileNavbar", () => {
     const { container } = renderWithProviders(
       <MobileNavbar
         session={null}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
-        setPageContent={() => {}}
       />
     );
 
     const navbar = container.firstChild as HTMLElement;
-    expect(navbar?.className).toContain("bg-capx-dark-bg");
+    expect(navbar?.className).toContain("bg-capx-dark-box-bg");
   });
 
   it("applies light mode styles", () => {
@@ -160,10 +167,8 @@ describe("MobileNavbar", () => {
     const { container } = renderWithProviders(
       <MobileNavbar
         session={null}
-        pageContent={mockPageContent}
         language="en"
         setLanguage={() => {}}
-        setPageContent={() => {}}
       />
     );
 
@@ -171,7 +176,7 @@ describe("MobileNavbar", () => {
     expect(navbar).toHaveClass("bg-capx-light-bg");
   });
 
-  // Limpa os mocks após cada teste
+  // Clear all mocks after each test
   afterEach(() => {
     jest.clearAllMocks();
   });

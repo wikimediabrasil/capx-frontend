@@ -12,10 +12,12 @@ import WikifunctionsLogo from "@/public/static/images/wikifunctions_logo.svg";
 import CommonsLogo from "@/public/static/images/commons_logo.svg";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useSession } from "next-auth/react";
 
 export default function MainSection() {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
+  const { data: session } = useSession();
 
   const scrollToVideo = () => {
     const element = document.getElementById("video-section");
@@ -70,10 +72,10 @@ export default function MainSection() {
             />
           </div>
           <div className="flex flex-col items-center gap-4 w-full my-8">
-            <AuthButton
+           {!session && (<AuthButton
               message={pageContent["body-home-section01-button"]}
-              customClass="h-8 w-full max-w-[280px] text-sm inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] rounded-[6px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] not-italic font-extrabold leading-[normal]"
-            />
+              customClass="px-[19px] py-[8px]"
+            />)}
             <BaseButton
               onClick={scrollToVideo}
               label={pageContent["body-home-section01-about-button"]}
@@ -87,51 +89,50 @@ export default function MainSection() {
 
   return (
     <section
-      id="main-section"
       className={`flex flex-col items-center justify-start w-full ${
         darkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg"
       }`}
     >
       <div className="w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12">
         <div className="flex flex-row items-start justify-start w-full py-24">
-          <div className="flex flex-col w-2/3 pr-20">
-            <div className="h-[176px] mb-24">
+          <div className="flex flex-col w-2/3 pr-20" data-testid="main-content">
+            <div 
+              className="min-h-[176px] mb-12 flex flex-col"
+              data-testid="title-container"
+            >
               <h1
                 className={`text-${
                   darkMode ? "capx-dark-text" : "capx-light-text"
-                } font-[Montserrat] text-[72px] not-italic font-extrabold leading-[88px]`}
+                } font-[Montserrat] text-[72px] not-italic font-extrabold leading-[1.2] break-words`}
               >
                 {pageContent["body-home-section01-title-text"] + " "}
                 <br />
-                <Typewriter
-                  words={pageContent[
-                    "body-home-section01-title-carousel"
-                  ]?.split(",")}
-                  loop={0}
-                  cursor
-                  cursorStyle="_"
-                  typeSpeed={120}
-                  deleteSpeed={50}
-                  delaySpeed={3000}
-                />
+                <span className="inline-block">
+                  <Typewriter
+                    words={pageContent["body-home-section01-title-carousel"]?.split(",")}
+                    loop={0}
+                    cursor
+                    cursorStyle="_"
+                    typeSpeed={120}
+                    deleteSpeed={50}
+                    delaySpeed={3000}
+                  />
+                </span>
               </h1>
             </div>
             <p
+              data-testid="main-description"
               className={`text-${
                 darkMode ? "capx-dark-text" : "capx-light-text"
-              } font-[Montserrat] text-[30px] not-italic font-normal leading-[normal] mb-6 mt-4`}
+              } font-[Montserrat] text-[30px] not-italic font-normal leading-[1.4] mb-12 break-words`}
             >
               {pageContent["body-home-section01-description"]}
             </p>
             <div className="flex flex-row items-center justify-start gap-4 w-full">
-              <AuthButton
+              {!session && (<AuthButton
                 message={pageContent["body-home-section01-button"]}
-                customClass={`h-16 inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] rounded-[6px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
-                  darkMode
-                    ? "text-capx-dark-text bg-capx-secondary-purple"
-                    : "text-capx-dark-text bg-capx-secondary-purple"
-                }`}
-              />
+                customClass="py-4 px-8"
+              />)}
               <BaseButton
                 onClick={scrollToVideo}
                 label={pageContent["body-home-section01-about-button"]}

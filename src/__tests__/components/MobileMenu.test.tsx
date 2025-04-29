@@ -3,6 +3,7 @@ import MobileMenu from "../../components/MobileMenu";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppProvider } from "@/contexts/AppContext";
 import * as ThemeContext from "@/contexts/ThemeContext";
+import { Session } from "next-auth";
 
 // Mocking the Next.js Router
 jest.mock("next/navigation", () => ({
@@ -17,9 +18,43 @@ jest.mock("next/navigation", () => ({
   usePathname() {
     return "/";
   },
+  useParams() {
+    return {};
+  },
   useSearchParams() {
     return new URLSearchParams();
   },
+}));
+
+// Mocking AppContext
+jest.mock("@/contexts/AppContext", () => ({
+  ...jest.requireActual("@/contexts/AppContext"),
+  useApp: () => ({
+    pageContent: {
+      "sign-in-button": "Login",
+      "sign-out-button": "Logout",
+      "navbar-link-home": "Home",
+      "navbar-link-capacities": "Capacities",
+      "navbar-link-reports": "Reports",
+      "navbar-link-feed": "Feed",
+      "navbar-link-saved": "Saved",
+      "navbar-link-report-bug": "Report Bug",
+    },
+    isMobile: true,
+    mobileMenuStatus: true,
+    setMobileMenuStatus: jest.fn(),
+    language: "en",
+    setLanguage: jest.fn(),
+    darkMode: false,
+    setDarkMode: jest.fn(),
+    session: null,
+    setSession: jest.fn(),
+    setPageContent: jest.fn(),
+    isLoading: false,
+    setIsLoading: jest.fn(),
+    isMenuOpen: false,
+    setIsMenuOpen: jest.fn()
+  }),
 }));
 
 //  Mocking the useTheme hook
@@ -28,9 +63,17 @@ jest.mock("@/contexts/ThemeContext", () => ({
   useTheme: jest.fn(),
 }));
 
-const mockPageContent = {
-  "sign-in-button": "Login",
-  "sign-out-button": "Logout",
+const validSession: Session = {
+  user: {
+    id: "123",
+    token: "test-token",
+    username: "test-user",
+    first_login: false,
+    name: "Test User",
+    email: "test@example.com",
+    image: "test-image.jpg",
+  },
+  expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
 };
 
 describe("MobileMenu", () => {
@@ -52,17 +95,15 @@ describe("MobileMenu", () => {
 
   it("renders sign in button when not logged in", () => {
     renderWithProviders(
-      <MobileMenu session={null} pageContent={mockPageContent} />
+      <MobileMenu session={null} />
     );
 
     expect(screen.getByText("Login")).toBeInTheDocument();
   });
 
   it("renders sign out button when logged in", () => {
-    const mockSession = { user: { name: "Test User" } };
-
     renderWithProviders(
-      <MobileMenu session={mockSession} pageContent={mockPageContent} />
+      <MobileMenu session={validSession} />
     );
 
     expect(screen.getByText("Logout")).toBeInTheDocument();
@@ -75,7 +116,7 @@ describe("MobileMenu", () => {
     });
 
     const { container } = renderWithProviders(
-      <MobileMenu session={null} pageContent={mockPageContent} />
+      <MobileMenu session={null} />
     );
 
     const menuDiv = container.firstChild;
@@ -90,7 +131,7 @@ describe("MobileMenu", () => {
     });
 
     const { container } = renderWithProviders(
-      <MobileMenu session={null} pageContent={mockPageContent} />
+      <MobileMenu session={null} />
     );
 
     const menuDiv = container.firstChild;

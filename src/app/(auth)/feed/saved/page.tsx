@@ -10,12 +10,14 @@ import { NoResults } from "../components/NoResults";
 import SavedItemsIllustration from "@/public/static/images/capx_person_4.svg";
 import SavedItemCard from "./components/SavedItemCard";
 import { PaginationButtons } from "@/components/PaginationButtons";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 
 export default function SavedProfilesPage() {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const { showSnackbar } = useSnackbar();
   
   const { 
     paginatedProfiles,
@@ -33,7 +35,12 @@ export default function SavedProfilesPage() {
   };
 
   const handleRemoveSavedItem = async (savedItemId: number) => {
-    await deleteSavedItem(savedItemId);
+    try {
+      await deleteSavedItem(savedItemId);
+      showSnackbar(pageContent["saved-profiles-delete-success"], "success");
+    } catch (error) {
+      showSnackbar(pageContent["saved-profiles-error"], "error");
+    }
   };
 
   return (
