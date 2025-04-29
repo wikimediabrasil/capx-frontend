@@ -168,7 +168,24 @@ export const fetchMetabase = async (codes: any, language: string) => {
       }
     );
 
-    return response.data.results.bindings;
+    // Process the raw results to a consistent format
+    const results = (response.data.results.bindings || [])
+      .filter(
+        (mbItem) =>
+          mbItem.item &&
+          mbItem.item.value &&
+          mbItem.itemLabel &&
+          mbItem.itemLabel.value &&
+          mbItem.value
+      )
+      .map((mbItem) => ({
+        wd_code: mbItem.value.value,
+        name: mbItem.itemLabel.value,
+        description: mbItem.itemDescription?.value || "",
+        item: mbItem.item.value,
+      }));
+
+    return results;
   } catch (error) {
     console.error("❌ Error in fetchMetabase:", error);
     console.error("Error stack:", error.stack);

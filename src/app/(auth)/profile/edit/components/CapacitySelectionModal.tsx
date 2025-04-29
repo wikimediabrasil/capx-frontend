@@ -177,10 +177,12 @@ export default function CapacitySelectionModal({
     // If the description is not loaded, search for it
     if (
       !capacityDescriptions[capacityCode] &&
+      !descriptions[capacityCode] &&
+      !capacity.description &&
       !showInfoMap[capacityCode] &&
       fetchCapacityDescription
     ) {
-      const description = await fetchCapacityDescription(capacityCode);
+      const description = await fetchCapacityDescription(Number(capacityCode));
       if (description) {
         setCapacityDescriptions((prev) => ({
           ...prev,
@@ -202,9 +204,10 @@ export default function CapacitySelectionModal({
     const showInfo = showInfoMap[capacity.code] || false;
     const description =
       capacityDescriptions[capacity.code] ||
-      descriptions[capacity.code.toString()] ||
+      descriptions[capacity.code] ||
+      capacity.description ||
       "";
-    const wd_code = wdCodes[capacity.code.toString()] || "";
+    const wd_code = wdCodes[capacity.code] || capacity.wd_code || "";
 
     // Get the parent capacity to color the icons of the child cards
     const parentCapacity = isRoot
@@ -245,7 +248,11 @@ export default function CapacitySelectionModal({
                 <Link
                   href={`/feed?capacityId=${capacity.code}`}
                   onClick={(e) => e.stopPropagation()}
-                  title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
+                  title={
+                    pageContent[
+                      "capacity-selection-modal-hover-view-capacity-feed"
+                    ]
+                  }
                   className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
                 >
                   <Image
@@ -323,7 +330,9 @@ export default function CapacitySelectionModal({
     return (
       <div
         className={`flex flex-col w-full bg-capx-light-box-bg rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full
-          ${isSelected ? "ring-2 ring-capx-primary-green" : ""} hover:bg-gray-200 transform hover:scale-[1.01] transition-all`}
+          ${
+            isSelected ? "ring-2 ring-capx-primary-green" : ""
+          } hover:bg-gray-200 transform hover:scale-[1.01] transition-all`}
         onClick={() => handleCategorySelect(capacity)}
       >
         <div className="flex p-3 h-[80px] items-center justify-between">
@@ -350,7 +359,11 @@ export default function CapacitySelectionModal({
               <Link
                 href={`/feed?capacityId=${capacity.code}`}
                 onClick={(e) => e.stopPropagation()}
-                title={pageContent["capacity-selection-modal-hover-view-capacity-feed"]}
+                title={
+                  pageContent[
+                    "capacity-selection-modal-hover-view-capacity-feed"
+                  ]
+                }
                 className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
               >
                 <Image
@@ -503,12 +516,12 @@ export default function CapacitySelectionModal({
           <div className="space-y-4 max-h-[60vh] md:max-h-[65vh] overflow-y-auto scrollbar-hide p-2 pb-4">
             {isLoading?.root ? (
               <div
-              className={`text-center py-4 ${
-                darkMode ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              {pageContent["capacity-selection-modal-loading"]}
-            </div>
+                className={`text-center py-4 ${
+                  darkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
+                {pageContent["capacity-selection-modal-loading"]}
+              </div>
             ) : getCurrentCapacities().length > 0 ? (
               <div className="flex flex-col gap-2">
                 {getCurrentCapacities().map((capacity, index) => {

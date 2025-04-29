@@ -21,13 +21,13 @@ export async function GET(req: NextRequest) {
       wd_code: value,
     }));
 
-    // use fetchMetabase first to get names
+    // Fetch from Metabase first as the primary source
     const metabaseResults = await fetchMetabase(codes, language);
 
-    // use fetchWikidata as fallback
+    // Use Wikidata as fallback
     const wikidataResults = await fetchWikidata(codes, language);
 
-    // combine results, prioritizing metabase
+    // Combine results, prioritizing Metabase over Wikidata
     const combinedResults = codes.map((codeItem) => {
       const metabaseMatch = metabaseResults.find(
         (item) => item.wd_code === codeItem.wd_code
@@ -39,6 +39,8 @@ export async function GET(req: NextRequest) {
       return {
         ...codeItem,
         name: metabaseMatch?.name || wikidataMatch?.name || codeItem.wd_code,
+        description:
+          metabaseMatch?.description || wikidataMatch?.description || "",
       };
     });
 
