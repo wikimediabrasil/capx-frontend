@@ -90,11 +90,6 @@ export default function MobileMenuLinks({
       active: true,
     },
     {
-      title: pageContent["navbar-organization-list"],
-      to: "/organization_list",
-      active: true,
-    },
-    {
       title: pageContent["navbar-link-messages"],
       to: "/message",
       active: true,
