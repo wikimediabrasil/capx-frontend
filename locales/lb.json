@@ -15,6 +15,7 @@
 	"navbar-link-events": "Evenementer",
 	"navbar-user-profile": "Benotzerprofil",
 	"navbar-organization-profile": "Profil vun der Organisatioun",
+	"navbar-link-messages": "Messagen",
 	"body-home-section01-about-button": "Iwwer CapX",
 	"body-home-main-section-carrousel-description-more-projects": "…",
 	"body-home-section01-call-to-action-button02": "Kont opmaachen",
@@ -120,6 +121,7 @@
 	"pagination-next": "Nächst",
 	"pagination-page": "Säit",
 	"feed-no-data-message": "Keng Donnéeë fonnt",
+	"saved-profiles-error": "Feeler beim Späichere vum Profil.",
 	"saved-profiles-title": "Gespäichert Profiller",
 	"saved-profiles-delete-item": "Element läschen",
 	"saved-profiles-view-profile": "Profil weisen",
@@ -131,5 +133,15 @@
 	"report-bug-type-improvement": "Verbesserung",
 	"report-bug-type-test-case": "Testfall",
 	"report-bug-status-resolved": "Geléist",
-	"report-bug-status-closed": "Zou"
+	"report-bug-status-closed": "Zou",
+	"message-form-method-email": "E-Mail",
+	"message-form-method-talkpage": "Diskussiounssäit",
+	"message-form-hide": "Verstoppen",
+	"message-form-status": "Status",
+	"message-form-submit-button": "Message schécken",
+	"message-write": "Schreiwen",
+	"message-form-subject": "Sujet",
+	"message-form-message": "Message",
+	"message-button-cancel-message": "Ofbriechen",
+	"message-sent-send-new-message": "En neie Message schécken"
 }
