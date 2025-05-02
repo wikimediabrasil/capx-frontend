@@ -14,7 +14,7 @@ import Banner from "@/components/Banner";
 import CapacitySelectionModal from "@/app/(auth)/profile/edit/components/CapacitySelectionModal";
 import OrgListBanner from "@/public/static/images/organization_list.svg";
 import LoadingState from "@/components/LoadingState";
-import ProfileCard from "@/app/(auth)/feed/components/Card";
+import ProfileCard from "@/app/(auth)/feed/components/ProfileCard";
 
 export default function OrganizationList() {
   const { darkMode } = useTheme();
