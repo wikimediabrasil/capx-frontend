@@ -99,6 +99,11 @@ export const toggleChildCapacities = async (
 
 export const fetchWikidata = async (codes: any, language: string) => {
   try {
+    if (!codes || codes.length === 0 || !codes[0].wd_code) {
+      console.warn("⚠️ fetchWikidata: No valid codes provided");
+      return [];
+    }
+
     // Continue with Wikidata query...
     const wdCodeList = codes.map((code) => "wd:" + code.wd_code);
     const queryText = `SELECT ?item ?itemLabel ?itemDescription WHERE {VALUES ?item {${wdCodeList.join(
@@ -109,7 +114,7 @@ export const fetchWikidata = async (codes: any, language: string) => {
       `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`
     );
 
-    return (wikidataResponse.data.results.bindings || [])
+    const results = (wikidataResponse.data.results.bindings || [])
       .filter(
         (wdItem) =>
           wdItem.item &&
@@ -122,8 +127,10 @@ export const fetchWikidata = async (codes: any, language: string) => {
         name: wdItem.itemLabel.value,
         description: wdItem.itemDescription?.value || "",
       }));
+
+    return results;
   } catch (error) {
-    console.error("Error in fetchWikidata:", error);
+    console.error("❌ Error in fetchWikidata:", error);
     return [];
   }
 };
@@ -131,6 +138,15 @@ export const fetchWikidata = async (codes: any, language: string) => {
 export const fetchMetabase = async (codes: any, language: string) => {
   try {
     if (!codes || codes.length === 0) {
+      console.warn("⚠️ fetchMetabase: No codes provided");
+      return [];
+    }
+
+    if (!codes[0].wd_code) {
+      console.warn(
+        "⚠️ fetchMetabase: Missing wd_code in first code:",
+        codes[0]
+      );
       return [];
     }
 
@@ -152,9 +168,26 @@ export const fetchMetabase = async (codes: any, language: string) => {
       }
     );
 
-    return response.data.results.bindings;
+    // Process the raw results to a consistent format
+    const results = (response.data.results.bindings || [])
+      .filter(
+        (mbItem) =>
+          mbItem.item &&
+          mbItem.item.value &&
+          mbItem.itemLabel &&
+          mbItem.itemLabel.value &&
+          mbItem.value
+      )
+      .map((mbItem) => ({
+        wd_code: mbItem.value.value,
+        name: mbItem.itemLabel.value,
+        description: mbItem.itemDescription?.value || "",
+        item: mbItem.item.value,
+      }));
+
+    return results;
   } catch (error) {
-    console.error("Error in fetchMetabase:", error);
+    console.error("❌ Error in fetchMetabase:", error);
     console.error("Error stack:", error.stack);
     return [];
   }

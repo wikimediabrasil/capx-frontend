@@ -19,6 +19,7 @@ export interface CapacityResponse {
   code: string;
   wd_code: string;
   name: string;
+  description?: string;
 }
 
 export interface QueryData {

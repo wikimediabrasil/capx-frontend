@@ -12,9 +12,7 @@ export interface OrganizationFilters {
 }
 
 export const organizationProfileService = {
-  async getOrganizations(token: string, filters: OrganizationFilters) {
-    if (!token) return { count: 0, results: [] };
-
+  async getOrganizations(filters: OrganizationFilters) {
     const params = new URLSearchParams();
 
     if (filters.territory?.length) {
@@ -48,7 +46,6 @@ export const organizationProfileService = {
     try {
       const response = await axios.get("/api/organizations/", {
         params,
-        headers: { Authorization: `Token ${token}` },
         paramsSerializer: {
           indexes: null // Ensure arrays are serialized correctly
         }

@@ -57,6 +57,7 @@ export default function OrganizationList() {
                 (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ? 
                   (organizationsSharerCount) : 0);
 
+
   // Create profiles (to create cards) from organizations
   const filteredProfiles = useMemo(() => {
     const learnerOrgProfiles = createProfilesFromOrganizations(organizationsLearner || [], ProfileCapacityType.Learner);
@@ -126,7 +127,7 @@ export default function OrganizationList() {
           title={pageContent["organization-list-banner-page"]}
           alt={pageContent["organization-list-alt-banner"]}
         />        
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 mt-6">
           <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
             {/* SearchBar and Filters Button */}
             <SearchBar
@@ -190,6 +191,7 @@ export default function OrganizationList() {
           onClose={() => setShowFilters(false)}
           onApplyFilters={handleApplyFilters}
           initialFilters={activeFilters}
+          isOnlyOrganization={true}
         />
       )}
     </div>

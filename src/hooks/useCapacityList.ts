@@ -19,6 +19,27 @@ export function useCapacityList(token?: string, language: string = "en") {
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
+  const fetchCapacityDescription = useCallback(
+    async (code: number) => {
+      if (!token) return;
+
+      try {
+        const response = await capacityService.fetchCapacityDescription(code, {
+          params: { language },
+          headers: { Authorization: `Token ${token}` },
+        });
+
+        setDescriptions((prev) => ({ ...prev, [code]: response.description }));
+        setWdCodes((prev) => ({ ...prev, [code]: response.wdCode }));
+
+        return response.description;
+      } catch (error) {
+        console.error("Failed to fetch capacity description:", error);
+      }
+    },
+    [token, language]
+  );
+
   const fetchRootCapacities = useCallback(async () => {
     if (!token) return;
 
@@ -53,10 +74,16 @@ export function useCapacityList(token?: string, language: string = "en") {
           hasChildren: true,
           skill_type: Number(baseCode),
           skill_wikidata_item: "",
+          description: item.description || "",
+          wd_code: item.wd_code,
         };
       });
 
       setRootCapacities(formattedCapacities);
+
+      for (const capacity of formattedCapacities) {
+        fetchCapacityDescription(Number(capacity.code));
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch root capacities"
@@ -64,7 +91,7 @@ export function useCapacityList(token?: string, language: string = "en") {
     } finally {
       setIsLoading((prev) => ({ ...prev, root: false }));
     }
-  }, [token, language]);
+  }, [token, language, fetchCapacityDescription]);
 
   const fetchCapacitiesByParent = useCallback(
     async (parentCode: string) => {
@@ -101,6 +128,7 @@ export function useCapacityList(token?: string, language: string = "en") {
               ),
               hasChildren: Object.keys(childrenResponse).length > 0,
               wd_code: capacityDetails?.wd_code || wd_code,
+              description: capacityDetails?.description || "",
             };
           })
         );
@@ -120,6 +148,7 @@ export function useCapacityList(token?: string, language: string = "en") {
             skill_type: Number(parentCode),
             skill_wikidata_item: "",
             wd_code: item.wd_code,
+            description: item.description || "",
           };
         });
 
@@ -134,27 +163,6 @@ export function useCapacityList(token?: string, language: string = "en") {
       }
     },
     [token, language, rootCapacities]
-  );
-
-  const fetchCapacityDescription = useCallback(
-    async (code: number) => {
-      if (!token) return;
-
-      try {
-        const response = await capacityService.fetchCapacityDescription(code, {
-          params: { language },
-          headers: { Authorization: `Token ${token}` },
-        });
-
-        setDescriptions((prev) => ({ ...prev, [code]: response.description }));
-        setWdCodes((prev) => ({ ...prev, [code]: response.wdCode }));
-
-        return response.description;
-      } catch (error) {
-        console.error("Failed to fetch capacity description:", error);
-      }
-    },
-    [token, language]
   );
 
   const fetchCapacityById = useCallback(

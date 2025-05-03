@@ -39,12 +39,13 @@ import { Capacity } from '@/types/capacity';
 import CapacitySelectionModal from '../../profile/edit/components/CapacitySelectionModal';
 
 interface FiltersProps {
+  isOnlyOrganization?: boolean;
   onClose: () => void;
   onApplyFilters: (filters: any) => void;
   initialFilters: FilterState
 }
 
-export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProps) {
+export function Filters({ onClose, onApplyFilters, initialFilters, isOnlyOrganization = false }: FiltersProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const { data: session } = useSession();
@@ -278,7 +279,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
                 placeholder={pageContent["filters-add-territory"]}
             />
 
-            {initialFilters.profileFilter == ProfileFilterType.Both && (
+            {!isOnlyOrganization && (
             <>
               {/* Divider */}
               <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
@@ -300,7 +301,7 @@ export function Filters({ onClose, onApplyFilters, initialFilters }: FiltersProp
             </>)}
 
             
-            {initialFilters.profileFilter !== ProfileFilterType.Organization && (
+            {!isOnlyOrganization && (
             <>
               {/* Divider */}
               <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />

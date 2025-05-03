@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"22593",
 			"GuoPC",
 			"HellojoeAoPS",
 			"Huajing",
@@ -92,5 +93,8 @@
 	"form-report-number": "报告编号",
 	"oh-no-message": "糟糕！",
 	"no-user-profile": "在CapX上没有注册此用户名的用户",
-	"no-report-rights": "您没有权限更新此报告，或是此报告不存在！"
+	"no-report-rights": "您没有权限更新此报告，或是此报告不存在！",
+	"saved-profiles-delete-success": "个人资料成功从已保存列表中删除。",
+	"saved-profiles-add-success": "个人资料已成功保存至您的列表。",
+	"saved-profiles-error": "存储配置文件时出错。"
 }

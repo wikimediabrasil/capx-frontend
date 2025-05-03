@@ -54,9 +54,17 @@ export const capacityService = {
         headers: queryData.headers,
       });
 
+      // Ensure the response has a valid name field
+      if (!response.data.name || response.data.name === `Capacity ${id}`) {
+        console.warn(
+          `⚠️ Capacity ${id} returned generic name or no name:`,
+          response.data.name
+        );
+      }
+
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch capacity:", error);
+      console.error(`💥 Failed to fetch capacity ${id}:`, error);
       throw error;
     }
   },

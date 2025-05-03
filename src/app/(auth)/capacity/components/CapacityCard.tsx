@@ -86,7 +86,7 @@ export function CapacityCard({
   const handleTitleClick = (e: React.MouseEvent) => {
     // Allow navigation when clicking on the title
     e.stopPropagation();
-    router.push(`/feed/${code}`);
+    router.push(`/feed?capacityId=${code}`);
   };
 
   const renderExpandedContent = () => {
