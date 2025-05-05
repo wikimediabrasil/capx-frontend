@@ -356,6 +356,7 @@
   "events-no-results-with-filters": "No events correspond to the selected filters. Try removing some filters.",
   "events-no-results": "No events available",
   "events-search-results-error": "Error loading events. Please try again.",
+  "events-banner-alt": "Events banner image",
   "organization-profile-edit-event": "Edit event",
   "organization-profile-choose-event": "Choose event",
   "organization-profile-hide-event": "Hide event",
