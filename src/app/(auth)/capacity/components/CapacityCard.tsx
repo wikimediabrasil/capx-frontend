@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import InfoIcon from "@/public/static/images/info.svg";
 import InfoFilledIcon from "@/public/static/images/info_filled.svg";
 import { Capacity } from "@/types/capacity";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
 
 interface CapacityCardProps {
@@ -22,6 +22,7 @@ interface CapacityCardProps {
   hasChildren?: boolean;
   description?: string;
   wd_code?: string;
+  metabase_code?: string;
   isRoot?: boolean;
   isSearch?: boolean;
   onInfoClick?: (code: number) => Promise<string | undefined>;
@@ -40,6 +41,7 @@ export function CapacityCard({
   wd_code,
   isRoot,
   isSearch,
+  metabase_code,
   onInfoClick,
 }: CapacityCardProps) {
   const router = useRouter();
@@ -47,6 +49,15 @@ export function CapacityCard({
   const { isMobile, pageContent } = useApp();
   const [hasOverflow, setHasOverflow] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
+
+  // Ensures that names that look like QIDs are replaced
+  const displayName = useMemo(() => {
+    // Checks if the name looks like a QID (common format with Q followed by numbers)
+    if (!name || (name.startsWith("Q") && /^Q\d+$/.test(name))) {
+      return `Capacity ${code}`;
+    }
+    return name;
+  }, [name, code]);
 
   useEffect(() => {
     if (childrenContainerRef.current) {
@@ -75,14 +86,14 @@ export function CapacityCard({
   const handleTitleClick = (e: React.MouseEvent) => {
     // Allow navigation when clicking on the title
     e.stopPropagation();
-    router.push(`/feed/${code}`);
+    router.push(`/feed?capacityId=${code}`);
   };
 
   const renderExpandedContent = () => {
     if (!showInfo) return null;
 
     let buttonBgColor = "#000000";
-    
+
     if (parentCapacity?.parentCapacity) {
       buttonBgColor = "#4B5563";
     } else if (parentCapacity?.color) {
@@ -353,7 +364,7 @@ export function CapacityCard({
                       : "#000000",
                   }}
                 >
-                  {capitalizeFirstLetter(name)}
+                  {capitalizeFirstLetter(displayName)}
                 </h3>
               </Link>
             </div>

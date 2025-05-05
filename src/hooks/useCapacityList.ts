@@ -1,6 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { capacityService } from "@/services/capacityService";
-import { getCapacityColor, getCapacityIcon } from "@/lib/utils/capacitiesUtils";
+import {
+  getCapacityColor,
+  getCapacityIcon,
+  sanitizeCapacityName,
+} from "@/lib/utils/capacitiesUtils";
 import { CapacityResponse, Capacity } from "@/types/capacity";
 
 // Cache global para compartilhar dados entre instâncias do hook
@@ -54,7 +58,9 @@ export function useCapacityList(token?: string, language: string = "en") {
     }
 
     // Verificar se já existe uma requisição em andamento
-    if (globalCache.pendingRequests["root"]) {
+    if (
+      Object.prototype.hasOwnProperty.call(globalCache.pendingRequests, "root")
+    ) {
       await globalCache.pendingRequests["root"];
       setRootCapacities(globalCache.rootCapacities);
       return;
@@ -136,7 +142,12 @@ export function useCapacityList(token?: string, language: string = "en") {
 
       // Verificar se já existe uma requisição em andamento para este parentCode
       const requestKey = `parent_${parentCode}`;
-      if (globalCache.pendingRequests[requestKey]) {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          globalCache.pendingRequests,
+          requestKey
+        )
+      ) {
         // Esperar a requisição pendente completar
         await globalCache.pendingRequests[requestKey];
 
@@ -262,7 +273,12 @@ export function useCapacityList(token?: string, language: string = "en") {
 
       // Verificar se já existe uma requisição em andamento para esta descrição
       const requestKey = `desc_${codeStr}`;
-      if (globalCache.pendingRequests[requestKey]) {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          globalCache.pendingRequests,
+          requestKey
+        )
+      ) {
         // Esperar a requisição pendente completar
         await globalCache.pendingRequests[requestKey];
 
@@ -319,10 +335,7 @@ export function useCapacityList(token?: string, language: string = "en") {
       if (!token) return;
 
       try {
-        const response = await capacityService.fetchCapacityById(id, {
-          params: { language },
-          headers: { Authorization: `Token ${token}` },
-        });
+        const response = await capacityService.fetchCapacityById(id);
 
         setCapacityById(response);
       } catch (error) {
@@ -443,7 +456,7 @@ export function useCapacityList(token?: string, language: string = "en") {
 
               return {
                 code: item.code,
-                name: item.name,
+                name: sanitizeCapacityName(item.name, item.code),
                 color: rootCapacity?.color || item.color,
                 icon: rootCapacity?.icon || item.icon,
                 hasChildren: true,
@@ -465,7 +478,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                 // it is a direct child capacity
                 return {
                   code: item.code,
-                  name: item.name,
+                  name: sanitizeCapacityName(item.name, item.code),
                   color: rootParent.color,
                   icon: rootParent.icon,
                   hasChildren: false,
@@ -493,10 +506,11 @@ export function useCapacityList(token?: string, language: string = "en") {
                     // it is a grandchild capacity
                     return {
                       code: item.code,
-                      name: item.name,
+                      name: sanitizeCapacityName(item.name, item.code),
                       color: parent.color || grandparent.color || "gray-600",
                       icon: grandparent.icon,
                       hasChildren: false,
+                      metabase_code: "",
                       parentCapacity: {
                         ...parent,
                         parentCapacity: grandparent,
@@ -511,7 +525,7 @@ export function useCapacityList(token?: string, language: string = "en") {
               // if didnt find the parent, create a fake parent
               return {
                 code: item.code,
-                name: item.name,
+                name: sanitizeCapacityName(item.name, item.code),
                 color: "gray-600", // dark gray for grandchild capacities
                 icon: "",
                 hasChildren: false,
@@ -523,6 +537,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                   skill_type: 0,
                   skill_wikidata_item: "",
                   hasChildren: false,
+                  metabase_code: "",
                   parentCapacity: {
                     code: 0,
                     name: "Root",
@@ -541,7 +556,7 @@ export function useCapacityList(token?: string, language: string = "en") {
             // fallback for any other case
             return {
               code: item.code,
-              name: item.name,
+              name: sanitizeCapacityName(item.name, item.code),
               color: "gray-600", // dark gray for unknown capacities
               icon: "",
               hasChildren: false,

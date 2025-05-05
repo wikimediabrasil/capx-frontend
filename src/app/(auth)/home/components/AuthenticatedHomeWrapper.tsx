@@ -31,9 +31,6 @@ export default function AuthenticatedHomeWrapper({}: AuthenticatedHomeWrapperPro
           title={pageContent["complete-your-profile"]}
           closeButtonLabel={pageContent["auth-dialog-button-close"]}
           continueButtonLabel={pageContent["auth-dialog-button-continue"]}
-          customClass={`${
-            darkMode ? "bg-[#005B3F] text-white" : "bg-white text-[#053749]"
-          }`}
         />
       )}
     </>

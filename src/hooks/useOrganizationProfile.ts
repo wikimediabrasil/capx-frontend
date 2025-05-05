@@ -133,17 +133,11 @@ export function useOrganization(
 }
 
 export function useOrganizations(limit?: number, offset?: number, activeFilters?: FilterState) {
-  const { data: session } = useSession();
   const [organizations, setOrganizations] = useState<Organization[] | null>([]);
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    if (!session?.user?.token) {
-      setIsLoading(false);
-      return;
-    }
-
     setIsLoading(true);
     const getOrganizations = async () => {
       try {
@@ -166,7 +160,6 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
         };
 
         const data = await organizationProfileService.getOrganizations(
-          session.user.token,
           filters
         );
 
@@ -181,7 +174,7 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
     };
 
     getOrganizations();
-  }, [session?.user?.token, limit, offset, 
+  }, [limit, offset, 
     JSON.stringify(activeFilters?.capacities),
     JSON.stringify(activeFilters?.territories),
     JSON.stringify(activeFilters?.profileCapacityTypes)

@@ -314,11 +314,6 @@ export default function ProfileEditDesktopView(
                     closeButtonLabel={
                       pageContent["edit-profile-delete-profile-cancel"]
                     }
-                    customClass={`${
-                      darkMode
-                        ? "bg-[#005B3F] text-white"
-                        : "bg-white text-[#053749]"
-                    }`}
                   />
                 )}
               </div>

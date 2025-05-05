@@ -3,12 +3,7 @@ import axios from "axios";
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
     const searchParams = request.nextUrl.searchParams;
-
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     const params = {
       limit: searchParams.get("limit") || undefined,
@@ -26,9 +21,6 @@ export async function GET(request: NextRequest) {
     );
 
     const response = await axios.get(`${process.env.BASE_URL}/organizations/`, {
-      headers: {
-        Authorization: authHeader,
-      },
       params: cleanParams
     });
     return NextResponse.json(response.data);

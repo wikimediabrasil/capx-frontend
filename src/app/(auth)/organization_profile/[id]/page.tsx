@@ -3,12 +3,26 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import LoadingState from "@/components/LoadingState";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import OrganizationProfileMobileView from "../components/OrganizationProfileMobileView";
 import OrganizationProfileDesktopView from "../components/OrganizationProfileDesktopView";
+
+// Hard-coded fallback names for known capacity IDs (same as in the API)
+const FALLBACK_CAPACITY_NAMES = {
+  "69": "Strategic Thinking",
+  "71": "Team Leadership",
+  "97": "Project Management",
+  "10": "Organizational Skills",
+  "36": "Communication",
+  "50": "Learning",
+  "56": "Community Building",
+  "65": "Social Skills",
+  "74": "Strategic Planning",
+  "106": "Technology",
+};
 
 export default function OrganizationProfilePage() {
   const { darkMode } = useTheme();
@@ -29,27 +43,34 @@ export default function OrganizationProfilePage() {
 
   const organization = organizations.find((org) => org.id === organizationId);
 
-  const allCapacityIds = [
-    ...(organization?.known_capacities || []),
-    ...(organization?.available_capacities || []),
-    ...(organization?.wanted_capacities || []),
-  ];
+  // Memoize the capacity IDs to prevent unnecessary re-renders
+  const allCapacityIds = useMemo(() => {
+    if (!organization) return [];
+    return [
+      ...(organization.known_capacities || []),
+      ...(organization.available_capacities || []),
+      ...(organization.wanted_capacities || []),
+    ];
+  }, [organization]);
 
-  const { getCapacityName } = useCapacityDetails(allCapacityIds);
+  const { getCapacityName, capacityNames } = useCapacityDetails(allCapacityIds);
+
+  // Only refetch when the organization ID changes, use useCallback to avoid recreation on every render
+  const handleRefetch = useCallback(() => {
+    if (organizationId) {
+      refetch();
+    }
+  }, [organizationId, refetch]);
 
   useEffect(() => {
-    const refreshData = async () => {
-      await refetch();
-    };
-
-    refreshData();
-  }, []);
+    handleRefetch();
+  }, [handleRefetch]);
 
   useEffect(() => {
     if (error) {
       console.error("Error fetching organization:", error);
     }
-  }, [error, organization]);
+  }, [error]);
 
   if (isOrganizationLoading) {
     return <LoadingState />;
@@ -63,7 +84,7 @@ export default function OrganizationProfilePage() {
         isMobile={isMobile}
         organization={organization}
         organizationId={organizationId}
-                  token={token}
+        token={token}
         isOrgManager={isOrgManager}
         getCapacityName={getCapacityName}
         allCapacityIds={allCapacityIds}
@@ -78,7 +99,7 @@ export default function OrganizationProfilePage() {
       isMobile={isMobile}
       organization={organization}
       organizationId={organizationId}
-                token={token}
+      token={token}
       isOrgManager={isOrgManager}
       getCapacityName={getCapacityName}
       allCapacityIds={allCapacityIds}

@@ -10,6 +10,7 @@ export interface Capacity {
   parentCode?: string;
   description?: string;
   wd_code?: string;
+  metabase_code?: string;
   parentCapacity?: Capacity;
   hasChildren: boolean;
 }
@@ -18,6 +19,7 @@ export interface CapacityResponse {
   code: string;
   wd_code: string;
   name: string;
+  description?: string;
 }
 
 export interface QueryData {
