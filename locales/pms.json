@@ -374,5 +374,18 @@
 	"message-form-method": "Manera ëd contat",
 	"message-form-method-placeholder": "Serne la manera",
 	"message-form-method-informative-text": "Ës mëssagi a sarà mandà con Meta.",
-	"message-form-subject": "Oget"
+	"message-form-subject": "Oget",
+	"message-form-subject-placeholder": "Giuteme a organisé ël bilansi preventiv ëd mè proget",
+	"message-form-subject-informative-text": "Ch'a riassuma sò mëssagi an pòche paròle. N'oget ciàir a aumenta le probabilità ëd na rispòsta lesta.",
+	"message-form-message": "Mëssagi",
+	"message-form-message-placeholder": "Im ciamo Ana e i travajo ansima a 'n proget ëd Wikimedia Brasil. I l'ha s-ciairà che chiel a l'ha dl'esperiensa con dij proget ësmijant e im ciamava s'a podèissa giuteme a oraginé ël bilansi preventiv. Tut sugeriment a sarìa motobin apressià!\nBin obligà, Ana",
+	"message-button-confirme-and-send": "Confirmé e mandé",
+	"message-button-cancel-message": "Anulé",
+	"message-info-popup-title": "Cost mëssagi a sarà mandà con Meta",
+	"message-info-popup": "Si ël cont sò o dl'utent a son gropà a n'adrëssa ëd pòsta eletrònica, a peul serne si mandé un mëssagi via pòsta eletrònica o via la pàgina ëd ciaciarade dl'utent. Si un dij doi a l'han gnun-a adrëssa eletrònica gropà a sò cont Wikimedia, ël mëssagi a sarà mandà con la pàgina ëd ciaciarade. Për piasì, ch'a nòta che a arseivrà na rispòsta via Meta s'a manda un mëssagi a travers la pàgina ëd ciaciarade, ma s'a manda un mëssagi an pòsta eletrònica a podrìa arsèive na rispòsta ëdcò për pòsta eletrònica.",
+	"message-info-alt-icon": "plancia d'anformassion",
+	"message-sent-send-new-message": "Mandé un neuv mëssagi",
+	"message-alt-icon": "mandé na plancia",
+	"message-sent-back-to-home": "André a l'intrada",
+	"message-alt-back-to-home": "andré a la plancia d'intrada"
 }
