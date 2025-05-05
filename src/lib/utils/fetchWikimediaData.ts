@@ -63,15 +63,16 @@ export const formatWikiImageUrl = (url: string | undefined): string => {
     return url;
   }
 
-  if (url.includes("commons.wikimedia.org")) {
-    return url.replace("/wiki/File:", "/wiki/Special:FilePath/");
+  if (url.includes("commons.wikimedia.org/wiki/File:")) {
+    const fileName = url.split("File:")[1];
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=384`;
   }
 
   if (url.startsWith("File:")) {
     return `https://commons.wikimedia.org/wiki/Special:FilePath/${url.replace(
       "File:",
       ""
-    )}`;
+    )}?width=384`;
   }
 
   return url;

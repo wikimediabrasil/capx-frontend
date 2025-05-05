@@ -46,7 +46,7 @@ export default function BaseButton({
             src={imageUrl}
             alt={imageAlt}
             fill
-            style={{ objectFit: "contain" }}
+            className="object-contain"
           />
         </div>
       )}

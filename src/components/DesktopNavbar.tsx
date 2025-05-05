@@ -78,13 +78,14 @@ export default function DesktopNavbar({
       title: pageContent["navbar-link-messages"],
       to: "/message",
       active: true,
-    },    
+    },
   ];
 
   const unauthenticatedMenuItems = [
-    { title: pageContent["navbar-link-organizations"], 
-      to: "/organization_list", 
-      active: true
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
     },
   ];
 
@@ -131,6 +132,7 @@ export default function DesktopNavbar({
                 src={CapXLogo}
                 alt="Capacity Exchange logo"
                 className="w-[100px] h-[100px] object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
             </div>
           </NextLink>

@@ -48,6 +48,7 @@ const ProjectFormItem = ({
                   alt="Project image icon"
                   width={24}
                   height={24}
+                  className="object-contain"
                 />
               </div>
               <input
@@ -125,7 +126,7 @@ const ProjectFormItem = ({
               alt="Project image icon"
               width={32}
               height={32}
-              className="opacity-50"
+              className="opacity-50 object-contain"
             />
             <input
               type="text"
