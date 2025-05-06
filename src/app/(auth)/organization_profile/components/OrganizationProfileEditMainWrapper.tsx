@@ -738,66 +738,102 @@ export default function EditOrganizationProfilePage() {
     }
   };
 
-  const handleEventChange = async (
-    index: number,
-    field: keyof Event,
-    value: string
-  ) => {
-    // Ensure eventsData is an array before trying to modify it
-    if (!Array.isArray(eventsData)) {
-      console.error("eventsData is not an array:", eventsData);
-      return;
-    }
-
-    setEventsData((prev) => {
-      // Additional array check
-      if (!Array.isArray(prev)) {
-        console.error("prev is not an array in handleEventChange:", prev);
-        return prev;
+  // Optimize handleEventChange to use useCallback
+  const handleEventChange = useCallback(
+    async (index: number, field: keyof Event, value: string) => {
+      // Ensure eventsData is an array before trying to modify it
+      if (!Array.isArray(eventsData)) {
+        console.error("eventsData is not an array:", eventsData);
+        return;
       }
 
-      const updated = [...prev];
+      // Use functional updates to prevent unnecessary re-renders
+      setEventsData((prev) => {
+        // Additional array check
+        if (!Array.isArray(prev)) {
+          console.error("prev is not an array in handleEventChange:", prev);
+          return prev;
+        }
 
-      if (!updated[index]) {
-        console.error(`Index ${index} out of range of events:`, updated);
-        return prev;
-      }
+        const updated = [...prev];
 
-      // Special treatment for fields that may need conversion
-      if (field === "related_skills") {
-        try {
-          // If the value is a JSON string, parse it
-          const parsedValue = JSON.parse(value);
+        if (!updated[index]) {
+          console.error(`Index ${index} out of range of events:`, updated);
+          return prev;
+        }
+
+        // Special treatment for fields that may need conversion
+        if (field === "related_skills") {
+          try {
+            // If the value is a JSON string, parse it
+            const parsedValue = JSON.parse(value);
+            updated[index] = {
+              ...updated[index],
+              [field]: Array.isArray(parsedValue) ? parsedValue : [],
+            };
+          } catch (e) {
+            // If it's not a valid JSON, use empty array
+            updated[index] = {
+              ...updated[index],
+              [field]: [],
+            };
+          }
+        } else {
+          // For other fields, assign directly
           updated[index] = {
             ...updated[index],
-            [field]: Array.isArray(parsedValue) ? parsedValue : [],
-          };
-        } catch (e) {
-          // If it's not a valid JSON, use empty array
-          updated[index] = {
-            ...updated[index],
-            [field]: [],
+            [field]: value,
           };
         }
-      } else {
-        // For other fields, assign directly
-        updated[index] = {
-          ...updated[index],
-          [field]: value,
-        };
+
+        return updated;
+      });
+
+      // Batch state updates by using a timeout
+      if (eventsData[index] && eventsData[index].id) {
+        setTimeout(() => {
+          setEditedEvents((prev) => ({
+            ...prev,
+            [eventsData[index].id]: true,
+          }));
+        }, 0);
       }
+    },
+    [eventsData]
+  );
 
-      return updated;
-    });
+  // Handler to listen to event changes on the modal
+  const handleModalEventChange = useCallback(
+    (index: number, field: keyof Event, value: string) => {
+      if (!currentEditingEvent) return;
 
-    // Mark this event as edited for tracking
-    if (eventsData[index] && eventsData[index].id) {
-      setEditedEvents((prev) => ({
-        ...prev,
-        [eventsData[index].id]: true,
-      }));
-    }
-  };
+      setCurrentEditingEvent((prev) => {
+        if (!prev) return prev;
+
+        let updatedValue: any = value;
+
+        // Special treatment for specific fields
+        if (field === "time_begin" || field === "time_end") {
+          updatedValue = new Date(value).toISOString();
+        } else if (field === "related_skills") {
+          try {
+            // If the value is a JSON string, parse it
+            const parsedValue = JSON.parse(value);
+            updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
+          } catch (e) {
+            // If it's not a valid JSON, use empty array
+            updatedValue = [];
+          }
+        }
+
+        return {
+          ...prev,
+          [field]: updatedValue,
+        };
+      });
+    },
+    [currentEditingEvent]
+  );
 
   const handleSaveEventChanges = async () => {
     try {
@@ -917,47 +953,6 @@ export default function EditOrganizationProfilePage() {
 
   const handleViewAllEvents = () => {
     router.push(`/events`);
-  };
-
-  // Handler to listen to event changes on the modal
-  const handleModalEventChange = (
-    index: number,
-    field: keyof Event,
-    value: string
-  ) => {
-    if (!currentEditingEvent) return;
-
-    setCurrentEditingEvent((prev) => {
-      if (!prev) return prev;
-
-      let updatedValue: any = value;
-
-      // Special treatment for specific fields
-      if (field === "time_begin" || field === "time_end") {
-        updatedValue = new Date(value).toISOString();
-      } else if (field === "related_skills") {
-        try {
-          // If the value is a JSON string, parse it
-          if (typeof value === "string" && value.startsWith("[")) {
-            const parsedArray = JSON.parse(value);
-            updatedValue = Array.isArray(parsedArray) ? parsedArray : [];
-          } else {
-            // Keep the existing value if it's not a valid JSON
-            updatedValue = prev.related_skills || [];
-          }
-        } catch (e) {
-          console.error("Error parsing related_skills:", e);
-          // Keep the existing value if there's an error
-          updatedValue = prev.related_skills || [];
-        }
-      }
-
-      return {
-        ...prev,
-        [field]: updatedValue,
-        updated_at: new Date().toISOString(),
-      };
-    });
   };
 
   // Diff tags handlers

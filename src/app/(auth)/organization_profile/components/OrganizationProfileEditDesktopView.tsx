@@ -39,6 +39,7 @@ import { Capacity } from "@/types/capacity";
 import NewsFormItem from "./NewsFormItem";
 import DocumentFormItem from "./DocumentFormItem";
 import ExpandAllIcon from "@/public/static/images/expand_all.svg";
+import ExpandAllIconWhite from "@/public/static/images/expand_all_white.svg";
 import { useAvatars } from "@/hooks/useAvatars";
 import EventsList from "@/app/events/components/EventsList";
 
@@ -107,6 +108,7 @@ export default function OrganizationProfileEditDesktopView({
                     fill
                     sizes="300px"
                     priority
+                    loading="eager"
                   />
                 </div>
               </div>
@@ -259,6 +261,8 @@ export default function OrganizationProfileEditDesktopView({
                         console.error("Erro ao carregar preview:", e);
                         e.currentTarget.src = NoAvatarIcon;
                       }}
+                      priority
+                      loading="eager"
                     />
                   </div>
                 ) : (
@@ -328,6 +332,8 @@ export default function OrganizationProfileEditDesktopView({
                     src={darkMode ? NeurologyIconWhite : NeurologyIcon}
                     alt="Neurology icon"
                     className="object-contain"
+                    width={48}
+                    height={48}
                   />
                 </div>
                 <h2
@@ -395,6 +401,8 @@ export default function OrganizationProfileEditDesktopView({
                     src={darkMode ? EmojiIconWhite : EmojiIcon}
                     alt="Emoji icon"
                     className="object-contain"
+                    width={48}
+                    height={48}
                   />
                 </div>
                 <h2
@@ -462,6 +470,8 @@ export default function OrganizationProfileEditDesktopView({
                     src={darkMode ? TargetIconWhite : TargetIcon}
                     alt="Target icon"
                     className="object-contain"
+                    width={48}
+                    height={48}
                   />
                 </div>
                 <h2
@@ -622,12 +632,12 @@ export default function OrganizationProfileEditDesktopView({
             <BaseButton
               onClick={handleViewAllEvents}
               label={pageContent["organization-profile-view-all-events"]}
-              customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] border border-capx-dark-box-bg ${
+              customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
                 darkMode
-                  ? "text-white bg-capx-dark-box-bg"
-                  : "text-capx-dark-box-bg bg-transparent"
+                  ? "text-white bg-capx-dark-box-bg border border-white"
+                  : "text-capx-dark-box-bg bg-transparent border border-capx-dark-box-bg"
               }`}
-              imageUrl={ExpandAllIcon}
+              imageUrl={darkMode ? ExpandAllIconWhite : ExpandAllIcon}
               imageAlt="Expand all icon"
               imageWidth={32}
               imageHeight={32}
@@ -759,7 +769,6 @@ export default function OrganizationProfileEditDesktopView({
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Wikimedia"
                   fill
-                  style={{ objectFit: "contain" }}
                 />
               </div>
               <h2

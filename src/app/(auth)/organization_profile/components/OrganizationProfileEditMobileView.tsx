@@ -38,9 +38,9 @@ import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
 import EventsList from "@/app/events/components/EventsList";
 import NewsFormItem from "./NewsFormItem";
-import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
 import ExpandAllIcon from "@/public/static/images/expand_all.svg";
+import ExpandAllIconWhite from "@/public/static/images/expand_all_white.svg";
 import LoadingState from "@/components/LoadingState";
 
 export default function OrganizationProfileEditMobileView({
@@ -143,6 +143,7 @@ export default function OrganizationProfileEditMobileView({
                 alt="User circle icon"
                 width={32}
                 height={32}
+                style={{ width: "auto", height: "auto" }}
               />
               <span
                 className={`text-start font-[Montserrat] text-[16px] font-extrabold ${
@@ -175,6 +176,7 @@ export default function OrganizationProfileEditMobileView({
                   height={51}
                   className="w-full rounded-lg object-contain"
                   priority
+                  loading="eager"
                 />
               </div>
             </div>
@@ -290,6 +292,7 @@ export default function OrganizationProfileEditMobileView({
                   alt="Report icon"
                   width={28}
                   height={28}
+                  style={{ width: "auto", height: "auto" }}
                 />
               </div>
               <h2 className={`font-[Montserrat] text-[14px] font-bold`}>
@@ -331,6 +334,8 @@ export default function OrganizationProfileEditMobileView({
                     src={darkMode ? NeurologyIconWhite : NeurologyIcon}
                     alt="Neurology icon"
                     className="object-contain"
+                    width={32}
+                    height={32}
                   />
                 </div>
                 <h2
@@ -528,7 +533,6 @@ export default function OrganizationProfileEditMobileView({
                   alt="Project icon"
                   width={24}
                   height={24}
-                  style={{ width: "auto", height: "auto" }}
                 />
               </div>
               <h2
@@ -618,12 +622,12 @@ export default function OrganizationProfileEditMobileView({
             <BaseButton
               onClick={handleViewAllEvents}
               label={pageContent["organization-profile-view-all-events"]}
-              customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] border border-capx-dark-box-bg ${
+              customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
                 darkMode
-                  ? "text-white bg-capx-dark-box-bg"
-                  : "text-capx-dark-box-bg bg-transparent"
+                  ? "text-white bg-capx-dark-box-bg border border-white"
+                  : "text-capx-dark-box-bg bg-transparent border border-capx-dark-box-bg"
               }`}
-              imageUrl={ExpandAllIcon}
+              imageUrl={darkMode ? ExpandAllIconWhite : ExpandAllIcon}
               imageAlt="Expand all icon"
               imageWidth={20}
               imageHeight={20}
@@ -769,8 +773,8 @@ export default function OrganizationProfileEditMobileView({
                 <Image
                   src={darkMode ? WikimediaIconWhite : WikimediaIcon}
                   alt="Wikimedia"
+                  className="object-contain"
                   fill
-                  style={{ objectFit: "contain" }}
                 />
               </div>
               <h2
@@ -791,7 +795,6 @@ export default function OrganizationProfileEditMobileView({
                   <Image
                     src={darkMode ? ContactMetaIconWhite : ContactMetaIcon}
                     alt="Contact Meta"
-                    fill
                     className={`object-contain ${
                       darkMode ? "bg-capx-dark-box-bg" : "bg-white"
                     }`}
@@ -820,8 +823,9 @@ export default function OrganizationProfileEditMobileView({
                   <Image
                     src={darkMode ? ContactEmailIconWhite : ContactEmailIcon}
                     alt="Contact Email"
-                    fill
-                    style={{ objectFit: "cover" }}
+                    className={`object-contain ${
+                      darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+                    }`}
                   />
                 </div>
                 <input
@@ -849,8 +853,9 @@ export default function OrganizationProfileEditMobileView({
                   <Image
                     src={darkMode ? ContactPortalIconWhite : ContactPortalIcon}
                     alt="Contact Website"
-                    fill
-                    style={{ objectFit: "cover" }}
+                    className={`object-contain ${
+                      darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+                    }`}
                   />
                 </div>
                 <input
