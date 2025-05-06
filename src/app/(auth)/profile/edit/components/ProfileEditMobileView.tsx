@@ -49,10 +49,17 @@ import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import SaveIcon from "@/public/static/images/save_as.svg";
 import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
 import Popup from "@/components/Popup";
+
+import Banner from "@/components/Banner";
+
+
+import LetsConect from "@/public/static/images/lets_connect.svg";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -1117,6 +1124,38 @@ export default function ProfileEditMobileView(
                 </span>
               </div>
             </div>
+
+
+
+
+
+
+
+            <Banner
+              image={LetsConect}
+              alt={pageContent["privacy-policy-alt-banner"]}
+              customClass={{
+                background: "bg-[#FFFFFF]"
+             }}
+            />
+
+          <BaseButton
+            onClick={() => setShowProjectSelector(true)}
+            label={pageContent["lets-conect-form-user-edit"]}
+            customClass={`w-full flex ${
+              darkMode
+                ? "bg-capx-light-box-bg text-[#04222F]"
+                : "bg-[#053749] text-white"
+            } items-center px-[13px] py-[6px] pb-[6px] rounded-md py-3 font-bold mb-0`}
+            imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
+            imageAlt="Add project"
+            imageWidth={20}
+            imageHeight={20}
+          />
+
+
+
+
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-[10px] mt-0">

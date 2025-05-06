@@ -30,6 +30,8 @@ import EmojiIcon from "@/public/static/images/emoji_objects.svg";
 import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
 import AddIconDark from "@/public/static/images/add_dark.svg";
 import AddIcon from "@/public/static/images/add.svg";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import TargetIcon from "@/public/static/images/target.svg";
 import LanguageIconWhite from "@/public/static/images/language_white.svg";
@@ -51,6 +53,13 @@ import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
+import Banner from "@/components/Banner";
+
+
+
+import LetsConect from "@/public/static/images/lets_connect.svg";
+
+
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
@@ -1100,6 +1109,47 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
           </div>
+
+
+
+
+
+
+
+
+
+
+
+          <Banner
+            image={LetsConect}
+            alt={pageContent["privacy-policy-alt-banner"]}
+            customClass={{
+              background: "bg-[#FFFFFF]"
+            }}
+          />
+
+          <BaseButton
+            onClick={() => setShowProjectSelector(true)}
+            label={pageContent["lets-conect-form-user-edit"]}
+            customClass={` w-1/2 flex ${
+              darkMode
+                ? "bg-capx-light-box-bg text-[#04222F]"
+                : "bg-[#053749] text-white"
+            } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+            imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
+            imageAlt="Add project"
+            imageWidth={30}
+            imageHeight={30}
+          />
+
+
+
+
+
+
+
+
+
 
           {/* Action Buttons */}
           <div className="flex flex-row gap-6 mt-6">
