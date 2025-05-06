@@ -388,7 +388,6 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                           className="object-contain p-[12px] object-cover"
                           alt={wikimediaProjects[projectId] || "Project icon"}
                           fill
-                          style={{ width: "auto", height: "auto" }}
                         />
                       </div>
                     ) : null
@@ -399,8 +398,8 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
             <div className="flex flex-row gap-2">
               <div className="relative h-[20px] w-[20px]">
                 <Image
-                  src={darkMode ? WikiIconWhite : WikiIcon}
-                  alt={"Wikidata Logo"}
+                  src={darkMode ? ContactImage : ContactImage}
+                  alt={"Contact Image"}
                   fill
                   className="object-cover"
                 />
@@ -649,7 +648,6 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                           alt={wikimediaProjects[projectId] || "Project icon"}
                           className="object-contain p-[24px]"
                           fill
-                          style={{ width: "auto", height: "auto" }}
                         />
                       </div>
                     ) : null

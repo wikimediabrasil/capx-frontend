@@ -243,11 +243,11 @@ export default function EventCard({
     <>
       <div
         className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] h-fit text-capx-dark-box-bg
-        ${!isMobile && !isHorizontalScroll && "max-w-[350px]"}`}
+        `}
       >
         <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row min-h-[80px] py-2">
+            <div className="flex flex-row py-2">
               <h2
                 className={`font-extrabold mb-2 ${
                   isMobile ? "text-md" : "text-xl"
@@ -260,7 +260,8 @@ export default function EventCard({
               <p className={`text-md mb-2 ${isMobile ? "text-sm" : "text-md"}`}>
                 <span className="font-Montserrat">
                   {pageContent["organization-profile-event-organized-by"] ||
-                    "Organized by: "}
+                    "Organized by: "}{" "}
+                  {""}
                 </span>
                 <Link
                   href={`/organization_profile/${organization.id}`}
@@ -272,11 +273,13 @@ export default function EventCard({
             )}
 
             <div
-              className={`flex gap-4 ${
-                !isHorizontalScroll ? "flex-row" : "flex-col"
+              className={`flex ${
+                !isHorizontalScroll && !isMobile
+                  ? "flex-row gap-8"
+                  : "flex-col gap-4"
               }`}
             >
-              <div className="flex flex-col gap-4 mb-2">
+              <div className={`flex gap-4 flex-col`}>
                 {event.time_begin && event.time_end && (
                   <div className="flex flex-row gap-2">
                     <Image
@@ -361,7 +364,8 @@ export default function EventCard({
                       showAllCapacities ? "" : "max-h-[40px]"
                     }`}
                   >
-                    {event.related_skills &&
+                    {(isMobile || isHorizontalScroll) &&
+                      event.related_skills &&
                       event.related_skills
                         .slice(
                           0,
@@ -379,8 +383,23 @@ export default function EventCard({
                             {capacityNames[skill]}
                           </p>
                         ))}
+
+                    {!isMobile &&
+                      !isHorizontalScroll &&
+                      event.related_skills &&
+                      event.related_skills.map((skill) => (
+                        <p
+                          key={skill}
+                          className={`text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit ${
+                            isMobile ? "text-xs" : "text-sm"
+                          }`}
+                        >
+                          {capacityNames[skill]}
+                        </p>
+                      ))}
                   </div>
-                  {event.related_skills &&
+                  {(isMobile || isHorizontalScroll) &&
+                    event.related_skills &&
                     (event.related_skills.length > visibleCapacities ||
                       overflowing) && (
                       <button

@@ -1,6 +1,5 @@
 import { Event } from "@/types/event";
 import EventCard from "./EventCard";
-import { useMemo } from "react";
 
 interface EventsListProps {
   events: Event[];
@@ -33,7 +32,7 @@ export default function EventsList({
             <EventCard
               key={event.id}
               event={event}
-              isHorizontalScroll
+              isHorizontalScroll={isHorizontalScroll}
               onDelete={onDelete}
               onEdit={onEdit}
               onChoose={onChoose}
