@@ -362,6 +362,7 @@
   "organization-profile-hide-event": "Hide event",
   "organization-profile-delete-event": "Delete event",
   "organization-profile-view-all-events": "View all events",
+  "organization-profile-event-search": "Search",
   "saved-profiles-title": "Saved Profiles",
   "saved-profiles-delete-item": "Delete item",
   "saved-profiles-view-profile": "View profile",
@@ -432,6 +433,12 @@
   "message-info-alt-icon": "information icon",
   "message-sent-send-new-message": "Send a new message",
   "message-alt-icon": "send icon",
-  "message-sent-back-to-home": "Back to home",
-  "message-alt-back-to-home": "back to home icon"
+  "message-alt-back-to-home": "back to home icon",
+  "delete-confirmation-confirm": "Delete",
+  "delete-confirmation-cancel": "Cancel",
+  "delete-confirmation-first-message": "Are you sure you want to delete",
+  "delete-confirmation-second-message": "This action cannot be undone.",
+  "filters-hybrid-event": "Hybrid event",
+  "filters-online-event": "Online event",
+  "filters-all-formats": "All formats"
 }
