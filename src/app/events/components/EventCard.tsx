@@ -1,34 +1,22 @@
 import { Event } from "@/types/event";
-import { Capacity } from "@/types/capacity";
 import BaseButton from "@/components/BaseButton";
 import Image from "next/image";
-import AlarmIcon from "@/public/static/images/alarm.svg";
-import LocationIcon from "@/public/static/images/location_on.svg";
-import CalendarIcon from "@/public/static/images/calendar_month.svg";
-import HourglassIcon from "@/public/static/images/hourglass.svg";
 import AlarmDarkIcon from "@/public/static/images/alarm_dark.svg";
 import LocationDarkIcon from "@/public/static/images/location_on_dark.svg";
 import CalendarDarkIcon from "@/public/static/images/calendar_month_dark.svg";
-import HourglassDarkIcon from "@/public/static/images/hourglass_dark.svg";
 import EmojiObjectsDarkIcon from "@/public/static/images/emoji_objects_events.svg";
-import EmojiObjectsIcon from "@/public/static/images/emoji_objects_white.svg";
 import { useSession } from "next-auth/react";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
 import ArrowDropDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
-import ArrowDropDownWhiteIcon from "@/public/static/images/arrow_drop_down_circle_white.svg";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import LoadingState from "@/components/LoadingState";
-import CheckBoxOutlineBlankIcon from "@/public/static/images/check_box_outline_blank.svg";
 import CheckBoxOutlineBlankIconLight from "@/public/static/images/check_box_outline_blank_light.svg";
 import CheckBoxIcon from "@/public/static/images/check_box.svg";
-import CheckBoxIconLight from "@/public/static/images/check_box_light.svg";
 import EditIcon from "@/public/static/images/edit.svg";
-import EditIconWhite from "@/public/static/images/edit_white.svg";
 import DeleteIcon from "@/public/static/images/delete.svg";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
@@ -51,7 +39,6 @@ export default function EventCard({
   isLoading,
   error,
 }: EventCardProps) {
-  const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
   const { data: session } = useSession();
   const token = session?.user?.token;
@@ -255,19 +242,22 @@ export default function EventCard({
   return (
     <>
       <div
-        className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] h-fit ${
-          darkMode ? "text-white" : "text-capx-dark-box-bg"
-        } ${!isMobile && !isHorizontalScroll && "max-w-[350px]"}`}
+        className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] h-fit text-capx-dark-box-bg
+        ${!isMobile && !isHorizontalScroll && "max-w-[350px]"}`}
       >
         <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">
           <div className="flex flex-col gap-2">
             <div className="flex flex-row min-h-[80px] py-2">
-              <h2 className="text-xl font-extrabold mb-2 text-capx-dark-box-bg font-Montserrat">
+              <h2
+                className={`font-extrabold mb-2 ${
+                  isMobile ? "text-md" : "text-xl"
+                } font-Montserrat`}
+              >
                 {event.name}
               </h2>
             </div>
             {organization && !isHorizontalScroll && (
-              <p className="text-md mb-2">
+              <p className={`text-md mb-2 ${isMobile ? "text-sm" : "text-md"}`}>
                 <span className="font-Montserrat">
                   {pageContent["organization-profile-event-organized-by"] ||
                     "Organized by: "}
@@ -290,12 +280,16 @@ export default function EventCard({
                 {event.time_begin && event.time_end && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={darkMode ? AlarmIcon : AlarmDarkIcon}
-                      width={24}
-                      height={24}
+                      src={AlarmDarkIcon}
+                      width={isMobile ? 16 : 24}
+                      height={isMobile ? 16 : 24}
                       alt="Alarm"
                     />
-                    <p className="text-md font-extrabold text-[#507380]">
+                    <p
+                      className={`font-extrabold text-[#507380] ${
+                        isMobile ? "text-sm" : "text-md"
+                      }`}
+                    >
                       {formatTimeRange(event.time_begin, event.time_end)}
                     </p>
                   </div>
@@ -304,12 +298,16 @@ export default function EventCard({
                 {event.time_begin && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={darkMode ? CalendarIcon : CalendarDarkIcon}
-                      width={24}
-                      height={24}
+                      src={CalendarDarkIcon}
+                      width={isMobile ? 16 : 24}
+                      height={isMobile ? 16 : 24}
                       alt="Calendar"
                     />
-                    <p className="text-md font-extrabold text-[#507380]">
+                    <p
+                      className={`font-extrabold text-[#507380] ${
+                        isMobile ? "text-sm" : "text-md"
+                      }`}
+                    >
                       {formatMonthYear(event.time_begin)}
                     </p>
                   </div>
@@ -317,12 +315,16 @@ export default function EventCard({
                 {event.type_of_location && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={darkMode ? LocationIcon : LocationDarkIcon}
-                      width={24}
-                      height={24}
+                      src={LocationDarkIcon}
+                      width={isMobile ? 16 : 24}
+                      height={isMobile ? 16 : 24}
                       alt="Location"
                     />
-                    <p className="text-md font-extrabold text-[#507380]">
+                    <p
+                      className={`font-extrabold text-[#507380] ${
+                        isMobile ? "text-sm" : "text-md"
+                      }`}
+                    >
                       {event.type_of_location === "virtual"
                         ? "Online event"
                         : event.type_of_location === "in-person"
@@ -337,12 +339,16 @@ export default function EventCard({
                 {event.related_skills && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={darkMode ? EmojiObjectsIcon : EmojiObjectsDarkIcon}
-                      width={24}
-                      height={24}
+                      src={EmojiObjectsDarkIcon}
+                      width={isMobile ? 16 : 24}
+                      height={isMobile ? 16 : 24}
                       alt="Emoji"
                     />
-                    <p className="text-md font-extrabold text-[#507380]">
+                    <p
+                      className={`font-extrabold text-[#507380] ${
+                        isMobile ? "text-sm" : "text-md"
+                      }`}
+                    >
                       {pageContent["events-available-capacities"] ||
                         "Available capacities"}
                     </p>
@@ -366,7 +372,9 @@ export default function EventCard({
                         .map((skill) => (
                           <p
                             key={skill}
-                            className="text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit"
+                            className={`text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit ${
+                              isMobile ? "text-xs" : "text-sm"
+                            }`}
                           >
                             {capacityNames[skill]}
                           </p>
@@ -397,14 +405,16 @@ export default function EventCard({
                     className="flex flex-row gap-2 justify-between mr-4"
                     onClick={() => handleDetailsEvent(!showEventDetails)}
                   >
-                    <p className="text-md font-extrabold text-[#507380]">
+                    <p
+                      className={`font-extrabold text-[#507380] ${
+                        isMobile ? "text-sm" : "text-md"
+                      }`}
+                    >
                       {pageContent["events-details-of-event"] ||
                         "Details of event"}
                     </p>
                     <Image
-                      src={
-                        darkMode ? ArrowDropDownWhiteIcon : ArrowDropDownIcon
-                      }
+                      src={ArrowDropDownIcon}
                       alt="Expand"
                       style={{
                         transform: showEventDetails
@@ -417,8 +427,8 @@ export default function EventCard({
                   {showEventDetails && event.description && (
                     <div className="flex flex-col gap-4 mt-2 bg-white bg-opacity-10 rounded">
                       <p
-                        className={`text-sm ${
-                          darkMode ? "text-white" : "text-[#507380]"
+                        className={`text-sm text-[#507380] ${
+                          isMobile ? "text-xs" : "text-sm"
                         }`}
                       >
                         {event.description}
@@ -434,11 +444,13 @@ export default function EventCard({
               <BaseButton
                 label={pageContent["organization-profile-edit-event"] || "Edit"}
                 onClick={() => onEdit(event as Event)}
-                customClass={`py-2 px-3 rounded-md text-md font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center !mb-0 hover:opacity-90 transition-opacity !pb-2`}
+                customClass={`py-2 px-3 rounded-md text-md font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center !mb-0 hover:opacity-90 transition-opacity !pb-2 ${
+                  isMobile ? "text-xs" : "text-md"
+                }`}
                 imageUrl={EditIcon}
                 imageAlt="Edit icon"
-                imageWidth={24}
-                imageHeight={24}
+                imageWidth={isMobile ? 16 : 24}
+                imageHeight={isMobile ? 16 : 24}
               />
 
               <BaseButton
@@ -454,13 +466,15 @@ export default function EventCard({
                   isSelected
                     ? "bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg"
                     : "bg-capx-dark-box-bg text-white"
-                } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0`}
+                } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0 ${
+                  isMobile ? "text-xs" : "text-md"
+                }`}
                 imageUrl={
                   isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight
                 }
                 imageAlt="Checkbox icon"
-                imageWidth={24}
-                imageHeight={24}
+                imageWidth={isMobile ? 16 : 24}
+                imageHeight={isMobile ? 16 : 24}
               />
 
               <BaseButton
@@ -468,11 +482,13 @@ export default function EventCard({
                   pageContent["organization-profile-delete-event"] || "Delete"
                 }
                 onClick={handleDeleteClick}
-                customClass={`py-2 px-3 rounded-md text-md bg-capx-primary-orange flex flex-row items-center !mb-0 text-start text-white font-extrabold hover:opacity-90 transition-opacity !pb-2`}
+                customClass={`py-2 px-3 rounded-md text-md bg-capx-primary-orange flex flex-row items-center !mb-0 text-start text-white font-extrabold hover:opacity-90 transition-opacity !pb-2 ${
+                  isMobile ? "text-xs" : "text-md"
+                }`}
                 imageUrl={DeleteIcon}
                 imageAlt="Delete icon"
-                imageWidth={24}
-                imageHeight={24}
+                imageWidth={isMobile ? 16 : 24}
+                imageHeight={isMobile ? 16 : 24}
               />
             </div>
           )}
