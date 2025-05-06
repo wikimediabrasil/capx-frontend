@@ -5,7 +5,6 @@ import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import Image from "next/image";
 import { EventFilterState, EventFilterType, EventLocationType } from "../types";
-
 import ArrowBackIcon from "@/public/static/images/arrow_back_icon.svg";
 import ArrowBackIconWhite from "@/public/static/images/arrow_back_icon_white.svg";
 import CapxIcon from "@/public/static/images/capx_icon.svg";
@@ -14,14 +13,10 @@ import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.
 import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
 import SearchIcon from "@/public/static/images/search_icon.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
-import CalendarIcon from "@/public/static/images/calendar_month_dark.svg";
-import CalendarIconWhite from "@/public/static/images/calendar_month.svg";
 import LocationIcon from "@/public/static/images/location_on_dark.svg";
 import LocationIconWhite from "@/public/static/images/location_on.svg";
-import OrganizationIcon from "@/public/static/images/supervised_user_circle.svg";
-import OrganizationIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
-
-import { useOrganizations } from "@/hooks/useOrganizationProfile";
+import AddIcon from "@/public/static/images/add.svg";
+import AddIconWhite from "@/public/static/images/add_dark.svg";
 import { useSession } from "next-auth/react";
 import BaseButton from "@/components/BaseButton";
 import { Capacity } from "@/types/capacity";
@@ -45,10 +40,8 @@ export function EventsFilters({
 
   const [searchCapacity, setSearchCapacity] = useState("");
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
-  const [showSkillModal, setShowSkillModal] = useState(false);
-
-  // Fetch organizations for the organization filter
-  const { organizations } = useOrganizations();
+  const [showCapacityModal, setShowCapacityModal] = useState(false);
+  const [territory, setTerritory] = useState("");
 
   const handleCapacitySelect = (capacity: Capacity) => {
     const capacityExists = filters.capacities.some(
@@ -70,16 +63,38 @@ export function EventsFilters({
       ],
     }));
 
-    // Update search input display
-    setSearchCapacity(capacity.name);
     // Close the modal after selection
-    setShowSkillModal(false);
+    setShowCapacityModal(false);
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
     setFilters((prev) => ({
       ...prev,
       capacities: prev.capacities.filter((cap) => cap.code !== capacityCode),
+    }));
+  };
+
+  const handleAddTerritory = () => {
+    if (territory && !filters.territories.includes(territory)) {
+      setFilters((prev) => ({
+        ...prev,
+        territories: [...prev.territories, territory],
+      }));
+      setTerritory("");
+    }
+  };
+
+  const handleRemoveTerritory = (territoryToRemove: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      territories: prev.territories.filter((t) => t !== territoryToRemove),
+    }));
+  };
+
+  const handleEventFormatChange = (format: EventLocationType) => {
+    setFilters((prev) => ({
+      ...prev,
+      locationType: format,
     }));
   };
 
@@ -98,44 +113,7 @@ export function EventsFilters({
       organizationId: undefined,
     };
     setFilters(clearedFilters);
-    setSearchCapacity("");
-  };
-
-  const handleLocationTypeChange = (type: EventLocationType) => {
-    setFilters((prev) => ({
-      ...prev,
-      locationType: type,
-    }));
-  };
-
-  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters((prev) => ({
-      ...prev,
-      dateRange: {
-        ...prev.dateRange,
-        startDate: e.target.value || undefined,
-      },
-    }));
-  };
-
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters((prev) => ({
-      ...prev,
-      dateRange: {
-        ...prev.dateRange,
-        endDate: e.target.value || undefined,
-      },
-    }));
-  };
-
-  const handleOrganizationChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const orgId = e.target.value ? Number(e.target.value) : undefined;
-    setFilters((prev) => ({
-      ...prev,
-      organizationId: orgId,
-    }));
+    setTerritory("");
   };
 
   // Avoid multiple scrolls when the modal is open
@@ -156,7 +134,7 @@ export function EventsFilters({
       {/* Container's Modal */}
       <div
         className={`
-        relative w-full h-full md:w-[800px] md:max-h-[80vh] md:mt-20 md:rounded-lg
+        relative w-full h-full md:w-[420px] md:max-h-[80vh] md:mt-20 md:rounded-lg
         ${darkMode ? "bg-capx-dark-bg" : "bg-white"}
         flex flex-col overflow-hidden
       `}
@@ -173,50 +151,48 @@ export function EventsFilters({
               />
             </button>
             <h1
-              className={`text-xl font-bold ${
+              className={`text-xl font-medium ${
                 darkMode ? "text-white" : "text-black"
               }`}
             >
-              {pageContent["filters-title"] || "Filtros"}
+              {pageContent["filters-title"] || "Filters"}
             </h1>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          <div className="p-4 space-y-6">
-            {/* Capacities */}
-            <div className="space-y-2">
-              {/* TODO: Add this back when the capacity selection filter is implemented */}
-              {/* <div className="flex items-center gap-2">
+          <div className="divide-y">
+            {/* Capacities Section */}
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? CapxIconWhite : CapxIcon}
-                  alt={
-                    pageContent["filters-capacities-alt-icon"] || "Capacities"
-                  }
+                  alt="Capacities"
                   width={24}
                   height={24}
                 />
                 <h2
-                  className={`font-bold ${
+                  className={`font-medium ${
                     darkMode ? "text-white" : "text-black"
                   }`}
                 >
-                  {pageContent["filters-capacities"] || "Capacidades"}
+                  {pageContent["filters-capacities"] || "Capacities"}
                 </h2>
-              </div> */}
-              {/* <div className="relative">
+              </div>
+
+              <div className="relative">
                 <input
                   type="text"
                   readOnly
                   value={searchCapacity}
-                  onFocus={() => setShowSkillModal(true)}
+                  onFocus={() => setShowCapacityModal(true)}
                   placeholder={
                     pageContent["filters-search-by-capacities"] ||
                     "Search by capacities"
                   }
                   className={`
-                    w-full p-2 rounded-lg border
+                    w-full p-2 pl-3 pr-10 rounded-lg border
                     ${
                       darkMode
                         ? "bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400"
@@ -224,20 +200,19 @@ export function EventsFilters({
                     }
                   `}
                 />
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                   <Image
                     src={darkMode ? SearchIconWhite : SearchIcon}
-                    alt={pageContent["filters-search-icon"] || "Search"}
+                    alt="Search"
                     width={20}
                     height={20}
                   />
                 </div>
-              </div> TODO: Add this back when the capacity selection filter is implemented */}
+              </div>
 
               {/* Selected Capacities */}
-              {/* TODO: Add this back when the capacity selection filter is implemented */}
-              {/* {filters.capacities.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+              {filters.capacities.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
                   {filters.capacities.map((capacity, index) => (
                     <div
                       key={index}
@@ -256,10 +231,7 @@ export function EventsFilters({
                       >
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt={
-                            pageContent["filters-remove-item-alt-icon"] ||
-                            "Remove"
-                          }
+                          alt="Remove"
                           width={16}
                           height={16}
                         />
@@ -267,265 +239,269 @@ export function EventsFilters({
                     </div>
                   ))}
                 </div>
-              )} */}
+              )}
             </div>
 
-            {/*  <CapacitySelectionModal
-              isOpen={showSkillModal}
-              onClose={() => setShowSkillModal(false)}
-              onSelect={handleCapacitySelect}
-              title={pageContent["select-capacity"] || "Selecionar capacidade"}
-            /> */}
-
-            {/* Event Date Range */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={darkMode ? CalendarIconWhite : CalendarIcon}
-                  alt={pageContent["filters-date-alt-icon"] || "Date"}
-                  width={24}
-                  height={24}
-                />
-                <h2
-                  className={`font-bold ${
-                    darkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  {pageContent["filters-date"] || "Data do evento"}
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    {pageContent["filters-start-date"] || "Data inicial"}
-                  </label>
-                  <input
-                    type="date"
-                    value={filters.dateRange?.startDate || ""}
-                    onChange={handleStartDateChange}
-                    className={`
-                      w-full p-2 rounded-lg border
-                      ${
-                        darkMode
-                          ? "bg-capx-dark-box-bg text-white border-gray-700"
-                          : "bg-white border-gray-300 text-gray-900"
-                      }
-                    `}
-                  />
-                </div>
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-1 ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    {pageContent["filters-end-date"] || "Data final"}
-                  </label>
-                  <input
-                    type="date"
-                    value={filters.dateRange?.endDate || ""}
-                    onChange={handleEndDateChange}
-                    className={`
-                      w-full p-2 rounded-lg border
-                      ${
-                        darkMode
-                          ? "bg-capx-dark-box-bg text-white border-gray-700"
-                          : "bg-white border-gray-300 text-gray-900"
-                      }
-                    `}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Event Location Type */}
-            <div className="space-y-2">
+            {/* Territory Section */}
+            <div className="p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? LocationIconWhite : LocationIcon}
-                  alt={pageContent["filters-location-alt-icon"] || "Location"}
+                  alt="Territory"
                   width={24}
                   height={24}
                 />
                 <h2
-                  className={`font-bold ${
+                  className={`font-medium ${
                     darkMode ? "text-white" : "text-black"
                   }`}
                 >
-                  {pageContent["filters-location-type"] || "Tipo de local"}
+                  {pageContent["filters-territory"] || "Territory"}
                 </h2>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <button
-                  onClick={() =>
-                    handleLocationTypeChange(EventLocationType.All)
+              <div className="relative flex">
+                <input
+                  type="text"
+                  value={territory}
+                  onChange={(e) => setTerritory(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleAddTerritory();
+                  }}
+                  placeholder={
+                    pageContent["filters-insert-item"] || "Insert item"
                   }
                   className={`
-                    p-2 border rounded-lg flex items-center justify-center gap-2
+                    flex-1 p-2 pl-3 pr-10 rounded-lg border
+                    ${
+                      darkMode
+                        ? "bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400"
+                        : "bg-white border-gray-300 placeholder-gray-500"
+                    }
+                  `}
+                />
+                <button
+                  onClick={handleAddTerritory}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                >
+                  <Image
+                    src={darkMode ? AddIconWhite : AddIcon}
+                    alt="Add"
+                    width={20}
+                    height={20}
+                  />
+                </button>
+              </div>
+
+              {/* Selected Territories */}
+              {filters.territories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {filters.territories.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`
+                        inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm
+                        max-w-[150px] shrink-0
+                        ${darkMode ? "bg-gray-700" : "bg-gray-100"}
+                      `}
+                    >
+                      <span className="truncate" title={item}>
+                        {item}
+                      </span>
+                      <button
+                        onClick={() => handleRemoveTerritory(item)}
+                        className="hover:opacity-80 flex-shrink-0"
+                      >
+                        <Image
+                          src={darkMode ? CloseIconWhite : CloseIcon}
+                          alt="Remove"
+                          width={16}
+                          height={16}
+                        />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Event Format Section */}
+            <div className="p-4 space-y-4">
+              <h2
+                className={`font-medium ${
+                  darkMode ? "text-white" : "text-black"
+                }`}
+              >
+                {pageContent["filters-event-format"] || "Event format"}
+              </h2>
+
+              <div className="space-y-2">
+                <button
+                  onClick={() => handleEventFormatChange(EventLocationType.All)}
+                  className={`
+                    w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.All
                         ? darkMode
-                          ? "bg-blue-900 border-blue-700"
-                          : "bg-blue-50 border-blue-200"
+                          ? "border-blue-600"
+                          : "border-blue-600"
                         : darkMode
-                        ? "bg-capx-dark-box-bg border-gray-700"
-                        : "bg-white border-gray-300"
+                        ? "border-gray-700"
+                        : "border-gray-300"
                     }
                   `}
                 >
-                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
-                    {pageContent["filters-location-all"] || "Todos"}
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span
+                      className={`${darkMode ? "text-white" : "text-black"}`}
+                    >
+                      {pageContent["filters-all-formats"] || "All formats"}
+                    </span>
+                    <div
+                      className={`w-5 h-5 border rounded flex items-center justify-center
+                        ${
+                          filters.locationType === EventLocationType.All
+                            ? darkMode
+                              ? "border-blue-600 bg-blue-600"
+                              : "border-blue-600 bg-blue-600"
+                            : darkMode
+                            ? "border-gray-600"
+                            : "border-gray-400"
+                        }
+                      `}
+                    >
+                      {filters.locationType === EventLocationType.All && (
+                        <div className="w-3 h-3 bg-white"></div>
+                      )}
+                    </div>
+                  </div>
                 </button>
 
                 <button
                   onClick={() =>
-                    handleLocationTypeChange(EventLocationType.Online)
+                    handleEventFormatChange(EventLocationType.Online)
                   }
                   className={`
-                    p-2 border rounded-lg flex items-center justify-center gap-2
+                    w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.Online
                         ? darkMode
-                          ? "bg-blue-900 border-blue-700"
-                          : "bg-blue-50 border-blue-200"
+                          ? "border-blue-600"
+                          : "border-blue-600"
                         : darkMode
-                        ? "bg-capx-dark-box-bg border-gray-700"
-                        : "bg-white border-gray-300"
+                        ? "border-gray-700"
+                        : "border-gray-300"
                     }
                   `}
                 >
-                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
-                    {pageContent["filters-location-online"] || "Online"}
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span
+                      className={`${darkMode ? "text-white" : "text-black"}`}
+                    >
+                      {pageContent["filters-online-event"] || "Online event"}
+                    </span>
+                    <div
+                      className={`w-5 h-5 border rounded flex items-center justify-center
+                        ${
+                          filters.locationType === EventLocationType.Online
+                            ? darkMode
+                              ? "border-blue-600 bg-blue-600"
+                              : "border-blue-600 bg-blue-600"
+                            : darkMode
+                            ? "border-gray-600"
+                            : "border-gray-400"
+                        }
+                      `}
+                    >
+                      {filters.locationType === EventLocationType.Online && (
+                        <div className="w-3 h-3 bg-white"></div>
+                      )}
+                    </div>
+                  </div>
                 </button>
 
                 <button
                   onClick={() =>
-                    handleLocationTypeChange(EventLocationType.InPerson)
+                    handleEventFormatChange(EventLocationType.Hybrid)
                   }
                   className={`
-                    p-2 border rounded-lg flex items-center justify-center gap-2
-                    ${
-                      filters.locationType === EventLocationType.InPerson
-                        ? darkMode
-                          ? "bg-blue-900 border-blue-700"
-                          : "bg-blue-50 border-blue-200"
-                        : darkMode
-                        ? "bg-capx-dark-box-bg border-gray-700"
-                        : "bg-white border-gray-300"
-                    }
-                  `}
-                >
-                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
-                    {pageContent["filters-location-in-person"] || "Presencial"}
-                  </span>
-                </button>
-
-                <button
-                  onClick={() =>
-                    handleLocationTypeChange(EventLocationType.Hybrid)
-                  }
-                  className={`
-                    p-2 border rounded-lg flex items-center justify-center gap-2
+                    w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.Hybrid
                         ? darkMode
-                          ? "bg-blue-900 border-blue-700"
-                          : "bg-blue-50 border-blue-200"
+                          ? "border-blue-600"
+                          : "border-blue-600"
                         : darkMode
-                        ? "bg-capx-dark-box-bg border-gray-700"
-                        : "bg-white border-gray-300"
+                        ? "border-gray-700"
+                        : "border-gray-300"
                     }
                   `}
                 >
-                  <span className={`${darkMode ? "text-white" : "text-black"}`}>
-                    {pageContent["filters-location-hybrid"] || "Híbrido"}
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span
+                      className={`${darkMode ? "text-white" : "text-black"}`}
+                    >
+                      {pageContent["filters-hybrid-event"] || "Hybrid event"}
+                    </span>
+                    <div
+                      className={`w-5 h-5 border rounded flex items-center justify-center
+                        ${
+                          filters.locationType === EventLocationType.Hybrid
+                            ? darkMode
+                              ? "border-blue-600 bg-blue-600"
+                              : "border-blue-600 bg-blue-600"
+                            : darkMode
+                            ? "border-gray-600"
+                            : "border-gray-400"
+                        }
+                      `}
+                    >
+                      {filters.locationType === EventLocationType.Hybrid && (
+                        <div className="w-3 h-3 bg-white"></div>
+                      )}
+                    </div>
+                  </div>
                 </button>
               </div>
-            </div>
-
-            {/* Organization Filter */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={darkMode ? OrganizationIconWhite : OrganizationIcon}
-                  alt={
-                    pageContent["filters-organization-alt-icon"] ||
-                    "Organization"
-                  }
-                  width={24}
-                  height={24}
-                />
-                <h2
-                  className={`font-bold ${
-                    darkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  {pageContent["filters-organization"] || "Organização"}
-                </h2>
-              </div>
-
-              <select
-                value={filters.organizationId || ""}
-                onChange={handleOrganizationChange}
-                className={`
-                  w-full p-2 rounded-lg border
-                  ${
-                    darkMode
-                      ? "bg-capx-dark-box-bg text-white border-gray-700"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }
-                `}
-              >
-                <option value="">
-                  {pageContent["filters-select-organization"] ||
-                    "Selecione uma organização"}
-                </option>
-                {organizations?.map((org) => (
-                  <option key={org.id} value={org.id}>
-                    {org.display_name}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         </div>
 
         {/* Footer with Apply and Clear All buttons */}
-        <div className="p-4 border-t flex justify-between items-center shrink-0">
+        <div className="p-4 border-t flex justify-between items-center gap-3 shrink-0">
           <button
             onClick={handleClearAll}
             className={`
-              px-4 py-2 text-sm
+              flex-1 px-4 py-3 border rounded-lg text-center
               ${
                 darkMode
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-600 hover:text-black"
+                  ? "border-gray-700 text-white"
+                  : "border-gray-300 text-gray-700"
               }
             `}
           >
-            {pageContent["filters-clear-all"] || "Limpar filtros"}
+            {pageContent["filters-clear-all"] || "Clear all"}
           </button>
 
           <BaseButton
-            label={pageContent["filters-apply"] || "Aplicar"}
+            label={pageContent["filters-show-results"] || "Show results"}
             onClick={handleApply}
-            customClass={`px-6 py-2 rounded-md font-medium ${
+            customClass={`flex-1 px-4 py-3 rounded-lg font-medium ${
               darkMode
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
+                ? "bg-purple-700 hover:bg-purple-800 text-white"
+                : "bg-purple-700 hover:bg-purple-800 text-white"
             }`}
           />
         </div>
       </div>
+
+      {/* Capacity Selection Modal */}
+      <CapacitySelectionModal
+        isOpen={showCapacityModal}
+        onClose={() => setShowCapacityModal(false)}
+        onSelect={handleCapacitySelect}
+        title={pageContent["select-capacity"] || "Select capacity"}
+      />
     </div>
   );
 }
