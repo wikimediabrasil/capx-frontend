@@ -54,128 +54,47 @@ export function useOrganization(token?: string, specificOrgId?: number) {
     []
   );
 
-  const fetchData = useCallback(
-    async (forceRefresh = false) => {
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
+  const fetchData = useCallback(async () => {
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
 
-      // Don't fetch data if the active element is a text input
-      if (
-        document.activeElement?.tagName === "INPUT" &&
-        document.activeElement.getAttribute("type") === "text"
-      ) {
-        return;
-      }
+    setIsLoading(true);
+    setIsPermissionsLoaded(false);
 
-      // Check if we need to actually make a new fetch
-      const now = Date.now();
-      const timeSinceLastFetch = now - lastFetchTime;
-      const cacheTime = 5 * 60 * 1000; // 5 minutes of cache
+    try {
+      // First, fetch the IDs of the managed organizations
+      const managedIds = await fetchUserProfile(token);
+      setManagedOrganizationIds(managedIds);
+      setIsPermissionsLoaded(true);
 
-      // If we don't want to force a refresh and we've recently fetched,
-      // or we have valid cache data, return.
-      if (
-        !forceRefresh &&
-        timeSinceLastFetch < cacheTime &&
-        specificOrgId &&
-        orgCacheRef.current.has(specificOrgId) &&
-        organizations.length > 0
-      ) {
-        return;
-      }
-
-      // If there is a specific ID and we have it in cache, use it
-      if (
-        !forceRefresh &&
-        specificOrgId &&
-        orgCacheRef.current.has(specificOrgId) &&
-        now - orgCacheRef.current.get(specificOrgId)!.timestamp < cacheTime
-      ) {
-        const cachedData = orgCacheRef.current.get(specificOrgId)!.data;
-        setOrganizations([cachedData]);
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-
-      // For permissions, only load if they haven't been loaded yet
-      // or if we are forcing a refresh
-      if (!isPermissionsLoaded || forceRefresh) {
-        setIsPermissionsLoaded(false);
+      // Then, fetch the organizations
+      if (specificOrgId) {
         try {
-          // First, fetch the IDs of the managed organizations
-          const managedIds = await fetchUserProfile(token);
-          setManagedOrganizationIds(managedIds);
-          setIsPermissionsLoaded(true);
-        } catch (err) {
-          console.error("Error fetching user profile:", err);
-          setIsPermissionsLoaded(false);
-        }
-      }
-
-      try {
-        // Then, fetch the organizations
-        if (specificOrgId) {
-          try {
-            const orgData =
-              await organizationProfileService.getOrganizationById(
-                token,
-                specificOrgId
-              );
-            if (orgData) {
-              // Store in cache
-              orgCacheRef.current.set(specificOrgId, {
-                data: orgData,
-                timestamp: now,
-              });
-              setOrganizations([orgData]);
-            }
-          } catch (err) {
-            console.error(`Error fetching organization ${specificOrgId}:`, err);
-            setOrganizations([]);
-          }
-        } else if (managedOrganizationIds.length > 0) {
-          const orgsData = await fetchOrganizations(
+          const orgData = await organizationProfileService.getOrganizationById(
             token,
-            managedOrganizationIds
+            specificOrgId
           );
-          setOrganizations(orgsData);
-
-          // Update cache for each organization
-          orgsData.forEach((org) => {
-            if (org && org.id) {
-              orgCacheRef.current.set(org.id, {
-                data: org,
-                timestamp: now,
-              });
-            }
-          });
+          if (orgData) {
+            setOrganizations([orgData]);
+          }
+        } catch (err) {
+          console.error(`Error fetching organization ${specificOrgId}:`, err);
+          setOrganizations([]);
         }
-
-        // Update timestamp of last fetch
-        setLastFetchTime(now);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch data");
-        setOrganizations([]);
-        setManagedOrganizationIds([]);
-      } finally {
-        setIsLoading(false);
+      } else if (managedIds.length > 0) {
+        const orgsData = await fetchOrganizations(token, managedIds);
+        setOrganizations(orgsData);
       }
-    },
-    [
-      token,
-      specificOrgId,
-      fetchUserProfile,
-      fetchOrganizations,
-      lastFetchTime,
-      isPermissionsLoaded,
-      organizations.length,
-      managedOrganizationIds,
-    ]
-  );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch data");
+      setOrganizations([]);
+      setManagedOrganizationIds([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, specificOrgId, fetchUserProfile, fetchOrganizations]);
 
   const isOrgManager = useMemo(() => {
     if (!isPermissionsLoaded) return false;
@@ -185,18 +104,9 @@ export function useOrganization(token?: string, specificOrgId?: number) {
     return managedOrganizationIds.length > 0;
   }, [isPermissionsLoaded, specificOrgId, managedOrganizationIds]);
 
-  // Only fetch data on initial mount or when significant dependencies change
   useEffect(() => {
-    // Check if critical dependencies have changed
-    const shouldRefetch: boolean =
-      !organizations.length ||
-      !lastFetchTime ||
-      (!!specificOrgId && !orgCacheRef.current.has(specificOrgId));
-
-    fetchData(shouldRefetch);
-
-    // Don't include fetchData in dependencies to avoid loops
-  }, [token, specificOrgId]);
+    fetchData();
+  }, [fetchData]);
 
   return {
     organization: organizations[0],
@@ -206,7 +116,7 @@ export function useOrganization(token?: string, specificOrgId?: number) {
     error,
     isOrgManager,
     managedOrganizationIds,
-    refetch: () => fetchData(true), // Force refresh when called explicitly
+    refetch: fetchData,
     updateOrganization: async (data: Partial<Organization>) => {
       if (!token || !specificOrgId || !isOrgManager) return;
       try {
@@ -219,15 +129,6 @@ export function useOrganization(token?: string, specificOrgId?: number) {
         setOrganizations((prev) =>
           prev.map((org) => (org.id === specificOrgId ? updatedOrg : org))
         );
-
-        // Update the cache
-        if (updatedOrg) {
-          orgCacheRef.current.set(specificOrgId, {
-            data: updatedOrg,
-            timestamp: Date.now(),
-          });
-        }
-
         return updatedOrg;
       } catch (error) {
         console.error("Error updating organization:", error);

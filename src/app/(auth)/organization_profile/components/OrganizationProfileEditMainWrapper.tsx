@@ -1107,11 +1107,6 @@ export default function EditOrganizationProfilePage() {
           </button>
 
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-[#053749] dark:text-white mb-4">
-              {currentEditingEvent?.id === 0
-                ? pageContent["organization-profile-new-event"]
-                : pageContent["organization-profile-edit-event"]}
-            </h2>
             {currentEditingEvent && (
               <>
                 <EventsForm
@@ -1122,6 +1117,7 @@ export default function EditOrganizationProfilePage() {
                     setCurrentEditingEvent(null);
                   }}
                   onChange={handleModalEventChange}
+                  eventType={currentEditingEvent?.id === 0 ? "new" : "edit"}
                 />
               </>
             )}
@@ -1133,14 +1129,18 @@ export default function EditOrganizationProfilePage() {
                 setShowEventModal(false);
                 setCurrentEditingEvent(null);
               }}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:border-gray-400"
+              className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
+                darkMode
+                  ? "bg-capx-dark-box-bg text-white hover:text-black"
+                  : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-black"
+              }`}
             >
               {pageContent["organization-profile-event-popup-cancel"] ||
                 "Cancel"}
             </button>
             <button
               onClick={handleSaveEventChanges}
-              className="px-4 py-2 bg-[#851970] text-white font-medium rounded-md hover:bg-[#6d145c]"
+              className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
             >
               {currentEditingEvent?.id === 0
                 ? pageContent[

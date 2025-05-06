@@ -15,8 +15,10 @@ import SearchIcon from "@/public/static/images/search_icon.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
 import LocationIcon from "@/public/static/images/location_on_dark.svg";
 import LocationIconWhite from "@/public/static/images/location_on.svg";
-import AddIcon from "@/public/static/images/add.svg";
-import AddIconWhite from "@/public/static/images/add_dark.svg";
+import CheckBoxOutlineBlankIcon from "@/public/static/images/check_box_outline_blank.svg";
+import CheckBoxOutlineBlankIconWhite from "@/public/static/images/check_box_outline_blank_light.svg";
+import CheckBoxIcon from "@/public/static/images/check_box.svg";
+import CheckBoxIconWhite from "@/public/static/images/check_box_light.svg";
 import { useSession } from "next-auth/react";
 import BaseButton from "@/components/BaseButton";
 import { Capacity } from "@/types/capacity";
@@ -74,7 +76,8 @@ export function EventsFilters({
     }));
   };
 
-  const handleAddTerritory = () => {
+  // TODO: Add territory section
+  /* const handleAddTerritory = () => {
     if (territory && !filters.territories.includes(territory)) {
       setFilters((prev) => ({
         ...prev,
@@ -82,14 +85,15 @@ export function EventsFilters({
       }));
       setTerritory("");
     }
-  };
+  }; */
 
-  const handleRemoveTerritory = (territoryToRemove: string) => {
+  // TODO: Add remove territory
+  /* const handleRemoveTerritory = (territoryToRemove: string) => {
     setFilters((prev) => ({
       ...prev,
       territories: prev.territories.filter((t) => t !== territoryToRemove),
     }));
-  };
+  }; */
 
   const handleEventFormatChange = (format: EventLocationType) => {
     setFilters((prev) => ({
@@ -151,7 +155,7 @@ export function EventsFilters({
               />
             </button>
             <h1
-              className={`text-xl font-medium ${
+              className={`text-xl font-medium leading-[normal] font-Montserrat ${
                 darkMode ? "text-white" : "text-black"
               }`}
             >
@@ -243,7 +247,8 @@ export function EventsFilters({
             </div>
 
             {/* Territory Section */}
-            <div className="p-4 space-y-3">
+            {/* TODO: Add territory section */}
+            {/* <div className="p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? LocationIconWhite : LocationIcon}
@@ -293,7 +298,6 @@ export function EventsFilters({
                 </button>
               </div>
 
-              {/* Selected Territories */}
               {filters.territories.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {filters.territories.map((item, index) => (
@@ -323,17 +327,25 @@ export function EventsFilters({
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Event Format Section */}
             <div className="p-4 space-y-4">
-              <h2
-                className={`font-medium ${
-                  darkMode ? "text-white" : "text-black"
-                }`}
-              >
-                {pageContent["filters-event-format"] || "Event format"}
-              </h2>
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? LocationIconWhite : LocationIcon}
+                  alt="Event format"
+                  width={24}
+                  height={24}
+                />
+                <h2
+                  className={`font-medium ${
+                    darkMode ? "text-white" : "text-black"
+                  }`}
+                >
+                  {pageContent["filters-event-format"] || "Event format"}
+                </h2>
+              </div>
 
               <div className="space-y-2">
                 <button
@@ -357,23 +369,37 @@ export function EventsFilters({
                     >
                       {pageContent["filters-all-formats"] || "All formats"}
                     </span>
-                    <div
-                      className={`w-5 h-5 border rounded flex items-center justify-center
-                        ${
-                          filters.locationType === EventLocationType.All
-                            ? darkMode
-                              ? "border-blue-600 bg-blue-600"
-                              : "border-blue-600 bg-blue-600"
-                            : darkMode
-                            ? "border-gray-600"
-                            : "border-gray-400"
-                        }
-                      `}
-                    >
-                      {filters.locationType === EventLocationType.All && (
-                        <div className="w-3 h-3 bg-white"></div>
-                      )}
-                    </div>
+                    {filters.locationType === EventLocationType.All ? (
+                      darkMode ? (
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      ) : (
+                        <Image
+                          src={CheckBoxIcon}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      )
+                    ) : darkMode ? (
+                      <Image
+                        src={CheckBoxOutlineBlankIconWhite}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <Image
+                        src={CheckBoxOutlineBlankIcon}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    )}
                   </div>
                 </button>
 
@@ -400,23 +426,37 @@ export function EventsFilters({
                     >
                       {pageContent["filters-online-event"] || "Online event"}
                     </span>
-                    <div
-                      className={`w-5 h-5 border rounded flex items-center justify-center
-                        ${
-                          filters.locationType === EventLocationType.Online
-                            ? darkMode
-                              ? "border-blue-600 bg-blue-600"
-                              : "border-blue-600 bg-blue-600"
-                            : darkMode
-                            ? "border-gray-600"
-                            : "border-gray-400"
-                        }
-                      `}
-                    >
-                      {filters.locationType === EventLocationType.Online && (
-                        <div className="w-3 h-3 bg-white"></div>
-                      )}
-                    </div>
+                    {filters.locationType === EventLocationType.Online ? (
+                      darkMode ? (
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      ) : (
+                        <Image
+                          src={CheckBoxIcon}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      )
+                    ) : darkMode ? (
+                      <Image
+                        src={CheckBoxOutlineBlankIconWhite}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <Image
+                        src={CheckBoxOutlineBlankIcon}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    )}
                   </div>
                 </button>
 
@@ -443,23 +483,37 @@ export function EventsFilters({
                     >
                       {pageContent["filters-hybrid-event"] || "Hybrid event"}
                     </span>
-                    <div
-                      className={`w-5 h-5 border rounded flex items-center justify-center
-                        ${
-                          filters.locationType === EventLocationType.Hybrid
-                            ? darkMode
-                              ? "border-blue-600 bg-blue-600"
-                              : "border-blue-600 bg-blue-600"
-                            : darkMode
-                            ? "border-gray-600"
-                            : "border-gray-400"
-                        }
-                      `}
-                    >
-                      {filters.locationType === EventLocationType.Hybrid && (
-                        <div className="w-3 h-3 bg-white"></div>
-                      )}
-                    </div>
+                    {filters.locationType === EventLocationType.Hybrid ? (
+                      darkMode ? (
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      ) : (
+                        <Image
+                          src={CheckBoxIcon}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      )
+                    ) : darkMode ? (
+                      <Image
+                        src={CheckBoxOutlineBlankIconWhite}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <Image
+                        src={CheckBoxOutlineBlankIcon}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    )}
                   </div>
                 </button>
               </div>
@@ -488,8 +542,8 @@ export function EventsFilters({
             onClick={handleApply}
             customClass={`flex-1 px-4 py-3 rounded-lg font-medium ${
               darkMode
-                ? "bg-purple-700 hover:bg-purple-800 text-white"
-                : "bg-purple-700 hover:bg-purple-800 text-white"
+                ? "bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black"
+                : "bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black"
             }`}
           />
         </div>

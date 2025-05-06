@@ -30,6 +30,7 @@ interface EventFormItemProps {
   index: number;
   onDelete: (id: number) => void;
   onChange: (index: number, field: keyof Event, value: string) => void;
+  eventType: string;
 }
 
 // Component with debounce for input memoized
@@ -326,7 +327,7 @@ OrganizationLoader.displayName = "OrganizationLoader";
 
 // Memoize the EventsForm component to avoid unnecessary renders
 const EventsForm = memo(
-  ({ eventData, index, onDelete, onChange }: EventFormItemProps) => {
+  ({ eventData, index, onDelete, onChange, eventType }: EventFormItemProps) => {
     const { darkMode } = useTheme();
     const { isMobile, pageContent } = useApp();
     const { data: session, status: sessionStatus } = useSession();
@@ -739,9 +740,11 @@ const EventsForm = memo(
       return selectedCapacities.map((capacity) => (
         <div
           key={capacity.code}
-          className={`${
-            isMobile ? "text-xs" : "text-sm"
-          } px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit flex items-center gap-1`}
+          className={`${isMobile ? "text-xs" : "text-sm"} ${
+            darkMode
+              ? "text-capx-dark-box-bg bg-white"
+              : "text-white bg-capx-dark-box-bg"
+          } px-2 py-1 rounded-[4px] rounded-[8px] w-fit flex items-center gap-1`}
         >
           <span>{capacity.name}</span>
           <button
@@ -751,7 +754,7 @@ const EventsForm = memo(
             }}
             className={`${
               isMobile ? "w-4 h-4" : "w-5 h-5"
-            } flex items-center justify-center rounded-full hover:bg-gray-700 ml-1`}
+            } flex items-center justify-center rounded-full hover:bg-capx-secondary-green ml-1`}
           >
             ×
           </button>
@@ -780,7 +783,9 @@ const EventsForm = memo(
           <div
             className={`flex flex-row gap-2 w-full items-center ${
               isMobile ? "text-sm" : "text-[24px]"
-            } p-2 border border-capx-dark-box-bg rounded-md bg-transparent`}
+            } p-2 border ${
+              darkMode ? "border-white" : "border-capx-dark-box-bg"
+            } rounded-md bg-transparent`}
           >
             {/* Hidden loader component that handles the API call */}
             <OrganizationLoader
@@ -821,9 +826,13 @@ const EventsForm = memo(
           <h1
             className={`${
               isMobile ? "text-xl" : "text-[24px]"
-            } text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2`}
+            } text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2
+            ${darkMode ? "text-white" : "text-capx-dark-box-bg"}
+            `}
           >
-            {pageContent["organization-profile-event-title"]}
+            {eventType === "new"
+              ? pageContent["organization-profile-new-event"]
+              : pageContent["organization-profile-edit-event"]}
           </h1>
 
           <h2
@@ -839,9 +848,9 @@ const EventsForm = memo(
           <div className="flex flex-col gap-2 w-full">
             <div className="flex gap-2 items-center">
               <div
-                className={`flex-1 p-2 ${
-                  isMobile ? "text-sm" : "text-[24px]"
-                } border border-capx-dark-box-bg rounded-md bg-transparent`}
+                className={`flex-1 ${isMobile ? "text-sm" : "text-[24px]"} ${
+                  darkMode ? "border-white" : "border-capx-dark-box-bg"
+                } rounded-md bg-transparent`}
               >
                 <MemoizedInput
                   type="text"
@@ -849,10 +858,10 @@ const EventsForm = memo(
                     pageContent["organization-profile-event-url-placeholder"] ||
                     "Insert an URL"
                   }
-                  className={`w-full bg-transparent outline-none ${
+                  className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
                     darkMode
-                      ? "text-white placeholder-gray-400"
-                      : "text-[#829BA4] placeholder-[#829BA4]"
+                      ? "text-white placeholder-gray-400 border-white"
+                      : "text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg"
                   }`}
                   value={urlInput}
                   onChange={handleUrlInputChange}
@@ -865,13 +874,16 @@ const EventsForm = memo(
                 disabled={isLoading}
                 className={`${
                   isMobile ? "px-3 py-1.5 text-sm" : "px-4 py-2 text-base"
-                } rounded text-white ${
-                  isLoading
-                    ? "bg-gray-500"
-                    : "bg-capx-dark-box-bg hover:bg-opacity-90"
-                }`}
+                } rounded ${
+                  darkMode
+                    ? "text-capx-dark-box-bg bg-white"
+                    : "text-white bg-capx-dark-box-bg"
+                }
+                `}
               >
-                {isLoading ? "..." : "Search"}
+                {isLoading
+                  ? "..."
+                  : pageContent["organization-profile-event-search"]}
               </button>
             </div>
 
@@ -918,16 +930,18 @@ const EventsForm = memo(
           <div
             className={`flex flex-row gap-2 w-full items-center ${
               isMobile ? "text-sm" : "text-[24px]"
-            } p-2 border border-capx-dark-box-bg rounded-md bg-transparent`}
+            } ${
+              darkMode ? "border-white" : "border-capx-dark-box-bg"
+            } rounded-md bg-transparent`}
           >
             <MemoizedInput
               value={eventData.name || ""}
               onChange={handleNameChange}
               placeholder={pageContent["organization-profile-event-name"]}
-              className={`w-full bg-transparent outline-none ${
+              className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
                 darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#053749] placeholder-[#829BA4]"
+                  ? "text-white placeholder-gray-400 border-white"
+                  : "text-[#053749] placeholder-[#829BA4] border-capx-dark-box-bg"
               }`}
             />
           </div>
@@ -955,7 +969,9 @@ const EventsForm = memo(
               <div
                 className={`flex ${
                   isMobile ? "w-full" : "w-1/2"
-                } flex-row gap-2 border border-capx-dark-box-bg rounded-md`}
+                } flex-row gap-2 border ${
+                  darkMode ? "border-white" : "border-capx-dark-box-bg"
+                } rounded-md`}
               >
                 <input
                   type="datetime-local"
@@ -967,11 +983,13 @@ const EventsForm = memo(
                       : ""
                   }
                   onChange={handleStartDateChange}
-                  className={`w-full bg-transparent border border-capx-dark-box-bg rounded-md p-2 outline-none ${
-                    darkMode
-                      ? "text-white placeholder-gray-400"
-                      : "text-[#829BA4] placeholder-[#829BA4]"
-                  }`}
+                  className={`w-full bg-transparent border rounded-md p-2 outline-none 
+                    ${
+                      darkMode
+                        ? "text-white placeholder-gray-400 [&::-webkit-calendar-picker-indicator]:invert"
+                        : "text-[#829BA4] placeholder-[#829BA4]"
+                    }
+                  `}
                 />
               </div>
             </div>
@@ -1004,7 +1022,9 @@ const EventsForm = memo(
               <div
                 className={`flex ${
                   isMobile ? "w-full" : "w-1/2"
-                } flex-row gap-2 border border-capx-dark-box-bg rounded-md`}
+                } flex-row gap-2 border ${
+                  darkMode ? "border-white" : "border-capx-dark-box-bg"
+                } rounded-md`}
               >
                 <input
                   type="datetime-local"
@@ -1014,11 +1034,13 @@ const EventsForm = memo(
                       : ""
                   }
                   onChange={handleEndDateChange}
-                  className={`w-full bg-transparent rounded-md p-2 outline-none ${
-                    darkMode
-                      ? "text-white placeholder-gray-400"
-                      : "text-[#829BA4] placeholder-[#829BA4]"
-                  }`}
+                  className={`w-full bg-transparent rounded-md p-2 outline-none 
+                    ${
+                      darkMode
+                        ? "text-white placeholder-gray-400 [&::-webkit-calendar-picker-indicator]:invert"
+                        : "text-[#829BA4] placeholder-[#829BA4]"
+                    }
+                  `}
                 />
               </div>
             </div>
@@ -1044,7 +1066,9 @@ const EventsForm = memo(
             <div
               className={`flex flex-row gap-2 w-full items-center ${
                 isMobile ? "text-sm" : "text-[24px]"
-              } p-2 border border-capx-dark-box-bg rounded-md bg-transparent`}
+              } p-2 border ${
+                darkMode ? "border-white" : "border-capx-dark-box-bg"
+              } rounded-md bg-transparent`}
             >
               <select
                 className={`w-full bg-transparent outline-none ${
@@ -1085,20 +1109,33 @@ const EventsForm = memo(
                 } border rounded-lg cursor-pointer ${
                   darkMode
                     ? "bg-transparent border-white text-white"
-                    : "bg-white border-gray-300 text-gray-700"
+                    : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg"
                 }`}
               >
                 <div className="flex-1 flex flex-wrap gap-2">
                   {renderSelectedCapacities()}
                 </div>
+
+                {/* SVG Arrow down icon to mantain UI consistency */}
                 <div className="flex-shrink-0 ml-2">
-                  <Image
-                    src={ArrowDownIcon}
-                    alt="Expand"
-                    width={isMobile ? 20 : 24}
-                    height={isMobile ? 20 : 24}
-                    className={darkMode ? "filter invert" : ""}
-                  />
+                  <div
+                    className={`w-5 h-5 flex items-center justify-center pointer-events-none ${
+                      darkMode ? "text-white" : "text-gray-800"
+                    }`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1126,7 +1163,9 @@ const EventsForm = memo(
             <div
               className={`flex flex-col gap-2 w-full items-center ${
                 isMobile ? "text-sm" : "text-[24px]"
-              } p-2 border border-capx-dark-box-bg rounded-md bg-transparent`}
+              } p-2 border ${
+                darkMode ? "border-white" : "border-capx-dark-box-bg"
+              } rounded-md bg-transparent`}
             >
               <MemoizedTextarea
                 value={eventData.description || ""}

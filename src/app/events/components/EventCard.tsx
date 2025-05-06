@@ -251,7 +251,7 @@ export default function EventCard({
               <h2
                 className={`font-extrabold mb-2 ${
                   isMobile ? "text-md" : "text-xl"
-                } font-Montserrat`}
+                } ${isHorizontalScroll ? "min-h-[60px]" : ""} font-Montserrat`}
               >
                 {event.name}
               </h2>
@@ -357,7 +357,7 @@ export default function EventCard({
                     </p>
                   </div>
                 )}
-                <div className="flex flex-row gap-2 justify-between">
+                <div className="flex flex-row gap-2 justify-between min-h-[30px]">
                   <div
                     ref={capacitiesContainerRef}
                     className={`flex flex-row flex-wrap gap-2 overflow-hidden ${
@@ -513,7 +513,7 @@ export default function EventCard({
           )}
 
           {!isHorizontalScroll && (
-            <div className="flex flex-row gap-2 my-4 mx-4">
+            <div className="flex flex-row gap-2 my-4">
               <BaseButton
                 onClick={() => {}}
                 customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg bg-capx-dark-box-bg text-center not-italic leading-[normal] ${
