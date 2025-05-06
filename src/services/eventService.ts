@@ -131,24 +131,6 @@ export const eventsService = {
         );
       }
 
-      // Keep compatibility with code that still expects organizations
-      if (
-        !response.data.organizations ||
-        !Array.isArray(response.data.organizations)
-      ) {
-        console.warn(
-          `eventService: event ${eventId} does not have organizations field, creating compatible array`,
-          response.data
-        );
-        // Create an empty array if the organizations field does not exist or is not an array
-        response.data.organizations = [];
-
-        // If we have organization, add it to the organizations array to maintain compatibility
-        if (response.data.organization) {
-          response.data.organizations.push(Number(response.data.organization));
-        }
-      }
-
       return response.data;
     } catch (error) {
       console.error(`Error searching for event ${eventId}:`, error);
