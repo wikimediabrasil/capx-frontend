@@ -78,13 +78,19 @@ export default function DesktopNavbar({
       title: pageContent["navbar-link-messages"],
       to: "/message",
       active: true,
-    },    
+    },
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
+    },
   ];
 
   const unauthenticatedMenuItems = [
-    { title: pageContent["navbar-link-organizations"], 
-      to: "/organization_list", 
-      active: true
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
     },
   ];
 
