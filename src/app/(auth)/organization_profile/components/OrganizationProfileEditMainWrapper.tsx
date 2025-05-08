@@ -1131,8 +1131,8 @@ export default function EditOrganizationProfilePage() {
               }}
               className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
                 darkMode
-                  ? "bg-capx-dark-box-bg text-white hover:text-black"
-                  : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-black"
+                  ? "bg-capx-dark-box-bg text-white hover:text-black hover:bg-white"
+                  : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg"
               }`}
             >
               {pageContent["organization-profile-event-popup-cancel"] ||

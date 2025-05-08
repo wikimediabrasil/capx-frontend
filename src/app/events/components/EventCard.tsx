@@ -2,9 +2,13 @@ import { Event } from "@/types/event";
 import BaseButton from "@/components/BaseButton";
 import Image from "next/image";
 import AlarmDarkIcon from "@/public/static/images/alarm_dark.svg";
+import AlarmLightIcon from "@/public/static/images/alarm.svg";
 import LocationDarkIcon from "@/public/static/images/location_on_dark.svg";
+import LocationLightIcon from "@/public/static/images/location_on.svg";
 import CalendarDarkIcon from "@/public/static/images/calendar_month_dark.svg";
+import CalendarLightIcon from "@/public/static/images/calendar_month.svg";
 import EmojiObjectsDarkIcon from "@/public/static/images/emoji_objects_events.svg";
+import EmojiObjectsLightIcon from "@/public/static/images/emoji_objects_white.svg";
 import { useSession } from "next-auth/react";
 import { useApp } from "@/contexts/AppContext";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
@@ -17,8 +21,10 @@ import LoadingState from "@/components/LoadingState";
 import CheckBoxOutlineBlankIconLight from "@/public/static/images/check_box_outline_blank_light.svg";
 import CheckBoxIcon from "@/public/static/images/check_box.svg";
 import EditIcon from "@/public/static/images/edit.svg";
+import EditIconLight from "@/public/static/images/edit_white.svg";
 import DeleteIcon from "@/public/static/images/delete.svg";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface EventCardProps {
   event: Partial<Event>;
@@ -41,6 +47,7 @@ export default function EventCard({
 }: EventCardProps) {
   const { isMobile, pageContent } = useApp();
   const { data: session } = useSession();
+  const { darkMode } = useTheme();
   const token = session?.user?.token;
 
   const { capacityNames } = useCapacityDetails(event.related_skills || []);
@@ -227,6 +234,28 @@ export default function EventCard({
     setShowEventDetails(clicked);
   };
 
+  const handleContactClick = () => {
+    if (organization?.email) {
+      const subject = encodeURIComponent(`About event: ${event.name || ""}`);
+
+      // Try to detect if we're in a browser that handles mailto links
+      const isChrome =
+        /Chrome/.test(navigator.userAgent) &&
+        /Google Inc/.test(navigator.vendor);
+
+      if (isChrome) {
+        // For Chrome, open Gmail directly
+        window.open(
+          `https://mail.google.com/mail/?view=cm&fs=1&to=${organization.email}&su=${subject}`,
+          "_blank"
+        );
+      } else {
+        // For other browsers, try the mailto protocol
+        window.location.href = `mailto:${organization.email}?subject=${subject}`;
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-w-[280px] max-w-[320px] h-[300px] flex items-center justify-center">
@@ -242,8 +271,11 @@ export default function EventCard({
   return (
     <>
       <div
-        className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] h-fit text-capx-dark-box-bg
-        `}
+        className={`flex flex-col ${
+          darkMode
+            ? "bg-capx-dark-box-bg text-white border border-white"
+            : "bg-capx-light-box-bg text-capx-dark-box-bg"
+        } rounded rounded-[4px] p-4 min-w-[300px] h-fit`}
       >
         <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">
           <div className="flex flex-col gap-2">
@@ -251,13 +283,19 @@ export default function EventCard({
               <h2
                 className={`font-extrabold mb-2 ${
                   isMobile ? "text-md" : "text-xl"
-                } ${isHorizontalScroll ? "min-h-[60px]" : ""} font-Montserrat`}
+                } ${isHorizontalScroll ? "min-h-[60px]" : ""} font-Montserrat ${
+                  darkMode ? "text-white" : "text-capx-dark-box-bg"
+                }`}
               >
                 {event.name}
               </h2>
             </div>
             {organization && !isHorizontalScroll && (
-              <p className={`text-md mb-2 ${isMobile ? "text-sm" : "text-md"}`}>
+              <p
+                className={`text-md mb-2 ${isMobile ? "text-sm" : "text-md"} ${
+                  darkMode ? "text-white" : "text-capx-dark-box-bg"
+                }`}
+              >
                 <span className="font-Montserrat">
                   {pageContent["organization-profile-event-organized-by"] ||
                     "Organized by: "}{" "}
@@ -265,7 +303,11 @@ export default function EventCard({
                 </span>
                 <Link
                   href={`/organization_profile/${organization.id}`}
-                  className="text-blue-600 hover:text-blue-800 visited:text-blue-800"
+                  className={`${
+                    darkMode
+                      ? "text-capx-dark-link hover:text-capx-light-bg"
+                      : "text-blue-600 hover:text-blue-800 visited:text-blue-800"
+                  }`}
                 >
                   {organization.display_name}
                 </Link>
@@ -283,15 +325,15 @@ export default function EventCard({
                 {event.time_begin && event.time_end && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={AlarmDarkIcon}
+                      src={darkMode ? AlarmLightIcon : AlarmDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
                       alt="Alarm"
                     />
                     <p
-                      className={`font-extrabold text-[#507380] ${
-                        isMobile ? "text-sm" : "text-md"
-                      }`}
+                      className={`font-extrabold ${
+                        darkMode ? "text-white" : "text-[#507380]"
+                      } ${isMobile ? "text-sm" : "text-md"}`}
                     >
                       {formatTimeRange(event.time_begin, event.time_end)}
                     </p>
@@ -301,15 +343,15 @@ export default function EventCard({
                 {event.time_begin && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={CalendarDarkIcon}
+                      src={darkMode ? CalendarLightIcon : CalendarDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
                       alt="Calendar"
                     />
                     <p
-                      className={`font-extrabold text-[#507380] ${
-                        isMobile ? "text-sm" : "text-md"
-                      }`}
+                      className={`font-extrabold ${
+                        darkMode ? "text-white" : "text-[#507380]"
+                      } ${isMobile ? "text-sm" : "text-md"}`}
                     >
                       {formatMonthYear(event.time_begin)}
                     </p>
@@ -318,15 +360,15 @@ export default function EventCard({
                 {event.type_of_location && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={LocationDarkIcon}
+                      src={darkMode ? LocationLightIcon : LocationDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
                       alt="Location"
                     />
                     <p
-                      className={`font-extrabold text-[#507380] ${
-                        isMobile ? "text-sm" : "text-md"
-                      }`}
+                      className={`font-extrabold ${
+                        darkMode ? "text-white" : "text-[#507380]"
+                      } ${isMobile ? "text-sm" : "text-md"}`}
                     >
                       {event.type_of_location === "virtual"
                         ? "Online event"
@@ -342,15 +384,17 @@ export default function EventCard({
                 {event.related_skills && (
                   <div className="flex flex-row gap-2">
                     <Image
-                      src={EmojiObjectsDarkIcon}
+                      src={
+                        darkMode ? EmojiObjectsLightIcon : EmojiObjectsDarkIcon
+                      }
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
                       alt="Emoji"
                     />
                     <p
-                      className={`font-extrabold text-[#507380] ${
-                        isMobile ? "text-sm" : "text-md"
-                      }`}
+                      className={`font-extrabold ${
+                        darkMode ? "text-white" : "text-[#507380]"
+                      } ${isMobile ? "text-sm" : "text-md"}`}
                     >
                       {pageContent["events-available-capacities"] ||
                         "Available capacities"}
@@ -376,7 +420,11 @@ export default function EventCard({
                         .map((skill) => (
                           <p
                             key={skill}
-                            className={`text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit ${
+                            className={`text-sm px-2 py-1 rounded-[4px] ${
+                              darkMode
+                                ? "bg-capx-dark-bg text-white"
+                                : "bg-capx-dark-box-bg text-white"
+                            } rounded-[8px] w-fit ${
                               isMobile ? "text-xs" : "text-sm"
                             }`}
                           >
@@ -390,7 +438,11 @@ export default function EventCard({
                       event.related_skills.map((skill) => (
                         <p
                           key={skill}
-                          className={`text-sm px-2 py-1 rounded-[4px] bg-capx-dark-box-bg text-white rounded-[8px] w-fit ${
+                          className={`text-sm px-2 py-1 rounded-[4px] ${
+                            darkMode
+                              ? "bg-capx-dark-bg text-white"
+                              : "bg-capx-dark-box-bg text-white"
+                          } rounded-[8px] w-fit ${
                             isMobile ? "text-xs" : "text-sm"
                           }`}
                         >
@@ -425,9 +477,9 @@ export default function EventCard({
                     onClick={() => handleDetailsEvent(!showEventDetails)}
                   >
                     <p
-                      className={`font-extrabold text-[#507380] ${
-                        isMobile ? "text-sm" : "text-md"
-                      }`}
+                      className={`font-extrabold ${
+                        darkMode ? "text-white" : "text-[#507380]"
+                      } ${isMobile ? "text-sm" : "text-md"}`}
                     >
                       {pageContent["events-details-of-event"] ||
                         "Details of event"}
@@ -444,11 +496,17 @@ export default function EventCard({
                     />
                   </button>
                   {showEventDetails && event.description && (
-                    <div className="flex flex-col gap-4 mt-2 bg-white bg-opacity-10 rounded">
+                    <div
+                      className={`flex flex-col gap-4 mt-2 ${
+                        darkMode
+                          ? "bg-capx-dark-bg bg-opacity-10"
+                          : "bg-white bg-opacity-10"
+                      } rounded`}
+                    >
                       <p
-                        className={`text-sm text-[#507380] ${
-                          isMobile ? "text-xs" : "text-sm"
-                        }`}
+                        className={`text-sm ${
+                          darkMode ? "text-white" : "text-[#507380]"
+                        } ${isMobile ? "text-xs" : "text-sm"}`}
                       >
                         {event.description}
                       </p>
@@ -463,10 +521,14 @@ export default function EventCard({
               <BaseButton
                 label={pageContent["organization-profile-edit-event"] || "Edit"}
                 onClick={() => onEdit(event as Event)}
-                customClass={`py-2 px-3 rounded-md text-md font-extrabold border border-capx-dark-box-bg text-start text-capx-dark-box-bg bg-white flex flex-row items-center !mb-0 hover:opacity-90 transition-opacity !pb-2 ${
+                customClass={`py-2 px-3 rounded-md text-md font-extrabold border ${
+                  darkMode
+                    ? "border-white text-white hover:bg-capx-dark-bg"
+                    : "border-capx-dark-box-bg text-capx-dark-box-bg hover:opacity-90"
+                } text-start bg-transparent flex flex-row items-center !mb-0 transition-opacity !pb-2 ${
                   isMobile ? "text-xs" : "text-md"
                 }`}
-                imageUrl={EditIcon}
+                imageUrl={darkMode ? EditIconLight : EditIcon}
                 imageAlt="Edit icon"
                 imageWidth={isMobile ? 16 : 24}
                 imageHeight={isMobile ? 16 : 24}
@@ -483,9 +545,13 @@ export default function EventCard({
                 onClick={() => handleChoose(event as Event)}
                 customClass={`${
                   isSelected
-                    ? "bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg"
+                    ? darkMode
+                      ? "bg-transparent border border-white text-white hover:bg-capx-dark-bg"
+                      : "bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg"
+                    : darkMode
+                    ? "bg-capx-dark-bg text-white hover:bg-capx-dark-box-bg"
                     : "bg-capx-dark-box-bg text-white"
-                } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-0 ${
+                } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center transition-opacity !pb-2 !mb-0 ${
                   isMobile ? "text-xs" : "text-md"
                 }`}
                 imageUrl={
@@ -515,18 +581,35 @@ export default function EventCard({
           {!isHorizontalScroll && (
             <div className="flex flex-row gap-2 my-4">
               <BaseButton
-                onClick={() => {}}
-                customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg bg-capx-dark-box-bg text-center not-italic leading-[normal] ${
+                onClick={handleContactClick}
+                customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg ${
+                  organization?.email
+                    ? darkMode
+                      ? "bg-capx-dark-bg hover:bg-white hover:text-capx-dark-bg"
+                      : "bg-capx-dark-box-bg"
+                    : "bg-gray-400 cursor-not-allowed"
+                } text-center not-italic leading-[normal] ${
                   isMobile ? "text-[14px]" : "text-lg"
                 }`}
-                label="Contact"
+                label={
+                  organization?.email ? "Contact" : "No contact email available"
+                }
+                disabled={!organization?.email}
               />
               <BaseButton
-                onClick={() => {}}
-                customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center not-italic leading-[normal] ${
+                onClick={() =>
+                  event.url && window.open(event.url as string, "_blank")
+                }
+                customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg ${
+                  darkMode
+                    ? "bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-capx-dark-bg"
+                    : "bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg"
+                } font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center not-italic leading-[normal] ${
                   isMobile ? "text-[14px]" : "text-lg"
                 }`}
-                label="View Event"
+                label={
+                  pageContent["organization-profile-view-event"] || "View Event"
+                }
               />
             </div>
           )}
