@@ -158,6 +158,8 @@
 	"snackbar-edit-profile-organization-processing-document-failed": "문서 처리 중 오류 발생",
 	"snackbar-edit-profile-organization-processing-form-failed": "폼 처리 중 오류가 발생했습니다. 확인하고 다시 시도해 주십시오.",
 	"snackbar-edit-profile-organization-fetch-tags-failed": "태그를 가져오는 중 오류가 발생했습니다. 확인하고 다시 시도해 주십시오",
+	"saved-profiles-error": "프로필을 저장하는 동안 오류가 발생했습니다.",
 	"edit-profile-organization-logo": "단체 로고",
-	"edit-profile-no-image": "선택된 이미지 없음"
+	"edit-profile-no-image": "선택된 이미지 없음",
+	"message-form-clean-button": "메시지 지우기"
 }
