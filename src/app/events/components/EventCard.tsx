@@ -621,8 +621,11 @@ export default function EventCard({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        itemName={event.name || ""}
-        itemType="event"
+        title={event.name || ""}
+        capacities={
+          event.related_skills?.map((skill) => capacityNames[skill]) || []
+        }
+        description={event.description || ""}
       />
     </>
   );
