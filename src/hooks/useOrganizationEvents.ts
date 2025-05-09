@@ -14,12 +14,10 @@ export function useOrganizationEvents(
 
   // Load events from organization
   const fetchOrganizationEvents = useCallback(async () => {
-    if (!token || !organizationId) return [];
-
     setIsLoading(true);
     try {
       // Search all events
-      const response = await eventsService.getEvents(token);
+      const response = await eventsService.getEvents();
 
       // Verify if we got valid data
       if (!response) {

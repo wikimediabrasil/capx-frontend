@@ -198,6 +198,7 @@ export function ProfileItem({
           </div>
           <h2
             className={`${customClass} font-extrabold text-base md:text-[24px]
+            ${darkMode ? "text-white" : "text-capx-dark-box-bg"}
             `}
           >
             {title}

@@ -81,7 +81,7 @@ export function useCapacities(language: string = "en") {
 
               return {
                 code: Number(code),
-                name: name as string,
+                name: name as unknown as string,
                 color: getCapacityColor(rootCapacity.color || "gray-200"),
                 icon: rootCapacity.icon,
                 hasChildren,
@@ -112,7 +112,7 @@ export function useCapacities(language: string = "en") {
                 ).map(
                   ([code, name]): Capacity => ({
                     code: Number(code),
-                    name: name as string,
+                    name: name as unknown as string,
                     color: childCapacity.color,
                     icon: childCapacity.icon,
                     hasChildren: false, // Assumimos que netos não têm filhos
