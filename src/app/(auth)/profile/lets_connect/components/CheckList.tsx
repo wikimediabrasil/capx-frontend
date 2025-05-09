@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 type ChecklistProps = {
@@ -6,8 +6,10 @@ type ChecklistProps = {
   other: string;
   placeholder?: string;
   description?: string;
-  initialItems?: string[];
+  itemsList?: string[];
   showOther?: boolean;
+  multiple?: boolean;
+  setFormData: (item: string | string[]) => void;
 };
 
 export default function Checklist({
@@ -15,20 +17,80 @@ export default function Checklist({
   other,
   placeholder,
   description,
-  initialItems = [],
+  itemsList = [],
+  multiple = false,
   showOther = false,
+  setFormData,
 }: ChecklistProps) {
   const [items, setItems] = useState(
-    initialItems.map((item) => ({ label: item, checked: false }))
+    itemsList.map((item) => ({ label: item, checked: false }))
   );
-    const [otherText, setOtherText] = useState("");
-    const { darkMode } = useTheme();
-
+  const [otherText, setOtherText] = useState("");
+  const { darkMode } = useTheme();
 
   const toggleCheck = (index: number) => {
-    const newItems = [...items];
-    newItems[index].checked = !newItems[index].checked;
+    let newItems;
+  
+    if (!multiple) {
+      newItems = items.map((item, i) => ({
+        ...item,
+        checked: i === index ? !item.checked : false,
+      }));
+  
+      // Se algum checkbox for marcado e houver texto, limpa o texto
+      const isChecked = newItems[index].checked;
+  
+      // Se o checkbox for marcado e houver texto no campo 'other', limpa o texto
+      if (isChecked && otherText.trim()) {
+        setOtherText(""); // Limpa o texto do campo "other"
+      }
+  
+      // Atualiza o formData corretamente
+      const selected = newItems.find((item) => item.checked);
+      setFormData(selected ? selected.label : "");
+    } else {
+      newItems = [...items];
+      newItems[index].checked = !newItems[index].checked;
+    }
+  
     setItems(newItems);
+  
+    // No modo múltiplo, mantém a lógica existente para os itens selecionados
+    if (multiple) {
+      const selectedItems = newItems
+        .filter((item) => item.checked)
+        .map((item) => item.label);
+  
+      const combined = otherText.trim()
+        ? [...selectedItems, otherText.trim()]
+        : selectedItems;
+  
+      setFormData(combined);
+    }
+  };
+  
+  const handleOtherTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setOtherText(value);
+  
+    if (multiple) {
+      const selectedItems = items
+        .filter((item) => item.checked)
+        .map((item) => item.label);
+  
+      const combined = value.trim()
+        ? [...selectedItems, value.trim()]
+        : selectedItems;
+  
+      setFormData(combined);
+    } else {
+      // Se estiver digitando, desmarca todos os checkboxes
+      if (value.trim()) {
+        const clearedItems = items.map((item) => ({ ...item, checked: false }));
+        setItems(clearedItems);
+      }
+      setFormData(value.trim());
+    }
   };
 
   return (
@@ -56,10 +118,10 @@ export default function Checklist({
       )}
 
       <ul className="space-y-3">
-        {items.map((item, index) => (
+        {items?.map((item, index) => (
           <li
             key={index}
-            className="flex justify-between items-center border-b font-[Montserrat] border-gray-100 pb-2"
+            className="flex justify-between items-center text-[12px] border-b font-[Montserrat] border-gray-100 pb-2 md:text-[18px]"
           >
             <label htmlFor={`check-${index}`} className={` ${
                 darkMode
@@ -97,7 +159,7 @@ export default function Checklist({
               }`}
               placeholder={placeholder}
               value={otherText}
-              onChange={(e) => setOtherText(e.target.value)}
+              onChange={handleOtherTextChange}
             />
           </li>
         )}

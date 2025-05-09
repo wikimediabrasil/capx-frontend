@@ -54,9 +54,6 @@ import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
 import Banner from "@/components/Banner";
-
-
-
 import LetsConect from "@/public/static/images/lets_connect.svg";
 
 
@@ -64,6 +61,8 @@ import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
+
+
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
   handleAvatarSelect: (avatarId: number) => void;
@@ -144,6 +143,10 @@ export default function ProfileEditDesktopView(
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
+
+  const goTo = (path: string) => {
+    router.push(path);
+  };
 
   return (
     <div
@@ -1109,48 +1112,41 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
           </div>
+          <div className="p-4 bg-[#EFEFEF]">
+            <Banner
+              image={LetsConect}
+              alt={pageContent["privacy-policy-alt-banner"]}
+              customClass={{
+                background: "bg-[#EFEFEF]",
+                wrapper: "mb-0"
+              }}
+            />
 
-
-
-
-
-
-
-
-
-
-
-          <Banner
-            image={LetsConect}
-            alt={pageContent["privacy-policy-alt-banner"]}
-            customClass={{
-              background: "bg-[#FFFFFF]"
-            }}
-          />
-
-          <BaseButton
-            onClick={() => setShowProjectSelector(true)}
-            label={pageContent["lets-conect-form-user-edit"]}
-            customClass={` w-1/2 flex ${
-              darkMode
-                ? "bg-capx-light-box-bg text-[#04222F]"
-                : "bg-[#053749] text-white"
-            } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-            imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
-            imageAlt="Add project"
-            imageWidth={30}
-            imageHeight={30}
-          />
-
-
-
-
-
-
-
-
-
-
+            <BaseButton
+              onClick={() => goTo("/profile/lets_connect")}
+              label={pageContent["lets-conect-form-user-edit"]}
+              customClass={`w-1/3 flex ${
+                darkMode
+                  ? "bg-capx-light-box-bg text-[#04222F]"
+                  : "bg-[#053749] text-white"
+              } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+              imageUrl={
+                darkMode
+                  ? UserCheckIconDark
+                  : UserCheckIcon
+                }
+              imageAlt="Add project"
+              imageWidth={20}
+              imageHeight={20}
+            />
+            <p
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
+                darkMode ? "text-white" : "text-[#053749]"
+              }`}
+            >
+              {pageContent["lets-connect-edit-user-info"]}
+            </p>
+          </div>
           {/* Action Buttons */}
           <div className="flex flex-row gap-6 mt-6">
             <BaseButton

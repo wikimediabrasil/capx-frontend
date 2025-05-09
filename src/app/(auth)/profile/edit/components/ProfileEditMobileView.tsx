@@ -1,11 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useAvatars } from "@/hooks/useAvatars";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import CapacitySelectionModal from "./CapacitySelectionModal";
 import AccountCircleIcon from "@/public/static/images/account_circle.svg";
 import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
@@ -51,15 +46,19 @@ import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import UserCheckIcon from "@/public/static/images/user_check.svg";
 import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
+import Popup from "@/components/Popup";
+import Banner from "@/components/Banner";
+import LetsConect from "@/public/static/images/lets_connect.svg";
+
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
-import Popup from "@/components/Popup";
+import { useSession } from "next-auth/react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useApp } from "@/contexts/AppContext";
+import { useAvatars } from "@/hooks/useAvatars";
+import { useRouter } from "next/navigation";
 
-import Banner from "@/components/Banner";
-
-
-import LetsConect from "@/public/static/images/lets_connect.svg";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -141,6 +140,10 @@ export default function ProfileEditMobileView(
   const [avatarUrl, setAvatarUrl] = useState<string>(
     profile?.avatar || NoAvatarIcon
   );
+
+  const goTo = (path: string) => {
+    router.push(path);
+  };
 
   return (
     <>
@@ -1130,28 +1133,40 @@ export default function ProfileEditMobileView(
 
 
 
+            <div className="bg-[#EFEFEF]">
+              <Banner
+                image={LetsConect}
+                alt={pageContent["privacy-policy-alt-banner"]}
+                customClass={{
+                  background: "bg-[#EFEFEF]"
+              }}
+              />
 
-            <Banner
-              image={LetsConect}
-              alt={pageContent["privacy-policy-alt-banner"]}
-              customClass={{
-                background: "bg-[#FFFFFF]"
-             }}
-            />
-
-          <BaseButton
-            onClick={() => setShowProjectSelector(true)}
-            label={pageContent["lets-conect-form-user-edit"]}
-            customClass={`w-full flex ${
-              darkMode
-                ? "bg-capx-light-box-bg text-[#04222F]"
-                : "bg-[#053749] text-white"
-            } items-center px-[13px] py-[6px] pb-[6px] rounded-md py-3 font-bold mb-0`}
-            imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
-            imageAlt="Add project"
-            imageWidth={20}
-            imageHeight={20}
-          />
+              <BaseButton
+                onClick={() => goTo("/profile/lets_connect")}
+                label={pageContent["lets-conect-form-user-edit"]}
+                customClass={`w-11/12 flex mx-auto ${
+                  darkMode
+                    ? "bg-capx-light-box-bg text-[#04222F]"
+                    : "bg-[#053749] text-white"
+                } items-center px-[13px] py-[6px] pb-[6px] rounded-md py-3 font-bold mb-0`}
+                imageUrl={
+                  darkMode 
+                    ? UserCheckIconDark 
+                    : UserCheckIcon
+                  }
+                imageAlt="Add project"
+                imageWidth={20}
+                imageHeight={20}
+              />
+              <p
+                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] p-4 ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["lets-connect-edit-user-info"]}
+              </p>
+            </div>
 
 
 
