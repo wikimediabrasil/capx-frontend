@@ -14,6 +14,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
+import MoreHorizLightIcon from "@/public/static/images/more_horiz_light.svg";
 import ArrowDropDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
@@ -459,7 +460,7 @@ export default function EventCard({
                         className="flex items-center w-fit mr-8"
                       >
                         <Image
-                          src={MoreHorizIcon}
+                          src={darkMode ? MoreHorizLightIcon : MoreHorizIcon}
                           alt={showAllCapacities ? "Show less" : "Show more"}
                           className="cursor-pointer"
                         />
