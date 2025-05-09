@@ -75,8 +75,6 @@
 	"form-report-date": "Sukūrimo data",
 	"form-report-edit-button": "Redaguoti ataskaitą",
 	"form-report-update-button": "Atnaujinti ataskaitą",
-	"form-report-number": "Pranešimo nr.",
 	"oh-no-message": "O, ne!",
-	"no-user-profile": "Nėra CapX registruotų naudotojų su šiuo naudotojo vardu",
 	"no-report-rights": "Jūs arba neturite leidimo atnaujinti šios ataskaitos, arba šios ataskaitos nėra!"
 }

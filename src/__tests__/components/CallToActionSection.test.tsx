@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import CallToActionSection from "../../components/CallToActionSection";
+import CallToActionSection from "@/components/CallToActionSection";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppProvider } from "@/contexts/AppContext";
 
-// Mock do Next.js Router
+// Next.js Router mock
 jest.mock("next/navigation", () => ({
   useRouter() {
     return {
@@ -21,93 +21,73 @@ jest.mock("next/navigation", () => ({
   },
 }));
 
-// Mock do matchMedia
-beforeAll(() => {
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // Deprecated
-      removeListener: jest.fn(), // Deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
-});
+// next-auth mock
+jest.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: null,
+    status: 'unauthenticated'
+  }),
+  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+}));
 
-// Mock do localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  clear: jest.fn(),
-};
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+// AppContext mock
+jest.mock("@/contexts/AppContext", () => ({
+  ...jest.requireActual("@/contexts/AppContext"),
+  useApp: () => ({
+    pageContent: {
+      "body-home-section01-call-to-action-title": "Join the Exchange",
+      "body-home-section01-call-to-action-description": "Connect with peers",
+      "body-home-section01-call-to-action-button01": "Join Now",
+      "body-home-section01-call-to-action-button02": "Create Account"
+    },
+    isMobile: false
+  }),
+}));
 
 describe("CallToActionSection", () => {
-  const renderWithProviders = (component: React.ReactNode) => {
+  const renderWithProviders = (component: React.ReactElement) => {
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
+      <AppProvider>
+        <ThemeProvider>{component}</ThemeProvider>
+      </AppProvider>
     );
   };
 
-  beforeEach(() => {
-    // Limpa os mocks antes de cada teste
-    jest.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
-  });
-
-  it("renders desktop version correctly", () => {
-    // Mock window.innerWidth para simular desktop
-    global.innerWidth = 1200;
-    global.dispatchEvent(new Event("resize"));
-
+  it("renders main content correctly", () => {
     renderWithProviders(<CallToActionSection />);
 
-    expect(screen.getByText("Título de teste")).toBeInTheDocument();
-    expect(screen.getByText("Descrição de teste")).toBeInTheDocument();
-    expect(screen.getByText("Botão 1")).toBeInTheDocument();
-    expect(screen.getByText("Botão 2")).toBeInTheDocument();
+    expect(screen.getByText("Join the Exchange")).toBeInTheDocument();
+    expect(screen.getByText("Connect with peers")).toBeInTheDocument();
+    expect(screen.getByText("Join Now")).toBeInTheDocument();
+    expect(screen.getByText("Create Account")).toBeInTheDocument();
   });
 
-  it("renders mobile version correctly", () => {
-    // Mock window.innerWidth para simular mobile
-    global.innerWidth = 375;
-    global.dispatchEvent(new Event("resize"));
-
-    renderWithProviders(<CallToActionSection />);
-
-    expect(screen.getByText("Título de teste")).toBeInTheDocument();
-    expect(screen.getByText("Descrição de teste")).toBeInTheDocument();
-    expect(screen.getByText("Botão 1")).toBeInTheDocument();
-    expect(screen.getByText("Botão 2")).toBeInTheDocument();
-  });
-
-  /*  it("applies dark mode styles correctly", () => {
-    // Simula preferência de tema escuro
-    localStorageMock.getItem.mockReturnValue("dark");
-
-    const { container } = renderWithProviders(
-      <CallToActionSection/>
-    );
-
-    const section = container.querySelector("section");
-    expect(section).toHaveClass("bg-capx-dark-bg");
-  }); */
-
-  it("applies light mode styles correctly", () => {
-    // Simula preferência de tema claro
-    localStorageMock.getItem.mockReturnValue("light");
-
+  it("applies light mode styles", () => {
     const { container } = renderWithProviders(
       <CallToActionSection/>
     );
 
     const section = container.querySelector("section");
     expect(section).toHaveClass("bg-capx-light-bg");
+  });
+
+  it("renders mobile version correctly", () => {
+    jest.spyOn(require("@/contexts/AppContext"), "useApp").mockImplementation(() => ({
+      pageContent: {
+        "body-home-section01-call-to-action-title": "Join the Exchange",
+        "body-home-section01-call-to-action-description": "Connect with peers",
+        "body-home-section01-call-to-action-button01": "Join Now",
+        "body-home-section01-call-to-action-button02": "Create Account"
+      },
+      isMobile: true
+    }));
+
+    const { container } = renderWithProviders(<CallToActionSection />);
+    
+    expect(container.querySelector(".flex-col")).toBeInTheDocument();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });
