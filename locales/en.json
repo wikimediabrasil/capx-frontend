@@ -381,5 +381,6 @@
   "message-sent-send-new-message": "Send a new message",
   "message-alt-icon": "send icon",
   "message-sent-back-to-home": "Back to home",
-  "message-alt-back-to-home": "back to home icon"
+  "message-alt-back-to-home": "back to home icon",
+  "message-form-informative-text": "Use this space to write your message. You can start with a greeting and a brief introduction before getting to the topic. You will get a copy of your message if sent via email."
 }
