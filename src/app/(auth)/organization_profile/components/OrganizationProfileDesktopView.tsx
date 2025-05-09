@@ -130,7 +130,7 @@ export default function OrganizationProfileDesktopView({
                       )
                     }
                     label={pageContent["body-profile-edit-organization-button"]}
-                    customClass={`w-full md:w-2/3 sm:w-full font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
+                    customClass={`w-full font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[64px] md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
                       darkMode
                         ? "border-white text-white"
                         : "border-capx-dark-box-bg text-capx-light-text"
