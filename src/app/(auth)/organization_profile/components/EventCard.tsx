@@ -6,6 +6,7 @@ import CheckBoxOutlineBlankIconLight from "@/public/static/images/check_box_outl
 import CheckBoxIcon from "@/public/static/images/check_box.svg";
 import CheckBoxIconLight from "@/public/static/images/check_box_light.svg";
 import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
+import MoreHorizIconLight from "@/public/static/images/more_horiz_light.svg";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import { useEffect, useState, useRef } from "react";
@@ -112,14 +113,20 @@ export function EventCard({
 
   return (
     <div
-      className={`flex flex-col bg-capx-light-box-bg rounded rounded-[4px] p-4 min-w-[300px] max-w-[350px] h-fit relative ${
-        darkMode ? "text-white" : "text-capx-dark-box-bg"
+      className={`flex flex-col rounded rounded-[4px] p-4 min-w-[300px] max-w-[350px] h-fit relative ${
+        darkMode
+          ? "text-white bg-capx-dark-bg"
+          : "text-capx-dark-box-bg bg-capx-light-box-bg"
       }`}
     >
-      <div className="flex flex-col gap-4 pr-5 mx-4 my-4">
+      <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-[260px]">
         <div className="flex flex-col gap-2">
           <div className="flex flex-row min-h-[110px] py-2">
-            <h2 className="text-xl font-extrabold mb-2 text-capx-dark-box-bg font-Montserrat">
+            <h2
+              className={`text-xl font-extrabold mb-2 ${
+                darkMode ? "text-white" : "text-capx-dark-box-bg"
+              } font-Montserrat`}
+            >
               {event.name}
             </h2>
           </div>
@@ -127,7 +134,11 @@ export function EventCard({
           {/* Display related capacities/skills */}
           {event.related_skills && event.related_skills.length > 0 && (
             <>
-              <p className="text-md font-extrabold text-[#507380] mb-2">
+              <p
+                className={`text-md font-extrabold ${
+                  darkMode ? "text-white" : "text-[#507380]"
+                } mb-2`}
+              >
                 {pageContent["events-available-capacities"] ||
                   "Available capacities"}
               </p>
@@ -148,7 +159,7 @@ export function EventCard({
                     .map((skillId, index) => (
                       <span
                         key={index}
-                        className="text-sm px-2 py-1 rounded-[8px] bg-capx-dark-box-bg text-white w-fit"
+                        className={`text-sm px-2 py-1 rounded-[8px] text-white bg-capx-dark-box-bg  w-fit`}
                       >
                         {getCapacityName(skillId)}
                       </span>
@@ -162,7 +173,7 @@ export function EventCard({
                       className="flex items-center w-fit mr-2 shrink-0"
                     >
                       <Image
-                        src={MoreHorizIcon}
+                        src={darkMode ? MoreHorizIconLight : MoreHorizIcon}
                         alt={showAllCapacities ? "Show less" : "Show more"}
                         className="cursor-pointer"
                         width={24}
@@ -181,9 +192,9 @@ export function EventCard({
               label={
                 isSelected
                   ? pageContent["organization-profile-remove-featured"] ||
-                    "Remover destaque"
+                    "Remove featured"
                   : pageContent["organization-profile-add-featured"] ||
-                    "Destacar evento"
+                    "Add featured"
               }
               onClick={handleChooseEvent}
               customClass={`${
