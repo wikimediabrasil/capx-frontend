@@ -16,10 +16,11 @@ import Checklist from "./CheckList";
 import { useApp } from "@/contexts/AppContext";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/contexts/ThemeContext";
-import { LetsConnectFormData, useLetsConnect } from "@/hooks/useLetsConnect";
+import { useLetsConnect } from "@/hooks/useLetsConnect";
 import { useEffect, useState } from "react";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import LoadingState from "@/components/LoadingState";
+import { LetsConnect } from "@/types/lets_connect";
 
 export enum LetsConnectRole {
   A = "A",
@@ -47,7 +48,7 @@ export default function LetsConnectPage() {
     [LetsConnectRole.F]: pageContent["lets-connect-form-role-f"],
   };  
 
-  const [formData, setFormData] = useState<Partial<LetsConnectFormData>>({
+  const [formData, setFormData] = useState<Partial<LetsConnect>>({
     full_name: "",
     email: "",
     role: "",
@@ -116,11 +117,11 @@ export default function LetsConnectPage() {
         />
         <div className="flex flex-col px-4 text-center">
             <h1 className="text-[20px] text-[#04222F] font-[Montserrat] font-bold border-b-2 border-[#04222F] inline-block mx-auto mb-12 md:text-[48px]">
-              {pageContent["lets-conect-form-user-edit"]}
+              {pageContent["lets-connect-form-user-edit"]}
             </h1>
             <BaseButton
               onClick={() => router.back()}
-              label={pageContent["lets-conect-form-user-button-back-to-user-profile"]}
+              label={pageContent["lets-connect-form-user-button-back-to-user-profile"]}
               customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[4px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] md:px-8 md:py-4 md:text-[24px] md:w-1/3 ${
               darkMode
                 ? "border-white text-white bg-[#053749]"
@@ -134,7 +135,7 @@ export default function LetsConnectPage() {
             <div className="flex items-start gap-2 text-left mt-6">
                 <Image
                     src={darkMode ?  UserCheckIcon : UserCheckIconDark}
-                    alt={pageContent["lets-conect-form-heading"]}
+                    alt={pageContent["lets-connect-form-heading"]}
                     className="w-4 h-5 md:w-[42px] md:h-[42px]"
                 />
                 <h1 className={`text-[14px] font-[Montserrat] font-bold md:text-[32px] 
@@ -143,7 +144,7 @@ export default function LetsConnectPage() {
                         : "text-[#053749]"
                     }`}
                     >
-                    {pageContent["lets-conect-form-heading"]}
+                    {pageContent["lets-connect-form-heading"]}
                 </h1>
             </div>
 
@@ -155,7 +156,7 @@ export default function LetsConnectPage() {
                     : "text-[#053749]"
                     }`}
                 >
-                    {pageContent["lets-conect-form-full-name-optional"]}
+                    {pageContent["lets-connect-form-full-name-optional"]}
                 </h4>
                 <input
                     type="text"
@@ -169,7 +170,7 @@ export default function LetsConnectPage() {
                         ? "bg-transparent border-[#FFFFFF] text-white"
                         : "border-[#053749] text-[#829BA4]"
                         }`}
-                    placeholder={pageContent["lets-conect-form-full-name-placeholder"]}
+                    placeholder={pageContent["lets-connect-form-full-name-placeholder"]}
                 /> 
             </div>
 
@@ -181,7 +182,7 @@ export default function LetsConnectPage() {
                     : "text-[#053749]"
                     }`}
                 >
-                    {pageContent["lets-conect-form-email"]}
+                    {pageContent["lets-connect-form-email"]}
                 </h4>
                 <input
                     type="text"
@@ -195,7 +196,7 @@ export default function LetsConnectPage() {
                             ? "bg-transparent border-[#FFFFFF] text-white"
                             : "border-[#053749] text-[#829BA4]"
                         }`}
-                    placeholder={pageContent["lets-conect-form-email-placeholder"]}
+                    placeholder={pageContent["lets-connect-form-email-placeholder"]}
                 /> 
             </div>
 
@@ -269,9 +270,9 @@ export default function LetsConnectPage() {
 
             {/* Area Input */}
             <Checklist
-              title={pageContent["lets-conect-form-topic-check"]}
-              other={pageContent["lets-conect-form-topic-check-other"]}
-              description={pageContent["lets-conect-form-topic-check-text"]}
+              title={pageContent["lets-connect-form-topic-check"]}
+              other={pageContent["lets-connect-form-topic-check-other"]}
+              description={pageContent["lets-connect-form-topic-check-text"]}
               setFormData={(area: string) => setFormData({ ...formData, area })}
               multiple={true}
               itemsList={[

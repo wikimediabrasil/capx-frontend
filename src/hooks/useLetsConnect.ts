@@ -3,15 +3,6 @@ import { useSession } from "next-auth/react";
 import { LetsConnectService } from "@/services/letsConnectService";
 import { LetsConnect } from "@/types/lets_connect";
 
-export interface LetsConnectFormData {
-    full_name: string,
-    email: string,
-    role: string,
-    area: string,
-    gender: string,
-    age: string
-}
-
 export function useLetsConnect() {
   const { data: session } = useSession();
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +16,6 @@ export function useLetsConnect() {
         letsConnect,
         token: session?.user.token ?? ""
       });
-      console.log("RESPONSE", response)
       if (!response) {
         throw new Error("Invalid lets connect data from server");
       }

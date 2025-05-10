@@ -32,8 +32,6 @@ export class LetsConnectService {
         }
       );
 
-      console.log("LetsConnectService response", response.data)
-      console.log("LetsConnectService response data", response.data)
       return response.data;
     } catch (error) {
       console.error("Failed to send lets connect data:", error);

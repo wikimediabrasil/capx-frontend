@@ -6,13 +6,8 @@ import axios from "axios";
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
 
-  console.log("POST authHeader", authHeader)
-
   try {
     const body = await request.json();
-
-    console.log("POST body", body)
-
 
     const response = await axios.post(
       `${process.env.BASE_URL}/letsconnect/`,
@@ -23,8 +18,6 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-    console.log("POST response", response)
-    console.log("POST response data", response.data)
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
