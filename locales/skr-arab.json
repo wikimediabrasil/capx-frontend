@@ -10,6 +10,7 @@
 	"navbar-link-home": "گھر",
 	"navbar-link-reports": "رپورٹاں",
 	"navbar-user-profile": "ورتݨ پروفائل",
+	"navbar-link-messages": "سنیہے",
 	"body-home-main-section-carrousel-description-more-projects": "...",
 	"body-home-section01-call-to-action-button02": "کھاتہ کھولو",
 	"body-loggedin-home-main-section-button01": "پھلورو",
@@ -68,5 +69,18 @@
 	"pagination-previous": "پچھلا",
 	"pagination-next": "اڳلا",
 	"pagination-page": "ورقہ",
-	"snackbar-edit-profile-organization-create-event-failed": "ایونٹ بݨاوݨ وچ خرابی۔ مہربانی کر تے چیک کرو اَتے ولدی کوشش کرو"
+	"snackbar-edit-profile-organization-create-event-failed": "ایونٹ بݨاوݨ وچ خرابی۔ مہربانی کر تے چیک کرو اَتے ولدی کوشش کرو",
+	"message-form-method-email": "ای میل",
+	"message-form-method-talkpage": "ڳالھ مُہاڑ ورقہ",
+	"message-form-hide": "لُکاؤ",
+	"message-form-view": "ݙیکھو",
+	"message-form-status": "حیثیت",
+	"message-form-date": "تریخ",
+	"message-write": "لکھو",
+	"message-sent": "بھیڄا",
+	"message-form-from": "کنوں",
+	"message-to-from": "کوں",
+	"message-form-subject": "موضوع",
+	"message-form-message": "سنیہا",
+	"message-button-cancel-message": "منسوخ"
 }
