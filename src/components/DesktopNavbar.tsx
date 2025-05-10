@@ -82,6 +82,10 @@ export default function DesktopNavbar({
     {
       title: pageContent["navbar-link-events"],
       to: "/events",
+    },
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
       active: true,
     },
   ];
