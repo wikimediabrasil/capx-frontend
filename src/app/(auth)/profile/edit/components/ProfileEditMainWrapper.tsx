@@ -18,6 +18,7 @@ import { useAvatars } from "@/hooks/useAvatars";
 import ProfileEditDesktopView from "./ProfileEditDesktopView";
 import ProfileEditMobileView from "./ProfileEditMobileView";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import { useProfileEdit } from "@/contexts/ProfileEditContext";
 
 const fetchWikidataQid = async (name: string) => {
   try {
@@ -77,6 +78,7 @@ export default function EditProfilePage() {
   const token = session?.user?.token;
   const userId = session?.user?.id;
   const { showSnackbar } = useSnackbar();
+  const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
 
   const { profile, isLoading, error, updateProfile, refetch, deleteProfile } =
     useProfile(token, Number(userId));
@@ -160,6 +162,16 @@ export default function EditProfilePage() {
     }
   }, [profile]);
 
+  // When the component mounts, check if there are unsaved data
+  useEffect(() => {
+    if (unsavedData) {
+      setFormData(prevData => ({
+        ...prevData,
+        ...unsavedData
+      }));
+    }
+  }, [unsavedData]);
+
   const handleDeleteProfile = async () => {
     if (!token) {
       console.error("No token available");
@@ -174,7 +186,8 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!token) {
       console.error("No token available");
       return;
@@ -182,6 +195,7 @@ export default function EditProfilePage() {
 
     try {
       await updateProfile(formData);
+      clearUnsavedData(); // Clear unsaved data after saving successfully
       showSnackbar(pageContent["snackbar-edit-profile-success"],"success")
       router.push("/profile");
     } catch (error) {
@@ -403,6 +417,12 @@ export default function EditProfilePage() {
     fetchAvatar();
   }, [profile?.avatar, getAvatarById]);
 
+  const goTo = (path: string) => {
+    // Save unsaved data before navigating
+    setUnsavedData(formData);
+    router.push(path);
+  };
+
   const ViewProps: any = {
     selectedAvatar,
     handleAvatarSelect,
@@ -430,6 +450,7 @@ export default function EditProfilePage() {
     wikimediaProjects: wikimediaProjects || {},
     avatars,
     refetch,
+    goTo,
   };
 
   if (isMobile) {
