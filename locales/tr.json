@@ -75,8 +75,6 @@
 	"form-report-date": "Oluşturulma tarihi",
 	"form-report-edit-button": "Raporu Düzenle",
 	"form-report-update-button": "Güncelleme raporu",
-	"form-report-number": "Rapor numarası",
 	"oh-no-message": "Oh, hayır!",
-	"no-user-profile": "CapX'te kayıtlı bu kullanıcı adına sahip kullanıcı yok",
 	"no-report-rights": "Ya bu raporu güncellemek için izniniz yok ya da bu rapor mevcut değil!"
 }

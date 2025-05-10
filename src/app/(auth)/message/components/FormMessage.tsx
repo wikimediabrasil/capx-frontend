@@ -315,7 +315,7 @@ export default function FormMessage() {
                     ? "text-[#FFFFFF]"
                     : "text-[#053749]"
                 }`}>
-                {pageContent["report-bug-description-informative-text"]}
+                {pageContent["message-form-informative-text"]}
             </p>
         </div>
 

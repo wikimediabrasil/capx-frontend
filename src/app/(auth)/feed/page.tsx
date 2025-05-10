@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import ProfileCard from "./components/Card";
+import ProfileCard from "./components/ProfileCard";
 import { Filters } from "./components/Filters";
 import { useApp } from "@/contexts/AppContext";
 import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from "./types";

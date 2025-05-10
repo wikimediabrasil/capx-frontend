@@ -39,7 +39,5 @@
 	"form-report-date": "Erstelldatum",
 	"form-report-edit-button": "Bericht bearbeiten",
 	"form-report-update-button": "Bericht aktualisieren",
-	"form-report-number": "Bericht Nr.",
-	"oh-no-message": "Oh nein!",
-	"no-user-profile": "Es sind keine Benutzer mit diesem Benutzernamen in CapX registriert"
+	"oh-no-message": "Oh nein!"
 }
