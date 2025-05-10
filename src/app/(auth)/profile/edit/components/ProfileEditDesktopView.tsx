@@ -93,6 +93,7 @@ interface ProfileEditDesktopViewProps {
   wikimediaProjects: Record<string, string>;
   avatars: any[] | undefined;
   refetch: () => Promise<any>;
+  goTo: (path: string) => void;
 }
 
 export default function ProfileEditDesktopView(
@@ -125,6 +126,7 @@ export default function ProfileEditDesktopView(
     wikimediaProjects,
     avatars,
     refetch,
+    goTo,
   } = props;
 
   const router = useRouter();
@@ -143,10 +145,6 @@ export default function ProfileEditDesktopView(
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
-
-  const goTo = (path: string) => {
-    router.push(path);
-  };
 
   return (
     <div
@@ -1124,7 +1122,7 @@ export default function ProfileEditDesktopView(
 
             <BaseButton
               onClick={() => goTo("/profile/lets_connect")}
-              label={pageContent["lets-conect-form-user-edit"]}
+              label={pageContent["lets-connect-form-user-edit"]}
               customClass={`w-1/3 flex ${
                 darkMode
                   ? "bg-capx-light-box-bg text-[#04222F]"

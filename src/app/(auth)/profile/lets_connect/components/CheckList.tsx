@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 type ChecklistProps = {
@@ -37,15 +37,15 @@ export default function Checklist({
         checked: i === index ? !item.checked : false,
       }));
   
-      // Se algum checkbox for marcado e houver texto, limpa o texto
+      // If the checkbox is checked and there is text in the 'other' field, clear the text
       const isChecked = newItems[index].checked;
   
-      // Se o checkbox for marcado e houver texto no campo 'other', limpa o texto
+      // If the checkbox is checked and there is text in the 'other' field, clear the text
       if (isChecked && otherText.trim()) {
-        setOtherText(""); // Limpa o texto do campo "other"
+        setOtherText(""); // Clear the text in the 'other' field
       }
   
-      // Atualiza o formData corretamente
+      // Update the formData correctly
       const selected = newItems.find((item) => item.checked);
       setFormData(selected ? selected.label : "");
     } else {
@@ -55,7 +55,7 @@ export default function Checklist({
   
     setItems(newItems);
   
-    // No modo múltiplo, mantém a lógica existente para os itens selecionados
+    // In multiple mode, keep the existing logic for the selected items
     if (multiple) {
       const selectedItems = newItems
         .filter((item) => item.checked)
@@ -84,7 +84,7 @@ export default function Checklist({
   
       setFormData(combined);
     } else {
-      // Se estiver digitando, desmarca todos os checkboxes
+      // If you are typing, unmark all checkboxes
       if (value.trim()) {
         const clearedItems = items.map((item) => ({ ...item, checked: false }));
         setItems(clearedItems);

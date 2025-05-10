@@ -59,7 +59,6 @@ import { useApp } from "@/contexts/AppContext";
 import { useAvatars } from "@/hooks/useAvatars";
 import { useRouter } from "next/navigation";
 
-
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
   handleAvatarSelect: (avatarId: number) => void;
@@ -92,6 +91,7 @@ interface ProfileEditMobileViewProps {
   profile: Profile;
   avatars: any[] | undefined;
   refetch: () => Promise<any>;
+  goTo: (path: string) => void;
 }
 
 export default function ProfileEditMobileView(
@@ -126,6 +126,7 @@ export default function ProfileEditMobileView(
     avatars,
     profile,
     refetch,
+    goTo,
   } = props;
 
   const router = useRouter();
@@ -141,9 +142,6 @@ export default function ProfileEditMobileView(
     profile?.avatar || NoAvatarIcon
   );
 
-  const goTo = (path: string) => {
-    router.push(path);
-  };
 
   return (
     <>
@@ -1128,11 +1126,6 @@ export default function ProfileEditMobileView(
               </div>
             </div>
 
-
-
-
-
-
             <div className="bg-[#EFEFEF]">
               <Banner
                 image={LetsConect}
@@ -1144,7 +1137,7 @@ export default function ProfileEditMobileView(
 
               <BaseButton
                 onClick={() => goTo("/profile/lets_connect")}
-                label={pageContent["lets-conect-form-user-edit"]}
+                label={pageContent["lets-connect-form-user-edit"]}
                 customClass={`w-11/12 flex mx-auto ${
                   darkMode
                     ? "bg-capx-light-box-bg text-[#04222F]"
@@ -1167,10 +1160,6 @@ export default function ProfileEditMobileView(
                 {pageContent["lets-connect-edit-user-info"]}
               </p>
             </div>
-
-
-
-
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-[10px] mt-0">
