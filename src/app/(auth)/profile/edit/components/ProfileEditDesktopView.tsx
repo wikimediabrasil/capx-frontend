@@ -8,7 +8,7 @@ import { useWikimediaProject } from "@/hooks/useWikimediaProject";
 import { useTerritories } from "@/hooks/useTerritories";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import CapacitySelectionModal from "./CapacitySelectionModal";
+import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import AccountCircleIcon from "@/public/static/images/account_circle.svg";
 import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
 import AccountBoxIcon from "@/public/static/images/account_box.svg";

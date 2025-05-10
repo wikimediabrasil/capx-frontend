@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { capacityService } from "@/services/capacityService";
 import {
   getCapacityColor,
@@ -7,162 +7,327 @@ import {
 } from "@/lib/utils/capacitiesUtils";
 import { CapacityResponse, Capacity } from "@/types/capacity";
 
+// Cache global para compartilhar dados entre instâncias do hook
+interface GlobalCache {
+  rootCapacities: Capacity[];
+  childrenCapacities: Record<string, Capacity[]>;
+  descriptions: Record<string, string>;
+  wdCodes: Record<string, string>;
+  fetchedParents: Set<string>;
+  pendingRequests: Record<string, Promise<any>>;
+}
+
+// Inicializar o cache global
+const globalCache: GlobalCache = {
+  rootCapacities: [],
+  childrenCapacities: {},
+  descriptions: {},
+  wdCodes: {},
+  fetchedParents: new Set<string>(),
+  pendingRequests: {},
+};
+
 export function useCapacityList(token?: string, language: string = "en") {
-  const [rootCapacities, setRootCapacities] = useState<Capacity[]>([]);
+  const [rootCapacities, setRootCapacities] = useState<Capacity[]>(
+    globalCache.rootCapacities
+  );
   const [childrenCapacities, setChildrenCapacities] = useState<
     Record<string, Capacity[]>
-  >({});
-  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
+  >(globalCache.childrenCapacities);
+  const [descriptions, setDescriptions] = useState<Record<string, string>>(
+    globalCache.descriptions
+  );
   const [capacityById, setCapacityById] = useState<CapacityResponse>();
-  const [wdCodes, setWdCodes] = useState<Record<string, string>>({});
+  const [wdCodes, setWdCodes] = useState<Record<string, string>>(
+    globalCache.wdCodes
+  );
   const [searchResults, setSearchResults] = useState<Capacity[]>([]);
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCapacityDescription = useCallback(
-    async (code: number) => {
-      if (!token) return;
-
-      try {
-        const response = await capacityService.fetchCapacityDescription(code, {
-          params: { language },
-          headers: { Authorization: `Token ${token}` },
-        });
-
-        setDescriptions((prev) => ({ ...prev, [code]: response.description }));
-        setWdCodes((prev) => ({ ...prev, [code]: response.wdCode }));
-
-        return response.description;
-      } catch (error) {
-        console.error("Failed to fetch capacity description:", error);
-      }
-    },
-    [token, language]
-  );
+  // Referência para controlar se o hook já foi inicializado
+  const initialized = useRef(false);
 
   const fetchRootCapacities = useCallback(async () => {
     if (!token) return;
 
-    setIsLoading((prev) => ({ ...prev, root: true }));
-    try {
-      const response = await capacityService.fetchCapacities({
-        params: { language },
-        headers: { Authorization: `Token ${token}` },
-      });
-
-      const formattedCapacities = response.map((item: any): Capacity => {
-        const baseCode = item.code.toString();
-        return {
-          code: baseCode,
-          name: sanitizeCapacityName(item.name, baseCode),
-          color: baseCode.startsWith("10")
-            ? "organizational"
-            : baseCode.startsWith("36")
-            ? "communication"
-            : baseCode.startsWith("50")
-            ? "learning"
-            : baseCode.startsWith("56")
-            ? "community"
-            : baseCode.startsWith("65")
-            ? "social"
-            : baseCode.startsWith("74")
-            ? "strategic"
-            : baseCode.startsWith("106")
-            ? "technology"
-            : "gray-200",
-          icon: getCapacityIcon(baseCode),
-          hasChildren: true,
-          skill_type: Number(baseCode),
-          skill_wikidata_item: "",
-          description: item.description || "",
-          wd_code: item.wd_code,
-        };
-      });
-
-      setRootCapacities(formattedCapacities);
-
-      for (const capacity of formattedCapacities) {
-        fetchCapacityDescription(Number(capacity.code));
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch root capacities"
-      );
-    } finally {
-      setIsLoading((prev) => ({ ...prev, root: false }));
+    // Se já temos as capacidades raiz no cache global e não estamos carregando, retornar imediatamente
+    if (globalCache.rootCapacities.length > 0) {
+      setRootCapacities(globalCache.rootCapacities);
+      return;
     }
-  }, [token, language, fetchCapacityDescription]);
+
+    // Verificar se já existe uma requisição em andamento
+    if (
+      Object.prototype.hasOwnProperty.call(globalCache.pendingRequests, "root")
+    ) {
+      await globalCache.pendingRequests["root"];
+      setRootCapacities(globalCache.rootCapacities);
+      return;
+    }
+
+    setIsLoading((prev) => ({ ...prev, root: true }));
+
+    // Criar uma promessa para a requisição atual
+    const requestPromise = (async () => {
+      try {
+        const response = await capacityService.fetchCapacities({
+          params: { language },
+          headers: { Authorization: `Token ${token}` },
+        });
+
+        const formattedCapacities = response.map((item: any): Capacity => {
+          const baseCode = item.code.toString();
+          return {
+            code: baseCode,
+            name: item.name,
+            color: baseCode.startsWith("10")
+              ? "organizational"
+              : baseCode.startsWith("36")
+              ? "communication"
+              : baseCode.startsWith("50")
+              ? "learning"
+              : baseCode.startsWith("56")
+              ? "community"
+              : baseCode.startsWith("65")
+              ? "social"
+              : baseCode.startsWith("74")
+              ? "strategic"
+              : baseCode.startsWith("106")
+              ? "technology"
+              : "gray-200",
+            icon: getCapacityIcon(baseCode),
+            hasChildren: true,
+            skill_type: Number(baseCode),
+            skill_wikidata_item: "",
+          };
+        });
+
+        // Atualizar o cache global
+        globalCache.rootCapacities = formattedCapacities;
+
+        setRootCapacities(formattedCapacities);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch root capacities"
+        );
+      } finally {
+        setIsLoading((prev) => ({ ...prev, root: false }));
+        // Limpar a promessa pendente
+        delete globalCache.pendingRequests["root"];
+      }
+    })();
+
+    // Armazenar a promessa no cache de requisições pendentes
+    globalCache.pendingRequests["root"] = requestPromise;
+
+    await requestPromise;
+  }, [token, language]);
 
   const fetchCapacitiesByParent = useCallback(
     async (parentCode: string) => {
       if (!token) return [];
 
-      try {
-        const response = await capacityService.fetchCapacitiesByType(
-          parentCode,
-          {
-            headers: { Authorization: `Token ${token}` },
-          }
-        );
-
-        const capacityData = await Promise.all(
-          Object.entries(response).map(async ([code, wd_code]) => {
-            const capacityDetails = await capacityService.fetchCapacityById(
-              code,
-              {
-                params: { language },
-                headers: { Authorization: `Token ${token}` },
-              }
-            );
-
-            const childrenResponse =
-              await capacityService.fetchCapacitiesByType(code, {
-                headers: { Authorization: `Token ${token}` },
-              });
-
-            return {
-              code,
-              name: sanitizeCapacityName(
-                capacityDetails?.name || `Capacity ${code}`,
-                code
-              ),
-              hasChildren: Object.keys(childrenResponse).length > 0,
-              wd_code: capacityDetails?.wd_code || wd_code,
-              description: capacityDetails?.description || "",
-            };
-          })
-        );
-
-        const parentCapacity = rootCapacities.find(
-          (cap) => cap.code.toString() === parentCode.toString()
-        );
-
-        const formattedCapacities = capacityData.map((item: any): Capacity => {
-          const baseCode = item.code.toString();
-          return {
-            code: baseCode,
-            name: sanitizeCapacityName(item.name, baseCode),
-            color: getCapacityColor(parentCapacity?.color || "gray-200"),
-            icon: getCapacityIcon(Number(parentCode)),
-            hasChildren: item.hasChildren,
-            skill_type: Number(parentCode),
-            skill_wikidata_item: "",
-            wd_code: item.wd_code,
-            description: item.description || "",
-          };
-        });
-
+      // Verificar se os filhos já estão no cache global
+      if (globalCache.childrenCapacities[parentCode]) {
+        // Atualizar o estado local a partir do cache global
         setChildrenCapacities((prev) => ({
           ...prev,
-          [parentCode]: formattedCapacities,
+          [parentCode]: globalCache.childrenCapacities[parentCode],
         }));
-        return formattedCapacities;
-      } catch (error) {
-        console.error("Failed to fetch capacities by parent:", error);
-        throw error;
+
+        // Retornar os dados do cache
+        return globalCache.childrenCapacities[parentCode];
       }
+
+      // Verificar se já existe uma requisição em andamento para este parentCode
+      const requestKey = `parent_${parentCode}`;
+      if (
+        Object.prototype.hasOwnProperty.call(
+          globalCache.pendingRequests,
+          requestKey
+        )
+      ) {
+        // Esperar a requisição pendente completar
+        await globalCache.pendingRequests[requestKey];
+
+        // Retornar os dados do cache após a conclusão da requisição
+        return globalCache.childrenCapacities[parentCode] || [];
+      }
+
+      // Marcar o parent como carregando
+      setIsLoading((prev) => ({ ...prev, [parentCode]: true }));
+
+      // Criar uma promessa para a requisição atual
+      const requestPromise = (async () => {
+        try {
+          const response = await capacityService.fetchCapacitiesByType(
+            parentCode,
+            {
+              headers: { Authorization: `Token ${token}` },
+            }
+          );
+
+          const capacityData = await Promise.all(
+            Object.entries(response).map(async ([code, name]) => {
+              // Verificar se já temos os filhos desta capacidade no cache
+              if (!globalCache.childrenCapacities[code]) {
+                const childrenResponse =
+                  await capacityService.fetchCapacitiesByType(code, {
+                    headers: { Authorization: `Token ${token}` },
+                  });
+
+                // Marcar que já buscamos os filhos deste código
+                globalCache.fetchedParents.add(code);
+
+                return {
+                  code,
+                  name,
+                  hasChildren: Object.keys(childrenResponse).length > 0,
+                };
+              }
+
+              // Se já temos os filhos no cache, determinar se tem filhos baseado na cache
+              return {
+                code,
+                name,
+                hasChildren:
+                  globalCache.childrenCapacities[code]?.length > 0 || false,
+              };
+            })
+          );
+
+          const parentCapacity =
+            globalCache.rootCapacities.length > 0
+              ? globalCache.rootCapacities.find(
+                  (cap) => cap.code.toString() === parentCode.toString()
+                )
+              : rootCapacities.find(
+                  (cap) => cap.code.toString() === parentCode.toString()
+                );
+
+          const formattedCapacities = capacityData.map(
+            (item: any): Capacity => {
+              const baseCode = item.code.toString();
+              return {
+                code: baseCode,
+                name: item.name,
+                color: getCapacityColor(parentCapacity?.color || "gray-200"),
+                icon: getCapacityIcon(Number(parentCode)),
+                hasChildren: item.hasChildren,
+                skill_type: Number(parentCode),
+                skill_wikidata_item: "",
+              };
+            }
+          );
+
+          // Atualizar o cache global
+          globalCache.childrenCapacities[parentCode] = formattedCapacities;
+
+          // Atualizar o estado local
+          setChildrenCapacities((prev) => ({
+            ...prev,
+            [parentCode]: formattedCapacities,
+          }));
+
+          return formattedCapacities;
+        } catch (error) {
+          console.error("Failed to fetch capacities by parent:", error);
+          throw error;
+        } finally {
+          setIsLoading((prev) => ({ ...prev, [parentCode]: false }));
+          // Limpar a promessa pendente
+          delete globalCache.pendingRequests[requestKey];
+        }
+      })();
+
+      // Armazenar a promessa no cache de requisições pendentes
+      globalCache.pendingRequests[requestKey] = requestPromise;
+
+      return await requestPromise;
     },
-    [token, language, rootCapacities]
+    [token, rootCapacities]
+  );
+
+  const fetchCapacityDescription = useCallback(
+    async (code: number) => {
+      if (!token) return;
+
+      const codeStr = code.toString();
+
+      // Verificar se a descrição já está no cache global
+      if (globalCache.descriptions[codeStr]) {
+        // Atualizar o estado local a partir do cache global
+        setDescriptions((prev) => ({
+          ...prev,
+          [codeStr]: globalCache.descriptions[codeStr],
+        }));
+
+        setWdCodes((prev) => ({
+          ...prev,
+          [codeStr]: globalCache.wdCodes[codeStr],
+        }));
+
+        return globalCache.descriptions[codeStr];
+      }
+
+      // Verificar se já existe uma requisição em andamento para esta descrição
+      const requestKey = `desc_${codeStr}`;
+      if (
+        Object.prototype.hasOwnProperty.call(
+          globalCache.pendingRequests,
+          requestKey
+        )
+      ) {
+        // Esperar a requisição pendente completar
+        await globalCache.pendingRequests[requestKey];
+
+        // Retornar os dados do cache após a conclusão da requisição
+        return globalCache.descriptions[codeStr] || "";
+      }
+
+      // Criar uma promessa para a requisição atual
+      const requestPromise = (async () => {
+        try {
+          const response = await capacityService.fetchCapacityDescription(
+            code,
+            {
+              params: { language },
+              headers: { Authorization: `Token ${token}` },
+            }
+          );
+
+          // Atualizar o cache global
+          globalCache.descriptions[codeStr] = response.description;
+          globalCache.wdCodes[codeStr] = response.wdCode;
+
+          // Atualizar o estado local
+          setDescriptions((prev) => ({
+            ...prev,
+            [codeStr]: response.description,
+          }));
+
+          setWdCodes((prev) => ({
+            ...prev,
+            [codeStr]: response.wdCode,
+          }));
+
+          return response.description;
+        } catch (error) {
+          console.error("Failed to fetch capacity description:", error);
+          return "";
+        } finally {
+          // Limpar a promessa pendente
+          delete globalCache.pendingRequests[requestKey];
+        }
+      })();
+
+      // Armazenar a promessa no cache de requisições pendentes
+      globalCache.pendingRequests[requestKey] = requestPromise;
+
+      return await requestPromise;
+    },
+    [token, language]
   );
 
   const fetchCapacityById = useCallback(
@@ -170,10 +335,7 @@ export function useCapacityList(token?: string, language: string = "en") {
       if (!token) return;
 
       try {
-        const response = await capacityService.fetchCapacityById(id, {
-          params: { language },
-          headers: { Authorization: `Token ${token}` },
-        });
+        const response = await capacityService.fetchCapacityById(id);
 
         setCapacityById(response);
       } catch (error) {
@@ -183,50 +345,53 @@ export function useCapacityList(token?: string, language: string = "en") {
     [token, language]
   );
 
+  // Inicializar o hook - carregar capacidades raiz apenas uma vez quando o token estiver disponível
+  useEffect(() => {
+    if (token && !initialized.current) {
+      fetchRootCapacities();
+      initialized.current = true;
+    }
+  }, [token, fetchRootCapacities]);
+
   const findParentCapacity = useCallback(
     (
       childCapacity: Capacity | { code: string | number; skill_type?: number }
     ) => {
       const childCode = childCapacity.code.toString();
-      const skillType = childCapacity.skill_type;
+      const parentCode =
+        (childCapacity as Capacity).skill_type?.toString() ||
+        (childCapacity as { skill_type?: number }).skill_type?.toString();
 
-      // if doesnt have skill_type, return undefined
-      if (!skillType) {
-        return undefined;
-      }
-
-      // first, check if it is a direct child capacity
-      const parentId = skillType.toString();
-
-      // search for the parent capacity in the root capacities
-      const rootParent = rootCapacities.find(
-        (root) => root.code.toString() === parentId
-      );
-
-      if (rootParent) {
-        return rootParent;
-      }
-      // if it is not a direct child capacity, check if it is a grandchild capacity
-      // first, find the parent capacity
-      for (const rootCode in childrenCapacities) {
-        const children = childrenCapacities[rootCode] || [];
-
-        const parent = children.find(
-          (child) => child.code.toString() === parentId
+      if (parentCode) {
+        // Check if parent is a root capacity
+        const parent = rootCapacities.find(
+          (root) => root.code.toString() === parentCode
         );
 
         if (parent) {
-          const grandparent = rootCapacities.find(
-            (root) => root.code.toString() === rootCode
+          return parent;
+        }
+
+        // Check if parent is in children capacities
+        for (const rootCode in childrenCapacities) {
+          const children = childrenCapacities[rootCode] || [];
+          const parent = children.find(
+            (child) => child.code.toString() === parentCode
           );
 
-          if (grandparent) {
-            return {
-              ...parent,
-              parentCapacity: grandparent,
-              color: parent.color || grandparent.color,
-              icon: parent.icon || grandparent.icon,
-            };
+          if (parent) {
+            const grandparent = rootCapacities.find(
+              (root) => root.code.toString() === rootCode
+            );
+
+            if (grandparent) {
+              return {
+                ...parent,
+                parentCapacity: grandparent,
+                color: parent.color || grandparent.color,
+                icon: parent.icon || grandparent.icon,
+              };
+            }
           }
 
           return parent;

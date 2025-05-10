@@ -51,7 +51,9 @@ const Popup = ({
             className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 
             w-[90%] md:w-[880px] xl:w-[1024px]
             min-h-[300px] md:min-h-[400px] max-h-[90vh]
-            rounded-3xl shadow-xl overflow-hidden ${darkMode ? "bg-[#04222F]" : "bg-[#FFFFFF]"}`}
+            rounded-3xl shadow-xl overflow-hidden ${
+              darkMode ? "bg-[#04222F]" : "bg-[#FFFFFF]"
+            }`}
           >
             <div className="flex flex-col h-full p-4 md:p-8">
               {/* Header */}
@@ -67,10 +69,16 @@ const Popup = ({
                       />
                     </div>
                   )}
-                  <div className={`${image ? 'md:w-1/2' : 'w-full'} flex items-center justify-center`}>
-                    <h2 className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-normal text-center ${
-                      darkMode ? "text-white" : "text-[#053749]"
-                    }`}>
+                  <div
+                    className={`${
+                      image ? "md:w-1/2" : "w-full"
+                    } flex items-center justify-center`}
+                  >
+                    <h2
+                      className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-normal text-center ${
+                        darkMode ? "text-white" : "text-[#053749]"
+                      }`}
+                    >
                       {title}
                     </h2>
                   </div>
@@ -78,12 +86,15 @@ const Popup = ({
               </div>
 
               {/* Content */}
-              <div className={`flex-grow flex items-center justify-center ${
-                    children ? 'my-4 md:my-6' : 'my-2'
-                  }`}>
-                <div className={`w-full text-center text-base md:text-lg ${
-                    darkMode ? "text-white" : "text-[#053749]"
+              <div
+                className={`flex-grow flex items-center justify-center ${
+                  children ? "my-4 md:my-6" : "my-2"
                 }`}
+              >
+                <div
+                  className={`w-full text-center text-base md:text-lg ${
+                    darkMode ? "text-white" : "text-[#053749]"
+                  }`}
                 >
                   {children}
                 </div>

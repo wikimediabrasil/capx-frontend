@@ -6,20 +6,15 @@ import { fetchMetabase, fetchWikidata } from "@/lib/utils/capacitiesUtils";
 export async function GET(req: NextRequest) {
   try {
     const language = req.nextUrl.searchParams.get("language");
-    const authHeader = req.headers.get("authorization");
 
     // Get all skills
     const codesResponse = await axios.get(
-      `${process.env.BASE_URL}/list/skills/`,
-      {
-        headers: { Authorization: authHeader },
-      }
+      `${process.env.BASE_URL}/list/skills/`
     );
 
     // Get all skills by type to identify root items
     const skillsByTypeResponse = await axios.get(
-      `${process.env.BASE_URL}/skills_by_type/0/`,
-      { headers: { Authorization: authHeader } }
+      `${process.env.BASE_URL}/skills_by_type/0/`
     );
 
     // Root items are those in skills_by_type/0/

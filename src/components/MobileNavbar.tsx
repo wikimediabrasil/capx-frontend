@@ -47,6 +47,7 @@ export default function MobileNavbar({
                   width={48}
                   height={48}
                   className="w-[48px] h-[48px] mb-2"
+                  style={{ width: "auto", height: "auto" }}
                 />
               </NextLink>
             </div>
@@ -129,7 +130,11 @@ export default function MobileNavbar({
                   className="p-2"
                 >
                   <Image
-                    src={darkMode ? IconCloseMobileMenuDarkMode : IconCloseMobileMenuLightMode}
+                    src={
+                      darkMode
+                        ? IconCloseMobileMenuDarkMode
+                        : IconCloseMobileMenuLightMode
+                    }
                     alt="Close Menu"
                     width={32}
                     height={32}
@@ -155,9 +160,7 @@ export default function MobileNavbar({
       </div>
 
       <AnimatePresence mode="wait">
-        {isMobile && mobileMenuStatus && (
-          <MobileMenu session={session} />
-        )}
+        {isMobile && mobileMenuStatus && <MobileMenu session={session} />}
       </AnimatePresence>
     </>
   );

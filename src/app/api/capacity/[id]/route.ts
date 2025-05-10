@@ -28,22 +28,8 @@ export async function GET(
     console.log(`⏳ API: Processing request for capacity ID: ${params.id}`);
     const id = params.id;
     const language = req.nextUrl.searchParams.get("language") || "en";
-    const authHeader = req.headers.get("authorization");
 
-    // First check if we have a hard-coded name
-    if (CAPACITY_NAMES[id]) {
-      return NextResponse.json({
-        code: id,
-        name: CAPACITY_NAMES[id],
-        description: "",
-        wd_code: null,
-        users: [],
-      });
-    }
-
-    const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`, {
-      headers: { Authorization: authHeader },
-    });
+    const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`);
 
     // If the ID doesn't exist in the code list, return a generic capacity instead of an error
     if (!codeList.data.hasOwnProperty(id)) {
@@ -56,14 +42,9 @@ export async function GET(
       });
     }
 
-    const userList = await axios
-      .get(`${process.env.BASE_URL}/users_by_skill/${id}/`, {
-        headers: { Authorization: authHeader },
-      })
-      .catch((error) => {
-        console.error(`❌ API: Error fetching users for skill ${id}:`, error);
-        return { data: [] }; // Provide empty fallback
-      });
+    const userList = await axios.get(
+      `${process.env.BASE_URL}/users_by_skill/${id}/`
+    );
 
     const capacityCodes = {
       code: id,

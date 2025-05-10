@@ -9,20 +9,9 @@ export async function GET(
   try {
     const id = params.id;
     const language = req.nextUrl.searchParams.get("language") || "en";
-    const authHeader = req.headers.get("authorization");
-
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: "Authorization required" },
-        { status: 401 }
-      );
-    }
 
     const response = await axios.get(
-      `${process.env.BASE_URL}/skills_by_type/${id}/`,
-      {
-        headers: { Authorization: authHeader },
-      }
+      `${process.env.BASE_URL}/skills_by_type/${id}/`
     );
 
     if (!response.data) {
@@ -47,9 +36,7 @@ export async function GET(
     }
 
     // fetch the wikidata codes for each skill
-    const skillsList = await axios.get(`${process.env.BASE_URL}/list/skills/`, {
-      headers: { Authorization: authHeader },
-    });
+    const skillsList = await axios.get(`${process.env.BASE_URL}/list/skills/`);
 
     // preparing the data for search in Metabase and Wikidata
     const codes = Object.entries(skillsData).map(([key, value]) => ({

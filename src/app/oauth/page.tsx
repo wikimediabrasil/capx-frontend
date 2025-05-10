@@ -125,7 +125,7 @@ function OAuthContent() {
       <div className="flex flex-wrap w-1/2 mx-auto my-auto">
         <div className="flex w-fit mx-auto mb-4">
           <Image
-            priority={true}
+            priority
             src={CapXLogo}
             alt="Capacity Exchange logo image."
             className="w-16"

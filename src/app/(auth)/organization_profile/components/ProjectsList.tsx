@@ -4,21 +4,18 @@ import WikimediaIconWhite from "@/public/static/images/wikimedia_logo_white.svg"
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { ProjectCard } from "./ProjectCard";
-import { EventCard } from "./EventCard";
 
-interface ProjectsEventsListProps {
+interface ProjectsListProps {
   title: string;
-  type: "projects" | "events";
   itemIds?: number[];
   token?: string;
 }
 
-export const ProjectsEventsList = ({
+export default function ProjectsList({
   title,
-  type,
   itemIds = [],
   token,
-}: ProjectsEventsListProps) => {
+}: ProjectsListProps) {
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
 
@@ -49,14 +46,10 @@ export const ProjectsEventsList = ({
         </h2>
       </div>
       <div className="flex flex-row gap-8 justify-start overflow-x-auto scrollbar-hide">
-        {itemIds.map((id) =>
-          type === "projects" ? (
-            <ProjectCard key={id} projectId={id} token={token} />
-          ) : (
-            <EventCard key={id} eventId={id} token={token} />
-          )
-        )}
+        {itemIds.map((id) => (
+          <ProjectCard key={id} projectId={id} token={token} />
+        ))}
       </div>
     </section>
   );
-};
+}
