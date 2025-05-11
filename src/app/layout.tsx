@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SnackbarProvider } from "./providers/SnackbarProvider";
 import { CapacityCacheProvider } from "@/contexts/CapacityCacheContext";
 import HydrationHandler from "@/components/HydrationHandler";
+import { ProfileEditProvider } from "@/contexts/ProfileEditContext";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -31,11 +32,13 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionWrapper>
             <AppProvider>
-              <SnackbarProvider>
-                <CapacityCacheProvider>
-                  <Providers>{children}</Providers>
-                </CapacityCacheProvider>
-              </SnackbarProvider>
+              <ProfileEditProvider>
+                <SnackbarProvider>
+                  <CapacityCacheProvider>
+                    <Providers>{children}</Providers>
+                  </CapacityCacheProvider>
+                </SnackbarProvider>
+              </ProfileEditProvider>
             </AppProvider>
           </SessionWrapper>
         </ThemeProvider>
