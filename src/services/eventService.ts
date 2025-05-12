@@ -11,6 +11,7 @@ const locationTypeToAPIMapping: Record<string, string> = {
   [EventLocationType.Online]: "virtual",
   [EventLocationType.InPerson]: "in_person",
   [EventLocationType.Hybrid]: "hybrid",
+  [EventLocationType.All]: "all",
 };
 
 export const eventsService = {
@@ -50,7 +51,17 @@ export const eventsService = {
         const locationValue =
           locationTypeToAPIMapping[filters.locationType] ||
           filters.locationType;
-        params.location_type = locationValue;
+
+        // For specific types, use specific values for backend
+        if (filters.locationType === EventLocationType.InPerson) {
+          params.location_type = "in_person";
+        } else if (filters.locationType === EventLocationType.Hybrid) {
+          params.location_type = "hybrid";
+        } else if (filters.locationType === EventLocationType.Online) {
+          params.location_type = "virtual";
+        } else {
+          params.location_type = locationValue;
+        }
       }
 
       // Add start date filter
