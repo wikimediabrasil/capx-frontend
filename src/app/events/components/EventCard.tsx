@@ -51,7 +51,9 @@ export default function EventCard({
   const { darkMode } = useTheme();
   const token = session?.user?.token;
 
-  const { capacityNames } = useCapacityDetails(event.related_skills || []);
+  const { capacityNames, getCapacityName } = useCapacityDetails(
+    event.related_skills || []
+  );
   const { organization } = useOrganization(token, event.organization);
 
   const [showAllCapacities, setShowAllCapacities] = useState(false);
@@ -429,7 +431,7 @@ export default function EventCard({
                               isMobile ? "text-xs" : "text-sm"
                             }`}
                           >
-                            {capacityNames[skill]}
+                            {getCapacityName(skill)}
                           </p>
                         ))}
 
@@ -447,7 +449,7 @@ export default function EventCard({
                             isMobile ? "text-xs" : "text-sm"
                           }`}
                         >
-                          {capacityNames[skill]}
+                          {getCapacityName(skill)}
                         </p>
                       ))}
                   </div>
@@ -623,7 +625,7 @@ export default function EventCard({
         onConfirm={handleConfirmDelete}
         title={event.name || ""}
         capacities={
-          event.related_skills?.map((skill) => capacityNames[skill]) || []
+          event.related_skills?.map((skill) => getCapacityName(skill)) || []
         }
         description={event.description || ""}
       />

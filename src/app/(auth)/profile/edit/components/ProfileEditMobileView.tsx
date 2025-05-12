@@ -52,7 +52,7 @@ import LetsConect from "@/public/static/images/lets_connect.svg";
 
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -139,8 +139,27 @@ export default function ProfileEditMobileView(
 
   const { getAvatarById } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar || NoAvatarIcon
+    profile?.avatar ? NoAvatarIcon : NoAvatarIcon
   );
+
+  // Use effect to load the avatar once when the component mounts
+  useEffect(() => {
+    // Only attempt to load if we have a numeric avatar ID
+    if (typeof profile?.avatar === "number" && profile.avatar > 0) {
+      // Use an immediate function to load avatar
+      (async () => {
+        try {
+          const avatarId = profile.avatar as number; // Type assertion to fix linter error
+          const avatarData = await getAvatarById(avatarId);
+          if (avatarData?.avatar_url) {
+            setAvatarUrl(avatarData.avatar_url);
+          }
+        } catch (error) {
+          console.error("Error fetching avatar:", error);
+        }
+      })();
+    }
+  }, [profile?.avatar, getAvatarById]); // Include getAvatarById in the dependency array
 
   return (
     <>

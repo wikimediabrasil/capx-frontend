@@ -233,3 +233,67 @@ BASE_URL=http://localhost:8000
 ```
 
 For more detailed information about specific features, check the documentation in the respective directories.
+
+## Recent Bugfixes
+
+### Resolving "Cannot read properties of undefined (reading 'length')" error in Capacity Handling
+
+We've fixed a critical error that was occurring when accessing capacity data in both the Profile and Organization edit pages. The following improvements were made:
+
+1. **Enhanced useCapacityDetails hook**:
+
+   - Added comprehensive validation for capacity ID arrays
+   - Improved type checking for each ID
+   - Added better error handling in the getCapacityName function
+   - Fixed edge cases for undefined values throughout the hook
+
+2. **Created Utility Functions**:
+
+   - Added `ensureArray`, `safeAccess`, `processIdArray` utilities in `safeDataAccess.ts`
+   - Implemented `createSafeFunction` to wrap functions that might throw errors
+   - Standardized the defensive programming approach across the codebase
+
+3. **Improved Component Implementation**:
+
+   - Replaced direct hook calls with effect-based implementations
+   - Added proper initialization of state variables before hook usage
+   - Used state caching to avoid hook errors during re-renders
+   - Added comprehensive debugging tools
+
+4. **Debugging Tools**:
+   - Added `CapacityDebug` component in development mode to monitor capacity data
+   - Used the existing `DebugPanel` for general data inspection
+   - Added detailed tracking of hook errors and capacity values
+
+These changes make the application more resilient to unexpected data formats and API responses, significantly improving stability when dealing with capacity data.
+
+### Fixing "Rendered more hooks than during the previous render" error
+
+We've resolved an issue where React was detecting inconsistent hook calls between renders, causing the error "Rendered more hooks than during the previous render". This occurred in several components and hooks, especially with the `useTerritories` hook.
+
+The primary improvements were:
+
+1. **Consistent Hook Execution**:
+
+   - Ensured hooks are always called in the same order in every render
+   - Moved hooks outside of conditional statements and loops
+   - Used React refs to store hook results safely
+
+2. **Safe Hook Pattern**:
+
+   - Created pattern of using `useRef` + `useEffect` for conditional hook logic
+   - Implemented try-catch blocks around hook calls to prevent render failures
+   - Used state updates in useEffect rather than during render
+
+3. **Hook Optimizations**:
+
+   - Simplified hook implementation to reduce render cycles
+   - Added proper state initialization before conditional logic
+   - Implemented safe defaults when tokens or data are missing
+
+4. **Related Components**:
+   - Fixed `ProfileEditMainWrapper` and `OrganizationProfileEditMainWrapper` components
+   - Enhanced `CapacityDebug` component to avoid hook-related crashes
+   - Improved `useTerritories` hook to properly handle token changes
+
+This approach ensures that React's Rules of Hooks are strictly followed, improving application stability and preventing crashes from inconsistent hook usage.

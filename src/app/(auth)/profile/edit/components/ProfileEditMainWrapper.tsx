@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useApp } from "@/contexts/AppContext";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { useProfile } from "@/hooks/useProfile";
@@ -19,6 +19,16 @@ import ProfileEditDesktopView from "./ProfileEditDesktopView";
 import ProfileEditMobileView from "./ProfileEditMobileView";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import { useProfileEdit } from "@/contexts/ProfileEditContext";
+import LoadingState from "@/components/LoadingState";
+import DebugPanel from "./DebugPanel";
+import CapacityDebug from "./CapacityDebug";
+import {
+  ensureArray,
+  safeAccess,
+  createSafeFunction,
+} from "@/lib/utils/safeDataAccess";
+
+// Helper function declarations moved to safeDataAccess.ts utility file
 
 const fetchWikidataQid = async (name: string) => {
   try {
@@ -37,18 +47,18 @@ const fetchWikidataQid = async (name: string) => {
     );
     const data = await response.json();
 
-    if (data.results.bindings.length > 0) {
+    if (data?.results?.bindings?.length > 0) {
       return data.results.bindings[0].item.value.split("/").pop();
     }
     return null;
   } catch (error) {
     console.error("Error fetching Wikidata Qid:", error);
+    return null;
   }
 };
 
 const fetchWikidataImage = async (qid: string) => {
   try {
-    // First, search for the Wikidata item image
     const sparqlQuery = `
       SELECT ?image WHERE {
         wd:${qid} wdt:P18 ?image.
@@ -60,7 +70,7 @@ const fetchWikidataImage = async (qid: string) => {
     );
     const data = await response.json();
 
-    if (data.results.bindings.length > 0) {
+    if (data?.results?.bindings?.length > 0) {
       return data.results.bindings[0].image.value;
     }
     return null;
@@ -72,21 +82,72 @@ const fetchWikidataImage = async (qid: string) => {
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const { isMobile, pageContent } = useApp();
   const { avatars } = useAvatars();
   const token = session?.user?.token;
-  const userId = session?.user?.id;
+  const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const { showSnackbar } = useSnackbar();
   const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
 
-  const { profile, isLoading, error, updateProfile, refetch, deleteProfile } =
-    useProfile(token, Number(userId));
-
-  const { territories } = useTerritories(token);
+  // Inicializar os hooks antes de qualquer retorno condicional
+  const {
+    profile,
+    isLoading: profileLoading,
+    error: profileError,
+    updateProfile,
+    refetch,
+    deleteProfile,
+  } = useProfile(token, userId);
+  const { territories, loading: territoriesLoading } = useTerritories(token);
   const { languages, loading: languagesLoading } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
   const { wikimediaProjects } = useWikimediaProject(token);
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (sessionStatus === "unauthenticated") {
+      router.push("/");
+    }
+  }, [sessionStatus, router]);
+
+  // Show loading state while session is loading
+  if (sessionStatus === "loading") {
+    return <LoadingState />;
+  }
+
+  // If session is unauthenticated, don't render anything
+  if (sessionStatus === "unauthenticated") {
+    return null;
+  }
+
+  // Show loading state while profile is loading
+  if (profileLoading) {
+    return <LoadingState />;
+  }
+
+  // Handle error state
+  if (profileError) {
+    console.error("Error loading profile:", profileError);
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <p className="text-xl text-red-500">
+          {safeAccess(
+            pageContent,
+            "error-loading-profile",
+            "Error loading profile"
+          )}
+        </p>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => router.push("/")}
+        >
+          {safeAccess(pageContent, "go-back", "Go back")}
+        </button>
+      </div>
+    );
+  }
+
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState({
     id: 0,
@@ -116,26 +177,20 @@ export default function EditProfilePage() {
     wikimedia_project: [],
   });
 
-  useEffect(() => {
-    if (!token || !userId) {
-      router.push("/");
-    }
-  }, [token, userId, router]);
-
   // Update formData when profile data is loaded
   useEffect(() => {
     if (profile) {
       setFormData({
         ...profile,
-        affiliation: profile.affiliation ? profile.affiliation : [],
-        territory: profile.territory ? profile.territory : undefined,
+        affiliation: ensureArray<string>(profile.affiliation),
+        territory: profile.territory,
         profile_image: profile.profile_image || "",
-        wikidata_qid: profile.wikidata_qid,
-        wikimedia_project: profile.wikimedia_project || [],
-        language: profile.language || [],
-        skills_known: profile.skills_known || [],
-        skills_available: profile.skills_available || [],
-        skills_wanted: profile.skills_wanted || [],
+        wikidata_qid: profile.wikidata_qid || "",
+        wikimedia_project: ensureArray<string>(profile.wikimedia_project),
+        language: ensureArray<any>(profile.language),
+        skills_known: ensureArray<number>(profile.skills_known),
+        skills_available: ensureArray<number>(profile.skills_available),
+        skills_wanted: ensureArray<number>(profile.skills_wanted),
       });
 
       if (profile.avatar) {
@@ -160,14 +215,14 @@ export default function EditProfilePage() {
         });
       }
     }
-  }, [profile]);
+  }, [profile, avatars]);
 
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
     if (unsavedData) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        ...unsavedData
+        ...unsavedData,
       }));
     }
   }, [unsavedData]);
@@ -196,13 +251,34 @@ export default function EditProfilePage() {
     try {
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
-      showSnackbar(pageContent["snackbar-edit-profile-success"],"success")
+      showSnackbar(
+        safeAccess(
+          pageContent,
+          "snackbar-edit-profile-success",
+          "Profile updated successfully"
+        ),
+        "success"
+      );
       router.push("/profile");
     } catch (error) {
-      if (error.response.status == 409){
-        showSnackbar(pageContent["snackbar-edit-profile-failed-capacities"],"error")
-      }else{
-        showSnackbar(pageContent["snackbar-edit-profile-failed-generic"],"error")
+      if (error?.response?.status == 409) {
+        showSnackbar(
+          safeAccess(
+            pageContent,
+            "snackbar-edit-profile-failed-capacities",
+            "Failed to update profile - capacity error"
+          ),
+          "error"
+        );
+      } else {
+        showSnackbar(
+          safeAccess(
+            pageContent,
+            "snackbar-edit-profile-failed-generic",
+            "Failed to update profile"
+          ),
+          "error"
+        );
       }
       console.error("Error updating profile:", error);
     }
@@ -233,7 +309,7 @@ export default function EditProfilePage() {
     const newWikidataSelected = !isWikidataSelected;
     setIsWikidataSelected(newWikidataSelected);
 
-    if (profile?.user.username) {
+    if (profile?.user?.username) {
       const wikidataQid = await fetchWikidataQid(profile.user.username);
 
       if (newWikidataSelected && wikidataQid) {
@@ -311,17 +387,65 @@ export default function EditProfilePage() {
     loadWikidataImage();
   }, [profile?.wikidata_qid, isWikidataSelected]);
 
-  const capacityIds = useMemo(
-    () =>
-      [
-        ...(formData?.skills_known || []),
-        ...(formData?.skills_available || []),
-        ...(formData?.skills_wanted || []),
-      ].map((id) => Number(id)),
-    [formData]
-  );
+  const capacityIds = useMemo(() => {
+    // Se formData não estiver inicializado, retorna array vazio
+    if (!formData) return [];
 
-  const { getCapacityName } = useCapacityDetails(capacityIds);
+    const knownSkills = ensureArray<number>(formData.skills_known);
+    const availableSkills = ensureArray<number>(formData.skills_available);
+    const wantedSkills = ensureArray<number>(formData.skills_wanted);
+
+    // Combina todos os arrays e remove duplicatas
+    const allIds = [...knownSkills, ...availableSkills, ...wantedSkills];
+    const uniqueIds = Array.from(new Set(allIds)).filter(
+      (id) => id !== null && id !== undefined
+    );
+
+    return uniqueIds;
+  }, [
+    formData?.skills_known,
+    formData?.skills_available,
+    formData?.skills_wanted,
+  ]);
+
+  // Sempre chamar o hook diretamente, não dentro de um try-catch
+  const capacityDetailsResult = useCapacityDetails(capacityIds);
+  const capacityDetailsRef = useRef<any>(capacityDetailsResult);
+
+  // Definição do estado para a função getCapacityName
+  const [safeGetCapacityName, setSafeGetCapacityName] = useState<
+    (id: any) => string
+  >(() => (id) => `Capacity ${id}`);
+
+  // Atualizar a referência quando o resultado mudar
+  useEffect(() => {
+    capacityDetailsRef.current = capacityDetailsResult;
+  }, [capacityDetailsResult]);
+
+  // Usar um efeito para extrair a função de forma segura
+  useEffect(() => {
+    try {
+      if (capacityDetailsRef.current) {
+        const { getCapacityName } = capacityDetailsRef.current;
+
+        if (typeof getCapacityName === "function") {
+          // Criar uma versão segura da função que não vai lançar erros
+          const safeFunction = createSafeFunction(
+            getCapacityName,
+            "Unknown Capacity",
+            (error) => console.error("Error calling getCapacityName:", error)
+          );
+
+          setSafeGetCapacityName(() => safeFunction);
+        }
+      }
+    } catch (error) {
+      console.error("Error extracting getCapacityName:", error);
+    }
+  }, [capacityIds]);
+
+  // Usar a função segura que não vai causar erros
+  const getCapacityName = safeGetCapacityName;
 
   const handleRemoveCapacity = (
     type: "known" | "available" | "wanted",
@@ -334,22 +458,21 @@ export default function EditProfilePage() {
         | "skills_available"
         | "skills_wanted";
 
-      if (Array.isArray(newFormData[key])) {
-        newFormData[key] = (newFormData[key] as number[]).filter(
-          (_, i) => i !== index
-        );
-      }
+      // Guarantee the array exists before filtering
+      const currentArray = ensureArray<number>(newFormData[key]);
+      newFormData[key] = currentArray.filter((_, i) => i !== index) as number[];
 
       return newFormData;
     });
   };
 
   const handleRemoveLanguage = (index: number) => {
-    if (!formData.language) return;
+    // Guarantee the language array exists
+    const languageArray = ensureArray<any>(formData.language);
 
     setFormData({
       ...formData,
-      language: formData.language.filter((_, i) => i !== index),
+      language: languageArray.filter((_, i) => i !== index) as any[],
     });
   };
 
@@ -366,19 +489,19 @@ export default function EditProfilePage() {
       switch (selectedCapacityType) {
         case "known":
           newFormData.skills_known = [
-            ...(prev.skills_known || []),
+            ...ensureArray(prev.skills_known),
             capacityId,
           ] as number[];
           break;
         case "available":
           newFormData.skills_available = [
-            ...(prev.skills_available || []),
+            ...ensureArray(prev.skills_available),
             capacityId,
           ] as number[];
           break;
         case "wanted":
           newFormData.skills_wanted = [
-            ...(prev.skills_wanted || []),
+            ...ensureArray(prev.skills_wanted),
             capacityId,
           ] as number[];
           break;
@@ -391,31 +514,33 @@ export default function EditProfilePage() {
   const handleAddProject = () => {
     setFormData((prev) => ({
       ...prev,
-      wikimedia_project: [...(prev.wikimedia_project || []), ""],
+      wikimedia_project: [...ensureArray<string>(prev.wikimedia_project), ""],
     }));
   };
 
   const { getAvatarById } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar || NoAvatarIcon
+    profile?.avatar ? NoAvatarIcon : NoAvatarIcon
   );
 
-  useEffect(() => {
-    const fetchAvatar = async () => {
-      if (typeof profile?.avatar === "number" && profile?.avatar > 0) {
-        try {
-          const avatarData = await getAvatarById(profile?.avatar);
-          if (avatarData?.avatar_url) {
-            setAvatarUrl(avatarData.avatar_url);
-          }
-        } catch (error) {
-          console.error("Error fetching avatar:", error);
+  // Memoize the fetch avatar function to avoid recreating it on every render
+  const fetchAvatar = useCallback(async () => {
+    if (typeof profile?.avatar === "number" && profile?.avatar > 0) {
+      try {
+        const avatarData = await getAvatarById(profile.avatar);
+        if (avatarData?.avatar_url) {
+          setAvatarUrl(avatarData.avatar_url);
         }
+      } catch (error) {
+        console.error("Error fetching avatar:", error);
       }
-    };
-
-    fetchAvatar();
+    }
   }, [profile?.avatar, getAvatarById]);
+
+  // Run the fetch only once when avatar ID changes
+  useEffect(() => {
+    fetchAvatar();
+  }, [fetchAvatar]);
 
   const goTo = (path: string) => {
     // Save unsaved data before navigating
@@ -449,13 +574,44 @@ export default function EditProfilePage() {
     affiliations: affiliations || {},
     wikimediaProjects: wikimediaProjects || {},
     avatars,
+    profile,
     refetch,
     goTo,
   };
 
   if (isMobile) {
-    return <ProfileEditMobileView {...ViewProps} profile={profile} />;
+    return (
+      <>
+        <ProfileEditMobileView {...ViewProps} />
+        {process.env.NODE_ENV === "development" && (
+          <>
+            <DebugPanel data={{ capacityIds }} title="Debug: Capacity IDs" />
+            <CapacityDebug
+              capacityIds={capacityIds}
+              knownSkills={formData.skills_known}
+              availableSkills={formData.skills_available}
+              wantedSkills={formData.skills_wanted}
+            />
+          </>
+        )}
+      </>
+    );
   }
 
-  return <ProfileEditDesktopView {...ViewProps} />;
+  return (
+    <>
+      <ProfileEditDesktopView {...ViewProps} />
+      {process.env.NODE_ENV === "development" && (
+        <>
+          <DebugPanel data={{ capacityIds }} title="Debug: Capacity IDs" />
+          <CapacityDebug
+            capacityIds={capacityIds}
+            knownSkills={formData.skills_known}
+            availableSkills={formData.skills_available}
+            wantedSkills={formData.skills_wanted}
+          />
+        </>
+      )}
+    </>
+  );
 }

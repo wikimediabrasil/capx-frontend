@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { capacityService } from "@/services/capacityService";
 import { useSession } from "next-auth/react";
 import { Capacity, CapacityResponse } from "@/types/capacity";
 import { useApp } from "@/contexts/AppContext";
-import { useCapacityCache } from "@/contexts/CapacityCacheContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CAPACITY_CACHE_KEYS } from "./useCapacities";
 
 // Hard-coded fallback names to ensure we always have something to display
 const FALLBACK_NAMES = {
@@ -19,248 +20,227 @@ const FALLBACK_NAMES = {
   "106": "Technology",
 };
 
-export function useCapacityDetails(
-  capacityIds: (string | number | Capacity)[]
-) {
-  const [capacityNames, setCapacityNames] = useState<{ [key: string]: string }>(
+/**
+ * Hook que traz detalhes de capacidades.
+ * Completamente redesenhado para priorizar segurança e evitar erros.
+ */
+export function useCapacityDetails(capacityIds: any = []) {
+  // Declaração segura para evitar erros em qualquer contexto
+  const safeSession = useSession();
+  const session = safeSession?.data;
+  const safeAppContext = useApp();
+  const pageContent = safeAppContext?.pageContent || {};
+  const queryClient = useQueryClient();
+  const token = session?.user?.token;
+
+  // Armazenar nomes das capacidades
+  const [capacityNames, setCapacityNames] = useState<Record<string, string>>(
     {}
   );
-  const [capacityLoadingState, setCapacityLoadingState] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const { data: session } = useSession();
-  const { pageContent } = useApp();
-  const mountedRef = useRef(true);
-  const { getCapacity, setCapacity } = useCapacityCache();
-  const requestRef = useRef<Map<string, Promise<any>>>(new Map());
-  const processedIdsRef = useRef<Set<string>>(new Set());
+  const [capacityLoadingState, setCapacityLoadingState] = useState<
+    Record<string, boolean>
+  >({});
 
-  // Immediately populate with fallback names to prevent "loading" state
-  useEffect(() => {
-    if (!capacityIds?.length) return;
-
-    // Extract unique numeric IDs
-    const uniqueIds = Array.from(
-      new Set(capacityIds.map((id) => (typeof id === "object" ? id.code : id)))
-    ).filter((id): id is number => typeof id === "number");
-
-    // Initialize with fallback names if available
-    const initialNames = { ...capacityNames };
-    let hasNew = false;
-
-    uniqueIds.forEach((id) => {
-      const idStr = id.toString();
-      if (FALLBACK_NAMES[idStr] && !initialNames[idStr]) {
-        initialNames[idStr] = FALLBACK_NAMES[idStr];
-        hasNew = true;
-      }
-    });
-
-    if (hasNew) {
-      setCapacityNames(initialNames);
-    }
+  // Garantir que capacityIds é sempre um array válido
+  // This is the critical protection against the length error
+  const safeCapacityIds = useMemo(() => {
+    return Array.isArray(capacityIds)
+      ? capacityIds.filter((id) => id !== null && id !== undefined)
+      : [];
   }, [capacityIds]);
 
+  // Modificamos a lógica para não fazer chamadas diretas à API para cada ID
   useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+    // Pular se não houver token
+    if (!token) return;
 
-  // Main effect to fetch capacity data
-  useEffect(() => {
-    const uniqueIds = Array.from(
-      new Set(capacityIds.map((id) => (typeof id === "object" ? id.code : id)))
-    ).filter((id): id is number => typeof id === "number");
+    // Referência para o timeout
+    let timeoutId: NodeJS.Timeout | null = null;
 
-    // Skip if we've already processed these exact IDs
-    const idsKey = uniqueIds.sort().join(",");
-    if (processedIdsRef.current.has(idsKey)) {
-      return;
-    }
+    // Função que processa os IDs e busca capacidades
+    const processCapacityIds = () => {
+      // Cópia dos estados atuais para modificação
+      const newCapacityNames: Record<string, string> = { ...capacityNames };
+      const newCapacityLoadingState: Record<string, boolean> = {
+        ...capacityLoadingState,
+      };
 
-    processedIdsRef.current.add(idsKey);
+      // Coletamos IDs que não estão em cache para buscar em lote
+      const idsToFetch: number[] = [];
 
-    // Mark all capacities as loading
-    const loadingState = uniqueIds.reduce((acc, id) => {
-      acc[id.toString()] = true;
-      return acc;
-    }, {} as { [key: string]: boolean });
+      // Processar cada ID de forma segura
+      safeCapacityIds.forEach((id) => {
+        try {
+          if (id === null || id === undefined) return;
 
-    setCapacityLoadingState(loadingState);
+          // Try to convert to number, but handle errors
+          let idNumber: number;
+          let idStr: string;
 
-    const fetchCapacities = async () => {
-      try {
-        const queryData = {
-          headers: { Authorization: `Token ${session?.user?.token}` },
-        };
-
-        // Initialize with a copy of current names
-        const newNames = { ...capacityNames };
-
-        // First check the cache
-        let needsFetch = false;
-        uniqueIds.forEach((id) => {
-          const idStr = id.toString();
-          const cached = getCapacity(idStr);
-          if (cached) {
-            newNames[idStr] = cached.name;
-            loadingState[idStr] = false;
+          if (typeof id === "number") {
+            idNumber = id;
+            idStr = id.toString();
+          } else if (typeof id === "string") {
+            idNumber = parseInt(id, 10);
+            idStr = id;
+            if (isNaN(idNumber)) return;
           } else {
-            needsFetch = true;
+            // If it's neither a number nor a string, skip
+            return;
           }
-        });
 
-        // Update UI with cached values first
-        if (mountedRef.current) {
-          setCapacityNames(newNames);
-          setCapacityLoadingState({ ...loadingState });
+          // Consultar o cache primeiro
+          const existingCapacity = queryClient.getQueryData<CapacityResponse>(
+            CAPACITY_CACHE_KEYS.byId(idNumber)
+          );
+
+          if (existingCapacity?.name) {
+            newCapacityNames[idStr] = existingCapacity.name;
+            newCapacityLoadingState[idStr] = false;
+          } else if (FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES]) {
+            newCapacityNames[idStr] =
+              FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES];
+            newCapacityLoadingState[idStr] = false;
+          } else {
+            // Marca como carregando e adiciona à lista para buscar
+            newCapacityNames[idStr] = `Capacity ${idStr}`;
+            newCapacityLoadingState[idStr] = true;
+            idsToFetch.push(idNumber);
+          }
+        } catch (error) {
+          console.error("Error processing capacity ID:", error);
         }
+      });
 
-        // Only fetch what we need
-        if (needsFetch) {
-          const fetchPromises = uniqueIds
-            .filter((id) => !getCapacity(id.toString()))
-            .map(async (id) => {
-              const idStr = id.toString();
+      // Atualizar os estados com os novos valores antes de buscar
+      setCapacityNames((prev) => ({ ...prev, ...newCapacityNames }));
+      setCapacityLoadingState((prev) => ({
+        ...prev,
+        ...newCapacityLoadingState,
+      }));
 
-              // Skip if already being requested
-              if (requestRef.current.has(idStr)) {
-                return requestRef.current.get(idStr)!;
-              }
+      // Deduplicar e limitar o número de IDs a buscar para evitar sobrecarga
+      const uniqueIdsToFetch = Array.from(new Set(idsToFetch)).slice(0, 10);
 
-              // Create a new request
-              const request = capacityService
-                .fetchCapacityById(idStr)
-                .then((response) => {
-                  return response;
-                })
-                .catch((error) => {
-                  console.error(`❌ Error fetching capacity ${idStr}:`, error);
+      if (uniqueIdsToFetch.length > 0) {
+        // Define um novo timeout para buscar os IDs
+        timeoutId = setTimeout(() => {
+          // Para cada ID a buscar, use o React Query para cachear o resultado
+          uniqueIdsToFetch.forEach((idNumber) => {
+            const idStr = idNumber.toString();
 
-                  // Use fallback name
-                  const fallbackName =
-                    FALLBACK_NAMES[idStr] || `Capacity ${id}`;
+            // Configura a query para este ID específico
+            queryClient.prefetchQuery({
+              queryKey: CAPACITY_CACHE_KEYS.byId(idNumber),
+              queryFn: async () => {
+                try {
+                  const response = await capacityService.fetchCapacityById(
+                    idStr
+                  );
 
-                  // Update state on error
-                  if (mountedRef.current) {
-                    setCapacityLoadingState((prev) => ({
-                      ...prev,
-                      [idStr]: false,
-                    }));
-
-                    // Use fallback name in state
+                  // Atualiza o nome quando a resposta chegar
+                  if (response && response.name) {
                     setCapacityNames((prev) => ({
                       ...prev,
-                      [idStr]: fallbackName,
+                      [idStr]: response.name,
                     }));
                   }
 
-                  // Add to cache
-                  setCapacity(idStr, fallbackName);
+                  // Marca como carregado
+                  setCapacityLoadingState((prev) => ({
+                    ...prev,
+                    [idStr]: false,
+                  }));
 
-                  // Return a valid object with fallback name
-                  return {
-                    code: idStr,
-                    name: fallbackName,
-                    description: "",
-                  };
-                });
+                  return response;
+                } catch (error) {
+                  console.error(`Error fetching capacity ${idStr}:`, error);
 
-              requestRef.current.set(idStr, request);
+                  // Marca como carregado mesmo com erro
+                  setCapacityLoadingState((prev) => ({
+                    ...prev,
+                    [idStr]: false,
+                  }));
 
-              try {
-                return await request;
-              } finally {
-                requestRef.current.delete(idStr);
-              }
-            });
-
-          // Only run Promise.all if we have promises
-          if (fetchPromises.length > 0) {
-            const results = await Promise.all(fetchPromises);
-
-            results.forEach((capacity) => {
-              if (
-                capacity &&
-                typeof capacity === "object" &&
-                "name" in capacity
-              ) {
-                const idStr = capacity.code?.toString();
-                if (!idStr) return;
-
-                const name = capacity.name;
-
-                // Update cache
-                setCapacity(idStr, name);
-
-                // Update state
-                if (mountedRef.current) {
-                  newNames[idStr] = name;
-                  loadingState[idStr] = false;
+                  return null;
                 }
-              }
+              },
+              staleTime: 1000 * 60 * 5, // 5 minutos
             });
-
-            if (mountedRef.current) {
-              setCapacityNames({ ...newNames });
-              setCapacityLoadingState({ ...loadingState });
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching capacities:", error);
-
-        // Mark all as not loading in case of general error
-        if (mountedRef.current) {
-          const updatedLoadingState = { ...loadingState };
-          Object.keys(updatedLoadingState).forEach((key) => {
-            updatedLoadingState[key] = false;
           });
-          setCapacityLoadingState(updatedLoadingState);
-        }
+        }, 300); // Adiciona um delay de 300ms para evitar chamadas excessivas
       }
     };
 
-    // Force immediate fetch
-    fetchCapacities();
+    // Chamar a função de processamento
+    processCapacityIds();
+
+    // Limpeza do timeout quando o componente desmontar
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [
-    capacityIds,
-    session?.user?.token,
-    getCapacity,
-    setCapacity,
+    safeCapacityIds,
+    token,
+    queryClient,
     capacityNames,
+    capacityLoadingState,
   ]);
 
+  // Função auxiliar para obter o nome de uma capacidade
   const getCapacityName = useCallback(
-    (capacity: Capacity | number | string) => {
-      if (!capacity) return pageContent["loading"];
+    (capacity: any) => {
+      try {
+        // Early return for undefined/null values with a default message
+        if (capacity === null || capacity === undefined) {
+          return pageContent["capacity-unknown"] || "Unknown Capacity";
+        }
 
-      const id =
-        typeof capacity === "object" ? Number(capacity.code) : Number(capacity);
+        let idStr: string;
 
-      const idStr = id.toString();
+        if (typeof capacity === "object" && capacity && "code" in capacity) {
+          // Handle capacity objects with code property
+          const code = capacity.code;
+          if (code === null || code === undefined) {
+            return pageContent["capacity-unknown"] || "Unknown Capacity";
+          }
+          idStr = code.toString();
+        } else if (
+          typeof capacity === "string" ||
+          typeof capacity === "number"
+        ) {
+          // Handle direct ID values (string or number)
+          idStr = capacity.toString();
+        } else {
+          // Fallback for any other unexpected type
+          return pageContent["capacity-unknown"] || "Unknown Capacity";
+        }
 
-      // If the name is available in state, return it
-      if (capacityNames[idStr]) {
-        return capacityNames[idStr];
+        // Additional validation to prevent empty strings
+        if (!idStr.trim()) {
+          return pageContent["capacity-unknown"] || "Unknown Capacity";
+        }
+
+        // Check local cache first
+        if (capacityNames[idStr]) {
+          return capacityNames[idStr];
+        }
+
+        // Try fallback names
+        if (FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES]) {
+          return FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES];
+        }
+
+        // Final fallback
+        return `Capacity ${idStr}`;
+      } catch (error) {
+        console.error("Error in getCapacityName:", error);
+        return pageContent["capacity-error"] || "Error loading capacity";
       }
-
-      // Check fallback names
-      if (FALLBACK_NAMES[idStr]) {
-        return FALLBACK_NAMES[idStr];
-      }
-
-      // Only show loading if explicitly in loading state
-      if (capacityLoadingState[idStr]) {
-        return pageContent["loading"];
-      }
-
-      // Default fallback
-      return `Capacity ${id}`;
     },
-    [capacityNames, capacityLoadingState, pageContent]
+    [capacityNames, pageContent]
   );
+
   return {
     capacityNames,
     capacityLoadingState,
@@ -269,34 +249,37 @@ export function useCapacityDetails(
 }
 
 export function useCapacity(capacityId?: string | null) {
-  const { data: session } = useSession();
-  const { language } = useApp();
-  const [capacity, setCapacity] = useState<CapacityResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const safeSession = useSession();
+  const session = safeSession?.data;
+  const safeAppContext = useApp();
+  const language = safeAppContext?.language || "en";
+  const token = session?.user?.token;
 
-  useEffect(() => {
-    const fetchCapacity = async () => {
-      if (!capacityId || !session?.user?.token) return;
+  const enabled = Boolean(capacityId && token);
 
-      setIsLoading(true);
-      setError(null);
-
+  // Usar React Query para buscar e cachear a capacidade
+  const {
+    data: capacity,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: capacityId
+      ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId)), language]
+      : [],
+    queryFn: async () => {
+      if (!capacityId) return null;
       try {
         const data = await capacityService.fetchCapacityById(capacityId);
-        setCapacity(data);
-      } catch (err) {
-        console.error("Error fetching capacity:", err);
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch capacity")
-        );
-      } finally {
-        setIsLoading(false);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching capacity ${capacityId}:`, error);
+        return null;
       }
-    };
-
-    fetchCapacity();
-  }, [capacityId, session?.user?.token, language]);
+    },
+    enabled,
+    staleTime: 1000 * 60 * 60, // 1 hora
+    gcTime: 1000 * 60 * 60 * 24, // 24 horas
+  });
 
   return {
     capacity,
