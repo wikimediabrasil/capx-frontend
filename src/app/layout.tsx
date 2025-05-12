@@ -6,12 +6,12 @@ import { AppProvider } from "@/contexts/AppContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SnackbarProvider } from "./providers/SnackbarProvider";
 import { CapacityCacheProvider } from "@/contexts/CapacityCacheContext";
+import HydrationHandler from "@/components/HydrationHandler";
 import { ProfileEditProvider } from "@/contexts/ProfileEditContext";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
   description: "Exchange your capacities with other users",
-  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: "/favicon.ico",
   },
@@ -24,7 +24,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body id="root" className="min-h-screen">
+      <head>
+        <meta name="next-image-preload-policy" content="default" />
+      </head>
+      <body id="root" className="min-h-screen" suppressHydrationWarning>
+        <HydrationHandler />
         <ThemeProvider>
           <SessionWrapper>
             <AppProvider>

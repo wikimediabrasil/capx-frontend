@@ -1,5 +1,6 @@
 import { WikimediaImage } from "@/types/wikidataImage";
 import { WikimediaDocument } from "@/types/document";
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 
 export const fetchWikimediaData = async (
   url: string
@@ -56,21 +57,22 @@ export const fetchWikimediaData = async (
 };
 
 export const formatWikiImageUrl = (url: string | undefined): string => {
-  if (!url) return "";
+  if (!url || url.trim() === "") return NoAvatarIcon;
 
   if (url.includes("upload.wikimedia.org")) {
     return url;
   }
 
-  if (url.includes("commons.wikimedia.org")) {
-    return url.replace("/wiki/File:", "/wiki/Special:FilePath/");
+  if (url.includes("commons.wikimedia.org/wiki/File:")) {
+    const fileName = url.split("File:")[1];
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=384`;
   }
 
   if (url.startsWith("File:")) {
     return `https://commons.wikimedia.org/wiki/Special:FilePath/${url.replace(
       "File:",
       ""
-    )}`;
+    )}?width=384`;
   }
 
   return url;

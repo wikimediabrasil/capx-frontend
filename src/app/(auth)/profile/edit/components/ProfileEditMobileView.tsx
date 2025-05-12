@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import CapacitySelectionModal from "./CapacitySelectionModal";
+import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import AccountCircleIcon from "@/public/static/images/account_circle.svg";
 import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
 import AccountBoxIcon from "@/public/static/images/account_box.svg";
@@ -141,7 +141,6 @@ export default function ProfileEditMobileView(
   const [avatarUrl, setAvatarUrl] = useState<string>(
     profile?.avatar || NoAvatarIcon
   );
-
 
   return (
     <>
@@ -1131,8 +1130,8 @@ export default function ProfileEditMobileView(
                 image={LetsConect}
                 alt={pageContent["privacy-policy-alt-banner"]}
                 customClass={{
-                  background: "bg-[#EFEFEF]"
-              }}
+                  background: "bg-[#EFEFEF]",
+                }}
               />
 
               <BaseButton
@@ -1143,11 +1142,7 @@ export default function ProfileEditMobileView(
                     ? "bg-capx-light-box-bg text-[#04222F]"
                     : "bg-[#053749] text-white"
                 } items-center px-[13px] py-[6px] pb-[6px] rounded-md py-3 font-bold mb-0`}
-                imageUrl={
-                  darkMode 
-                    ? UserCheckIconDark 
-                    : UserCheckIcon
-                  }
+                imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
                 imageAlt="Add project"
                 imageWidth={20}
                 imageHeight={20}

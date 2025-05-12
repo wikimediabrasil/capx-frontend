@@ -69,8 +69,6 @@ export function useCapacityDetails(
 
   // Main effect to fetch capacity data
   useEffect(() => {
-    if (!session?.user?.token || !capacityIds?.length) return;
-
     const uniqueIds = Array.from(
       new Set(capacityIds.map((id) => (typeof id === "object" ? id.code : id)))
     ).filter((id): id is number => typeof id === "number");
@@ -94,7 +92,7 @@ export function useCapacityDetails(
     const fetchCapacities = async () => {
       try {
         const queryData = {
-          headers: { Authorization: `Token ${session.user.token}` },
+          headers: { Authorization: `Token ${session?.user?.token}` },
         };
 
         // Initialize with a copy of current names
@@ -133,7 +131,7 @@ export function useCapacityDetails(
 
               // Create a new request
               const request = capacityService
-                .fetchCapacityById(idStr, queryData)
+                .fetchCapacityById(idStr)
                 .then((response) => {
                   return response;
                 })
@@ -285,10 +283,7 @@ export function useCapacity(capacityId?: string | null) {
       setError(null);
 
       try {
-        const data = await capacityService.fetchCapacityById(capacityId, {
-          params: { language },
-          headers: { Authorization: `Token ${session.user.token}` },
-        });
+        const data = await capacityService.fetchCapacityById(capacityId);
         setCapacity(data);
       } catch (err) {
         console.error("Error fetching capacity:", err);

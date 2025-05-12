@@ -95,6 +95,12 @@ export default function MobileMenuLinks({
       active: true,
     },
     {
+      title: pageContent["navbar-link-events"],
+      to: "/events",
+      active: true,
+    },
+
+    {
       title: pageContent["navbar-link-dark-mode"],
       action: () => {
         setDarkMode(!darkMode);
@@ -112,10 +118,15 @@ export default function MobileMenuLinks({
   ];
 
   const unauthenticatedMenuItems = [
-    { 
-      title: pageContent["navbar-link-organizations"], 
-      to: "/organization_list", 
-      active: true
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
+    },
+    {
+      title: pageContent["navbar-link-events"],
+      to: "/events",
+      active: true,
     },
     {
       title: pageContent["navbar-link-dark-mode"],
@@ -151,10 +162,7 @@ export default function MobileMenuLinks({
   // Renders the profile menu
   const renderProfileMenu = (item: MenuItem, index: number) => {
     return (
-      <div
-        key={`mobile-menu-container-${index}`}
-        className="w-full mx-1"
-      >
+      <div key={`mobile-menu-container-${index}`} className="w-full mx-1">
         <button
           onClick={handleProfileClick}
           className={`flex items-center justify-between  rounded-[4px] border transition-all duration-300 px-2 py-1 pr-2 md:pr-3 w-[92%] ml-4 md:w-[90%] md:ml-2 sm:ml-6 ${
@@ -266,12 +274,7 @@ export default function MobileMenuLinks({
           {item.title}
           {item.image && (
             <div className="px-8">
-              <Image
-                src={item.image}
-                alt="Menu icon"
-                width={24}
-                height={24}
-              />
+              <Image src={item.image} alt="Menu icon" width={24} height={24} />
             </div>
           )}
         </div>
@@ -296,12 +299,7 @@ export default function MobileMenuLinks({
           {item.title}
           {item.image && (
             <div className="px-8">
-              <Image
-                src={item.image}
-                alt="Menu icon"
-                width={24}
-                height={24}
-              />
+              <Image src={item.image} alt="Menu icon" width={24} height={24} />
             </div>
           )}
         </div>
