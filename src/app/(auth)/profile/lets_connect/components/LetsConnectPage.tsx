@@ -21,6 +21,8 @@ import { useEffect, useState } from "react";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import LoadingState from "@/components/LoadingState";
 import { LetsConnect } from "@/types/lets_connect";
+import Popup from "@/components/Popup";
+import SuccessSubmissionSVG from "@/public/static/images/capx_person_12.svg";
 
 export enum LetsConnectRole {
   A = "A",
@@ -38,6 +40,7 @@ export default function LetsConnectPage() {
   const { submitLetsConnectForm } = useLetsConnect();
   const { showSnackbar } = useSnackbar();
   const[showMainRoleSelector, setShowMainRoleSelector] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const letsConnectRoleLabels: Record<string, string> = {
     [LetsConnectRole.A]: pageContent["lets-connect-form-role-a"],
@@ -60,8 +63,7 @@ export default function LetsConnectPage() {
   const handleSubmit = async () => {
   try {
     await submitLetsConnectForm(formData);
-    router.back();
-
+    setShowSuccessPopup(true);
     } catch (error) {
       console.error("Error submitting let's connect form:", error);
       showSnackbar("Failed to submit let's connect form", "error");
@@ -97,6 +99,18 @@ export default function LetsConnectPage() {
     pageContent["lets-connect-form-age-65-74"],
     pageContent["lets-connect-form-age-75-84"],
     pageContent["lets-connect-form-age-85-plus"]
+  ];
+
+  const areaOptions = [
+    pageContent["lets-connect-form-area-climate-change"],
+    pageContent["lets-connect-form-area-public-policy"],
+    pageContent["lets-connect-form-area-education"],
+    pageContent["lets-connect-form-area-open-technology"],
+    pageContent["lets-connect-form-area-diversity"],
+    pageContent["lets-connect-form-area-culture-heritage-glam"],
+    pageContent["lets-connect-form-area-governance"],
+    pageContent["lets-connect-form-area-human-rights"],
+    pageContent["lets-connect-form-area-advocacy"]
   ];
 
   return (
@@ -275,17 +289,7 @@ export default function LetsConnectPage() {
               description={pageContent["lets-connect-form-topic-check-text"]}
               setFormData={(area: string) => setFormData({ ...formData, area })}
               multiple={true}
-              itemsList={[
-                "Climate change & sustainability",
-                "Public policy",
-                "Education",
-                "Open technology",
-                "Diversity",
-                "Culture, heritage, GLAM",
-                "Governance",
-                "Human rights",
-                "Advocacy"
-              ]}
+              itemsList={areaOptions}
               showOther={true}
             />
 
@@ -316,6 +320,16 @@ export default function LetsConnectPage() {
       iconBack={UserCircleIcon}
       iconAltBack={pageContent["lets-connect-back-button-alt"]}
     />
+    {showSuccessPopup && (
+      <Popup
+        title={pageContent["lets-connect-success-title"]}
+        image={SuccessSubmissionSVG}
+        continueButtonLabel={pageContent["lets-connect-success-continue"]}
+        onContinue={() => router.push("/profile/edit")}
+      >
+        {pageContent["lets-connect-success-message"]}
+      </Popup>
+    )}
   </section>
   );
 };

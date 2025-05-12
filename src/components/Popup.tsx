@@ -5,7 +5,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 interface PopupProps {
   onContinue?: () => void;
-  onClose: () => void;
+  onClose?: () => void;
   image?: StaticImageData;
   title: string;
   closeButtonLabel?: string;
@@ -30,7 +30,7 @@ const Popup = ({
 
   const onCloseTab = () => {
     setIsOpen(false);
-    onClose();
+    onClose?.();
   };
 
   const onOverlayClick = (e: React.MouseEvent) => {
