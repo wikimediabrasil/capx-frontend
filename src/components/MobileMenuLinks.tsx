@@ -99,6 +99,11 @@ export default function MobileMenuLinks({
       to: "/events",
       active: true,
     },
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
+    },
 
     {
       title: pageContent["navbar-link-dark-mode"],
