@@ -1,9 +1,16 @@
 {
 	"@metadata": {
 		"authors": [
+			"Leo",
 			"İsimsizman"
 		]
 	},
+	"empty-field": "Bu alanı henüz doldurmadınız",
+	"loading": "Yükleniyor...",
+	"known": "bilinen",
+	"available": "mevcut",
+	"wanted": "aranan",
+	"complete-your-profile": "Daha iyi bir deneyim için profilinizi tamamlayın",
 	"navbar-link-about": "Hakkında",
 	"navbar-link-capacities": "Kapasite dizini",
 	"navbar-link-events": "Etkinlikler",

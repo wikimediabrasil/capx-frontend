@@ -82,5 +82,11 @@
 	"message-to-from": "کوں",
 	"message-form-subject": "موضوع",
 	"message-form-message": "سنیہا",
-	"message-button-cancel-message": "منسوخ"
+	"message-button-cancel-message": "منسوخ",
+	"lets-connect-form-topic-check-other": "ٻیا:",
+	"lets-connect-form-age-35-44": "٣٥ـ٤٤",
+	"lets-connect-form-gender-man": "بندہ",
+	"lets-connect-form-gender-woman": "تریمت",
+	"lets-connect-form-gender-agender": "غیر جنسی",
+	"lets-connect-form-gender-non-binary": "تریجھی جنس"
 }
