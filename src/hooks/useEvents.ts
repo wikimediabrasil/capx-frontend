@@ -167,8 +167,18 @@ export function useEvents(
         const expectedLocationValue =
           frontendToBackendLocationMap[currentFilters.locationType];
 
-        // Check exact match with the backend value
-        passedLocationFilter = event.type_of_location === expectedLocationValue;
+        // Handle special cases for 'hybrid' and 'in_person'
+        if (currentFilters.locationType === EventLocationType.InPerson) {
+          // For InPerson filter, ensure it's ONLY in_person (not hybrid)
+          passedLocationFilter = event.type_of_location === "in_person";
+        } else if (currentFilters.locationType === EventLocationType.Hybrid) {
+          // For Hybrid filter, ensure it's ONLY hybrid
+          passedLocationFilter = event.type_of_location === "hybrid";
+        } else {
+          // For other types (like Online/virtual), use normal equality check
+          passedLocationFilter =
+            event.type_of_location === expectedLocationValue;
+        }
       }
 
       // 3. Organization filter

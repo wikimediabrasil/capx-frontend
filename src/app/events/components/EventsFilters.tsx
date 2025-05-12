@@ -462,6 +462,63 @@ export function EventsFilters({
 
                 <button
                   onClick={() =>
+                    handleEventFormatChange(EventLocationType.InPerson)
+                  }
+                  className={`
+                    w-full p-3 border rounded-lg flex items-center
+                    ${
+                      filters.locationType === EventLocationType.InPerson
+                        ? darkMode
+                          ? "border-blue-600"
+                          : "border-blue-600"
+                        : darkMode
+                        ? "border-gray-700"
+                        : "border-gray-300"
+                    }
+                  `}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span
+                      className={`${darkMode ? "text-white" : "text-black"}`}
+                    >
+                      {pageContent["filters-onsite-event"] || "On-site event"}
+                    </span>
+                    {filters.locationType === EventLocationType.InPerson ? (
+                      darkMode ? (
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      ) : (
+                        <Image
+                          src={CheckBoxIcon}
+                          alt="Checked"
+                          width={24}
+                          height={24}
+                        />
+                      )
+                    ) : darkMode ? (
+                      <Image
+                        src={CheckBoxOutlineBlankIconWhite}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    ) : (
+                      <Image
+                        src={CheckBoxOutlineBlankIcon}
+                        alt="Unchecked"
+                        width={24}
+                        height={24}
+                      />
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  onClick={() =>
                     handleEventFormatChange(EventLocationType.Hybrid)
                   }
                   className={`
