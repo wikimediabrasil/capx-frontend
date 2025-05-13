@@ -84,13 +84,13 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const { isMobile, pageContent } = useApp();
-  const { avatars } = useAvatars();
+  const { avatars, getAvatarById } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const { showSnackbar } = useSnackbar();
   const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
 
-  // Inicializar os hooks antes de qualquer retorno condicional
+  // Initialize all hooks at the top of the component
   const {
     profile,
     isLoading: profileLoading,
@@ -103,50 +103,6 @@ export default function EditProfilePage() {
   const { languages, loading: languagesLoading } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
   const { wikimediaProjects } = useWikimediaProject(token);
-
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (sessionStatus === "unauthenticated") {
-      router.push("/");
-    }
-  }, [sessionStatus, router]);
-
-  // Show loading state while session is loading
-  if (sessionStatus === "loading") {
-    return <LoadingState />;
-  }
-
-  // If session is unauthenticated, don't render anything
-  if (sessionStatus === "unauthenticated") {
-    return null;
-  }
-
-  // Show loading state while profile is loading
-  if (profileLoading) {
-    return <LoadingState />;
-  }
-
-  // Handle error state
-  if (profileError) {
-    console.error("Error loading profile:", profileError);
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-xl text-red-500">
-          {safeAccess(
-            pageContent,
-            "error-loading-profile",
-            "Error loading profile"
-          )}
-        </p>
-        <button
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-          onClick={() => router.push("/")}
-        >
-          {safeAccess(pageContent, "go-back", "Go back")}
-        </button>
-      </div>
-    );
-  }
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState({
@@ -176,6 +132,47 @@ export default function EditProfilePage() {
     wikidata_qid: "",
     wikimedia_project: [],
   });
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    profile?.avatar ? NoAvatarIcon : NoAvatarIcon
+  );
+
+  // Calculate capacity IDs
+  const capacityIds = useMemo(() => {
+    // Se formData não estiver inicializado, retorna array vazio
+    if (!formData) return [];
+
+    const knownSkills = ensureArray<number>(formData.skills_known);
+    const availableSkills = ensureArray<number>(formData.skills_available);
+    const wantedSkills = ensureArray<number>(formData.skills_wanted);
+
+    // Combina todos os arrays e remove duplicatas
+    const allIds = [...knownSkills, ...availableSkills, ...wantedSkills];
+    const uniqueIds = Array.from(new Set(allIds)).filter(
+      (id) => id !== null && id !== undefined
+    );
+
+    return uniqueIds;
+  }, [
+    formData?.skills_known,
+    formData?.skills_available,
+    formData?.skills_wanted,
+  ]);
+
+  // Capacity details hook
+  const capacityDetailsResult = useCapacityDetails(capacityIds);
+  const capacityDetailsRef = useRef<any>(capacityDetailsResult);
+
+  // Safe function state
+  const [safeGetCapacityName, setSafeGetCapacityName] = useState<
+    (id: any) => string
+  >(() => (id) => `Capacity ${id}`);
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (sessionStatus === "unauthenticated") {
+      router.push("/");
+    }
+  }, [sessionStatus, router]);
 
   // Update formData when profile data is loaded
   useEffect(() => {
@@ -226,6 +223,109 @@ export default function EditProfilePage() {
       }));
     }
   }, [unsavedData]);
+
+  // Atualizar a referência quando o resultado mudar
+  useEffect(() => {
+    capacityDetailsRef.current = capacityDetailsResult;
+  }, [capacityDetailsResult]);
+
+  // Usar um efeito para extrair a função de forma segura
+  useEffect(() => {
+    try {
+      if (capacityDetailsRef.current) {
+        const { getCapacityName } = capacityDetailsRef.current;
+
+        if (typeof getCapacityName === "function") {
+          // Criar uma versão segura da função que não vai lançar erros
+          const safeFunction = createSafeFunction(
+            getCapacityName,
+            "Unknown Capacity",
+            (error) => console.error("Error calling getCapacityName:", error)
+          );
+
+          setSafeGetCapacityName(() => safeFunction);
+        }
+      }
+    } catch (error) {
+      console.error("Error extracting getCapacityName:", error);
+    }
+  }, [capacityIds]);
+
+  useEffect(() => {
+    const loadWikidataImage = async () => {
+      if (profile?.wikidata_qid && isWikidataSelected) {
+        const wikidataImage = await fetchWikidataImage(profile.wikidata_qid);
+        if (wikidataImage) {
+          setSelectedAvatar({
+            id: -1,
+            src: wikidataImage,
+          });
+          setFormData((prev) => ({
+            ...prev,
+            profile_image: wikidataImage,
+          }));
+        }
+      }
+    };
+
+    loadWikidataImage();
+  }, [profile?.wikidata_qid, isWikidataSelected]);
+
+  // Memoize the fetch avatar function to avoid recreating it on every render
+  const fetchAvatar = useCallback(async () => {
+    if (typeof profile?.avatar === "number" && profile?.avatar > 0) {
+      try {
+        const avatarData = await getAvatarById(profile.avatar);
+        if (avatarData?.avatar_url) {
+          setAvatarUrl(avatarData.avatar_url);
+        }
+      } catch (error) {
+        console.error("Error fetching avatar:", error);
+      }
+    }
+  }, [profile?.avatar, getAvatarById]);
+
+  // Run the fetch only once when avatar ID changes
+  useEffect(() => {
+    fetchAvatar();
+  }, [fetchAvatar]);
+
+  // Show loading state while session is loading
+  if (sessionStatus === "loading") {
+    return <LoadingState />;
+  }
+
+  // If session is unauthenticated, don't render anything
+  if (sessionStatus === "unauthenticated") {
+    return null;
+  }
+
+  // Show loading state while profile is loading
+  if (profileLoading) {
+    return <LoadingState />;
+  }
+
+  // Handle error state
+  if (profileError) {
+    console.error("Error loading profile:", profileError);
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <p className="text-xl text-red-500">
+          {safeAccess(
+            pageContent,
+            "error-loading-profile",
+            "Error loading profile"
+          )}
+        </p>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => router.push("/")}
+        >
+          {safeAccess(pageContent, "go-back", "Go back")}
+        </button>
+      </div>
+    );
+  }
 
   const handleDeleteProfile = async () => {
     if (!token) {
@@ -367,86 +467,6 @@ export default function EditProfilePage() {
     }
   };
 
-  useEffect(() => {
-    const loadWikidataImage = async () => {
-      if (profile?.wikidata_qid && isWikidataSelected) {
-        const wikidataImage = await fetchWikidataImage(profile.wikidata_qid);
-        if (wikidataImage) {
-          setSelectedAvatar({
-            id: -1,
-            src: wikidataImage,
-          });
-          setFormData((prev) => ({
-            ...prev,
-            profile_image: wikidataImage,
-          }));
-        }
-      }
-    };
-
-    loadWikidataImage();
-  }, [profile?.wikidata_qid, isWikidataSelected]);
-
-  const capacityIds = useMemo(() => {
-    // Se formData não estiver inicializado, retorna array vazio
-    if (!formData) return [];
-
-    const knownSkills = ensureArray<number>(formData.skills_known);
-    const availableSkills = ensureArray<number>(formData.skills_available);
-    const wantedSkills = ensureArray<number>(formData.skills_wanted);
-
-    // Combina todos os arrays e remove duplicatas
-    const allIds = [...knownSkills, ...availableSkills, ...wantedSkills];
-    const uniqueIds = Array.from(new Set(allIds)).filter(
-      (id) => id !== null && id !== undefined
-    );
-
-    return uniqueIds;
-  }, [
-    formData?.skills_known,
-    formData?.skills_available,
-    formData?.skills_wanted,
-  ]);
-
-  // Sempre chamar o hook diretamente, não dentro de um try-catch
-  const capacityDetailsResult = useCapacityDetails(capacityIds);
-  const capacityDetailsRef = useRef<any>(capacityDetailsResult);
-
-  // Definição do estado para a função getCapacityName
-  const [safeGetCapacityName, setSafeGetCapacityName] = useState<
-    (id: any) => string
-  >(() => (id) => `Capacity ${id}`);
-
-  // Atualizar a referência quando o resultado mudar
-  useEffect(() => {
-    capacityDetailsRef.current = capacityDetailsResult;
-  }, [capacityDetailsResult]);
-
-  // Usar um efeito para extrair a função de forma segura
-  useEffect(() => {
-    try {
-      if (capacityDetailsRef.current) {
-        const { getCapacityName } = capacityDetailsRef.current;
-
-        if (typeof getCapacityName === "function") {
-          // Criar uma versão segura da função que não vai lançar erros
-          const safeFunction = createSafeFunction(
-            getCapacityName,
-            "Unknown Capacity",
-            (error) => console.error("Error calling getCapacityName:", error)
-          );
-
-          setSafeGetCapacityName(() => safeFunction);
-        }
-      }
-    } catch (error) {
-      console.error("Error extracting getCapacityName:", error);
-    }
-  }, [capacityIds]);
-
-  // Usar a função segura que não vai causar erros
-  const getCapacityName = safeGetCapacityName;
-
   const handleRemoveCapacity = (
     type: "known" | "available" | "wanted",
     index: number
@@ -518,35 +538,14 @@ export default function EditProfilePage() {
     }));
   };
 
-  const { getAvatarById } = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar ? NoAvatarIcon : NoAvatarIcon
-  );
-
-  // Memoize the fetch avatar function to avoid recreating it on every render
-  const fetchAvatar = useCallback(async () => {
-    if (typeof profile?.avatar === "number" && profile?.avatar > 0) {
-      try {
-        const avatarData = await getAvatarById(profile.avatar);
-        if (avatarData?.avatar_url) {
-          setAvatarUrl(avatarData.avatar_url);
-        }
-      } catch (error) {
-        console.error("Error fetching avatar:", error);
-      }
-    }
-  }, [profile?.avatar, getAvatarById]);
-
-  // Run the fetch only once when avatar ID changes
-  useEffect(() => {
-    fetchAvatar();
-  }, [fetchAvatar]);
-
   const goTo = (path: string) => {
     // Save unsaved data before navigating
     setUnsavedData(formData);
     router.push(path);
   };
+
+  // Usar a função segura que não vai causar erros
+  const getCapacityName = safeGetCapacityName;
 
   const ViewProps: any = {
     selectedAvatar,
