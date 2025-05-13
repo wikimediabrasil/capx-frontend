@@ -51,14 +51,7 @@ export default function LetsConnectPage() {
     [LetsConnectRole.F]: pageContent["lets-connect-form-role-f"],
   };  
 
-  const [formData, setFormData] = useState<Partial<LetsConnect>>({
-    full_name: "",
-    email: "",
-    role: "",
-    area: "",
-    gender: "",
-    age: ""
-  });
+  const [formData, setFormData] = useState<Partial<LetsConnect>>({});
 
   const handleSubmit = async () => {
   try {
