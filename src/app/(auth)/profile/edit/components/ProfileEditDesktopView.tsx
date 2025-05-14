@@ -56,12 +56,10 @@ import Popup from "@/components/Popup";
 import Banner from "@/components/Banner";
 import LetsConect from "@/public/static/images/lets_connect.svg";
 
-
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
-
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -1110,7 +1108,7 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
           </div>
-          <div className="p-4 bg-[#EFEFEF]">
+          {/* <div className="p-4 bg-[#EFEFEF]">
             <Banner
               image={LetsConect}
               alt={pageContent["privacy-policy-alt-banner"]}
@@ -1144,7 +1142,7 @@ export default function ProfileEditDesktopView(
             >
               {pageContent["lets-connect-edit-user-info"]}
             </p>
-          </div>
+          </div> */}
           {/* Action Buttons */}
           <div className="flex flex-row gap-6 mt-6">
             <BaseButton
