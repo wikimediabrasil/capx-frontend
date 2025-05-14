@@ -142,6 +142,89 @@ export function CapacityCard({
     );
   };
 
+  const capitalizeFirstLetter = (text: string) => {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+  // determine the button color - use the color of the grandparent if available
+  const getEffectiveColor = () => {
+    if (parentCapacity?.parentCapacity) {
+      return "gray-600";
+    } else if (parentCapacity?.color) {
+      return parentCapacity.color;
+    }
+    return color;
+  };
+
+  // Função para garantir que a cor correta seja usada, independente se é string ou código hexadecimal
+  const ensureColorIsApplied = (
+    color: string,
+    parentCapacity?: Capacity
+  ): string => {
+    if (!color) return "#000000"; // Fallback para preto
+
+    // Se tiver um parentCapacity, use a cor dele
+    if (parentCapacity?.color) {
+      return getCapacityColor(parentCapacity.color);
+    }
+
+    // Caso contrário, use a cor fornecida
+    return getCapacityColor(color);
+  };
+
+  // Função para determinar a cor do texto do nome da capacidade
+  const getNameColor = (
+    isRoot: boolean | undefined,
+    parentCapacity?: Capacity,
+    color?: string
+  ): string => {
+    // Se for um item root, usar sua própria cor
+    if (isRoot) return getCapacityColor(color || "black");
+
+    // Se tiver um ancestral (avô), usar a cor do avô (para capacidade neta)
+    if (parentCapacity?.parentCapacity?.color) {
+      return getCapacityColor(parentCapacity.parentCapacity.color);
+    }
+
+    // Se tiver um pai, usar a cor do pai
+    if (parentCapacity?.color) {
+      return getCapacityColor(parentCapacity.color);
+    }
+
+    // If we have a color but no parent (e.g., in search results)
+    if (color) {
+      return getCapacityColor(color);
+    }
+
+    // Default for child capacities without specified color
+    return "#4B5563"; // A medium gray color
+  };
+
+  // Função simplificada para determinar o filtro correto para ícones
+  const getIconFilter = (
+    isRoot: boolean | undefined,
+    parentCapacity?: Capacity
+  ): string => {
+    // Se for root, aplicar filtro que deixa ícone branco
+    if (isRoot) return "brightness(0) invert(1)";
+
+    // Se for uma capacidade neta, herdar a cor do avô
+    if (parentCapacity?.parentCapacity) {
+      const grandparentColor = parentCapacity.parentCapacity.color;
+      if (grandparentColor) {
+        return getHueRotate(grandparentColor);
+      }
+    }
+
+    // Se tiver pai, usar cor do pai
+    if (parentCapacity?.color) {
+      return getHueRotate(parentCapacity.color);
+    }
+
+    // Caso contrário, não aplicar filtro
+    return "none";
+  };
+
   const renderIcon = (size: number, iconSrc: any) => {
     if (!iconSrc) return null;
 
@@ -156,84 +239,80 @@ export function CapacityCard({
           fill
           priority
           style={{
-            filter:
-              isRoot || isSearch || parentCapacity?.parentCapacity
-                ? "brightness(0) invert(1)"
-                : getHueRotate(parentCapacity?.color),
+            filter: getIconFilter(isRoot, parentCapacity),
           }}
         />
       </div>
     );
   };
 
-  const renderInfoButton = (size: number, icon: string) => (
-    <button
-      onClick={handleInfoClick}
-      className={`p-1 flex-shrink-0 ${isSearch ? "mr-12" : ""}`}
-      aria-label={pageContent["capacity-card-info"]}
-    >
-      <div
-        className="relative"
-        style={{ width: `${size}px`, height: `${size}px` }}
-      >
-        <Image
-          src={showInfo ? InfoFilledIcon : icon}
-          alt={name}
-          fill
-          priority
-          style={{
-            filter:
-              isRoot || isSearch || parentCapacity?.parentCapacity
-                ? "brightness(0) invert(1)"
-                : getHueRotate(parentCapacity?.color || color),
-          }}
-        />
-      </div>
-    </button>
-  );
+  const renderInfoButton = (size: number, icon: string) => {
+    // For grandchild capacities, use white icon
+    const filterStyle = parentCapacity?.parentCapacity
+      ? "brightness(0) invert(1)" // White for grandchild capacities
+      : getIconFilter(isRoot, parentCapacity);
 
-  const renderArrowButton = (size: number, icon: string) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onExpand();
-      }}
-      className="p-2 flex-shrink-0"
-    >
-      <div
-        style={{ width: `${size}px`, height: `${size}px` }}
-        className={`relative transition-transform duration-300 ${
-          isExpanded ? "rotate-180" : ""
-        }`}
+    return (
+      <button
+        onClick={handleInfoClick}
+        className={`p-1 flex-shrink-0 ${
+          isSearch ? "mr-12" : ""
+        } opacity-100 z-10`}
+        aria-label={pageContent["capacity-card-info"]}
+        style={{ visibility: "visible" }}
       >
-        <Image
-          src={icon}
-          alt={pageContent["capacity-card-expand-capacity"]}
-          fill
-          priority
-          style={{
-            filter:
-              isRoot || isSearch || parentCapacity?.parentCapacity
-                ? "brightness(0) invert(1)"
-                : getHueRotate(parentCapacity?.color),
-          }}
-        />
-      </div>
-    </button>
-  );
-
-  const capitalizeFirstLetter = (text: string) => {
-    return text.charAt(0).toUpperCase() + text.slice(1);
+        <div
+          className="relative"
+          style={{ width: `${size}px`, height: `${size}px` }}
+        >
+          <Image
+            src={showInfo ? InfoFilledIcon : icon}
+            alt={name}
+            fill
+            priority
+            style={{
+              filter: filterStyle,
+              opacity: 1,
+            }}
+          />
+        </div>
+      </button>
+    );
   };
 
-  // determine the button color - use the color of the grandparent if available
-  const getEffectiveColor = () => {
-    if (parentCapacity?.parentCapacity) {
-      return "gray-600";
-    } else if (parentCapacity?.color) {
-      return parentCapacity.color;
-    }
-    return color;
+  const renderArrowButton = (size: number, icon: string) => {
+    // For grandchild capacities, use white icon
+    const filterStyle = parentCapacity?.parentCapacity
+      ? "brightness(0) invert(1)" // White for grandchild capacities
+      : getIconFilter(isRoot, parentCapacity);
+
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onExpand();
+        }}
+        className="p-2 flex-shrink-0 opacity-100"
+      >
+        <div
+          style={{ width: `${size}px`, height: `${size}px` }}
+          className={`relative transition-transform duration-300 ${
+            isExpanded ? "rotate-180" : ""
+          }`}
+        >
+          <Image
+            src={icon}
+            alt={pageContent["capacity-card-expand-capacity"]}
+            fill
+            priority
+            style={{
+              filter: filterStyle,
+              opacity: 1,
+            }}
+          />
+        </div>
+      </button>
+    );
   };
 
   if ((isRoot && hasChildren) || isSearch) {
@@ -328,15 +407,43 @@ export function CapacityCard({
     );
   }
 
+  // Child capacity card (non-root)
+  const getBgColorClass = (): string => {
+    // Third level (grandchild) - Always use gray background
+    if (parentCapacity?.parentCapacity) {
+      return "bg-gray-600";
+    }
+
+    // Second level (direct child of root) - Use light background
+    return "bg-capx-light-box-bg";
+  };
+
+  const getTextColorClass = (): string => {
+    // Third level (grandchild) - Use white text
+    if (parentCapacity?.parentCapacity) {
+      return "text-white";
+    }
+
+    // Other levels - Let the getNameColor function handle it
+    return "";
+  };
+
+  const bgColorClass = getBgColorClass();
+  const textColorClass = getTextColorClass();
+
+  // Debug log for third level capacities
+  if (parentCapacity?.parentCapacity) {
+    console.log(
+      `Rendering grandchild capacity ${code}, hasChildren:`,
+      hasChildren
+    );
+  }
+
   return (
     <div className="w-full">
       <div
         onClick={handleCardClick}
-        className={`flex flex-col w-full rounded-lg ${
-          parentCapacity?.parentCapacity
-            ? "bg-gray-600 text-white"
-            : "bg-capx-light-box-bg"
-        } cursor-pointer hover:shadow-md transition-shadow`}
+        className={`flex flex-col w-full rounded-lg ${bgColorClass} cursor-pointer hover:shadow-md transition-shadow`}
       >
         <div className="flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-12">
           <div
@@ -355,13 +462,12 @@ export function CapacityCard({
                   onClick={handleTitleClick}
                   className={`font-extrabold hover:underline ${
                     isMobile ? "text-[20px]" : "text-[36px]"
-                  } ${parentCapacity?.parentCapacity ? "text-white" : ""}`}
+                  } ${textColorClass}`}
                   style={{
-                    color: parentCapacity?.parentCapacity
-                      ? "#FFFFFF"
-                      : parentCapacity?.color
-                      ? getCapacityColor(parentCapacity.color)
-                      : "#000000",
+                    color:
+                      textColorClass === "text-white"
+                        ? "#FFFFFF"
+                        : getNameColor(isRoot, parentCapacity, color),
                   }}
                 >
                   {capitalizeFirstLetter(displayName)}
@@ -369,16 +475,28 @@ export function CapacityCard({
               </Link>
             </div>
           </div>
-          <div className={`flex items-center gap-4 mr-4`}>
-            {isMobile
-              ? renderInfoButton(24, InfoIcon)
-              : renderInfoButton(40, InfoIcon)}
-            {hasChildren &&
-              !isRoot &&
-              !isSearch &&
-              (isMobile
-                ? renderArrowButton(24, ArrowDownIcon)
-                : renderArrowButton(40, ArrowDownIcon))}
+          <div className={`flex items-center gap-4 mr-4 z-10`}>
+            {/* Always render info button with explicit styles to ensure visibility */}
+            <div
+              className="relative"
+              style={{ zIndex: 10, visibility: "visible" }}
+            >
+              {isMobile
+                ? renderInfoButton(24, InfoIcon)
+                : renderInfoButton(40, InfoIcon)}
+            </div>
+
+            {/* Always check hasChildren explicitly, no matter what level */}
+            {hasChildren === true && (
+              <div
+                className="relative"
+                style={{ zIndex: 10, visibility: "visible" }}
+              >
+                {isMobile
+                  ? renderArrowButton(24, ArrowDownIcon)
+                  : renderArrowButton(40, ArrowDownIcon)}
+              </div>
+            )}
           </div>
         </div>
       </div>

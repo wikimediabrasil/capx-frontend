@@ -14,6 +14,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 interface CapacitySearchProps {
   onSearchStart?: () => void;
   onSearchEnd?: () => void;
+  onSearch?: (term: string) => void;
 }
 
 // simple debounce
@@ -57,6 +58,7 @@ function useDebounce<T extends (...args: any[]) => any>(
 export function CapacitySearch({
   onSearchStart,
   onSearchEnd,
+  onSearch,
 }: CapacitySearchProps) {
   const { data: session } = useSession();
   const { language, isMobile, pageContent } = useApp();
@@ -146,7 +148,10 @@ export function CapacitySearch({
       <BaseInput
         type="text"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          onSearch?.(e.target.value);
+        }}
         placeholder={pageContent["capacity-search-placeholder"]}
         className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
           darkMode

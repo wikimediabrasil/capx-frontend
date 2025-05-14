@@ -9,7 +9,6 @@ import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { useProfile } from "@/hooks/useProfile";
 import { useTerritories } from "@/hooks/useTerritories";
 import { Profile } from "@/types/profile";
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import { Capacity } from "@/types/capacity";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAffiliation } from "@/hooks/useAffiliation";
@@ -27,6 +26,10 @@ import {
   safeAccess,
   createSafeFunction,
 } from "@/lib/utils/safeDataAccess";
+
+// Import the new capacity hooks
+import { useCapacities } from "@/hooks/useCapacities";
+import { useCapacityCache } from "@/contexts/CapacityCacheContext";
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -89,6 +92,14 @@ export default function EditProfilePage() {
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const { showSnackbar } = useSnackbar();
   const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
+  const { preloadCapacities } = useCapacityCache();
+
+  // Initialize capacity cache when the component mounts
+  useEffect(() => {
+    if (token) {
+      preloadCapacities();
+    }
+  }, [token, preloadCapacities]);
 
   // Initialize all hooks at the top of the component
   const {
@@ -103,6 +114,9 @@ export default function EditProfilePage() {
   const { languages, loading: languagesLoading } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
   const { wikimediaProjects } = useWikimediaProject(token);
+
+  // Get the capacity system with React Query
+  const { getCapacityById, isLoadingRootCapacities } = useCapacities();
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState({
@@ -136,14 +150,16 @@ export default function EditProfilePage() {
     profile?.avatar ? NoAvatarIcon : NoAvatarIcon
   );
 
-  // Calculate capacity IDs
+  // Calculate capacity IDs - do this early and make it stable
   const capacityIds = useMemo(() => {
     // Se formData não estiver inicializado, retorna array vazio
     if (!formData) return [];
 
-    const knownSkills = ensureArray<number>(formData.skills_known);
-    const availableSkills = ensureArray<number>(formData.skills_available);
-    const wantedSkills = ensureArray<number>(formData.skills_wanted);
+    const knownSkills = ensureArray<number>(formData.skills_known || []);
+    const availableSkills = ensureArray<number>(
+      formData.skills_available || []
+    );
+    const wantedSkills = ensureArray<number>(formData.skills_wanted || []);
 
     // Combina todos os arrays e remove duplicatas
     const allIds = [...knownSkills, ...availableSkills, ...wantedSkills];
@@ -158,14 +174,34 @@ export default function EditProfilePage() {
     formData?.skills_wanted,
   ]);
 
-  // Capacity details hook
-  const capacityDetailsResult = useCapacityDetails(capacityIds);
-  const capacityDetailsRef = useRef<any>(capacityDetailsResult);
+  // Create a function to get capacity names using the optimized system
+  const getCapacityName = useCallback(
+    (capacityId: any) => {
+      try {
+        if (capacityId === null || capacityId === undefined) {
+          return "Unknown Capacity";
+        }
 
-  // Safe function state
-  const [safeGetCapacityName, setSafeGetCapacityName] = useState<
-    (id: any) => string
-  >(() => (id) => `Capacity ${id}`);
+        let id: number;
+        if (typeof capacityId === "object" && capacityId.code) {
+          id = Number(capacityId.code);
+        } else {
+          id = Number(capacityId);
+        }
+
+        if (isNaN(id)) {
+          return "Unknown Capacity";
+        }
+
+        const capacity = getCapacityById(id);
+        return capacity?.name || `Capacity ${id}`;
+      } catch (error) {
+        console.error("Error getting capacity name:", error);
+        return "Unknown Capacity";
+      }
+    },
+    [getCapacityById]
+  );
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -223,33 +259,6 @@ export default function EditProfilePage() {
       }));
     }
   }, [unsavedData]);
-
-  // Atualizar a referência quando o resultado mudar
-  useEffect(() => {
-    capacityDetailsRef.current = capacityDetailsResult;
-  }, [capacityDetailsResult]);
-
-  // Usar um efeito para extrair a função de forma segura
-  useEffect(() => {
-    try {
-      if (capacityDetailsRef.current) {
-        const { getCapacityName } = capacityDetailsRef.current;
-
-        if (typeof getCapacityName === "function") {
-          // Criar uma versão segura da função que não vai lançar erros
-          const safeFunction = createSafeFunction(
-            getCapacityName,
-            "Unknown Capacity",
-            (error) => console.error("Error calling getCapacityName:", error)
-          );
-
-          setSafeGetCapacityName(() => safeFunction);
-        }
-      }
-    } catch (error) {
-      console.error("Error extracting getCapacityName:", error);
-    }
-  }, [capacityIds]);
 
   useEffect(() => {
     const loadWikidataImage = async () => {
@@ -544,9 +553,6 @@ export default function EditProfilePage() {
     router.push(path);
   };
 
-  // Usar a função segura que não vai causar erros
-  const getCapacityName = safeGetCapacityName;
-
   const ViewProps: any = {
     selectedAvatar,
     handleAvatarSelect,
@@ -578,13 +584,20 @@ export default function EditProfilePage() {
     goTo,
   };
 
+  // When showing debug information, include loading state
   if (isMobile) {
     return (
       <>
         <ProfileEditMobileView {...ViewProps} />
         {process.env.NODE_ENV === "development" && (
           <>
-            <DebugPanel data={{ capacityIds }} title="Debug: Capacity IDs" />
+            <DebugPanel
+              data={{
+                capacityIds,
+                capacitiesLoading: isLoadingRootCapacities,
+              }}
+              title="Debug: Capacity IDs"
+            />
             <CapacityDebug
               capacityIds={capacityIds}
               knownSkills={formData.skills_known}
@@ -602,7 +615,13 @@ export default function EditProfilePage() {
       <ProfileEditDesktopView {...ViewProps} />
       {process.env.NODE_ENV === "development" && (
         <>
-          <DebugPanel data={{ capacityIds }} title="Debug: Capacity IDs" />
+          <DebugPanel
+            data={{
+              capacityIds,
+              capacitiesLoading: isLoadingRootCapacities,
+            }}
+            title="Debug: Capacity IDs"
+          />
           <CapacityDebug
             capacityIds={capacityIds}
             knownSkills={formData.skills_known}

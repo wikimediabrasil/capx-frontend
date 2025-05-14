@@ -1,56 +1,56 @@
 "use client";
-import { createContext, useContext, ReactNode, useState, useRef } from "react";
-
-interface CapacityCache {
-  name: string;
-  timestamp: number;
-}
+import { createContext, useContext, ReactNode, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePrefetchCapacityData } from "@/hooks/useCapacitiesQuery";
 
 interface CapacityCacheContextType {
-  getCapacity: (id: string) => CapacityCache | undefined;
-  setCapacity: (id: string, name: string) => void;
-  clearCache: () => void;
+  preloadCapacities: () => Promise<void>;
+  clearCapacityCache: () => void;
 }
 
 const CapacityCacheContext = createContext<
   CapacityCacheContextType | undefined
 >(undefined);
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// Create a global cache outside of the component to persist between renders
-const globalCache = new Map<string, CapacityCache>();
-
 export function CapacityCacheProvider({ children }: { children: ReactNode }) {
-  // Using useRef instead of useState to avoid triggering re-renders
-  const cacheRef = useRef(globalCache);
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const queryClient = useQueryClient();
 
-  const getCapacity = (id: string) => {
-    const cached = cacheRef.current.get(id);
-    if (!cached) return undefined;
+  // Use the dedicated prefetch hook
+  const { prefetchData } = usePrefetchCapacityData();
 
-    const now = Date.now();
-    if (now - cached.timestamp > CACHE_DURATION) {
-      cacheRef.current.delete(id);
-      return undefined;
+  // Function to preload capacity data
+  const preloadCapacities = async () => {
+    if (token) {
+      try {
+        // Use the prefetch function from our hook
+        await prefetchData();
+        console.log("✅ All capacity data preloaded successfully");
+      } catch (error) {
+        console.error("❌ Error preloading capacity data:", error);
+      }
     }
-
-    return cached;
   };
 
-  const setCapacity = (id: string, name: string) => {
-    cacheRef.current.set(id, { name, timestamp: Date.now() });
-    // No state update to avoid re-renders
+  // Function to clear capacity cache
+  const clearCapacityCache = () => {
+    // Invalidate all capacity queries
+    queryClient.invalidateQueries({ queryKey: ["capacities"] });
+    console.log("🧹 Capacity cache cleared");
   };
 
-  const clearCache = () => {
-    cacheRef.current.clear();
-    // No state update to avoid re-renders
-  };
+  // Preload capacity data when the session is available
+  useEffect(() => {
+    if (token) {
+      preloadCapacities();
+    }
+  }, [token]);
 
   return (
     <CapacityCacheContext.Provider
-      value={{ getCapacity, setCapacity, clearCache }}
+      value={{ preloadCapacities, clearCapacityCache }}
     >
       {children}
     </CapacityCacheContext.Provider>

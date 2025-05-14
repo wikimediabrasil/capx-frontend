@@ -155,25 +155,12 @@ export default function EditOrganizationProfilePage() {
   });
 
   // Capacities setters
-  const capacitiesHook = useCapacities();
-  const { data: capacities, isLoading: isCapacitiesLoading } =
-    capacitiesHook.useAllCapacities();
-  const isLoadingRootCapacities = capacitiesHook.isLoadingRootCapacities;
+  const { rootCapacities, isLoadingRootCapacities } = useCapacities();
 
   // Combine all loading states for better UI experience
   const isLoading = useMemo(() => {
-    return (
-      isOrganizationLoading ||
-      isUserLoading ||
-      isCapacitiesLoading ||
-      isLoadingRootCapacities
-    );
-  }, [
-    isOrganizationLoading,
-    isUserLoading,
-    isCapacitiesLoading,
-    isLoadingRootCapacities,
-  ]);
+    return isOrganizationLoading || isUserLoading || isLoadingRootCapacities;
+  }, [isOrganizationLoading, isUserLoading, isLoadingRootCapacities]);
 
   // Effect to load profile options
   useEffect(() => {
@@ -1363,7 +1350,7 @@ export default function EditOrganizationProfilePage() {
           handleEventChange={handleEventChange}
           handleAddEvent={handleAddEvent}
           handleDeleteEvent={handleDeleteEvent}
-          capacities={capacities || []}
+          capacities={rootCapacities || []}
           handleChooseEvent={handleChooseEvent}
           handleViewAllEvents={handleViewAllEvents}
           handleEditEvent={handleEditEvent}
@@ -1405,7 +1392,7 @@ export default function EditOrganizationProfilePage() {
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}
-        capacities={capacities || []}
+        capacities={rootCapacities || []}
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}

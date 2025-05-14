@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Capacity } from "@/types/capacity";
-import { useCapacities, CAPACITY_CACHE_KEYS } from "@/hooks/useCapacities";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  useCapacities,
+  useCapacitySearch,
+  CAPACITY_CACHE_KEYS,
+} from "@/hooks/useCapacities";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 
 /**
  * Este componente demonstra como utilizar os novos hooks otimizados de capacidades.
@@ -15,15 +19,35 @@ export default function CapacityExampleUsage() {
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Usar o hook principal
-  const capacitiesHook = useCapacities();
-  const { rootCapacities, isLoadingRootCapacities } = capacitiesHook;
+  const { rootCapacities, isLoadingRootCapacities } = useCapacities();
 
-  // Usar o hook para capacidades por parent code
+  // Use a separate useQuery call for child capacities
   const {
-    data: childCapacities,
+    data: childCapacitiesData,
     isLoading: isLoadingChildren,
     error: childrenError,
-  } = capacitiesHook.useCapacitiesByParent(selectedParentCode);
+  } = useQuery({
+    queryKey: CAPACITY_CACHE_KEYS.children(selectedParentCode),
+    queryFn: async () => {
+      if (!selectedParentCode) return [];
+
+      // In a real implementation, you would fetch the data from the API here
+      console.log(`Loading child capacities for parent ${selectedParentCode}`);
+
+      // Return cached data if available or an empty array
+      return (
+        queryClient.getQueryData(
+          CAPACITY_CACHE_KEYS.children(selectedParentCode)
+        ) || []
+      );
+    },
+    enabled: !!selectedParentCode,
+  });
+
+  // Ensure childCapacities is always an array
+  const childCapacities = Array.isArray(childCapacitiesData)
+    ? childCapacitiesData
+    : [];
 
   // Busca não está mais disponível na nova implementação, vamos desabilitar esta funcionalidade
   const searchResults = [];
@@ -43,7 +67,7 @@ export default function CapacityExampleUsage() {
     if (!rootCapacity) return;
 
     await queryClient.prefetchQuery({
-      queryKey: CAPACITY_CACHE_KEYS.byParent(parentCode),
+      queryKey: CAPACITY_CACHE_KEYS.children(parentCode),
       queryFn: async () => {
         // Implementação similar ao fetchCapacitiesByParent no hook
         // Este é um exemplo simplificado

@@ -34,9 +34,9 @@ export default function RootLayout({
             <AppProvider>
               <ProfileEditProvider>
                 <SnackbarProvider>
-                  <CapacityCacheProvider>
-                    <Providers>{children}</Providers>
-                  </CapacityCacheProvider>
+                  <Providers>
+                    <CapacityCacheProvider>{children}</CapacityCacheProvider>
+                  </Providers>
                 </SnackbarProvider>
               </ProfileEditProvider>
             </AppProvider>
