@@ -1125,7 +1125,7 @@ export default function ProfileEditMobileView(
               </div>
             </div>
 
-            <div className="bg-[#EFEFEF]">
+            {/* <div className="bg-[#EFEFEF]">
               <Banner
                 image={LetsConect}
                 alt={pageContent["privacy-policy-alt-banner"]}
@@ -1154,7 +1154,7 @@ export default function ProfileEditMobileView(
               >
                 {pageContent["lets-connect-edit-user-info"]}
               </p>
-            </div>
+            </div> */}
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-[10px] mt-0">
