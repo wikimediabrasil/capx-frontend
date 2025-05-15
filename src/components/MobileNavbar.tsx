@@ -47,7 +47,6 @@ export default function MobileNavbar({
                   width={48}
                   height={48}
                   className="w-[48px] h-[48px] mb-2"
-                  style={{ width: "auto", height: "auto" }}
                 />
               </NextLink>
             </div>
