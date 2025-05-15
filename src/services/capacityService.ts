@@ -44,15 +44,9 @@ export const capacityService = {
     }
   },
 
-  async fetchCapacityById(
-    id: string,
-    queryData: QueryData
-  ): Promise<CapacityResponse> {
+  async fetchCapacityById(id: string): Promise<CapacityResponse> {
     try {
-      const response = await axios.get(`/api/capacity/${id}`, {
-        params: queryData.params,
-        headers: queryData.headers,
-      });
+      const response = await axios.get(`/api/capacity/${id}`);
 
       // Ensure the response has a valid name field
       if (!response.data.name || response.data.name === `Capacity ${id}`) {

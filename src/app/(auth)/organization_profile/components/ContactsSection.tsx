@@ -26,28 +26,28 @@ export const ContactsSection = ({
 
   const formatContactInfo = (info: string) => {
     if (!info) return "";
-    
-    if (info.includes('@')) {
+
+    if (info.includes("@")) {
       return {
         display: info,
         url: `mailto:${info}`,
-        isLink: true
+        isLink: true,
       };
     }
-    
-    if (info.startsWith('http://') || info.startsWith('https://')) {
+
+    if (info.startsWith("http://") || info.startsWith("https://")) {
       const url = new URL(info);
       return {
         display: info.length > 30 ? url.hostname : info,
         url: info,
-        isLink: true
+        isLink: true,
       };
     }
-    
+
     return {
       display: info,
       url: "",
-      isLink: false
+      isLink: false,
     };
   };
 
@@ -55,19 +55,19 @@ export const ContactsSection = ({
     {
       ...formatContactInfo(meta_page),
       icon: darkMode ? ContactMetaIconWhite : ContactMetaIcon,
-      type: "Meta Page"
+      type: "Meta Page",
     },
     {
       ...formatContactInfo(email),
       icon: darkMode ? ContactEmailIconWhite : ContactEmailIcon,
-      type: "Email"
+      type: "Email",
     },
     {
       ...formatContactInfo(website),
       icon: darkMode ? ContactPortalIconWhite : ContactPortalIcon,
-      type: "Website"
+      type: "Website",
     },
-  ].filter(contact => contact.display);
+  ].filter((contact) => contact.display);
 
   if (isMobile) {
     return (
@@ -77,7 +77,7 @@ export const ContactsSection = ({
             <Image
               src={darkMode ? WikimediaIconWhite : WikimediaIcon}
               alt="Wikimedia"
-              style={{ objectFit: "contain" }}
+              className="object-contain"
             />
           </div>
           <h2
@@ -103,7 +103,7 @@ export const ContactsSection = ({
                   src={contact.icon}
                   alt={contact.type}
                   fill
-                  style={{ objectFit: "contain" }}
+                  className="object-contain"
                 />
               </div>
               {contact.isLink ? (

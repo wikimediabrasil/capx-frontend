@@ -78,13 +78,28 @@ export default function DesktopNavbar({
       title: pageContent["navbar-link-messages"],
       to: "/message",
       active: true,
-    },    
+    },
+    {
+      title: pageContent["navbar-link-events"],
+      to: "/events",
+    },
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
+    },
   ];
 
   const unauthenticatedMenuItems = [
-    { title: pageContent["navbar-link-organizations"], 
-      to: "/organization_list", 
-      active: true
+    {
+      title: pageContent["navbar-link-organizations"],
+      to: "/organization_list",
+      active: true,
+    },
+    {
+      title: pageContent["navbar-link-events"],
+      to: "/events",
+      active: true,
     },
   ];
 
@@ -131,6 +146,7 @@ export default function DesktopNavbar({
                 src={CapXLogo}
                 alt="Capacity Exchange logo"
                 className="w-[100px] h-[100px] object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
             </div>
           </NextLink>
@@ -138,7 +154,7 @@ export default function DesktopNavbar({
 
         {/* Routes for unauthenticated users */}
         {!session && (
-          <div className="flex items-center ml-10">
+          <div className="flex items-center ml-10 gap-8">
             {unauthenticatedMenuItems.map((item, index) => (
               <NextLink
                 key={`desktop-menu-item-${index}`}

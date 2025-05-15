@@ -87,7 +87,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
             src={darkMode ? WikimediaIconWhite : WikimediaIcon}
             alt="Wikimedia"
             fill
-            style={{ objectFit: "contain" }}
+            className="object-contain"
           />
         </div>
         <h2
@@ -98,31 +98,37 @@ export const NewsSection = ({ ids }: NewsProps) => {
           {pageContent["edit-profile-news"]}
         </h2>
       </div>
-      
+
       {/* Carousel's container */}
       <div className="w-full relative">
         {/* Navigation buttons for desktop */}
         {posts.length > 3 && (
           <>
-            <button 
+            <button
               className={`hidden md:flex absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center ${
-                darkMode ? "bg-[#04222F] text-white" : "bg-[#EFEFEF] text-[#003649]"
+                darkMode
+                  ? "bg-[#04222F] text-white"
+                  : "bg-[#EFEFEF] text-[#003649]"
               }`}
               onClick={() => {
-                const container = document.getElementById('news-carousel');
-                if (container) container.scrollBy({ left: -370, behavior: 'smooth' });
+                const container = document.getElementById("news-carousel");
+                if (container)
+                  container.scrollBy({ left: -370, behavior: "smooth" });
               }}
             >
               {/* TODO: Add arrow left icon */}
               &#10094;
             </button>
-            <button 
+            <button
               className={`hidden md:flex absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center ${
-                darkMode ? "bg-[#04222F] text-white" : "bg-[#EFEFEF] text-[#003649]"
+                darkMode
+                  ? "bg-[#04222F] text-white"
+                  : "bg-[#EFEFEF] text-[#003649]"
               }`}
               onClick={() => {
-                const container = document.getElementById('news-carousel');
-                if (container) container.scrollBy({ left: 370, behavior: 'smooth' });
+                const container = document.getElementById("news-carousel");
+                if (container)
+                  container.scrollBy({ left: 370, behavior: "smooth" });
               }}
             >
               {/* TODO: Add arrow right icon */}
@@ -130,14 +136,14 @@ export const NewsSection = ({ ids }: NewsProps) => {
             </button>
           </>
         )}
-        
+
         {/* Carousel*/}
-        <div 
+        <div
           id="news-carousel"
           className="flex flex-row gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
-          style={{ 
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
           }}
         >
           {posts.map((post, index) => (
@@ -180,7 +186,8 @@ export const NewsSection = ({ ids }: NewsProps) => {
                   }`}
                 >
                   {dateFormatter.format(new Date(post.date))}
-                  &nbsp;{pageContent["organization-profile-news-section-by"]}&nbsp;
+                  &nbsp;{pageContent["organization-profile-news-section-by"]}
+                  &nbsp;
                   {post.author.name}
                 </p>
               </div>

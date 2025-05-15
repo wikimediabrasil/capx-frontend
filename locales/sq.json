@@ -90,8 +90,6 @@
 	"form-report-date": "Data e krijimit të faqes",
 	"form-report-edit-button": "Redaktoni raportin",
 	"form-report-update-button": "Përditësoni raportin",
-	"form-report-number": "Raporti nr",
 	"oh-no-message": "Oh, jo!",
-	"no-user-profile": "Nuk ka përdorues me këtë emër të regjistruar në \"CapX\"",
 	"no-report-rights": "Ose ju nuk keni leje për ta përditësuar raportin ose raporti nuk ekziston!"
 }

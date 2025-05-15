@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Albertoleoncio",
-			"Amire80"
+			"Amire80",
+			"Kizule"
 		]
 	},
 	"navbar-link-about": "Link to the second section of the landing page, which provides information about the CapX project",
@@ -12,6 +13,7 @@
 	"body-home-section01-title-carousel": "Text displayed on the first section of the home page. Refers to the carousel title, listing the types of exchanges that can be made on the platform.",
 	"body-home-section01-description": "Text displayed on the first section of the home page. Describes the purpose of the platform, inviting users to connect, learn, and share capacities.",
 	"body-home-section01-button": "Button displayed on the first section of the home page. Invites users to join the platform.",
+	"body-home-main-section-carrousel-description-more-projects": "{{optional}}",
 	"body-loggedin-home-main-section-button02": "Link to the user's profile on navigation bar",
 	"body-profile-gender-hehim": "Male subjective/objective pronoum, used in the gender selection option field of the user profile",
 	"body-profile-gender-sheher": "Female subjective/objective pronoum, used in the gender selection option field of the user profile",
@@ -23,5 +25,11 @@
 	"footer-link-documentation": "Link to the documentation page in the footer",
 	"footer-link-github": "{{Optional}}\nLink to the GitHub repository in the footer",
 	"footer-link-wikimedia": "Link to the Meta-Wikimedia page in the footer",
-	"footer-message": "Motto displayed in the footer."
+	"footer-message": "Motto displayed in the footer.",
+	"lets-connect-form-age-25-34": "{{optional}}",
+	"lets-connect-form-age-35-44": "{{optional}}",
+	"lets-connect-form-age-45-54": "{{optional}}",
+	"lets-connect-form-age-55-64": "{{optional}}",
+	"lets-connect-form-age-65-74": "{{optional}}",
+	"lets-connect-form-age-75-84": "{{optional}}"
 }

@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { OrganizationFilters, organizationProfileService } from "@/services/organizationProfileService";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  OrganizationFilters,
+  organizationProfileService,
+} from "@/services/organizationProfileService";
 import { Organization } from "@/types/organization";
 import { useSession } from "next-auth/react";
 import { FilterState } from "@/app/(auth)/feed/types";
 import { ProfileCapacityType } from "@/app/(auth)/feed/types";
 
-export function useOrganization(
-  token?: string,
-  specificOrgId?: number,
-) {
+export function useOrganization(token?: string, specificOrgId?: number) {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +18,12 @@ export function useOrganization(
     number[]
   >([]);
   const [isPermissionsLoaded, setIsPermissionsLoaded] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+
+  // Store references to already fetched data to avoid refetches
+  const orgCacheRef = useRef<
+    Map<number, { data: Organization; timestamp: number }>
+  >(new Map());
 
   const fetchUserProfile = useCallback(async (token: string) => {
     try {
@@ -132,7 +138,11 @@ export function useOrganization(
   };
 }
 
-export function useOrganizations(limit?: number, offset?: number, activeFilters?: FilterState) {
+export function useOrganizations(
+  limit?: number,
+  offset?: number,
+  activeFilters?: FilterState
+) {
   const [organizations, setOrganizations] = useState<Organization[] | null>([]);
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -145,23 +155,31 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
           limit,
           offset,
           ...(activeFilters?.capacities?.length && {
-            available_capacities: activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer) 
-              ? activeFilters.capacities.map(cap => cap.code)
+            available_capacities: activeFilters.profileCapacityTypes.includes(
+              ProfileCapacityType.Sharer
+            )
+              ? activeFilters.capacities.map((cap) => cap.code)
               : undefined,
-            wanted_capacities: activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) 
-              ? activeFilters.capacities.map(cap => cap.code)
+            wanted_capacities: activeFilters.profileCapacityTypes.includes(
+              ProfileCapacityType.Learner
+            )
+              ? activeFilters.capacities.map((cap) => cap.code)
               : undefined,
           }),
           ...(activeFilters?.territories?.length && {
-            territory: activeFilters.territories
+            territory: activeFilters.territories,
           }),
-          has_capacities_available: activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ?? undefined,
-          has_capacities_wanted: activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Learner) ?? undefined,
+          has_capacities_available:
+            activeFilters?.profileCapacityTypes.includes(
+              ProfileCapacityType.Sharer
+            ) ?? undefined,
+          has_capacities_wanted:
+            activeFilters?.profileCapacityTypes.includes(
+              ProfileCapacityType.Learner
+            ) ?? undefined,
         };
 
-        const data = await organizationProfileService.getOrganizations(
-          filters
-        );
+        const data = await organizationProfileService.getOrganizations(filters);
 
         setOrganizations(data.results);
         setCount(data.count);
@@ -174,10 +192,12 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
     };
 
     getOrganizations();
-  }, [limit, offset, 
+  }, [
+    limit,
+    offset,
     JSON.stringify(activeFilters?.capacities),
     JSON.stringify(activeFilters?.territories),
-    JSON.stringify(activeFilters?.profileCapacityTypes)
+    JSON.stringify(activeFilters?.profileCapacityTypes),
   ]);
 
   return { organizations, isLoading, error, count };
