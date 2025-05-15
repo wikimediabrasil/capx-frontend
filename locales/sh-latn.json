@@ -74,8 +74,6 @@
 	"form-report-date": "Datum kreiranja",
 	"form-report-edit-button": "Uredi izvještaj",
 	"form-report-update-button": "Ažuriraj izvještaj",
-	"form-report-number": "Broj izvještaja",
 	"oh-no-message": "O, ne!",
-	"no-user-profile": "Nema tog korisničkog imena na CapX platformi",
 	"no-report-rights": "Ili nemate ovlašćenje da ažurirate izvještaj ili izvještaj ne postoji!"
 }

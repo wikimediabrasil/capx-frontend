@@ -212,31 +212,31 @@ export default function FormMessage() {
 
                 {showMethodSelector && (
                     <div
-                    className={`absolute z-10 w-full mt-1 rounded-md shadow-lg ${
-                        darkMode
-                        ? "bg-[#04222F] border-gray-700"
-                        : "bg-[#FFFFFF] border-gray-200"
-                    } border`}
-                    >
-                    {Object.values(MessageMethod).map((method) => (
-                        <button
-                        key={method}
-                        className={`block w-full text-left px-4 py-2 text-sm ${
-                            darkMode
-                            ? "text-white hover:bg-[#053749]"
-                            : "text-gray-700 hover:bg-gray-100"
-                        }`}
-                        onClick={() => {
-                            setFormData({ ...formData, method });
-                            setShowMethodSelector(false);
-                        }}
-                        >
-                        {messageMethodLabels[method]}
-                        </button>
-                    ))}
-                </div>
-            )}
-            </div>
+                      className={`absolute z-10 w-full mt-1 rounded-md shadow-lg ${
+                          darkMode
+                          ? "bg-[#04222F] border-gray-700"
+                          : "bg-[#FFFFFF] border-gray-200"
+                      } border`}
+                      >
+                      {Object.values(MessageMethod).map((method) => (
+                          <button
+                            key={method}
+                            className={`block w-full text-left px-4 py-2 text-sm ${
+                                darkMode
+                                ? "text-white hover:bg-[#053749]"
+                                : "text-gray-700 hover:bg-gray-100"
+                            }`}
+                            onClick={() => {
+                                setFormData({ ...formData, method });
+                                setShowMethodSelector(false);
+                            }}
+                            >
+                            {messageMethodLabels[method]}
+                          </button>
+                      ))}
+                    </div>
+                )}
+              </div>
             <div className="flex gap-2 items-center">
                 <p className={`mt-1 text-[10px] md:text-[20px] ${
                     darkMode
@@ -315,7 +315,7 @@ export default function FormMessage() {
                     ? "text-[#FFFFFF]"
                     : "text-[#053749]"
                 }`}>
-                {pageContent["report-bug-description-informative-text"]}
+                {pageContent["message-form-informative-text"]}
             </p>
         </div>
 
