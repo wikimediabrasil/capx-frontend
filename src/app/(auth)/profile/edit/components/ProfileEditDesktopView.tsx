@@ -559,242 +559,242 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
 
-            {/* Languages Section */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={darkMode ? LanguageIconWhite : LanguageIcon}
-                  alt="Language icon"
-                  width={48}
-                  height={48}
-                />
-                <h2
-                  className={`font-[Montserrat] text-[24px] font-bold ${
-                    darkMode ? "text-white" : "text-[#053749]"
-                  }`}
-                >
-                  {pageContent["body-profile-languages-title"]}
-                </h2>
-              </div>
-
-              {/* Language List */}
-              <div className="flex flex-wrap gap-2">
-                {formData.language?.map((lang, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center gap-2 p-2 rounded ${
-                      darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
-                    }`}
-                  >
-                    <span className="font-[Montserrat] text-[24px]">
-                      {languagesData[lang.id]}
-                    </span>
-                    <select
-                      value={lang.proficiency}
-                      onChange={(e) => {
-                        const newLanguages = [...(formData.language || [])];
-                        newLanguages[index] = {
-                          ...newLanguages[index],
-                          proficiency: e.target.value,
-                        };
-                        setFormData({
-                          ...formData,
-                          language: newLanguages,
-                        });
-                      }}
-                      className={`ml-2 p-1 rounded border text-[24px] ${
-                        darkMode
-                          ? "bg-transparent border-white text-white"
-                          : "border-[#053749] text-[#829BA4]"
-                      }`}
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      <option
-                        value="0"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-not-proficient"]}
-                      </option>
-                      <option
-                        value="1"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-basic"]}
-                      </option>
-                      <option
-                        value="2"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-intermediate"]}
-                      </option>
-                      <option
-                        value="3"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-advanced"]}
-                      </option>
-                      <option
-                        value="4"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-almost-native"]}
-                      </option>
-                      <option
-                        value="5"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-professional"]}
-                      </option>
-                      <option
-                        value="n"
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {pageContent["profiency-level-native"]}
-                      </option>
-                    </select>
-                    <button
-                      onClick={() => handleRemoveLanguage(index)}
-                      className="ml-2"
-                    >
-                      <Image
-                        src={darkMode ? CloseIconWhite : CloseIcon}
-                        alt="Remove language"
-                        width={24}
-                        height={24}
-                      />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Language Select */}
-              <div className="relative">
-                <select
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      setFormData({
-                        ...formData,
-                        language: [
-                          ...(formData.language || []),
-                          { id: Number(e.target.value), proficiency: "3" },
-                        ],
-                      });
-                    }
-                  }}
-                  className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
-                    darkMode
-                      ? "bg-transparent border-white text-white opacity-50"
-                      : "border-[#053749] text-[#829BA4]"
-                  } border`}
-                  style={{
-                    backgroundColor: darkMode ? "#053749" : "white",
-                    color: darkMode ? "white" : "#053749",
-                  }}
-                >
-                  <option value="">
-                    {pageContent["edit-profile-add-language"]}
-                  </option>
-                  {Object.entries(languagesData).map(([id, name]) => (
-                    <option
-                      key={id}
-                      value={id}
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  <Image
-                    src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                    alt="Select"
-                    width={24}
-                    height={24}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <span
-              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
-                darkMode ? "text-white" : "text-[#053749]"
-              }`}
-            >
-              {pageContent["edit-profile-language-tooltip"]}
-            </span>
-
-            {/* Alternative Wikimedia Account */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={darkMode ? WikiIconWhite : WikiIcon}
-                  alt="Alternative account icon"
-                  width={48}
-                  height={48}
-                />
-                <h2
-                  className={`font-[Montserrat] text-[24px] font-bold ${
-                    darkMode ? "text-white" : "text-[#053749]"
-                  }`}
-                >
-                  {pageContent["body-profile-box-title-alt-wiki-acc"]}
-                </h2>
-              </div>
-              <input
-                type="text"
-                placeholder={pageContent["edit-profile-insert-item"]}
-                value={formData.wiki_alt}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    wiki_alt: e.target.value,
-                  })
-                }
-                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] ${
-                  darkMode
-                    ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
-                    : "border-[#053749] text-[#829BA4]"
-                } border`}
+          {/* Languages Section */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Image
+                src={darkMode ? LanguageIconWhite : LanguageIcon}
+                alt="Language icon"
+                width={48}
+                height={48}
               />
-              <span
-                className={`text-[24px] font-[Montserrat] not-italic font-normal leading-normal ${
+              <h2
+                className={`font-[Montserrat] text-[24px] font-bold ${
                   darkMode ? "text-white" : "text-[#053749]"
                 }`}
               >
-                {pageContent["edit-profile-share-username"]}
-              </span>
+                {pageContent["body-profile-languages-title"]}
+              </h2>
             </div>
 
-            {/* Affiliation */}
-            <div className="flex flex-col gap-4">
+            {/* Language List */}
+            <div className="flex flex-wrap gap-2">
+              {formData.language?.map((lang, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 p-2 rounded ${
+                    darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                  }`}
+                >
+                  <span className="font-[Montserrat] text-[24px]">
+                    {languagesData[lang.id]}
+                  </span>
+                  <select
+                    value={lang.proficiency}
+                    onChange={(e) => {
+                      const newLanguages = [...(formData.language || [])];
+                      newLanguages[index] = {
+                        ...newLanguages[index],
+                        proficiency: e.target.value,
+                      };
+                      setFormData({
+                        ...formData,
+                        language: newLanguages,
+                      });
+                    }}
+                    className={`ml-2 p-1 rounded border text-[24px] ${
+                      darkMode
+                        ? "bg-transparent border-white text-white"
+                        : "border-[#053749] text-[#829BA4]"
+                    }`}
+                    style={{
+                      backgroundColor: darkMode ? "#053749" : "white",
+                      color: darkMode ? "white" : "#053749",
+                    }}
+                  >
+                    <option
+                      value="0"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-not-proficient"]}
+                    </option>
+                    <option
+                      value="1"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-basic"]}
+                    </option>
+                    <option
+                      value="2"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-intermediate"]}
+                    </option>
+                    <option
+                      value="3"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-advanced"]}
+                    </option>
+                    <option
+                      value="4"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-almost-native"]}
+                    </option>
+                    <option
+                      value="5"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-professional"]}
+                    </option>
+                    <option
+                      value="n"
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {pageContent["profiency-level-native"]}
+                    </option>
+                  </select>
+                  <button
+                    onClick={() => handleRemoveLanguage(index)}
+                    className="ml-2"
+                  >
+                    <Image
+                      src={darkMode ? CloseIconWhite : CloseIcon}
+                      alt="Remove language"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Language Select */}
+            <div className="relative">
+              <select
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setFormData({
+                      ...formData,
+                      language: [
+                        ...(formData.language || []),
+                        { id: Number(e.target.value), proficiency: "3" },
+                      ],
+                    });
+                  }
+                }}
+                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
+                  darkMode
+                    ? "bg-transparent border-white text-white opacity-50"
+                    : "border-[#053749] text-[#829BA4]"
+                } border`}
+                style={{
+                  backgroundColor: darkMode ? "#053749" : "white",
+                  color: darkMode ? "white" : "#053749",
+                }}
+              >
+                <option value="">
+                  {pageContent["edit-profile-add-language"]}
+                </option>
+                {Object.entries(languagesData).map(([id, name]) => (
+                  <option
+                    key={id}
+                    value={id}
+                    style={{
+                      backgroundColor: darkMode ? "#053749" : "white",
+                      color: darkMode ? "white" : "#053749",
+                    }}
+                  >
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <Image
+                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                  alt="Select"
+                  width={24}
+                  height={24}
+                />
+              </div>
+            </div>
+          </div>
+
+          <span
+            className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
+              darkMode ? "text-white" : "text-[#053749]"
+            }`}
+          >
+            {pageContent["edit-profile-language-tooltip"]}
+          </span>
+
+          {/* Alternative Wikimedia Account */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Image
+                src={darkMode ? WikiIconWhite : WikiIcon}
+                alt="Alternative account icon"
+                width={48}
+                height={48}
+              />
+              <h2
+                className={`font-[Montserrat] text-[24px] font-bold ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["body-profile-box-title-alt-wiki-acc"]}
+              </h2>
+            </div>
+            <input
+              type="text"
+              placeholder={pageContent["edit-profile-insert-item"]}
+              value={formData.wiki_alt}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  wiki_alt: e.target.value,
+                })
+              }
+              className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] ${
+                darkMode
+                  ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
+                  : "border-[#053749] text-[#829BA4]"
+              } border`}
+            />
+            <span
+              className={`text-[24px] font-[Montserrat] not-italic font-normal leading-normal ${
+                darkMode ? "text-white" : "text-[#053749]"
+              }`}
+            >
+              {pageContent["edit-profile-share-username"]}
+            </span>
+          </div>
+            {/* Affiliation Section */}
+            <div className="flex flex-col gap-4 mt-4">
+              {/* Título e ícone */}
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? AffiliationIconWhite : AffiliationIcon}
@@ -810,61 +810,101 @@ export default function ProfileEditDesktopView(
                   {pageContent["body-profile-section-title-affiliation"]}
                 </h2>
               </div>
-              <div className="relative">
-                <select
-                  value={formData.affiliation?.[0] || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      affiliation: e.target.value ? [e.target.value] : [],
-                    })
-                  }
-                  className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
-                    darkMode
-                      ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
-                      : "border-[#053749] text-[#829BA4]"
-                  } border`}
-                  style={{
-                    backgroundColor: darkMode ? "#053749" : "white",
-                    color: darkMode ? "white" : "#053749",
-                  }}
+
+            {/* Lista de afiliações */}
+            <div className="flex flex-wrap gap-2">
+              {formData.affiliation?.map((aff, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 p-2 rounded ${
+                    darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                  }`}
                 >
-                  <option value="">
-                    {pageContent["edit-profile-insert-item"]}
-                  </option>
-                  {Object.entries(affiliationsData).map(([id, name]) => (
-                    <option
-                      key={id}
-                      value={id}
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  <Image
-                    src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                    alt="Select"
-                    width={24}
-                    height={24}
-                  />
+                  <span className="font-[Montserrat] text-[24px]">
+                    {affiliationsData[aff]}
+                  </span>
+                  <button
+                    onClick={() => {
+                      const newAffiliations = [...(formData.affiliation || [])];
+                      newAffiliations.splice(index, 1);
+                      setFormData({
+                        ...formData,
+                        affiliation: newAffiliations,
+                      });
+                    }}
+                    className="ml-2"
+                  >
+                    <Image
+                      src={darkMode ? CloseIconWhite : CloseIcon}
+                      alt="Remove affiliation"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
                 </div>
-              </div>
-              <span
-                className={`text-[24px] font-[Montserrat] not-italic font-normal leading-normal ${
-                  darkMode ? "text-white" : "text-[#053749]"
-                }`}
-              >
-                {pageContent["body-profile-section-affiliation-dropdown-menu"]}
-              </span>
+              ))}
             </div>
 
-            {/* Territory */}
-            <div className="flex flex-col gap-4">
+            {/* Select para adicionar nova afiliação */}
+            <div className="relative">
+              <select
+                value=""
+                onChange={(e) => {
+                  if (e.target.value && !formData.affiliation?.includes(e.target.value)) {
+                    setFormData({
+                      ...formData,
+                      affiliation: [...(formData.affiliation || []), e.target.value],
+                    });
+                  }
+                }}
+                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
+                  darkMode
+                    ? "bg-transparent border-white text-white opacity-50"
+                    : "border-[#053749] text-[#829BA4]"
+                } border`}
+                style={{
+                  backgroundColor: darkMode ? "#053749" : "white",
+                  color: darkMode ? "white" : "#053749",
+                }}
+              >
+                <option value="">
+                  {pageContent["edit-profile-insert-item"]}
+                </option>
+                {Object.entries(affiliationsData).map(([id, name]) => (
+                  <option
+                    key={id}
+                    value={id}
+                    style={{
+                      backgroundColor: darkMode ? "#053749" : "white",
+                      color: darkMode ? "white" : "#053749",
+                    }}
+                  >
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <Image
+                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                  alt="Select"
+                  width={24}
+                  height={24}
+                />
+              </div>
+            </div>
+
+            {/* Tooltip */}
+            <span
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
+                darkMode ? "text-white" : "text-[#053749]"
+              }`}
+            >
+              {pageContent["body-profile-section-affiliation-dropdown-menu"]}
+            </span>
+          </div>
+            {/* Territory Section */}
+            <div className="flex flex-col gap-4 mt-4">
+              {/* Título e ícone */}
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? TerritoryIconWhite : TerritoryIcon}
@@ -880,18 +920,56 @@ export default function ProfileEditDesktopView(
                   {pageContent["body-profile-section-title-territory"]}
                 </h2>
               </div>
+
+              {/* Lista de territórios */}
+              <div className="flex flex-wrap gap-2">
+                {formData.territory?.map((terr, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 p-2 rounded ${
+                      darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                    }`}
+                  >
+                    <span className="font-[Montserrat] text-[24px]">
+                      {territoriesData[terr]}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const newTerritories = [...(formData.territory || [])];
+                        newTerritories.splice(index, 1);
+                        setFormData({
+                          ...formData,
+                          territory: newTerritories,
+                        });
+                      }}
+                      className="ml-2"
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Remove territory"
+                        width={24}
+                        height={24}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Select para adicionar novo território */}
               <div className="relative">
                 <select
-                  value={formData.territory?.[0] || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      territory: e.target.value ? [e.target.value] : [],
-                    })
-                  }
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value && !formData.territory?.includes(e.target.value)) {
+                      setFormData({
+                        ...formData,
+                        territory: [...(formData.territory || []), e.target.value],
+                      });
+                    }
+                  }}
                   className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
                     darkMode
-                      ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
+                      ? "bg-transparent border-white text-white opacity-50"
                       : "border-[#053749] text-[#829BA4]"
                   } border`}
                   style={{
@@ -924,15 +1002,16 @@ export default function ProfileEditDesktopView(
                   />
                 </div>
               </div>
+
+              {/* Tooltip */}
               <span
-                className={`text-[24px] font-[Montserrat] not-italic font-normal leading-normal ${
+                className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
                   darkMode ? "text-white" : "text-[#053749]"
                 }`}
               >
                 {pageContent["edit-profile-territory"]}
               </span>
             </div>
-
             {/* Wikidata Item */}
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
