@@ -323,27 +323,82 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 value={profile?.wiki_alt || ""}
               />
             )}
+
             {shouldRenderEmptyField(profile?.affiliation) && (
-              <ProfileItemsComponent
-                icon={darkMode ? AffiliationIconWhite : AffiliationIcon}
-                title={pageContent["body-profile-section-title-affiliation"]}
-                value={
-                  profile?.affiliation
-                    ? affiliations[profile.affiliation[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? AffiliationIconWhite : AffiliationIcon}
+                    alt="Affiliation icon"
+                    width={20}
+                    height={20}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[14px] font-bold ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-affiliation"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.affiliation?.map((territoryId, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[14px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {affiliations[territoryId] || territoryId}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.territory) && (
-              <ProfileItemsComponent
-                icon={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                title={pageContent["body-profile-section-title-territory"]}
-                value={
-                  profile?.territory
-                    ? territories[profile.territory[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                    alt="Territory icon"
+                    width={20}
+                    height={20}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[14px] font-bold ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-territory"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.territory?.map((territoryId, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[14px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {territories[territoryId] || territoryId}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.wikidata_qid) && (
               <ProfileItemsComponent
@@ -457,6 +512,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
       </div>
     );
   }
+  // Desktop
   return (
     <main className="flex-grow">
       <div
@@ -584,26 +640,82 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
               />
             )}
             {shouldRenderEmptyField(profile?.affiliation) && (
-              <ProfileItemsComponent
-                icon={darkMode ? AffiliationIconWhite : AffiliationIcon}
-                title={pageContent["body-profile-section-title-affiliation"]}
-                value={
-                  profile?.affiliation
-                    ? affiliations[profile.affiliation[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2 mt-4">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? AffiliationIconWhite : AffiliationIcon}
+                    alt="Affiliation icon"
+                    width={42}
+                    height={42}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[24px] font-bold ${
+                      darkMode 
+                      ? "text-white" 
+                      : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-affiliation"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.affiliation?.map((aff, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[24px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {affiliations[aff] || ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.territory) && (
-              <ProfileItemsComponent
-                icon={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                title={pageContent["body-profile-section-title-territory"]}
-                value={
-                  profile?.territory
-                    ? territories[profile.territory[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2 md:mt-4">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                    alt="Territory icon"
+                    width={42}
+                    height={42}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[24px] font-bold ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-territory"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.territory?.map((terr, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[24px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {territories[terr] || ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.wikidata_qid) && (
               <ProfileItemsComponent
