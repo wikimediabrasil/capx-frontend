@@ -8,36 +8,103 @@ import React, {
   useRef,
   ReactNode,
   useMemo,
+  useEffect,
 } from "react";
 import { useCapacityDescription } from "@/hooks/useCapacitiesQuery";
+import { capacityService } from "@/services/capacityService";
+import { useSession } from "next-auth/react";
+import { useCapacityCache } from "@/contexts/CapacityCacheContext";
+import LoadingStateWithFallback, {
+  CompactLoading,
+} from "@/components/LoadingStateWithFallback";
 
-// Tipos para o contexto
+// Types for the context
 type DescriptionMap = Record<number, string>;
 type WdCodeMap = Record<number, string>;
 
 interface CapacityContextType {
-  // Obter descrições
+  // Get descriptions
   getDescription: (code: number) => string;
   getWdCode: (code: number) => string;
 
-  // Solicitar descrição de forma segura
+  // Request description safely
   requestDescription: (code: number) => Promise<string>;
 
-  // Verificar se descrição já foi solicitada
+  // Check if description has been requested
   isRequested: (code: number) => boolean;
 
-  // Para uso interno
+  // For internal use
   _addDescription?: (code: number, description: string, wdCode: string) => void;
 }
 
-// Componente que busca descrições em segundo plano
+// Persistent description between navigations
+let cachedDescriptions: DescriptionMap = {};
+let cachedWdCodes: WdCodeMap = {};
+const requestedDescriptions = new Set<number>();
+
+// Initialize localStorage cache
+if (typeof window !== "undefined") {
+  try {
+    const savedDescriptions = localStorage.getItem("capx-descriptions-cache");
+    if (savedDescriptions) {
+      const parsed = JSON.parse(savedDescriptions);
+      cachedDescriptions = parsed.descriptions || {};
+      cachedWdCodes = parsed.wdCodes || {};
+      console.log(
+        `📝 Carregadas ${
+          Object.keys(cachedDescriptions).length
+        } descrições do cache`
+      );
+    }
+  } catch (error) {
+    console.error("Erro ao carregar descrições do cache:", error);
+  }
+}
+
+// Save descriptions to localStorage
+const saveDescriptionsCache = () => {
+  if (typeof window === "undefined") return;
+
+  try {
+    localStorage.setItem(
+      "capx-descriptions-cache",
+      JSON.stringify({
+        descriptions: cachedDescriptions,
+        wdCodes: cachedWdCodes,
+        timestamp: Date.now(),
+      })
+    );
+  } catch (error) {
+    console.error("Erro ao salvar descrições no cache:", error);
+  }
+};
+
+// Component that fetches descriptions in the background
 const DescriptionFetcher = ({ code }: { code: number }) => {
   const context = useContext(CapacityContext);
   const { data, isSuccess } = useCapacityDescription(code);
   const processedRef = useRef(false);
+  const { data: session } = useSession();
 
   React.useEffect(() => {
-    // Evitar atualizações durante a desmontagem do componente
+    // Check if we already have descriptions in cache
+    if (
+      cachedDescriptions[code] &&
+      cachedWdCodes[code] &&
+      !processedRef.current
+    ) {
+      processedRef.current = true;
+      if (context?._addDescription) {
+        context._addDescription(
+          code,
+          cachedDescriptions[code],
+          cachedWdCodes[code]
+        );
+      }
+      return;
+    }
+
+    // Avoid updates during component unmount
     let isMounted = true;
 
     if (
@@ -48,7 +115,15 @@ const DescriptionFetcher = ({ code }: { code: number }) => {
       isMounted
     ) {
       processedRef.current = true;
+      // Save in cache
+      cachedDescriptions[code] = data.description || "";
+      cachedWdCodes[code] = data.wdCode || "";
+
+      // Update context
       context._addDescription(code, data.description || "", data.wdCode || "");
+
+      // Persist data
+      saveDescriptionsCache();
     }
 
     return () => {
@@ -56,25 +131,64 @@ const DescriptionFetcher = ({ code }: { code: number }) => {
     };
   }, [isSuccess, data, code, context]);
 
+  // If the hook fails, try to fetch directly from the API
+  useEffect(() => {
+    if (!processedRef.current && session?.user?.token) {
+      const fetchDirectly = async () => {
+        try {
+          const result = await capacityService.fetchCapacityDescription(code, {
+            headers: { Authorization: `Token ${session.user.token}` },
+          });
+
+          if (result && context?._addDescription) {
+            processedRef.current = true;
+            // Save in cache
+            cachedDescriptions[code] = result.description || "";
+            cachedWdCodes[code] = result.wdCode || "";
+
+            // Update context
+            context._addDescription(
+              code,
+              result.description || "",
+              result.wdCode || ""
+            );
+
+            // Persist data
+            saveDescriptionsCache();
+          }
+        } catch (error) {
+          console.error(
+            `Erro ao buscar descrição diretamente para ${code}:`,
+            error
+          );
+        }
+      };
+
+      // Small delay to get descriptions faster
+      const timer = setTimeout(fetchDirectly, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [code, context, session]);
+
   return null;
 };
 
-// Contexto para descrições
+// Context for descriptions
 const CapacityContext = createContext<CapacityContextType | null>(null);
 
-// Controlador de estado global para as descrições
+// Global state controller for descriptions
 const globalDescriptionStore = {
-  descriptions: {} as DescriptionMap,
-  wdCodes: {} as WdCodeMap,
-  requestedCodes: new Set<number>(),
+  descriptions: { ...cachedDescriptions } as DescriptionMap,
+  wdCodes: { ...cachedWdCodes } as WdCodeMap,
+  requestedCodes: new Set<number>(requestedDescriptions),
   pendingCodes: new Set<number>(),
   subscribers: new Set<() => void>(),
   isNotifying: false,
   pendingNotification: false,
 
-  // Registrar descrição
+  // Register description
   addDescription(code: number, description: string, wdCode: string) {
-    // Não atualizar se não houver mudanças
+    // Don't update if there are no changes
     if (
       this.descriptions[code] === description &&
       this.wdCodes[code] === wdCode
@@ -84,129 +198,239 @@ const globalDescriptionStore = {
 
     this.descriptions[code] = description;
     this.wdCodes[code] = wdCode;
-    this.scheduleNotification();
+
+    // Also update the permanent caches
+    cachedDescriptions[code] = description;
+    cachedWdCodes[code] = wdCode;
+
+    this.requestedCodes.delete(code); // Remove from requested list
+    this.pendingCodes.delete(code); // Remove from pending list
+
+    // Save to localStorage
+    saveDescriptionsCache();
+
+    this.notifySubscribers(); // Notify immediately
     return true;
   },
 
-  // Solicitar descrição
+  // Request description
   requestDescription(code: number): boolean {
     if (this.requestedCodes.has(code)) {
       return false;
     }
 
     this.requestedCodes.add(code);
+    requestedDescriptions.add(code); // Also update the global set
     this.pendingCodes.add(code);
-
-    // Use a scheduled notification instead of immediate update
-    this.scheduleNotification();
+    this.notifySubscribers(); // Notify immediately
     return true;
   },
 
-  // Obter codigos pendentes e limpar lista
+  // Get pending codes and clear list
   getPendingAndClear(): number[] {
     const pending = Array.from(this.pendingCodes) as number[];
     this.pendingCodes.clear();
     return pending;
   },
 
-  // Agendar notificação de forma segura (fora do ciclo de renderização)
-  scheduleNotification() {
-    if (this.isNotifying) {
-      this.pendingNotification = true;
-      return;
-    }
-
-    // Usar setTimeout para garantir que a notificação ocorra fora do ciclo de renderização
-    setTimeout(() => {
-      this.isNotifying = true;
-      this.notifySubscribers();
-      this.isNotifying = false;
-
-      // Se houver notificações pendentes, agendar uma nova notificação
-      if (this.pendingNotification) {
-        this.pendingNotification = false;
-        this.scheduleNotification();
-      }
-    }, 0);
-  },
-
-  // Informar mudanças aos componentes inscritos
+  // Notify subscribers of changes
   notifySubscribers() {
     this.subscribers.forEach((callback) => callback());
   },
 
-  // Inscrever para receber notificações de mudanças
+  // Subscribe to receive notifications of changes
   subscribe(callback: () => void): () => void {
     this.subscribers.add(callback);
     return () => this.subscribers.delete(callback);
   },
 };
 
-// Provider do contexto
+// Provider of the context
 export function CapacityDescriptionProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  // Estado local para forçar re-renderização quando o store mudar
+  // Local state to force re-render when the store changes
   const [, setUpdateCounter] = useState(0);
+  const [isDescriptionsLoading, setIsDescriptionsLoading] = useState(false);
 
-  // Lista de capacidades a buscar
+  // List of capacities to fetch
   const [codesToFetch, setCodeToFetch] = useState<number[]>([]);
+  const { data: session } = useSession();
+  const { getCapacity, isLoaded } = useCapacityCache();
 
-  // Inscrever-se para atualizações do store
+  // Prefetch descriptions for all capacities when the cache is loaded
+  useEffect(() => {
+    if (isLoaded && session?.user?.token) {
+      // Get all capacity codes from cache
+      const allCodes = new Set<number>();
+      let descriptionsToFetch = 0;
+
+      // Fetch all capacities from localStorage
+      try {
+        const savedCache = localStorage.getItem("capx-capacity-cache");
+        if (savedCache) {
+          const parsedCache = JSON.parse(savedCache);
+          if (parsedCache.capacities) {
+            // Add all capacity codes to the set
+            Object.keys(parsedCache.capacities).forEach((codeStr) => {
+              const code = Number(codeStr);
+              allCodes.add(code);
+
+              // If we don't have description for this capacity, request it
+              if (
+                !cachedDescriptions[code] &&
+                !globalDescriptionStore.requestedCodes.has(code)
+              ) {
+                descriptionsToFetch++;
+                globalDescriptionStore.requestDescription(code);
+              }
+            });
+
+            if (descriptionsToFetch > 0) {
+              console.log(
+                `🔍 Prefetching descriptions for ${descriptionsToFetch} of ${allCodes.size} capacities`
+              );
+              setIsDescriptionsLoading(true);
+            } else {
+              console.log(
+                `✅ All ${allCodes.size} capacity descriptions already cached`
+              );
+              setIsDescriptionsLoading(false);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao processar cache de capacidades:", error);
+        setIsDescriptionsLoading(false);
+      }
+    }
+  }, [isLoaded, session]);
+
+  // Subscribe to updates of the store
   React.useEffect(() => {
     const unsubscribe = globalDescriptionStore.subscribe(() => {
-      // Forçar re-renderização quando os dados mudarem
+      // Force re-render when the data changes
       setUpdateCounter((prev) => prev + 1);
 
-      // Buscar novos codigos pendentes
+      // Fetch new pending codes
       const pendingCodes = globalDescriptionStore.getPendingAndClear();
       if (pendingCodes.length > 0) {
-        setCodeToFetch(pendingCodes);
+        setCodeToFetch((prev) => [...prev, ...pendingCodes]);
       }
     });
 
     return unsubscribe;
   }, []);
 
-  // Adicionar descrição ao cache
+  // Add description to cache
   const addDescription = useCallback(
     (code: number, description: string, wdCode: string) => {
       globalDescriptionStore.addDescription(code, description, wdCode);
+
+      // If there are no more pending codes, disable loading state
+      if (
+        codesToFetch.length === 0 &&
+        globalDescriptionStore.pendingCodes.size === 0
+      ) {
+        setIsDescriptionsLoading(false);
+      }
     },
-    []
+    [codesToFetch]
   );
 
-  // Obter descrição do cache
+  // Get description from cache
   const getDescription = useCallback((code: number): string => {
-    return globalDescriptionStore.descriptions[code] || "";
+    return (
+      globalDescriptionStore.descriptions[code] ||
+      cachedDescriptions[code] ||
+      ""
+    );
   }, []);
 
-  // Obter código WD do cache
+  // Get WD code from cache
   const getWdCode = useCallback((code: number): string => {
-    return globalDescriptionStore.wdCodes[code] || "";
+    return globalDescriptionStore.wdCodes[code] || cachedWdCodes[code] || "";
   }, []);
 
-  // Solicitar descrição de forma segura
-  const requestDescription = useCallback((code: number): Promise<string> => {
-    const description = globalDescriptionStore.descriptions[code];
+  // Request description safely with direct API loading when needed
+  const requestDescription = useCallback(
+    async (code: number): Promise<string> => {
+      const description =
+        globalDescriptionStore.descriptions[code] || cachedDescriptions[code];
 
-    // Se já solicitamos, apenas retornar o valor atual
-    if (!globalDescriptionStore.requestDescription(code)) {
+      // If we already have the description, return immediately
+      if (description) {
+        return Promise.resolve(description);
+      }
+
+      // If we already requested but don't have it, try to fetch directly
+      if (
+        globalDescriptionStore.requestedCodes.has(code) &&
+        session?.user?.token
+      ) {
+        try {
+          const result = await capacityService.fetchCapacityDescription(code, {
+            headers: { Authorization: `Token ${session.user.token}` },
+          });
+
+          if (result) {
+            globalDescriptionStore.addDescription(
+              code,
+              result.description || "",
+              result.wdCode || ""
+            );
+            return result.description || "";
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching description directly for ${code}:`,
+            error
+          );
+        }
+      }
+
+      // If we haven't requested it yet, start the process of searching
+      if (!globalDescriptionStore.requestedCodes.has(code)) {
+        globalDescriptionStore.requestDescription(code);
+
+        // Try to get description directly
+        if (session?.user?.token) {
+          try {
+            const result = await capacityService.fetchCapacityDescription(
+              code,
+              {
+                headers: { Authorization: `Token ${session.user.token}` },
+              }
+            );
+
+            if (result) {
+              globalDescriptionStore.addDescription(
+                code,
+                result.description || "",
+                result.wdCode || ""
+              );
+              return result.description || "";
+            }
+          } catch (error) {
+            console.error(`Erro ao buscar descrição para ${code}:`, error);
+          }
+        }
+      }
+
+      // Return the current value (which may be empty)
       return Promise.resolve(description || "");
-    }
+    },
+    [session]
+  );
 
-    // Aqui retornamos a promessa, mas a busca será feita pelo DescriptionFetcher
-    return Promise.resolve(description || "");
-  }, []);
-
-  // Verificar se descrição já foi solicitada
+  // Check if description has been requested
   const isRequested = useCallback((code: number): boolean => {
     return globalDescriptionStore.requestedCodes.has(code);
   }, []);
 
-  // Memoize contextValue para evitar re-renders desnecessários
+  // Memoize contextValue to avoid unnecessary re-renders
   const contextValue = useMemo(() => {
     return {
       getDescription,
@@ -225,7 +449,7 @@ export function CapacityDescriptionProvider({
 
   return (
     <CapacityContext.Provider value={contextValue}>
-      {/* Componentes que buscam descrições em segundo plano */}
+      {/* Components that fetch descriptions in the background (without showing loading) */}
       {codesToFetch.map((code) => (
         <DescriptionFetcher key={`desc-${code}`} code={code} />
       ))}
