@@ -8,6 +8,18 @@ import { SnackbarProvider } from "./providers/SnackbarProvider";
 import { CapacityCacheProvider } from "@/contexts/CapacityCacheContext";
 import HydrationHandler from "@/components/HydrationHandler";
 import { ProfileEditProvider } from "@/contexts/ProfileEditContext";
+import { CapacitiesPrefetcher } from "@/components/CapacitiesPrefetcher";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import dynamic from "next/dynamic";
+
+// Carregar ferramentas de diagnóstico apenas no cliente
+const DiagnosticTool = dynamic(() => import("@/components/DiagnosticTool"), {
+  ssr: false,
+});
+
+const SessionDebug = dynamic(() => import("@/components/SessionDebug"), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -23,25 +35,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="next-image-preload-policy" content="default" />
       </head>
       <body id="root" className="min-h-screen" suppressHydrationWarning>
-        <HydrationHandler />
-        <ThemeProvider>
-          <SessionWrapper>
-            <AppProvider>
-              <ProfileEditProvider>
-                <SnackbarProvider>
-                  <Providers>
-                    <CapacityCacheProvider>{children}</CapacityCacheProvider>
-                  </Providers>
-                </SnackbarProvider>
-              </ProfileEditProvider>
-            </AppProvider>
-          </SessionWrapper>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <HydrationHandler />
+          <AppProvider>
+            <ThemeProvider>
+              <SessionWrapper>
+                <Providers>
+                  <ProfileEditProvider>
+                    <SnackbarProvider>
+                      <CapacityCacheProvider>
+                        <CapacitiesPrefetcher />
+                        {children}
+                        {process.env.NODE_ENV !== "production" && (
+                          <>
+                            <DiagnosticTool />
+                            <SessionDebug />
+                          </>
+                        )}
+                      </CapacityCacheProvider>
+                    </SnackbarProvider>
+                  </ProfileEditProvider>
+                </Providers>
+              </SessionWrapper>
+            </ThemeProvider>
+          </AppProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
