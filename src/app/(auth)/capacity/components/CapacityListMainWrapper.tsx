@@ -19,6 +19,7 @@ import {
   CapacityDescriptionProvider,
 } from "@/contexts/CapacityContext";
 import React from "react";
+import LoadingStateWithFallback from "@/components/LoadingStateWithFallback";
 
 // Component for descriptions - separated to avoid re-render cycles
 const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {
@@ -258,8 +259,11 @@ function CapacityListContent() {
 
   if (isLoadingRoot) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <LoadingState />
+      <div className="flex justify-center items-center h-[200px]">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue mx-auto mb-2"></div>
+          <p>{pageContent["loading"]}</p>
+        </div>
       </div>
     );
   }
@@ -280,8 +284,11 @@ function CapacityListContent() {
       {searchTerm ? (
         <div className="grid gap-4 w-full">
           {isLoadingSearch ? (
-            <div className="flex justify-center">
-              <LoadingState />
+            <div className="flex justify-center h-[100px]">
+              <div className="text-center">
+                <div className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue mx-auto mb-2"></div>
+                <p>{pageContent["loading"]}</p>
+              </div>
             </div>
           ) : searchResults.length > 0 ? (
             searchResults.map((capacity, index) => (
@@ -379,11 +386,7 @@ export default function CapacityListMainWrapper() {
   }, []);
 
   if (!mounted) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <SimpleLoading />
-      </div>
-    );
+    return <LoadingStateWithFallback fullScreen={true} />;
   }
 
   return (
