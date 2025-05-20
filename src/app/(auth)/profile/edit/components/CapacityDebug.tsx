@@ -24,32 +24,30 @@ export default function CapacityDebug({
   const [isOpen, setIsOpen] = useState(false);
   const [hookError, setHookError] = useState<Error | null>(null);
   const [capacityDetails, setCapacityDetails] = useState<any>(null);
+  const [shouldRender, setShouldRender] = useState(true);
 
-  // Referência para o resultado do hook
-  const hookResultRef = useRef<any>(null);
+  // Always call the hook unconditionally at the top level
+  const hookResult = useCapacityDetails(capacityIds);
 
-  // Sempre executar o hook na mesma ordem, mesmo se o componente estiver desabilitado
-  try {
-    hookResultRef.current = useCapacityDetails(capacityIds);
-  } catch (error) {
-    // Não atualizamos o estado aqui para evitar re-renders durante a renderização
-    console.error("Error in useCapacityDetails:", error);
-  }
-
-  // Usar um useEffect para atualizar o estado de forma segura
+  // Use effect to handle errors and update state safely
   useEffect(() => {
     try {
-      if (hookResultRef.current) {
-        setCapacityDetails(hookResultRef.current);
-        setHookError(null);
-      }
+      setCapacityDetails(hookResult);
+      setHookError(null);
     } catch (error) {
+      console.error("Error in useCapacityDetails:", error);
       setHookError(error as Error);
       setCapacityDetails(null);
     }
-  }, [capacityIds]);
 
-  if (!enabled) return null;
+    // Set if we should render the component based on the enabled prop
+    setShouldRender(!!enabled);
+  }, [capacityIds, hookResult, enabled]);
+
+  // After all hooks are called, we can return conditionally
+  if (!shouldRender) {
+    return null;
+  }
 
   const togglePanel = () => {
     setIsOpen(!isOpen);
