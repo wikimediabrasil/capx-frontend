@@ -1,18 +1,29 @@
 "use client";
-import { useApp } from "@/contexts/AppContext";
-import BaseWrapper from "./BaseWrapper";
-import MainSection from "@/components/MainSection";
+import MainSectionWrapper from "./MainSectionWrapper";
 import FeaturesSection from "@/components/FeaturesSection";
 import CallToActionSection from "@/components/CallToActionSection";
 import VideoSection from "@/components/VideoSection";
+import SafeHydration from "./SafeHydration";
+import LoadingStateWithFallback from "./LoadingStateWithFallback";
 
+/**
+ * Wrapper for the application that ensures components are only rendered after the providers are available.
+ */
 export default function ApplicationWrapper() {
   return (
-    <BaseWrapper>
-      <MainSection/>
-      <FeaturesSection />
-      <VideoSection/>
-      <CallToActionSection />
-    </BaseWrapper>
+    <SafeHydration
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingStateWithFallback />
+        </div>
+      }
+    >
+      <>
+        <MainSectionWrapper />
+        <FeaturesSection />
+        <VideoSection />
+        <CallToActionSection />
+      </>
+    </SafeHydration>
   );
 }
