@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useApp, AppProvider } from "@/contexts/AppContext";
 import { CapacityCard } from "./CapacityCard";
 import { CapacityBanner } from "./CapacityBanner";
@@ -11,6 +11,7 @@ import {
   useCapacitySearch,
 } from "@/hooks/useCapacitiesQuery";
 import LoadingState from "@/components/LoadingState";
+import SimpleLoading from "@/components/SimpleLoading";
 import { Capacity } from "@/types/capacity";
 import CapacityCacheDebug from "@/components/CapacityCacheDebug";
 import {
@@ -19,13 +20,13 @@ import {
 } from "@/contexts/CapacityContext";
 import React from "react";
 
-// Componente para descrições - separado para evitar ciclos de re-renderização
+// Component for descriptions - separated to avoid re-render cycles
 const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {
   const { requestDescription, isRequested } = useCapacityDescriptions();
   const processedIdsRef = useRef<Set<number>>(new Set());
 
   // Move processing to useEffect to avoid updates during render
-  React.useEffect(() => {
+  useEffect(() => {
     // Process any IDs we haven't seen yet
     capacityIds.forEach((id) => {
       if (!processedIdsRef.current.has(id) && !isRequested(id)) {
@@ -38,7 +39,7 @@ const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {
   return null;
 };
 
-// Componente para capacidades filhas
+// Component for child capacities
 const ChildCapacities = ({
   parentCode,
   expandedCapacities,
@@ -56,13 +57,14 @@ const ChildCapacities = ({
   const { getDescription, getWdCode, requestDescription } =
     useCapacityDescriptions();
 
+  const { pageContent } = useApp();
   // Get IDs for loader component instead of loading in this component
   const capacityIds = children
     .map((child) => child.code)
     .filter(Boolean) as number[];
 
   if (isLoadingChildren) {
-    return <div className="mt-4">Loading children...</div>;
+    return <div className="mt-4">{pageContent["loading"]}</div>;
   }
 
   // First, find the actual parent capacity from root capacities or existing children
@@ -188,11 +190,11 @@ const ChildCapacities = ({
   );
 };
 
-// Componente principal com o conteúdo
+// Main component with content
 function CapacityListContent() {
   const { language, pageContent } = useApp();
 
-  // Hooks de UI básica
+  // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<
     Record<string, boolean>
   >({});
@@ -200,13 +202,13 @@ function CapacityListContent() {
   const [searchResults, setSearchResults] = useState<Capacity[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Hooks para dados
+  // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } =
     useRootCapacities(language);
   const { data: querySearchResults = [], isLoading: isLoadingSearch } =
     useCapacitySearch(searchTerm);
 
-  // Context para descrições - apenas para exibição
+  // Descriptions context - only for display
   const { getDescription, getWdCode, requestDescription } =
     useCapacityDescriptions();
 
@@ -218,12 +220,12 @@ function CapacityListContent() {
     .map((c) => c.code)
     .filter(Boolean) as number[];
 
-  // Handlers simples sem useEffect
+  // Simple handlers without useEffect
   const handleSearchChange = useCallback((results: Capacity[]) => {
     setSearchResults(results);
   }, []);
 
-  // Toggle expandido
+  // Toggle expanded
   const handleToggleExpand = useCallback((code: string) => {
     setExpandedCapacities((prev) => ({
       ...prev,
@@ -231,7 +233,7 @@ function CapacityListContent() {
     }));
   }, []);
 
-  // Handlers de busca
+  // Search handlers
   const handleSearchStart = useCallback(() => {
     setIsSearching(true);
   }, []);
@@ -320,7 +322,7 @@ function CapacityListContent() {
           )}
         </div>
       ) : (
-        /* Capacidades root quando não há busca ativa */
+        /* Root capacities when no search is active */
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => (
             <div
@@ -357,19 +359,85 @@ function CapacityListContent() {
         </div>
       )}
 
-      {/* Add debug component in development mode */}
+      {/* Debug component in development mode */}
       {process.env.NODE_ENV === "development" && <CapacityCacheDebug />}
     </section>
   );
 }
 
-// Componente wrapper com o provider
+// Wrapper component with provider
 export default function CapacityListMainWrapper() {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    // Small delay to ensure context is properly initialized
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <SimpleLoading />
+      </div>
+    );
+  }
+
   return (
-    <AppProvider>
-      <CapacityDescriptionProvider>
-        <CapacityListContent />
-      </CapacityDescriptionProvider>
-    </AppProvider>
+    <CapacityErrorBoundary>
+      <AppProvider>
+        <CapacityDescriptionProvider>
+          <CapacityListContent />
+        </CapacityDescriptionProvider>
+      </AppProvider>
+    </CapacityErrorBoundary>
   );
+}
+
+// Simple error boundary component to catch context errors
+class CapacityErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error("Error in CapacityList component:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 mx-auto my-12 max-w-md border border-gray-300 rounded-md bg-white">
+          <h2 className="text-xl font-bold mb-4 text-red-600">
+            Something went wrong
+          </h2>
+          <p className="mb-4">
+            An error occurred while loading the capacities.
+          </p>
+          <p className="text-gray-700 text-sm mb-4">
+            {this.state.error?.message || "Context error"}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Try again
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
 }
