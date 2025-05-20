@@ -1,22 +1,16 @@
 "use client";
 import Image from "next/image";
-import {
-  signIn,
-  useSession,
-  SessionProvider,
-  getSession,
-} from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
+import { signIn, useSession, SessionProvider } from "next-auth/react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CapXLogo from "@/public/static/images/capx_minimalistic_logo.svg";
-
+import { useApp } from "@/contexts/AppContext";
 function OAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [loginStatus, setLoginStatus] = useState<string | null>("Iniciando...");
-  const isCheckingTokenRef = useRef(false); // Ref para controlar a execução do checkToken
-
+  const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
   const oauth_verifier = searchParams.get("oauth_verifier");
   const oauth_token_request = searchParams.get("oauth_token");
 
@@ -142,10 +136,38 @@ function OAuthContent() {
   );
 }
 
+// Loading component for Suspense
+function OAuthLoading() {
+  const { pageContent } = useApp();
+
+  return (
+    <section className="flex w-screen h-screen font-montserrat">
+      <div className="flex flex-wrap w-1/2 mx-auto my-auto">
+        <div className="flex w-fit mx-auto mb-4">
+          <Image
+            priority
+            src={CapXLogo}
+            alt="Capacity Exchange logo image."
+            className="w-16"
+          />
+        </div>
+        <div className="flex w-full text-center mb-4">
+          <h1 className="w-full">{pageContent["loading"]}</h1>
+        </div>
+        <div className="flex w-fit mx-auto">
+          <div className="mx-auto animate-spin ease-linear h-8 w-8 rounded-full border-8 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function OAuth() {
   return (
     <SessionProvider>
-      <OAuthContent />
+      <Suspense fallback={<OAuthLoading />}>
+        <OAuthContent />
+      </Suspense>
     </SessionProvider>
   );
 }
