@@ -1,19 +1,25 @@
 "use client";
 
 import { CapacityCacheProvider } from "@/contexts/CapacityCacheContext";
-import { AppProvider } from "@/contexts/AppContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import Footer from "@/components/Footer";
+import { useEffect, useState } from "react";
+import SimpleLoading from "@/components/SimpleLoading";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <AppProvider>
-      <ThemeProvider>
-        <CapacityCacheProvider>
-          {children}
-          <Footer />
-        </CapacityCacheProvider>
-      </ThemeProvider>
-    </AppProvider>
-  );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Delay mounting slightly to ensure smooth initialization
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!mounted) {
+    return <SimpleLoading />;
+  }
+
+  return children;
 }

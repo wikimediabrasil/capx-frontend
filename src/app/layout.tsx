@@ -12,11 +12,7 @@ import { CapacitiesPrefetcher } from "@/components/CapacitiesPrefetcher";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import dynamic from "next/dynamic";
 
-// Carregar ferramentas de diagnóstico apenas no cliente
-const DiagnosticTool = dynamic(() => import("@/components/DiagnosticTool"), {
-  ssr: false,
-});
-
+// Carregar ferramentas de debug apenas no cliente
 const SessionDebug = dynamic(() => import("@/components/SessionDebug"), {
   ssr: false,
 });
@@ -51,9 +47,8 @@ export default function RootLayout({
                       <CapacityCacheProvider>
                         <CapacitiesPrefetcher />
                         {children}
-                        {process.env.NODE_ENV !== "production" && (
+                        {process.env.NODE_ENV === "development" && (
                           <>
-                            <DiagnosticTool />
                             <SessionDebug />
                           </>
                         )}
