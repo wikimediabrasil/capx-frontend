@@ -30,7 +30,7 @@ const Row = (
           <div className="relative w-full h-full">
             <Image
               src={illustration}
-              alt={description}
+              alt={description || "Image description"}
               className="object-contain"
               fill
             />
