@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { getCapacityColor, getCapacityIcon } from "@/lib/utils/capacitiesUtils";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
-// Chaves de cache para React Query
+// Cache keys for React Query
 export const CAPACITY_CACHE_KEYS = {
   all: ["capacities"] as const,
   root: ["capacities", "root"] as const,
@@ -21,7 +21,7 @@ export const CAPACITY_CACHE_KEYS = {
   allHierarchy: ["capacities", "hierarchy"] as const,
 };
 
-// Função auxiliar para converter CapacityResponse para Capacity
+// Helper function to convert CapacityResponse to Capacity
 const convertToCapacity = (
   response: CapacityResponse,
   parentCode?: string
@@ -54,20 +54,20 @@ const convertToCapacity = (
     name: response.name,
     color,
     icon: getCapacityIcon(iconCode),
-    hasChildren: false, // Default, será atualizado se necessário
+    hasChildren: false, // Default, will be updated if needed
     skill_type: parentCode ? Number(parentCode) : code,
     skill_wikidata_item: "",
   };
 };
 
 /**
- * Prefetch e configurar todos os dados de capacidades quando o app inicializa
- * Chamado no provider de nível superior para garantir dados disponíveis
+ * Prefetch and configure all capacity data when the app initializes
+ * Called in the top-level provider to ensure data is available
  */
 export function prefetchAllCapacityData(token?: string, queryClient?: any) {
   if (!token || !queryClient) return Promise.resolve();
 
-  // 1. Prefetch de capacidades raiz
+  // 1. Prefetch root capacities
   return queryClient.prefetchQuery({
     queryKey: CAPACITY_CACHE_KEYS.root,
     queryFn: async () => {
@@ -75,7 +75,7 @@ export function prefetchAllCapacityData(token?: string, queryClient?: any) {
         headers: { Authorization: `Token ${token}` },
       });
 
-      // 2. Para cada capacidade raiz, prefetch seus filhos
+      // 2. For each root capacity, prefetch its children
       const childrenPromises = rootCapacities.map(async (rootCapacity) => {
         // Safely extract the rootId with proper type handling
         const rootCode = rootCapacity.code as string | number;
@@ -156,145 +156,183 @@ export function useCapacitySearch() {
   return { searchCapacities };
 }
 
+// Auxiliary functions for capacities
+function fetchAndCacheCapacityById(
+  id: number,
+  token: string,
+  queryClient: any
+) {
+  return async () => {
+    if (!token) return null;
+    try {
+      const response = await capacityService.fetchCapacityById(id.toString());
+
+      // Prefetch description if we have the capacity
+      if (response) {
+        queryClient.prefetchQuery({
+          queryKey: CAPACITY_CACHE_KEYS.description(id),
+          queryFn: async () => {
+            return capacityService.fetchCapacityDescription(id);
+          },
+          staleTime: 1000 * 60 * 60 * 24, // 24 hours
+        });
+      }
+
+      return response ? convertToCapacity(response) : null;
+    } catch (error) {
+      console.error(`Error fetching capacity ${id}:`, error);
+      return null;
+    }
+  };
+}
+
+function fetchAndCacheCapacitiesByParent(
+  parentCode: string,
+  token: string,
+  queryClient: any,
+  rootCapacities: Capacity[]
+) {
+  return async () => {
+    if (!token || !parentCode) return [];
+
+    const childrenResponse = await capacityService.fetchCapacitiesByType(
+      parentCode,
+      { headers: { Authorization: `Token ${token}` } }
+    );
+
+    // Format and cache children
+    const formattedCapacities = Object.entries(childrenResponse).map(
+      ([code, name]) => {
+        const capacity = {
+          code: Number(code),
+          name: name as unknown as string,
+        };
+
+        // Cache each child individually
+        queryClient.setQueryData(
+          CAPACITY_CACHE_KEYS.byId(Number(code)),
+          capacity
+        );
+
+        // Find parent for color/icon
+        const parentCapacity = rootCapacities.find(
+          (cap) => cap.code.toString() === parentCode
+        );
+
+        return {
+          code: Number(code),
+          name: name as unknown as string,
+          color: parentCapacity?.color || "gray-200",
+          icon: parentCapacity?.icon,
+          hasChildren: false, // Will be updated if needed
+          skill_type: Number(parentCode),
+          skill_wikidata_item: "",
+        };
+      }
+    );
+
+    return formattedCapacities;
+  };
+}
+
+function fetchCapacityDescription(capacityId: number, token: string) {
+  return async () => {
+    if (!token) return { description: "", wdCode: "" };
+    return capacityService.fetchCapacityDescription(capacityId);
+  };
+}
+
 /**
- * Hook principal para acessar capacidades.
- * Com suporte completo para cache de todas as operações.
+ * Main hook to access capacities.
+ * With full support for cache of all operations.
  */
 export function useCapacities() {
   const { data: session } = useSession();
   const token = session?.user?.token;
   const queryClient = useQueryClient();
 
-  // Carregar capacidades raiz
+  // Fetch root capacities
   const {
-    data: rootCapacitiesData,
+    data: rootCapacitiesData = [],
     isLoading: isLoadingRoots,
     isSuccess: rootsSuccess,
   } = useQuery({
     queryKey: CAPACITY_CACHE_KEYS.root,
     queryFn: async () => {
       if (!token) return [];
-      return await capacityService.fetchCapacities({
+      return capacityService.fetchCapacities({
         headers: { Authorization: `Token ${token}` },
       });
     },
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
-    gcTime: 1000 * 60 * 60 * 24, // 24 hours
   });
 
-  // Converter para formato mais amigável
+  // Process root capacities
   const rootCapacities = useMemo(() => {
-    if (!rootCapacitiesData) return [];
     return rootCapacitiesData.map((item) => convertToCapacity(item));
   }, [rootCapacitiesData]);
 
-  // Hook para buscar capacidades por ID
-  const useCapacityById = useCallback(
-    (id: number) => {
-      return useQuery({
-        queryKey: CAPACITY_CACHE_KEYS.byId(id),
-        queryFn: async () => {
-          if (!token) return null;
-          try {
-            const response = await capacityService.fetchCapacityById(
-              id.toString()
-            );
-
-            // Prefetch description if we have the capacity
-            if (response) {
-              queryClient.prefetchQuery({
-                queryKey: CAPACITY_CACHE_KEYS.description(id),
-                queryFn: async () => {
-                  return capacityService.fetchCapacityDescription(id);
-                },
-                staleTime: 1000 * 60 * 60 * 24, // 24 hours
-              });
-            }
-
-            return response ? convertToCapacity(response) : null;
-          } catch (error) {
-            console.error(`Error fetching capacity ${id}:`, error);
-            return null;
-          }
-        },
-        enabled: !!id && !!token,
-        staleTime: 1000 * 60 * 60, // 1 hour
-      });
+  // Define query functions outside useCallback
+  const fetchCapacityById = useCallback(
+    async (id: number) => {
+      return fetchAndCacheCapacityById(id, token as string, queryClient)();
     },
     [token, queryClient]
   );
 
-  // Hook para buscar capacidades filhas
-  const useCapacitiesByParent = useCallback(
-    (parentCode: string) => {
-      return useQuery({
-        queryKey: CAPACITY_CACHE_KEYS.children(parentCode),
-        queryFn: async () => {
-          if (!token || !parentCode) return [];
-
-          const childrenResponse = await capacityService.fetchCapacitiesByType(
-            parentCode,
-            { headers: { Authorization: `Token ${token}` } }
-          );
-
-          // Format and cache children
-          const formattedCapacities = Object.entries(childrenResponse).map(
-            ([code, name]) => {
-              const capacity = {
-                code: Number(code),
-                name: name as unknown as string,
-              };
-
-              // Cache each child individually
-              queryClient.setQueryData(
-                CAPACITY_CACHE_KEYS.byId(Number(code)),
-                capacity
-              );
-
-              // Find parent for color/icon
-              const parentCapacity = rootCapacities.find(
-                (cap) => cap.code.toString() === parentCode
-              );
-
-              return {
-                code: Number(code),
-                name: name as unknown as string,
-                color: parentCapacity?.color || "gray-200",
-                icon: parentCapacity?.icon,
-                hasChildren: false, // Will be updated if needed
-                skill_type: Number(parentCode),
-                skill_wikidata_item: "",
-              };
-            }
-          );
-
-          return formattedCapacities;
-        },
-        enabled: !!token && !!parentCode,
-        staleTime: 1000 * 60 * 60, // 1 hour
-      });
+  const fetchCapacitiesByParent = useCallback(
+    async (parentCode: string) => {
+      return fetchAndCacheCapacitiesByParent(
+        parentCode,
+        token as string,
+        queryClient,
+        rootCapacities
+      )();
     },
     [token, queryClient, rootCapacities]
   );
 
-  // Get capacity description
-  const useCapacityDescription = useCallback(
-    (capacityId: number) => {
-      return useQuery({
-        queryKey: CAPACITY_CACHE_KEYS.description(capacityId),
-        queryFn: async () => {
-          if (!token) return { description: "", wdCode: "" };
-          return capacityService.fetchCapacityDescription(capacityId);
-        },
-        enabled: !!capacityId && !!token,
-        staleTime: 1000 * 60 * 60 * 24, // 24 hours - descriptions rarely change
-      });
+  const fetchCapacityDescriptionById = useCallback(
+    async (capacityId: number) => {
+      return fetchCapacityDescription(capacityId, token as string)();
     },
     [token]
   );
 
-  // Função de utilidade para obter capacidade por ID do cache
+  // Return query configurations that can be used directly with useQuery
+  // Instead of returning hooks, return query configs
+  const getCapacityByIdQueryConfig = useCallback(
+    (id: number) => ({
+      queryKey: CAPACITY_CACHE_KEYS.byId(id),
+      queryFn: () => fetchCapacityById(id),
+      enabled: !!id && !!token,
+      staleTime: 1000 * 60 * 60, // 1 hour
+    }),
+    [fetchCapacityById, token]
+  );
+
+  const getCapacitiesByParentQueryConfig = useCallback(
+    (parentCode: string) => ({
+      queryKey: CAPACITY_CACHE_KEYS.children(parentCode),
+      queryFn: () => fetchCapacitiesByParent(parentCode),
+      enabled: !!token && !!parentCode,
+      staleTime: 1000 * 60 * 60, // 1 hour
+    }),
+    [fetchCapacitiesByParent, token]
+  );
+
+  const getCapacityDescriptionQueryConfig = useCallback(
+    (capacityId: number) => ({
+      queryKey: CAPACITY_CACHE_KEYS.description(capacityId),
+      queryFn: () => fetchCapacityDescriptionById(capacityId),
+      enabled: !!capacityId && !!token,
+      staleTime: 1000 * 60 * 60 * 24, // 24 hours - descriptions rarely change
+    }),
+    [fetchCapacityDescriptionById, token]
+  );
+
+  // Utility function to get capacity by ID from cache
   const getCapacityById = useCallback(
     (id: number): Capacity | undefined => {
       const cached = queryClient.getQueryData<CapacityResponse>(
@@ -322,6 +360,14 @@ export function useCapacities() {
     }
   }, [token, rootsSuccess, rootCapacities.length, queryClient]);
 
+  // Custom hooks for usage in components
+  const useCapacityById = (id: number) =>
+    useQuery(getCapacityByIdQueryConfig(id));
+  const useCapacitiesByParent = (parentCode: string) =>
+    useQuery(getCapacitiesByParentQueryConfig(parentCode));
+  const useCapacityDescription = (capacityId: number) =>
+    useQuery(getCapacityDescriptionQueryConfig(capacityId));
+
   return {
     rootCapacities,
     isLoadingRootCapacities: isLoadingRoots,
@@ -336,7 +382,6 @@ export function useCapacities() {
 export function useCapacityWithDetails(capacityId?: number) {
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const queryClient = useQueryClient();
 
   // Fetch capacity data directly
   const { data: capacity, isLoading: isLoadingCapacity } = useQuery({

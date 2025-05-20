@@ -13,6 +13,7 @@ export const CAPACITY_CACHE_KEYS = {
   description: (code: number | string) =>
     ["capacities", "description", code.toString()] as const,
   search: (query: string) => ["capacities", "search", query] as const,
+  byId: (code: number) => ["capacities", "byId", code.toString()] as const,
 };
 
 /**
@@ -238,44 +239,78 @@ export function useCapacitiesByParent(
             // This is essential for proper color inheritance in nested children
             capacity.parentCapacity = parentCapacity;
 
-            // Garantir que a cor é sempre herdada do parent quando ele existir
             if (parentCapacity?.color) {
               capacity.color = parentCapacity.color;
             }
 
             // Check if this capacity has children by making an API call
             try {
-              const children = await capacityService.fetchCapacitiesByType(
-                code,
-                {
-                  headers: { Authorization: `Token ${token}` },
-                }
+              // First, check if we already have the children in the cache
+              const cachedChildren = queryClient.getQueryData(
+                CAPACITY_CACHE_KEYS.byParent(code)
               );
 
-              // Cache the children results
-              queryClient.setQueryData(
-                CAPACITY_CACHE_KEYS.byParent(code),
-                Object.entries(children as Record<string, any>).map(
-                  ([childCode, childNameOrResponse]) => {
-                    const childName =
-                      typeof childNameOrResponse === "string"
-                        ? childNameOrResponse
-                        : (childNameOrResponse as any)?.name ||
-                          `Capacity ${childCode}`;
+              let hasChildren = false;
 
-                    // Create a minimal capacity object for the cache
-                    return {
-                      code: Number(childCode),
-                      name: childName,
-                    };
+              if (cachedChildren && Array.isArray(cachedChildren)) {
+                // If we have the children in the cache, use it to determine hasChildren
+                hasChildren = cachedChildren.length > 0;
+                console.log(
+                  `Using cached children for ${code}, hasChildren:`,
+                  hasChildren
+                );
+              } else {
+                // If we don't have it in the cache, make the API call
+                const children = await capacityService.fetchCapacitiesByType(
+                  code,
+                  {
+                    headers: { Authorization: `Token ${token}` },
                   }
-                )
+                );
+
+                // Format the children for the cache
+                const formattedChildren = Object.entries(
+                  children as Record<string, any>
+                ).map(([childCode, childNameOrResponse]) => {
+                  const childName =
+                    typeof childNameOrResponse === "string"
+                      ? childNameOrResponse
+                      : (childNameOrResponse as any)?.name ||
+                        `Capacity ${childCode}`;
+
+                  return {
+                    code: Number(childCode),
+                    name: childName,
+                  };
+                });
+
+                // Update the children cache
+                queryClient.setQueryData(
+                  CAPACITY_CACHE_KEYS.byParent(code),
+                  formattedChildren
+                );
+
+                hasChildren = formattedChildren.length > 0;
+                console.log(
+                  `Fetched children for ${code}, hasChildren:`,
+                  hasChildren
+                );
+              }
+
+              // Create the updated capacity with hasChildren
+              const updatedCapacity = {
+                ...capacity,
+                hasChildren,
+              };
+
+              // Update the individual capacity cache
+              queryClient.setQueryData(
+                CAPACITY_CACHE_KEYS.byId(Number(code)),
+                updatedCapacity
               );
 
-              return {
-                ...capacity,
-                hasChildren: Object.keys(children).length > 0,
-              };
+              // Return the updated capacity
+              return updatedCapacity;
             } catch (error) {
               console.error(`Error checking children for ${code}:`, error);
               return {
@@ -287,7 +322,34 @@ export function useCapacitiesByParent(
         )
       );
 
-      return formattedCapacities;
+      // Ensure that all capacities have the correct value of hasChildren
+      const finalCapacities = formattedCapacities.map((capacity) => {
+        // Check if we have the children in the cache
+        const cachedChildren = queryClient.getQueryData(
+          CAPACITY_CACHE_KEYS.byParent(capacity.code.toString())
+        );
+
+        if (cachedChildren && Array.isArray(cachedChildren)) {
+          const hasChildren = cachedChildren.length > 0;
+          console.log(
+            `Using cached children for final check ${capacity.code}, hasChildren:`,
+            hasChildren
+          );
+          return {
+            ...capacity,
+            hasChildren,
+          };
+        }
+
+        return capacity;
+      });
+
+      // Force an update of the cache to ensure the component reacts
+      queryClient.invalidateQueries({
+        queryKey: CAPACITY_CACHE_KEYS.byParent(parentCode),
+      });
+
+      return finalCapacities;
     },
     enabled: !!token && !!parentCode,
     staleTime: 1000 * 60 * 10, // 10 minutes
