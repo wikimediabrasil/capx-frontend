@@ -4,12 +4,13 @@ import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
 import { getCapacityColor, getHueRotate } from "@/lib/utils/capacitiesUtils";
 import BarCodeIcon from "@/public/static/images/barcode.svg";
 import BaseButton from "@/components/BaseButton";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import InfoIcon from "@/public/static/images/info.svg";
 import InfoFilledIcon from "@/public/static/images/info_filled.svg";
 import { Capacity } from "@/types/capacity";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
+import { useCapacityCache } from "@/contexts/CapacityCacheContext";
 
 interface CapacityCardProps {
   code: number;
@@ -26,6 +27,7 @@ interface CapacityCardProps {
   isRoot?: boolean;
   isSearch?: boolean;
   onInfoClick?: (code: number) => Promise<string | undefined>;
+  isMobile?: boolean;
 }
 
 export function CapacityCard({
@@ -45,10 +47,14 @@ export function CapacityCard({
   onInfoClick,
 }: CapacityCardProps) {
   const router = useRouter();
-  const [showInfo, setShowInfo] = useState(false);
+  const searchParams = useSearchParams();
   const { isMobile, pageContent } = useApp();
+  const { hasChildren: useCapacityCacheHasChildren } = useCapacityCache();
+  const [showInfo, setShowInfo] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
+
+  const hasChildrenFromCache = useCapacityCacheHasChildren(code);
 
   // Ensures that names that look like QIDs are replaced
   const displayName = useMemo(() => {
@@ -92,15 +98,18 @@ export function CapacityCard({
   const renderExpandedContent = () => {
     if (!showInfo) return null;
 
-    let buttonBgColor = "#000000";
+    // Determinar a cor de fundo do botão
+    const getButtonBackgroundColor = () => {
+      if (parentCapacity?.parentCapacity) {
+        return "#4B5563"; // Cor de fundo para cards netos
+      }
+      if (parentCapacity?.color) {
+        return getCapacityColor(parentCapacity.color);
+      }
+      return getCapacityColor(color);
+    };
 
-    if (parentCapacity?.parentCapacity) {
-      buttonBgColor = "#4B5563";
-    } else if (parentCapacity?.color) {
-      buttonBgColor = getCapacityColor(parentCapacity.color);
-    } else {
-      buttonBgColor = getCapacityColor(color);
-    }
+    const buttonBgColor = getButtonBackgroundColor();
 
     return (
       <div
@@ -131,7 +140,13 @@ export function CapacityCard({
             {capitalizeFirstLetter(description)}
           </p>
         )}
-        <div style={{ backgroundColor: buttonBgColor }} className="rounded-lg">
+        <div
+          className="rounded-lg w-fit"
+          style={{
+            backgroundColor: buttonBgColor,
+            display: "inline-block",
+          }}
+        >
           <BaseButton
             label={pageContent["capacity-card-explore-capacity"]}
             customClass="w-[224px] flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold text-3.5 sm:text-3.5 rounded-[4px] text-center text-[24px] not-italic leading-[normal]"
@@ -221,8 +236,8 @@ export function CapacityCard({
       return getHueRotate(parentCapacity.color);
     }
 
-    // Caso contrário, não aplicar filtro
-    return "none";
+    // Caso contrário, usar a cor padrão do ícone
+    return "brightness(0)"; // Isso fará o ícone ficar preto
   };
 
   const renderIcon = (size: number, iconSrc: any) => {
@@ -247,10 +262,8 @@ export function CapacityCard({
   };
 
   const renderInfoButton = (size: number, icon: string) => {
-    // For grandchild capacities, use white icon
-    const filterStyle = parentCapacity?.parentCapacity
-      ? "brightness(0) invert(1)" // White for grandchild capacities
-      : getIconFilter(isRoot, parentCapacity);
+    // For grandchild capacities, use the grandparent's color
+    const filterStyle = getIconFilter(isRoot, parentCapacity);
 
     return (
       <button
@@ -281,10 +294,8 @@ export function CapacityCard({
   };
 
   const renderArrowButton = (size: number, icon: string) => {
-    // For grandchild capacities, use white icon
-    const filterStyle = parentCapacity?.parentCapacity
-      ? "brightness(0) invert(1)" // White for grandchild capacities
-      : getIconFilter(isRoot, parentCapacity);
+    // For grandchild capacities, use the grandparent's color
+    const filterStyle = getIconFilter(isRoot, parentCapacity);
 
     return (
       <button
@@ -315,22 +326,22 @@ export function CapacityCard({
     );
   };
 
-  if ((isRoot && hasChildren) || isSearch) {
-    // root or search card
+  if (isSearch) {
+    // Search card - sempre renderiza como um card de busca
     const cardColor = getEffectiveColor();
 
     return (
       <div className="w-full">
         <div
           onClick={handleCardClick}
-          className={`flex flex-col w-full ${
-            isSearch && !isRoot
-              ? `bg-${parentCapacity?.color || cardColor}`
-              : `bg-${cardColor}`
-          } shadow-sm hover:shadow-md transition-shadow
+          className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
           ${isMobile ? "rounded-[4px]" : "rounded-lg"}
-          cursor-pointer hover:brightness-95 transition-all
-          `}
+          cursor-pointer hover:brightness-95 transition-all`}
+          style={{
+            backgroundColor: getCapacityColor(
+              parentCapacity?.color || cardColor
+            ),
+          }}
         >
           <div
             className={`flex p-4 ${
@@ -359,29 +370,11 @@ export function CapacityCard({
                 </Link>
               </div>
 
-              {isSearch ? (
-                <>
-                  {isMobile ? (
-                    <>{renderInfoButton(24, InfoIcon)}</>
-                  ) : (
-                    <>{renderInfoButton(68, InfoIcon)}</>
-                  )}
-                </>
-              ) : (
-                <>
-                  {isMobile ? (
-                    <>
-                      {renderInfoButton(24, InfoIcon)}
-                      {renderArrowButton(24, ArrowDownIcon)}
-                    </>
-                  ) : (
-                    <>
-                      {renderInfoButton(68, InfoIcon)}
-                      {renderArrowButton(68, ArrowDownIcon)}
-                    </>
-                  )}
-                </>
-              )}
+              <div className="flex items-center gap-4">
+                {isMobile
+                  ? renderInfoButton(24, InfoIcon)
+                  : renderInfoButton(68, InfoIcon)}
+              </div>
             </div>
           </div>
           {showInfo && (
@@ -393,7 +386,77 @@ export function CapacityCard({
             </div>
           )}
         </div>
-        {isExpanded && !isSearch && (
+      </div>
+    );
+  }
+
+  if (isRoot && hasChildren) {
+    // Root card with children
+    const cardColor = getEffectiveColor();
+
+    return (
+      <div className="w-full">
+        <div
+          onClick={handleCardClick}
+          className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
+          ${isMobile ? "rounded-[4px]" : "rounded-lg"}
+          cursor-pointer hover:brightness-95 transition-all`}
+          style={{
+            backgroundColor: getCapacityColor(color),
+          }}
+        >
+          <div
+            className={`flex p-4 ${
+              isMobile
+                ? "h-[191px] flex-col mt-12 mx-6 gap-6"
+                : "flex-row h-[326px] justify-around items-center"
+            }`}
+          >
+            {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
+
+            <div
+              className={`flex items-center flex-row ${
+                isMobile ? "gap-4" : "gap-16"
+              }`}
+            >
+              <div className="flex items-center w-[378px] h-full">
+                <Link href={`/feed?capacityId=${code}`}>
+                  <h3
+                    onClick={handleTitleClick}
+                    className={`font-extrabold text-white hover:underline ${
+                      isMobile ? "text-[20px]" : "text-[48px]"
+                    }`}
+                  >
+                    {capitalizeFirstLetter(name)}
+                  </h3>
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {isMobile ? (
+                  <>
+                    {renderInfoButton(24, InfoIcon)}
+                    {renderArrowButton(24, ArrowDownIcon)}
+                  </>
+                ) : (
+                  <>
+                    {renderInfoButton(68, InfoIcon)}
+                    {renderArrowButton(68, ArrowDownIcon)}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          {showInfo && (
+            <div
+              className="bg-white rounded-b-lg p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {renderExpandedContent()}
+            </div>
+          )}
+        </div>
+        {isExpanded && (
           <div
             ref={childrenContainerRef}
             className="mt-4 w-full overflow-x-auto scrollbar-hide"
@@ -431,14 +494,6 @@ export function CapacityCard({
   const bgColorClass = getBgColorClass();
   const textColorClass = getTextColorClass();
 
-  // Debug log for third level capacities
-  if (parentCapacity?.parentCapacity) {
-    console.log(
-      `Rendering grandchild capacity ${code}, hasChildren:`,
-      hasChildren
-    );
-  }
-
   return (
     <div className="w-full">
       <div
@@ -448,51 +503,50 @@ export function CapacityCard({
         <div className="flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-12">
           <div
             className={`flex items-center gap-4 ${
-              isMobile ? "gap-12" : "gap-4"
-            }`}
+              isRoot ? "gap-12" : "gap-4"
+            } min-w-0`}
           >
-            {icon && isMobile ? renderIcon(48, icon) : renderIcon(68, icon)}
+            {icon && isRoot ? renderIcon(48, icon) : renderIcon(68, icon)}
             <div
               className={`flex flex-row items-center justify-between ${
-                isMobile ? "w-max" : ""
-              }`}
+                isRoot ? "w-max" : ""
+              } min-w-0 flex-1`}
             >
-              <Link href={`/feed?capacityId=${code}`} className="w-full">
+              <Link
+                href={`/feed?capacityId=${code}`}
+                className="w-full min-w-0"
+              >
                 <h3
                   onClick={handleTitleClick}
                   className={`font-extrabold hover:underline ${
-                    isMobile ? "text-[20px]" : "text-[36px]"
-                  } ${textColorClass}`}
+                    isRoot ? "text-[20px]" : "text-[36px]"
+                  } truncate`}
                   style={{
-                    color:
-                      textColorClass === "text-white"
-                        ? "#FFFFFF"
-                        : getNameColor(isRoot, parentCapacity, color),
+                    color: getNameColor(isRoot, parentCapacity, color),
                   }}
+                  title={capitalizeFirstLetter(displayName)}
                 >
                   {capitalizeFirstLetter(displayName)}
                 </h3>
               </Link>
             </div>
           </div>
-          <div className={`flex items-center gap-4 mr-4 z-10`}>
-            {/* Always render info button with explicit styles to ensure visibility */}
+          <div className={`flex items-center gap-4 mr-4 z-10 flex-shrink-0`}>
             <div
               className="relative"
               style={{ zIndex: 10, visibility: "visible" }}
             >
-              {isMobile
+              {isRoot
                 ? renderInfoButton(24, InfoIcon)
                 : renderInfoButton(40, InfoIcon)}
             </div>
 
-            {/* Always check hasChildren explicitly, no matter what level */}
-            {hasChildren === true && (
+            {hasChildrenFromCache && (
               <div
                 className="relative"
                 style={{ zIndex: 10, visibility: "visible" }}
               >
-                {isMobile
+                {isRoot
                   ? renderArrowButton(24, ArrowDownIcon)
                   : renderArrowButton(40, ArrowDownIcon)}
               </div>

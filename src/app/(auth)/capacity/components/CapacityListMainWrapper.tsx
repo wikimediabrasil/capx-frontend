@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { useApp } from "@/contexts/AppContext";
+import { useApp, AppProvider } from "@/contexts/AppContext";
 import { CapacityCard } from "./CapacityCard";
 import { CapacityBanner } from "./CapacityBanner";
 import { CapacitySearch } from "./CapacitySearch";
@@ -190,7 +190,7 @@ const ChildCapacities = ({
 
 // Componente principal com o conteúdo
 function CapacityListContent() {
-  const { language } = useApp();
+  const { language, pageContent } = useApp();
 
   // Hooks de UI básica
   const [expandedCapacities, setExpandedCapacities] = useState<
@@ -275,13 +275,13 @@ function CapacityListContent() {
         onSearch={handleSearch}
       />
 
-      {searchResults.length > 0 || (isSearching && isLoadingSearch) ? (
+      {searchTerm ? (
         <div className="grid gap-4 w-full">
           {isLoadingSearch ? (
             <div className="flex justify-center">
               <LoadingState />
             </div>
-          ) : (
+          ) : searchResults.length > 0 ? (
             searchResults.map((capacity, index) => (
               <div
                 key={`search-${capacity.code}-${index}`}
@@ -309,20 +309,18 @@ function CapacityListContent() {
                     }
                     return getDescription(code);
                   }}
+                  isSearch={true}
                 />
-                {expandedCapacities[capacity.code] && (
-                  <ChildCapacities
-                    parentCode={capacity.code.toString()}
-                    expandedCapacities={expandedCapacities}
-                    onToggleExpand={handleToggleExpand}
-                  />
-                )}
               </div>
             ))
+          ) : (
+            <div className="text-center text-[24px] text-capx-dark-box-bg">
+              {pageContent["capacity-search-no-results"]}
+            </div>
           )}
         </div>
       ) : (
-        /* Capacidades root quando não há resultados de busca */
+        /* Capacidades root quando não há busca ativa */
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => (
             <div
@@ -368,8 +366,10 @@ function CapacityListContent() {
 // Componente wrapper com o provider
 export default function CapacityListMainWrapper() {
   return (
-    <CapacityDescriptionProvider>
-      <CapacityListContent />
-    </CapacityDescriptionProvider>
+    <AppProvider>
+      <CapacityDescriptionProvider>
+        <CapacityListContent />
+      </CapacityDescriptionProvider>
+    </AppProvider>
   );
 }
