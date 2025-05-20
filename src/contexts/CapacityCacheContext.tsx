@@ -11,7 +11,9 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { capacityService } from "@/services/capacityService";
 import { useSession } from "next-auth/react";
 import { Capacity } from "@/types/capacity";
-import LoadingStateWithFallback from "@/components/LoadingStateWithFallback";
+import LoadingStateWithFallback, {
+  CompactLoading,
+} from "@/components/LoadingStateWithFallback";
 
 // Query keys for the React Query
 const QUERY_KEYS = {
@@ -429,8 +431,6 @@ export function CapacityCacheProvider({
 
   return (
     <CapacityCacheContext.Provider value={contextValue}>
-      {/* Mostrar loading state durante o carregamento das capacidades */}
-      {isLoading && <LoadingStateWithFallback />}
       {children}
     </CapacityCacheContext.Provider>
   );
