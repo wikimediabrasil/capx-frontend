@@ -4,8 +4,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import Image from "next/image";
 import { Badge } from "@/types/badge";
-import CheckCircleIcon from "@/public/static/images/add.svg";
-import CheckCircleIconWhite from "@/public/static/images/add_dark.svg";
+// import CheckCircleIcon from "@/public/static/images/check.svg"; TODO: Add this icon
 import BaseButton from "./BaseButton";
 import { useState, useEffect } from "react";
 
@@ -77,16 +76,17 @@ export default function BadgeSelectionModal({
                     : "border border-gray-200"
                 }`}
               >
-                {selected.includes(badge.id) && (
+                {/* TODO: Add this icon eventually */}
+                {/* {selected.includes(badge.id) && (
                   <div className="absolute top-2 right-2">
                     <Image
-                      src={darkMode ? CheckCircleIconWhite : CheckCircleIcon}
+                      src={CheckCircleIcon}
                       alt={pageContent["capacity-selection-modal-selected"]}
                       width={24}
                       height={24}
                     />
                   </div>
-                )}
+                )} */}
                 
                 <div className="flex flex-col items-center">
                   <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
