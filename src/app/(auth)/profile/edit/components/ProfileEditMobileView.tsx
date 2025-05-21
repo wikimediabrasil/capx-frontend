@@ -558,6 +558,16 @@ export default function ProfileEditMobileView(
                 </span>
               </div>
 
+
+
+
+
+
+
+
+
+
+
               {/* Languages Section */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
@@ -749,7 +759,6 @@ export default function ProfileEditMobileView(
               >
                 {pageContent["edit-profile-language-tooltip"]}
               </span>
-
               {/* Alternative Wikimedia Account */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
@@ -791,163 +800,223 @@ export default function ProfileEditMobileView(
                   {pageContent["edit-profile-share-username"]}
                 </span>
               </div>
+            {/* Affiliation Section */}
+            <div className="flex flex-col gap-4 mt-4">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? AffiliationIconWhite : AffiliationIcon}
+                  alt="Affiliation icon"
+                  width={20}
+                  height={20}
+                />
+                <h2
+                  className={`font-[Montserrat] text-[12px] font-bold ${
+                    darkMode ? "text-white" : "text-[#053749]"
+                  }`}
+                >
+                  {pageContent["body-profile-section-title-affiliation"]}
+                </h2>
+              </div>
 
-              {/* Affiliation */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? AffiliationIconWhite : AffiliationIcon}
-                    alt="Affiliation icon"
-                    width={20}
-                    height={20}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[12px] font-bold ${
-                      darkMode ? "text-white" : "text-[#053749]"
+              {/* Lista de Afiliações Selecionadas */}
+              <div className="flex flex-wrap gap-2">
+                {formData.affiliation?.map((affId, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 p-2 rounded ${
+                      darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
                     }`}
                   >
-                    {pageContent["body-profile-section-title-affiliation"]}
-                  </h2>
-                </div>
-                <div className="relative">
-                  <select
-                    value={formData.affiliation?.[0] || ""}
-                    onChange={(e) =>
+                    <span className="font-[Montserrat] text-[12px]">
+                      {affiliations[affId]}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const newAffiliations = formData.affiliation?.filter((_, i) => i !== index);
+                        setFormData({ ...formData, affiliation: newAffiliations });
+                      }}
+                      className="ml-2"
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Remove affiliation"
+                        width={16}
+                        height={16}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Dropdown para adicionar nova afiliação */}
+              <div className="relative">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value && !formData.affiliation?.includes(value)) {
                       setFormData({
                         ...formData,
-                        affiliation: e.target.value ? [e.target.value] : [],
-                      })
+                        affiliation: [...(formData.affiliation || []), value],
+                      });
                     }
-                    className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
-                      darkMode
-                        ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
-                        : "border-[#053749] text-[#829BA4]"
-                    } border`}
-                    style={{
-                      backgroundColor: darkMode ? "#053749" : "white",
-                      color: darkMode ? "white" : "#053749",
-                    }}
-                  >
+                  }}
+                  className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
+                    darkMode
+                      ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
+                      : "border-[#053749] text-[#829BA4]"
+                  } border`}
+                  style={{
+                    backgroundColor: darkMode ? "#053749" : "white",
+                    color: darkMode ? "white" : "#053749",
+                  }}
+                >
+                  <option value="">
+                    {pageContent["edit-profile-insert-item"]}
+                  </option>
+                  {Object.entries(affiliations).map(([id, name]) => (
                     <option
-                      value=""
+                      key={id}
+                      value={id}
                       style={{
                         backgroundColor: darkMode ? "#053749" : "white",
                         color: darkMode ? "white" : "#053749",
                       }}
                     >
-                      {pageContent["edit-profile-insert-item"]}
+                      {name}
                     </option>
-                    {Object.entries(affiliations).map(([id, name]) => (
-                      <option
-                        key={id}
-                        value={id}
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Image
-                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                      alt="Select"
-                      width={20}
-                      height={20}
-                    />
-                  </div>
-                </div>
-                <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
-                    darkMode ? "text-white" : "text-[#053749]"
-                  }`}
-                >
-                  {
-                    pageContent[
-                      "body-profile-section-affiliation-dropdown-menu"
-                    ]
-                  }
-                </span>
-              </div>
-
-              {/* Territory */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   <Image
-                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                    alt="Territory icon"
+                    src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                    alt="Select"
                     width={20}
                     height={20}
                   />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
-                      darkMode ? "text-white" : "text-[#053749]"
+                </div>
+              </div>
+
+              {/* Tooltip */}
+              <span
+                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["body-profile-section-affiliation-dropdown-menu"]}
+              </span>
+            </div>
+            {/* Territory */}
+            <div className="flex flex-col gap-4 mt-4">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                  alt="Territory icon"
+                  width={20}
+                  height={20}
+                />
+                <h2
+                  className={`font-[Montserrat] text-[14px] font-bold ${
+                    darkMode ? "text-white" : "text-[#053749]"
+                  }`}
+                >
+                  {pageContent["body-profile-section-title-territory"]}
+                </h2>
+              </div>
+
+              {/* Territory List */}
+              <div className="flex flex-wrap gap-2">
+                {formData.territory?.map((territoryId, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 p-2 rounded ${
+                      darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
                     }`}
                   >
-                    {pageContent["body-profile-section-title-territory"]}
-                  </h2>
-                </div>
-                <div className="relative">
-                  <select
-                    value={formData.territory?.[0] || ""}
-                    onChange={(e) =>
+                    <span className="font-[Montserrat] text-[12px]">
+                      {territories[territoryId]}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const newTerritories = formData.territory?.filter((_, i) => i !== index);
+                        setFormData({
+                          ...formData,
+                          territory: newTerritories,
+                        });
+                      }}
+                      className="ml-2"
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Remove territory"
+                        width={16}
+                        height={16}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Territory Select */}
+              <div className="relative">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    const selected = e.target.value;
+                    if (
+                      selected &&
+                      !formData.territory?.includes(selected)
+                    ) {
                       setFormData({
                         ...formData,
-                        territory: e.target.value ? [e.target.value] : [],
-                      })
+                        territory: [...(formData.territory || []), selected],
+                      });
                     }
-                    className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
-                      darkMode
-                        ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
-                        : "border-[#053749] text-[#829BA4]"
-                    } border`}
-                    style={{
-                      backgroundColor: darkMode ? "#053749" : "white",
-                      color: darkMode ? "white" : "#053749",
-                    }}
-                  >
+                  }}
+                  className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
+                    darkMode
+                      ? "bg-transparent border-white text-white opacity-50"
+                      : "border-[#053749] text-[#829BA4]"
+                  } border`}
+                  style={{
+                    backgroundColor: darkMode ? "#053749" : "white",
+                    color: darkMode ? "white" : "#053749",
+                  }}
+                >
+                  <option value="">
+                    {pageContent["edit-profile-insert-item"]}
+                  </option>
+                  {Object.entries(territories).map(([id, name]) => (
                     <option
-                      value=""
+                      key={id}
+                      value={id}
                       style={{
                         backgroundColor: darkMode ? "#053749" : "white",
                         color: darkMode ? "white" : "#053749",
                       }}
                     >
-                      {pageContent["edit-profile-insert-item"]}
+                      {name}
                     </option>
-                    {Object.entries(territories).map(([id, name]) => (
-                      <option
-                        key={id}
-                        value={id}
-                        style={{
-                          backgroundColor: darkMode ? "#053749" : "white",
-                          color: darkMode ? "white" : "#053749",
-                        }}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Image
-                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                      alt="Select"
-                      width={20}
-                      height={20}
-                    />
-                  </div>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <Image
+                    src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                    alt="Select"
+                    width={20}
+                    height={20}
+                  />
                 </div>
-                <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
-                    darkMode ? "text-white" : "text-[#053749]"
-                  }`}
-                >
-                  {pageContent["edit-profile-territory"]}
-                </span>
               </div>
 
+              <span
+                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["edit-profile-territory"]}
+              </span>
+            </div>
               {/* Wikidata Item */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
