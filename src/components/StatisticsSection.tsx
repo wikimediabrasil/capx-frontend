@@ -225,7 +225,10 @@ export default function StatisticsSection() {
       >
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>
+            <div
+              role="status"
+              className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"
+            ></div>
             <p className="ml-2">{pageContent["statistics-loading-text"]}</p>
           </div>
         </div>
