@@ -44,11 +44,11 @@ import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import SaveIcon from "@/public/static/images/save_as.svg";
 import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
-import UserCheckIcon from "@/public/static/images/user_check.svg";
-import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
+// import UserCheckIcon from "@/public/static/images/user_check.svg";
+// import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import Popup from "@/components/Popup";
-import Banner from "@/components/Banner";
-import LetsConect from "@/public/static/images/lets_connect.svg";
+// import Banner from "@/components/Banner";
+// import LetsConect from "@/public/static/images/lets_connect.svg";
 import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
 import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
 import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
@@ -149,7 +149,7 @@ export default function ProfileEditMobileView(
   );
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
-  const displayedBadges = userBadges.filter(badge => badge.is_displayed);
+  const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
 
   return (
     <>
