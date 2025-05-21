@@ -1,11 +1,47 @@
-"use client";
+import type { Meta, StoryObj } from "@storybook/react";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AppProvider } from "@/contexts/AppContext";
+import { Statistics } from "@/types/statistics";
+import React from "react";
 
-import { useStatistics } from "@/hooks/useStatistics";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useState, useEffect } from "react";
+// We're creating a mock version of the StatisticsSection component for Storybook
+// rather than using the actual component which relies on a hook we can't easily mock
 
-// Colors for the charts
+// Mock data for the different scenarios
+const defaultData: Statistics = {
+  total_users: 1250,
+  new_users: 120,
+  total_capacities: 450,
+  new_capacities: 35,
+  total_messages: 3200,
+  new_messages: 580,
+  total_organizations: 75,
+  new_organizations: 8,
+};
+
+const highNumbersData: Statistics = {
+  total_users: 12500,
+  new_users: 1200,
+  total_capacities: 4500,
+  new_capacities: 350,
+  total_messages: 32000,
+  new_messages: 5800,
+  total_organizations: 750,
+  new_organizations: 80,
+};
+
+const lowNumbersData: Statistics = {
+  total_users: 25,
+  new_users: 5,
+  total_capacities: 10,
+  new_capacities: 2,
+  total_messages: 50,
+  new_messages: 10,
+  total_organizations: 5,
+  new_organizations: 1,
+};
+
+// Colors for the charts (copied from original component)
 const COLORS = [
   "#0070b9", // capx-primary-blue
   "#02AE8C", // capx-primary-green
@@ -20,31 +56,21 @@ const COLORS = [
 // Lighter blue color for the animation
 const LIGHTER_BLUE = "#3498db"; // Lighter blue than capx-primary-blue (#0070b9)
 
+// Mock AnimatedPieChart component from the original
 const AnimatedPieChart = ({
   total,
   newValue,
   color,
+  darkMode = false,
 }: {
   total: number;
   newValue: number;
   color: string;
+  darkMode?: boolean;
 }) => {
-  const { darkMode } = useTheme();
-  const [isVisible, setIsVisible] = useState(false);
-  const percentage = (newValue / total) * 100;
-  const radius = 100; // Increased from 80
+  // Match sizing with main component
+  const radius = 100;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = isVisible
-    ? circumference - (percentage / 100) * circumference
-    : circumference;
-
-  useEffect(() => {
-    // Trigger animation after component mount
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div className="flex items-center justify-center h-[224px]">
@@ -52,7 +78,6 @@ const AnimatedPieChart = ({
         className="w-[224px] h-[224px] transform -rotate-90"
         viewBox="0 0 224 224"
       >
-        {/* Background circle */}
         <circle
           cx="112"
           cy="112"
@@ -61,7 +86,6 @@ const AnimatedPieChart = ({
           className="stroke-capx-primary-blue opacity-80"
           strokeWidth="16"
         />
-        {/* Animated foreground circle */}
         <circle
           cx="112"
           cy="112"
@@ -71,13 +95,9 @@ const AnimatedPieChart = ({
           className="transition-all duration-[1500ms] ease-in-out"
           strokeWidth="16"
           strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          style={{
-            transformOrigin: "center",
-          }}
+          strokeDashoffset={circumference * (1 - newValue / total)}
         />
       </svg>
-      {/* Center text */}
       <div className="absolute flex flex-col items-center justify-center">
         <span
           className={`text-capx-text-5xl font-bold ${
@@ -91,58 +111,41 @@ const AnimatedPieChart = ({
             darkMode ? "text-white" : "text-capx-light-text"
           }`}
         >
-          +{Math.round(percentage)}%
+          +{Math.round((newValue / total) * 100)}%
         </span>
       </div>
     </div>
   );
 };
 
-export default function StatisticsSection() {
-  const { data, isLoading, error } = useStatistics();
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+// Mock StatisticsSection component for Storybook
+// This is a simplified version of the original component
+const MockStatisticsSection = ({
+  data = defaultData,
+  isLoading = false,
+  error = null,
+  darkMode = false,
+}: {
+  data?: Statistics;
+  isLoading?: boolean;
+  error?: Error | null;
+  darkMode?: boolean;
+}) => {
+  // Simulated page content
+  const pageContent = {
+    "statistics-section-title": "Platform Statistics",
+    "statistics-users-title": "Users",
+    "statistics-capacities-title": "Capacities",
+    "statistics-messages-title": "Messages",
+    "statistics-organizations-title": "Organizations",
+    "statistics-new-label": "new",
+    "statistics-loading-text": "Loading statistics...",
+    "statistics-error-text": "Error loading statistics",
+    "statistics-source-text": "Data updated daily",
+    "navbar-link-capacities": "View all capacities",
+    "navbar-link-organizations": "View all organizations",
+  };
 
-  // Transform data to the BarChart format
-  const barData = data
-    ? [
-        {
-          name: "Users",
-          total: data.total_users,
-          novos: data.new_users,
-        },
-        {
-          name: "Capacities",
-          total: data.total_capacities,
-          novos: data.new_capacities,
-        },
-        {
-          name: "Messages",
-          total: data.total_messages,
-          novos: data.new_messages,
-        },
-        {
-          name: "Organizations",
-          total: data.total_organizations,
-          novos: data.new_organizations,
-        },
-      ]
-    : [];
-
-  // Data for the pie chart
-  const pieData = data
-    ? [
-        { name: "Users", value: data.total_users },
-        { name: "Capacities", value: data.total_capacities },
-        { name: "Messages", value: data.total_messages },
-        { name: "Organizations", value: data.total_organizations },
-      ]
-    : [];
-
-  // Text style based on the theme
-  const textColor = darkMode ? "#FFFFFF" : "#053749";
-
-  // Type for the StatCard
   interface StatCardProps {
     title: string;
     value: number;
@@ -151,7 +154,6 @@ export default function StatisticsSection() {
     type: "users" | "capacities" | "messages" | "organizations";
   }
 
-  // Stats cards to show main numbers
   const StatCard = ({ title, value, newValue, color, type }: StatCardProps) => {
     const getLinkDetails = () => {
       switch (type) {
@@ -175,7 +177,12 @@ export default function StatisticsSection() {
     return (
       <div className="flex flex-col items-center justify-center">
         {type === "users" ? (
-          <AnimatedPieChart total={value} newValue={newValue} color={color} />
+          <AnimatedPieChart
+            total={value}
+            newValue={newValue}
+            color={color}
+            darkMode={darkMode}
+          />
         ) : (
           <div className="flex items-center justify-center h-[224px]">
             <div
@@ -276,7 +283,6 @@ export default function StatisticsSection() {
           {pageContent["statistics-section-title"]}
         </h2>
 
-        {/* Main cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard
             title={pageContent["statistics-users-title"]}
@@ -308,7 +314,6 @@ export default function StatisticsSection() {
           />
         </div>
 
-        {/* Data source */}
         <div className="mt-8 text-center">
           <p
             className={`text-capx-text-sm ${
@@ -321,4 +326,84 @@ export default function StatisticsSection() {
       </div>
     </section>
   );
-}
+};
+
+// Define the meta for the component
+const meta: Meta<typeof MockStatisticsSection> = {
+  title: "Components/StatisticsSection",
+  component: MockStatisticsSection,
+  decorators: [
+    (Story) => (
+      <AppProvider>
+        <ThemeProvider>
+          <div className="w-full">
+            <Story />
+          </div>
+        </ThemeProvider>
+      </AppProvider>
+    ),
+  ],
+  parameters: {
+    layout: "fullscreen",
+  },
+  tags: ["autodocs"],
+};
+
+export default meta;
+type Story = StoryObj<typeof MockStatisticsSection>;
+
+export const Default: Story = {
+  args: {
+    data: defaultData,
+    isLoading: false,
+    error: null,
+    darkMode: false,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    isLoading: true,
+  },
+};
+
+export const ErrorState: Story = {
+  args: {
+    error: new Error("Failed to load statistics"),
+  },
+};
+
+export const DarkMode: Story = {
+  args: {
+    data: defaultData,
+    darkMode: true,
+  },
+  parameters: {
+    backgrounds: {
+      default: "dark",
+    },
+  },
+};
+
+export const WithHighNumbers: Story = {
+  args: {
+    data: highNumbersData,
+  },
+};
+
+export const WithLowNumbers: Story = {
+  args: {
+    data: lowNumbersData,
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    data: defaultData,
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: "mobile1",
+    },
+  },
+};
