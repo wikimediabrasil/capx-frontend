@@ -55,4 +55,5 @@ export interface UserProfile {
   contact: Contact[];
   social: Social[];
   is_manager: number[];
+  badges: number[];
 }

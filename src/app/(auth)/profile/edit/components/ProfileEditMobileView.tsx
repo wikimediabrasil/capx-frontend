@@ -49,6 +49,11 @@ import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import Popup from "@/components/Popup";
 import Banner from "@/components/Banner";
 import LetsConect from "@/public/static/images/lets_connect.svg";
+import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
+import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
+import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
+import ExpandIcon from "@/public/static/images/expand_all.svg";
+import BadgeSelectionModal from "@/components/BadgeSelectionModal";
 
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
@@ -58,6 +63,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import { useAvatars } from "@/hooks/useAvatars";
 import { useRouter } from "next/navigation";
+import BadgesCarousel from "@/components/BadgesCarousel";
+import { useBadges } from "@/contexts/BadgesContext";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -136,11 +143,13 @@ export default function ProfileEditMobileView(
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
-
-  const { getAvatarById } = useAvatars();
+  const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
   const [avatarUrl, setAvatarUrl] = useState<string>(
     profile?.avatar || NoAvatarIcon
   );
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const completedBadges = userBadges.filter(badge => badge.progress === 100);
+  const displayedBadges = userBadges.filter(badge => badge.is_displayed);
 
   return (
     <>
@@ -242,7 +251,7 @@ export default function ProfileEditMobileView(
                 />
               )}
 
-              <div className="flex flex-col items-center gap-0">
+              <div className="flex flex-col items-center gap-2">
                 <BaseButton
                   onClick={handleWikidataClick}
                   label={pageContent["edit-profile-use-wikidata"]}
@@ -264,17 +273,15 @@ export default function ProfileEditMobileView(
                   imageWidth={20}
                   imageHeight={20}
                 />
-                <div className="flex w-full justify-start">
-                  <span
-                    className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
-                      darkMode ? "text-white" : "text-[#053749]"
-                    }`}
-                  >
-                    {pageContent["edit-profile-consent-wikidata"]}
-                  </span>
-                </div>
+                <span
+                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                    darkMode ? "text-white" : "text-[#053749]"
+                  }`}
+                >
+                  {pageContent["edit-profile-consent-wikidata"]}
+                </span>
               </div>
-              <div className="flex flex-col gap-[10px] mt-2">
+              <div className="flex flex-col gap-[10px]">
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-[10px] mt-0">
                   <BaseButton
@@ -308,6 +315,83 @@ export default function ProfileEditMobileView(
                     imageWidth={20}
                     imageHeight={20}
                   />
+
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={darkMode ? BadgesIconWhite : BadgesIcon}
+                        alt="Badges icon"
+                        width={20}
+                        height={20}
+                      />
+                      <h2
+                        className={`font-[Montserrat] text-[14px] font-bold ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {pageContent["body-profile-badges-title"]}
+                      </h2>
+                    </div>
+
+                    {isBadgesLoading && (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2">
+                          <div className="w-full h-[48px] bg-gray-200 rounded-md mb-2"></div>
+                        </div>
+                      </div>
+                    )}
+
+                  {displayedBadges.length > 0 && !isBadgesLoading ? (
+                    <BadgesCarousel badges={displayedBadges} showFullDescription={false}/>
+                  ) : (
+                    !isBadgesLoading && (
+                      <span className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                        darkMode ? "text-white" : "text-[#053749]"
+                      }`}>
+                        {pageContent["body-profile-badges-no-badges"]}
+                      </span>
+                    )
+                  )}
+
+                  {userBadges.length > 0 && (
+                    <BaseButton
+                      onClick={() => setShowBadgeModal(true)}
+                      label={pageContent["body-profile-badges-edit-your-badges"]}
+                      customClass={`w-full flex ${
+                        darkMode
+                          ? "bg-capx-light-box-bg text-[#04222F]"
+                          : "bg-[#053749] text-white"
+                      } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                      imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
+                      imageAlt={pageContent["body-profile-badges-edit-your-badges"]}
+                      imageWidth={20}
+                      imageHeight={20}
+                    />
+                  )}
+
+                  <div className="flex flex-col ">
+                    <BaseButton
+                      onClick={() => router.push("/profile/badges")}
+                      label={pageContent["body-profile-badges-see-all"]}
+                      customClass={`w-full flex mb-2 border ${
+                        darkMode
+                        ? "border-white text-white"
+                        : "border-[#053749] text-[#053749]"
+                      } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                      imageUrl={darkMode ? ExpandIconWhite : ExpandIcon}
+                      imageAlt="View all badges"
+                      imageWidth={20}
+                      imageHeight={20}
+                    />
+
+                    <span
+                      className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                        darkMode ? "text-white" : "text-[#053749]"
+                      }`}
+                    >
+                      {pageContent["body-profile-badges-description"]}
+                    </span>
+                  </div>
+
                   {showDeleteProfilePopup && (
                     <Popup
                       title={pageContent["edit-profile-delete-profile"]}
@@ -324,14 +408,13 @@ export default function ProfileEditMobileView(
                   )}
                 </div>
                 <div className="flex flex-row gap-2 mt-4">
-                  <div className="relative w-[20px] h-[20px]">
-                    <Image
-                      src={darkMode ? PersonIconWhite : PersonIcon}
-                      alt="Person icon"
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
+                  <Image
+                    src={darkMode ? PersonIconWhite : PersonIcon}
+                    alt="Person icon"
+                    width={16}
+                    height={16}
+                    style={{ objectFit: "cover" }}
+                  />
                   <div className="flex flex-row gap-1 items-center">
                     <h2
                       className={`font-[Montserrat] text-[14px] font-bold ${
@@ -1259,6 +1342,17 @@ export default function ProfileEditMobileView(
         onSelect={handleCapacitySelect}
         title={`Choose ${selectedCapacityType} capacity`}
       />
+      {showBadgeModal && (
+        <BadgeSelectionModal
+          badges={completedBadges}
+          selectedBadges={displayedBadges.map(badge => badge.id)}
+          onClose={() => setShowBadgeModal(false)}
+          onUpdate={async (selectedIds) => {
+            setShowBadgeModal(false);
+            await updateUserBadges(selectedIds);
+          }}
+        />
+      )}
     </>
   );
 }
