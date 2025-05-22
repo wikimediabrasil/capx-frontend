@@ -94,10 +94,14 @@ export default function EditProfilePage() {
   const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
   const { preloadCapacities } = useCapacityCache();
 
+  // Create a ref to track if capacities have been preloaded
+  const capacitiesPreloadedRef = useRef(false);
+
   // Initialize capacity cache when the component mounts
   useEffect(() => {
-    if (token) {
+    if (token && !capacitiesPreloadedRef.current) {
       preloadCapacities();
+      capacitiesPreloadedRef.current = true;
     }
   }, [token, preloadCapacities]);
 
@@ -113,7 +117,18 @@ export default function EditProfilePage() {
   const { territories, loading: territoriesLoading } = useTerritories(token);
   const { languages, loading: languagesLoading } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
-  const { wikimediaProjects } = useWikimediaProject(token);
+  const {
+    wikimediaProjects,
+    error: wikimediaProjectsError,
+    retry: retryWikimediaProjects,
+  } = useWikimediaProject(token);
+
+  // Log wikimedia project error for debugging
+  useEffect(() => {
+    if (wikimediaProjectsError) {
+      console.warn("Wikimedia Projects API error:", wikimediaProjectsError);
+    }
+  }, [wikimediaProjectsError]);
 
   // Get the capacity system with React Query
   const { getCapacityById, isLoadingRootCapacities } = useCapacities();
@@ -210,9 +225,12 @@ export default function EditProfilePage() {
     }
   }, [sessionStatus, router]);
 
+  // Create a ref to track if the form has been populated
+  const formPopulatedRef = useRef(false);
+
   // Update formData when profile data is loaded
   useEffect(() => {
-    if (profile) {
+    if (profile && !formPopulatedRef.current) {
       setFormData({
         ...profile,
         affiliation: ensureArray<string>(profile.affiliation),
@@ -225,6 +243,7 @@ export default function EditProfilePage() {
         skills_available: ensureArray<number>(profile.skills_available),
         skills_wanted: ensureArray<number>(profile.skills_wanted),
       });
+      formPopulatedRef.current = true;
 
       if (profile.avatar) {
         const avatarData = avatars?.find(
@@ -250,17 +269,26 @@ export default function EditProfilePage() {
     }
   }, [profile, avatars]);
 
+  // Create a ref to track if unsaved data has been loaded
+  const unsavedDataLoadedRef = useRef(false);
+
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
-    if (unsavedData) {
+    if (unsavedData && !unsavedDataLoadedRef.current) {
       setFormData((prevData) => ({
         ...prevData,
         ...unsavedData,
       }));
+      unsavedDataLoadedRef.current = true;
     }
   }, [unsavedData]);
 
+  const wikidataImageLoadedRef = useRef(false);
+
   useEffect(() => {
+    // Reset the ref when dependencies change
+    wikidataImageLoadedRef.current = false;
+
     const loadWikidataImage = async () => {
       if (profile?.wikidata_qid && isWikidataSelected) {
         const wikidataImage = await fetchWikidataImage(profile.wikidata_qid);
@@ -269,10 +297,14 @@ export default function EditProfilePage() {
             id: -1,
             src: wikidataImage,
           });
-          setFormData((prev) => ({
-            ...prev,
-            profile_image: wikidataImage,
-          }));
+
+          if (!wikidataImageLoadedRef.current) {
+            setFormData((prev) => ({
+              ...prev,
+              profile_image: wikidataImage,
+            }));
+            wikidataImageLoadedRef.current = true;
+          }
         }
       }
     };
@@ -280,13 +312,21 @@ export default function EditProfilePage() {
     loadWikidataImage();
   }, [profile?.wikidata_qid, isWikidataSelected]);
 
+  // Create a ref to track avatar loading status
+  const avatarLoadedRef = useRef(false);
+
   // Memoize the fetch avatar function to avoid recreating it on every render
   const fetchAvatar = useCallback(async () => {
-    if (typeof profile?.avatar === "number" && profile?.avatar > 0) {
+    if (
+      typeof profile?.avatar === "number" &&
+      profile?.avatar > 0 &&
+      !avatarLoadedRef.current
+    ) {
       try {
         const avatarData = await getAvatarById(profile.avatar);
         if (avatarData?.avatar_url) {
           setAvatarUrl(avatarData.avatar_url);
+          avatarLoadedRef.current = true;
         }
       } catch (error) {
         console.error("Error fetching avatar:", error);
@@ -296,6 +336,8 @@ export default function EditProfilePage() {
 
   // Run the fetch only once when avatar ID changes
   useEffect(() => {
+    // Reset the loading status when the avatar ID changes
+    avatarLoadedRef.current = false;
     fetchAvatar();
   }, [fetchAvatar]);
 
