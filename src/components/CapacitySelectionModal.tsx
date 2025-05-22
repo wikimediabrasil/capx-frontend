@@ -30,7 +30,7 @@ export default function CapacitySelectionModal({
 }: CapacitySelectionModalProps) {
   const { darkMode } = useTheme();
   const { data: session } = useSession();
-  const { pageContent } = useApp();
+  const { pageContent, isMobile } = useApp();
   const [selectedPath, setSelectedPath] = useState<number[]>([]);
   const [selectedCapacity, setSelectedCapacity] = useState<Capacity | null>(
     null
@@ -330,7 +330,7 @@ export default function CapacitySelectionModal({
               {capacity.hasChildren && (
                 <button
                   onClick={(e) => handleCategoryExpand(e, capacity)}
-                  className="p-1 flex-shrink-0"
+                  className="pt-2 px-1 flex-shrink-0"
                   aria-label="Expand"
                 >
                   <div className="relative w-[20px] h-[20px]">
@@ -604,42 +604,29 @@ export default function CapacitySelectionModal({
           </div>
 
           {/* Action buttons */}
-          <div className="flex w-full justify-center gap-2 mt-4">
+          <div className="flex w-full justify-between gap-2 mt-4">
             <BaseButton
               label={
                 pageContent[
                   "capacity-selection-modal-select-capacity-button-cancel"
                 ]
               }
-              customClass="bg-[#F6F6F6] w-1/2 md:w-1/3 rounded-[6px] !py-2 !px-4 font-extrabold text-[14px] text-capx-dark-bg border border-capx-dark-bg hover:bg-gray-600"
+              customClass={`bg-[#F6F6F6] w-1/2 md:w-1/3 rounded-[6px] !py-2 !px-4 font-extrabold text-[14px] text-capx-dark-bg border border-capx-dark-bg ${
+                isMobile ? "text-[14px]" : "text-[16px]"
+              }`}
               onClick={onClose}
             />
             <BaseButton
               label={
                 pageContent["capacity-selection-modal-select-capacity-button"]
               }
-              customClass={`bg-capx-secondary-purple rounded-[6px] !py-2 !px-4 font-extrabold text-[14px] text-white hover:bg-capx-primary-green w-1/2 md:w-1/3 ${
+              customClass={`bg-capx-secondary-purple rounded-[6px] !py-2 !px-4 font-extrabold text-white hover:bg-capx-primary-green w-1/2 md:w-1/3 ${
                 !selectedCapacity ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              }
+              ${isMobile ? "text-[14px]" : "text-[16px]"}`}
               onClick={handleConfirm}
               disabled={!selectedCapacity}
             />
-          </div>
-
-          {/* Test Capacity Names */}
-          <div className="mt-4 p-2 bg-gray-700 rounded">
-            <p className="font-semibold mb-1">Test Capacity Names:</p>
-            {selectedPath.slice(0, 5).map((id: any, index: number) => (
-              <div
-                key={`test-capacity-${id}-${index}`}
-                className="flex justify-between"
-              >
-                <span>ID {id}:</span>
-                <span className="font-mono">
-                  {findCapacityByCode(id)?.name || "Capacity not found"}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
