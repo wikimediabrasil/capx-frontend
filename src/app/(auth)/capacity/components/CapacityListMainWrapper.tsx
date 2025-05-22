@@ -334,7 +334,7 @@ function CapacityListContent() {
           {rootCapacities.map((capacity, index) => (
             <div
               key={`root-${capacity.code}-${index}`}
-              className={`w-screen max-w-[1190px]`}
+              className={`xs:max-w-[453px] sm:max-w-[640px] md:max-w-[913px] lg:max-w-[1115px] xl:max-w-[1280px] 2xl:max-w-[1536px] 3xl:max-w-[1920px] 4xl:max-w-[2560px]`}
             >
               <CapacityCard
                 {...capacity}
