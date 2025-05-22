@@ -23,26 +23,16 @@ export default function CapacityDebug({
 }: CapacityDebugProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hookError, setHookError] = useState<Error | null>(null);
-  const [capacityDetails, setCapacityDetails] = useState<any>(null);
   const [shouldRender, setShouldRender] = useState(true);
 
   // Always call the hook unconditionally at the top level
-  const hookResult = useCapacityDetails(capacityIds);
+  const capacityDetails = useCapacityDetails(capacityIds);
 
   // Use effect to handle errors and update state safely
   useEffect(() => {
-    try {
-      setCapacityDetails(hookResult);
-      setHookError(null);
-    } catch (error) {
-      console.error("Error in useCapacityDetails:", error);
-      setHookError(error as Error);
-      setCapacityDetails(null);
-    }
-
     // Set if we should render the component based on the enabled prop
     setShouldRender(!!enabled);
-  }, [capacityIds, hookResult, enabled]);
+  }, [enabled]);
 
   // After all hooks are called, we can return conditionally
   if (!shouldRender) {

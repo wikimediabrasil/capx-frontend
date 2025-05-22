@@ -189,7 +189,9 @@ export function CapacityCard({
         >
           <BaseButton
             label={pageContent["capacity-card-explore-capacity"]}
-            customClass={`w-[224px] flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold text-3.5 sm:text-3.5 rounded-[4px] text-center text-[24px] not-italic leading-[normal]`}
+            customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
+              isMobile ? "text-[16px]" : "text-[24px]"
+            }`}
             onClick={() => router.push(`/feed?capacityId=${code}`)}
           />
         </div>

@@ -536,7 +536,7 @@ export default function CapacitySelectionModal({
               const capacity = findCapacityByCode(pathId);
 
               return (
-                <React.Fragment key={pathId}>
+                <React.Fragment key={`path-${pathId}-${index}`}>
                   <span
                     className={darkMode ? "text-gray-400" : "text-gray-500"}
                   >
@@ -624,6 +624,22 @@ export default function CapacitySelectionModal({
               onClick={handleConfirm}
               disabled={!selectedCapacity}
             />
+          </div>
+
+          {/* Test Capacity Names */}
+          <div className="mt-4 p-2 bg-gray-700 rounded">
+            <p className="font-semibold mb-1">Test Capacity Names:</p>
+            {selectedPath.slice(0, 5).map((id: any, index: number) => (
+              <div
+                key={`test-capacity-${id}-${index}`}
+                className="flex justify-between"
+              >
+                <span>ID {id}:</span>
+                <span className="font-mono">
+                  {findCapacityByCode(id)?.name || "Capacity not found"}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
