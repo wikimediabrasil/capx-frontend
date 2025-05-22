@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 
 interface AppContextType {
   isMobile: boolean;
@@ -66,27 +66,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [language]);
 
+  // Memoize value object
+  const value = useMemo(() => ({
+    isMobile,
+    darkMode,
+    setDarkMode,
+    mobileMenuStatus,
+    setMobileMenuStatus,
+    language,
+    setLanguage,
+    pageContent,
+    setPageContent,
+    session,
+    setSession,
+  }), [isMobile, darkMode, mobileMenuStatus, language, pageContent, session]);
+
   // Don't render anything before mount to avoid hydration mismatch
   if (!mounted) {
     return null;
   }
 
   return (
-    <AppContext.Provider
-      value={{
-        isMobile,
-        darkMode,
-        setDarkMode,
-        mobileMenuStatus,
-        setMobileMenuStatus,
-        language,
-        setLanguage,
-        pageContent,
-        setPageContent,
-        session,
-        setSession,
-      }}
-    >
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );

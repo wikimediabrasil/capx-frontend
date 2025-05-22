@@ -47,7 +47,7 @@ export default function MiniBio({ about }: MiniBioProps) {
 
   return (
     <div
-      className={`flex flex-col gap-4 mb-[80px] ${
+      className={`flex flex-col gap-4 ${
         darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
       }`}
     >

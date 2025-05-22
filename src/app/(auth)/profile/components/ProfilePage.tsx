@@ -39,6 +39,11 @@ import { getWikiBirthday } from "@/lib/utils/fetchWikimediaData";
 import { UserProfile } from "@/types/user";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import { useRouter } from "next/navigation";
+import BadgesCarousel from "@/components/BadgesCarousel";
+import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
+import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
+import { useBadges } from "@/contexts/BadgesContext";
+
 interface ProfilePageProps {
   isSameUser: boolean;
   profile: UserProfile;
@@ -72,7 +77,7 @@ const ProfileItemsComponent = ({
           </h2>
         </div>
         <div
-          className={`rounded-[4px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${
+          className={`rounded-[4px] inline-flex px-[4px] py-[6px] items-center  ${
             darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
           }`}
         >
@@ -89,7 +94,7 @@ const ProfileItemsComponent = ({
   }
   return (
     <>
-      <div className="flex flex-row gap-2 mt-[80px] items-center">
+      <div className="flex flex-row gap-2 items-center">
         <div className="relative h-[48px] w-[48px]">
           <Image src={icon} alt={title} fill className="object-cover" />
         </div>
@@ -102,7 +107,7 @@ const ProfileItemsComponent = ({
         </h2>
       </div>
       <div
-        className={`rounded-[4px] inline-flex px-[4px] py-[6px] items-center gap-[8px] mt-[16px] ${
+        className={`rounded-[4px] inline-flex px-[4px] py-[6px] items-center  ${
           darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
         }`}
       >
@@ -124,6 +129,15 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   const { isMobile, pageContent } = useApp();
   const token = session?.user?.token;
   const router = useRouter();
+
+  const { allBadges, userBadgesRelations, userBadges } = useBadges();
+
+  const activeBadges = useMemo(() => {
+    return allBadges.filter((badge) => profile?.badges.includes(badge.id));
+  }, [allBadges, profile?.badges]);
+
+  // TODO REMOVER
+  const teste = [];
 
   const { languages } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
@@ -205,11 +219,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
         <section
           className={`w-full max-w-screen-xl mx-auto px-4 py-8 mt-[80px]`}
         >
-          <div
-            className={`flex flex-col max-w-[600px] mx-auto ${
-              isMobile ? "gap-6" : "gap-[80px]"
-            }`}
-          >
+          <div className={"flex flex-col max-w-[600px] mx-auto gap-6"}>
             <ProfileHeader
               username={profile?.user?.username || ""}
               profileImage={profile?.profile_image}
@@ -219,6 +229,39 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
             {shouldRenderEmptyField(profile?.about) && (
               <MiniBio about={profile?.about || ""} />
             )}
+
+            {/* Badges */}
+            {shouldRenderEmptyField(activeBadges) && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? BadgesIconWhite : BadgesIcon}
+                  alt={pageContent["body-profile-badges-title"]}
+                  width={20}
+                  height={20}
+                />
+                <h2
+                  className={`text-[14px] font-[Montserrat] font-bold ${
+                    darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
+                  }`}
+                    >
+                  {pageContent["body-profile-badges-title"]}
+                </h2>
+              </div>
+                {activeBadges.length > 0 ? (
+                  <BadgesCarousel badges={activeBadges} />
+                ): (
+                  <span
+                    className={`font-[Montserrat] text-[14px] ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                  {pageContent["body-profile-badges-no-badges"]}
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="flex flex-col gap-2">
               <div className="flex flex-row gap-2 items-center">
                 <div className="relative h-[16px] w-[16px]">
@@ -323,27 +366,82 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 value={profile?.wiki_alt || ""}
               />
             )}
+
             {shouldRenderEmptyField(profile?.affiliation) && (
-              <ProfileItemsComponent
-                icon={darkMode ? AffiliationIconWhite : AffiliationIcon}
-                title={pageContent["body-profile-section-title-affiliation"]}
-                value={
-                  profile?.affiliation
-                    ? affiliations[profile.affiliation[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? AffiliationIconWhite : AffiliationIcon}
+                    alt="Affiliation icon"
+                    width={20}
+                    height={20}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[14px] font-bold ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-affiliation"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.affiliation?.map((territoryId, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[14px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {affiliations[territoryId] || territoryId}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.territory) && (
-              <ProfileItemsComponent
-                icon={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                title={pageContent["body-profile-section-title-territory"]}
-                value={
-                  profile?.territory
-                    ? territories[profile.territory[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                    alt="Territory icon"
+                    width={20}
+                    height={20}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[14px] font-bold ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-territory"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.territory?.map((territoryId, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[14px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {territories[territoryId] || territoryId}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.wikidata_qid) && (
               <ProfileItemsComponent
@@ -457,6 +555,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
       </div>
     );
   }
+  // Desktop
   return (
     <main className="flex-grow">
       <div
@@ -465,9 +564,9 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
         }`}
       >
         <section
-          className={`flex w-full h-full justify-between pb-6 pt-10 px-4 md:px-8 lg:px-12 max-w-screen-xl mx-auto`}
+          className={`flex w-full h-full justify-between pb-6 pt-10 px-4 px-8 lg:px-12 max-w-screen-xl mx-auto`}
         >
-          <div className={`flex flex-col mx-auto`}>
+          <div className={`flex flex-col mx-auto gap-6`}>
             <ProfileHeader
               username={profile?.user?.username || ""}
               profileImage={profile?.profile_image}
@@ -477,7 +576,39 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
             {shouldRenderEmptyField(profile?.about) && (
               <MiniBio about={profile?.about || ""} />
             )}
-            <div className="flex flex-col gap-4 mb-6">
+
+            {/* Badges */}
+            {shouldRenderEmptyField(activeBadges) && (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? BadgesIconWhite : BadgesIcon}
+                    alt={pageContent["body-profile-badges-title"]}
+                    width={42}
+                    height={42}
+                  />
+                  <h2
+                    className={`text-[24px] font-[Montserrat] font-bold ${
+                      darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
+                    }`}
+                  >
+                    {pageContent["body-profile-badges-title"]}
+                  </h2>
+                </div>
+                {activeBadges.length > 0 ? (
+                  <BadgesCarousel badges={activeBadges} />
+                ): (
+                  <span
+                    className={`font-[Montserrat] text-[24px] ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-badges-no-badges"]}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="flex flex-col gap-4">
               <div className="flex flex-row gap-2 items-center">
                 <Image
                   src={darkMode ? CakeIconWhite : CakeIcon}
@@ -584,26 +715,82 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
               />
             )}
             {shouldRenderEmptyField(profile?.affiliation) && (
-              <ProfileItemsComponent
-                icon={darkMode ? AffiliationIconWhite : AffiliationIcon}
-                title={pageContent["body-profile-section-title-affiliation"]}
-                value={
-                  profile?.affiliation
-                    ? affiliations[profile.affiliation[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2 mt-4">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? AffiliationIconWhite : AffiliationIcon}
+                    alt="Affiliation icon"
+                    width={42}
+                    height={42}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[24px] font-bold ${
+                      darkMode 
+                      ? "text-white" 
+                      : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-affiliation"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.affiliation?.map((aff, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[24px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {affiliations[aff] || ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.territory) && (
-              <ProfileItemsComponent
-                icon={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                title={pageContent["body-profile-section-title-territory"]}
-                value={
-                  profile?.territory
-                    ? territories[profile.territory[0]] || ""
-                    : ""
-                }
-              />
+              <div className="flex flex-col gap-2 md:mt-4">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                    alt="Territory icon"
+                    width={42}
+                    height={42}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[24px] font-bold ${
+                      darkMode ? "text-white" : "text-[#053749]"
+                    }`}
+                  >
+                    {pageContent["body-profile-section-title-territory"]}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.territory?.map((terr, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[4px] py-[6px] ${
+                        darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[24px] ${
+                          darkMode ? "text-white" : "text-[#053749]"
+                        }`}
+                      >
+                        {territories[terr] || ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
             {shouldRenderEmptyField(profile?.wikidata_qid) && (
               <ProfileItemsComponent
@@ -614,7 +801,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
             )}
             {shouldRenderEmptyField(profile?.wikimedia_project) && (
               <>
-                <div className="flex flex-row gap-2 mt-[80px] items-center">
+                <div className="flex flex-row gap-2 items-center">
                   <div className="relative h-[48px] w-[48px]">
                     <Image
                       src={darkMode ? WikiIconWhite : WikiIcon}
@@ -631,7 +818,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent["body-profile-wikimedia-projects-title"]}
                   </p>
                 </div>
-                <div className="flex flex-row gap-5 mt-[80px] items-center">
+                <div className="flex flex-row gap-5 items-center">
                   {profile?.wikimedia_project?.map((projectId) =>
                     projectId ? (
                       <div
@@ -655,7 +842,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 </div>
               </>
             )}
-            <div className="flex flex-row gap-2 mt-[80px] items-center mb-[16px]">
+            <div className="flex flex-row gap-2 items-center mb-[16px]">
               <div className="relative h-[48px] w-[48px]">
                 <Image
                   src={darkMode ? WikiIconWhite : WikiIcon}

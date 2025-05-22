@@ -509,5 +509,12 @@
   "statistics-source-text": "Data source: CapX platform statistics updated in real-time.",
   "statistics-loading-text": "Loading statistics...",
   "statistics-error-text": "Unable to load statistics. Please try again later.",
-  "statistics-text-link": "View all"
+  "statistics-text-link": "View all",
+  "badges-back-to-user-profile": "Back to user profile",
+  "badge-selection-modal-title": "Choose which badges to display in your profile",
+  "body-profile-badges-edit-your-badges": "Edit your badges",
+  "body-profile-badges-no-badges": "You don't have any active badges yet.",
+  "body-profile-badges-title": "Badges",
+  "body-profile-badges-see-all": "View all badges",
+  "body-profile-badges-description": "See the full collection of badges you've earned (and the ones waiting for you!)"
 }
