@@ -106,6 +106,33 @@ const ChildCapacities = ({
 
   const parentCapacity = findParentCapacity();
 
+  // Find the root color to pass down to grandchildren
+  const findRootColor = () => {
+    // If this is a root capacity, use its color
+    const isRoot = rootCapacities.some((c) => c.code.toString() === parentCode);
+    if (isRoot && parentCapacity.color) {
+      return parentCapacity.color;
+    }
+
+    // If this is a child capacity (has a parent that is root), use the parent's color
+    if (
+      parentCapacity.parentCapacity &&
+      rootCapacities.some((c) => c.code === parentCapacity.parentCapacity?.code)
+    ) {
+      return parentCapacity.parentCapacity.color;
+    }
+
+    // If we have a parent capacity with color, use that
+    if (parentCapacity.color) {
+      return parentCapacity.color;
+    }
+
+    // Default fallback
+    return "";
+  };
+
+  const rootColor = findRootColor();
+
   // Log if we're dealing with grandchildren (3rd level)
   const isThirdLevel = parentCapacity?.parentCapacity !== undefined;
   if (isThirdLevel) {
@@ -142,6 +169,12 @@ const ChildCapacities = ({
       color: child.color || parentCapacity.color || child.color,
       // Keep child's own icon if parent has no icon
       icon: child.icon || parentCapacity.icon || child.icon,
+      // Add explicit level property - if parentCapacity has a parentCapacity or is not a root, this is level 3
+      level: parentCapacity?.parentCapacity
+        ? 3
+        : rootCapacities.some((c) => c.code.toString() === parentCode)
+        ? 2
+        : 3,
     };
 
     return enhancedChild;
@@ -168,6 +201,7 @@ const ChildCapacities = ({
                 parentCapacity={child.parentCapacity}
                 description={getDescription(child.code)}
                 wd_code={getWdCode(child.code)}
+                rootColor={rootColor}
                 onInfoClick={async (code) => {
                   // Ensure description is loaded for this capacity
                   if (!getDescription(code)) {
@@ -307,6 +341,7 @@ function CapacityListContent() {
                   name={capacity.name}
                   color={capacity.color}
                   icon={capacity.icon}
+                  level={capacity.level || (capacity.parentCapacity ? 2 : 1)}
                   description={
                     getDescription(capacity.code) || capacity.description || ""
                   }
@@ -342,6 +377,7 @@ function CapacityListContent() {
                 onExpand={() => handleToggleExpand(capacity.code.toString())}
                 hasChildren={capacity.hasChildren}
                 isRoot={true}
+                level={capacity.level || 1}
                 color={capacity.color}
                 icon={capacity.icon}
                 description={getDescription(capacity.code)}

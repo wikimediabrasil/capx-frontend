@@ -190,7 +190,6 @@ export function useCapacitiesByParent(
           );
           if (found) {
             parentCapacity = found;
-            console.log(`Found parent capacity in cache: ${parentCode}`);
           }
         }
 
@@ -206,9 +205,6 @@ export function useCapacitiesByParent(
             );
             if (found) {
               parentCapacity = found;
-              console.log(
-                `Found parent capacity in root capacities cache: ${parentCode}`
-              );
             }
           }
         }
@@ -255,10 +251,6 @@ export function useCapacitiesByParent(
               if (cachedChildren && Array.isArray(cachedChildren)) {
                 // If we have the children in the cache, use it to determine hasChildren
                 hasChildren = cachedChildren.length > 0;
-                console.log(
-                  `Using cached children for ${code}, hasChildren:`,
-                  hasChildren
-                );
               } else {
                 // If we don't have it in the cache, make the API call
                 const children = await capacityService.fetchCapacitiesByType(
@@ -291,10 +283,6 @@ export function useCapacitiesByParent(
                 );
 
                 hasChildren = formattedChildren.length > 0;
-                console.log(
-                  `Fetched children for ${code}, hasChildren:`,
-                  hasChildren
-                );
               }
 
               // Create the updated capacity with hasChildren
@@ -331,10 +319,7 @@ export function useCapacitiesByParent(
 
         if (cachedChildren && Array.isArray(cachedChildren)) {
           const hasChildren = cachedChildren.length > 0;
-          console.log(
-            `Using cached children for final check ${capacity.code}, hasChildren:`,
-            hasChildren
-          );
+
           return {
             ...capacity,
             hasChildren,
