@@ -56,12 +56,10 @@ import Popup from "@/components/Popup";
 import Banner from "@/components/Banner";
 import LetsConect from "@/public/static/images/lets_connect.svg";
 
-
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
-
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -278,7 +276,7 @@ export default function ProfileEditDesktopView(
                 <BaseButton
                   onClick={handleWikidataClick}
                   label={pageContent["edit-profile-use-wikidata"]}
-                  customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 ${
+                  customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
                     darkMode
                       ? "bg-transparent border-white text-capx-light-bg placeholder-white"
                       : "border-[#053749] text-capx-dark-box-bg"
@@ -1116,7 +1114,7 @@ export default function ProfileEditDesktopView(
               alt={pageContent["privacy-policy-alt-banner"]}
               customClass={{
                 background: "bg-[#EFEFEF]",
-                wrapper: "mb-0"
+                wrapper: "mb-0",
               }}
             />
 
@@ -1128,11 +1126,7 @@ export default function ProfileEditDesktopView(
                   ? "bg-capx-light-box-bg text-[#04222F]"
                   : "bg-[#053749] text-white"
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-              imageUrl={
-                darkMode
-                  ? UserCheckIconDark
-                  : UserCheckIcon
-                }
+              imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
               imageAlt="Add project"
               imageWidth={20}
               imageHeight={20}
