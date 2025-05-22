@@ -502,11 +502,15 @@ export function CapacityCard({
       >
         <div className="flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-12">
           <div
-            className={`flex items-center gap-4 ${
+            className={`flex items-center ${
               isRoot ? "gap-12" : "gap-4"
             } min-w-0`}
           >
-            {icon && isRoot ? renderIcon(48, icon) : renderIcon(68, icon)}
+            {icon && isRoot
+              ? renderIcon(48, icon)
+              : isMobile
+              ? renderIcon(48, icon)
+              : renderIcon(68, icon)}
             <div
               className={`flex flex-row items-center justify-between ${
                 isRoot ? "w-max" : ""
@@ -518,9 +522,10 @@ export function CapacityCard({
               >
                 <h3
                   onClick={handleTitleClick}
-                  className={`font-extrabold hover:underline ${
-                    isRoot ? "text-[20px]" : "text-[36px]"
-                  } truncate`}
+                  className={`font-extrabold hover:underline truncate ${
+                    isMobile ? "text-[20px]" : "text-[36px]"
+                  }
+                  `}
                   style={{
                     color: getNameColor(isRoot, parentCapacity, color),
                   }}
@@ -538,6 +543,8 @@ export function CapacityCard({
             >
               {isRoot
                 ? renderInfoButton(24, InfoIcon)
+                : isMobile
+                ? renderInfoButton(24, InfoIcon)
                 : renderInfoButton(40, InfoIcon)}
             </div>
 
@@ -547,6 +554,8 @@ export function CapacityCard({
                 style={{ zIndex: 10, visibility: "visible" }}
               >
                 {isRoot
+                  ? renderArrowButton(24, ArrowDownIcon)
+                  : isMobile
                   ? renderArrowButton(24, ArrowDownIcon)
                   : renderArrowButton(40, ArrowDownIcon)}
               </div>
