@@ -357,11 +357,9 @@ export default function OrganizationProfileEditDesktopView({
                     className="flex items-center gap-1 rounded-md"
                   >
                     <BaseButton
-                      onClick={() =>
-                        handleRemoveCapacity(currentCapacityType, index)
-                      }
+                      onClick={() => handleRemoveCapacity("known", index)}
                       label={getCapacityName(capacity)}
-                      customClass={`rounded-[4px] border-[1px] border-[solid] border-[#0070B9] flex p-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+                      customClass={`rounded-[4px] border-[1px] border-[solid] border-[#0070B9] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={16}
@@ -426,11 +424,9 @@ export default function OrganizationProfileEditDesktopView({
                     className="flex items-center gap-1 rounded-md"
                   >
                     <BaseButton
-                      onClick={() =>
-                        handleRemoveCapacity(currentCapacityType, index)
-                      }
+                      onClick={() => handleRemoveCapacity("available", index)}
                       label={getCapacityName(capacity)}
-                      customClass={`rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex p-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+                      customClass={`rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={16}
@@ -495,11 +491,9 @@ export default function OrganizationProfileEditDesktopView({
                     className="flex items-center gap-1 rounded-md"
                   >
                     <BaseButton
-                      onClick={() =>
-                        handleRemoveCapacity(currentCapacityType, index)
-                      }
+                      onClick={() => handleRemoveCapacity("wanted", index)}
                       label={getCapacityName(capacity)}
-                      customClass={`rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex p-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+                      customClass={`rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={16}
