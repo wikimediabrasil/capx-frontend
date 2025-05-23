@@ -404,7 +404,7 @@ export default function ProfileEditDesktopView(
                     <BaseButton
                       onClick={() => handleRemoveCapacity("known", index)}
                       label={getCapacityName(capacity)}
-                      customClass="rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] border-2 flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]"
+                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] border-2 flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0"
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={24}
@@ -465,7 +465,7 @@ export default function ProfileEditDesktopView(
                     <BaseButton
                       onClick={() => handleRemoveCapacity("available", index)}
                       label={getCapacityName(capacity)}
-                      customClass="rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#05A300)] flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]"
+                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#05A300)] flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0"
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={24}
@@ -526,7 +526,7 @@ export default function ProfileEditDesktopView(
                     <BaseButton
                       onClick={() => handleRemoveCapacity("wanted", index)}
                       label={getCapacityName(capacity)}
-                      customClass="rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#D43831)] flex px-4 py-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]"
+                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#D43831)] flex px-2 py-2 pb-2 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0"
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={24}

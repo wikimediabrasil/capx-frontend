@@ -370,7 +370,7 @@ export default function OrganizationProfileEditDesktopView({
                       <BaseButton
                         onClick={() => handleRemoveCapacity("known", index)}
                         label={displayName}
-                        customClass={`rounded-[4px] border-[1px] border-[solid] border-[#0070B9] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+                        customClass={`rounded-[4px] border-[1px] border-[solid] border-[#0070B9] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0`}
                         imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Close icon"
                         imageWidth={16}
@@ -449,7 +449,7 @@ export default function OrganizationProfileEditDesktopView({
                       <BaseButton
                         onClick={() => handleRemoveCapacity("available", index)}
                         label={displayName}
-                        customClass={`rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+                        customClass={`rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0`}
                         imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Close icon"
                         imageWidth={16}
@@ -512,7 +512,7 @@ export default function OrganizationProfileEditDesktopView({
                 {formData.wanted_capacities?.map((capacity, index) => {
                   const capacityName = getCapacityName(capacity);
 
-                  // Sanitize the name to avoid it being a URL in any case
+                  // Sanitizar o nome para evitar que seja uma URL em qualquer caso
                   const displayName =
                     typeof capacityName === "string" &&
                     (capacityName.startsWith("https://") ||
@@ -528,7 +528,7 @@ export default function OrganizationProfileEditDesktopView({
                       <BaseButton
                         onClick={() => handleRemoveCapacity("wanted", index)}
                         label={displayName}
-                        customClass={`rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+                        customClass={`rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex !p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0`}
                         imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Close icon"
                         imageWidth={16}
