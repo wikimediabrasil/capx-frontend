@@ -135,11 +135,6 @@ const ChildCapacities = ({
 
   // Log if we're dealing with grandchildren (3rd level)
   const isThirdLevel = parentCapacity?.parentCapacity !== undefined;
-  if (isThirdLevel) {
-    console.log(
-      `Handling grandchild capacities - parent: ${parentCode}, with ${children.length} children`
-    );
-  }
 
   // Ensure each child has correct parent reference
   const childrenWithParents = children.map((child) => {
@@ -147,16 +142,6 @@ const ChildCapacities = ({
     const isExpanded = !!expandedCapacities[child.code];
     // Force hasChildren to true if it has children based on expansion or original value
     const childHasChildren = child.hasChildren === true || isExpanded;
-
-    // For third level (grandchildren), log to help debugging
-    if (isThirdLevel) {
-      console.log(
-        `Grandchild ${child.code} hasChildren:`,
-        childHasChildren,
-        "original:",
-        child.hasChildren
-      );
-    }
 
     // Create a complete child with proper parent reference
     const enhancedChild = {
@@ -283,7 +268,41 @@ function CapacityListContent() {
     (term: string) => {
       setSearchTerm(term);
       if (term && querySearchResults.length > 0) {
-        setSearchResults(querySearchResults);
+        // Process query results to ensure proper level assignments
+        const processedResults = querySearchResults.map((capacity) => {
+          // Determine level based on parent structure
+          let level = 1;
+          if (capacity.parentCapacity) {
+            if (capacity.parentCapacity.parentCapacity) {
+              // Third level - has a grandparent
+              level = 3;
+            } else {
+              // Second level - has only a parent
+              level = 2;
+            }
+          } else {
+            // Root level - no parent
+          }
+
+          // Always override with explicit level if already set
+          if (capacity.level) {
+            level = capacity.level;
+          }
+
+          // Force third-level capacities to have black color
+          let color = capacity.color;
+          if (level === 3) {
+            color = "black";
+          }
+
+          return {
+            ...capacity,
+            level,
+            color,
+          };
+        });
+
+        setSearchResults(processedResults);
       } else if (!term) {
         setSearchResults([]);
       }
@@ -294,10 +313,7 @@ function CapacityListContent() {
   if (isLoadingRoot) {
     return (
       <div className="flex justify-center items-center h-[200px]">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue mx-auto mb-2"></div>
-          <p>{pageContent["loading"]}</p>
-        </div>
+        <LoadingState fullScreen={false} />
       </div>
     );
   }
@@ -315,56 +331,8 @@ function CapacityListContent() {
         onSearch={handleSearch}
       />
 
-      {searchTerm ? (
-        <div className="grid gap-4 w-full">
-          {isLoadingSearch ? (
-            <div className="flex justify-center h-[100px]">
-              <div className="text-center">
-                <div className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue mx-auto mb-2"></div>
-                <p>{pageContent["loading"]}</p>
-              </div>
-            </div>
-          ) : searchResults.length > 0 ? (
-            searchResults.map((capacity, index) => (
-              <div
-                key={`search-${capacity.code}-${index}`}
-                className="max-w-screen-xl mx-auto"
-              >
-                <CapacityCard
-                  {...capacity}
-                  isExpanded={!!expandedCapacities[capacity.code]}
-                  onExpand={() => handleToggleExpand(capacity.code.toString())}
-                  hasChildren={capacity.hasChildren}
-                  isRoot={false}
-                  parentCapacity={capacity.parentCapacity}
-                  code={capacity.code}
-                  name={capacity.name}
-                  color={capacity.color}
-                  icon={capacity.icon}
-                  level={capacity.level || (capacity.parentCapacity ? 2 : 1)}
-                  description={
-                    getDescription(capacity.code) || capacity.description || ""
-                  }
-                  wd_code={getWdCode(capacity.code) || capacity.wd_code || ""}
-                  onInfoClick={async (code) => {
-                    // Ensure description is loaded for this capacity
-                    if (!getDescription(code)) {
-                      await requestDescription(code);
-                    }
-                    return getDescription(code);
-                  }}
-                  isSearch={true}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-[24px] text-capx-dark-box-bg">
-              {pageContent["capacity-search-no-results"]}
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Root capacities when no search is active */
+      {/* Quando não estiver em modo de busca, mostrar as capacidades raiz */}
+      {!searchTerm && (
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => (
             <div

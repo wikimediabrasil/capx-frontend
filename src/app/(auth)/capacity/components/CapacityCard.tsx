@@ -113,11 +113,6 @@ export function CapacityCard({
 
       // For third level (level 3) capacities, use fixed black color
       if (level === 3) {
-        console.log(
-          "USING BLACK COLOR FOR EXPLICIT LEVEL 3 CAPACITY",
-          code,
-          level
-        );
         return "#000000"; // Black color for third level
       }
 
@@ -125,7 +120,6 @@ export function CapacityCard({
       // This is safe to use for non-root capacities
       try {
         if (bgColorClass === "bg-black") {
-          console.log("USING BLACK COLOR FOR BG-BLACK CAPACITY", code);
           return "#000000"; // Black color for third level
         }
       } catch (e) {
@@ -219,16 +213,20 @@ export function CapacityCard({
     parentCapacity?: Capacity,
     color?: string
   ): string => {
-    // Se for um item root, usar sua própria cor
-    if (isRoot) return getCapacityColor(color || "black");
+    // Verificação explícita do nível primeiro
+    if (level === 3) {
+      return "#FFFFFF"; // Texto branco para nível 3
+    }
 
-    // For third level capacities, use white text
+    // Se for um item root, sempre usar branco
+    if (isRoot) return "#FFFFFF";
+
+    // Para capacidades de terceiro nível, usar texto branco
     if (
-      level === 3 ||
       parentCapacity?.parentCapacity ||
       (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
     ) {
-      return "#FFFFFF"; // White text for third level
+      return "#FFFFFF"; // Texto branco para nível 3
     }
 
     // Se tiver um pai, usar a cor do pai
@@ -236,13 +234,13 @@ export function CapacityCard({
       return getCapacityColor(parentCapacity.color);
     }
 
-    // If we have a color but no parent (e.g., in search results)
+    // Se temos uma cor mas não um pai (ex: nos resultados de busca)
     if (color) {
       return getCapacityColor(color);
     }
 
-    // Default for child capacities without specified color
-    return "#4B5563"; // A medium gray color
+    // Padrão para capacidades filhas sem cor especificada
+    return "#4B5563"; // Cinza médio
   };
 
   // Função simplificada para determinar o filtro correto para ícones
@@ -250,16 +248,20 @@ export function CapacityCard({
     isRoot: boolean | undefined,
     parentCapacity?: Capacity
   ): string => {
+    // Verificação explícita do nível primeiro
+    if (level === 3) {
+      return "brightness(0) invert(1)"; // Ícones brancos para nível 3
+    }
+
     // Se for root, aplicar filtro que deixa ícone branco
     if (isRoot) return "brightness(0) invert(1)";
 
-    // For third level capacities, make icons white too (same as root)
+    // Para capacidades de terceiro nível, fazer ícones brancos também (mesmo que root)
     if (
-      level === 3 ||
       parentCapacity?.parentCapacity ||
       (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
     ) {
-      return "brightness(0) invert(1)"; // White icons for third level
+      return "brightness(0) invert(1)"; // Ícones brancos para nível 3
     }
 
     // Se tiver pai, usar cor do pai
@@ -357,9 +359,63 @@ export function CapacityCard({
     );
   };
 
+  const getBgColorClass = (): string => {
+    // Use explicit level check first if available
+    if (level === 3) {
+      return "bg-black"; // Black background for level 3
+    }
+
+    // Continue using existing checks as fallbacks
+    // Direct check for third level capacities
+    if (parentCapacity?.parentCapacity) {
+      return "bg-black"; // Black background for third level
+    }
+
+    // Alternative check for third level (if parent is not a root capacity itself)
+    if (parentCapacity && parentCapacity.skill_type !== parentCapacity.code) {
+      return "bg-black"; // Black background for third level
+    }
+
+    // Second level (direct child of root) - Use light background
+    return "bg-capx-light-box-bg";
+  };
+
+  const getTextColorClass = (): string => {
+    // Use explicit level check first
+    if (level === 3) {
+      return "text-white";
+    }
+
+    // Third level check consistent with getBgColorClass
+    if (
+      parentCapacity?.parentCapacity ||
+      (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
+    ) {
+      return "text-white";
+    }
+
+    // Other levels - Let the getNameColor function handle it
+    return "";
+  };
+
+  const bgColorClass = getBgColorClass();
+  const textColorClass = getTextColorClass();
+
   if (isSearch) {
     // Search card - sempre renderiza como um card de busca
-    const cardColor = getEffectiveColor();
+
+    // Check if this is a third-level capacity for proper styling
+    // Always prioritize the explicit level prop first
+    const isThirdLevel =
+      level === 3 || parentCapacity?.parentCapacity !== undefined;
+
+    // Use appropriate background color based on level
+    const backgroundColor = isThirdLevel
+      ? "#000000" // Black for third level
+      : getCapacityColor(parentCapacity?.color || color);
+
+    // Também garante que o texto seja branco para o terceiro nível
+    const textColor = isThirdLevel ? "#FFFFFF" : undefined;
 
     return (
       <div className="w-full">
@@ -369,9 +425,7 @@ export function CapacityCard({
           ${isMobile ? "rounded-[4px]" : "rounded-lg"}
           cursor-pointer hover:brightness-95 transition-all`}
           style={{
-            backgroundColor: getCapacityColor(
-              parentCapacity?.color || cardColor
-            ),
+            backgroundColor: backgroundColor,
           }}
         >
           <div
@@ -502,60 +556,6 @@ export function CapacityCard({
   }
 
   // Child capacity card (non-root)
-  const getBgColorClass = (): string => {
-    // Add logging to see what level we're at
-    console.log(
-      `getBgColorClass - capacity ${code}, level ${level}, parentCapacity:`,
-      parentCapacity
-    );
-
-    // Use explicit level check first if available
-    if (level === 3) {
-      console.log("getBgColorClass: Using level=3 to determine third level");
-      return "bg-black"; // Changed from bg-gray-600 to bg-black
-    }
-
-    // Continue using existing checks as fallbacks
-    // Direct check for third level capacities
-    if (parentCapacity?.parentCapacity) {
-      console.log(
-        "getBgColorClass: Detected third level via parentCapacity.parentCapacity"
-      );
-      return "bg-black"; // Changed from bg-gray-600 to bg-black
-    }
-
-    // Alternative check for third level (if parent is not a root capacity itself)
-    if (parentCapacity && parentCapacity.skill_type !== parentCapacity.code) {
-      console.log("getBgColorClass: Detected third level via skill_type check");
-      return "bg-black"; // Changed from bg-gray-600 to bg-black
-    }
-
-    // Second level (direct child of root) - Use light background
-    console.log("getBgColorClass: Using light background (second level)");
-    return "bg-capx-light-box-bg";
-  };
-
-  const getTextColorClass = (): string => {
-    // Use explicit level check first
-    if (level === 3) {
-      return "text-white";
-    }
-
-    // Third level check consistent with getBgColorClass
-    if (
-      parentCapacity?.parentCapacity ||
-      (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
-    ) {
-      return "text-white";
-    }
-
-    // Other levels - Let the getNameColor function handle it
-    return "";
-  };
-
-  const bgColorClass = getBgColorClass();
-  const textColorClass = getTextColorClass();
-
   return (
     <div className="w-full">
       <div

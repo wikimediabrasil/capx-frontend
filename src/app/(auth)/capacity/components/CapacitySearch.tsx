@@ -81,6 +81,8 @@ export function CapacitySearch({
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>("");
+  // Store the last notified search term to avoid duplicate notification
+  const lastNotifiedSearchRef = useRef<string>("");
 
   useEffect(() => {
     if (session?.user?.token) {
@@ -124,6 +126,15 @@ export function CapacitySearch({
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
 
+  // Notificar o componente pai sobre o termo de busca
+  useEffect(() => {
+    // Prevent notification if term hasn't changed
+    if (onSearch && searchTerm !== lastNotifiedSearchRef.current) {
+      lastNotifiedSearchRef.current = searchTerm;
+      onSearch(searchTerm);
+    }
+  }, [searchTerm, onSearch]);
+
   const toggleCapacity = useCallback(
     async (parentCode: string) => {
       if (expandedCapacities[parentCode]) {
@@ -143,6 +154,38 @@ export function CapacitySearch({
     [expandedCapacities, fetchCapacitiesByParent, fetchCapacityDescription]
   );
 
+  // Processa os resultados para garantir níveis corretos e cores consistentes
+  const processedResults = searchResults.map((capacity) => {
+    // Determina o nível com base na estrutura de pais
+    let level = 1;
+    if (capacity.parentCapacity) {
+      if (capacity.parentCapacity.parentCapacity) {
+        // Terceiro nível - tem um avô
+        level = 3;
+      } else {
+        // Segundo nível - tem apenas um pai
+        level = 2;
+      }
+    }
+
+    // Sempre prioriza o nível explícito se já estiver definido
+    if (capacity.level) {
+      level = capacity.level;
+    }
+
+    // Força capacidades de terceiro nível a terem cor preta
+    let color = capacity.color;
+    if (level === 3) {
+      color = "black";
+    }
+
+    return {
+      ...capacity,
+      level,
+      color,
+    };
+  });
+
   return (
     <div className="w-full">
       <BaseInput
@@ -150,7 +193,6 @@ export function CapacitySearch({
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
-          onSearch?.(e.target.value);
         }}
         placeholder={pageContent["capacity-search-placeholder"]}
         className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
@@ -166,11 +208,12 @@ export function CapacitySearch({
         {isLoading ? (
           <LoadingState />
         ) : (
-          searchResults.map((capacity) => {
+          processedResults.map((capacity) => {
             return (
               <div key={capacity.code} className="w-full">
                 <CapacityCard
                   {...capacity}
+                  level={capacity.level}
                   isExpanded={!!expandedCapacities[capacity.code]}
                   onExpand={() => toggleCapacity(capacity.code.toString())}
                   isRoot={!capacity.parentCapacity}
