@@ -110,7 +110,19 @@ export function useCapacityDetails(capacityIds: any = []) {
               );
 
               if (response && response.name) {
-                results[id.toString()] = response.name;
+                // Check if name is a URL and replace with fallback if needed
+                if (
+                  typeof response.name === "string" &&
+                  (response.name.startsWith("https://") ||
+                    response.name.includes("entity/Q"))
+                ) {
+                  results[id.toString()] =
+                    FALLBACK_NAMES[
+                      id.toString() as keyof typeof FALLBACK_NAMES
+                    ] || `Capacity ${id}`;
+                } else {
+                  results[id.toString()] = response.name;
+                }
 
                 // Update the React Query cache
                 queryClient.setQueryData(
@@ -236,6 +248,17 @@ export function useCapacityDetails(capacityIds: any = []) {
 
         // Check local cache first
         if (capacityNames[idStr]) {
+          // Check if the name is a URL and replace it with fallback
+          if (
+            typeof capacityNames[idStr] === "string" &&
+            (capacityNames[idStr].startsWith("https://") ||
+              capacityNames[idStr].includes("entity/Q"))
+          ) {
+            return (
+              FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES] ||
+              `Capacity ${idStr}`
+            );
+          }
           return capacityNames[idStr];
         }
 
