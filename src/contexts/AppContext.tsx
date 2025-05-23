@@ -36,7 +36,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     "capacity-card-expand-capacity": "Expand",
     "capacity-card-info": "Information",
     "capacity-banner-title": "Exchange Everything",
-    loading: "Loading...",
     "capacity-search-no-results": "No results found",
   });
   const [session, setSession] = useState(null);

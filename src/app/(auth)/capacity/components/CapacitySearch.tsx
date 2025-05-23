@@ -81,8 +81,6 @@ export function CapacitySearch({
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>("");
-  // Store the last notified search term to avoid duplicate notification
-  const lastNotifiedSearchRef = useRef<string>("");
 
   useEffect(() => {
     if (session?.user?.token) {
@@ -128,9 +126,7 @@ export function CapacitySearch({
 
   // Notificar o componente pai sobre o termo de busca
   useEffect(() => {
-    // Prevent notification if term hasn't changed
-    if (onSearch && searchTerm !== lastNotifiedSearchRef.current) {
-      lastNotifiedSearchRef.current = searchTerm;
+    if (onSearch) {
       onSearch(searchTerm);
     }
   }, [searchTerm, onSearch]);

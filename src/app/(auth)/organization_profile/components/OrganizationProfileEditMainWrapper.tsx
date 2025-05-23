@@ -35,6 +35,8 @@ import {
   createSafeFunction,
 } from "@/lib/utils/safeDataAccess";
 import CapacityDebug from "../../profile/edit/components/CapacityDebug";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CAPACITY_CACHE_KEYS } from "@/hooks/useCapacities";
 
 interface ProfileOption {
   value: string;
@@ -506,14 +508,14 @@ export default function EditOrganizationProfilePage() {
   /* Capacity setters need formData to be initialized, therefore it's initialized here */
   // Capacity IDs setters
   const capacityIds = useMemo(() => {
-    // Se formData não estiver inicializado, retorna array vazio
+    // If formData is not initialized, return empty array
     if (!formData) return [];
 
     const knownCapacities = ensureArray(formData.known_capacities);
     const availableCapacities = ensureArray(formData.available_capacities);
     const wantedCapacities = ensureArray(formData.wanted_capacities);
 
-    // Combina todos os arrays e remove duplicatas
+    // Combine all arrays and remove duplicates
     const allIds = [
       ...knownCapacities,
       ...availableCapacities,
@@ -535,24 +537,79 @@ export default function EditOrganizationProfilePage() {
     (id: any) => string
   >(() => (id) => `Capacity ${id}`);
 
-  // Chamar o hook diretamente, não em um try-catch
+  // Get React Query client for manual cache access
+  const queryClient = useQueryClient();
+
+  // Call the hook directly, not in a try-catch
   const capacityDetailsResult = useCapacityDetails(capacityIds);
   const capacityDetailsRef = useRef<any>(capacityDetailsResult);
 
-  // Atualizar a referência quando o resultado mudar
+  // Update the reference when the result changes
   useEffect(() => {
     capacityDetailsRef.current = capacityDetailsResult;
   }, [capacityDetailsResult]);
 
-  // Usar um useEffect para atualizar nossa função de forma segura
+  // Use a useEffect to update our function safely
   useEffect(() => {
     try {
       if (capacityDetailsRef.current) {
         const { getCapacityName } = capacityDetailsRef.current;
 
         if (typeof getCapacityName === "function") {
+          // Create an optimized version that checks React Query cache first
+          const optimizedGetCapacityName = (id: any) => {
+            try {
+              // Skip processing for invalid IDs
+              if (id === null || id === undefined) {
+                return pageContent["capacity-unknown"] || "Unknown Capacity";
+              }
+
+              // First, sanitize the ID if it's a Wikibase URL or other non-standard format
+              let sanitizedId = id;
+              if (typeof id === "object" && id?.code) {
+                sanitizedId = sanitizeCapacityCode(id.code);
+              } else {
+                sanitizedId = sanitizeCapacityCode(id);
+              }
+
+              const idStr = String(sanitizedId);
+
+              // Try to get from React Query cache directly
+              const cachedCapacity = queryClient.getQueryData(
+                CAPACITY_CACHE_KEYS.byId(Number(idStr))
+              );
+
+              // Only use cache data if it has a valid name that's not a URL
+              if (
+                cachedCapacity &&
+                typeof cachedCapacity === "object" &&
+                "name" in cachedCapacity &&
+                typeof cachedCapacity.name === "string" &&
+                !cachedCapacity.name.startsWith("https://")
+              ) {
+                return cachedCapacity.name;
+              }
+
+              // Fall back to the original function
+              const originalName = getCapacityName(sanitizedId);
+
+              // Don't return URLs as capacity names
+              if (
+                typeof originalName === "string" &&
+                originalName.startsWith("https://")
+              ) {
+                return `Capacity ${idStr}`;
+              }
+
+              return originalName;
+            } catch (error) {
+              console.error("Error in optimizedGetCapacityName:", error);
+              return `Capacity ${id}`;
+            }
+          };
+
           const safeFunction = createSafeFunction(
-            getCapacityName,
+            optimizedGetCapacityName,
             "Unknown Capacity",
             (error) => console.error("Error in getCapacityName:", error)
           );
@@ -563,9 +620,9 @@ export default function EditOrganizationProfilePage() {
     } catch (error) {
       console.error("Error extracting getCapacityName:", error);
     }
-  }, [capacityIds]);
+  }, [capacityIds, queryClient, pageContent]);
 
-  // Usar a função segura
+  // Use the safe function
   const getCapacityName = safeGetCapacityName;
 
   /* Handlers */
@@ -770,7 +827,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   const handleEditEvent = (event: Event) => {
-    // Assegurar que o evento tenha a propriedade related_skills definida como um array
+    // Ensure that the event has the related_skills property defined as an array
     const eventToEdit = {
       ...event,
       related_skills: Array.isArray(event.related_skills)
@@ -857,25 +914,25 @@ export default function EditOrganizationProfilePage() {
 
   const handleDeleteEvent = async (eventId: number) => {
     try {
-      // Se for um evento novo (id = 0), apenas remova-o da lista
+      // If it's a new event (id = 0), just remove it from the list
       if (eventId === 0) {
         setEventsData((prev) => prev.filter((e) => e.id !== 0));
         return;
       }
 
-      // Para eventos existentes, deletar no backend
+      // For existing events, delete in the backend
       await deleteEvent(eventId);
 
-      // Remover o evento da lista de eventos exibida
+      // Remove the event from the list of events displayed
       setEventsData((prev) => prev.filter((e) => e.id !== eventId));
 
-      // Atualizar o formData para remover o ID do evento excluído
+      // Update the formData to remove the deleted event ID
       setFormData((prev) => ({
         ...prev,
         events: (prev.events || []).filter((id) => id !== eventId),
       }));
 
-      // Atualizar a organização no backend para remover o evento
+      // Update the organization in the backend to remove the event
       if (organization) {
         const updatedOrgData = {
           ...organization,
@@ -1156,16 +1213,51 @@ export default function EditOrganizationProfilePage() {
     setIsModalOpen(true);
   };
 
+  // Helper function to sanitize capacity codes
+  const sanitizeCapacityCode = (code: any): number => {
+    // If it's already a valid number, return it
+    if (typeof code === "number" && !isNaN(code)) {
+      return code;
+    }
+
+    // If it's a string, check for URLs or try to convert to number
+    if (typeof code === "string") {
+      // Check for Wikibase URLs
+      if (code.indexOf("wikibase") !== -1 || code.indexOf("entity/Q") !== -1) {
+        console.warn("Converting Wikibase URL to numeric ID:", code);
+        // Extract Q-number if possible
+        const match = code.match(/Q(\d+)/);
+        if (match && match[1]) {
+          return parseInt(match[1], 10);
+        }
+      }
+
+      // Try to convert string to number
+      const numericValue = parseInt(code, 10);
+      if (!isNaN(numericValue)) {
+        return numericValue;
+      }
+    }
+
+    // Return a fallback value if all else fails
+    console.warn("Could not sanitize capacity code:", code);
+    return typeof code === "number" ? code : 0;
+  };
+
   const handleCapacitySelect = (capacity: Capacity) => {
     setFormData((prev) => {
       const capacityField =
         `${currentCapacityType}_capacities` as keyof typeof prev;
       const currentCapacities = (prev[capacityField] as number[]) || [];
 
-      if (capacity.code && !currentCapacities.includes(capacity.code)) {
+      // Sanitize the capacity code
+      const sanitizedCode = sanitizeCapacityCode(capacity.code);
+
+      // Only add if valid and not already in the list
+      if (sanitizedCode && !currentCapacities.includes(sanitizedCode)) {
         return {
           ...prev,
-          [capacityField]: [...currentCapacities, capacity.code],
+          [capacityField]: [...currentCapacities, sanitizedCode],
         };
       }
       return prev;

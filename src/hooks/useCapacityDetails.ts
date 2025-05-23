@@ -143,8 +143,10 @@ export function useCapacityDetails(capacityIds: any = []) {
       return results;
     },
     enabled: !!token && uniqueCapacityIds.length > 0,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 30, // 30 minutes (increased from 5 minutes)
+    gcTime: 1000 * 60 * 60 * 2, // 2 hours (increased from 1 hour)
+    refetchOnWindowFocus: false, // Avoid refetching when window gains focus
+    refetchOnMount: false, // Only fetch once per session
   });
 
   // Update local state when capacityData changes

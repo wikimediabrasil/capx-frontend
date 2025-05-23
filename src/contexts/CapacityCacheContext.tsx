@@ -30,30 +30,43 @@ let hasInitializedCache = false;
 let saveCacheTimer: NodeJS.Timeout | null = null;
 
 // Function to persist cache in localStorage
-const saveCache = (capacities, children) => {
+const saveCache = (
+  capacities: Map<number, Capacity>,
+  children: Map<number, number[]>,
+  isFresh = false
+) => {
   if (typeof window === "undefined") return;
 
-  // Clear previous timer if it exists
-  if (saveCacheTimer) {
-    clearTimeout(saveCacheTimer);
+  try {
+    // Convert Maps to plain objects for serialization
+    const capacitiesObj = mapToObject(capacities);
+    const childrenObj = mapToObject(children);
+
+    // Don't save empty data
+    if (
+      !capacitiesObj ||
+      !childrenObj ||
+      Object.keys(capacitiesObj).length === 0 ||
+      Object.keys(childrenObj).length === 0
+    )
+      return;
+
+    const cacheData = {
+      capacities: capacitiesObj,
+      children: childrenObj,
+      timestamp: Date.now(), // Add timestamp to track cache age
+    };
+
+    localStorage.setItem("capx-capacity-cache", JSON.stringify(cacheData));
+
+    // Use type assertion to help TypeScript understand this is safe
+    const capacityCount = Object.keys(
+      capacitiesObj as Record<string, any>
+    ).length;
+    localStorage.setItem("capx-capacity-cache-size", String(capacityCount));
+  } catch (error) {
+    console.error("Error saving capacity cache:", error);
   }
-
-  // Set new timer for debounce
-  saveCacheTimer = setTimeout(() => {
-    try {
-      const cacheToSave = {
-        capacities: mapToObject(capacities),
-        children: mapToObject(children),
-        timestamp: Date.now(),
-      };
-
-      localStorage.setItem("capx-capacity-cache", JSON.stringify(cacheToSave));
-      console.log("💾 Cache saved in localStorage");
-    } catch (e) {
-      console.error("Error saving cache:", e);
-    }
-    saveCacheTimer = null;
-  }, 1000); // Wait 1 second to avoid multiple saves
 };
 
 // Helper functions for serialization
@@ -125,9 +138,6 @@ export function CapacityCacheProvider({
       const savedCache = localStorage.getItem("capx-capacity-cache");
       if (savedCache) {
         const parsedCache = JSON.parse(savedCache);
-        console.log(
-          "🔄 Loading cache from localStorage (CapacityCacheContext)"
-        );
 
         // Convert back to Map before using
         if (parsedCache.capacities) {
@@ -139,10 +149,6 @@ export function CapacityCacheProvider({
           const childrenCount = parsedCache.children
             ? Object.keys(parsedCache.children).length
             : 0;
-
-          console.log(
-            `📊 Cache loaded: ${capacityCount} capacities, ${childrenCount} relations`
-          );
         }
 
         if (parsedCache.children) {
@@ -204,7 +210,6 @@ export function CapacityCacheProvider({
     if (typeof window !== "undefined") {
       localStorage.removeItem("capx-capacity-cache");
     }
-    console.log("🧹 Capacity cache cleared");
   }, [queryClient]);
 
   // Persist cache in localStorage when changing (only if there are data)
@@ -225,68 +230,129 @@ export function CapacityCacheProvider({
 
     // Check if we already have data in cache before loading
     if (capacityCache.size > 0 && childrenCache.size > 0) {
-      console.log(
-        `✅ Cache already loaded with ${capacityCache.size} capacities, using existing data`
-      );
       setIsManuallyLoaded(true);
       return;
     }
 
+    // Try to load from localStorage first before making API requests
     try {
-      console.log("🔄 Starting capacity loading...");
-      setIsLoading(true);
+      const savedCache = localStorage.getItem("capx-capacity-cache");
+      if (savedCache) {
+        const parsedCache = JSON.parse(savedCache);
+        const hasCapacities =
+          parsedCache.capacities &&
+          Object.keys(parsedCache.capacities).length > 0;
+        const hasChildren =
+          parsedCache.children && Object.keys(parsedCache.children).length > 0;
 
-      // 1. Load root capacities
-      const rootCapacities = await capacityService.fetchCapacities({
-        headers: { Authorization: `Token ${session.user.token}` },
-      });
+        if (hasCapacities && hasChildren) {
+          // Convert back to Map before using
+          const capacitiesMap = objectToMap(parsedCache.capacities);
+          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], capacitiesMap);
 
-      // Store root capacities in persistent cache
-      const newCapacityCache = new Map<number, Capacity>();
-      const newChildrenCache = new Map<number, number[]>();
+          const childrenMap = objectToMap(parsedCache.children);
+          queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], childrenMap);
 
-      // Initializecache wwith rott root ctici
-      rootCapacities.forEach((rootCapacity) => {
-        const code = Number(rootCapacity.code);
-        newCapacityCache.set(code, {
-          code,
-          name: rootCapacity.name,
-          color: "technology",
-          icon: "",
-          hasChildren: false,
-          skill_type: code,
-          skill_wikidata_item: "",
-          description: "",
-          wd_code: rootCapacity.wd_code || "",
-        });
-      });
+          setIsManuallyLoaded(true);
 
-      // 2. Load all children in a single request grouped
-      const childPromises = rootCapacities.map(async (rootCapacity) => {
-        const code = Number(rootCapacity.code);
-        try {
-          const children = await capacityService.fetchCapacitiesByType(
-            code.toString(),
-            {
-              headers: { Authorization: `Token ${session.user.token}` },
-            }
-          );
+          // Check age of cached data - if older than a day, trigger a background refresh
+          const cacheTimestamp = parsedCache.timestamp || 0;
+          const oneDayMs = 24 * 60 * 60 * 1000;
+          const isCacheStale = Date.now() - cacheTimestamp > oneDayMs;
 
-          // Process children
-          const childCodes = Object.keys(children).map(Number);
-          newChildrenCache.set(code, childCodes);
-
-          // Update hasChildren of the root capacity
-          const rootCapacity = newCapacityCache.get(code);
-          if (rootCapacity) {
-            newCapacityCache.set(code, {
-              ...rootCapacity,
-              hasChildren: childCodes.length > 0,
-            });
+          if (isCacheStale) {
+            // Continue with API requests for fresh data, but don't await them
+            fetchFreshData(session.user.token, capacitiesMap, childrenMap);
           }
 
-          // Add children to cache
-          childCodes.forEach((childCode) => {
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Error recovering cache:", error);
+      // Continue with normal loading in case of error
+    }
+
+    // Regular API fetching if no localStorage cache exists
+    try {
+      setIsLoading(true);
+      await fetchFreshData(session.user.token);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error prefetching capacity data:", error);
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to fetch fresh data from API
+  const fetchFreshData = async (
+    token: string,
+    existingCapacityCache?: Map<number, Capacity>,
+    existingChildrenCache?: Map<number, number[]>
+  ) => {
+    // 1. Load root capacities
+    const rootCapacities = await capacityService.fetchCapacities({
+      headers: { Authorization: `Token ${token}` },
+    });
+
+    // Store root capacities in persistent cache
+    const newCapacityCache =
+      existingCapacityCache || new Map<number, Capacity>();
+    const newChildrenCache =
+      existingChildrenCache || new Map<number, number[]>();
+
+    // Initialize cache with root capacities
+    rootCapacities.forEach((rootCapacity) => {
+      const code = Number(rootCapacity.code);
+      newCapacityCache.set(code, {
+        code,
+        name: rootCapacity.name,
+        color: "technology",
+        icon: "",
+        hasChildren: false,
+        skill_type: code,
+        skill_wikidata_item: "",
+        description: "",
+        wd_code: rootCapacity.wd_code || "",
+      });
+    });
+
+    // 2. Load all children in a single request grouped
+    const childPromises = rootCapacities.map(async (rootCapacity) => {
+      const code = Number(rootCapacity.code);
+      try {
+        // Skip if we already have this capacity's children in cache
+        if (
+          newChildrenCache.has(code) &&
+          (newChildrenCache.get(code)?.length ?? 0) > 0
+        ) {
+          const cachedChildren = newChildrenCache.get(code);
+          return Array.isArray(cachedChildren) ? cachedChildren : [];
+        }
+
+        const children = await capacityService.fetchCapacitiesByType(
+          code.toString(),
+          {
+            headers: { Authorization: `Token ${token}` },
+          }
+        );
+
+        // Process children
+        const childCodes = Object.keys(children).map(Number);
+        newChildrenCache.set(code, childCodes);
+
+        // Update hasChildren of the root capacity
+        const rootCapacity = newCapacityCache.get(code);
+        if (rootCapacity) {
+          newCapacityCache.set(code, {
+            ...rootCapacity,
+            hasChildren: childCodes.length > 0,
+          });
+        }
+
+        // Add children to cache
+        childCodes.forEach((childCode) => {
+          if (!newCapacityCache.has(childCode)) {
             newCapacityCache.set(childCode, {
               code: childCode,
               name:
@@ -302,29 +368,37 @@ export function CapacityCacheProvider({
               wd_code: "",
               parentCapacity: newCapacityCache.get(code),
             });
-          });
+          }
+        });
 
-          return childCodes;
-        } catch (error) {
-          console.error(`Error fetching children for capacity ${code}:`, error);
-          return [];
-        }
-      });
+        return childCodes;
+      } catch (error) {
+        console.error(`Error fetching children for capacity ${code}:`, error);
+        return [];
+      }
+    });
 
-      // Wait for loading all children
-      const allChildCodes = await Promise.all(childPromises);
-      const flatChildCodes = allChildCodes.flat();
+    // Process the child promises in parallel
+    const allChildCodes = await Promise.all(childPromises);
+    const flatChildCodes = allChildCodes.flat();
 
-      // 3. Load all grandchildren in batches to reduce the number of requests
+    // Only fetch grandchildren for capacities we don't already have
+    const missingGrandchildren = flatChildCodes.filter(
+      (code) =>
+        !newChildrenCache.has(code) || newChildrenCache.get(code)?.length === 0
+    );
+
+    if (missingGrandchildren.length > 0) {
+      // 3. Load grandchildren in batches to reduce the number of requests
       const BATCH_SIZE = 5;
-      for (let i = 0; i < flatChildCodes.length; i += BATCH_SIZE) {
-        const batch = flatChildCodes.slice(i, i + BATCH_SIZE);
+      for (let i = 0; i < missingGrandchildren.length; i += BATCH_SIZE) {
+        const batch = missingGrandchildren.slice(i, i + BATCH_SIZE);
         const batchPromises = batch.map(async (childCode) => {
           try {
             const grandChildren = await capacityService.fetchCapacitiesByType(
               childCode.toString(),
               {
-                headers: { Authorization: `Token ${session.user.token}` },
+                headers: { Authorization: `Token ${token}` },
               }
             );
 
@@ -342,23 +416,25 @@ export function CapacityCacheProvider({
 
             // Add grandchildren to cache
             grandChildCodes.forEach((grandChildCode) => {
-              const parentCapacity = newCapacityCache.get(childCode);
-              newCapacityCache.set(grandChildCode, {
-                code: grandChildCode,
-                name:
-                  typeof grandChildren[grandChildCode] === "string"
-                    ? grandChildren[grandChildCode]
-                    : grandChildren[grandChildCode]?.name ||
-                      `Capacity ${grandChildCode}`,
-                color: "technology",
-                icon: "",
-                hasChildren: false,
-                skill_type: childCode,
-                skill_wikidata_item: "",
-                description: "",
-                wd_code: "",
-                parentCapacity: parentCapacity,
-              });
+              if (!newCapacityCache.has(grandChildCode)) {
+                const parentCapacity = newCapacityCache.get(childCode);
+                newCapacityCache.set(grandChildCode, {
+                  code: grandChildCode,
+                  name:
+                    typeof grandChildren[grandChildCode] === "string"
+                      ? grandChildren[grandChildCode]
+                      : grandChildren[grandChildCode]?.name ||
+                        `Capacity ${grandChildCode}`,
+                  color: "technology",
+                  icon: "",
+                  hasChildren: false,
+                  skill_type: childCode,
+                  skill_wikidata_item: "",
+                  description: "",
+                  wd_code: "",
+                  parentCapacity: parentCapacity,
+                });
+              }
             });
 
             return { childCode, grandChildCodes };
@@ -373,24 +449,17 @@ export function CapacityCacheProvider({
 
         await Promise.all(batchPromises);
       }
-
-      // Update cache in React Query
-      queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], newCapacityCache);
-      queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], newChildrenCache);
-
-      // Save cache in localStorage
-      saveCache(newCapacityCache, newChildrenCache);
-
-      // Mark as manually loaded
-      setIsManuallyLoaded(true);
-      setIsLoading(false);
-      console.log(
-        `✅ Cache updated: ${newCapacityCache.size} capacities loaded`
-      );
-    } catch (error) {
-      console.error("Erro ao pré-carregar capacidades:", error);
-      setIsLoading(false);
     }
+
+    // Update cache in React Query
+    queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], newCapacityCache);
+    queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], newChildrenCache);
+
+    // Save cache in localStorage with a timestamp
+    saveCache(newCapacityCache, newChildrenCache, true);
+
+    // Mark as manually loaded
+    setIsManuallyLoaded(true);
   };
 
   // Helper function to preload capacities
@@ -404,7 +473,6 @@ export function CapacityCacheProvider({
   // Helper function to clear only the capacity cache
   const clearCapacityCache = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ALL_CAPACITIES] });
-    console.log("🧹 Capacity cache invalidated");
   }, [queryClient]);
 
   // Check if a capacity has children
