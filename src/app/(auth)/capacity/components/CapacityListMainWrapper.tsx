@@ -266,6 +266,9 @@ function CapacityListContent() {
 
   const handleSearch = useCallback(
     (term: string) => {
+      // Prevenção de ciclo infinito: verifica se o termo já é o atual
+      if (term === searchTerm) return;
+
       setSearchTerm(term);
       if (term && querySearchResults.length > 0) {
         // Process query results to ensure proper level assignments
@@ -292,7 +295,7 @@ function CapacityListContent() {
           // Force third-level capacities to have black color
           let color = capacity.color;
           if (level === 3) {
-            color = "black";
+            color = "#507380";
           }
 
           return {
@@ -307,7 +310,7 @@ function CapacityListContent() {
         setSearchResults([]);
       }
     },
-    [querySearchResults]
+    [querySearchResults, searchTerm]
   );
 
   if (isLoadingRoot) {
@@ -319,7 +322,7 @@ function CapacityListContent() {
   }
 
   return (
-    <section className="flex flex-col max-w-screen-xl mx-auto py-8 px-4 md:px-8 lg:px-12 gap-[40px]">
+    <section className="flex flex-col max-w-screen-xl mx-auto py-8 px-4 lg:px-12 gap-[40px]">
       {/* Separate loader components for descriptions */}
       <DescriptionLoader capacityIds={rootCapacityIds} />
       <DescriptionLoader capacityIds={searchCapacityIds} />

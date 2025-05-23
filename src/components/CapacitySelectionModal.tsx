@@ -487,7 +487,7 @@ export default function CapacitySelectionModal({
         return hexColor;
       } else if (level === 3) {
         // For third level, use black
-        return "#000000";
+        return "#507380";
       } else {
         // For second level, use light background
         return "#F8F9FA";

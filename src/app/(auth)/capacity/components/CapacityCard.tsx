@@ -113,14 +113,14 @@ export function CapacityCard({
 
       // For third level (level 3) capacities, use fixed black color
       if (level === 3) {
-        return "#000000"; // Black color for third level
+        return "#507380"; // Black color for third level
       }
 
       // If level isn't explicitly set, try to determine from bgColorClass
       // This is safe to use for non-root capacities
       try {
-        if (bgColorClass === "bg-black") {
-          return "#000000"; // Black color for third level
+        if (bgColorClass === "bg-[#507380]") {
+          return "#507380"; // Black color for third level
         }
       } catch (e) {
         // If bgColorClass is not accessible, log error but continue
@@ -138,7 +138,7 @@ export function CapacityCard({
       }
 
       // Fallback - always use a color that will be visible
-      return "#000000"; // Black fallback
+      return "#507380"; // Black fallback
     };
 
     const buttonBgColor = getButtonBackgroundColor();
@@ -362,18 +362,18 @@ export function CapacityCard({
   const getBgColorClass = (): string => {
     // Use explicit level check first if available
     if (level === 3) {
-      return "bg-black"; // Black background for level 3
+      return "bg-[#507380]"; // Black background for level 3
     }
 
     // Continue using existing checks as fallbacks
     // Direct check for third level capacities
     if (parentCapacity?.parentCapacity) {
-      return "bg-black"; // Black background for third level
+      return "bg-[#507380]"; // Black background for third level
     }
 
     // Alternative check for third level (if parent is not a root capacity itself)
     if (parentCapacity && parentCapacity.skill_type !== parentCapacity.code) {
-      return "bg-black"; // Black background for third level
+      return "bg-[#507380]"; // Black background for third level
     }
 
     // Second level (direct child of root) - Use light background
@@ -411,7 +411,7 @@ export function CapacityCard({
 
     // Use appropriate background color based on level
     const backgroundColor = isThirdLevel
-      ? "#000000" // Black for third level
+      ? "#507380" // Black for third level
       : getCapacityColor(parentCapacity?.color || color);
 
     // Também garante que o texto seja branco para o terceiro nível

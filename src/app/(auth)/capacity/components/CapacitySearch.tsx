@@ -82,6 +82,10 @@ export function CapacitySearch({
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>("");
 
+  // Notificar o componente pai sobre o termo de busca
+  // Usar um ref para rastrear o último termo enviado
+  const lastNotifiedTermRef = useRef<string>("");
+
   useEffect(() => {
     if (session?.user?.token) {
       fetchRootCapacities();
@@ -125,8 +129,10 @@ export function CapacitySearch({
   }, [searchTerm, debouncedSearch]);
 
   // Notificar o componente pai sobre o termo de busca
+  // Apenas notifica se o termo mudou e onSearch existir
   useEffect(() => {
-    if (onSearch) {
+    if (onSearch && searchTerm !== lastNotifiedTermRef.current) {
+      lastNotifiedTermRef.current = searchTerm;
       onSearch(searchTerm);
     }
   }, [searchTerm, onSearch]);
@@ -172,7 +178,7 @@ export function CapacitySearch({
     // Força capacidades de terceiro nível a terem cor preta
     let color = capacity.color;
     if (level === 3) {
-      color = "black";
+      color = "#507380";
     }
 
     return {
