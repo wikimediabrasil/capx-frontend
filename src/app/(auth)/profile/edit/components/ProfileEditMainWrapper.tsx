@@ -156,32 +156,32 @@ export default function EditProfilePage() {
         skills_wanted: profile.skills_wanted || [],
       });
 
-      // Verifica se está usando Wikidata pela presença do wikidata_qid
+      // Check if the user is using Wikidata
       const isUsingWikidata = Boolean(profile.wikidata_qid);
       setIsWikidataSelected(isUsingWikidata);
 
       if (isUsingWikidata) {
-        // Se está usando Wikidata, configura a imagem do Wikidata
+        // If the user is using Wikidata, set the Wikidata image
         setSelectedAvatar({
           id: -1,
           src: profile.profile_image || NoAvatarIcon
         });
       } else if (profile.avatar) {
-        // Se não está usando Wikidata, configura o avatar
+        // If the user is not using Wikidata, set the avatar
         const avatarData = avatars?.find(avatar => avatar.id === profile.avatar);
         setSelectedAvatar({
           id: profile.avatar,
           src: avatarData?.avatar_url || NoAvatarIcon
         });
       } else {
-        // Se não tem nem Wikidata nem avatar, usa imagem padrão
+        // If the user is not using Wikidata, set the default image
         setSelectedAvatar({
           id: 0,
           src: NoAvatarIcon
         });
       }
 
-      // Salva o estado inicial
+      // Save the initial state
       setPreviousImageState({
         avatar: profile.avatar || null,
         profile_image: profile.profile_image || "",

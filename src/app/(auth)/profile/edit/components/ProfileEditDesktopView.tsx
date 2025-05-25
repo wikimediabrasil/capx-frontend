@@ -142,8 +142,6 @@ export default function ProfileEditDesktopView(
   const { isMobile, pageContent } = useApp();
   const { languages: languagesData, loading: languagesLoading } =
     useLanguage(token);
-  // const { affiliations: affiliationsData } = useAffiliation(token);
-  // const { territories: territoriesData } = useTerritories(token);
   const { wikimediaProjects: wikimediaProjectsData } =
     useWikimediaProject(token);
   const username = session?.user?.name;
