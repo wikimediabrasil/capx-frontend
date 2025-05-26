@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CapXLogo from "@/public/static/images/capx_minimalistic_logo.svg";
 import { useApp } from "@/contexts/AppContext";
+
 function OAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -138,7 +139,20 @@ function OAuthContent() {
 
 // Loading component for Suspense
 function OAuthLoading() {
-  const { pageContent } = useApp();
+  const [pageContent, setPageContent] = useState({ loading: "Loading..." });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+
+    try {
+      const app = useApp();
+      setPageContent(app?.pageContent || { loading: "Loading..." });
+    } catch (error) {
+      // Use default content if context not available
+      console.warn("AppContext not available in OAuth loading");
+    }
+  }, []);
 
   return (
     <section className="flex w-screen h-screen font-montserrat">
