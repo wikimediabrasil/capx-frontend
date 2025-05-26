@@ -201,7 +201,7 @@ export function ProfileItem({
   const capacityStyle = getCapacityStyle(title);
 
   return (
-    <div className="flex flex-col gap-2 md:gap-4 mb-4">
+    <div className="flex flex-col gap-2 md:gap-4">
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

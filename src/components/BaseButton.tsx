@@ -27,7 +27,7 @@ export default function BaseButton({
 
   const buttonClass = customClass || defaultClass;
   const justifyClass = imageUrl
-    ? "justify-between mb-4 pb-4"
+    ? "justify-between pb-4"
     : "justify-center";
 
   return (

@@ -298,7 +298,6 @@
 	"snackbar-edit-profile-organization-create-event-failed": "Terjadi kesalahan saat membuat acara. Harap periksa dan coba lagi",
 	"snackbar-edit-profile-organization-create-tag-failed": "Terjadi kesalahan saat membuat tag. Harap periksa dan coba lagi",
 	"snackbar-edit-profile-organization-processing-tag-failed": "Kesalahan dalam memproses tag",
-	"snackbar-edit-profile-organization-create-document-failed": "Terjadi kesalahan saat menambahkan dokumen. Harap periksa dan coba lagi",
 	"snackbar-edit-profile-organization-processing-document-failed": "Terjadi kesalahan saat memproses dokumen",
 	"snackbar-edit-profile-organization-processing-form-failed": "Terjadi kesalahan saat memproses formulir. Harap periksa dan coba lagi",
 	"snackbar-edit-profile-organization-fetch-tags-failed": "Terjadi kesalahan saat mengambil tag. Harap periksa dan coba lagi",

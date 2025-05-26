@@ -292,7 +292,6 @@
 	"snackbar-edit-profile-organization-create-event-failed": "Erro ao criar evento. Por favor, reveja e tente novamente",
 	"snackbar-edit-profile-organization-create-tag-failed": "Erro ao criar tag. Por favor, reveja e tente novamente",
 	"snackbar-edit-profile-organization-processing-tag-failed": "Erro ao processar tag",
-	"snackbar-edit-profile-organization-create-document-failed": "Erro ao adicionar documento. Por favor, reveja e tente novamente",
 	"snackbar-edit-profile-organization-processing-document-failed": "Erro ao processar documento",
 	"snackbar-edit-profile-organization-processing-form-failed": "Erro ao processar formulário. Por favor, reveja e tente novamente",
 	"snackbar-edit-profile-organization-fetch-tags-failed": "Erro ao buscar tags. Por favor, reveja e tente novamente"

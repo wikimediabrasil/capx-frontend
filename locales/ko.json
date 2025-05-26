@@ -155,7 +155,6 @@
 	"snackbar-edit-profile-organization-create-project-failed": "프로젝트 생성 중 오류가 발생했습니다. 확인하고 다시 시도해 주십시오.",
 	"snackbar-edit-profile-organization-update-event-failed": "이벤트 업데이트 중 오류가 발생했습니다. 확인하고 다시 시도해 주십시오",
 	"snackbar-edit-profile-organization-processing-tag-failed": "태그 처리 중 오류 발생",
-	"snackbar-edit-profile-organization-create-document-failed": "문서 추가 오류입니다. 확인하고 다시 시도해 주십시오",
 	"snackbar-edit-profile-organization-processing-document-failed": "문서 처리 중 오류 발생",
 	"snackbar-edit-profile-organization-processing-form-failed": "폼 처리 중 오류가 발생했습니다. 확인하고 다시 시도해 주십시오.",
 	"snackbar-edit-profile-organization-fetch-tags-failed": "태그를 가져오는 중 오류가 발생했습니다. 확인하고 다시 시도해 주십시오",

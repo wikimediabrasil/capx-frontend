@@ -50,11 +50,6 @@ if (typeof window !== "undefined") {
       const parsed = JSON.parse(savedDescriptions);
       cachedDescriptions = parsed.descriptions || {};
       cachedWdCodes = parsed.wdCodes || {};
-      console.log(
-        `📝 Carregadas ${
-          Object.keys(cachedDescriptions).length
-        } descrições do cache`
-      );
     }
   } catch (error) {
     console.error("Erro ao carregar descrições do cache:", error);

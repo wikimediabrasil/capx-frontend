@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { useTheme } from "@/contexts/ThemeContext";
 import CapxLogo from "@/public/static/images/capx_detailed_logo.svg";
@@ -10,42 +12,50 @@ export default function LoadingStateWithFallback({
 }: {
   fullScreen?: boolean;
 }) {
-  const [hasTheme, setHasTheme] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  let darkMode = false;
 
-  // Try to use ThemeContext safely
+  try {
+    // Only use the hook if we're in a client component
+    // This is safer than using it in useEffect
+    const theme = useTheme();
+    darkMode = theme?.darkMode || false;
+  } catch (error) {
+    // If ThemeContext is not available, use default theme
+    darkMode = false;
+  }
+
+  // Handle mounting to avoid hydration mismatch
   useEffect(() => {
-    try {
-      // Attempt to get theme context
-      const { darkMode } = useTheme();
-      setIsDarkMode(darkMode);
-      setHasTheme(true);
-    } catch (error) {
-      // If ThemeContext is not available, fallback to default light theme
-      setHasTheme(false);
-      console.warn(
-        "ThemeContext not available in LoadingStateWithFallback:",
-        error
-      );
-    }
+    setMounted(true);
   }, []);
+
+  // Only render with styles after mounting to avoid hydration issues
+  if (!mounted) {
+    return (
+      <div
+        className={`flex items-center justify-center ${
+          fullScreen ? "min-h-screen" : "h-[150px]"
+        }`}
+        role="status"
+      />
+    );
+  }
 
   return (
     <div
       className={`flex items-center justify-center ${
         fullScreen ? "min-h-screen" : "h-[150px]"
-      } ${hasTheme && isDarkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg"}`}
+      } ${darkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg"}`}
       role="status"
       data-testid="loading-state"
       aria-label="Loading"
     >
       <div className="relative w-16 h-16">
         <Image
-          src={hasTheme && isDarkMode ? CapxLogoWhite : CapxLogo}
+          src={darkMode ? CapxLogoWhite : CapxLogo}
           alt="CAPX Logo"
           className="animate-pulse-fade object-contain"
-          width={64}
-          height={64}
           style={{ width: "auto", height: "auto" }}
           priority
         />
@@ -72,18 +82,27 @@ export default function LoadingStateWithFallback({
 
 // Compact version for use in smaller components
 export function CompactLoading() {
-  const [hasTheme, setHasTheme] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  let darkMode = false;
 
+  try {
+    // Only use the hook if we're in a client component
+    const theme = useTheme();
+    darkMode = theme?.darkMode || false;
+  } catch (error) {
+    // Silently fail and use default theme
+    darkMode = false;
+  }
+
+  // Handle mounting to avoid hydration mismatch
   useEffect(() => {
-    try {
-      const { darkMode } = useTheme();
-      setIsDarkMode(darkMode);
-      setHasTheme(true);
-    } catch (error) {
-      setHasTheme(false);
-    }
+    setMounted(true);
   }, []);
+
+  // Only render with styles after mounting
+  if (!mounted) {
+    return <div className="flex items-center justify-center py-4" />;
+  }
 
   return (
     <div className="flex items-center justify-center py-4">

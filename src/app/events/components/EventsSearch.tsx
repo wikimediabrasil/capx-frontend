@@ -68,7 +68,7 @@ export function EventsSearch({
   const { darkMode } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Search all events to enable search
   const {
     events,
@@ -81,15 +81,15 @@ export function EventsSearch({
 
   // Search function
   const search = useCallback(
-    async (term: string) => {      
+    async (term: string) => {
       // Notify search status
       onSearchStatusChange?.(!!term);
-      
+
       // If the search term is the same as the last search, do nothing
       if (term === lastSearchRef.current) {
         return;
       }
-      
+
       // Store the current search term
       lastSearchRef.current = term;
 
@@ -99,33 +99,42 @@ export function EventsSearch({
         onSearchEnd?.();
         return;
       }
-      
+
       if (!events || events.length === 0) {
         onSearchResults?.([]);
         onSearchEnd?.();
         return;
       }
-      
+
       setIsLoading(true);
       onSearchStart?.();
-      
+
       try {
         // Safely check for null/undefined values during filtering
-        const filtered = events.filter(event => {
-          const name = (event.name || '').toLowerCase();
-          const desc = (event.description || '').toLowerCase();
-          const loc = (event.type_of_location || '').toLowerCase();
+        const filtered = events.filter((event) => {
+          const name = (event.name || "").toLowerCase();
+          const desc = (event.description || "").toLowerCase();
+          const loc = (event.type_of_location || "").toLowerCase();
           const termLower = term.toLowerCase();
-          
-          return name.includes(termLower) || 
-                 desc.includes(termLower) || 
-                 loc.includes(termLower);
+
+          // Enhanced check for specific types
+          const matchesLocationType =
+            loc === termLower || // Exact match
+            (termLower === "in-person" && loc === "in_person") || // Special mapping for in-person/in_person
+            (termLower === "on-site" && loc === "in_person") || // Mapping for on-site/in_person
+            loc.includes(termLower); // Keep substring search
+
+          return (
+            name.includes(termLower) ||
+            desc.includes(termLower) ||
+            matchesLocationType
+          );
         });
-                
+
         // Send results to parent component (even if empty)
         onSearchResults?.(filtered);
       } catch (error) {
-        console.error('🔍 Error:', error);
+        console.error("🔍 Error:", error);
         onSearchResults?.([]);
       } finally {
         setIsLoading(false);
@@ -136,10 +145,7 @@ export function EventsSearch({
   );
 
   // Use the custom debounce hook
-  const { debouncedFunction: debouncedSearch } = useDebounce(
-    search,
-    300
-  );
+  const { debouncedFunction: debouncedSearch } = useDebounce(search, 300);
 
   // Effect to call the debounce function when the search term changes
   useEffect(() => {
@@ -159,7 +165,9 @@ export function EventsSearch({
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder={pageContent?.["events-search-placeholder"] || "Search for events..."}
+        placeholder={
+          pageContent?.["events-search-placeholder"] || "Search for events..."
+        }
         className={`w-full h-16 py-6 px-3 rounded-[16px] opacity-50 ${
           darkMode
             ? "text-white border-white"
@@ -168,7 +176,7 @@ export function EventsSearch({
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />
-      
+
       {(isLoading || isEventsLoading) && (
         <div className="flex justify-center py-2 mt-2">
           <LoadingState />

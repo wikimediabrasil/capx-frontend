@@ -10,12 +10,7 @@ import HydrationHandler from "@/components/HydrationHandler";
 import { ProfileEditProvider } from "@/contexts/ProfileEditContext";
 import { CapacitiesPrefetcher } from "@/components/CapacitiesPrefetcher";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import dynamic from "next/dynamic";
-
-// Carregar ferramentas de debug apenas no cliente
-const SessionDebug = dynamic(() => import("@/components/SessionDebug"), {
-  ssr: false,
-});
+import { SafeBadgesProvider } from "@/contexts/SafeBadgesProvider";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -38,27 +33,24 @@ export default function RootLayout({
       <body id="root" className="min-h-screen" suppressHydrationWarning>
         <ErrorBoundary>
           <HydrationHandler />
-          <AppProvider>
-            <ThemeProvider>
-              <SessionWrapper>
-                <Providers>
+          <ThemeProvider>
+            <SessionWrapper>
+              <Providers>
+                <AppProvider>
                   <ProfileEditProvider>
                     <SnackbarProvider>
                       <CapacityCacheProvider>
-                        <CapacitiesPrefetcher />
-                        {children}
-                        {process.env.NODE_ENV === "development" && (
-                          <>
-                            <SessionDebug />
-                          </>
-                        )}
+                        <SafeBadgesProvider>
+                          <CapacitiesPrefetcher />
+                          {children}
+                        </SafeBadgesProvider>
                       </CapacityCacheProvider>
                     </SnackbarProvider>
                   </ProfileEditProvider>
-                </Providers>
-              </SessionWrapper>
-            </ThemeProvider>
-          </AppProvider>
+                </AppProvider>
+              </Providers>
+            </SessionWrapper>
+          </ThemeProvider>
         </ErrorBoundary>
       </body>
     </html>

@@ -375,7 +375,7 @@ export default function EventCard({
                     >
                       {event.type_of_location === "virtual"
                         ? "Online event"
-                        : event.type_of_location === "in-person"
+                        : event.type_of_location === "in_person"
                         ? "In-person event"
                         : "Hybrid event"}
                     </p>
