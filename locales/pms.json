@@ -484,5 +484,12 @@
 	"lets-connect-form-gender-agender": "Sensa géner",
 	"lets-connect-form-gender-non-binary": "Nen binari",
 	"lets-connect-edit-user-info": "Soa anformassion nen argistrà a resto sì për cand a torna. Peui a argistra tute le modìfiche an ësgnacand an sël boton Argistré ël profil.",
-	"lets-connect-form-area-climate-change": "Cangiament climàtich e sostenibilità"
+	"lets-connect-form-area-climate-change": "Cangiament climàtich e sostenibilità",
+	"lets-connect-form-area-public-policy": "Régole pùbliche",
+	"lets-connect-form-area-education": "Educassion",
+	"lets-connect-form-area-open-technology": "Tecnologìa duverta",
+	"lets-connect-form-area-diversity": "Diversità",
+	"lets-connect-form-area-culture-heritage-glam": "Patrimòni cultural e GLAM",
+	"lets-connect-form-area-human-rights": "Drit uman",
+	"lets-connect-success-title": "Bin fàit!"
 }
