@@ -1,10 +1,9 @@
 "use client";
 import Image from "next/image";
 import { signIn, useSession, SessionProvider } from "next-auth/react";
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CapXLogo from "@/public/static/images/capx_minimalistic_logo.svg";
-import { useApp } from "@/contexts/AppContext";
 
 function OAuthContent() {
   const router = useRouter();
@@ -21,6 +20,36 @@ function OAuthContent() {
       localStorage.removeItem("oauth_token_secret");
     }
   }, [status, session]);
+
+  const handleLogin = useCallback(async () => {
+    try {
+      const oauth_token = localStorage.getItem("oauth_token");
+      const oauth_token_secret = localStorage.getItem("oauth_token_secret");
+
+      if (!oauth_token || !oauth_token_secret) {
+        throw new Error("Missing OAuth tokens");
+      }
+
+      setLoginStatus("Finalizando Login...");
+      const result = await signIn("credentials", {
+        oauth_token,
+        oauth_token_secret,
+        oauth_verifier,
+        stored_token: oauth_token,
+        stored_token_secret: oauth_token_secret,
+        redirect: true,
+        callbackUrl: "/home",
+      });
+      if (result?.error) {
+        console.error("Login error:", result.error);
+        setLoginStatus("Erro: " + result.error);
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      return { error: error.message };
+    }
+  }, [oauth_verifier, router]);
 
   useEffect(() => {
     if (!oauth_token_request || !oauth_verifier || isCheckingTokenRef.current) {
@@ -83,37 +112,7 @@ function OAuthContent() {
     }
 
     checkToken();
-  }, [oauth_token_request, oauth_verifier, router]);
-
-  async function handleLogin() {
-    try {
-      const oauth_token = localStorage.getItem("oauth_token");
-      const oauth_token_secret = localStorage.getItem("oauth_token_secret");
-
-      if (!oauth_token || !oauth_token_secret) {
-        throw new Error("Missing OAuth tokens");
-      }
-
-      setLoginStatus("Finalizando Login...");
-      const result = await signIn("credentials", {
-        oauth_token,
-        oauth_token_secret,
-        oauth_verifier,
-        stored_token: oauth_token,
-        stored_token_secret: oauth_token_secret,
-        redirect: true,
-        callbackUrl: "/home",
-      });
-      if (result?.error) {
-        console.error("Login error:", result.error);
-        setLoginStatus("Erro: " + result.error);
-        router.push("/");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      return { error: error.message };
-    }
-  }
+  }, [oauth_token_request, oauth_verifier, router, handleLogin]);
 
   return (
     <section className="flex w-screen h-screen font-montserrat">
@@ -139,20 +138,7 @@ function OAuthContent() {
 
 // Loading component for Suspense
 function OAuthLoading() {
-  const [pageContent, setPageContent] = useState({ loading: "Loading..." });
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-
-    try {
-      const app = useApp();
-      setPageContent(app?.pageContent || { loading: "Loading..." });
-    } catch (error) {
-      // Use default content if context not available
-      console.warn("AppContext not available in OAuth loading");
-    }
-  }, []);
+  const [pageContent] = useState({ loading: "Loading..." });
 
   return (
     <section className="flex w-screen h-screen font-montserrat">
