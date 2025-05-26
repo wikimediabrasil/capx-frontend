@@ -1,7 +1,7 @@
 import Image from "next/image";
 import BaseButton from "@/components/BaseButton";
 import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAvatars } from "@/hooks/useAvatars";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -23,6 +23,14 @@ export default function AvatarSelectionPopup({
   const { pageContent, isMobile } = useApp();
   const [tempSelectedId, setTempSelectedId] = useState(selectedAvatarId);
   const { darkMode } = useTheme();
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   const handleUpdate = async () => {
     onSelect(tempSelectedId);

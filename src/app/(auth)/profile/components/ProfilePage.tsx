@@ -129,15 +129,10 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   const { isMobile, pageContent } = useApp();
   const token = session?.user?.token;
   const router = useRouter();
-
-  const { allBadges, userBadgesRelations, userBadges } = useBadges();
-
+  const { allBadges } = useBadges();
   const activeBadges = useMemo(() => {
     return allBadges.filter((badge) => profile?.badges.includes(badge.id));
   }, [allBadges, profile?.badges]);
-
-  // TODO REMOVER
-  const teste = [];
 
   const { languages } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
