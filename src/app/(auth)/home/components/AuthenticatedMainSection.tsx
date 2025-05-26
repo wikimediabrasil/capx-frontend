@@ -8,7 +8,7 @@ import SecondarySectionIllustration03 from "@/public/static/images/capx_loggedin
 import BaseButton from "@/components/BaseButton";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
-
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 interface AuthenticatedMainSectionProps {
   pageContent: any;
 }
@@ -19,6 +19,7 @@ export default function AuthenticatedMainSection({
   const { isMobile } = useApp();
   const { darkMode } = useTheme();
   const router = useRouter();
+  const { showSnackbar } = useSnackbar();
 
   const secondarySection = isMobile ? (
     <section
@@ -246,6 +247,42 @@ export default function AuthenticatedMainSection({
           </div>
         </section>
         {secondarySection}
+
+        <section
+          className={
+            (darkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg") +
+            " flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12"
+          }
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between w-full pt-8 md:py-32 gap-8">
+            <div className="mx-auto flex flex-col items-center md:items-start w-full md:w-1/2">
+            <h1
+              className={
+                (darkMode ? "text-[#FFF]" : "text-[#053749]") +
+                " text-center font-[Montserrat] text-[24px] not-italic font-extrabold "
+              }
+              >
+                {pageContent["body-loggedin-home-third-section-title"]}
+              </h1>
+              <p
+                className={
+                  (darkMode ? "text-[#FFF]" : "text-[#053749]") +
+                  " text-center font-[Montserrat] text-[16px] not-italic font-normal leading-[normal] my-[24px]"
+                }
+              >
+                {pageContent["body-loggedin-home-third-section-description"]}
+              </p>
+              <BaseButton
+                onClick={() => {
+                  navigator.clipboard.writeText("capx@wmnobrasil.org");
+                  showSnackbar(pageContent["body-loggedin-home-third-section-button-success"], "success");
+                }}
+                label={pageContent["body-loggedin-home-third-section-button"]}
+                customClass="w-fit sm:w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] text-white font-bold py-[8px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
+              />
+            </div>
+          </div>
+        </section>
       </>
     );
   }
@@ -309,6 +346,33 @@ export default function AuthenticatedMainSection({
           </div>
         </div>
         {secondarySection}
+
+        <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
+          <h1
+            className={
+              (darkMode ? "text-[#FFF]" : "text-[#053749]") +
+              " font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]"
+            }
+          >
+            {pageContent["body-loggedin-home-third-section-title"]}
+          </h1>
+          <p
+            className={
+              (darkMode ? "text-[#FFF]" : "text-[#053749]") +
+              " font-[Montserrat] text-[30px] not-italic font-normal leading-[normal] my-[24px]"
+            }
+          >
+            {pageContent["body-loggedin-home-third-section-description"]}
+          </p>
+          <BaseButton
+            onClick={() => {
+              navigator.clipboard.writeText("capx@wmnobrasil.org");
+              showSnackbar(pageContent["body-loggedin-home-third-section-button-success"], "success");
+            }}
+            label={pageContent["body-loggedin-home-third-section-button"]}
+            customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] text-white font-bold h-[64px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
+          />
+        </div>
       </section>
     </>
   );
