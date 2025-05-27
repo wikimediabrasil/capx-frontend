@@ -11,6 +11,11 @@ The Capacity Exchange (CapX) is available in Toolforge at https://capx.toolforge
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+- [Project Architecture](#project-architecture)
+- [Features](#features)
+- [Testing](#testing)
+- [Storybook](#storybook)
+- [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -21,6 +26,7 @@ The Capacity Exchange (CapX) is available in Toolforge at https://capx.toolforge
 Before you begin, ensure you have met the following requirements:
 
 - NodeJS >=18
+- Yarn package manager
 
 ### Installation
 
@@ -59,21 +65,7 @@ Before you begin, ensure you have met the following requirements:
 
 You should now be able to access the project at http://localhost:3000/ in your web browser.
 
-## Contributing
-
-Contributions are welcome! To contribute to the Capacity Exchange, follow these steps:
-
-1. Fork the repository
-2. Create a new branch: git checkout -b feature/your-feature
-3. Make your changes and commit them: git commit -m 'Add some feature'
-4. Push to the branch: git push origin feature/your-feature
-5. Create a pull request on GitHub against the 'dev' branch
-
-## License
-
-This project is licensed under the GNU AGPLv3 - see the LICENSE file for details.
-
-## Project Structure
+## Project Architecture
 
 The project uses Next.js 14+ App Router and TypeScript for better type safety and modern routing patterns.
 
@@ -82,154 +74,406 @@ capx-frontend/
 ├── src/
 │ ├── app/ # App Router directory
 │ │ ├── (auth)/ # Authenticated routes group
-│ │ │ ├── profile/ # Profile related pages
-│ │ │ ├── capacity/ # Capacity related pages
-│ │ │ └── report/ # Report related pages
-│ │ ├── oauth/ # OAuth page
+│ │ │ ├── profile/ # Profile management pages
+│ │ │ ├── capacity/ # Capacity management pages
+│ │ │ ├── feed/ # Activity feed and saved items
+│ │ │ ├── home/ # Dashboard home
+│ │ │ ├── message/ # Messaging system
+│ │ │ ├── organization_profile/ # Organization profiles
+│ │ │ └── report_bug/ # Bug reporting
+│ │ ├── events/ # Public events pages
+│ │ ├── organization_list/ # Public organization listing
+│ │ ├── terms/ # Terms of service
+│ │ ├── privacy_policy/ # Privacy policy
+│ │ ├── oauth/ # OAuth authentication
 │ │ ├── api/ # API routes
 │ │ └── layout.tsx # Root layout
-│ ├── components/ # Shared components
-│ ├── hooks/ # Custom hooks
-│ ├── lib/ # Library of functions
-│ ├── services/ # API services
-│ └── types/ # TypeScript types
-│ ├── middleware.ts # Middleware for authentication
+│ ├── components/ # Shared components (50+ components)
+│ ├── hooks/ # Custom hooks (35+ hooks)
+│ ├── contexts/ # React contexts for state management
+│ ├── services/ # API services (23+ services)
+│ ├── types/ # TypeScript type definitions
+│ ├── lib/ # Utility functions
+│ ├── stories/ # Storybook stories
+│ ├── __tests__/ # Test files
+│ └── middleware.ts # Next.js middleware
 ├── public/ # Static files
-└── locales/ # i18n files
+├── locales/ # i18n files
+├── .storybook/ # Storybook configuration
+└── __mocks__/ # Jest mocks
 ```
 
-## Authentication Flow
+## Features
 
-1. User authentication is handled through NextAuth.js
-2. Session management uses server-side session tokens
-3. Protected routes are grouped under the `(auth)` directory
-4. API requests include authentication tokens in headers
+### 🔐 Authentication & Authorization
+
+- OAuth integration with Wikimedia accounts
+- Session management with NextAuth.js
+- Protected routes with middleware
+- Role-based access control
+
+### 👤 User Management
+
+- **Profile Management**: Complete user profiles with avatars, skills, and territories
+- **Profile Editing**: Rich form-based profile editing with validation
+- **User Discovery**: Search and browse user profiles
+- **Badges System**: Achievement badges with selection and display
+- **Let's Connect**: User connection and networking features
+
+### 🎯 Capacity Management
+
+- **Capacity Profiles**: Detailed capacity information and management
+- **Capacity Search**: Advanced search and filtering capabilities
+- **Capacity Categories**: Hierarchical capacity organization
+- **Known/Available/Wanted**: Three-tier capacity classification system
+- **Capacity Feed**: Activity feed for capacity-related updates
+
+### 🏢 Organization Features
+
+- **Organization Profiles**: Comprehensive organization management
+- **Organization Types**: Different types of organizations support
+- **Organization Events**: Event management for organizations
+- **Organization Discovery**: Public organization listing and search
+
+### 📅 Events System
+
+- **Event Management**: Create, edit, and manage events
+- **Event Discovery**: Browse and search events
+- **Wikidata Integration**: Enhanced event data from Wikidata
+- **Event Categories**: Organized event classification
+
+### 💬 Communication
+
+- **Messaging System**: Direct messaging between users
+- **Message Management**: Message history and organization
+- **Notifications**: Real-time communication updates
+
+### 📊 Content Management
+
+- **Feed System**: Personalized activity feeds
+- **Saved Items**: Bookmark and save content for later
+- **Projects**: Project management and collaboration
+- **Documents**: Document sharing and management
+
+### 🌐 Internationalization
+
+- **Multi-language Support**: Full i18n implementation
+- **Language Selection**: Dynamic language switching
+- **Territory Management**: Geographic region support
+
+### 🎨 UI/UX Features
+
+- **Dark Mode**: Complete dark/light theme support
+- **Responsive Design**: Mobile-first responsive layout
+- **Progressive Web App**: PWA capabilities
+- **Accessibility**: WCAG compliant components
+- **Modern UI**: Beautiful, modern interface with Tailwind CSS
+
+### 🔧 Developer Features
+
+- **TypeScript**: Full type safety throughout the application
+- **Error Boundaries**: Graceful error handling
+- **Loading States**: Comprehensive loading state management
+- **Caching**: Intelligent data caching with React Query
+- **Performance**: Optimized performance with Next.js features
+
+## Testing
+
+The project includes comprehensive testing setup with Jest and React Testing Library.
+
+### Running Tests
+
+```bash
+# Run all tests
+yarn test
+
+# Run tests in watch mode
+yarn test --watch
+
+# Run tests with coverage
+yarn test --coverage
+```
+
+### Test Structure
+
+- **Component Tests**: Located in `src/__tests__/components/`
+- **Route Tests**: Located in `src/__tests__/routes/`
+- **Test Configuration**: `jest.config.ts` and `jest.setup.ts`
+
+### Current Test Coverage
+
+The project includes tests for:
+
+- UI Components (16+ component tests)
+- Navigation components
+- Form components
+- Authentication flows
+- Capacity management
+- Profile management
+
+## Storybook
+
+Storybook is configured for component development and documentation.
+
+### Running Storybook
+
+```bash
+# Start Storybook development server
+yarn storybook
+
+# Build Storybook for production
+yarn build-storybook
+```
+
+### Storybook Features
+
+- Component documentation and examples
+- Interactive component playground
+- Visual regression testing capabilities
+- Accessibility testing integration
+
+### Current Stories
+
+- Authentication components
+- Progress indicators
+- Form components
+- Navigation components
+
+## Authentication Flow
 
 ```mermaid
 sequenceDiagram
     participant User
+    participant Frontend
     participant NextAuth
-    participant API Routes
+    participant Wikimedia
     participant Backend
 
-    User->>NextAuth: Login attempt
-    NextAuth->>Backend: Authenticate credentials
-    Backend->>NextAuth: Return token
-    NextAuth->>User: Set session cookie
+    User->>Frontend: Access protected route
+    Frontend->>NextAuth: Check session
+    NextAuth->>Frontend: No valid session
+    Frontend->>User: Redirect to login
 
-    Note over User,Backend: Subsequent Requests
-    User->>API Routes: Request with session
-    API Routes->>Backend: Forward with token
-    Backend->>API Routes: Response
-    API Routes->>User: Protected data
+    User->>Frontend: Click login
+    Frontend->>NextAuth: Initiate OAuth
+    NextAuth->>Wikimedia: OAuth request
+    Wikimedia->>User: Authorization prompt
+    User->>Wikimedia: Grant permission
+    Wikimedia->>NextAuth: Authorization code
+    NextAuth->>Backend: Exchange code for token
+    Backend->>NextAuth: User data + token
+    NextAuth->>Frontend: Set session
+    Frontend->>User: Access granted
 ```
 
-## Data Flow
-
-The data flow is managed through the following components:
+## Data Flow Architecture
 
 ```mermaid
 graph TD
-    A[Global State] --> B[NextAuth Session]
-    A --> C[React Query Cache]
+    A[User Interface] --> B[React Components]
+    B --> C[Custom Hooks]
+    C --> D[React Query]
+    C --> E[Context Providers]
 
-    B --> D[useSession Hook]
-    C --> E[useQuery Hooks]
+    D --> F[API Services]
+    F --> G[Next.js API Routes]
+    G --> H[Backend API]
 
-    F[Local State] --> G[Form State]
-    F --> H[UI State]
+    E --> I[Theme Context]
+    E --> J[Capacity Cache Context]
+    E --> K[Badges Context]
+    E --> L[Profile Edit Context]
 
-    G --> I[useProfileForm]
-    G --> J[useCapacityForm]
+    M[Middleware] --> N[Authentication Check]
+    N --> O[Request Headers]
 
-    H --> K[Dark Mode]
-    H --> L[Language]
+    P[Local Storage] --> Q[React Query Persistence]
+    Q --> D
 ```
 
-### State Management
-
-1. React Query for server state
-2. Local state managed through hooks
-3. Form state handled by custom form hooks
-4. Session state managed by NextAuth
-
-### Profile Management
-
-1. User data is fetched through `profileService`
-2. State management uses custom hooks (`useProfileForm`)
-3. Form updates are handled through controlled components
-4. API requests are processed through Next.js API routes
-
-### Capacity Management
-
-1. Capacities are managed through `capacityService`
-2. State handling uses `useCapacityForm` hook
-3. Capacity data follows a hierarchical structure:
-   - Known capacities
-   - Available capacities (subset of known)
-   - Wanted capacities
-
-### API Structure and Requests flow
-
-1. API routes are organized by feature:
-
-   - `/api/profile` - User profile management
-   - `/api/capacity` - Capacity operations
-   - `/api/profile_image` - Image handling
-   - `/api/login` - Login operations
-
-2. Requests flow:
+## State Management Architecture
 
 ```mermaid
-sequenceDiagram
-    participant Component
-    participant Service
-    participant APIRoute
-    participant Backend
+graph LR
+    A[Global State] --> B[React Query Cache]
+    A --> C[React Contexts]
+    A --> D[NextAuth Session]
 
-    Component->>Service: Call service method
-    Service->>APIRoute: Make request
-    APIRoute->>Backend: Forward request
-    Backend->>APIRoute: Response
-    APIRoute->>Service: Processed response
-    Service->>Component: Final data
+    B --> E[Server State]
+    E --> F[User Data]
+    E --> G[Capacity Data]
+    E --> H[Organization Data]
+    E --> I[Event Data]
+
+    C --> J[Theme State]
+    C --> K[Capacity Cache]
+    C --> L[Badges State]
+    C --> M[Profile Edit State]
+
+    D --> N[Authentication State]
+    D --> O[User Session]
+
+    P[Local State] --> Q[Component State]
+    P --> R[Form State]
+    Q --> S[UI State]
+    R --> T[Validation State]
 ```
 
-## Key Features
+## API Architecture
 
-- TypeScript integration for better type safety
-- Modern App Router for improved routing
-- Server and Client Components separation
-- API route handlers with improved error handling
-- Internationalization support
-- Dark mode support
-- Responsive design
+```mermaid
+graph TD
+    A[Frontend] --> B[Next.js API Routes]
+
+    B --> C[/api/auth/*]
+    B --> D[/api/profile/*]
+    B --> E[/api/capacity/*]
+    B --> F[/api/events/*]
+    B --> G[/api/organizations/*]
+    B --> H[/api/messages/*]
+    B --> I[/api/badges/*]
+    B --> J[/api/users/*]
+
+    C --> K[Authentication Service]
+    D --> L[Profile Service]
+    E --> M[Capacity Service]
+    F --> N[Event Service]
+    G --> O[Organization Service]
+    H --> P[Message Service]
+    I --> Q[Badge Service]
+    J --> R[User Service]
+
+    K --> S[Backend API]
+    L --> S
+    M --> S
+    N --> S
+    O --> S
+    P --> S
+    Q --> S
+    R --> S
+```
+
+## Component Architecture
+
+```mermaid
+graph TD
+    A[App Layout] --> B[Navigation Components]
+    A --> C[Main Content]
+    A --> D[Footer]
+
+    B --> E[Desktop Navbar]
+    B --> F[Mobile Navbar]
+    B --> G[Mobile Menu]
+
+    C --> H[Page Components]
+    H --> I[Profile Pages]
+    H --> J[Capacity Pages]
+    H --> K[Feed Pages]
+    H --> L[Organization Pages]
+
+    I --> M[Profile Form]
+    I --> N[Profile Display]
+    I --> O[Badge Management]
+
+    J --> P[Capacity List]
+    J --> Q[Capacity Details]
+    J --> R[Capacity Search]
+
+    K --> S[Feed Items]
+    K --> T[Saved Items]
+
+    L --> U[Organization Profile]
+    L --> V[Organization Events]
+```
 
 ## Development
 
+### Available Scripts
+
 ```bash
-# Install dependencies
-yarn install
+# Development
+yarn dev              # Start development server
+yarn build            # Build for production
+yarn start            # Start production server
+yarn lint             # Run ESLint
 
-# Run development server
-yarn dev
+# Testing
+yarn test             # Run tests
+yarn test --watch     # Run tests in watch mode
+yarn test --coverage  # Run tests with coverage
 
-# Type checking
-yarn type-check
-
-# Run Storybook
-yarn storybook
-
-# Build for production
-yarn build
+# Storybook
+yarn storybook        # Start Storybook dev server
+yarn build-storybook  # Build Storybook
 ```
+
+### Development Guidelines
+
+1. **TypeScript**: All new code should be written in TypeScript
+2. **Testing**: Write tests for new components and features
+3. **Storybook**: Create stories for new UI components
+4. **Accessibility**: Ensure components are accessible
+5. **Performance**: Optimize for performance and bundle size
+6. **Documentation**: Document complex logic and APIs
+
+### Code Quality Tools
+
+- **ESLint**: Code linting and style enforcement
+- **TypeScript**: Static type checking
+- **Jest**: Unit and integration testing
+- **React Testing Library**: Component testing utilities
+- **Storybook**: Component documentation and testing
 
 ## Environment Variables
 
 ```env
+# Authentication
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-secret-key
+
+# API Configuration
 BASE_URL=http://localhost:8000
+LOGIN_STEP01_URL=https://capx-backend.toolforge.org/api/login/social/knox/mediawiki/
+LOGIN_STEP02_URL=https://meta.wikimedia.org/wiki/Special:OAuth/authorize
+LOGIN_STEP03_URL=https://capx-backend.toolforge.org/api/login/social/knox_user/mediawiki/
+
+# Optional: Development flags
+NODE_ENV=development
 ```
 
-For more detailed information about specific features, check the documentation in the respective directories.
+## Performance Optimizations
+
+- **Code Splitting**: Automatic code splitting with Next.js
+- **Image Optimization**: Next.js Image component for optimized images
+- **Caching**: React Query for intelligent data caching
+- **Bundle Analysis**: Webpack bundle analyzer integration
+- **Lazy Loading**: Component lazy loading for better performance
+
+## Contributing
+
+Contributions are welcome! To contribute to the Capacity Exchange, follow these steps:
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature`
+3. Make your changes and commit them: `git commit -m 'Add some feature'`
+4. Write tests for your changes
+5. Ensure all tests pass: `yarn test`
+6. Create Storybook stories if applicable
+7. Push to the branch: `git push origin feature/your-feature`
+8. Create a pull request on GitHub against the 'dev' branch
+
+### Contribution Guidelines
+
+- Follow the existing code style and conventions
+- Write comprehensive tests for new features
+- Update documentation as needed
+- Ensure accessibility compliance
+- Test across different browsers and devices
+
+## License
+
+This project is licensed under the GNU AGPLv3 - see the LICENSE file for details.
+
+---
+
+For more detailed information about specific features, check the documentation in the respective directories or explore the Storybook documentation.
