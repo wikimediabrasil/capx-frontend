@@ -154,18 +154,28 @@ capx-frontend/
 - **Saved Items**: Bookmark and save content for later
 - **Projects**: Project management and collaboration
 - **Documents**: Document sharing and management
+- **Analytics**: Comprehensive data analytics through Metabase integration
 
 ### 🌐 Internationalization
 
-- **Multi-language Support**: Full i18n implementation
+- **Translatewiki.net Integration**: Community-driven translations through [translatewiki.net](https://translatewiki.net/)
 - **Language Selection**: Dynamic language switching
 - **Territory Management**: Geographic region support
+- **Collaborative Translation**: Open source translation community with over 18k translators
+- **Multi-language Support**: Support for 265+ active languages
+
+### 📈 Analytics & Reporting
+
+- **Metabase Integration**: Advanced analytics and data visualization
+- **Custom Dashboards**: Configurable metrics and KPIs
+- **Data Export**: Export capabilities for further analysis
+- **Real-time Metrics**: Live tracking of platform usage
+- **Community Insights**: Analytics for community engagement and growth
 
 ### 🎨 UI/UX Features
 
 - **Dark Mode**: Complete dark/light theme support
 - **Responsive Design**: Mobile-first responsive layout
-- **Progressive Web App**: PWA capabilities
 - **Accessibility**: WCAG compliant components
 - **Modern UI**: Beautiful, modern interface with Tailwind CSS
 
@@ -278,17 +288,23 @@ graph TD
     D --> F[API Services]
     F --> G[Next.js API Routes]
     G --> H[Backend API]
+    G --> I[Metabase API]
 
-    E --> I[Theme Context]
-    E --> J[Capacity Cache Context]
-    E --> K[Badges Context]
-    E --> L[Profile Edit Context]
+    E --> J[Theme Context]
+    E --> K[Capacity Cache Context]
+    E --> L[Badges Context]
+    E --> M[Profile Edit Context]
 
-    M[Middleware] --> N[Authentication Check]
-    N --> O[Request Headers]
+    N[Middleware] --> O[Authentication Check]
+    O --> P[Request Headers]
 
-    P[Local Storage] --> Q[React Query Persistence]
-    Q --> D
+    Q[Local Storage] --> R[React Query Persistence]
+    R --> D
+
+    I --> S[Analytics Dashboard]
+    S --> T[Metrics]
+    S --> U[Reports]
+    S --> V[Visualizations]
 ```
 
 ## State Management Architecture
@@ -325,14 +341,15 @@ graph LR
 graph TD
     A[Frontend] --> B[Next.js API Routes]
 
-    B --> C[/api/auth/*]
-    B --> D[/api/profile/*]
-    B --> E[/api/capacity/*]
-    B --> F[/api/events/*]
-    B --> G[/api/organizations/*]
-    B --> H[/api/messages/*]
-    B --> I[/api/badges/*]
-    B --> J[/api/users/*]
+    B --> C[Auth API]
+    B --> D[Profile API]
+    B --> E[Capacity API]
+    B --> F[Events API]
+    B --> G[Organizations API]
+    B --> H[Messages API]
+    B --> I[Badges API]
+    B --> J[Users API]
+    B --> W[Metabase API]
 
     C --> K[Authentication Service]
     D --> L[Profile Service]
@@ -342,6 +359,7 @@ graph TD
     H --> P[Message Service]
     I --> Q[Badge Service]
     J --> R[User Service]
+    W --> X[Analytics Service]
 
     K --> S[Backend API]
     L --> S
@@ -351,6 +369,7 @@ graph TD
     P --> S
     Q --> S
     R --> S
+    X --> Y[Metabase]
 ```
 
 ## Component Architecture
