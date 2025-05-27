@@ -8,7 +8,7 @@ import { useWikimediaProject } from "@/hooks/useWikimediaProject";
 import { useTerritories } from "@/hooks/useTerritories";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import CapacitySelectionModal from "./CapacitySelectionModal";
+import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import AccountCircleIcon from "@/public/static/images/account_circle.svg";
 import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
 import AccountBoxIcon from "@/public/static/images/account_box.svg";
@@ -30,6 +30,8 @@ import EmojiIcon from "@/public/static/images/emoji_objects.svg";
 import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
 import AddIconDark from "@/public/static/images/add_dark.svg";
 import AddIcon from "@/public/static/images/add.svg";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import TargetIcon from "@/public/static/images/target.svg";
 import LanguageIconWhite from "@/public/static/images/language_white.svg";
@@ -51,10 +53,14 @@ import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
+import Banner from "@/components/Banner";
+import LetsConect from "@/public/static/images/lets_connect.svg";
+
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
+
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
   handleAvatarSelect: (avatarId: number) => void;
@@ -85,6 +91,7 @@ interface ProfileEditDesktopViewProps {
   wikimediaProjects: Record<string, string>;
   avatars: any[] | undefined;
   refetch: () => Promise<any>;
+  goTo: (path: string) => void;
 }
 
 export default function ProfileEditDesktopView(
@@ -117,6 +124,7 @@ export default function ProfileEditDesktopView(
     wikimediaProjects,
     avatars,
     refetch,
+    goTo,
   } = props;
 
   const router = useRouter();
@@ -314,11 +322,6 @@ export default function ProfileEditDesktopView(
                     closeButtonLabel={
                       pageContent["edit-profile-delete-profile-cancel"]
                     }
-                    customClass={`${
-                      darkMode
-                        ? "bg-[#005B3F] text-white"
-                        : "bg-white text-[#053749]"
-                    }`}
                   />
                 )}
               </div>
@@ -1105,7 +1108,41 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
           </div>
+          {/* <div className="p-4 bg-[#EFEFEF]">
+            <Banner
+              image={LetsConect}
+              alt={pageContent["privacy-policy-alt-banner"]}
+              customClass={{
+                background: "bg-[#EFEFEF]",
+                wrapper: "mb-0"
+              }}
+            />
 
+            <BaseButton
+              onClick={() => goTo("/profile/lets_connect")}
+              label={pageContent["lets-connect-form-user-edit"]}
+              customClass={`w-1/3 flex ${
+                darkMode
+                  ? "bg-capx-light-box-bg text-[#04222F]"
+                  : "bg-[#053749] text-white"
+              } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+              imageUrl={
+                darkMode
+                  ? UserCheckIconDark
+                  : UserCheckIcon
+                }
+              imageAlt="Add project"
+              imageWidth={20}
+              imageHeight={20}
+            />
+            <p
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
+                darkMode ? "text-white" : "text-[#053749]"
+              }`}
+            >
+              {pageContent["lets-connect-edit-user-info"]}
+            </p>
+          </div> */}
           {/* Action Buttons */}
           <div className="flex flex-row gap-6 mt-6">
             <BaseButton

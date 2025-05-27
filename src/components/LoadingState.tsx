@@ -18,9 +18,11 @@ export default function LoadingState() {
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
           alt="CAPX Logo"
-          className="animate-pulse-fade"
+          className="animate-pulse-fade object-contain"
           width={64}
           height={64}
+          style={{ width: "auto", height: "auto" }}
+          priority
         />
         <style jsx global>{`
           @keyframes pulseFade {

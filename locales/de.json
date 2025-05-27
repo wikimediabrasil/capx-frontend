@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Langusto",
 			"TMg",
 			"TomatoCake"
 		]
@@ -13,6 +14,12 @@
 	"body-profile-gender-other": "Andere",
 	"body-profile-edit-button": "Profil bearbeiten",
 	"body-profile-section-title-language": "Sprache",
+	"organization-profile-event-url-title": "Veranstaltungs-URL",
+	"organization-profile-event-url-tooltip": "Wenn Ihre URL ein Meta-Ereignis oder ein WikiLearn-Kurs ist, synchronisiert das Tool einige Felder automatisch.",
+	"organization-profile-event-name": "Veranstaltungsname",
+	"organization-profile-event-title-of-event": "Titel",
+	"organization-profile-event-end-date": "Veranstaltungsende (UTC)",
+	"organization-profile-event-date-tooltip": "Der konkrete Tag, an dem das Ereignis stattfinden soll.",
 	"body-profile-section-title-team": "Team",
 	"body-profile-section-title-wikimedia-project": "Wikimedia-Projekt",
 	"body-capacity-available-user-list-title": "Dienstanbieter:",
@@ -39,7 +46,24 @@
 	"form-report-date": "Erstelldatum",
 	"form-report-edit-button": "Bericht bearbeiten",
 	"form-report-update-button": "Bericht aktualisieren",
-	"form-report-number": "Bericht Nr.",
 	"oh-no-message": "Oh nein!",
-	"no-user-profile": "Es sind keine Benutzer mit diesem Benutzernamen in CapX registriert"
+	"events-filters-applied": "Angewandte Filter:",
+	"filters-location-online": "Online",
+	"filters-location-hybrid": "Hybrid",
+	"filters-onsite-event": "Online-Veranstaltung",
+	"events-search-placeholder": "Nach Veranstaltungen suchen...",
+	"events-search-results-no-results": "Für Ihre Suche wurden keine Ergebnisse gefunden.",
+	"events-no-results-with-filters": "Keine Ereignisse entsprechen den ausgewählten Filtern. Versuchen Sie, einige Filter zu entfernen.",
+	"organization-profile-hide-event": "Ereignis ausblenden",
+	"organization-profile-delete-event": "Ereignis löschen",
+	"delete-confirmation-second-message": "Diese Aktion kann nicht rückgängig gemacht werden.",
+	"filters-online-event": "Online-Veranstaltung",
+	"lets-connect-form-user-edit": "Melden Sie sich bei Let's Connect an",
+	"lets-connect-form-area-public-policy": "Öffentliche Ordnung",
+	"lets-connect-form-area-education": "Bildung",
+	"lets-connect-form-area-open-technology": "Offene Technologie",
+	"lets-connect-form-area-diversity": "Diversität",
+	"lets-connect-success-title": "Gut gemacht!",
+	"lets-connect-success-close": "Schließen",
+	"lets-connect-success-continue": "Fortfahren"
 }

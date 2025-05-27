@@ -9,20 +9,9 @@ export async function GET(
   try {
     const id = params.id;
     const language = req.nextUrl.searchParams.get("language") || "en";
-    const authHeader = req.headers.get("authorization");
-
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: "Authorization required" },
-        { status: 401 }
-      );
-    }
 
     const response = await axios.get(
-      `${process.env.BASE_URL}/skills_by_type/${id}/`,
-      {
-        headers: { Authorization: authHeader },
-      }
+      `${process.env.BASE_URL}/skills_by_type/${id}/`
     );
 
     if (!response.data) {
@@ -47,9 +36,7 @@ export async function GET(
     }
 
     // fetch the wikidata codes for each skill
-    const skillsList = await axios.get(`${process.env.BASE_URL}/list/skills/`, {
-      headers: { Authorization: authHeader },
-    });
+    const skillsList = await axios.get(`${process.env.BASE_URL}/list/skills/`);
 
     // preparing the data for search in Metabase and Wikidata
     const codes = Object.entries(skillsData).map(([key, value]) => ({
@@ -71,35 +58,24 @@ export async function GET(
       const validCodes = codes.filter((code) => code.wd_code);
 
       if (validCodes.length > 0) {
+        // Fetch from Metabase first as the primary source
         const metabaseResults = await fetchMetabase(validCodes, language);
 
-        // if Metabase doesn't return enough results, search in Wikidata
-        if (metabaseResults.length < validCodes.length) {
-          const wikidataResults = await fetchWikidata(validCodes, language);
+        // Use Wikidata as fallback
+        const wikidataResults = await fetchWikidata(validCodes, language);
 
-          // combine results, prioritizing Metabase
-          codes.forEach((code) => {
-            const metabaseMatch = metabaseResults.find(
-              (item) => item.wd_code === code.wd_code
-            );
-            const wikidataMatch = wikidataResults.find(
-              (item) => item.wd_code === code.wd_code
-            );
+        // Process all codes, prioritizing Metabase data with fallback to Wikidata
+        codes.forEach((code) => {
+          const metabaseMatch = metabaseResults.find(
+            (item) => item.wd_code === code.wd_code
+          );
+          const wikidataMatch = wikidataResults.find(
+            (item) => item.wd_code === code.wd_code
+          );
 
-            capacityNames[code.code] =
-              metabaseMatch?.name || wikidataMatch?.name || code.name;
-          });
-        } else {
-          // use only results from Metabase
-          metabaseResults.forEach((item) => {
-            const codeMatch = codes.find(
-              (code) => code.wd_code === item.wd_code
-            );
-            if (codeMatch) {
-              capacityNames[codeMatch.code] = item.name;
-            }
-          });
-        }
+          capacityNames[code.code] =
+            metabaseMatch?.name || wikidataMatch?.name || code.name;
+        });
       }
     } catch (error) {
       console.error("Error fetching names from Metabase/Wikidata:", error);

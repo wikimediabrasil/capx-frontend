@@ -8,10 +8,8 @@ import { useApp } from "@/contexts/AppContext";
 interface LanguageSelectProps {
   language: string;
   setLanguage: (language: string) => void;
-  setPageContent: (pageContent: any) => void;
   isMobile: boolean;
   className?: string;
-  pageContent: any;
 }
 
 interface LanguageOption {
@@ -22,16 +20,15 @@ interface LanguageOption {
 export default function LanguageSelect({
   language,
   setLanguage,
-  setPageContent,
   isMobile,
   className = "w-max",
-  pageContent,
 }: LanguageSelectProps) {
   const { darkMode } = useTheme();
   const { setMobileMenuStatus } = useApp();
   const { fetchLanguages, fetchTranslations } = useLanguageSelection();
   const [options, setOptions] = useState<LanguageOption[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const { pageContent, setPageContent } = useApp();
 
   // Ensure language is never undefined
   const currentLanguage = language || "en";

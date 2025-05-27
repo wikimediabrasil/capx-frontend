@@ -1,12 +1,7 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useAvatars } from "@/hooks/useAvatars";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import CapacitySelectionModal from "./CapacitySelectionModal";
+import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import AccountCircleIcon from "@/public/static/images/account_circle.svg";
 import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
 import AccountBoxIcon from "@/public/static/images/account_box.svg";
@@ -49,10 +44,20 @@ import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import SaveIcon from "@/public/static/images/save_as.svg";
 import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
+import Popup from "@/components/Popup";
+import Banner from "@/components/Banner";
+import LetsConect from "@/public/static/images/lets_connect.svg";
+
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
-import Popup from "@/components/Popup";
+import { useSession } from "next-auth/react";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useApp } from "@/contexts/AppContext";
+import { useAvatars } from "@/hooks/useAvatars";
+import { useRouter } from "next/navigation";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -86,6 +91,7 @@ interface ProfileEditMobileViewProps {
   profile: Profile;
   avatars: any[] | undefined;
   refetch: () => Promise<any>;
+  goTo: (path: string) => void;
 }
 
 export default function ProfileEditMobileView(
@@ -120,6 +126,7 @@ export default function ProfileEditMobileView(
     avatars,
     profile,
     refetch,
+    goTo,
   } = props;
 
   const router = useRouter();
@@ -313,11 +320,6 @@ export default function ProfileEditMobileView(
                       closeButtonLabel={
                         pageContent["edit-profile-delete-profile-cancel"]
                       }
-                      customClass={`${
-                        darkMode
-                          ? "bg-[#005B3F] text-white"
-                          : "bg-white text-[#053749]"
-                      }`}
                     />
                   )}
                 </div>
@@ -1122,6 +1124,37 @@ export default function ProfileEditMobileView(
                 </span>
               </div>
             </div>
+
+            {/* <div className="bg-[#EFEFEF]">
+              <Banner
+                image={LetsConect}
+                alt={pageContent["privacy-policy-alt-banner"]}
+                customClass={{
+                  background: "bg-[#EFEFEF]",
+                }}
+              />
+
+              <BaseButton
+                onClick={() => goTo("/profile/lets_connect")}
+                label={pageContent["lets-connect-form-user-edit"]}
+                customClass={`w-11/12 flex mx-auto ${
+                  darkMode
+                    ? "bg-capx-light-box-bg text-[#04222F]"
+                    : "bg-[#053749] text-white"
+                } items-center px-[13px] py-[6px] pb-[6px] rounded-md py-3 font-bold mb-0`}
+                imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
+                imageAlt="Add project"
+                imageWidth={20}
+                imageHeight={20}
+              />
+              <p
+                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] p-4 ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["lets-connect-edit-user-info"]}
+              </p>
+            </div> */}
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-[10px] mt-0">

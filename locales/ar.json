@@ -106,8 +106,6 @@
 	"form-report-date": "تاريخ الإنشاء",
 	"form-report-edit-button": "تعديل التقرير",
 	"form-report-update-button": "تحديث التقرير",
-	"form-report-number": "تقرير رقم",
 	"oh-no-message": "أوه لا!",
-	"no-user-profile": "لا يوجد مستخدمين بهذا الاسم مسجلين في CapX",
 	"no-report-rights": "إما أنك لا تملك الإذن لتحديث هذا التقرير أو أن هذا التقرير غير موجود!"
 }

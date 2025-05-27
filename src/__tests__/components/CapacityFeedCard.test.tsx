@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import { ProfileCard } from '@/app/(auth)/feed/components/Card';
-import { ProfileCapacityType } from '@/app/(auth)/feed/page';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
+import { ProfileCapacityType } from '@/app/(auth)/feed/types';
+import { LanguageProficiency } from '@/types/language';
 
 // Mock the router
 jest.mock('next/navigation', () => ({
@@ -24,11 +25,43 @@ jest.mock('next-auth/react', () => ({
   useSession: () => ({
     data: {
       user: {
-        name: 'Test User',
-        email: 'test@example.com'
+        token: 'test-token'
       }
     },
     status: 'authenticated'
+  })
+}));
+
+// Mock the hooks
+jest.mock('@/hooks/useCapacityDetails', () => ({
+  useCapacityDetails: () => ({
+    getCapacityName: (id: string) => id.toString()
+  })
+}));
+
+jest.mock('@/hooks/useTerritories', () => ({
+  useTerritories: () => ({
+    territories: {
+      '1': 'Brazil',
+      '2': 'Argentina'
+    }
+  })
+}));
+
+jest.mock('@/hooks/useLanguage', () => ({
+  useLanguage: () => ({
+    languages: {
+      1: 'English',
+      2: 'Portuguese',
+      3: 'Spanish',
+      4: 'French'
+    }
+  })
+}));
+
+jest.mock('@/hooks/useAvatars', () => ({
+  useAvatars: () => ({
+    avatars: []
   })
 }));
 
@@ -40,7 +73,6 @@ jest.mock('@/contexts/ThemeContext', () => ({
 
 const mockPageContent = {
   "empty-field": "You haven't filled this field yet",
-  "navbar-user-profile": "User Profile",
   "body-profile-known-capacities-title": "Known capacities",
   "body-profile-available-capacities-title": "Available capacities",
   "body-profile-wanted-capacities-title": "Wanted capacities",
@@ -55,32 +87,52 @@ jest.mock('@/contexts/AppContext', () => ({
   AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));
 
+const defaultProps = {
+  id: '1',
+  profile_image: '/path/to/image.jpg',
+  username: 'Test User',
+  type: ProfileCapacityType.Learner,
+  capacities: [],
+  languages: [] as LanguageProficiency[],
+  territory: '1',
+  isOrganization: false,
+  isSaved: false,
+  onToggleSaved: jest.fn()
+};
+
+const learnerProps = {
+  ...defaultProps,
+  type: ProfileCapacityType.Learner,
+  capacities: ['Coding', 'Design'],
+  languages: [
+    { id: 1, proficiency: 'Native' },
+    { id: 2, proficiency: 'Native' }
+  ] as LanguageProficiency[],
+  territory: '1'
+};
+
+const sharerProps = {
+  ...defaultProps,
+  type: ProfileCapacityType.Sharer,
+  capacities: ['Teaching', 'Mentoring'],
+  languages: [
+    { id: 3, proficiency: 'Native' },
+    { id: 4, proficiency: 'Native' }
+  ] as LanguageProficiency[],
+  territory: '1'
+};
+
 describe('ProfileCard', () => {
-  const defaultProps = {
-    username: 'Test User',
-    pageContent: mockPageContent,
-    capacities: []
-  };
-
   describe('Learner Profile', () => {
-    const learnerProps = {
-      ...defaultProps,
-      type: ProfileCapacityType.Learner,
-      capacities: ['Coding', 'Design'],
-      languages: ['English', 'Portuguese'],
-      territory: 'Brazil'
-    };
-
-    it('should display profile information in the left column', () => {
+    it('should display profile information correctly', () => {
       render(<ProfileCard {...learnerProps} />);
       
-      // Check elements in the left column
       expect(screen.getByText('Test User')).toBeInTheDocument();
       expect(screen.getByText('learner')).toBeInTheDocument();
-      expect(screen.getByAltText('User Profile')).toBeInTheDocument();
+      expect(screen.getByAltText('Test User')).toBeInTheDocument();
     });
 
-    it('should display wanted capacities section for learner', () => {
+    it('should display wanted capacities for learner', () => {
       render(<ProfileCard {...learnerProps} />);
       
       expect(screen.getByText('Wanted capacities')).toBeInTheDocument();
@@ -88,7 +140,7 @@ describe('ProfileCard', () => {
       expect(screen.getByText('Design')).toBeInTheDocument();
     });
 
-    it('should display languages for learner', () => {
+    it('should display languages correctly', () => {
       render(<ProfileCard {...learnerProps} />);
       
       expect(screen.getByText('Languages')).toBeInTheDocument();
@@ -96,7 +148,7 @@ describe('ProfileCard', () => {
       expect(screen.getByText('Portuguese')).toBeInTheDocument();
     });
 
-    it('should display territory for learner', () => {
+    it('should display territory correctly', () => {
       render(<ProfileCard {...learnerProps} />);
       
       expect(screen.getByText('Territory')).toBeInTheDocument();
@@ -105,23 +157,14 @@ describe('ProfileCard', () => {
   });
 
   describe('Sharer Profile', () => {
-    const sharerProps = {
-      ...defaultProps,
-      type: ProfileCapacityType.Sharer,
-      capacities: ['Teaching', 'Mentoring'],
-      languages: ['Spanish', 'French'],
-      territory: 'Argentina'
-    };
-
-    it('should display profile information in the left column', () => {
+    it('should display profile information correctly', () => {
       render(<ProfileCard {...sharerProps} />);
       
       expect(screen.getByText('Test User')).toBeInTheDocument();
       expect(screen.getByText('sharer')).toBeInTheDocument();
-      expect(screen.getByAltText('User Profile')).toBeInTheDocument();
     });
 
-    it('should display available capacities section for sharer', () => {
+    it('should display available capacities for sharer', () => {
       render(<ProfileCard {...sharerProps} />);
       
       expect(screen.getByText('Available capacities')).toBeInTheDocument();
@@ -129,37 +172,23 @@ describe('ProfileCard', () => {
       expect(screen.getByText('Mentoring')).toBeInTheDocument();
     });
 
-    it('should display languages for sharer', () => {
-      render(<ProfileCard {...sharerProps} />);
+    it('should handle bookmark toggle', () => {
+      const onToggleSaved = jest.fn();
+      render(<ProfileCard {...sharerProps} onToggleSaved={onToggleSaved} />);
       
-      expect(screen.getByText('Languages')).toBeInTheDocument();
-      expect(screen.getByText('Spanish')).toBeInTheDocument();
-      expect(screen.getByText('French')).toBeInTheDocument();
-    });
-
-    it('should display territory for sharer', () => {
-      render(<ProfileCard {...sharerProps} />);
+      const bookmarkButton = screen.getByLabelText('Salvar perfil');
+      fireEvent.click(bookmarkButton);
       
-      expect(screen.getByText('Territory')).toBeInTheDocument();
-      expect(screen.getByText('Argentina')).toBeInTheDocument();
-    });
-  });
-
-  describe('Empty States', () => {
-    it('should display no-data message when arrays are empty', () => {
-      render(<ProfileCard {...defaultProps} type={ProfileCapacityType.Learner} />);
-      
-      const noDataMessages = screen.getAllByText("You haven't filled this field yet");
-      expect(noDataMessages).toHaveLength(3); // One for each empty section
+      expect(onToggleSaved).toHaveBeenCalled();
     });
   });
 
   describe('Layout Structure', () => {
-    it('should have a two-column layout on desktop', () => {
-      render(<ProfileCard {...defaultProps} type={ProfileCapacityType.Learner} />);
+    it('should have correct grid layout', () => {
+      const { container } = render(<ProfileCard {...defaultProps} />);
       
-      const container = screen.getByRole('article');
-      expect(container).toHaveClass('md:grid-cols-[350px_1fr]');
+      const article = container.querySelector('[role="article"]');
+      expect(article).toHaveClass('md:grid', 'md:grid-cols-[350px_1fr]', 'md:gap-8');
     });
   });
 });

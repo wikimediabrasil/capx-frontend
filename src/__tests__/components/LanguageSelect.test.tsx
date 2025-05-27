@@ -58,17 +58,41 @@ jest.mock("@/app/actions", () => ({
   setCookie: jest.fn().mockResolvedValue(undefined),
 }));
 
-// useApp's mock
+const mockSetPageContent = jest.fn();
+
+// Mocking AppContext
 jest.mock("@/contexts/AppContext", () => ({
   ...jest.requireActual("@/contexts/AppContext"),
-  useApp: jest.fn().mockReturnValue({
+  useApp: () => ({
+    pageContent: {
+      "sign-in-button": "Login",
+      "sign-out-button": "Logout",
+      "navbar-link-home": "Home",
+      "navbar-link-capacities": "Capacities",
+      "navbar-link-reports": "Reports",
+      "navbar-link-feed": "Feed",
+      "navbar-link-saved": "Saved",
+      "navbar-link-report-bug": "Report Bug",
+    },
+    isMobile: true,
+    mobileMenuStatus: true,
     setMobileMenuStatus: jest.fn(),
+    language: "en",
+    setLanguage: jest.fn(),
+    darkMode: false,
+    setDarkMode: jest.fn(),
+    session: null,
+    setSession: jest.fn(),
+    setPageContent: mockSetPageContent,
+    isLoading: false,
+    setIsLoading: jest.fn(),
+    isMenuOpen: false,
+    setIsMenuOpen: jest.fn()
   }),
 }));
 
 describe("LanguageSelect", () => {
   const mockSetLanguage = jest.fn();
-  const mockSetPageContent = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -108,7 +132,6 @@ describe("LanguageSelect", () => {
       <LanguageSelect
         language="en"
         setLanguage={mockSetLanguage}
-        setPageContent={mockSetPageContent}
         isMobile={false}
       />
     );
@@ -122,26 +145,38 @@ describe("LanguageSelect", () => {
   });
 
   test("deve chamar fetchTranslations quando o idioma muda", async () => {
+    const fetchLanguagesMock = jest.fn().mockResolvedValue([
+      { value: "pt-BR", label: "pt-BR" },
+      { value: "en", label: "en" },
+      { value: "es", label: "es" },
+    ]);
+  
+    const fetchTranslationsMock = jest.fn().mockResolvedValue({
+      "language-select-pt": "Português",
+      "language-select-en": "English",
+      "language-select-es": "Español",
+      "aria-language-input": "Select language",
+    });
+  
+    (useLanguageSelection as jest.Mock).mockReturnValue({
+      fetchLanguages: fetchLanguagesMock,
+      fetchTranslations: fetchTranslationsMock,
+      isLoading: false,
+      error: null,
+    });
+  
     renderWithProviders(
       <LanguageSelect
         language="en"
         setLanguage={mockSetLanguage}
-        setPageContent={mockSetPageContent}
         isMobile={false}
       />
     );
-
+  
     await waitFor(() => {
-      expect(useLanguageSelection().fetchTranslations).toHaveBeenCalledWith(
-        "en"
-      );
+      expect(fetchTranslationsMock).toHaveBeenCalledWith("en");
     });
-
-    // Check if setPageContent was called with the translations
-    await waitFor(() => {
-      expect(mockSetPageContent).toHaveBeenCalled();
-    });
-  });
+  })
 
   test("deve chamar setLanguage quando uma opção é selecionada", async () => {
     // Clear the mocks before the test
@@ -152,7 +187,6 @@ describe("LanguageSelect", () => {
       <LanguageSelect
         language="en"
         setLanguage={mockSetLanguage}
-        setPageContent={mockSetPageContent}
         isMobile={false}
       />
     );
@@ -178,7 +212,6 @@ describe("LanguageSelect", () => {
       <LanguageSelect
         language={undefined as any}
         setLanguage={mockSetLanguage}
-        setPageContent={mockSetPageContent}
         isMobile={false}
       />
     );

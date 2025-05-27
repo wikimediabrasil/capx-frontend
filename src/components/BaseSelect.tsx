@@ -29,6 +29,7 @@ const DropdownIndicator = (isMobile: boolean, darkMode: boolean) => (
     alt="dropdown indicator"
     width={isMobile ? 20 : 40}
     height={isMobile ? 20 : 40}
+    className="object-contain"
   />
 );
 

@@ -2,29 +2,55 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
   const searchParams = request.nextUrl.searchParams;
+
+  // Convert searchParams to object to pass all filters to the backend
+  const params: Record<string, string> = {};
+
+  // Extrair todos os parâmetros e adicionar ao objeto params
+  searchParams.forEach((value, key) => {
+    params[key] = value;
+  });
+
+  // Parâmetros específicos para garantir que estejam sendo enviados
   const limit = searchParams.get("limit");
   const offset = searchParams.get("offset");
+  const capacities = searchParams.get("capacities");
+  const territories = searchParams.get("territories");
+  const location_type = searchParams.get("location_type");
+  const start_date = searchParams.get("start_date");
+  const end_date = searchParams.get("end_date");
+  const organization_id = searchParams.get("organization_id");
+
+  // Garantir que todos os parâmetros estejam incluídos
+  if (limit) params.limit = limit;
+  if (offset) params.offset = offset;
+  if (capacities) params.capacities = capacities;
+  if (territories) params.territories = territories;
+  if (location_type) {
+    params.location_type = location_type;
+    console.log("API - Enviando location_type:", location_type);
+  }
+  if (start_date) params.start_date = start_date;
+  if (end_date) params.end_date = end_date;
+  if (organization_id) params.organization_id = organization_id;
 
   try {
     const response = await axios.get(`${process.env.BASE_URL}/events/`, {
-      headers: {
-        Authorization: authHeader,
-      },
-      params: {
-        limit,
-        offset,
-      },
-    });
-    return NextResponse.json(response.data.results);
-  } catch (error: any) {
-    console.error("Events fetch error:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
+      params,
     });
 
+    // Return both the results and the total count
+    return NextResponse.json({
+      results: response.data.results || [],
+      count: response.data.count || response.data.results?.length || 0,
+    });
+  } catch (error: any) {
+    console.error(
+      "Error fetching events:",
+      error.message,
+      error.response?.data
+    );
     return NextResponse.json(
       {
         error: "Failed to fetch events",
@@ -58,7 +84,8 @@ export async function POST(request: NextRequest) {
       status: error.response?.status,
       event: event,
       headers: {
-        Authorization: authHeader ? "Present" : "Missing",
+        Authorization: authHeader,
+        "Content-Type": "application/json",
       },
     });
     return NextResponse.json(

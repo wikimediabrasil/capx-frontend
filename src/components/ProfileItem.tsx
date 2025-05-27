@@ -1,4 +1,3 @@
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -10,21 +9,35 @@ import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_wh
 const CAPACITY_STYLES = {
   known: {
     backgroundColor: "bg-[#0070B9]",
-    textColor: "text-white"
+    textColor: "text-white",
   },
   available: {
     backgroundColor: "bg-[#05A300]",
-    textColor: "text-white"
+    textColor: "text-white",
   },
   wanted: {
     backgroundColor: "bg-[#D43831]",
-    textColor: "text-white"
+    textColor: "text-white",
   },
   default: {
     backgroundColor: "bg-[#EFEFEF]",
-    textColor: "text-black"
-  }
+    textColor: "text-black",
+  },
 } as const;
+
+// Fallback names to use if getItemName returns "loading" for too long
+const FALLBACK_NAMES = {
+  "69": "Strategic Thinking",
+  "71": "Team Leadership",
+  "97": "Project Management",
+  "10": "Organizational Skills",
+  "36": "Communication",
+  "50": "Learning",
+  "56": "Community Building",
+  "65": "Social Skills",
+  "74": "Strategic Planning",
+  "106": "Technology",
+};
 
 interface ProfileItemProps {
   icon: string;
@@ -32,7 +45,7 @@ interface ProfileItemProps {
   items: (number | string)[];
   showEmptyDataText?: boolean;
   customClass?: string;
-  getItemName?: (id: string | number) => string;
+  getItemName: (id: string | number) => string;
 }
 
 export function ProfileItem({
@@ -41,7 +54,7 @@ export function ProfileItem({
   items,
   showEmptyDataText = true,
   customClass = "",
-  getItemName = (id) => String(id),
+  getItemName,
 }: ProfileItemProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -49,52 +62,92 @@ export function ProfileItem({
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsToggle, setNeedsToggle] = useState(false);
   const noDataMessage = pageContent["empty-field"];
+  const [localNames, setLocalNames] = useState<{ [key: string]: string }>({});
+  const timeoutRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
-  // Check items overflow to show or hide expand button. Not working 100% for some reason
+  // Set up local names state with fallbacks after timeout
+  useEffect(() => {
+    // Clear any existing timeouts when items change
+    Object.values(timeoutRefs.current).forEach((timeout) => {
+      clearTimeout(timeout);
+    });
+    timeoutRefs.current = {};
+
+    // Reset local names
+    setLocalNames({});
+
+    // Set up new timeouts for each item
+    if (items && items.length > 0) {
+      items.forEach((id) => {
+        const idStr = id.toString();
+        const name = getItemName(id);
+
+        // If name is already available, use it immediately
+        if (name !== "loading" && name !== pageContent["loading"]) {
+          setLocalNames((prev) => ({ ...prev, [idStr]: name }));
+          return;
+        }
+
+        // Otherwise, set a timeout to use fallback
+        timeoutRefs.current[idStr] = setTimeout(() => {
+          // After timeout, check if we have a real name now
+          const currentName = getItemName(id);
+          if (
+            currentName !== "loading" &&
+            currentName !== pageContent["loading"]
+          ) {
+            setLocalNames((prev) => ({ ...prev, [idStr]: currentName }));
+          } else {
+            // Use fallback name if available, otherwise keep the generic one
+            const fallbackName = FALLBACK_NAMES[idStr] || `Capacity ${id}`;
+            setLocalNames((prev) => ({ ...prev, [idStr]: fallbackName }));
+          }
+        }, 1500); // 1.5 second timeout before fallback
+      });
+    }
+
+    return () => {
+      // Clean up timeouts
+      Object.values(timeoutRefs.current).forEach((timeout) => {
+        clearTimeout(timeout);
+      });
+    };
+  }, [items, getItemName, pageContent]);
+
+  // Check items overflow to show or hide expand button
   useEffect(() => {
     const checkOverflow = () => {
       const container = containerRef.current;
       if (!container || items.length === 0) return;
 
-      // Temporarily removes the height restriction to measure correctly
-      container.style.height = 'auto';
-      container.style.overflow = 'visible';
-      
-      // Get the natural height of the container with all items
-      const naturalHeight = container.getBoundingClientRect().height;
-      
-      // Get the height of a line (using the first item as a reference)
-      const firstItem = container.querySelector('.capacity-item');
-      const singleLineHeight = firstItem ? firstItem.getBoundingClientRect().height : 0;
-      
-      // Restores the original container properties
-      container.style.removeProperty('height');
-      container.style.removeProperty('overflow');
+      container.style.height = "auto";
+      container.style.overflow = "visible";
 
-      // If the natural height is greater than the height of a single line (with a small margin of tolerance),
-      // means items are wrapping to multiple lines
+      const naturalHeight = container.getBoundingClientRect().height;
+      const firstItem = container.querySelector(".capacity-item");
+      const singleLineHeight = firstItem
+        ? firstItem.getBoundingClientRect().height
+        : 0;
+
+      container.style.removeProperty("height");
+      container.style.removeProperty("overflow");
+
       const tolerance = 10;
-      setNeedsToggle(naturalHeight > (singleLineHeight + tolerance));
+      setNeedsToggle(naturalHeight > singleLineHeight + tolerance);
     };
 
-    // Run the check after the layout is completely rendered
     const timer = setTimeout(checkOverflow, 0);
-    
-    // Add check in case of resize
-    window.addEventListener('resize', checkOverflow);
-    
-    // Run again after a longer period of time to ensure fonts and images have been loaded
+    window.addEventListener("resize", checkOverflow);
     const secondTimer = setTimeout(checkOverflow, 500);
-    
+
     return () => {
       clearTimeout(timer);
       clearTimeout(secondTimer);
-      window.removeEventListener('resize', checkOverflow);
+      window.removeEventListener("resize", checkOverflow);
     };
   }, [items]);
-  
-  // Won't render component if item list is empty and shouldn't show 'noDataMessage'
-  if (!showEmptyDataText && items.length == 0) return;
+
+  if (!showEmptyDataText && items.length == 0) return null;
 
   const getCapacityStyle = (title: string) => {
     if (title === pageContent["body-profile-known-capacities-title"]) {
@@ -107,6 +160,25 @@ export function ProfileItem({
       return CAPACITY_STYLES.wanted;
     }
     return CAPACITY_STYLES.default;
+  };
+
+  // Get the display name for an item
+  const getDisplayName = (id: number | string) => {
+    const idStr = id.toString();
+
+    // First check local names state
+    if (localNames[idStr]) {
+      return localNames[idStr];
+    }
+
+    // Then try getItemName function
+    const name = getItemName(id);
+    if (name !== "loading" && name !== pageContent["loading"]) {
+      return name;
+    }
+
+    // Fall back to hardcoded names as last resort
+    return FALLBACK_NAMES[idStr] || `Capacity ${id}`;
   };
 
   const capacityStyle = getCapacityStyle(title);
@@ -125,12 +197,8 @@ export function ProfileItem({
             />
           </div>
           <h2
-            className={`
-              ${customClass}
-              font-extrabold
-              text-base
-              md:text-[24px]
-              ${darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"}
+            className={`${customClass} font-extrabold text-base md:text-[24px]
+            ${darkMode ? "text-white" : "text-capx-dark-box-bg"}
             `}
           >
             {title}
@@ -154,46 +222,39 @@ export function ProfileItem({
           ref={containerRef}
           className={`
             flex flex-wrap gap-2 flex-1
-            ${!isExpanded && needsToggle ? 'max-h-[38px] overflow-hidden' : ''}
+            ${!isExpanded && needsToggle ? "max-h-[38px] overflow-hidden" : ""}
             transition-all duration-300
           `}
         >
-          {items.length > 0 ? items.map((item, index) => {
-            const name = getItemName(item) || item;
-            return (
-              <div
-                key={index}
-                className={`
-                  capacity-item
-                  rounded-[4px]
-                  inline-flex
-                  px-[4px]
-                  py-[6px]
-                  items-center
-                  gap-[8px]
-                  ${capacityStyle.backgroundColor}
-                  ${capacityStyle.textColor}
+          {items.length > 0
+            ? items.map((item, index) => {
+                const name = getDisplayName(item);
+                return (
+                  <div
+                    key={index}
+                    className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}
                 `}
-              >
-                <p className={`
-                  ${customClass}
-                  font-normal
-                  text-sm
-                  md:text-[24px]
-                `}>
-                  {name}
-                </p>
-              </div>
-            );
-          }) : showEmptyDataText && <p className={`
+                  >
+                    <p
+                      className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
+                    >
+                      {name}
+                    </p>
+                  </div>
+                );
+              })
+            : showEmptyDataText && (
+                <p
+                  className={`
             ${customClass}
             font-normal
             text-sm
-            md:text-[24px]
-            ${darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"}
-          `}>
-            {noDataMessage}
-          </p>}
+            md:text-[24px]            
+          `}
+                >
+                  {noDataMessage}
+                </p>
+              )}
         </div>
 
         {/* Expand/hide button */}
@@ -206,7 +267,7 @@ export function ProfileItem({
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
               alt={`${title} icon`}
-              className="object-contain"
+              className={`object-contain ${isExpanded ? "rotate-180" : ""}`}
               height={20}
               width={20}
             />

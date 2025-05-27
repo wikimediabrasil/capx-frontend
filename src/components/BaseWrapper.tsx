@@ -10,17 +10,15 @@ interface BaseWrapperProps {
 }
 
 export default function BaseWrapper({ children }: BaseWrapperProps) {
-  const { language, setLanguage, pageContent, setPageContent } = useApp();
+  const { language, setLanguage } = useApp();
   const { data: session } = useSession();
   const { darkMode } = useTheme();
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar
         session={session}
-        pageContent={pageContent}
         language={language}
         setLanguage={setLanguage}
-        setPageContent={setPageContent}
       />
       <main
         className={`flex-grow ${
@@ -29,7 +27,7 @@ export default function BaseWrapper({ children }: BaseWrapperProps) {
       >
         {children}
       </main>
-      <Footer pageContent={pageContent} />
+      <Footer />
     </div>
   );
 }
