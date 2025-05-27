@@ -33,15 +33,15 @@ export default function RootLayout({
         <ThemeProvider>
           <SessionWrapper>
             <AppProvider>
-              <ProfileEditProvider>
-                <SnackbarProvider>
-                  <CapacityCacheProvider>
-                    <BadgesProvider>
+              <BadgesProvider>
+                <ProfileEditProvider>
+                  <SnackbarProvider>
+                    <CapacityCacheProvider>
                       <Providers>{children}</Providers>
-                    </BadgesProvider>
-                  </CapacityCacheProvider>
-                </SnackbarProvider>
-              </ProfileEditProvider>
+                    </CapacityCacheProvider>
+                  </SnackbarProvider>
+                </ProfileEditProvider>
+              </BadgesProvider>
             </AppProvider>
           </SessionWrapper>
         </ThemeProvider>

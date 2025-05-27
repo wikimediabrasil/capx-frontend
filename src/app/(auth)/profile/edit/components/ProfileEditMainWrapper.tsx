@@ -125,7 +125,7 @@ export default function EditProfilePage() {
     avatar: null,
     profile_image: "",
     wikidata_qid: "",
-    src: NoAvatarIcon
+    src: NoAvatarIcon,
   });
 
   useEffect(() => {
@@ -140,9 +140,9 @@ export default function EditProfilePage() {
       console.log("Perfil carregado:", {
         avatar: profile.avatar,
         wikidata_qid: profile.wikidata_qid,
-        profile_image: profile.profile_image
+        profile_image: profile.profile_image,
       });
-      
+
       setFormData({
         ...profile,
         affiliation: profile.affiliation ? profile.affiliation : [],
@@ -164,20 +164,22 @@ export default function EditProfilePage() {
         // If the user is using Wikidata, set the Wikidata image
         setSelectedAvatar({
           id: -1,
-          src: profile.profile_image || NoAvatarIcon
+          src: profile.profile_image || NoAvatarIcon,
         });
       } else if (profile.avatar) {
         // If the user is not using Wikidata, set the avatar
-        const avatarData = avatars?.find(avatar => avatar.id === profile.avatar);
+        const avatarData = avatars?.find(
+          (avatar) => avatar.id === profile.avatar
+        );
         setSelectedAvatar({
           id: profile.avatar,
-          src: avatarData?.avatar_url || NoAvatarIcon
+          src: avatarData?.avatar_url || NoAvatarIcon,
         });
       } else {
         // If the user is not using Wikidata, set the default image
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon
+          src: NoAvatarIcon,
         });
       }
 
@@ -186,8 +188,10 @@ export default function EditProfilePage() {
         avatar: profile.avatar || null,
         profile_image: profile.profile_image || "",
         wikidata_qid: profile.wikidata_qid || "",
-        src: isUsingWikidata ? profile.profile_image || NoAvatarIcon : 
-             (avatars?.find(a => a.id === profile.avatar)?.avatar_url || NoAvatarIcon)
+        src: isUsingWikidata
+          ? profile.profile_image || NoAvatarIcon
+          : avatars?.find((a) => a.id === profile.avatar)?.avatar_url ||
+            NoAvatarIcon,
       });
     }
   }, [profile, avatars]);
@@ -195,9 +199,19 @@ export default function EditProfilePage() {
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
     if (unsavedData) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        ...unsavedData
+        ...unsavedData,
+      }));
+    }
+  }, [unsavedData]);
+
+  // When the component mounts, check if there are unsaved data
+  useEffect(() => {
+    if (unsavedData) {
+      setFormData((prevData) => ({
+        ...prevData,
+        ...unsavedData,
       }));
     }
   }, [unsavedData]);
@@ -216,53 +230,16 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) {
+      console.error("No token available");
+      return;
+    }
+
     try {
-      setIsImageLoading(true);
-      const dataToUpdate = {
-        ...formData
-      };
-      
-      // If the user is using Wikidata
-      if (isWikidataSelected) {
-        dataToUpdate.avatar = null; // Remove the avatar
-        
-        // Check if the Wikidata data is present
-        if (!dataToUpdate.wikidata_qid) {
-          // If there is no wikidata_qid in formData, try to fetch it again
-          if (!profile?.user.username) {
-            showSnackbar("Username not found", "error");
-            setIsImageLoading(false);
-            return;
-          }
-          
-          const wikidataQid = await fetchWikidataQid(profile.user.username);
-          if (wikidataQid) {
-            const wikidataImage = await fetchWikidataImage(wikidataQid);
-            dataToUpdate.wikidata_qid = wikidataQid;
-            dataToUpdate.profile_image = wikidataImage || "";
-          } else {
-            showSnackbar("Wikidata information is incomplete", "error");
-            setIsImageLoading(false);
-            return;
-          }
-        }
-      } 
-      // If the user is not using Wikidata
-      else {
-        // Clear the Wikidata data
-        dataToUpdate.wikidata_qid = "";
-        dataToUpdate.profile_image = "";
-        
-        // If there is no selected avatar, leave as null
-        // Do not try to set as 0, it causes an error
-        if (dataToUpdate.avatar === 0) {
-          dataToUpdate.avatar = null;
-        }
-      }
-      await updateProfile(dataToUpdate);
-      await refetch();
-      clearUnsavedData();
+      await updateProfile(formData);
+      clearUnsavedData(); // Clear unsaved data after saving successfully
       showSnackbar(pageContent["snackbar-edit-profile-success"], "success");
       router.push("/profile");
     } catch (error) {
@@ -286,7 +263,7 @@ export default function EditProfilePage() {
     const selectedAvatarUrl = avatars?.find(
       (avatar) => avatar.id === avatarId
     )?.avatar_url;
-    
+
     setSelectedAvatar({
       id: avatarId,
       src: selectedAvatarUrl || NoAvatarIcon,
@@ -304,7 +281,7 @@ export default function EditProfilePage() {
           avatar: formData.avatar || null,
           profile_image: formData.profile_image || "",
           wikidata_qid: formData.wikidata_qid || "",
-          src: selectedAvatar.src
+          src: selectedAvatar.src,
         });
 
         if (!profile?.user.username) {
@@ -313,7 +290,7 @@ export default function EditProfilePage() {
 
         const wikidataQid = await fetchWikidataQid(profile.user.username);
         console.log("Wikidata QID obtido:", wikidataQid);
-        
+
         if (wikidataQid) {
           const wikidataImage = await fetchWikidataImage(wikidataQid);
           console.log("Wikidata Image obtida:", wikidataImage);
@@ -321,7 +298,7 @@ export default function EditProfilePage() {
           // Update the state with the Wikidata image
           setSelectedAvatar({
             id: -1,
-            src: wikidataImage || NoAvatarIcon
+            src: wikidataImage || NoAvatarIcon,
           });
 
           // Update the formData with the Wikidata data
@@ -329,22 +306,25 @@ export default function EditProfilePage() {
             ...formData,
             profile_image: wikidataImage || "",
             wikidata_qid: wikidataQid,
-            avatar: null // Remove the avatar when using Wikidata
+            avatar: null, // Remove the avatar when using Wikidata
           };
-          
+
           console.log("FormData atualizado:", updatedFormData);
           setFormData(updatedFormData);
           setUnsavedData(updatedFormData); // Important: also update the unsavedData
         } else {
-          showSnackbar("Wikidata information not found for this username", "error");
+          showSnackbar(
+            "Wikidata information not found for this username",
+            "error"
+          );
         }
       } else {
         // When unselecting the Wikidata option
-        
+
         // Clear the Wikidata data and set the default image
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon
+          src: NoAvatarIcon,
         });
 
         // Update the formData removing the Wikidata data
@@ -352,19 +332,22 @@ export default function EditProfilePage() {
           ...formData,
           profile_image: "",
           wikidata_qid: "",
-          avatar: null // Important: use null instead of 0
+          avatar: null, // Important: use null instead of 0
         };
         setFormData(restoredFormData);
         setUnsavedData(restoredFormData);
       }
     } catch (error) {
       console.error("Error fetching Wikidata data:", error);
-      showSnackbar(pageContent["snackbar-edit-profile-failed-generic"], "error");
-      
+      showSnackbar(
+        pageContent["snackbar-edit-profile-failed-generic"],
+        "error"
+      );
+
       // In case of error, restore the previous state
       setSelectedAvatar({
         id: previousImageState.avatar || 0,
-        src: previousImageState.src || NoAvatarIcon
+        src: previousImageState.src || NoAvatarIcon,
       });
     } finally {
       setIsImageLoading(false);
@@ -486,7 +469,7 @@ export default function EditProfilePage() {
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
-      src: selectedAvatar.src || NoAvatarIcon
+      src: selectedAvatar.src || NoAvatarIcon,
     },
     handleAvatarSelect,
     showAvatarPopup,
@@ -514,7 +497,6 @@ export default function EditProfilePage() {
     avatars,
     refetch,
     goTo,
-    isImageLoading,
   };
 
   if (isMobile) {
