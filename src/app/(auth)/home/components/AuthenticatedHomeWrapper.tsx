@@ -10,15 +10,15 @@ interface AuthenticatedHomeWrapperProps {
   isFirstLogin: boolean;
 }
 
-export default function AuthenticatedHomeWrapper({}: AuthenticatedHomeWrapperProps) {
+export default function AuthenticatedHomeWrapper({
+  isFirstLogin,
+}: AuthenticatedHomeWrapperProps) {
   const router = useRouter();
   const { darkMode } = useTheme();
   const handleContinue = () => {
     router.push("/profile/edit");
   };
   const { pageContent } = useApp();
-
-  const isFirstLogin = true; // TODO: remove this
 
   return (
     <>
