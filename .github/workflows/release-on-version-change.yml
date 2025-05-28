@@ -20,11 +20,17 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Extract version from package.json
-        id: extract_version
+      - name: Check if version field changed
+        id: check_version_change
         run: |
-          VERSION=$(jq -r '.version' package.json)
-          echo "version=$VERSION" >> $GITHUB_ENV
+          git fetch origin main
+          PREV_VERSION=$(git show origin/main:package.json | jq -r '.version')
+          NEW_VERSION=$(jq -r '.version' package.json)
+          if [ "$PREV_VERSION" = "$NEW_VERSION" ]; then
+            echo "No version change detected. Exiting."
+            exit 0
+          fi
+          echo "version=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Configure Git
         run: |
