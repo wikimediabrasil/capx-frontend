@@ -25,7 +25,10 @@ import { DocumentsList } from "./DocumentsList";
 import { ContactsSection } from "./ContactsSection";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
 import LoadingState from "@/components/LoadingState";
+import CopyLinkIcon from "@/public/static/images/icons/copy_link.svg";
+import CopyLinkIconWhite from "@/public/static/images/icons/copy_link_white.svg";
 import { useEffect } from "react";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 
 export default function OrganizationProfileDesktopView({
   pageContent,
@@ -45,6 +48,7 @@ export default function OrganizationProfileDesktopView({
     error,
     refetch,
   } = useOrganization(token, organizationId);
+  const { showSnackbar } = useSnackbar();
 
   if (isOrganizationLoading) {
     return <LoadingState />;
@@ -121,6 +125,27 @@ export default function OrganizationProfileDesktopView({
                 >
                   TODO
                 </p> */}
+
+                <BaseButton
+                  onClick={() => {
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url);
+                    showSnackbar(
+                      pageContent["body-profile-copy-link-success"],
+                      "success"
+                    );
+                  }}
+                  label={pageContent["body-profile-copy-link"]}
+                  customClass={`w-full font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[64px] md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
+                    darkMode
+                      ? "border-white text-white"
+                      : "border-capx-dark-box-bg text-capx-light-text"
+                  }`}
+                  imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
+                  imageAlt="Copy link icon"
+                  imageWidth={32}
+                  imageHeight={32}
+                />
 
                 {isOrgManager && (
                   <BaseButton

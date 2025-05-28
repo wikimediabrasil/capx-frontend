@@ -54,6 +54,11 @@ import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg"
 import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
 import ExpandIcon from "@/public/static/images/expand_all.svg";
 import BadgeSelectionModal from "@/components/BadgeSelectionModal";
+import LoadingImage from "@/components/LoadingImage";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
+import Banner from "@/components/Banner";
+import LetsConect from "@/public/static/images/lets_connect.svg";
 
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
@@ -70,8 +75,8 @@ interface ProfileEditMobileViewProps {
   selectedAvatar: any;
   handleAvatarSelect: (avatarId: number) => void;
   showAvatarPopup: boolean;
+  handleWikidataClick: (newWikidataSelected: boolean) => void;
   setShowAvatarPopup: (show: boolean) => void;
-  handleWikidataClick: () => void;
   isWikidataSelected: boolean;
   showCapacityModal: boolean;
   setShowCapacityModal: (show: boolean) => void;
@@ -99,6 +104,8 @@ interface ProfileEditMobileViewProps {
   avatars: any[] | undefined;
   refetch: () => Promise<any>;
   goTo: (path: string) => void;
+  isImageLoading: boolean;
+  setIsImageLoading: (loading: boolean) => void;
 }
 
 export default function ProfileEditMobileView(
@@ -134,6 +141,8 @@ export default function ProfileEditMobileView(
     profile,
     refetch,
     goTo,
+    isImageLoading,
+    setIsImageLoading,
   } = props;
 
   const router = useRouter();
@@ -242,12 +251,19 @@ export default function ProfileEditMobileView(
 
               <div className="bg-gray-100 p-4 rounded-lg">
                 <div className="w-32 h-32 mx-auto mb-4 relative">
-                  <Image
-                    src={selectedAvatar.src || avatarUrl}
-                    alt="Selected avatar"
-                    fill
-                    className="object-contain"
-                  />
+                  {isImageLoading ? (
+                    <LoadingImage />
+                  ) : (
+                    <Image
+                      src={selectedAvatar.src || avatarUrl}
+                      alt="Selected avatar"
+                      fill
+                      className="object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = NoAvatarIcon;
+                      }}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -276,7 +292,7 @@ export default function ProfileEditMobileView(
 
               <div className="flex flex-col items-center gap-2">
                 <BaseButton
-                  onClick={handleWikidataClick}
+                  onClick={() => handleWikidataClick(!isWikidataSelected)}
                   label={pageContent["edit-profile-use-wikidata"]}
                   customClass={`w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
                     darkMode
@@ -1151,7 +1167,7 @@ export default function ProfileEditMobileView(
                 </div>
                 <div className="flex items-center gap-2 py-[6px] ">
                   <BaseButton
-                    onClick={handleWikidataClick}
+                    onClick={() => handleWikidataClick(!isWikidataSelected)}
                     label={pageContent["edit-profile-use-wikidata"]}
                     customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
                       darkMode

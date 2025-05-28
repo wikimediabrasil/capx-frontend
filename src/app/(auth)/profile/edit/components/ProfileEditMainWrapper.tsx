@@ -164,30 +164,18 @@ export default function EditProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string>(
     profile?.avatar ? NoAvatarIcon : NoAvatarIcon
   );
-
-  // Calculate capacity IDs - do this early and make it stable
-  const capacityIds = useMemo(() => {
-    // Se formData não estiver inicializado, retorna array vazio
-    if (!formData) return [];
-
-    const knownSkills = ensureArray<number>(formData.skills_known || []);
-    const availableSkills = ensureArray<number>(
-      formData.skills_available || []
-    );
-    const wantedSkills = ensureArray<number>(formData.skills_wanted || []);
-
-    // Combina todos os arrays e remove duplicatas
-    const allIds = [...knownSkills, ...availableSkills, ...wantedSkills];
-    const uniqueIds = Array.from(new Set(allIds)).filter(
-      (id) => id !== null && id !== undefined
-    );
-
-    return uniqueIds;
-  }, [
-    formData?.skills_known,
-    formData?.skills_available,
-    formData?.skills_wanted,
-  ]);
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [previousImageState, setPreviousImageState] = useState<{
+    avatar: number | null;
+    profile_image: string;
+    wikidata_qid: string;
+    src: string;
+  }>({
+    avatar: null,
+    profile_image: "",
+    wikidata_qid: "",
+    src: NoAvatarIcon,
+  });
 
   // Create a function to get capacity names using the optimized system
   const getCapacityName = useCallback(
@@ -245,7 +233,18 @@ export default function EditProfilePage() {
       });
       formPopulatedRef.current = true;
 
-      if (profile.avatar) {
+      // Check if the user is using Wikidata
+      const isUsingWikidata = Boolean(profile.wikidata_qid);
+      setIsWikidataSelected(isUsingWikidata);
+
+      if (isUsingWikidata) {
+        // If the user is using Wikidata, set the Wikidata image
+        setSelectedAvatar({
+          id: -1,
+          src: profile.profile_image || NoAvatarIcon,
+        });
+      } else if (profile.avatar) {
+        // If the user is not using Wikidata, set the avatar
         const avatarData = avatars?.find(
           (avatar) => avatar.id === profile.avatar
         );
@@ -253,19 +252,24 @@ export default function EditProfilePage() {
           id: profile.avatar,
           src: avatarData?.avatar_url || NoAvatarIcon,
         });
-        setIsWikidataSelected(false);
-      } else if (profile.profile_image) {
-        setSelectedAvatar({
-          id: -1,
-          src: profile.profile_image,
-        });
-        setIsWikidataSelected(true);
       } else {
+        // If the user is not using Wikidata, set the default image
         setSelectedAvatar({
           id: 0,
           src: NoAvatarIcon,
         });
       }
+
+      // Save the initial state
+      setPreviousImageState({
+        avatar: profile.avatar || null,
+        profile_image: profile.profile_image || "",
+        wikidata_qid: profile.wikidata_qid || "",
+        src: isUsingWikidata
+          ? profile.profile_image || NoAvatarIcon
+          : avatars?.find((a) => a.id === profile.avatar)?.avatar_url ||
+            NoAvatarIcon,
+      });
     }
   }, [profile, avatars]);
 
@@ -274,7 +278,17 @@ export default function EditProfilePage() {
 
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
-    if (unsavedData && !unsavedDataLoadedRef.current) {
+    if (unsavedData) {
+      setFormData((prevData) => ({
+        ...prevData,
+        ...unsavedData,
+      }));
+    }
+  }, [unsavedData]);
+
+  // When the component mounts, check if there are unsaved data
+  useEffect(() => {
+    if (unsavedData) {
       setFormData((prevData) => ({
         ...prevData,
         ...unsavedData,
@@ -402,36 +416,13 @@ export default function EditProfilePage() {
     try {
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
-      showSnackbar(
-        safeAccess(
-          pageContent,
-          "snackbar-edit-profile-success",
-          "Profile updated successfully"
-        ),
-        "success"
-      );
+      showSnackbar(pageContent["snackbar-edit-profile-success"], "success");
       router.push("/profile");
     } catch (error) {
-      if (error?.response?.status == 409) {
-        showSnackbar(
-          safeAccess(
-            pageContent,
-            "snackbar-edit-profile-failed-capacities",
-            "Failed to update profile - capacity error"
-          ),
-          "error"
-        );
-      } else {
-        showSnackbar(
-          safeAccess(
-            pageContent,
-            "snackbar-edit-profile-failed-generic",
-            "Failed to update profile"
-          ),
-          "error"
-        );
-      }
       console.error("Error updating profile:", error);
+      showSnackbar(pageContent["snackbar-edit-profile-failed"], "error");
+    } finally {
+      setIsImageLoading(false);
     }
   };
 
@@ -439,8 +430,8 @@ export default function EditProfilePage() {
     setFormData((prev) => ({
       ...prev,
       avatar: avatarId,
-      profile_image: "",
-      wikidata_qid: "",
+      profile_image: "", // Clear Wikidata data
+      wikidata_qid: "", // Clear Wikidata data
     }));
 
     setIsWikidataSelected(false);
@@ -448,75 +439,106 @@ export default function EditProfilePage() {
     const selectedAvatarUrl = avatars?.find(
       (avatar) => avatar.id === avatarId
     )?.avatar_url;
-    if (selectedAvatarUrl) {
-      setSelectedAvatar({
-        id: avatarId,
-        src: selectedAvatarUrl,
-      });
-    }
+
+    setSelectedAvatar({
+      id: avatarId,
+      src: selectedAvatarUrl || NoAvatarIcon,
+    });
   };
 
-  const handleWikidataClick = async () => {
-    const newWikidataSelected = !isWikidataSelected;
+  const handleWikidataClick = async (newWikidataSelected: boolean) => {
+    setIsImageLoading(true);
     setIsWikidataSelected(newWikidataSelected);
 
-    if (profile?.user?.username) {
-      const wikidataQid = await fetchWikidataQid(profile.user.username);
+    try {
+      if (newWikidataSelected) {
+        // Save the current state before fetching the Wikidata image
+        setPreviousImageState({
+          avatar: formData.avatar || null,
+          profile_image: formData.profile_image || "",
+          wikidata_qid: formData.wikidata_qid || "",
+          src: selectedAvatar.src,
+        });
 
-      if (newWikidataSelected && wikidataQid) {
-        const wikidataImage = await fetchWikidataImage(wikidataQid);
+        if (!profile?.user.username) {
+          throw new Error("Username not found");
+        }
 
-        if (wikidataImage) {
-          // Update local state
+        const wikidataQid = await fetchWikidataQid(profile.user.username);
+        console.log("Wikidata QID obtido:", wikidataQid);
+
+        if (wikidataQid) {
+          const wikidataImage = await fetchWikidataImage(wikidataQid);
+          console.log("Wikidata Image obtida:", wikidataImage);
+
+          // Update the state with the Wikidata image
           setSelectedAvatar({
             id: -1,
-            src: wikidataImage,
+            src: wikidataImage || NoAvatarIcon,
           });
 
-          // Prepare data for update
-          const updatedData = {
+          // Update the formData with the Wikidata data
+          const updatedFormData = {
             ...formData,
-            profile_image: wikidataImage,
+            profile_image: wikidataImage || "",
             wikidata_qid: wikidataQid,
-            avatar: null, // Remove the avatar when using Wikidata image
+            avatar: null, // Remove the avatar when using Wikidata
           };
 
-          setFormData(updatedData);
-
-          // Update immediately in the backend
-          try {
-            await updateProfile(updatedData);
-            await refetch(); // Reload the profile data
-          } catch (error) {
-            console.error("Error updating profile with Wikidata image:", error);
-          }
+          console.log("FormData atualizado:", updatedFormData);
+          setFormData(updatedFormData);
+          setUnsavedData(updatedFormData); // Important: also update the unsavedData
+        } else {
+          showSnackbar(
+            "Wikidata information not found for this username",
+            "error"
+          );
         }
       } else {
-        // Reverting to default state
-        const updatedData = {
+        // When unselecting the Wikidata option
+
+        // Clear the Wikidata data and set the default image
+        setSelectedAvatar({
+          id: 0,
+          src: NoAvatarIcon,
+        });
+
+        // Update the formData removing the Wikidata data
+        const restoredFormData = {
           ...formData,
           profile_image: "",
           wikidata_qid: "",
-          avatar: null,
+          avatar: null, // Important: use null instead of 0
         };
-
-        setSelectedAvatar({
-          id: 0,
-          src: "",
-        });
-
-        setFormData(updatedData);
-
-        // Update immediately in the backend
-        try {
-          await updateProfile(updatedData);
-          await refetch();
-        } catch (error) {
-          console.error("Error updating profile:", error);
-        }
+        setFormData(restoredFormData);
+        setUnsavedData(restoredFormData);
       }
+    } catch (error) {
+      console.error("Error fetching Wikidata data:", error);
+      showSnackbar(
+        pageContent["snackbar-edit-profile-failed-generic"],
+        "error"
+      );
+
+      // In case of error, restore the previous state
+      setSelectedAvatar({
+        id: previousImageState.avatar || 0,
+        src: previousImageState.src || NoAvatarIcon,
+      });
+    } finally {
+      setIsImageLoading(false);
     }
   };
+
+  const capacityIds = useMemo(
+    () =>
+      [
+        ...(formData?.skills_known || []),
+        ...(formData?.skills_available || []),
+        ...(formData?.skills_wanted || []),
+      ].map((id) => Number(id)),
+    [formData]
+  );
 
   const handleRemoveCapacity = (
     type: "known" | "available" | "wanted",
@@ -596,7 +618,10 @@ export default function EditProfilePage() {
   };
 
   const ViewProps: any = {
-    selectedAvatar,
+    selectedAvatar: {
+      id: selectedAvatar.id,
+      src: selectedAvatar.src || NoAvatarIcon,
+    },
     handleAvatarSelect,
     showAvatarPopup,
     setShowAvatarPopup,

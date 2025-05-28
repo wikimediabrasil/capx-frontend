@@ -30,6 +30,8 @@ import EmojiIcon from "@/public/static/images/emoji_objects.svg";
 import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
 import AddIconDark from "@/public/static/images/add_dark.svg";
 import AddIcon from "@/public/static/images/add.svg";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import TargetIcon from "@/public/static/images/target.svg";
 import LanguageIconWhite from "@/public/static/images/language_white.svg";
@@ -51,15 +53,14 @@ import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
-import Banner from "@/components/Banner";
-import LetsConect from "@/public/static/images/lets_connect.svg";
-// import Banner from "@/components/Banner";
-// import LetsConect from "@/public/static/images/lets_connect.svg";
 import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
 import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
 import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
 import ExpandIcon from "@/public/static/images/expand_all.svg";
-
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
+import LoadingImage from "@/components/LoadingImage";
+import Banner from "@/components/Banner";
+import LetsConect from "@/public/static/images/lets_connect.svg";
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
@@ -73,7 +74,7 @@ interface ProfileEditDesktopViewProps {
   handleAvatarSelect: (avatarId: number) => void;
   showAvatarPopup: boolean;
   setShowAvatarPopup: (show: boolean) => void;
-  handleWikidataClick: () => void;
+  handleWikidataClick: (newWikidataSelected: boolean) => void;
   isWikidataSelected: boolean;
   showCapacityModal: boolean;
   setShowCapacityModal: (show: boolean) => void;
@@ -99,6 +100,7 @@ interface ProfileEditDesktopViewProps {
   avatars: any[] | undefined;
   refetch: () => Promise<any>;
   goTo: (path: string) => void;
+  isImageLoading: boolean;
 }
 
 export default function ProfileEditDesktopView(
@@ -119,9 +121,7 @@ export default function ProfileEditDesktopView(
     handleRemoveCapacity,
     handleRemoveLanguage,
     getCapacityName,
-    handleAddProject,
     handleSubmit,
-    handleCancel,
     handleDeleteProfile,
     formData,
     setFormData,
@@ -132,6 +132,7 @@ export default function ProfileEditDesktopView(
     avatars,
     refetch,
     goTo,
+    isImageLoading,
   } = props;
 
   const router = useRouter();
@@ -142,8 +143,6 @@ export default function ProfileEditDesktopView(
   const { isMobile, pageContent } = useApp();
   const { languages: languagesData, loading: languagesLoading } =
     useLanguage(token);
-  const { affiliations: affiliationsData } = useAffiliation(token);
-  const { territories: territoriesData } = useTerritories(token);
   const { wikimediaProjects: wikimediaProjectsData } =
     useWikimediaProject(token);
   const username = session?.user?.name;
@@ -192,7 +191,6 @@ export default function ProfileEditDesktopView(
                       style={{ objectFit: "cover" }}
                     />
                   </div>
-
                   <span
                     className={`text-start ${
                       darkMode ? "text-white" : "text-[#053749]"
@@ -249,12 +247,19 @@ export default function ProfileEditDesktopView(
 
                 <div className="flex bg-gray-100 p-4 rounded-lg h-full items-center justify-center">
                   <div className="w-64 h-64 mx-auto mb-4 relative flex items-center justify-center">
-                    <Image
-                      src={selectedAvatar.src}
-                      alt="Selected avatar"
-                      fill
-                      className="object-contain"
-                    />
+                    {isImageLoading ? (
+                      <LoadingImage />
+                    ) : (
+                      <Image
+                        src={selectedAvatar.src}
+                        alt="Selected avatar"
+                        fill
+                        className="object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = NoAvatarIcon;
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -288,7 +293,7 @@ export default function ProfileEditDesktopView(
                   />
                 )}
                 <BaseButton
-                  onClick={handleWikidataClick}
+                  onClick={() => handleWikidataClick(!isWikidataSelected)}
                   label={pageContent["edit-profile-use-wikidata"]}
                   customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
                     darkMode
@@ -912,7 +917,7 @@ export default function ProfileEditDesktopView(
                     }`}
                   >
                     <span className="font-[Montserrat] text-[24px]">
-                      {affiliationsData[aff]}
+                      {affiliations[aff]}
                     </span>
                     <button
                       onClick={() => {
@@ -969,7 +974,7 @@ export default function ProfileEditDesktopView(
                   <option value="">
                     {pageContent["edit-profile-insert-item"]}
                   </option>
-                  {Object.entries(affiliationsData).map(([id, name]) => (
+                  {Object.entries(affiliations).map(([id, name]) => (
                     <option
                       key={id}
                       value={id}
@@ -1030,7 +1035,7 @@ export default function ProfileEditDesktopView(
                     }`}
                   >
                     <span className="font-[Montserrat] text-[24px]">
-                      {territoriesData[terr]}
+                      {territories[terr]}
                     </span>
                     <button
                       onClick={() => {
@@ -1085,7 +1090,7 @@ export default function ProfileEditDesktopView(
                   <option value="">
                     {pageContent["edit-profile-insert-item"]}
                   </option>
-                  {Object.entries(territoriesData).map(([id, name]) => (
+                  {Object.entries(territories).map(([id, name]) => (
                     <option
                       key={id}
                       value={id}
@@ -1136,7 +1141,7 @@ export default function ProfileEditDesktopView(
               </div>
               <div className="flex items-center gap-2 py-[6px] ">
                 <BaseButton
-                  onClick={handleWikidataClick}
+                  onClick={() => handleWikidataClick(!isWikidataSelected)}
                   label={pageContent["edit-profile-use-wikidata"]}
                   customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[16px] font-[Montserrat] text-[24px] appearance-none mb-0 pb-[6px] ${
                     darkMode
