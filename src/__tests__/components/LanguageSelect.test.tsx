@@ -19,7 +19,7 @@ jest.mock("react-select", () => ({
           onChange(options[0]);
         }, 0);
       }
-    }, [options]);
+    }, [options, onChange]);
 
     return (
       <div data-testid="mock-select">
@@ -87,7 +87,7 @@ jest.mock("@/contexts/AppContext", () => ({
     isLoading: false,
     setIsLoading: jest.fn(),
     isMenuOpen: false,
-    setIsMenuOpen: jest.fn()
+    setIsMenuOpen: jest.fn(),
   }),
 }));
 
@@ -150,21 +150,21 @@ describe("LanguageSelect", () => {
       { value: "en", label: "en" },
       { value: "es", label: "es" },
     ]);
-  
+
     const fetchTranslationsMock = jest.fn().mockResolvedValue({
       "language-select-pt": "Português",
       "language-select-en": "English",
       "language-select-es": "Español",
       "aria-language-input": "Select language",
     });
-  
+
     (useLanguageSelection as jest.Mock).mockReturnValue({
       fetchLanguages: fetchLanguagesMock,
       fetchTranslations: fetchTranslationsMock,
       isLoading: false,
       error: null,
     });
-  
+
     renderWithProviders(
       <LanguageSelect
         language="en"
@@ -172,11 +172,11 @@ describe("LanguageSelect", () => {
         isMobile={false}
       />
     );
-  
+
     await waitFor(() => {
       expect(fetchTranslationsMock).toHaveBeenCalledWith("en");
     });
-  })
+  });
 
   test("deve chamar setLanguage quando uma opção é selecionada", async () => {
     // Clear the mocks before the test

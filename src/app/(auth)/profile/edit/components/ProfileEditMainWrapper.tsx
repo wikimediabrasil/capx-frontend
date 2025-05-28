@@ -177,6 +177,17 @@ export default function EditProfilePage() {
     src: NoAvatarIcon,
   });
 
+  // Move useMemo before any early returns to fix Rules of Hooks violation
+  const capacityIds = useMemo(
+    () =>
+      [
+        ...(formData?.skills_known || []),
+        ...(formData?.skills_available || []),
+        ...(formData?.skills_wanted || []),
+      ].map((id) => Number(id)),
+    [formData]
+  );
+
   // Create a function to get capacity names using the optimized system
   const getCapacityName = useCallback(
     (capacityId: any) => {
@@ -529,16 +540,6 @@ export default function EditProfilePage() {
       setIsImageLoading(false);
     }
   };
-
-  const capacityIds = useMemo(
-    () =>
-      [
-        ...(formData?.skills_known || []),
-        ...(formData?.skills_available || []),
-        ...(formData?.skills_wanted || []),
-      ].map((id) => Number(id)),
-    [formData]
-  );
 
   const handleRemoveCapacity = (
     type: "known" | "available" | "wanted",

@@ -39,24 +39,6 @@ export function useAvatars(limit?: number, offset?: number) {
     const cachedAvatar = avatars?.find((avatar) => avatar.id === id);
     if (cachedAvatar) return cachedAvatar;
 
-    // Memoize the getAvatarById function to prevent unnecessary re-renders
-    const getAvatarById = useCallback(
-      async (id: number) => {
-        if (!token) return null;
-        try {
-          const avatar = await avatarService.fetchAvatarById(id, {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          });
-          return avatar;
-        } catch (error) {
-          console.error("Error fetching avatar:", error);
-          return null;
-        }
-      },
-      [token]
-    );
     try {
       const avatar = await avatarService.fetchAvatarById(id, {
         headers: {
