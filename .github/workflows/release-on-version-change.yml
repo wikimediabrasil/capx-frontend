@@ -9,6 +9,7 @@ on:
 
 jobs:
   release:
+    name: Release new version
     runs-on: ubuntu-latest
 
     steps:
@@ -47,3 +48,29 @@ jobs:
           git push origin main
         env:
           version: ${{ env.version }}
+
+  deploy:
+    name: Deploy to SSH Server
+    runs-on: ubuntu-latest
+    needs: release
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run deployment script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          request_pty: true
+          script_stop: true
+          script: |
+            become capx git -C '$HOME/www/js' fetch origin
+            become capx git -C '$HOME/www/js' reset --hard origin/main
+            become capx git -C '$HOME/www/js' pull origin main
+            become capx webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install --pure-lockfile
+            become capx webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build
+            become capx webservice restart
