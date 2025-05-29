@@ -1,51 +1,72 @@
-import { useState, useCallback } from "react";
-import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { capacityService } from "@/services/capacityService";
+import { CAPACITY_CACHE_KEYS } from "./useCapacities";
+import { CapacityResponse } from "@/types/capacity";
 
-interface CapacityData {
+interface CapacityProfileData {
   description: string;
   name: string;
   code: string;
-  color: string;
-  icon: string;
-  parentCode: string;
+  color?: string;
+  icon?: string;
+  parentCode?: string;
 }
 
-export function useCapacityProfile(selectedCapacityId: string) {
-  const [selectedCapacityData, setSelectedCapacityData] =
-    useState<CapacityData | null>(null);
-
+export function useCapacityProfile(
+  selectedCapacityId: string,
+  language: string = "en"
+) {
   const { status, data: session } = useSession();
+  const token = session?.user?.token;
 
-  const getCapacityData = useCallback(
-    async (queryData) => {
-      const queryResponse = await axios.get(
-        "/api/capacity/" + selectedCapacityId,
-        queryData
+  const {
+    data: selectedCapacityData,
+    isLoading,
+    refetch,
+  } = useQuery<CapacityProfileData | null>({
+    queryKey: [
+      ...CAPACITY_CACHE_KEYS.byId(Number(selectedCapacityId)),
+      "profile",
+      language,
+    ],
+    queryFn: async () => {
+      if (!selectedCapacityId || !token) return null;
+
+      const queryData = {
+        params: { language },
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      };
+
+      const response = await capacityService.fetchCapacityById(
+        selectedCapacityId
       );
-      setSelectedCapacityData(queryResponse.data);
-    },
-    [selectedCapacityId]
-  );
 
-  const refreshCapacityData = useCallback(
-    (language: string) => {
-      if (status === "authenticated") {
-        const queryData = {
-          params: { language },
-          headers: {
-            Authorization: `Token ${session?.user?.token}`,
-          },
-        };
-        getCapacityData(queryData);
-      }
+      // Transformar a resposta da API para o formato CapacityProfileData
+      const capacityData: CapacityProfileData = {
+        description: response.description || "",
+        name: response.name,
+        code: response.code,
+        // Propriedades opcionais são deixadas indefinidas se não existirem na resposta
+      };
+
+      return capacityData;
     },
-    [status, session?.user?.token, getCapacityData]
-  );
+    enabled: !!selectedCapacityId && status === "authenticated",
+    staleTime: 1000 * 60 * 60, // 1 hora
+    gcTime: 1000 * 60 * 60 * 24, // 24 horas em cache
+  });
+
+  // Função para forçar a atualização dos dados
+  const refreshCapacityData = (newLanguage: string = language) => {
+    return refetch();
+  };
 
   return {
     selectedCapacityData,
     refreshCapacityData,
-    isLoading: status === "loading",
+    isLoading: isLoading || status === "loading",
   };
 }

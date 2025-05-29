@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Popup from "@/components/Popup";
 import Image from "next/image";
@@ -20,11 +20,11 @@ import { useApp } from "@/contexts/AppContext";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import { Message } from "@/types/message";
 import { useSession } from "next-auth/react";
-import {  useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 export enum MessageMethod {
-    EMAIL = "email",
-    TALKPAGE = "talkpage",
-  }
+  EMAIL = "email",
+  TALKPAGE = "talkpage",
+}
 
 export default function FormMessage() {
   const { darkMode } = useTheme();
@@ -38,11 +38,11 @@ export default function FormMessage() {
   });
 
   const searchParams = useSearchParams();
-  const username = searchParams.get('username');
+  const username = searchParams.get("username");
 
   useEffect(() => {
     if (username) {
-      setFormData({ ...formData, receiver: username });
+      setFormData((prev) => ({ ...prev, receiver: username }));
     }
   }, [username]);
 
@@ -51,26 +51,23 @@ export default function FormMessage() {
   const [showInfoMethodPopup, setShowInfoMethodPopup] = useState(false);
 
   const { showSnackbar } = useSnackbar();
-  
+
   const messageMethodLabels: Record<string, string> = {
     [MessageMethod.EMAIL]: pageContent["message-form-method-email"],
     [MessageMethod.TALKPAGE]: pageContent["message-form-method-talkpage"],
-  };  
+  };
 
-  const {
-    showMethodSelector,
-    setShowMethodSelector,
-    sendMessage,
-  } = useMessage();
-  
+  const { showMethodSelector, setShowMethodSelector, sendMessage } =
+    useMessage();
+
   const clearFormData = () => {
     setFormData({
-        receiver: "",
-        subject: "",
-        message: "",
-        method: "",
-      });    
-  }
+      receiver: "",
+      subject: "",
+      message: "",
+      method: "",
+    });
+  };
 
   const handleSubmit = async () => {
     setShowInfoMessagePopup(false);
@@ -115,209 +112,201 @@ export default function FormMessage() {
 
   return (
     <section className="w-full h-full flex flex-col gap-4 px-4 py-4 md:min-h-41 md:max-w-full">
-        <div className="flex items-start gap-2 text-left">
-            <Image
-                src={darkMode ?  IconChatWhite : IconChat}
-                alt={pageContent["message-form-icon-alt"]}
-                className="w-4 h-5 md:w-[42px] md:h-[42px]"
-            />
-            <h1 className={`text-[14px] font-[Montserrat] font-bold md:text-[32px] 
-            ${darkMode 
-                ? "text-capx-light-bg"
-                : "text-capx-dark-box-bg"
-            }`}
-            >
-            {pageContent["message-form-heading"]}
-            </h1>
-        </div>
+      <div className="flex items-start gap-2 text-left">
+        <Image
+          src={darkMode ? IconChatWhite : IconChat}
+          alt={pageContent["message-form-icon-alt"]}
+          className="w-4 h-5 md:w-[42px] md:h-[42px]"
+        />
+        <h1
+          className={`text-[14px] font-[Montserrat] font-bold md:text-[32px] 
+            ${darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"}`}
+        >
+          {pageContent["message-form-heading"]}
+        </h1>
+      </div>
 
-        <div className="mt-2 ">
-            <h4 className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
-                ${darkMode 
-                ? "text-capx-light-bg"
-                : "text-[#507380]"
-                }`}
-            >
-                {pageContent["message-form-from"]}
-            </h4>
-            <div 
-                className={`flex items-center px-4 py-2 rounded-md border ${darkMode 
-                        ? "border-white" 
-                        : "border-[#053749]"
-                }`}
-            >
-                <span 
-                    className={`px-2 py-1 text-[12px] md:text-[24px] rounded ${
-                        darkMode 
-                            ? "bg-[#FFFFFF] text-[#053749]" 
-                            : "bg-[#053749] text-white"
-                    }`}
-                >
-                    {session?.user?.name ?? ""}
-                </span>
-            </div>
-        </div>
-
-        <div className="mt-2">
-            <h4 className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
-                ${darkMode 
-                ? "text-capx-light-bg"
-                : "text-[#507380]"
-                }`}
-            >
-                {pageContent["message-to-from"]}
-            </h4>
-            <input
-                type="text"
-                id="to"
-                value={formData.receiver}
-                onChange={(e) =>
-                    setFormData({ ...formData, receiver: e.target.value })
-                }
-                className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-                    darkMode
-                    ? "bg-transparent border-[#FFFFFF] text-white"
-                    : "border-[#053749] text-[#829BA4]"
-                    }`}
-                placeholder={pageContent["message-form-to-placeholder"]}
-            />                
-        </div>
-
-        <div className="mt-2">
-            <h4 className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px]
+      <div className="mt-2 ">
+        <h4
+          className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
                 ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
-            >
-                {pageContent["message-form-method"]}
-            </h4>
-            <div className="relative">
-                <button
-                    type="button"
-                    onClick={() => setShowMethodSelector(!showMethodSelector)}
-                    className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-                    darkMode
-                        ? "bg-[#04222F] border-[#FFFFFF] text-[#FFFFFF]"
-                        : "border-[#053749] text-[#829BA4]"
-                    } flex justify-between items-center`}
-                >
-                    {formData.method
-                        ? formData.method
-                        : pageContent["message-form-method-placeholder"]}
-                        <Image
-                        src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                        alt="Select"
-                        width={20}
-                        height={20}
-                    />
-                </button>
-
-                {showMethodSelector && (
-                    <div
-                      className={`absolute z-10 w-full mt-1 rounded-md shadow-lg ${
-                          darkMode
-                          ? "bg-[#04222F] border-gray-700"
-                          : "bg-[#FFFFFF] border-gray-200"
-                      } border`}
-                      >
-                      {Object.values(MessageMethod).map((method) => (
-                          <button
-                            key={method}
-                            className={`block w-full text-left px-4 py-2 text-sm ${
-                                darkMode
-                                ? "text-white hover:bg-[#053749]"
-                                : "text-gray-700 hover:bg-gray-100"
-                            }`}
-                            onClick={() => {
-                                setFormData({ ...formData, method });
-                                setShowMethodSelector(false);
-                            }}
-                            >
-                            {messageMethodLabels[method]}
-                          </button>
-                      ))}
-                    </div>
-                )}
-              </div>
-            <div className="flex gap-2 items-center">
-                <p className={`mt-1 text-[10px] md:text-[20px] ${
-                    darkMode
-                        ? "text-[#FFFFFF]"
-                        : "text-[#053749]"
-                    }`}>
-                    {pageContent["message-form-method-informative-text"]}
-                </p>
-                <Image
-                    src={darkMode ? InfoIcon : InfoIconBlue}
-                    alt={pageContent["message-info-alt-icon"]}
-                    width={16}
-                    height={16}
-                    className="cursor-pointer"
-                    onClick={handleShowInfoMethodPopup}
-                />
-            </div>
+        >
+          {pageContent["message-form-from"]}
+        </h4>
+        <div
+          className={`flex items-center px-4 py-2 rounded-md border ${
+            darkMode ? "border-white" : "border-[#053749]"
+          }`}
+        >
+          <span
+            className={`px-2 py-1 text-[12px] md:text-[24px] rounded ${
+              darkMode
+                ? "bg-[#FFFFFF] text-[#053749]"
+                : "bg-[#053749] text-white"
+            }`}
+          >
+            {session?.user?.name ?? ""}
+          </span>
         </div>
+      </div>
 
-        <div className="mt-2">
-            <h4 className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
-                ${darkMode 
-                ? "text-capx-light-bg"
-                : "text-[#507380]"
-                }`}
-            >
-                {pageContent["message-form-subject"]}
-            </h4>
-            <input
-                type="text"
-                id="subject"
-                value={formData.subject}
-                onChange={(e) =>
-                    setFormData({ ...formData, subject: e.target.value })
-                }
-                className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-                    darkMode
-                    ? "bg-transparent border-[#FFFFFF] text-white"
-                    : "border-[#053749] text-[#829BA4]"
-                    }`}
-                placeholder={pageContent["message-form-subject-placeholder"]}
+      <div className="mt-2">
+        <h4
+          className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
+                ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
+        >
+          {pageContent["message-to-from"]}
+        </h4>
+        <input
+          type="text"
+          id="to"
+          value={formData.receiver}
+          onChange={(e) =>
+            setFormData({ ...formData, receiver: e.target.value })
+          }
+          className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+            darkMode
+              ? "bg-transparent border-[#FFFFFF] text-white"
+              : "border-[#053749] text-[#829BA4]"
+          }`}
+          placeholder={pageContent["message-form-to-placeholder"]}
+        />
+      </div>
+
+      <div className="mt-2">
+        <h4
+          className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px]
+                ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
+        >
+          {pageContent["message-form-method"]}
+        </h4>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowMethodSelector(!showMethodSelector)}
+            className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+              darkMode
+                ? "bg-[#04222F] border-[#FFFFFF] text-[#FFFFFF]"
+                : "border-[#053749] text-[#829BA4]"
+            } flex justify-between items-center`}
+          >
+            {formData.method
+              ? formData.method
+              : pageContent["message-form-method-placeholder"]}
+            <Image
+              src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+              alt="Select"
+              width={20}
+              height={20}
             />
-            <p className={`mt-1 text-[10px] md:text-[20px] ${
-                darkMode
-                    ? "text-[#FFFFFF]"
-                    : "text-[#053749]"
-                }`}>
-                {pageContent["message-form-subject-informative-text"]}
-            </p>
-        </div>
+          </button>
 
-        <div className="mt-2 md:mb-14">
-            <h4 className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px] ${
+          {showMethodSelector && (
+            <div
+              className={`absolute z-10 w-full mt-1 rounded-md shadow-lg ${
                 darkMode
-                    ? "text-capx-light-bg"
-                    : "text-[#507380]"
-                }`}
-                >
-                {pageContent["message-form-message"]}
-            </h4>
-            <textarea
-                id="message"
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value})}
-                rows={4}
-                className={`w-full h-auto px-3 py-2 m-0 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+                  ? "bg-[#04222F] border-gray-700"
+                  : "bg-[#FFFFFF] border-gray-200"
+              } border`}
+            >
+              {Object.values(MessageMethod).map((method) => (
+                <button
+                  key={method}
+                  className={`block w-full text-left px-4 py-2 text-sm ${
                     darkMode
-                    ? "bg-transparent border-[#FFFFFF] text-white"
-                    : "border-[#053749] text-[#829BA4]"
-                }`}
-                    placeholder={pageContent["message-form-message-placeholder"]}
+                      ? "text-white hover:bg-[#053749]"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                  onClick={() => {
+                    setFormData({ ...formData, method });
+                    setShowMethodSelector(false);
+                  }}
                 >
-            </textarea>
-            <p className={`mt-1 text-[10px] md:text-[20px] ${
-                darkMode
-                    ? "text-[#FFFFFF]"
-                    : "text-[#053749]"
-                }`}>
-                {pageContent["message-form-informative-text"]}
-            </p>
+                  {messageMethodLabels[method]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+        <div className="flex gap-2 items-center">
+          <p
+            className={`mt-1 text-[10px] md:text-[20px] ${
+              darkMode ? "text-[#FFFFFF]" : "text-[#053749]"
+            }`}
+          >
+            {pageContent["message-form-method-informative-text"]}
+          </p>
+          <Image
+            src={darkMode ? InfoIcon : InfoIconBlue}
+            alt={pageContent["message-info-alt-icon"]}
+            width={16}
+            height={16}
+            className="cursor-pointer"
+            onClick={handleShowInfoMethodPopup}
+          />
+        </div>
+      </div>
+
+      <div className="mt-2">
+        <h4
+          className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px]
+                ${darkMode ? "text-capx-light-bg" : "text-[#507380]"}`}
+        >
+          {pageContent["message-form-subject"]}
+        </h4>
+        <input
+          type="text"
+          id="subject"
+          value={formData.subject}
+          onChange={(e) =>
+            setFormData({ ...formData, subject: e.target.value })
+          }
+          className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+            darkMode
+              ? "bg-transparent border-[#FFFFFF] text-white"
+              : "border-[#053749] text-[#829BA4]"
+          }`}
+          placeholder={pageContent["message-form-subject-placeholder"]}
+        />
+        <p
+          className={`mt-1 text-[10px] md:text-[20px] ${
+            darkMode ? "text-[#FFFFFF]" : "text-[#053749]"
+          }`}
+        >
+          {pageContent["message-form-subject-informative-text"]}
+        </p>
+      </div>
+
+      <div className="mt-2 md:mb-14">
+        <h4
+          className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px] ${
+            darkMode ? "text-capx-light-bg" : "text-[#507380]"
+          }`}
+        >
+          {pageContent["message-form-message"]}
+        </h4>
+        <textarea
+          id="message"
+          value={formData.message}
+          onChange={(e) =>
+            setFormData({ ...formData, message: e.target.value })
+          }
+          rows={4}
+          className={`w-full h-auto px-3 py-2 m-0 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+            darkMode
+              ? "bg-transparent border-[#FFFFFF] text-white"
+              : "border-[#053749] text-[#829BA4]"
+          }`}
+          placeholder={pageContent["message-form-message-placeholder"]}
+        ></textarea>
+        <p
+          className={`mt-1 text-[10px] md:text-[20px] ${
+            darkMode ? "text-[#FFFFFF]" : "text-[#053749]"
+          }`}
+        >
+          {pageContent["message-form-informative-text"]}
+        </p>
+      </div>
 
       <ActionButtons
         handleAhead={handleShowInfoMessagePopup}
@@ -340,8 +329,7 @@ export default function FormMessage() {
           onContinue={handleSubmit}
           image={SuccessSubmissionSVG}
         >
-            {pageContent["message-info-popup"]}
-            
+          {pageContent["message-info-popup"]}
         </Popup>
       )}
       {/* Success Popup */}
@@ -353,7 +341,7 @@ export default function FormMessage() {
           onClose={handleCloseSuccessPopup}
           onContinue={handleContinueSuccessPopup}
           image={SuccessSubmissionSVG}
-          />
+        />
       )}
       {/* Info Method Popup */}
       {showInfoMethodPopup && (

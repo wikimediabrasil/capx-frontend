@@ -17,80 +17,105 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const isClient = typeof window !== "undefined";
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuStatus, setMobileMenuStatus] = useState(false);
-  
-  // Check language on localStorage. If not found, use "en" as default
-  const initialLanguage = typeof window !== "undefined" ? localStorage.getItem("language") : "en";
-  const [language, setLanguage] = useState(initialLanguage || "en");
 
-  const [pageContent, setPageContent] = useState({});
+  // Check language on localStorage. If not found, use "en" as default
+  const initialLanguage = isClient
+    ? localStorage.getItem("language") || "en"
+    : "en";
+  const [language, setLanguage] = useState(initialLanguage);
+
+  const [pageContent, setPageContent] = useState({
+    "capacity-card-explore-capacity": "Explore capacity",
+    "capacity-card-expand-capacity": "Expand",
+    "capacity-card-info": "Information",
+    "capacity-banner-title": "Exchange Everything",
+    "capacity-search-no-results": "No results found",
+  });
   const [session, setSession] = useState(null);
 
   // Check and load language from localStorage on mount,
   // handle initial mobile detection and window resize
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("language");
+    if (!isClient) return;
 
-    if (savedLanguage && savedLanguage !== language) {
-      setLanguage(savedLanguage); // Update state if language is different
-    }
+    try {
+      const savedLanguage = localStorage.getItem("language");
 
-    const checkIsMobile = () => {
-      const isMobileView = window.innerWidth <= 768;
-      setIsMobile(isMobileView);
-      if (!isMobileView) {
-        setMobileMenuStatus(false);
+      if (savedLanguage && savedLanguage !== language) {
+        setLanguage(savedLanguage); // Update state if language is different
       }
-    };
 
-    // Check on mount
-    checkIsMobile();
-    setMounted(true);
+      const checkIsMobile = () => {
+        const isMobileView = window.innerWidth <= 768;
+        setIsMobile(isMobileView);
+        if (!isMobileView) {
+          setMobileMenuStatus(false);
+        }
+      };
 
-    // Add resize listener
-    window.addEventListener("resize", checkIsMobile);
+      // Check on mount
+      checkIsMobile();
 
-    return () => {
-      window.removeEventListener("resize", checkIsMobile);
-    };
+      // Add resize listener
+      window.addEventListener("resize", checkIsMobile);
+
+      setMounted(true);
+
+      return () => {
+        window.removeEventListener("resize", checkIsMobile);
+      };
+    } catch (error) {
+      console.error("Error initializing AppContext:", error);
+      setMounted(true); // Ensure we still render the app even if there's an error
+    }
   }, []);
 
   // Save language to localStorage when it changes
   useEffect(() => {
-    if (language) {
-      localStorage.setItem("language", language);
-    }
-  }, [language]);
+    if (!isClient || !mounted) return;
 
+    try {
+      if (language) {
+        localStorage.setItem("language", language);
+      }
+    } catch (error) {
+      console.error("Error saving language to localStorage:", error);
+    }
+  }, [language, mounted]);
+
+  // To avoid hydration errors, we render the children directly
+  // before mounting
   // Memoize value object
-  const value = useMemo(() => ({
-    isMobile,
-    darkMode,
-    setDarkMode,
-    mobileMenuStatus,
-    setMobileMenuStatus,
-    language,
-    setLanguage,
-    pageContent,
-    setPageContent,
-    session,
-    setSession,
-  }), [isMobile, darkMode, mobileMenuStatus, language, pageContent, session]);
+  const value = useMemo(
+    () => ({
+      isMobile,
+      darkMode,
+      setDarkMode,
+      mobileMenuStatus,
+      setMobileMenuStatus,
+      language,
+      setLanguage,
+      pageContent,
+      setPageContent,
+      session,
+      setSession,
+    }),
+    [isMobile, darkMode, mobileMenuStatus, language, pageContent, session]
+  );
 
   // Don't render anything before mount to avoid hydration mismatch
   if (!mounted) {
-    return null;
+    return <>{children}</>;
   }
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useApp() {

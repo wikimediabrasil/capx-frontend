@@ -5,6 +5,9 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
+  useSearchParams: () => ({
+    get: jest.fn(),
+  }),
 }));
 
 jest.mock("@/contexts/AppContext", () => ({
@@ -15,6 +18,12 @@ jest.mock("@/contexts/AppContext", () => ({
       "capacity-card-explore-capacity": "Explore capacity",
       "capacity-card-info": "Information",
     },
+  }),
+}));
+
+jest.mock("@/contexts/CapacityCacheContext", () => ({
+  useCapacityCache: () => ({
+    hasChildren: jest.fn(),
   }),
 }));
 
