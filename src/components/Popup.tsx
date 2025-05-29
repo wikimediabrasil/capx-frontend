@@ -12,7 +12,7 @@ interface PopupProps {
   continueButtonLabel?: string;
   children?: React.ReactNode;
   customClass?: string;
-  imageSize?: string; // <- nova prop opcional
+  imageSize?: string;
 }
 
 const Popup = ({
