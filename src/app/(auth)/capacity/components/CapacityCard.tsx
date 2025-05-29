@@ -442,7 +442,7 @@ export function CapacityCard({
                 isMobile ? "gap-4" : "gap-16"
               }`}
             >
-              <div className="flex items-center w-[378px] h-full">
+              <div className="flex items-center w-full max-w-[378px] h-full">
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
