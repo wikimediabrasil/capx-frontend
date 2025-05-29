@@ -31,7 +31,7 @@ jobs:
           NEW_VERSION=$(jq -r '.version' package.json)
           if [ "$PREV_VERSION" = "$NEW_VERSION" ]; then
             echo "No version change detected. Exiting."
-            exit 0
+            exit 1
           fi
           echo "version=$NEW_VERSION" >> $GITHUB_ENV
 
