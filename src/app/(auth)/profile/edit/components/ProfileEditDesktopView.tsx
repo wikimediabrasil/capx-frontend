@@ -30,6 +30,8 @@ import EmojiIcon from "@/public/static/images/emoji_objects.svg";
 import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
 import AddIconDark from "@/public/static/images/add_dark.svg";
 import AddIcon from "@/public/static/images/add.svg";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import TargetIcon from "@/public/static/images/target.svg";
 import LanguageIconWhite from "@/public/static/images/language_white.svg";
@@ -51,15 +53,14 @@ import BaseButton from "@/components/BaseButton";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
-// import Banner from "@/components/Banner";
-// import LetsConect from "@/public/static/images/lets_connect.svg";
 import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
 import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
 import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
 import ExpandIcon from "@/public/static/images/expand_all.svg";
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import LoadingImage from "@/components/LoadingImage";
-
+import Banner from "@/components/Banner";
+import LetsConect from "@/public/static/images/lets_connect.svg";
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
@@ -147,9 +148,13 @@ export default function ProfileEditDesktopView(
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
-  const { userBadges, updateUserBadges, isLoading: isBadgesLoading } = useBadges();
-  const completedBadges = userBadges.filter(badge => badge.progress === 100);
-  const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
+  const {
+    userBadges,
+    updateUserBadges,
+    isLoading: isBadgesLoading,
+  } = useBadges();
+  const completedBadges = userBadges.filter((badge) => badge.progress === 100);
+  const displayedBadges = completedBadges.filter((badge) => badge.is_displayed);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
 
   return (
@@ -290,12 +295,20 @@ export default function ProfileEditDesktopView(
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
                   label={pageContent["edit-profile-use-wikidata"]}
-                  customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 ${
+                  customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
                     darkMode
                       ? "bg-transparent border-white text-capx-light-bg placeholder-white"
                       : "border-[#053749] text-capx-dark-box-bg"
                   } border`}
-                  imageUrl={isWikidataSelected ? (darkMode ? CheckBoxFilledIconWhite : CheckBoxFilledIcon) : (darkMode ? CheckIconWhite : CheckIcon)}
+                  imageUrl={
+                    isWikidataSelected
+                      ? darkMode
+                        ? CheckBoxFilledIconWhite
+                        : CheckBoxFilledIcon
+                      : darkMode
+                      ? CheckIconWhite
+                      : CheckIcon
+                  }
                   imageAlt="Check icon"
                   imageWidth={30}
                   imageHeight={30}
@@ -357,54 +370,60 @@ export default function ProfileEditDesktopView(
               </div>
             )}
 
-          {displayedBadges.length > 0 && !isBadgesLoading ? (
-            <BadgesCarousel badges={displayedBadges} showFullDescription={false}/>
-          ) : (
-            !isBadgesLoading && (<span className={`font-[Montserrat] text-[20px] not-italic font-normal leading-normal ${
-              darkMode ? "text-white" : "text-[#053749]"
-              }`}
-              >
-                {pageContent["body-profile-badges-no-badges"]}
-              </span>)
-          )}
-
-           {userBadges.length > 0 && (
-              <BaseButton
-              onClick={() => setShowBadgeModal(true)}
-              label={pageContent["body-profile-badges-edit-your-badges"]}
-              customClass={`w-fit flex mt-4 mb-4 ${
-                darkMode
-                  ? "bg-capx-light-box-bg text-[#04222F]"
-                  : "bg-[#053749] text-white"
-              } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-              imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
-              imageAlt={pageContent["body-profile-badges-edit-your-badges"]}
-              imageWidth={30}
-              imageHeight={30}
+            {displayedBadges.length > 0 && !isBadgesLoading ? (
+              <BadgesCarousel
+                badges={displayedBadges}
+                showFullDescription={false}
               />
-           )}
-            <div className="flex flex-col gap-2">
-              <BaseButton
-                  onClick={() => router.push("/profile/badges")}
-                  label={pageContent["body-profile-badges-see-all"]}
-                  customClass={`w-fit flex mb-4 border ${
-                    darkMode
-                      ? "border-white text-white"
-                      : "border-[#053749] text-[#053749]"
-                  } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-                  imageUrl={darkMode ? ExpandIconWhite : ExpandIcon}
-                  imageAlt="Add capacity"
-                  imageWidth={30}
-                  imageHeight={30}
-                />
-                <span className={`font-[Montserrat] text-[20px] ${
+            ) : (
+              !isBadgesLoading && (
+                <span
+                  className={`font-[Montserrat] text-[20px] not-italic font-normal leading-normal ${
                     darkMode ? "text-white" : "text-[#053749]"
                   }`}
                 >
+                  {pageContent["body-profile-badges-no-badges"]}
+                </span>
+              )
+            )}
+
+            {userBadges.length > 0 && (
+              <BaseButton
+                onClick={() => setShowBadgeModal(true)}
+                label={pageContent["body-profile-badges-edit-your-badges"]}
+                customClass={`w-fit flex mt-4 mb-4 ${
+                  darkMode
+                    ? "bg-capx-light-box-bg text-[#04222F]"
+                    : "bg-[#053749] text-white"
+                } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+                imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
+                imageAlt={pageContent["body-profile-badges-edit-your-badges"]}
+                imageWidth={30}
+                imageHeight={30}
+              />
+            )}
+            <div className="flex flex-col gap-2">
+              <BaseButton
+                onClick={() => router.push("/profile/badges")}
+                label={pageContent["body-profile-badges-see-all"]}
+                customClass={`w-fit flex mb-4 border ${
+                  darkMode
+                    ? "border-white text-white"
+                    : "border-[#053749] text-[#053749]"
+                } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+                imageUrl={darkMode ? ExpandIconWhite : ExpandIcon}
+                imageAlt="Add capacity"
+                imageWidth={30}
+                imageHeight={30}
+              />
+              <span
+                className={`font-[Montserrat] text-[20px] ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
                 {pageContent["body-profile-badges-description"]}
               </span>
             </div>
-
           </div>
 
           {/* Header */}
@@ -483,7 +502,7 @@ export default function ProfileEditDesktopView(
                     <BaseButton
                       onClick={() => handleRemoveCapacity("known", index)}
                       label={getCapacityName(capacity)}
-                      customClass="rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] border-2 flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]"
+                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] border-2 flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0"
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={24}
@@ -544,7 +563,7 @@ export default function ProfileEditDesktopView(
                     <BaseButton
                       onClick={() => handleRemoveCapacity("available", index)}
                       label={getCapacityName(capacity)}
-                      customClass="rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#05A300)] flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]"
+                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#05A300)] flex py-4 px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0"
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={24}
@@ -605,7 +624,7 @@ export default function ProfileEditDesktopView(
                     <BaseButton
                       onClick={() => handleRemoveCapacity("wanted", index)}
                       label={getCapacityName(capacity)}
-                      customClass="rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#D43831)] flex px-4 py-4 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]"
+                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#D43831)] flex px-2 py-2 pb-2 justify-center items-center gap-[4px] font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] !mb-0"
                       imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                       imageAlt="Close icon"
                       imageWidth={24}
@@ -636,239 +655,239 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
 
-          {/* Languages Section */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <Image
-                src={darkMode ? LanguageIconWhite : LanguageIcon}
-                alt="Language icon"
-                width={48}
-                height={48}
-              />
-              <h2
-                className={`font-[Montserrat] text-[24px] font-bold ${
-                  darkMode ? "text-white" : "text-[#053749]"
-                }`}
-              >
-                {pageContent["body-profile-languages-title"]}
-              </h2>
-            </div>
-
-            {/* Language List */}
-            <div className="flex flex-wrap gap-2">
-              {formData.language?.map((lang, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center gap-2 p-2 rounded ${
-                    darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+            {/* Languages Section */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? LanguageIconWhite : LanguageIcon}
+                  alt="Language icon"
+                  width={48}
+                  height={48}
+                />
+                <h2
+                  className={`font-[Montserrat] text-[24px] font-bold ${
+                    darkMode ? "text-white" : "text-[#053749]"
                   }`}
                 >
-                  <span className="font-[Montserrat] text-[24px]">
-                    {languagesData[lang.id]}
-                  </span>
-                  <select
-                    value={lang.proficiency}
-                    onChange={(e) => {
-                      const newLanguages = [...(formData.language || [])];
-                      newLanguages[index] = {
-                        ...newLanguages[index],
-                        proficiency: e.target.value,
-                      };
+                  {pageContent["body-profile-languages-title"]}
+                </h2>
+              </div>
+
+              {/* Language List */}
+              <div className="flex flex-wrap gap-2">
+                {formData.language?.map((lang, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 p-2 rounded ${
+                      darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                    }`}
+                  >
+                    <span className="font-[Montserrat] text-[24px]">
+                      {languagesData[lang.id]}
+                    </span>
+                    <select
+                      value={lang.proficiency}
+                      onChange={(e) => {
+                        const newLanguages = [...(formData.language || [])];
+                        newLanguages[index] = {
+                          ...newLanguages[index],
+                          proficiency: e.target.value,
+                        };
+                        setFormData({
+                          ...formData,
+                          language: newLanguages,
+                        });
+                      }}
+                      className={`ml-2 p-1 rounded border text-[24px] ${
+                        darkMode
+                          ? "bg-transparent border-white text-white"
+                          : "border-[#053749] text-[#829BA4]"
+                      }`}
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      <option
+                        value="0"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-not-proficient"]}
+                      </option>
+                      <option
+                        value="1"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-basic"]}
+                      </option>
+                      <option
+                        value="2"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-intermediate"]}
+                      </option>
+                      <option
+                        value="3"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-advanced"]}
+                      </option>
+                      <option
+                        value="4"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-almost-native"]}
+                      </option>
+                      <option
+                        value="5"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-professional"]}
+                      </option>
+                      <option
+                        value="n"
+                        style={{
+                          backgroundColor: darkMode ? "#053749" : "white",
+                          color: darkMode ? "white" : "#053749",
+                        }}
+                      >
+                        {pageContent["profiency-level-native"]}
+                      </option>
+                    </select>
+                    <button
+                      onClick={() => handleRemoveLanguage(index)}
+                      className="ml-2"
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Remove language"
+                        width={24}
+                        height={24}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Language Select */}
+              <div className="relative">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
                       setFormData({
                         ...formData,
-                        language: newLanguages,
+                        language: [
+                          ...(formData.language || []),
+                          { id: Number(e.target.value), proficiency: "3" },
+                        ],
                       });
-                    }}
-                    className={`ml-2 p-1 rounded border text-[24px] ${
-                      darkMode
-                        ? "bg-transparent border-white text-white"
-                        : "border-[#053749] text-[#829BA4]"
-                    }`}
-                    style={{
-                      backgroundColor: darkMode ? "#053749" : "white",
-                      color: darkMode ? "white" : "#053749",
-                    }}
-                  >
-                    <option
-                      value="0"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-not-proficient"]}
-                    </option>
-                    <option
-                      value="1"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-basic"]}
-                    </option>
-                    <option
-                      value="2"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-intermediate"]}
-                    </option>
-                    <option
-                      value="3"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-advanced"]}
-                    </option>
-                    <option
-                      value="4"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-almost-native"]}
-                    </option>
-                    <option
-                      value="5"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-professional"]}
-                    </option>
-                    <option
-                      value="n"
-                      style={{
-                        backgroundColor: darkMode ? "#053749" : "white",
-                        color: darkMode ? "white" : "#053749",
-                      }}
-                    >
-                      {pageContent["profiency-level-native"]}
-                    </option>
-                  </select>
-                  <button
-                    onClick={() => handleRemoveLanguage(index)}
-                    className="ml-2"
-                  >
-                    <Image
-                      src={darkMode ? CloseIconWhite : CloseIcon}
-                      alt="Remove language"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Add Language Select */}
-            <div className="relative">
-              <select
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) {
-                    setFormData({
-                      ...formData,
-                      language: [
-                        ...(formData.language || []),
-                        { id: Number(e.target.value), proficiency: "3" },
-                      ],
-                    });
-                  }
-                }}
-                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
-                  darkMode
-                    ? "bg-transparent border-white text-white opacity-50"
-                    : "border-[#053749] text-[#829BA4]"
-                } border`}
-                style={{
-                  backgroundColor: darkMode ? "#053749" : "white",
-                  color: darkMode ? "white" : "#053749",
-                }}
-              >
-                <option value="">
-                  {pageContent["edit-profile-add-language"]}
-                </option>
-                {Object.entries(languagesData).map(([id, name]) => (
-                  <option
-                    key={id}
-                    value={id}
-                    style={{
-                      backgroundColor: darkMode ? "#053749" : "white",
-                      color: darkMode ? "white" : "#053749",
-                    }}
-                  >
-                    {name}
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
+                    darkMode
+                      ? "bg-transparent border-white text-white opacity-50"
+                      : "border-[#053749] text-[#829BA4]"
+                  } border`}
+                  style={{
+                    backgroundColor: darkMode ? "#053749" : "white",
+                    color: darkMode ? "white" : "#053749",
+                  }}
+                >
+                  <option value="">
+                    {pageContent["edit-profile-add-language"]}
                   </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                <Image
-                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                  alt="Select"
-                  width={24}
-                  height={24}
-                />
+                  {Object.entries(languagesData).map(([id, name]) => (
+                    <option
+                      key={id}
+                      value={id}
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <Image
+                    src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                    alt="Select"
+                    width={24}
+                    height={24}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <span
-            className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
-              darkMode ? "text-white" : "text-[#053749]"
-            }`}
-          >
-            {pageContent["edit-profile-language-tooltip"]}
-          </span>
-
-          {/* Alternative Wikimedia Account */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <Image
-                src={darkMode ? WikiIconWhite : WikiIcon}
-                alt="Alternative account icon"
-                width={48}
-                height={48}
-              />
-              <h2
-                className={`font-[Montserrat] text-[24px] font-bold ${
-                  darkMode ? "text-white" : "text-[#053749]"
-                }`}
-              >
-                {pageContent["body-profile-box-title-alt-wiki-acc"]}
-              </h2>
-            </div>
-            <input
-              type="text"
-              placeholder={pageContent["edit-profile-insert-item"]}
-              value={formData.wiki_alt}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  wiki_alt: e.target.value,
-                })
-              }
-              className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] ${
-                darkMode
-                  ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
-                  : "border-[#053749] text-[#829BA4]"
-              } border`}
-            />
             <span
-              className={`text-[24px] font-[Montserrat] not-italic font-normal leading-normal ${
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
                 darkMode ? "text-white" : "text-[#053749]"
               }`}
             >
-              {pageContent["edit-profile-share-username"]}
+              {pageContent["edit-profile-language-tooltip"]}
             </span>
-          </div>
+
+            {/* Alternative Wikimedia Account */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? WikiIconWhite : WikiIcon}
+                  alt="Alternative account icon"
+                  width={48}
+                  height={48}
+                />
+                <h2
+                  className={`font-[Montserrat] text-[24px] font-bold ${
+                    darkMode ? "text-white" : "text-[#053749]"
+                  }`}
+                >
+                  {pageContent["body-profile-box-title-alt-wiki-acc"]}
+                </h2>
+              </div>
+              <input
+                type="text"
+                placeholder={pageContent["edit-profile-insert-item"]}
+                value={formData.wiki_alt}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    wiki_alt: e.target.value,
+                  })
+                }
+                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] ${
+                  darkMode
+                    ? "bg-transparent border-white text-white opacity-50 placeholder-gray-400"
+                    : "border-[#053749] text-[#829BA4]"
+                } border`}
+              />
+              <span
+                className={`text-[24px] font-[Montserrat] not-italic font-normal leading-normal ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["edit-profile-share-username"]}
+              </span>
+            </div>
             {/* Affiliation Section */}
             <div className="flex flex-col gap-4 mt-4">
               {/* Título e ícone */}
@@ -888,97 +907,105 @@ export default function ProfileEditDesktopView(
                 </h2>
               </div>
 
-            {/* Lista de afiliações */}
-            <div className="flex flex-wrap gap-2">
-              {formData.affiliation?.map((aff, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center gap-2 p-2 rounded ${
-                    darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
-                  }`}
-                >
-                  <span className="font-[Montserrat] text-[24px]">
-                    {affiliations[aff]}
-                  </span>
-                  <button
-                    onClick={() => {
-                      const newAffiliations = [...(formData.affiliation || [])];
-                      newAffiliations.splice(index, 1);
+              {/* Lista de afiliações */}
+              <div className="flex flex-wrap gap-2">
+                {formData.affiliation?.map((aff, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 p-2 rounded ${
+                      darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"
+                    }`}
+                  >
+                    <span className="font-[Montserrat] text-[24px]">
+                      {affiliations[aff]}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const newAffiliations = [
+                          ...(formData.affiliation || []),
+                        ];
+                        newAffiliations.splice(index, 1);
+                        setFormData({
+                          ...formData,
+                          affiliation: newAffiliations,
+                        });
+                      }}
+                      className="ml-2"
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Remove affiliation"
+                        width={24}
+                        height={24}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Select para adicionar nova afiliação */}
+              <div className="relative">
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (
+                      e.target.value &&
+                      !formData.affiliation?.includes(e.target.value)
+                    ) {
                       setFormData({
                         ...formData,
-                        affiliation: newAffiliations,
+                        affiliation: [
+                          ...(formData.affiliation || []),
+                          e.target.value,
+                        ],
                       });
-                    }}
-                    className="ml-2"
-                  >
-                    <Image
-                      src={darkMode ? CloseIconWhite : CloseIcon}
-                      alt="Remove affiliation"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Select para adicionar nova afiliação */}
-            <div className="relative">
-              <select
-                value=""
-                onChange={(e) => {
-                  if (e.target.value && !formData.affiliation?.includes(e.target.value)) {
-                    setFormData({
-                      ...formData,
-                      affiliation: [...(formData.affiliation || []), e.target.value],
-                    });
-                  }
-                }}
-                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
-                  darkMode
-                    ? "bg-transparent border-white text-white opacity-50"
-                    : "border-[#053749] text-[#829BA4]"
-                } border`}
-                style={{
-                  backgroundColor: darkMode ? "#053749" : "white",
-                  color: darkMode ? "white" : "#053749",
-                }}
-              >
-                <option value="">
-                  {pageContent["edit-profile-insert-item"]}
-                </option>
-                {Object.entries(affiliations).map(([id, name]) => (
-                  <option
-                    key={id}
-                    value={id}
-                    style={{
-                      backgroundColor: darkMode ? "#053749" : "white",
-                      color: darkMode ? "white" : "#053749",
-                    }}
-                  >
-                    {name}
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
+                    darkMode
+                      ? "bg-transparent border-white text-white opacity-50"
+                      : "border-[#053749] text-[#829BA4]"
+                  } border`}
+                  style={{
+                    backgroundColor: darkMode ? "#053749" : "white",
+                    color: darkMode ? "white" : "#053749",
+                  }}
+                >
+                  <option value="">
+                    {pageContent["edit-profile-insert-item"]}
                   </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                <Image
-                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                  alt="Select"
-                  width={24}
-                  height={24}
-                />
+                  {Object.entries(affiliations).map(([id, name]) => (
+                    <option
+                      key={id}
+                      value={id}
+                      style={{
+                        backgroundColor: darkMode ? "#053749" : "white",
+                        color: darkMode ? "white" : "#053749",
+                      }}
+                    >
+                      {name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <Image
+                    src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                    alt="Select"
+                    width={24}
+                    height={24}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Tooltip */}
-            <span
-              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
-                darkMode ? "text-white" : "text-[#053749]"
-              }`}
-            >
-              {pageContent["body-profile-section-affiliation-dropdown-menu"]}
-            </span>
-          </div>
+              {/* Tooltip */}
+              <span
+                className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
+                  darkMode ? "text-white" : "text-[#053749]"
+                }`}
+              >
+                {pageContent["body-profile-section-affiliation-dropdown-menu"]}
+              </span>
+            </div>
             {/* Territory Section */}
             <div className="flex flex-col gap-4 mt-4">
               {/* Título e ícone */}
@@ -1037,10 +1064,16 @@ export default function ProfileEditDesktopView(
                 <select
                   value=""
                   onChange={(e) => {
-                    if (e.target.value && !formData.territory?.includes(e.target.value)) {
+                    if (
+                      e.target.value &&
+                      !formData.territory?.includes(e.target.value)
+                    ) {
                       setFormData({
                         ...formData,
-                        territory: [...(formData.territory || []), e.target.value],
+                        territory: [
+                          ...(formData.territory || []),
+                          e.target.value,
+                        ],
                       });
                     }
                   }}
@@ -1272,7 +1305,7 @@ export default function ProfileEditDesktopView(
               alt={pageContent["privacy-policy-alt-banner"]}
               customClass={{
                 background: "bg-[#EFEFEF]",
-                wrapper: "mb-0"
+                wrapper: "mb-0",
               }}
             />
 
@@ -1284,11 +1317,7 @@ export default function ProfileEditDesktopView(
                   ? "bg-capx-light-box-bg text-[#04222F]"
                   : "bg-[#053749] text-white"
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-              imageUrl={
-                darkMode
-                  ? UserCheckIconDark
-                  : UserCheckIcon
-                }
+              imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
               imageAlt="Add project"
               imageWidth={20}
               imageHeight={20}
@@ -1338,7 +1367,7 @@ export default function ProfileEditDesktopView(
       {showBadgeModal && (
         <BadgeSelectionModal
           badges={completedBadges}
-          selectedBadges={displayedBadges.map(badge => badge.id)}
+          selectedBadges={displayedBadges.map((badge) => badge.id)}
           onClose={() => setShowBadgeModal(false)}
           onUpdate={async (selectedIds) => {
             setShowBadgeModal(false);

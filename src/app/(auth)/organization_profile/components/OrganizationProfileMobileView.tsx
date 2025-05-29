@@ -123,7 +123,10 @@ export default function OrganizationProfileMobileView({
                   onClick={() => {
                     const url = window.location.href;
                     navigator.clipboard.writeText(url);
-                    showSnackbar(pageContent["body-profile-copy-link-success"], "success");
+                    showSnackbar(
+                      pageContent["body-profile-copy-link-success"],
+                      "success"
+                    );
                   }}
                   label={pageContent["body-profile-copy-link"]}
                   customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${

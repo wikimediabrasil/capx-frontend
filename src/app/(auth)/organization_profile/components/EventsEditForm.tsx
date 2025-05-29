@@ -717,7 +717,7 @@ const EventsForm = memo(
       if (eventData.url !== urlInput) {
         setUrlInput(eventData.url || "");
       }
-    }, [eventData.url]);
+    }, [eventData.url, urlInput]);
 
     useEffect(() => {
       setShowMobile(isMobile);

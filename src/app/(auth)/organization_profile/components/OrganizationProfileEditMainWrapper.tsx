@@ -29,6 +29,14 @@ import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileVi
 import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
 import EventsForm from "./EventsEditForm";
 import { useTheme } from "@/contexts/ThemeContext";
+import {
+  ensureArray,
+  processIdArray,
+  createSafeFunction,
+} from "@/lib/utils/safeDataAccess";
+import CapacityDebug from "../../profile/edit/components/CapacityDebug";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CAPACITY_CACHE_KEYS } from "@/hooks/useCapacities";
 
 interface ProfileOption {
   value: string;
@@ -149,7 +157,12 @@ export default function EditOrganizationProfilePage() {
   });
 
   // Capacities setters
-  const { capacities, isLoading: isCapacitiesLoading } = useCapacities();
+  const { rootCapacities, isLoadingRootCapacities } = useCapacities();
+
+  // Combine all loading states for better UI experience
+  const isLoading = useMemo(() => {
+    return isOrganizationLoading || isUserLoading || isLoadingRootCapacities;
+  }, [isOrganizationLoading, isUserLoading, isLoadingRootCapacities]);
 
   // Effect to load profile options
   useEffect(() => {
@@ -229,11 +242,18 @@ export default function EditOrganizationProfilePage() {
   // Effect to load events
   useEffect(() => {
     const loadEvents = async () => {
-      if (!organization?.events || !token) {
+      if (!organization || !organization.events || !token) {
+        setEventsData([]);
+        eventsLoaded.current = true;
         return;
       }
 
-      if (organization.events.length === 0) {
+      // Ensure events is an array
+      const eventsArray = Array.isArray(organization.events)
+        ? organization.events
+        : [];
+
+      if (eventsArray.length === 0) {
         setEventsData([]);
         eventsLoaded.current = true;
         return;
@@ -241,7 +261,7 @@ export default function EditOrganizationProfilePage() {
 
       if (!eventsLoaded.current && !isEventsLoading) {
         try {
-          const validEventIds = organization.events.filter(
+          const validEventIds = eventsArray.filter(
             (id) => id !== null && id !== undefined
           );
 
@@ -265,26 +285,47 @@ export default function EditOrganizationProfilePage() {
     };
 
     loadEvents();
-  }, [organization?.events, token, isEventsLoading, fetchEventsByIds]);
+  }, [
+    organization,
+    organization?.events,
+    token,
+    isEventsLoading,
+    fetchEventsByIds,
+  ]);
 
   // Effect to load documents
   useEffect(() => {
     const loadDocuments = async () => {
       if (!organization?.documents || !documents) return;
 
-      const loadedDocs = organization.documents
-        .map((docId) => {
-          const doc = documents.find((d) => d.id === docId);
-          return doc
-            ? {
-                id: doc.id,
-                url: doc.url || "",
-              }
-            : null;
-        })
-        .filter((doc): doc is { id: number; url: string } => doc !== null);
+      if (
+        organization.documents &&
+        Array.isArray(organization.documents) &&
+        organization.documents.length > 0 &&
+        documents
+      ) {
+        try {
+          const validDocIds = organization.documents.filter(
+            (id) => id !== null && id !== undefined
+          );
 
-      setDocumentsData(loadedDocs);
+          if (validDocIds.length === 0) {
+            setDocumentsData([]);
+            return;
+          }
+
+          const existingDocuments = validDocIds.map((docId) => ({
+            id: docId,
+            url: documents?.find((d) => d && d.id === docId)?.url || "",
+          }));
+          setDocumentsData(existingDocuments);
+        } catch (error) {
+          console.error("Error loading documents:", error);
+          setDocumentsData([]);
+        }
+      } else {
+        setDocumentsData([]);
+      }
     };
 
     loadDocuments();
@@ -298,18 +339,36 @@ export default function EditOrganizationProfilePage() {
     acronym: organization?.acronym || "",
     meta_page: organization?.meta_page || "",
     mastodon: organization?.mastodon || "",
-    tag_diff: organization?.tag_diff || [],
-    events: organization?.events || [],
-    documents: organization?.documents || [],
-    projects: organization?.projects || [],
+    tag_diff: Array.isArray(organization?.tag_diff)
+      ? organization?.tag_diff
+      : [],
+    events: Array.isArray(organization?.events) ? organization?.events : [],
+    documents: Array.isArray(organization?.documents)
+      ? organization?.documents
+      : [],
+    projects: Array.isArray(organization?.projects)
+      ? organization?.projects
+      : [],
     home_project: organization?.home_project || "",
     type: organization?.type || 0,
-    territory: organization?.territory || [],
-    managers: organization?.managers || [],
-    known_capacities: organization?.known_capacities || [],
-    available_capacities: organization?.available_capacities || [],
-    wanted_capacities: organization?.wanted_capacities || [],
-    choose_events: organization?.choose_events || [],
+    territory: Array.isArray(organization?.territory)
+      ? organization?.territory
+      : [],
+    managers: Array.isArray(organization?.managers)
+      ? organization?.managers
+      : [],
+    known_capacities: Array.isArray(organization?.known_capacities)
+      ? organization?.known_capacities
+      : [],
+    available_capacities: Array.isArray(organization?.available_capacities)
+      ? organization?.available_capacities
+      : [],
+    wanted_capacities: Array.isArray(organization?.wanted_capacities)
+      ? organization?.wanted_capacities
+      : [],
+    choose_events: Array.isArray(organization?.choose_events)
+      ? organization?.choose_events
+      : [],
   });
 
   // Use effect to initialize the form data
@@ -323,28 +382,62 @@ export default function EditOrganizationProfilePage() {
         email: organization.email || "",
         website: organization.website || "",
         mastodon: organization.mastodon || "",
-        tag_diff: organization.tag_diff || [],
-        projects: organization.projects || [],
-        events: organization.events || [],
-        documents: organization.documents || [],
+        tag_diff: Array.isArray(organization.tag_diff)
+          ? organization.tag_diff
+          : [],
+        projects: Array.isArray(organization.projects)
+          ? organization.projects
+          : [],
+        events: Array.isArray(organization.events) ? organization.events : [],
+        documents: Array.isArray(organization.documents)
+          ? organization.documents
+          : [],
         home_project: organization.home_project || "",
         type: organization.type || 0,
-        territory: organization.territory || [],
-        managers: organization.managers || [],
-        known_capacities: organization.known_capacities || [],
-        available_capacities: organization.available_capacities || [],
-        wanted_capacities: organization.wanted_capacities || [],
-        choose_events: organization.choose_events || [],
+        territory: Array.isArray(organization.territory)
+          ? organization.territory
+          : [],
+        managers: Array.isArray(organization.managers)
+          ? organization.managers
+          : [],
+        known_capacities: Array.isArray(organization.known_capacities)
+          ? organization.known_capacities
+          : [],
+        available_capacities: Array.isArray(organization.available_capacities)
+          ? organization.available_capacities
+          : [],
+        wanted_capacities: Array.isArray(organization.wanted_capacities)
+          ? organization.wanted_capacities
+          : [],
+        choose_events: Array.isArray(organization.choose_events)
+          ? organization.choose_events
+          : [],
       });
 
       // Initialize projects data
-      if (organization.tag_diff && organization.tag_diff.length > 0) {
+      if (
+        organization.tag_diff &&
+        Array.isArray(organization.tag_diff) &&
+        organization.tag_diff.length > 0
+      ) {
         const fetchTagsData = async () => {
           try {
-            const tagPromises = organization?.tag_diff?.map((tagId) =>
+            // Ensure tag_diff is an array and has valid values
+            const validTagIds =
+              organization.tag_diff?.filter(
+                (id) => id !== null && id !== undefined
+              ) || [];
+
+            if (validTagIds.length === 0) {
+              setDiffTagsData([]);
+              return;
+            }
+
+            const tagPromises = validTagIds.map((tagId) =>
               fetchSingleTag(tagId)
             );
-            const tagsResults = await Promise.all(tagPromises || []);
+
+            const tagsResults = await Promise.all(tagPromises);
             const validTags = tagsResults
               .filter(
                 (tag): tag is NonNullable<typeof tag> =>
@@ -365,10 +458,13 @@ export default function EditOrganizationProfilePage() {
               "error"
             );
             console.error("Error fetching tags:", error);
+            setDiffTagsData([]);
           }
         };
 
         fetchTagsData();
+      } else {
+        setDiffTagsData([]);
       }
 
       // Initialize documents data
@@ -403,22 +499,131 @@ export default function EditOrganizationProfilePage() {
     isProjectsLoading,
     documents,
     tagDiff,
+    updateOrganization,
+    pageContent,
+    showSnackbar,
+    setFormData,
   ]);
 
   /* Capacity setters need formData to be initialized, therefore it's initialized here */
   // Capacity IDs setters
-  const capacityIds = useMemo(
-    () =>
-      [
-        ...(formData?.known_capacities || []),
-        ...(formData?.available_capacities || []),
-        ...(formData?.wanted_capacities || []),
-      ].map((id) => Number(id)),
-    [formData]
-  );
+  const capacityIds = useMemo(() => {
+    // If formData is not initialized, return empty array
+    if (!formData) return [];
 
-  // Capacity details setters
-  const { getCapacityName } = useCapacityDetails(capacityIds);
+    const knownCapacities = ensureArray(formData.known_capacities);
+    const availableCapacities = ensureArray(formData.available_capacities);
+    const wantedCapacities = ensureArray(formData.wanted_capacities);
+
+    // Combine all arrays and remove duplicates
+    const allIds = [
+      ...knownCapacities,
+      ...availableCapacities,
+      ...wantedCapacities,
+    ];
+    const uniqueIds = Array.from(new Set(allIds)).filter(
+      (id) => id !== null && id !== undefined
+    );
+
+    return uniqueIds;
+  }, [
+    formData?.known_capacities,
+    formData?.available_capacities,
+    formData?.wanted_capacities,
+  ]);
+
+  // Capacity details setters - com tratamento seguro de erro
+  const [safeGetCapacityName, setSafeGetCapacityName] = useState<
+    (id: any) => string
+  >(() => (id) => `Capacity ${id}`);
+
+  // Get React Query client for manual cache access
+  const queryClient = useQueryClient();
+
+  // Call the hook directly, not in a try-catch
+  const capacityDetailsResult = useCapacityDetails(capacityIds);
+  const capacityDetailsRef = useRef<any>(capacityDetailsResult);
+
+  // Update the reference when the result changes
+  useEffect(() => {
+    capacityDetailsRef.current = capacityDetailsResult;
+  }, [capacityDetailsResult]);
+
+  // Use a useEffect to update our function safely
+  useEffect(() => {
+    try {
+      if (capacityDetailsRef.current) {
+        const { getCapacityName } = capacityDetailsRef.current;
+
+        if (typeof getCapacityName === "function") {
+          // Create an optimized version that checks React Query cache first
+          const optimizedGetCapacityName = (id: any) => {
+            try {
+              // Skip processing for invalid IDs
+              if (id === null || id === undefined) {
+                return pageContent["capacity-unknown"] || "Unknown Capacity";
+              }
+
+              // First, sanitize the ID if it's a Wikibase URL or other non-standard format
+              let sanitizedId = id;
+              if (typeof id === "object" && id?.code) {
+                sanitizedId = sanitizeCapacityCode(id.code);
+              } else {
+                sanitizedId = sanitizeCapacityCode(id);
+              }
+
+              const idStr = String(sanitizedId);
+
+              // Try to get from React Query cache directly
+              const cachedCapacity = queryClient.getQueryData(
+                CAPACITY_CACHE_KEYS.byId(Number(idStr))
+              );
+
+              // Only use cache data if it has a valid name that's not a URL
+              if (
+                cachedCapacity &&
+                typeof cachedCapacity === "object" &&
+                "name" in cachedCapacity &&
+                typeof cachedCapacity.name === "string" &&
+                !cachedCapacity.name.startsWith("https://")
+              ) {
+                return cachedCapacity.name;
+              }
+
+              // Fall back to the original function
+              const originalName = getCapacityName(sanitizedId);
+
+              // Don't return URLs as capacity names
+              if (
+                typeof originalName === "string" &&
+                originalName.startsWith("https://")
+              ) {
+                return `Capacity ${idStr}`;
+              }
+
+              return originalName;
+            } catch (error) {
+              console.error("Error in optimizedGetCapacityName:", error);
+              return `Capacity ${id}`;
+            }
+          };
+
+          const safeFunction = createSafeFunction(
+            optimizedGetCapacityName,
+            "Unknown Capacity",
+            (error) => console.error("Error in getCapacityName:", error)
+          );
+
+          setSafeGetCapacityName(() => safeFunction);
+        }
+      }
+    } catch (error) {
+      console.error("Error extracting getCapacityName:", error);
+    }
+  }, [capacityIds, queryClient, pageContent]);
+
+  // Use the safe function
+  const getCapacityName = safeGetCapacityName;
 
   /* Handlers */
 
@@ -493,8 +698,12 @@ export default function EditOrganizationProfilePage() {
 
       // Collect all event IDs (existing and new)
       const allEventIds = [
-        ...updatedEvents.map((event) => event.id),
-        ...newEvents.map((event) => event.id),
+        ...(Array.isArray(updatedEvents)
+          ? updatedEvents.map((event) => event?.id).filter(Boolean)
+          : []),
+        ...(Array.isArray(newEvents)
+          ? newEvents.map((event) => event?.id).filter(Boolean)
+          : []),
       ].filter((id) => id !== undefined && id !== null) as number[];
 
       // Update the events list in formData
@@ -618,7 +827,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   const handleEditEvent = (event: Event) => {
-    // Assegurar que o evento tenha a propriedade related_skills definida como um array
+    // Ensure that the event has the related_skills property defined as an array
     const eventToEdit = {
       ...event,
       related_skills: Array.isArray(event.related_skills)
@@ -634,38 +843,48 @@ export default function EditOrganizationProfilePage() {
 
   const handleChooseEvent = useCallback(
     async (event: Event) => {
+      if (!event || !event.id) {
+        console.error("Invalid event object in handleChooseEvent", event);
+        return;
+      }
+
       try {
         setLoadingChooseEvent(true);
 
+        // Make sure organization exists
+        if (!organization) {
+          console.error("Organization is undefined in handleChooseEvent");
+          return;
+        }
+
+        // Ensure choose_events exists and is an array
+        const chooseEvents = Array.isArray(organization.choose_events)
+          ? organization.choose_events
+          : [];
+
         // Update local state immediately for visual feedback
-        const isAlreadySelected = organization?.choose_events?.some(
+        const isAlreadySelected = chooseEvents.some(
           (chosenEvent) => chosenEvent === event.id
         );
 
         // Create an updated copy of the organization
         const updatedOrg = { ...organization };
 
-        // Ensure choose_events exists
-        if (!updatedOrg.choose_events) {
-          updatedOrg.choose_events = [];
-        }
-
-        if (isAlreadySelected) {
-          // Remove the event from the chosen events list
-          updatedOrg.choose_events = updatedOrg.choose_events.filter(
-            (chosenEvent) => chosenEvent !== event.id
-          );
-        } else {
-          // Add the event to the chosen events list
-          updatedOrg.choose_events.push(event.id);
-        }
+        // Set choose_events array safely
+        updatedOrg.choose_events = isAlreadySelected
+          ? chooseEvents.filter((chosenEvent) => chosenEvent !== event.id)
+          : [...chooseEvents, event.id];
 
         // Send update to the backend
         await updateOrganization({
-          ...updatedOrg,
-          // Ensuring only required fields are passed
           choose_events: updatedOrg.choose_events,
         });
+
+        // Update form data too to keep UI in sync
+        setFormData((prev) => ({
+          ...prev,
+          choose_events: updatedOrg.choose_events,
+        }));
 
         showSnackbar(
           isAlreadySelected
@@ -678,7 +897,7 @@ export default function EditOrganizationProfilePage() {
           "success"
         );
       } catch (error) {
-        console.error(error);
+        console.error("Error in handleChooseEvent:", error);
         showSnackbar(
           pageContent[
             "snackbar-edit-profile-organization-update-event-failed"
@@ -689,30 +908,31 @@ export default function EditOrganizationProfilePage() {
         setLoadingChooseEvent(false);
       }
     },
-    [organization, updateOrganization, pageContent, showSnackbar]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [organization, updateOrganization, pageContent]
   );
 
   const handleDeleteEvent = async (eventId: number) => {
     try {
-      // Se for um evento novo (id = 0), apenas remova-o da lista
+      // If it's a new event (id = 0), just remove it from the list
       if (eventId === 0) {
         setEventsData((prev) => prev.filter((e) => e.id !== 0));
         return;
       }
 
-      // Para eventos existentes, deletar no backend
+      // For existing events, delete in the backend
       await deleteEvent(eventId);
 
-      // Remover o evento da lista de eventos exibida
+      // Remove the event from the list of events displayed
       setEventsData((prev) => prev.filter((e) => e.id !== eventId));
 
-      // Atualizar o formData para remover o ID do evento excluído
+      // Update the formData to remove the deleted event ID
       setFormData((prev) => ({
         ...prev,
         events: (prev.events || []).filter((id) => id !== eventId),
       }));
 
-      // Atualizar a organização no backend para remover o evento
+      // Update the organization in the backend to remove the event
       if (organization) {
         const updatedOrgData = {
           ...organization,
@@ -993,16 +1213,51 @@ export default function EditOrganizationProfilePage() {
     setIsModalOpen(true);
   };
 
+  // Helper function to sanitize capacity codes
+  const sanitizeCapacityCode = (code: any): number => {
+    // If it's already a valid number, return it
+    if (typeof code === "number" && !isNaN(code)) {
+      return code;
+    }
+
+    // If it's a string, check for URLs or try to convert to number
+    if (typeof code === "string") {
+      // Check for Wikibase URLs
+      if (code.indexOf("wikibase") !== -1 || code.indexOf("entity/Q") !== -1) {
+        console.warn("Converting Wikibase URL to numeric ID:", code);
+        // Extract Q-number if possible
+        const match = code.match(/Q(\d+)/);
+        if (match && match[1]) {
+          return parseInt(match[1], 10);
+        }
+      }
+
+      // Try to convert string to number
+      const numericValue = parseInt(code, 10);
+      if (!isNaN(numericValue)) {
+        return numericValue;
+      }
+    }
+
+    // Return a fallback value if all else fails
+    console.warn("Could not sanitize capacity code:", code);
+    return typeof code === "number" ? code : 0;
+  };
+
   const handleCapacitySelect = (capacity: Capacity) => {
     setFormData((prev) => {
       const capacityField =
         `${currentCapacityType}_capacities` as keyof typeof prev;
       const currentCapacities = (prev[capacityField] as number[]) || [];
 
-      if (capacity.code && !currentCapacities.includes(capacity.code)) {
+      // Sanitize the capacity code
+      const sanitizedCode = sanitizeCapacityCode(capacity.code);
+
+      // Only add if valid and not already in the list
+      if (sanitizedCode && !currentCapacities.includes(sanitizedCode)) {
         return {
           ...prev,
-          [capacityField]: [...currentCapacities, capacity.code],
+          [capacityField]: [...currentCapacities, sanitizedCode],
         };
       }
       return prev;
@@ -1065,7 +1320,7 @@ export default function EditOrganizationProfilePage() {
     });
   };
 
-  if (isUserLoading || isOrganizationLoading) {
+  if (isLoading) {
     return <LoadingState />;
   }
 
@@ -1187,7 +1442,7 @@ export default function EditOrganizationProfilePage() {
           handleEventChange={handleEventChange}
           handleAddEvent={handleAddEvent}
           handleDeleteEvent={handleDeleteEvent}
-          capacities={capacities || []}
+          capacities={rootCapacities || []}
           handleChooseEvent={handleChooseEvent}
           handleViewAllEvents={handleViewAllEvents}
           handleEditEvent={handleEditEvent}
@@ -1229,13 +1484,23 @@ export default function EditOrganizationProfilePage() {
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}
-        capacities={capacities || []}
+        capacities={rootCapacities || []}
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
       />
 
       {showEventModal && <EventsFormPopup />}
+
+      {/* Debug Tools - Only in Development */}
+      {process.env.NODE_ENV === "development" && (
+        <CapacityDebug
+          capacityIds={capacityIds}
+          knownSkills={formData.known_capacities}
+          availableSkills={formData.available_capacities}
+          wantedSkills={formData.wanted_capacities}
+        />
+      )}
     </>
   );
 }

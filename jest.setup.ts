@@ -1,5 +1,11 @@
 import "@testing-library/jest-dom";
 import React from "react";
+
+// Mock do react-error-boundary
+jest.mock("react-error-boundary", () => ({
+  ErrorBoundary: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 // Mock do matchMedia
 Object.defineProperty(window, "matchMedia", {
   writable: true,

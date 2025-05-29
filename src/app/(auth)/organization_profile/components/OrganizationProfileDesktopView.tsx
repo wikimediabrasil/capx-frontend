@@ -130,7 +130,10 @@ export default function OrganizationProfileDesktopView({
                   onClick={() => {
                     const url = window.location.href;
                     navigator.clipboard.writeText(url);
-                    showSnackbar(pageContent["body-profile-copy-link-success"], "success");
+                    showSnackbar(
+                      pageContent["body-profile-copy-link-success"],
+                      "success"
+                    );
                   }}
                   label={pageContent["body-profile-copy-link"]}
                   customClass={`w-full font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[64px] md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${

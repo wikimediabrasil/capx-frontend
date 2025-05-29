@@ -277,6 +277,7 @@ export default function FeedPage() {
     usersLearner,
     usersSharer,
     savedItems,
+    isProfileSaved,
   ]);
 
   // Calculate total of pages based on total profiles

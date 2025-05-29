@@ -10,7 +10,7 @@ import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_w
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAvatars } from "@/hooks/useAvatars";
 import { useSnackbar } from "@/app/providers/SnackbarProvider";
 
@@ -34,30 +34,29 @@ export default function ProfileHeader({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { showSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    const loadAvatar = async () => {
-      if (typeof avatar === "number" && avatar > 0) {
-        try {
-          const avatarData = await getAvatarById(avatar);
-          if (avatarData?.avatar_url) {
-            setAvatarUrl(avatarData.avatar_url);
-            return;
-          }
-        } catch (error) {
-          console.error("Error fetching avatar:", error);
+  const loadAvatar = useCallback(async () => {
+    if (typeof avatar === "number" && avatar > 0) {
+      try {
+        const avatarData = await getAvatarById(avatar);
+        if (avatarData?.avatar_url) {
+          setAvatarUrl(avatarData.avatar_url);
+          return;
         }
+      } catch (error) {
+        console.error("Error fetching avatar:", error);
       }
-      setAvatarUrl(profileImage || NoAvatarIcon);
-    };
-
-    loadAvatar();
+    }
+    setAvatarUrl(profileImage || NoAvatarIcon);
   }, [avatar, profileImage, getAvatarById]);
 
+  useEffect(() => {
+    loadAvatar();
+  }, [loadAvatar]);
   const getCorrectImage = () => {
     if (profileImage) {
       return profileImage;
     } else if (avatar) {
-      const avatarData = avatars?.find(a => a.id === avatar);
+      const avatarData = avatars?.find((a) => a.id === avatar);
       return avatarData?.avatar_url || NoAvatarIcon;
     }
     return NoAvatarIcon;
@@ -147,7 +146,7 @@ export default function ProfileHeader({
               imageWidth={20}
               imageHeight={20}
             />
-            )}
+          )}
         </div>
       </div>
     );
