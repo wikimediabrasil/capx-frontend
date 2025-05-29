@@ -94,7 +94,7 @@ export default function Checklist({
   };
 
   return (
-    <div className={`w-full px-4 sm:px-6 md:px-1 rounded-md py-6 space-y-4 ${
+    <div className={`w-full sm:px-6 md:px-1 rounded-md py-6 space-y-4 ${
         darkMode
             ? "bg-[#04222F]"
             : "bg-[#EFEFEF]"
@@ -111,7 +111,7 @@ export default function Checklist({
         <p className={`text-[10px] md:text-[18px] text-start font-[Montserrat] ${
             darkMode
                 ? "text-[#829BA4]"
-                : "text-[#053749]"
+                : "text-[#829BA4]"
         }`}>
             {description}
         </p>
@@ -126,7 +126,7 @@ export default function Checklist({
             <label htmlFor={`check-${index}`} className={` ${
                 darkMode
                 ? "text-[#FFFFFF]"
-                : "text-[#829BA4]"
+                : "text-[#053749]"
             }`}>
               {item.label}
             </label>
@@ -145,7 +145,7 @@ export default function Checklist({
             <h2 className={`text-[12px] font-[Montserrat] font-bold text-start md:text-[18px] ${
                 darkMode
                 ? "text-[#FFFFFF]"
-                : "text-[#829BA4]"
+                : "text-[#053749]"
             }`}>
                 {other}
             </h2>

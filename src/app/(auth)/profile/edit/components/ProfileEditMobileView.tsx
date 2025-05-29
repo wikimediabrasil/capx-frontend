@@ -48,8 +48,10 @@ import UserCheckIcon from "@/public/static/images/user_check.svg";
 import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import Popup from "@/components/Popup";
 import Banner from "@/components/Banner";
-import LetsConect from "@/public/static/images/lets_connect.svg";
-
+import LetsConectBanner from "@/public/static/images/lets_connect.svg";
+import LetsConectText from "@/public/static/images/lets_connect_text_img.svg";
+import LetsConectTitle from "@/public/static/images/lets_connect_title.svg";
+import LetsConectTitleLight from "@/public/static/images/lets_connect_title_light.svg";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
@@ -557,17 +559,6 @@ export default function ProfileEditMobileView(
                   {pageContent["edit-profile-wanted-capacities"]}
                 </span>
               </div>
-
-
-
-
-
-
-
-
-
-
-
               {/* Languages Section */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
@@ -1178,7 +1169,7 @@ export default function ProfileEditMobileView(
                     darkMode
                       ? "bg-capx-light-box-bg text-[#04222F]"
                       : "bg-[#053749] text-white"
-                  } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                  } rounded-md py-2 font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
                   imageUrl={darkMode ? AddIconDark : AddIcon}
                   imageAlt="Add project"
                   imageWidth={20}
@@ -1193,38 +1184,57 @@ export default function ProfileEditMobileView(
                 </span>
               </div>
             </div>
-
-            <div className="bg-[#EFEFEF]">
-              <Banner
-                image={LetsConect}
-                alt={pageContent["privacy-policy-alt-banner"]}
-                customClass={{
-                  background: "bg-[#EFEFEF]",
-                }}
+            <div className="flex flex-col">
+            <div className="w-[300px] h-auto">
+              <Image
+                src={darkMode ? LetsConectTitleLight : LetsConectTitle}
+                alt="Let's Connect"
+                className="w-full h-auto"
+                priority
               />
-
+            </div>
+              <p
+                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] mb-4  ${
+                  darkMode 
+                    ? "text-white" 
+                    : "text-[#053749]"
+                }`}
+              >
+                {pageContent["lets-connect-edit-user-info-1"]}
+              </p>
+              <div className="bg-[#EFEFEF] pb-[#6px] rounded-2 mb-4">
+                <Banner
+                  image={LetsConectBanner}
+                  alt={pageContent["lets-connect-alt-banner"]}
+                  title={{
+                    mobile: LetsConectText
+                  }}
+                  customClass={{
+                    background: "bg-[#EFEFEF]",
+                  }}
+                />
+              </div>
               <BaseButton
                 onClick={() => goTo("/profile/lets_connect")}
                 label={pageContent["lets-connect-form-user-edit"]}
-                customClass={`w-11/12 flex mx-auto ${
+                customClass={`w-full flex mx-auto ${
                   darkMode
                     ? "bg-capx-light-box-bg text-[#04222F]"
                     : "bg-[#053749] text-white"
-                } items-center px-[13px] py-[6px] pb-[6px] rounded-md py-3 font-bold mb-0`}
+                } rounded-md py-2 font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
                 imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
                 imageAlt="Add project"
                 imageWidth={20}
                 imageHeight={20}
               />
               <p
-                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] p-4 ${
+                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px]  ${
                   darkMode ? "text-white" : "text-[#053749]"
                 }`}
               >
-                {pageContent["lets-connect-edit-user-info"]}
+                {pageContent["lets-connect-edit-user-info-2"]}
               </p>
             </div>
-
             {/* Action Buttons */}
             <div className="flex flex-col gap-[10px] mt-0">
               <BaseButton

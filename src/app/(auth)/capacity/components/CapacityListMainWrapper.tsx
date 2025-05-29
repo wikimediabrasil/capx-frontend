@@ -109,7 +109,7 @@ export default function CapacityListMainWrapper() {
         /* Show original cards when there are no search results */
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity) => (
-            <div key={capacity.code} className={`w-screen max-w-[1190px]`}>
+            <div key={capacity.code} className={`w-full max-w-[1190px]`}>
               <CapacityCard
                 {...capacity}
                 isExpanded={!!expandedCapacities[capacity.code]}
@@ -125,7 +125,7 @@ export default function CapacityListMainWrapper() {
                 onInfoClick={fetchCapacityDescription}
               />
               {expandedCapacities[capacity.code] && (
-                <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
+                <div className="mt-4 overflow-x-visible w-full">
                   <div className="flex gap-4 pb-4 w-fit max-w-screen-xl">
                     {(childrenCapacities[capacity.code] || []).map((child) => (
                       <div key={child.code} className="mt-4 max-w-[992px]">

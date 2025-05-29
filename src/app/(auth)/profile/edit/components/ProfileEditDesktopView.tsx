@@ -54,9 +54,10 @@ import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
 import Popup from "@/components/Popup";
 import Banner from "@/components/Banner";
-import LetsConect from "@/public/static/images/lets_connect.svg";
-
-
+import LetsConect from "@/public/static/images/lets_connect_desktop.svg";
+import LetsConectTitle from "@/public/static/images/lets_connect_title.svg";
+import LetsConectTitleLight from "@/public/static/images/lets_connect_title_light.svg";
+import LetsConectText from "@/public/static/images/lets_connect_text_desktop.svg";
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
@@ -1189,20 +1190,48 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
           </div>
-          <div className="p-4 bg-[#EFEFEF]">
+          <div className="">
+            <div className="w-[580px] h-auto">
+              <Image
+                src={darkMode ? LetsConectTitleLight : LetsConectTitle}
+                alt="Let's Connect"
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+            <p
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-[30px] mb-4  ${
+                darkMode 
+                  ? "text-white" 
+                  : "text-[#053749]"
+              }`}
+            >
+              {pageContent["lets-connect-edit-user-info-1"]}
+            </p>
             <Banner
               image={LetsConect}
-              alt={pageContent["privacy-policy-alt-banner"]}
+              alt={pageContent["lets-connect-alt-banner"]}
+              title={{
+                desktop: LetsConectText
+              }}
               customClass={{
                 background: "bg-[#EFEFEF]",
                 wrapper: "mb-0"
               }}
             />
-
+            <p
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-[30px] mb-4  ${
+                darkMode 
+                  ? "text-white" 
+                  : "text-[#053749]"
+              }`}
+            >
+              {pageContent["lets-connect-edit-user-info-2"]}
+            </p>
             <BaseButton
               onClick={() => goTo("/profile/lets_connect")}
               label={pageContent["lets-connect-form-user-edit"]}
-              customClass={`w-1/3 flex ${
+              customClass={`w-1/2 flex ${
                 darkMode
                   ? "bg-capx-light-box-bg text-[#04222F]"
                   : "bg-[#053749] text-white"
@@ -1213,16 +1242,9 @@ export default function ProfileEditDesktopView(
                   : UserCheckIcon
                 }
               imageAlt="Add project"
-              imageWidth={20}
-              imageHeight={20}
+              imageWidth={30}
+              imageHeight={30}
             />
-            <p
-              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
-                darkMode ? "text-white" : "text-[#053749]"
-              }`}
-            >
-              {pageContent["lets-connect-edit-user-info"]}
-            </p>
           </div>
           {/* Action Buttons */}
           <div className="flex flex-row gap-6 mt-6">
