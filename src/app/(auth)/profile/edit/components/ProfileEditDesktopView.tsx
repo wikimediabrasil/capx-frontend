@@ -30,8 +30,6 @@ import EmojiIcon from "@/public/static/images/emoji_objects.svg";
 import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
 import AddIconDark from "@/public/static/images/add_dark.svg";
 import AddIcon from "@/public/static/images/add.svg";
-import UserCheckIcon from "@/public/static/images/user_check.svg";
-import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import TargetIconWhite from "@/public/static/images/target_white.svg";
 import TargetIcon from "@/public/static/images/target.svg";
 import LanguageIconWhite from "@/public/static/images/language_white.svg";
@@ -60,9 +58,14 @@ import ExpandIcon from "@/public/static/images/expand_all.svg";
 import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import LoadingImage from "@/components/LoadingImage";
 import Banner from "@/components/Banner";
-import LetsConect from "@/public/static/images/lets_connect.svg";
+import LetsConect from "@/public/static/images/lets_connect_desktop.svg";
+import LetsConectTitle from "@/public/static/images/lets_connect_title.svg";
+import LetsConectTitleLight from "@/public/static/images/lets_connect_title_light.svg";
+import LetsConectText from "@/public/static/images/lets_connect_text_desktop.svg";
 import { useAffiliation } from "@/hooks/useAffiliation";
 import { Profile } from "@/types/profile";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
 import { Capacity } from "@/types/capacity";
 import { useState } from "react";
 import BadgesCarousel from "@/components/BadgesCarousel";
@@ -1299,37 +1302,58 @@ export default function ProfileEditDesktopView(
               </span>
             </div>
           </div>
-          {/* <div className="p-4 bg-[#EFEFEF]">
+          <div className="">
+            <div className="w-[580px] h-auto">
+              <Image
+                src={darkMode ? LetsConectTitleLight : LetsConectTitle}
+                alt="Let's Connect"
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+            <p
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-[30px] mb-4  ${
+                darkMode 
+                  ? "text-white" 
+                  : "text-[#053749]"
+              }`}
+            >
+              {pageContent["lets-connect-edit-user-info-1"]}
+            </p>
             <Banner
               image={LetsConect}
-              alt={pageContent["privacy-policy-alt-banner"]}
+              alt={pageContent["lets-connect-alt-banner"]}
+              title={{
+                desktop: LetsConectText
+              }}
               customClass={{
                 background: "bg-[#EFEFEF]",
                 wrapper: "mb-0",
               }}
             />
-
             <BaseButton
               onClick={() => goTo("/profile/lets_connect")}
               label={pageContent["lets-connect-form-user-edit"]}
-              customClass={`w-1/3 flex ${
+              customClass={`w-1/2 flex ${
                 darkMode
                   ? "bg-capx-light-box-bg text-[#04222F]"
                   : "bg-[#053749] text-white"
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
               imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
               imageAlt="Add project"
-              imageWidth={20}
-              imageHeight={20}
+              imageWidth={30}
+              imageHeight={30}
             />
             <p
-              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
-                darkMode ? "text-white" : "text-[#053749]"
+              className={`text-[20px] font-[Montserrat] not-italic font-normal leading-[30px] mt-4  ${
+                darkMode 
+                  ? "text-white" 
+                  : "text-[#053749]"
               }`}
             >
-              {pageContent["lets-connect-edit-user-info"]}
+              {pageContent["lets-connect-edit-user-info-2"]}
             </p>
-          </div> */}
+          </div>
           {/* Action Buttons */}
           <div className="flex flex-row gap-6 mt-6">
             <BaseButton
