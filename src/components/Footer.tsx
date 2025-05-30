@@ -92,7 +92,6 @@ export default function Footer() {
               src={LogoDesktop}
               alt="Capx Logo"
               className="w-16 h-16"
-              style={{ width: "auto", height: "auto" }}
               priority
             />
           </div>

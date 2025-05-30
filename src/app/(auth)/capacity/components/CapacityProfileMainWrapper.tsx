@@ -1,26 +1,26 @@
 "use client";
-import { useEffect } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import BaseWrapper from "@/components/BaseWrapper";
-import CapacityProfileView from "./CapacityProfileView";
 import LoadingSection from "@/components/LoadingSection";
 import { useCapacityProfile } from "@/hooks/useCapacityProfile";
 import { useSession } from "next-auth/react";
-export default function CapacityProfileMainWrapper(props) {
+import CapacityProfileView from "./CapacityProfileView";
+interface CapacityProfileMainWrapperProps {
+  selectedCapacityId: string;
+  language?: string;
+}
+
+export default function CapacityProfileMainWrapper(
+  props: CapacityProfileMainWrapperProps
+) {
   const { pageContent, language } = useApp();
   const { darkMode } = useTheme();
-  const { status, data: session } = useSession();
-  const { selectedCapacityData, refreshCapacityData, isLoading } =
-    useCapacityProfile(props.selectedCapacityId);
+  const { data: session } = useSession();
 
-  useEffect(() => {
-    refreshCapacityData(props.language);
-  }, [props.language, refreshCapacityData]);
-
-  useEffect(() => {
-    refreshCapacityData(language);
-  }, [language, refreshCapacityData]);
+  const { selectedCapacityData, isLoading } = useCapacityProfile(
+    props.selectedCapacityId,
+    props.language || language
+  );
 
   if (isLoading) {
     return <LoadingSection darkMode={darkMode} message="CAPACITY DATA" />;

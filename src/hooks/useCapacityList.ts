@@ -463,6 +463,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                 parentCapacity: undefined,
                 skill_type: Number(item.code),
                 skill_wikidata_item: item.skill_wikidata_item || "",
+                level: 1, // Explicitly set level for root capacities
               };
             }
 
@@ -485,6 +486,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                   parentCapacity: rootParent,
                   skill_type: Number(item.skill_type) || 0,
                   skill_wikidata_item: item.skill_wikidata_item || "",
+                  level: 2, // Explicitly set level for second-level capacities
                 };
               }
 
@@ -507,10 +509,11 @@ export function useCapacityList(token?: string, language: string = "en") {
                     return {
                       code: item.code,
                       name: sanitizeCapacityName(item.name, item.code),
-                      color: parent.color || grandparent.color || "gray-600",
+                      color: "black", // Always use black for third-level capacities
                       icon: grandparent.icon,
                       hasChildren: false,
                       metabase_code: "",
+                      level: 3, // Always explicitly set level for third-level capacities
                       parentCapacity: {
                         ...parent,
                         parentCapacity: grandparent,
@@ -526,13 +529,14 @@ export function useCapacityList(token?: string, language: string = "en") {
               return {
                 code: item.code,
                 name: sanitizeCapacityName(item.name, item.code),
-                color: "gray-600", // dark gray for grandchild capacities
+                color: "black", // Always use black for unknown child capacities
                 icon: "",
                 hasChildren: false,
+                level: 3, // Assume it's a third-level if we can't determine hierarchy
                 parentCapacity: {
                   code: Number(parentId),
                   name: `Capacity ${parentId}`,
-                  color: "gray-600",
+                  color: "gray-200",
                   icon: "",
                   skill_type: 0,
                   skill_wikidata_item: "",
@@ -541,7 +545,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                   parentCapacity: {
                     code: 0,
                     name: "Root",
-                    color: "gray-600",
+                    color: "gray-200",
                     icon: "",
                     skill_type: 0,
                     skill_wikidata_item: "",
@@ -563,6 +567,7 @@ export function useCapacityList(token?: string, language: string = "en") {
               parentCapacity: undefined,
               skill_type: Number(item.skill_type) || 0,
               skill_wikidata_item: item.skill_wikidata_item || "",
+              level: 1, // Default level if we can't determine hierarchy
             };
           })
         );

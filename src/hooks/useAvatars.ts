@@ -1,6 +1,11 @@
-import { useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { avatarService } from "@/services/avatarService";
 import { useSession } from "next-auth/react";
+import { useCallback } from "react";
 import { Avatar } from "@/types/avatar";
 
 export function useAvatars(limit?: number, offset?: number) {
@@ -12,7 +17,7 @@ export function useAvatars(limit?: number, offset?: number) {
     data: avatars,
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery<Avatar[], Error>({
     queryKey: ["avatars", token, limit, offset],
     queryFn: () =>
@@ -24,14 +29,14 @@ export function useAvatars(limit?: number, offset?: number) {
       }),
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 2
+    retry: 2,
   } as UseQueryOptions<Avatar[], Error>);
 
   const getAvatarById = async (id: number | null): Promise<Avatar | null> => {
     if (!token || !id) return null;
 
     // Try to get from cache first
-    const cachedAvatar = avatars?.find(avatar => avatar.id === id);
+    const cachedAvatar = avatars?.find((avatar) => avatar.id === id);
     if (cachedAvatar) return cachedAvatar;
 
     try {
@@ -42,8 +47,9 @@ export function useAvatars(limit?: number, offset?: number) {
       });
 
       // Update the cache
-      queryClient.setQueryData<Avatar[]>(["avatars", token, limit, offset], 
-        (old) => old ? [...old, avatar] : [avatar]
+      queryClient.setQueryData<Avatar[]>(
+        ["avatars", token, limit, offset],
+        (old) => (old ? [...old, avatar] : [avatar])
       );
 
       return avatar;
@@ -58,6 +64,6 @@ export function useAvatars(limit?: number, offset?: number) {
     isLoading,
     error,
     getAvatarById,
-    refetch
+    refetch,
   };
 }

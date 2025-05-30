@@ -1,12 +1,7 @@
 "use client";
 import Image from "next/image";
-import {
-  signIn,
-  useSession,
-  SessionProvider,
-  getSession,
-} from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
+import { signIn, useSession, SessionProvider } from "next-auth/react";
+import { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CapXLogo from "@/public/static/images/capx_minimalistic_logo.svg";
 
@@ -15,8 +10,7 @@ function OAuthContent() {
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [loginStatus, setLoginStatus] = useState<string | null>("Iniciando...");
-  const isCheckingTokenRef = useRef(false); // Ref para controlar a execução do checkToken
-
+  const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
   const oauth_verifier = searchParams.get("oauth_verifier");
   const oauth_token_request = searchParams.get("oauth_token");
 
@@ -26,6 +20,36 @@ function OAuthContent() {
       localStorage.removeItem("oauth_token_secret");
     }
   }, [status, session]);
+
+  const handleLogin = useCallback(async () => {
+    try {
+      const oauth_token = localStorage.getItem("oauth_token");
+      const oauth_token_secret = localStorage.getItem("oauth_token_secret");
+
+      if (!oauth_token || !oauth_token_secret) {
+        throw new Error("Missing OAuth tokens");
+      }
+
+      setLoginStatus("Finalizando Login...");
+      const result = await signIn("credentials", {
+        oauth_token,
+        oauth_token_secret,
+        oauth_verifier,
+        stored_token: oauth_token,
+        stored_token_secret: oauth_token_secret,
+        redirect: true,
+        callbackUrl: "/home",
+      });
+      if (result?.error) {
+        console.error("Login error:", result.error);
+        setLoginStatus("Erro: " + result.error);
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      return { error: error.message };
+    }
+  }, [oauth_verifier, router]);
 
   useEffect(() => {
     if (!oauth_token_request || !oauth_verifier || isCheckingTokenRef.current) {
@@ -88,37 +112,7 @@ function OAuthContent() {
     }
 
     checkToken();
-  }, [oauth_token_request, oauth_verifier, router]);
-
-  async function handleLogin() {
-    try {
-      const oauth_token = localStorage.getItem("oauth_token");
-      const oauth_token_secret = localStorage.getItem("oauth_token_secret");
-
-      if (!oauth_token || !oauth_token_secret) {
-        throw new Error("Missing OAuth tokens");
-      }
-
-      setLoginStatus("Finalizando Login...");
-      const result = await signIn("credentials", {
-        oauth_token,
-        oauth_token_secret,
-        oauth_verifier,
-        stored_token: oauth_token,
-        stored_token_secret: oauth_token_secret,
-        redirect: true,
-        callbackUrl: "/home",
-      });
-      if (result?.error) {
-        console.error("Login error:", result.error);
-        setLoginStatus("Erro: " + result.error);
-        router.push("/");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      return { error: error.message };
-    }
-  }
+  }, [oauth_token_request, oauth_verifier, router, handleLogin]);
 
   return (
     <section className="flex w-screen h-screen font-montserrat">
@@ -142,10 +136,38 @@ function OAuthContent() {
   );
 }
 
+// Loading component for Suspense
+function OAuthLoading() {
+  const [pageContent] = useState({ loading: "Loading..." });
+
+  return (
+    <section className="flex w-screen h-screen font-montserrat">
+      <div className="flex flex-wrap w-1/2 mx-auto my-auto">
+        <div className="flex w-fit mx-auto mb-4">
+          <Image
+            priority
+            src={CapXLogo}
+            alt="Capacity Exchange logo image."
+            className="w-16"
+          />
+        </div>
+        <div className="flex w-full text-center mb-4">
+          <h1 className="w-full">{pageContent["loading"]}</h1>
+        </div>
+        <div className="flex w-fit mx-auto">
+          <div className="mx-auto animate-spin ease-linear h-8 w-8 rounded-full border-8 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function OAuth() {
   return (
     <SessionProvider>
-      <OAuthContent />
+      <Suspense fallback={<OAuthLoading />}>
+        <OAuthContent />
+      </Suspense>
     </SessionProvider>
   );
 }

@@ -53,7 +53,27 @@ export default function OrganizationProfilePage() {
     ];
   }, [organization]);
 
-  const { getCapacityName, capacityNames } = useCapacityDetails(allCapacityIds);
+  const { getCapacityName: originalGetCapacityName, capacityNames } =
+    useCapacityDetails(allCapacityIds);
+
+  // Wrapper function to sanitize Wikibase URLs
+  const getCapacityName = useCallback(
+    (id: any) => {
+      const name = originalGetCapacityName(id);
+
+      // Filter out URLs and replace with fallback
+      if (
+        typeof name === "string" &&
+        (name.startsWith("https://") || name.includes("entity/Q"))
+      ) {
+        const idStr = id.toString();
+        return FALLBACK_CAPACITY_NAMES[idStr] || `Capacity ${id}`;
+      }
+
+      return name;
+    },
+    [originalGetCapacityName]
+  );
 
   // Only refetch when the organization ID changes, use useCallback to avoid recreation on every render
   const handleRefetch = useCallback(() => {
