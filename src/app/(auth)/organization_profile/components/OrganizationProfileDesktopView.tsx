@@ -232,7 +232,9 @@ export default function OrganizationProfileDesktopView({
             </div>
 
             {/* News Section */}
-            <NewsSection ids={organization?.tag_diff || []} />
+            {organization?.tag_diff && organization.tag_diff.length > 0 && (
+              <NewsSection ids={organization?.tag_diff || []} />
+            )}
 
             {/* Documents Section */}
             <DocumentsList
