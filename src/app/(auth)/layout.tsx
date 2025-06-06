@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import BaseWrapper from "@/components/BaseWrapper";
 import { authOptions } from "@/lib/auth";
+import { Providers } from "@/app/(auth)/providers";
 
 export default async function AuthLayout({
   children,
@@ -14,5 +15,13 @@ export default async function AuthLayout({
     redirect("/");
   }
 
-  return <BaseWrapper>{children}</BaseWrapper>;
+  return (
+    <Providers>
+      <BaseWrapper>
+        <div className="flex flex-col min-h-screen">
+          <main className="flex-grow">{children}</main>
+        </div>
+      </BaseWrapper>
+    </Providers>
+  );
 }

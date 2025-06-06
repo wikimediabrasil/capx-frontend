@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import CapacityListMainWrapper from "@/app/(auth)/capacity/components/CapacityListMainWrapper";
 import { useCapacityList } from "@/hooks/useCapacityList";
 import { useSession } from "next-auth/react";
@@ -19,7 +19,57 @@ jest.mock("next/navigation", () => ({
 }));
 
 jest.mock("next-auth/react");
-jest.mock("@/hooks/useCapacityList");
+
+// Mock useCapacityList properly
+jest.mock("@/hooks/useCapacityList", () => ({
+  useCapacityList: () => ({
+    searchResults: [],
+    descriptions: {},
+    setSearchResults: jest.fn(),
+    fetchRootCapacities: jest.fn(),
+    fetchCapacitiesByParent: jest.fn().mockResolvedValue([]),
+    fetchCapacitySearch: jest.fn(),
+    fetchCapacityDescription: jest.fn(),
+    wdCodes: {},
+  }),
+}));
+
+// Mock the new hooks used in the component
+jest.mock("@/hooks/useCapacitiesQuery", () => ({
+  useRootCapacities: () => ({
+    data: [
+      {
+        code: 1,
+        name: "Root Capacity",
+        color: "organizational",
+        icon: "/test-icon.svg",
+        hasChildren: true,
+        skill_type: [],
+        skill_wikidata_item: "",
+      },
+    ],
+    isLoading: false,
+  }),
+  useCapacitiesByParent: () => ({
+    data: [
+      {
+        code: 2,
+        name: "Child Capacity",
+        color: "organizational",
+        icon: "/child-icon.svg",
+        hasChildren: true,
+        skill_type: [],
+        skill_wikidata_item: "",
+      },
+    ],
+    isLoading: false,
+  }),
+  useCapacitySearch: () => ({
+    data: [],
+    isLoading: false,
+  }),
+}));
+
 jest.mock("@/contexts/AppContext", () => ({
   useApp: () => ({
     pageContent: {
@@ -28,10 +78,25 @@ jest.mock("@/contexts/AppContext", () => ({
       "capacity-card-expand-capacity": "Expand capacity",
       "capacity-card-explore-capacity": "Explore capacity",
       "capacity-card-info": "Information",
+      "capacity-search-placeholder": "Search capacities",
+      loading: "Loading...",
     },
     language: "en",
     isMobile: false,
   }),
+  AppProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Mock CapacityDescriptionProvider
+jest.mock("@/contexts/CapacityContext", () => ({
+  useCapacityDescriptions: () => ({
+    getDescription: jest.fn().mockReturnValue("Root description"),
+    getWdCode: jest.fn().mockReturnValue("WD123"),
+    requestDescription: jest.fn().mockResolvedValue("Root description"),
+    isRequested: jest.fn().mockReturnValue(false),
+  }),
+  CapacityDescriptionProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
 }));
 
 // ThemeContext's mock
@@ -58,114 +123,90 @@ describe("CapacityListMainWrapper", () => {
     },
   };
 
-  const mockRootCapacity = {
-    code: 1,
-    name: "Root Capacity",
-    color: "organizational",
-    icon: "/test-icon.svg",
-    hasChildren: true,
-    skill_type: [],
-    skill_wikidata_item: "",
-  };
-
-  const mockChildCapacity = {
-    code: 2,
-    name: "Child Capacity",
-    color: "organizational",
-    icon: "/child-icon.svg",
-    hasChildren: true,
-    parentCapacity: mockRootCapacity,
-    skill_type: [],
-    skill_wikidata_item: "",
-  };
-
-  // Complete mock for useCapacityList
-  const mockCapacityList = {
-    rootCapacities: [mockRootCapacity],
-    childrenCapacities: {
-      1: [mockChildCapacity],
-    },
-    descriptions: {
-      1: "Root description",
-      2: "Child description",
-    },
-    wdCodes: {
-      1: "WD123",
-      2: "WD456",
-    },
-    searchResults: [],
-    setSearchResults: jest.fn(),
-    capacityById: undefined,
-    isLoading: { root: false },
-    error: null,
-    findParentCapacity: jest.fn(),
-    fetchRootCapacities: jest.fn(),
-    fetchCapacitiesByParent: jest.fn().mockResolvedValue([mockChildCapacity]),
-    fetchCapacityDescription: jest.fn().mockResolvedValue("Root description"),
-    fetchCapacityById: jest.fn(),
-    fetchCapacitySearch: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
     (useSession as jest.Mock).mockReturnValue(mockSession);
-    (useCapacityList as jest.Mock).mockReturnValue(mockCapacityList);
+    // Clear any existing timers
+    jest.clearAllTimers();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   const renderWithProviders = (ui: React.ReactElement) => {
     return render(<ThemeProvider>{ui}</ThemeProvider>);
   };
 
-  it("renders root capacities correctly", () => {
+  it("renders root capacities correctly", async () => {
     renderWithProviders(<CapacityListMainWrapper />);
 
-    expect(screen.getByText("Root Capacity")).toBeInTheDocument();
+    // Fast-forward the 50ms timer
+    jest.advanceTimersByTime(50);
+
+    await waitFor(() => {
+      expect(screen.getByText("Root Capacity")).toBeInTheDocument();
+    });
   });
 
   it("expands capacity when clicking arrow button", async () => {
     renderWithProviders(<CapacityListMainWrapper />);
 
+    // Fast-forward the 50ms timer
+    jest.advanceTimersByTime(50);
+
+    await waitFor(() => {
+      expect(screen.getByText("Root Capacity")).toBeInTheDocument();
+    });
+
     // Find the expand button by aria-label or alt text of the image
     const expandButton = screen.getByAltText("Expand capacity");
     fireEvent.click(expandButton.closest("button") || expandButton);
 
-    // Verify that the function was called with the correct code
-    expect(mockCapacityList.fetchCapacitiesByParent).toHaveBeenCalledWith("1");
-
-    // Since fetchCapacitiesByParent returns a Promise, we need to wait for the component to be updated with the child data
-    expect(await screen.findByText("Child Capacity")).toBeInTheDocument();
+    // Since we're using mocked data, the child should appear
+    await waitFor(() => {
+      expect(screen.getByText("Child Capacity")).toBeInTheDocument();
+    });
   });
 
   it("shows capacity description when clicking info button", async () => {
     renderWithProviders(<CapacityListMainWrapper />);
 
+    // Fast-forward the 50ms timer
+    jest.advanceTimersByTime(50);
+
+    await waitFor(() => {
+      expect(screen.getByText("Root Capacity")).toBeInTheDocument();
+    });
+
     // Find the info button by aria-label
     const infoButton = screen.getByLabelText("Information");
     fireEvent.click(infoButton);
 
-    // Verify that the function was called with the correct code
-    expect(mockCapacityList.fetchCapacityDescription).toHaveBeenCalledWith(1);
-
     // Verify that the description is displayed
-    expect(await screen.findByText("Root description")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Root description")).toBeInTheDocument();
+    });
   });
 
-  it("fetches root capacities on mount", () => {
+  it("fetches root capacities on mount", async () => {
     renderWithProviders(<CapacityListMainWrapper />);
 
-    expect(mockCapacityList.fetchRootCapacities).toHaveBeenCalled();
+    // Fast-forward the 50ms timer
+    jest.advanceTimersByTime(50);
+
+    // Since we're using mocked hooks, we just need to verify the component renders
+    await waitFor(() => {
+      expect(screen.getByText("Root Capacity")).toBeInTheDocument();
+    });
   });
 
   it("shows loading state when isLoading.root is true", () => {
-    // Update the mock to simulate the loading state
-    (useCapacityList as jest.Mock).mockReturnValue({
-      ...mockCapacityList,
-      isLoading: { root: true },
-    });
-
     renderWithProviders(<CapacityListMainWrapper />);
 
-    // Verify that the loading component is rendered using the data-testid
+    // Before the timer advances, it should show loading
     expect(screen.getByTestId("loading-state")).toBeInTheDocument();
   });
 });

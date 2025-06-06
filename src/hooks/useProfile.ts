@@ -2,10 +2,17 @@ import { Profile } from "@/types/profile";
 import { profileService } from "@/services/profileService";
 import { useQuery } from "@tanstack/react-query";
 
-export function useProfile(token: string | undefined, userId: number) {
+export function useProfile(
+  token: string | undefined,
+  userId: number | undefined
+) {
   const { data, isLoading, error, refetch, ...rest } = useQuery({
     queryKey: ["profile", token, userId],
     queryFn: async () => {
+      if (!token || !userId) {
+        throw new Error("Token or userId is missing");
+      }
+
       const response = await profileService.fetchUserProfile({
         headers: {
           Authorization: `Token ${token}`,
@@ -54,8 +61,8 @@ export function useProfile(token: string | undefined, userId: number) {
   };
 
   const deleteProfile = async () => {
-    if (!token) {
-      throw new Error("No token available");
+    if (!token || !userId) {
+      throw new Error("No token or userId available");
     }
 
     try {

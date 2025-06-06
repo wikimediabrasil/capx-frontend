@@ -1,17 +1,44 @@
 "use client";
 
-import { useApp } from "@/contexts/AppContext";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+
 interface SnackbarContextType {
   showSnackbar: (msg: string, type?: "success" | "error") => void;
 }
 
 const SnackbarContext = createContext<SnackbarContextType | null>(null);
 
-export const SnackbarProvider = ({ children }: { children: React.ReactNode }) => {
+export const SnackbarProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [message, setMessage] = useState<string | null>(null);
   const [type, setType] = useState<"success" | "error">("success");
-  const { isMobile } = useApp();
+
+  // Implement mobile detection directly
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Detect mobile on client-side
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    // Check on load and add listener
+    if (typeof window !== "undefined") {
+      checkIsMobile();
+      window.addEventListener("resize", checkIsMobile);
+      setMounted(true);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", checkIsMobile);
+      }
+    };
+  }, []);
 
   const showSnackbar = (msg: string, type: "success" | "error" = "success") => {
     setMessage(msg);
@@ -28,10 +55,11 @@ export const SnackbarProvider = ({ children }: { children: React.ReactNode }) =>
     <SnackbarContext.Provider value={{ showSnackbar }}>
       {children}
 
-      {message && (
+      {mounted && message && (
         <div
           style={{ backgroundColor }}
-          className={`fixed ${position} text-white px-4 py-2 rounded shadow-lg transition-opacity`}>
+          className={`fixed ${position} text-white px-4 py-2 rounded shadow-lg transition-opacity`}
+        >
           {message}
         </div>
       )}

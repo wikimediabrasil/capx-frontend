@@ -351,22 +351,34 @@ export default function OrganizationProfileEditMobileView({
                   darkMode ? "bg-[#04222F]" : "bg-[#EFEFEF]"
                 } flex w-full px-[4px] py-[6px] items-start gap-[12px]`}
               >
-                {formData?.known_capacities?.map((capacity, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 rounded-md"
-                  >
-                    <BaseButton
-                      onClick={() => handleRemoveCapacity("known", index)}
-                      label={getCapacityName(capacity)}
-                      customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
-                      imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                      imageAlt="Close icon"
-                      imageWidth={16}
-                      imageHeight={16}
-                    />
-                  </div>
-                ))}
+                {formData?.known_capacities?.map((capacity, index) => {
+                  const capacityName = getCapacityName(capacity);
+
+                  // Sanitize the name to avoid it being a URL in any case
+                  const displayName =
+                    typeof capacityName === "string" &&
+                    (capacityName.startsWith("https://") ||
+                      capacityName.includes("entity/Q"))
+                      ? `Capacity ${capacity}`
+                      : capacityName;
+
+                  return (
+                    <div
+                      key={`known-capacity-${capacity}-${index}`}
+                      className="flex items-center gap-1 rounded-md"
+                    >
+                      <BaseButton
+                        onClick={() => handleRemoveCapacity("known", index)}
+                        label={displayName}
+                        customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
+                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
+                        imageAlt="Close icon"
+                        imageWidth={16}
+                        imageHeight={16}
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
               <BaseButton
@@ -417,22 +429,36 @@ export default function OrganizationProfileEditMobileView({
                       : "text-[#053749] bg-transparent"
                   }`}
                 >
-                  {formData?.available_capacities?.map((capacity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-1 rounded-md"
-                    >
-                      <BaseButton
-                        onClick={() => handleRemoveCapacity("available", index)}
-                        label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
-                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                        imageAlt="Close icon"
-                        imageWidth={16}
-                        imageHeight={16}
-                      />
-                    </div>
-                  ))}
+                  {formData?.available_capacities?.map((capacity, index) => {
+                    const capacityName = getCapacityName(capacity);
+
+                    // Sanitize the name to avoid it being a URL in any case
+                    const displayName =
+                      typeof capacityName === "string" &&
+                      (capacityName.startsWith("https://") ||
+                        capacityName.includes("entity/Q"))
+                        ? `Capacity ${capacity}`
+                        : capacityName;
+
+                    return (
+                      <div
+                        key={`available-capacity-${capacity}-${index}`}
+                        className="flex items-center gap-1 rounded-md"
+                      >
+                        <BaseButton
+                          onClick={() =>
+                            handleRemoveCapacity("available", index)
+                          }
+                          label={displayName}
+                          customClass="rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
+                          imageUrl={darkMode ? CloseIconWhite : CloseIcon}
+                          imageAlt="Close icon"
+                          imageWidth={16}
+                          imageHeight={16}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
                 <BaseButton
                   onClick={() => handleAddCapacity("available")}
@@ -483,22 +509,34 @@ export default function OrganizationProfileEditMobileView({
                       : "text-[#053749] bg-transparent"
                   }`}
                 >
-                  {formData?.wanted_capacities?.map((capacity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-1 rounded-md"
-                    >
-                      <BaseButton
-                        onClick={() => handleRemoveCapacity("wanted", index)}
-                        label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
-                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                        imageAlt="Close icon"
-                        imageWidth={16}
-                        imageHeight={16}
-                      />
-                    </div>
-                  ))}
+                  {formData?.wanted_capacities?.map((capacity, index) => {
+                    const capacityName = getCapacityName(capacity);
+
+                    // Sanitize the name to avoid it being a URL in any case
+                    const displayName =
+                      typeof capacityName === "string" &&
+                      (capacityName.startsWith("https://") ||
+                        capacityName.includes("entity/Q"))
+                        ? `Capacity ${capacity}`
+                        : capacityName;
+
+                    return (
+                      <div
+                        key={`wanted-capacity-${capacity}-${index}`}
+                        className="flex items-center gap-1 rounded-md"
+                      >
+                        <BaseButton
+                          onClick={() => handleRemoveCapacity("wanted", index)}
+                          label={displayName}
+                          customClass="rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
+                          imageUrl={darkMode ? CloseIconWhite : CloseIcon}
+                          imageAlt="Close icon"
+                          imageWidth={16}
+                          imageHeight={16}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
                 <BaseButton
                   onClick={() => handleAddCapacity("wanted")}

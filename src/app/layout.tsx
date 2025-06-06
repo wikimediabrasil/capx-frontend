@@ -8,7 +8,9 @@ import { SnackbarProvider } from "./providers/SnackbarProvider";
 import { CapacityCacheProvider } from "@/contexts/CapacityCacheContext";
 import HydrationHandler from "@/components/HydrationHandler";
 import { ProfileEditProvider } from "@/contexts/ProfileEditContext";
-import { BadgesProvider } from "@/contexts/BadgesContext";
+import { CapacitiesPrefetcher } from "@/components/CapacitiesPrefetcher";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { SafeBadgesProvider } from "@/contexts/SafeBadgesProvider";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -24,27 +26,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="next-image-preload-policy" content="default" />
       </head>
       <body id="root" className="min-h-screen" suppressHydrationWarning>
-        <HydrationHandler />
-        <ThemeProvider>
-          <SessionWrapper>
-            <AppProvider>
-              <ProfileEditProvider>
-                <SnackbarProvider>
-                  <CapacityCacheProvider>
-                    <BadgesProvider>
-                      <Providers>{children}</Providers>
-                    </BadgesProvider>
-                  </CapacityCacheProvider>
-                </SnackbarProvider>
-              </ProfileEditProvider>
-            </AppProvider>
-          </SessionWrapper>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <HydrationHandler />
+          <ThemeProvider>
+            <SessionWrapper>
+              <Providers>
+                <AppProvider>
+                  <ProfileEditProvider>
+                    <SnackbarProvider>
+                      <CapacityCacheProvider>
+                        <SafeBadgesProvider>
+                          <CapacitiesPrefetcher />
+                          {children}
+                        </SafeBadgesProvider>
+                      </CapacityCacheProvider>
+                    </SnackbarProvider>
+                  </ProfileEditProvider>
+                </AppProvider>
+              </Providers>
+            </SessionWrapper>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

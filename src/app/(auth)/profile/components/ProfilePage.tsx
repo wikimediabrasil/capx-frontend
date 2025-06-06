@@ -129,15 +129,10 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   const { isMobile, pageContent } = useApp();
   const token = session?.user?.token;
   const router = useRouter();
-
-  const { allBadges, userBadgesRelations, userBadges } = useBadges();
-
+  const { allBadges } = useBadges();
   const activeBadges = useMemo(() => {
     return allBadges.filter((badge) => profile?.badges.includes(badge.id));
   }, [allBadges, profile?.badges]);
-
-  // TODO REMOVER
-  const teste = [];
 
   const { languages } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
@@ -148,15 +143,23 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   );
   const [wikiBirthday, setWikiBirthday] = useState<string | null>(null);
 
-  const capacityIds = useMemo(
-    () =>
-      [
-        ...(profile?.skills_known || []),
-        ...(profile?.skills_available || []),
-        ...(profile?.skills_wanted || []),
-      ].map((id) => Number(id)),
-    [profile]
-  );
+  const capacityIds = useMemo(() => {
+    // Garantir que as arrays existam
+    const knownSkills = Array.isArray(profile?.skills_known)
+      ? profile?.skills_known
+      : [];
+    const availableSkills = Array.isArray(profile?.skills_available)
+      ? profile?.skills_available
+      : [];
+    const wantedSkills = Array.isArray(profile?.skills_wanted)
+      ? profile?.skills_wanted
+      : [];
+
+    // Filtrar valores nulos ou undefined
+    return [...knownSkills, ...availableSkills, ...wantedSkills]
+      .filter((id) => id !== null && id !== undefined)
+      .map((id) => Number(id));
+  }, [profile]);
 
   const { getCapacityName } = useCapacityDetails(capacityIds);
 

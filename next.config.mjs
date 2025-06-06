@@ -3,7 +3,24 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
   images: {
+    domains: ["commons.wikimedia.org", "upload.wikimedia.org"],
     remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "commons.wikimedia.org",
+      },
+      {
+        protocol: "https",
+        hostname: "commons.wikimedia.org",
+      },
+      {
+        protocol: "http",
+        hostname: "upload.wikimedia.org",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+      },
       {
         protocol: "https",
         hostname: "**",

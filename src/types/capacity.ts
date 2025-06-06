@@ -13,6 +13,7 @@ export interface Capacity {
   metabase_code?: string;
   parentCapacity?: Capacity;
   hasChildren: boolean;
+  level?: number;
 }
 
 export interface CapacityResponse {

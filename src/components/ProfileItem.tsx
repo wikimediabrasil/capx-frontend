@@ -168,11 +168,28 @@ export function ProfileItem({
 
     // First check local names state
     if (localNames[idStr]) {
+      // Verify it's not a URL
+      if (
+        typeof localNames[idStr] === "string" &&
+        (localNames[idStr].startsWith("https://") ||
+          localNames[idStr].includes("entity/Q"))
+      ) {
+        return FALLBACK_NAMES[idStr] || `Capacity ${id}`;
+      }
       return localNames[idStr];
     }
 
     // Then try getItemName function
     const name = getItemName(id);
+
+    // Filter out URLs
+    if (
+      typeof name === "string" &&
+      (name.startsWith("https://") || name.includes("entity/Q"))
+    ) {
+      return FALLBACK_NAMES[idStr] || `Capacity ${id}`;
+    }
+
     if (name !== "loading" && name !== pageContent["loading"]) {
       return name;
     }

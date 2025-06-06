@@ -1,0 +1,380 @@
+"use client";
+
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useApp } from "@/contexts/AppContext";
+import { CapacityCard } from "./CapacityCard";
+import { CapacityBanner } from "./CapacityBanner";
+import { CapacitySearch } from "./CapacitySearch";
+import {
+  useRootCapacities,
+  useCapacitiesByParent,
+  useCapacityDescription,
+  useCapacitySearch,
+} from "@/hooks/useCapacitiesQuery";
+import LoadingState from "@/components/LoadingState";
+import { Capacity } from "@/types/capacity";
+import CapacityCacheDebug from "@/components/CapacityCacheDebug";
+
+// Store global para gerenciar descrições
+const DescriptionStore = {
+  // Estado interno
+  descriptions: {} as Record<number, string>,
+  wdCodes: {} as Record<number, string>,
+  requestedCodes: new Set<number>(),
+  listeners: [] as Function[],
+
+  // Adicionar descrição
+  addDescription(code: number, description: string, wdCode: string) {
+    this.descriptions[code] = description;
+    this.wdCodes[code] = wdCode || "";
+    this.notifyListeners();
+  },
+
+  // Requisitar descrição
+  requestDescription(code: number) {
+    if (!this.requestedCodes.has(code)) {
+      this.requestedCodes.add(code);
+    }
+  },
+
+  // Verificar se já temos
+  hasDescription(code: number) {
+    return !!this.descriptions[code];
+  },
+
+  // Verificar se está pendente
+  isRequested(code: number) {
+    return this.requestedCodes.has(code);
+  },
+
+  // Obter descrição
+  getDescription(code: number) {
+    return this.descriptions[code] || "";
+  },
+
+  // Obter wdCode
+  getWdCode(code: number) {
+    return this.wdCodes[code] || "";
+  },
+
+  // Adicionar listener para atualizações
+  subscribe(listener: Function) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener);
+    };
+  },
+
+  // Notificar listeners
+  notifyListeners() {
+    this.listeners.forEach((listener) => listener());
+  },
+};
+
+// Componente que busca descrições sem causar loops
+function DescriptionFetcher({ code }: { code: number }) {
+  const { data } = useCapacityDescription(code);
+  const processedRef = useRef(false);
+
+  useEffect(() => {
+    if (data && !processedRef.current) {
+      processedRef.current = true;
+      DescriptionStore.addDescription(
+        code,
+        data.description || "",
+        data.wdCode || ""
+      );
+    }
+  }, [data, code]);
+
+  return null;
+}
+
+// Componente para gerenciar descrições
+function DescriptionRequests() {
+  // Lista local de códigos solicitados para renderizar DescriptionFetchers
+  const [requestedCodes, setRequestedCodes] = useState<number[]>([]);
+
+  // Ref para controlar quais códigos já processamos
+  const processedCodesRef = useRef(new Set<number>());
+
+  // Atualiza códigos solicitados do store global
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // Verificar o store por novos códigos solicitados
+      const pendingCodes: number[] = [];
+      DescriptionStore.requestedCodes.forEach((code) => {
+        if (
+          !processedCodesRef.current.has(code) &&
+          !DescriptionStore.hasDescription(code)
+        ) {
+          pendingCodes.push(code);
+          processedCodesRef.current.add(code);
+        }
+      });
+
+      if (pendingCodes.length > 0) {
+        setRequestedCodes((prev) => [...prev, ...pendingCodes]);
+      }
+    }, 500); // Intervalo seguro
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <>
+      {requestedCodes.map((code) => (
+        <DescriptionFetcher key={`desc-${code}`} code={code} />
+      ))}
+    </>
+  );
+}
+
+// Componente para capacidades filhas sem usar estados que causam loops
+const ChildCapacities = ({
+  parentCode,
+  expandedCapacities,
+  toggleExpanded,
+}: {
+  parentCode: string;
+  expandedCapacities: Record<string, boolean>;
+  toggleExpanded: (code: string) => void;
+}) => {
+  const { data: children = [], isLoading: isLoadingChildren } =
+    useCapacitiesByParent(parentCode);
+
+  // Requisitar descrições uma única vez
+  useEffect(() => {
+    children.forEach((child) => {
+      if (child.code) {
+        DescriptionStore.requestDescription(child.code);
+      }
+    });
+  }, [children]);
+
+  if (isLoadingChildren) {
+    return <div className="mt-4">Loading children...</div>;
+  }
+
+  return (
+    <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
+      <div className="flex gap-4 pb-4 w-fit max-w-screen-xl">
+        {children.map((child, index) => (
+          <div
+            key={`${parentCode}-${child.code}-${index}`}
+            className="mt-4 max-w-[992px]"
+          >
+            <CapacityCard
+              {...child}
+              isExpanded={!!expandedCapacities[child.code]}
+              onExpand={() => toggleExpanded(child.code.toString())}
+              hasChildren={child.hasChildren}
+              isRoot={false}
+              parentCapacity={child.parentCapacity}
+              description={DescriptionStore.getDescription(child.code)}
+              wd_code={DescriptionStore.getWdCode(child.code)}
+              onInfoClick={(code) => {
+                DescriptionStore.requestDescription(code);
+                return Promise.resolve(DescriptionStore.getDescription(code));
+              }}
+            />
+            {expandedCapacities[child.code] && (
+              <ChildCapacities
+                parentCode={child.code.toString()}
+                expandedCapacities={expandedCapacities}
+                toggleExpanded={toggleExpanded}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default function CapacityListMainWrapper() {
+  const { language, isMobile } = useApp();
+
+  // Estados básicos da UI
+  const [expandedCapacities, setExpandedCapacities] = useState<
+    Record<string, boolean>
+  >({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<Capacity[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Força re-render quando descrições forem atualizadas
+  const [, setUpdateCounter] = useState(0);
+
+  // Capacidades raiz e resultados de busca
+  const { data: rootCapacities = [], isLoading: isLoadingRoot } =
+    useRootCapacities(language);
+  const { data: querySearchResults = [], isLoading: isLoadingSearch } =
+    useCapacitySearch(searchTerm);
+
+  // Usar uma ref para evitar múltiplas solicitações
+  const rootCapacitiesProcessedRef = useRef(false);
+
+  // Solicitar descrições para capacidades raiz
+  useEffect(() => {
+    if (rootCapacities.length > 0 && !rootCapacitiesProcessedRef.current) {
+      rootCapacitiesProcessedRef.current = true;
+
+      // Solicitar descrições
+      rootCapacities.forEach((capacity) => {
+        DescriptionStore.requestDescription(capacity.code);
+      });
+    }
+  }, [rootCapacities]);
+
+  // Inscrever-se para atualizações do store
+  useEffect(() => {
+    return DescriptionStore.subscribe(() => {
+      // Forçar re-render
+      setUpdateCounter((c) => c + 1);
+    });
+  }, []);
+
+  // Atualizar resultados de busca
+  useEffect(() => {
+    if (searchTerm && querySearchResults.length > 0) {
+      setSearchResults(querySearchResults);
+    } else if (!searchTerm) {
+      setSearchResults([]);
+    }
+  }, [querySearchResults, searchTerm]);
+
+  // Toggle expandido usando timeout para evitar loops
+  const toggleExpanded = useCallback((code: string) => {
+    setTimeout(() => {
+      setExpandedCapacities((prev) => {
+        return { ...prev, [code]: !prev[code] };
+      });
+    }, 0);
+  }, []);
+
+  // Handlers de busca
+  const handleSearchStart = useCallback(() => {
+    setIsSearching(true);
+  }, []);
+
+  const handleSearchEnd = useCallback(() => {
+    setIsSearching(false);
+    setSearchTerm("");
+  }, []);
+
+  const handleSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+  }, []);
+
+  if (isLoadingRoot) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  return (
+    <section className="flex flex-col max-w-screen-xl mx-auto py-8 px-4 md:px-8 lg:px-12 gap-[40px]">
+      {/* Componente para buscar descrições sem causar loops */}
+      <DescriptionRequests />
+
+      <CapacityBanner />
+      <CapacitySearch
+        onSearchStart={handleSearchStart}
+        onSearchEnd={handleSearchEnd}
+        onSearch={handleSearch}
+      />
+
+      {searchResults.length > 0 || (isSearching && isLoadingSearch) ? (
+        <div className="grid gap-4 w-full">
+          {isLoadingSearch ? (
+            <div className="flex justify-center">
+              <LoadingState />
+            </div>
+          ) : (
+            searchResults.map((capacity, index) => (
+              <div
+                key={`search-${capacity.code}-${index}`}
+                className="max-w-screen-xl mx-auto"
+              >
+                <CapacityCard
+                  {...capacity}
+                  isExpanded={!!expandedCapacities[capacity.code]}
+                  onExpand={() => toggleExpanded(capacity.code.toString())}
+                  hasChildren={capacity.hasChildren}
+                  isRoot={false}
+                  parentCapacity={capacity.parentCapacity}
+                  code={capacity.code}
+                  name={capacity.name}
+                  color={capacity.color}
+                  icon={capacity.icon}
+                  description={
+                    DescriptionStore.getDescription(capacity.code) ||
+                    capacity.description ||
+                    ""
+                  }
+                  wd_code={
+                    DescriptionStore.getWdCode(capacity.code) ||
+                    capacity.wd_code ||
+                    ""
+                  }
+                  onInfoClick={(code) => {
+                    DescriptionStore.requestDescription(code);
+                    return Promise.resolve(
+                      DescriptionStore.getDescription(code)
+                    );
+                  }}
+                />
+                {expandedCapacities[capacity.code] && (
+                  <ChildCapacities
+                    parentCode={capacity.code.toString()}
+                    expandedCapacities={expandedCapacities}
+                    toggleExpanded={toggleExpanded}
+                  />
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        /* Show original cards when there are no search results */
+        <div className="grid gap-[40px] w-full">
+          {rootCapacities.map((capacity, index) => (
+            <div
+              key={`root-${capacity.code}-${index}`}
+              className={`w-screen max-w-[1190px]`}
+            >
+              <CapacityCard
+                {...capacity}
+                isExpanded={!!expandedCapacities[capacity.code]}
+                onExpand={() => toggleExpanded(capacity.code.toString())}
+                hasChildren={capacity.hasChildren}
+                isRoot={true}
+                color={capacity.color}
+                icon={capacity.icon}
+                description={DescriptionStore.getDescription(capacity.code)}
+                wd_code={DescriptionStore.getWdCode(capacity.code)}
+                onInfoClick={(code) => {
+                  DescriptionStore.requestDescription(code);
+                  return Promise.resolve(DescriptionStore.getDescription(code));
+                }}
+              />
+              {expandedCapacities[capacity.code] && (
+                <ChildCapacities
+                  parentCode={capacity.code.toString()}
+                  expandedCapacities={expandedCapacities}
+                  toggleExpanded={toggleExpanded}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add debug component in development mode */}
+      {process.env.NODE_ENV === "development" && <CapacityCacheDebug />}
+    </section>
+  );
+}

@@ -12,6 +12,7 @@ interface PopupProps {
   continueButtonLabel?: string;
   children?: React.ReactNode;
   customClass?: string;
+  imageSize?: string;
 }
 
 const Popup = ({
@@ -23,6 +24,7 @@ const Popup = ({
   continueButtonLabel,
   children,
   customClass,
+  imageSize = "w-full max-w-[200px] md:max-w-[300px]",
 }: PopupProps) => {
   const { darkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
@@ -64,7 +66,7 @@ const Popup = ({
                       <Image
                         src={image}
                         alt="Popup Illustration"
-                        className="w-full max-w-[200px] md:max-w-[300px] xl:max-w-[400px] h-auto"
+                        className={`${imageSize} h-auto`}
                         priority
                       />
                     </div>
