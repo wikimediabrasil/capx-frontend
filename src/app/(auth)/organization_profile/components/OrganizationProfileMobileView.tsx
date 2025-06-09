@@ -162,7 +162,7 @@ export default function OrganizationProfileMobileView({
             </div>
 
             {/* Report Activity Image */}
-            {organization?.report_link && (
+            {organization?.report && (
               <div className="w-full flex flex-col flex-shrink-0 rounded-[4px] bg-[#04222F] justify-center items-center p-6">
                 <div className="relative w-[220px] h-[96px] mb-[30px]">
                   <Image
@@ -181,8 +181,8 @@ export default function OrganizationProfileMobileView({
                   </h2>
                   <BaseButton
                     onClick={() =>
-                      organization?.report_link &&
-                      window.open(organization.report_link, "_blank")
+                      organization?.report &&
+                      window.open(organization.report, "_blank")
                     }
                     label={pageContent["organization-profile-click-here"]}
                     customClass="inline-flex h-[32px] px-[19px] py-[8px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[4px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"

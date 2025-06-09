@@ -307,11 +307,11 @@ export default function OrganizationProfileEditMobileView({
                   ? "bg-transparent border-white text-white placeholder-gray-400"
                   : "border-gray-300 text-gray-700"
               }`}
-              value={formData?.report_link || ""}
+              value={formData?.report || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  report_link: e.target.value,
+                  report: e.target.value,
                 })
               }
             />
