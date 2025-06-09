@@ -334,7 +334,7 @@ export default function EditOrganizationProfilePage() {
   // Form data
   const [formData, setFormData] = useState<Partial<Organization>>({
     display_name: organization?.display_name || "",
-    report_link: organization?.report_link || "",
+    report: organization?.report || "",
     profile_image: organization?.profile_image || "",
     acronym: organization?.acronym || "",
     meta_page: organization?.meta_page || "",
@@ -376,6 +376,7 @@ export default function EditOrganizationProfilePage() {
     if (organization && !isInitialized) {
       setFormData({
         display_name: organization.display_name || "",
+        report: organization.report || "",
         profile_image: organization.profile_image || "",
         acronym: organization.acronym || "",
         meta_page: organization.meta_page || "",
@@ -680,9 +681,9 @@ export default function EditOrganizationProfilePage() {
         if (tag.id < 0 || tag.id === 0) {
           // Create new tag
           try {
-            const newTag = await createTag({ 
+            const newTag = await createTag({
               tag: tag.tag,
-              creator: Number(session?.user?.id)
+              creator: Number(session?.user?.id),
             });
             return newTag?.id;
           } catch (error) {
