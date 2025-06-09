@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
@@ -29,19 +29,6 @@ import { useAvatars } from "@/hooks/useAvatars";
 import { getProfileImage } from "@/lib/utils/getProfileImage";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
 import { LanguageProficiency } from "@/types/language";
-
-export interface ProfileCard {
-  id: string;
-  username: string;
-  profile_image: string;
-  type: ProfileCapacityType;
-  capacities: (number | string)[];
-  languages?: string[];
-  territory?: string;
-  avatar?: string;
-  isOrganization?: boolean;
-  isSaved?: boolean;
-}
 
 interface ProfileCardProps {
   id: string;

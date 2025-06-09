@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@/contexts/ThemeContext";
-import Image from "next/image";
+import Image from "next/image"; // TODO
 import { Event } from "@/types/event";
 import { useApp } from "@/contexts/AppContext";
 import {
@@ -14,7 +14,7 @@ import {
 } from "react";
 import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import { Capacity } from "@/types/capacity";
-import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
+import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg"; //TODO
 import {
   fetchEventDataByURL,
   fetchEventDataByQID,

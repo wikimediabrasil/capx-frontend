@@ -1,25 +1,23 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { useApp, AppProvider } from "@/contexts/AppContext";
-import { CapacityCard } from "./CapacityCard";
-import { CapacityBanner } from "./CapacityBanner";
-import { CapacitySearch } from "./CapacitySearch";
+import CapacityCacheDebug from "@/components/CapacityCacheDebug";
+import LoadingState from "@/components/LoadingState";
+import LoadingStateWithFallback from "@/components/LoadingStateWithFallback";
+import { AppProvider, useApp } from "@/contexts/AppContext";
 import {
-  useRootCapacities,
+  CapacityDescriptionProvider,
+  useCapacityDescriptions,
+} from "@/contexts/CapacityContext";
+import {
   useCapacitiesByParent,
   useCapacitySearch,
+  useRootCapacities,
 } from "@/hooks/useCapacitiesQuery";
-import LoadingState from "@/components/LoadingState";
-import SimpleLoading from "@/components/SimpleLoading";
 import { Capacity } from "@/types/capacity";
-import CapacityCacheDebug from "@/components/CapacityCacheDebug";
-import {
-  useCapacityDescriptions,
-  CapacityDescriptionProvider,
-} from "@/contexts/CapacityContext";
-import React from "react";
-import LoadingStateWithFallback from "@/components/LoadingStateWithFallback";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { CapacityBanner } from "./CapacityBanner";
+import { CapacityCard } from "./CapacityCard";
+import { CapacitySearch } from "./CapacitySearch";
 
 // Component for descriptions - separated to avoid re-render cycles
 const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {

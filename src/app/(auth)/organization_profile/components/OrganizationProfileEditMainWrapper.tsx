@@ -1,42 +1,40 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { useSession } from "next-auth/react";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import LoadingState from "@/components/LoadingState";
 import { useApp } from "@/contexts/AppContext";
-import { Organization } from "@/types/organization";
-import { Capacity } from "@/types/capacity";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useAvatars } from "@/hooks/useAvatars";
+import { CAPACITY_CACHE_KEYS, useCapacities } from "@/hooks/useCapacities";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-import { useCapacities } from "@/hooks/useCapacities";
-import { useProject, useProjects } from "@/hooks/useProjects";
 import { useDocument } from "@/hooks/useDocument";
-import { Project } from "@/types/project";
-import { Event } from "@/types/event";
 import { useOrganizationEvents } from "@/hooks/useOrganizationEvents";
-import { tagDiff } from "@/types/tagDiff";
-import { OrganizationDocument } from "@/types/document";
-import { Contacts } from "@/types/contacts";
+import { useOrganization } from "@/hooks/useOrganizationProfile";
+import { useProject, useProjects } from "@/hooks/useProjects";
 import { useTagDiff } from "@/hooks/useTagDiff";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
-import LoadingState from "@/components/LoadingState";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { getProfileImage } from "@/lib/utils/getProfileImage";
-import { useAvatars } from "@/hooks/useAvatars";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
-import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
-import EventsForm from "./EventsEditForm";
-import { useTheme } from "@/contexts/ThemeContext";
 import {
-  ensureArray,
-  processIdArray,
   createSafeFunction,
+  ensureArray
 } from "@/lib/utils/safeDataAccess";
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
+import { Capacity } from "@/types/capacity";
+import { Contacts } from "@/types/contacts";
+import { OrganizationDocument } from "@/types/document";
+import { Event } from "@/types/event";
+import { Organization } from "@/types/organization";
+import { Project } from "@/types/project";
+import { tagDiff } from "@/types/tagDiff";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CapacityDebug from "../../profile/edit/components/CapacityDebug";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CAPACITY_CACHE_KEYS } from "@/hooks/useCapacities";
+import EventsForm from "./EventsEditForm";
+import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
+import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
 
 interface ProfileOption {
   value: string;
