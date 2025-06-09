@@ -9,6 +9,7 @@ import ContactPortalIcon from "@/public/static/images/contact_captive_portal.svg
 import ContactPortalIconWhite from "@/public/static/images/contact_captive_portal_white.svg";
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ProfileItem } from "@/components/ProfileItem";
 
 interface ContactsSectionProps {
   email: string;
@@ -51,6 +52,10 @@ export const ContactsSection = ({
     };
   };
 
+  // Verify if there is any contact filled
+  const hasAnyContact = email || meta_page || website;
+
+  // Create contacts array for when there are contacts
   const contacts = [
     {
       ...formatContactInfo(meta_page),
@@ -69,6 +74,24 @@ export const ContactsSection = ({
     },
   ].filter((contact) => contact.display);
 
+  // If no contacts, use ProfileItem to show "empty-field" message
+  if (!hasAnyContact) {
+    return (
+      <section className={isMobile ? "w-full mx-auto" : "w-full max-w-screen-xl py-8"}>
+        <ProfileItem
+          icon={darkMode ? WikimediaIconWhite : WikimediaIcon}
+          title={pageContent["body-profile-section-title-contacts"]}
+          items={[]}
+          getItemName={() => ""}
+          customClass={`font-[Montserrat] ${isMobile ? "text-[13px]" : "text-[24px]"} not-italic font-extrabold leading-[normal] ${
+            darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+          }`}
+        />
+      </section>
+    );
+  }
+
+  // Original rendering when there are contacts
   if (isMobile) {
     return (
       <section className="w-full mx-auto">
