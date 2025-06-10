@@ -31,11 +31,13 @@ import ProjectsList from "./ProjectsList";
 export default function OrganizationProfileDesktopView({
   pageContent,
   darkMode,
+  isMobile,
   organization,
   organizationId,
   token,
   isOrgManager,
   getCapacityName,
+  allCapacityIds,
 }) {
   const router = useRouter();
   const {
