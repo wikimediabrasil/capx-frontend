@@ -332,7 +332,7 @@ export default function EditOrganizationProfilePage() {
   // Form data
   const [formData, setFormData] = useState<Partial<Organization>>({
     display_name: organization?.display_name || "",
-    report_link: organization?.report_link || "",
+    report: organization?.report || "",
     profile_image: organization?.profile_image || "",
     acronym: organization?.acronym || "",
     meta_page: organization?.meta_page || "",
@@ -374,6 +374,7 @@ export default function EditOrganizationProfilePage() {
     if (organization && !isInitialized) {
       setFormData({
         display_name: organization.display_name || "",
+        report: organization.report || "",
         profile_image: organization.profile_image || "",
         acronym: organization.acronym || "",
         meta_page: organization.meta_page || "",
@@ -634,6 +635,71 @@ export default function EditOrganizationProfilePage() {
 
       // Create a copy of the form data for updating
       const updatedFormData = { ...formData };
+
+      // Include contacts data in the organization update
+      updatedFormData.email = contactsData.email;
+      updatedFormData.meta_page = contactsData.meta_page;
+      updatedFormData.website = contactsData.website;
+
+      // Process documents data - create/update documents via API
+      const validDocuments = documentsData.filter(
+        (doc) => doc.url && doc.url.trim() !== ""
+      );
+
+      // Create new documents and collect existing document IDs
+      const documentPromises = validDocuments.map(async (doc) => {
+        if (doc.id === 0 || doc.id === null) {
+          // Create new document
+          try {
+            const newDoc = await createDocument({ url: doc.url });
+            return newDoc?.id;
+          } catch (error) {
+            console.error("Error creating document:", error);
+            return null;
+          }
+        } else {
+          // Keep existing document ID
+          return doc.id;
+        }
+      });
+
+      const documentIds = await Promise.all(documentPromises);
+      const validDocumentIds = documentIds.filter(
+        (id): id is number => id !== null && id !== undefined
+      );
+
+      updatedFormData.documents = validDocumentIds;
+
+      // Process DiffTags data - create new tags and collect existing tag IDs
+      const validTags = diffTagsData.filter(
+        (tag) => tag.tag && tag.tag.trim() !== ""
+      );
+
+      const tagPromises = validTags.map(async (tag) => {
+        if (tag.id < 0 || tag.id === 0) {
+          // Create new tag
+          try {
+            const newTag = await createTag({
+              tag: tag.tag,
+              creator: Number(session?.user?.id),
+            });
+            return newTag?.id;
+          } catch (error) {
+            console.error("Error creating tag:", error);
+            return null;
+          }
+        } else {
+          // Keep existing tag ID
+          return tag.id;
+        }
+      });
+
+      const tagIds = await Promise.all(tagPromises);
+      const validTagIds = tagIds.filter(
+        (id): id is number => id !== null && id !== undefined
+      );
+
+      updatedFormData.tag_diff = validTagIds;
 
       // Ensure valid project IDs are included
       const validProjectIds = projectsData

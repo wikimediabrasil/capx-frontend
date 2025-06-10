@@ -166,7 +166,7 @@ export default function OrganizationProfileDesktopView({
             </div>
 
             {/* Report Activity Image */}
-            {organization?.report_link && (
+            {organization?.report && (
               <div className="flex flex-row justify-between px-[85px] py-[64px] items-center rounded-[4px] bg-[#04222F] w-full h-[399px] flex-shrink-0">
                 <div className="relative w-[619px] h-[271px]">
                   <Image
@@ -188,8 +188,8 @@ export default function OrganizationProfileDesktopView({
                   </h2>
                   <BaseButton
                     onClick={() =>
-                      organization?.report_link &&
-                      window.open(organization.report_link, "_blank")
+                      organization?.report &&
+                      window.open(organization.report, "_blank")
                     }
                     label={pageContent["organization-profile-click-here"]}
                     customClass="inline-flex h-[64px] px-[32px] py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
@@ -253,7 +253,9 @@ export default function OrganizationProfileDesktopView({
             </div>
 
             {/* News Section */}
-            <NewsSection ids={organization?.tag_diff || []} />
+            {organization?.tag_diff && organization.tag_diff.length > 0 && (
+              <NewsSection ids={organization?.tag_diff || []} />
+            )}
 
             {/* Documents Section */}
             <DocumentsList
