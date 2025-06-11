@@ -1,34 +1,32 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import BaseButton from "@/components/BaseButton";
+import LoadingState from "@/components/LoadingState";
+import { ProfileItem } from "@/components/ProfileItem";
 import { useOrganization } from "@/hooks/useOrganizationProfile";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
-import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
-import NeurologyIcon from "@/public/static/images/neurology.svg";
-import NeurologyIconWhite from "@/public/static/images/neurology_white.svg";
-import EmojiIcon from "@/public/static/images/emoji_objects.svg";
-import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
-import TargetIcon from "@/public/static/images/target.svg";
-import TargetIconWhite from "@/public/static/images/target_white.svg";
 import EditIcon from "@/public/static/images/edit.svg";
 import EditIconWhite from "@/public/static/images/edit_white.svg";
-import ReportActivityIcon from "@/public/static/images/report_of_activities.svg";
-import BaseButton from "@/components/BaseButton";
-import { ProfileItem } from "@/components/ProfileItem";
-import ProjectsList from "./ProjectsList";
-import EventsSection from "./EventsSection";
-import { NewsSection } from "./NewsSection";
-import { DocumentsList } from "./DocumentsList";
-import { ContactsSection } from "./ContactsSection";
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-import LoadingState from "@/components/LoadingState";
+import EmojiIcon from "@/public/static/images/emoji_objects.svg";
+import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
 import CopyLinkIcon from "@/public/static/images/icons/copy_link.svg";
 import CopyLinkIconWhite from "@/public/static/images/icons/copy_link_white.svg";
-import { useEffect } from "react";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import NeurologyIcon from "@/public/static/images/neurology.svg";
+import NeurologyIconWhite from "@/public/static/images/neurology_white.svg";
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
+import ReportActivityIcon from "@/public/static/images/report_of_activities.svg";
+import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
+import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
+import TargetIcon from "@/public/static/images/target.svg";
+import TargetIconWhite from "@/public/static/images/target_white.svg";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { ContactsSection } from "./ContactsSection";
+import { DocumentsList } from "./DocumentsList";
+import EventsSection from "./EventsSection";
+import { NewsSection } from "./NewsSection";
+import ProjectsList from "./ProjectsList";
 
 export default function OrganizationProfileDesktopView({
   pageContent,
@@ -43,9 +41,7 @@ export default function OrganizationProfileDesktopView({
 }) {
   const router = useRouter();
   const {
-    organizations,
     isLoading: isOrganizationLoading,
-    error,
     refetch,
   } = useOrganization(token, organizationId);
   const { showSnackbar } = useSnackbar();

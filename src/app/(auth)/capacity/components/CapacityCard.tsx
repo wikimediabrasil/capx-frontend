@@ -1,16 +1,16 @@
-import Image from "next/image";
-import Link from "next/link";
-import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
-import { getCapacityColor, getHueRotate } from "@/lib/utils/capacitiesUtils";
-import BarCodeIcon from "@/public/static/images/barcode.svg";
 import BaseButton from "@/components/BaseButton";
-import { useRouter, useSearchParams } from "next/navigation";
-import InfoIcon from "@/public/static/images/info.svg";
-import InfoFilledIcon from "@/public/static/images/info_filled.svg";
-import { Capacity } from "@/types/capacity";
-import { useState, useRef, useEffect, useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { useCapacityCache } from "@/contexts/CapacityCacheContext";
+import { getCapacityColor, getHueRotate } from "@/lib/utils/capacitiesUtils";
+import BarCodeIcon from "@/public/static/images/barcode.svg";
+import InfoIcon from "@/public/static/images/info.svg";
+import InfoFilledIcon from "@/public/static/images/info_filled.svg";
+import ArrowDownIcon from "@/public/static/images/keyboard_arrow_down.svg";
+import { Capacity } from "@/types/capacity";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface CapacityCardProps {
   code: number;
@@ -45,9 +45,7 @@ export function CapacityCard({
   wd_code,
   isRoot,
   isSearch,
-  metabase_code,
   onInfoClick,
-  rootColor,
   level,
 }: CapacityCardProps) {
   const router = useRouter();

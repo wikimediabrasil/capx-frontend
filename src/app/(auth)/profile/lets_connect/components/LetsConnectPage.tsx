@@ -1,32 +1,31 @@
 "use client"
 
-import Banner from "@/components/Banner";
-import Link from "next/link";
-import BaseButton from "@/components/BaseButton";
-import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
-import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
-import Image from "next/image";
-import UserCheckIcon from "@/public/static/images/user_check.svg";
-import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
-import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
-import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
 import ActionButtons from "@/components/ActionButton";
-import SendIcon from "@/public/static/images/send.svg";
-import Checklist from "./CheckList";
+import Banner from "@/components/Banner";
+import BaseButton from "@/components/BaseButton";
+import LoadingState from "@/components/LoadingState";
+import Popup from "@/components/Popup";
 import { useApp } from "@/contexts/AppContext";
-import { useRouter } from "next/navigation";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLetsConnect } from "@/hooks/useLetsConnect";
-import { useEffect, useState } from "react";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import LoadingState from "@/components/LoadingState";
-import { LetsConnect } from "@/types/lets_connect";
-import Popup from "@/components/Popup";
-import LetsConnectPopup from "@/public/static/images/lets_connect_popup.svg";
+import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
+import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
 import LetsConectBanner from "@/public/static/images/lets_connect_desktop.svg";
-import LetsConectText from "@/public/static/images/lets_connect_text_img.svg";
+import LetsConnectPopup from "@/public/static/images/lets_connect_popup.svg";
 import LetsConectTextDesktop from "@/public/static/images/lets_connect_text_desktop.svg";
-import { focusManager } from "@tanstack/react-query";
+import LetsConectText from "@/public/static/images/lets_connect_text_img.svg";
+import SendIcon from "@/public/static/images/send.svg";
+import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
+import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
+import UserCheckIcon from "@/public/static/images/user_check.svg";
+import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
+import { LetsConnect } from "@/types/lets_connect";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Checklist from "./CheckList";
 
 export enum LetsConnectRole {
   A = "A",
