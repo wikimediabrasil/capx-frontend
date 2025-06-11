@@ -30,6 +30,6 @@ jobs:
             become capx-test git -C '$HOME/www/js' fetch origin
             become capx-test git -C '$HOME/www/js' reset --hard origin/dev
             become capx-test git -C '$HOME/www/js' pull origin dev
-            become capx-test webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install
-            become capx-test webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build
+            become capx-test webservice --mem 4G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install
+            become capx-test webservice --mem 4G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build --max-old-space-size=4096
             become capx-test webservice restart

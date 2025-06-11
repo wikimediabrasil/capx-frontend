@@ -5,7 +5,7 @@ on:
     branches:
       - dev
     paths:
-      - 'package.json'
+      - "package.json"
 
 jobs:
   release:
@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Check if version field changed
         id: check_version_change
@@ -71,6 +71,6 @@ jobs:
             become capx git -C '$HOME/www/js' fetch origin
             become capx git -C '$HOME/www/js' reset --hard origin/main
             become capx git -C '$HOME/www/js' pull origin main
-            become capx webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install --pure-lockfile
-            become capx webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build
+            become capx webservice --mem 4G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install --pure-lockfile
+            become capx webservice --mem 4G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build --max-old-space-size=4096
             become capx webservice restart
