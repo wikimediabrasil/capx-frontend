@@ -629,7 +629,7 @@ export default function OrganizationProfileEditMobileView({
                 />
               </div>
               <h2
-                className={`font-[Montserrat] text-[16px] font-bold ${
+                className={`font-[Montserrat] text-[14px] font-bold ${
                   darkMode ? "text-white" : "text-[#053749]"
                 }`}
               >
@@ -647,7 +647,7 @@ export default function OrganizationProfileEditMobileView({
             <BaseButton
               onClick={handleAddEvent}
               label={pageContent["edit-profile-add-events"]}
-              customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
+              customClass={`mb-2 rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
                 darkMode
                   ? "bg-capx-light-box-bg text-[#04222F]"
                   : "bg-[#053749] text-white"
@@ -672,9 +672,9 @@ export default function OrganizationProfileEditMobileView({
             />
 
             <p
-              className={`text-[16px] ${
+              className={`text-[12px] ${
                 darkMode ? "text-white" : "text-[#053749]"
-              } mt-4`}
+              } mt-2`}
             >
               {pageContent["edit-profile-display-events"]}
             </p>
