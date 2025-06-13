@@ -228,34 +228,32 @@ export default function CapacitySelectionModal({
 
   // Process description data when it changes
   useEffect(() => {
-    if (descriptionData && descriptionData.id) {
-      setCapacityDescriptions((prev) => ({
-        ...prev,
-        [descriptionData.id]: descriptionData.description,
-      }));
+    if (descriptionData?.id && descriptionData?.description) {
+      // Only update if the value is different from the current one
+      setCapacityDescriptions((prev) => {
+        if (prev[descriptionData.id] === descriptionData.description) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [descriptionData.id]: descriptionData.description,
+        };
+      });
     }
-  }, [descriptionData]);
+  }, [descriptionData?.id, descriptionData?.description]); // Dependências mais específicas
 
   // Load root capacities when data is available
   useEffect(() => {
-    if (rootCapacitiesData && rootCapacitiesData.length > 0) {
+    if (rootCapacitiesData && Array.isArray(rootCapacitiesData) && rootCapacitiesData.length > 0) {
       // Make sure each capacity has the right color name before setting in state
       const processedCapacities = rootCapacitiesData.map((capacity) => {
         // Ensure color is a valid color name, not a numeric code
-        if (
-          typeof capacity.color === "number" ||
-          /^\d+$/.test(String(capacity.color))
-        ) {
-          const colorName = getColorForCapacity(capacity.code);
-
-          return {
-            ...capacity,
-            color: colorName,
-          };
-        }
-        return capacity;
+        const colorName = getColorForCapacity(capacity.code);
+        return {
+          ...capacity,
+          color: colorName,
+        };
       });
-
       setRootCapacities(processedCapacities);
     }
   }, [rootCapacitiesData]);
@@ -263,21 +261,23 @@ export default function CapacitySelectionModal({
   // Process child capacities data when it changes
   useEffect(() => {
     if (
-      childCapacitiesData &&
+      childCapacitiesData && 
+      Array.isArray(childCapacitiesData) && 
       childCapacitiesData.length > 0 &&
       expandingCapacityId
     ) {
+      // Update the child capacities
       setChildrenCapacities((prev) => ({
         ...prev,
         [expandingCapacityId]: childCapacitiesData,
       }));
 
-      // Update the selected path if not already in it
+      // Update the selected path if necessary
       if (!selectedPath.includes(Number(expandingCapacityId))) {
         setSelectedPath((prev) => [...prev, Number(expandingCapacityId)]);
       }
 
-      // Reset expanding ID after processing
+      // Reset the expanding capacity ID
       setExpandingCapacityId(null);
     }
   }, [childCapacitiesData, expandingCapacityId, selectedPath]);
@@ -285,38 +285,32 @@ export default function CapacitySelectionModal({
   // Initialize data when modal opens
   useEffect(() => {
     if (isOpen && session?.user?.token) {
-      try {
-        // Clear any stale capacity data from the cache
-        queryClient.invalidateQueries({ queryKey: CAPACITY_CACHE_KEYS.root });
+      // Clear old cache data
+      queryClient.invalidateQueries({ queryKey: CAPACITY_CACHE_KEYS.root });
 
-        // Ensure the cache is loaded
-        preloadCapacities();
+      // Ensure the cache is loaded
+      preloadCapacities();
 
-        // Reset state when modal opens
-        setSelectedPath([]);
-        setSelectedCapacity(null);
-        setIsLoading((prev) => ({ ...prev, root: isLoadingRoots }));
-      } catch (error) {
-        console.error("Error initializing capacity selection modal:", error);
-      }
+      // Reset the state when the modal opens
+      setSelectedPath([]);
+      setSelectedCapacity(null);
+      setShowInfoMap({});
+      setCapacityDescriptions({});
+      setRequestedDescriptions(new Set());
+      setExpandingCapacityId(null);
+      setIsLoading({ root: false });
     }
-  }, [
-    isOpen,
-    session?.user?.token,
-    preloadCapacities,
-    isLoadingRoots,
-    queryClient,
-  ]);
+  }, [isOpen, session?.user?.token, preloadCapacities, queryClient]);
 
   // Handler for selecting a capacity
   const handleCategorySelect = async (category: Capacity) => {
     try {
       const categoryId = category.code;
 
-      // Always set the selected capacity, regardless of whether it has children
+      // Always set the selected capacity
       setSelectedCapacity(category);
 
-      // If this category is already in the path, we don't need to do anything else
+      // If this category is already in the path, we don't need to do anything
       const currentPathIndex = selectedPath.indexOf(categoryId);
       if (currentPathIndex !== -1) {
         return;
@@ -331,26 +325,26 @@ export default function CapacitySelectionModal({
     e: React.MouseEvent,
     category: Capacity
   ) => {
-    e.stopPropagation(); // Prevent selection when expanding
+    e.stopPropagation(); // Prevent the selection when expanding
 
     try {
       const categoryId = category.code;
       const currentPathIndex = selectedPath.indexOf(categoryId);
 
       if (currentPathIndex !== -1) {
-        // If already in path, collapse it
+        // If it's already in the path, collapse
         setSelectedPath((prev) => prev.slice(0, currentPathIndex + 1));
         return;
       }
 
-      // Check if we need to fetch children
+      // Check if we need to fetch the children
       if (!childrenCapacities[categoryId.toString()]) {
         // Set the expanding capacity ID to trigger the query
         setExpandingCapacityId(categoryId.toString());
         return;
       }
 
-      // If it has children already loaded, expand it
+      // If there are already children loaded, expand
       if (childrenCapacities[categoryId.toString()]?.length > 0) {
         setSelectedPath((prev) => [...prev, categoryId]);
       }
