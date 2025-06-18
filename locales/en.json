@@ -197,7 +197,7 @@
   "edit-profile-image-title": "Profile image",
   "edit-profile-choose-avatar": "Choose avatar",
   "edit-profile-choose-avatar-tooltip": "Choose an avatar to display on your CapX profile, instead of your Wikidata item image (if existent).",
-  "edit-profile-use-wikidata": "Display my Wikidata item on profile",
+  "edit-profile-use-wikidata": "Display my Wikidata item photograph on profile",
   "edit-profile-consent-wikidata": "By clicking here, I agree to have my Wikidata item image displayed on my CapX's profile. The tool will look in Wikidata for a QID related to your username and will show it if found.",
   "edit-profile-delete-profile": "Delete profile",
   "edit-profile-save": "Save profile",
