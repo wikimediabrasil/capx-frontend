@@ -58,6 +58,7 @@ import LetsConectBanner from "@/public/static/images/lets_connect.svg";
 import LetsConectText from "@/public/static/images/lets_connect_text_img.svg";
 import LetsConectTitle from "@/public/static/images/lets_connect_title.svg";
 import LetsConectTitleLight from "@/public/static/images/lets_connect_title_light.svg";
+import LetsConnectPopup from "@/components/LetsConnectPopup";
 import { Profile } from "@/types/profile";
 import { Capacity } from "@/types/capacity";
 import { useState, useEffect, useCallback } from "react";
@@ -68,6 +69,7 @@ import { useAvatars } from "@/hooks/useAvatars";
 import { useRouter } from "next/navigation";
 import BadgesCarousel from "@/components/BadgesCarousel";
 import { useBadges } from "@/contexts/BadgesContext";
+import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -103,7 +105,12 @@ interface ProfileEditMobileViewProps {
   refetch: () => Promise<any>;
   goTo: (path: string) => void;
   isImageLoading: boolean;
+  hasLetsConnectData: boolean;
   setIsImageLoading: (loading: boolean) => void;
+  showLetsConnectPopup: boolean;
+  setShowLetsConnectPopup: (show: boolean) => void;
+  handleLetsConnectImport: () => void;
+  isLetsConnectLoading: boolean;
 }
 
 export default function ProfileEditMobileView(
@@ -140,7 +147,12 @@ export default function ProfileEditMobileView(
     refetch,
     goTo,
     isImageLoading,
+    hasLetsConnectData,
     setIsImageLoading,
+    showLetsConnectPopup,
+    setShowLetsConnectPopup,
+    handleLetsConnectImport,
+    isLetsConnectLoading,
   } = props;
 
   const router = useRouter();
@@ -318,6 +330,16 @@ export default function ProfileEditMobileView(
                   {pageContent["edit-profile-consent-wikidata"]}
                 </span>
               </div>
+              {hasLetsConnectData && <BaseButton
+                onClick={() => setShowLetsConnectPopup(true)}
+                label={pageContent["edit-profile-use-letsconnect"]}
+                customClass="w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
+                imageUrl={LetsConnectIconWhite}
+                imageAlt="LetsConnect icon"
+                imageWidth={20}
+                imageHeight={20}
+                disabled={isLetsConnectLoading}
+              />}
               <div className="flex flex-col gap-[10px]">
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-[10px] mt-0">
@@ -1417,6 +1439,11 @@ export default function ProfileEditMobileView(
           }}
         />
       )}
+      <LetsConnectPopup
+        isOpen={showLetsConnectPopup}
+        onClose={() => setShowLetsConnectPopup(false)}
+        onConfirm={handleLetsConnectImport}
+      />
     </>
   );
 }

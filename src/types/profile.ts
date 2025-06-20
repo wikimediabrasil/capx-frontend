@@ -1,11 +1,5 @@
 import { LanguageProficiency } from "./language";
 
-interface Capacity {
-  id: number;
-  skill_type: string[];
-  skill_wikidata_item: string;
-}
-
 export interface Profile {
   name: string;
   about: string;
@@ -33,4 +27,15 @@ export interface Profile {
   wiki_alt?: string;
   wikidata_qid?: string;
   wikimedia_project?: string[];
+}
+
+export interface LetsConnectProfile {
+  username: string;
+  username_org: string;
+  reconciled_affiliation: string;
+  reconciled_territory: string;
+  reconciled_languages: string[];
+  reconciled_projects: string[];
+  reconciled_want_to_learn: string[];
+  reconciled_want_to_share: string[];
 }
