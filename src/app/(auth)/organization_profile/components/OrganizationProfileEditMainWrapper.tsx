@@ -1,42 +1,40 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { useSession } from "next-auth/react";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
+import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import LoadingState from "@/components/LoadingState";
 import { useApp } from "@/contexts/AppContext";
-import { Organization } from "@/types/organization";
-import { Capacity } from "@/types/capacity";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useAvatars } from "@/hooks/useAvatars";
+import { CAPACITY_CACHE_KEYS, useCapacities } from "@/hooks/useCapacities";
 import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-import { useCapacities } from "@/hooks/useCapacities";
-import { useProject, useProjects } from "@/hooks/useProjects";
 import { useDocument } from "@/hooks/useDocument";
-import { Project } from "@/types/project";
-import { Event } from "@/types/event";
 import { useOrganizationEvents } from "@/hooks/useOrganizationEvents";
-import { tagDiff } from "@/types/tagDiff";
-import { OrganizationDocument } from "@/types/document";
-import { Contacts } from "@/types/contacts";
+import { useOrganization } from "@/hooks/useOrganizationProfile";
+import { useProject, useProjects } from "@/hooks/useProjects";
 import { useTagDiff } from "@/hooks/useTagDiff";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
-import LoadingState from "@/components/LoadingState";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
 import { getProfileImage } from "@/lib/utils/getProfileImage";
-import { useAvatars } from "@/hooks/useAvatars";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
-import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
-import EventsForm from "./EventsEditForm";
-import { useTheme } from "@/contexts/ThemeContext";
 import {
-  ensureArray,
-  processIdArray,
   createSafeFunction,
+  ensureArray
 } from "@/lib/utils/safeDataAccess";
+import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
+import { Capacity } from "@/types/capacity";
+import { Contacts } from "@/types/contacts";
+import { OrganizationDocument } from "@/types/document";
+import { Event } from "@/types/event";
+import { Organization } from "@/types/organization";
+import { Project } from "@/types/project";
+import { tagDiff } from "@/types/tagDiff";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CapacityDebug from "../../profile/edit/components/CapacityDebug";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CAPACITY_CACHE_KEYS } from "@/hooks/useCapacities";
+import EventsForm from "./EventsEditForm";
+import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
+import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
 
 interface ProfileOption {
   value: string;
@@ -334,7 +332,7 @@ export default function EditOrganizationProfilePage() {
   // Form data
   const [formData, setFormData] = useState<Partial<Organization>>({
     display_name: organization?.display_name || "",
-    report_link: organization?.report_link || "",
+    report: organization?.report || "",
     profile_image: organization?.profile_image || "",
     acronym: organization?.acronym || "",
     meta_page: organization?.meta_page || "",
@@ -376,6 +374,7 @@ export default function EditOrganizationProfilePage() {
     if (organization && !isInitialized) {
       setFormData({
         display_name: organization.display_name || "",
+        report: organization.report || "",
         profile_image: organization.profile_image || "",
         acronym: organization.acronym || "",
         meta_page: organization.meta_page || "",
@@ -636,6 +635,71 @@ export default function EditOrganizationProfilePage() {
 
       // Create a copy of the form data for updating
       const updatedFormData = { ...formData };
+
+      // Include contacts data in the organization update
+      updatedFormData.email = contactsData.email;
+      updatedFormData.meta_page = contactsData.meta_page;
+      updatedFormData.website = contactsData.website;
+
+      // Process documents data - create/update documents via API
+      const validDocuments = documentsData.filter(
+        (doc) => doc.url && doc.url.trim() !== ""
+      );
+
+      // Create new documents and collect existing document IDs
+      const documentPromises = validDocuments.map(async (doc) => {
+        if (doc.id === 0 || doc.id === null) {
+          // Create new document
+          try {
+            const newDoc = await createDocument({ url: doc.url });
+            return newDoc?.id;
+          } catch (error) {
+            console.error("Error creating document:", error);
+            return null;
+          }
+        } else {
+          // Keep existing document ID
+          return doc.id;
+        }
+      });
+
+      const documentIds = await Promise.all(documentPromises);
+      const validDocumentIds = documentIds.filter(
+        (id): id is number => id !== null && id !== undefined
+      );
+
+      updatedFormData.documents = validDocumentIds;
+
+      // Process DiffTags data - create new tags and collect existing tag IDs
+      const validTags = diffTagsData.filter(
+        (tag) => tag.tag && tag.tag.trim() !== ""
+      );
+
+      const tagPromises = validTags.map(async (tag) => {
+        if (tag.id < 0 || tag.id === 0) {
+          // Create new tag
+          try {
+            const newTag = await createTag({
+              tag: tag.tag,
+              creator: Number(session?.user?.id),
+            });
+            return newTag?.id;
+          } catch (error) {
+            console.error("Error creating tag:", error);
+            return null;
+          }
+        } else {
+          // Keep existing tag ID
+          return tag.id;
+        }
+      });
+
+      const tagIds = await Promise.all(tagPromises);
+      const validTagIds = tagIds.filter(
+        (id): id is number => id !== null && id !== undefined
+      );
+
+      updatedFormData.tag_diff = validTagIds;
 
       // Ensure valid project IDs are included
       const validProjectIds = projectsData

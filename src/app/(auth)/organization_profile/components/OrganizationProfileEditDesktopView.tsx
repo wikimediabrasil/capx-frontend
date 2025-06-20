@@ -308,9 +308,9 @@ export default function OrganizationProfileEditDesktopView({
                   ? "bg-transparent border-white text-white placeholder-gray-400"
                   : "border-gray-300 text-[#829BA4]"
               }`}
-              value={formData.meta_page || ""}
+              value={formData.report || ""}
               onChange={(e) =>
-                setFormData({ ...formData, meta_page: e.target.value })
+                setFormData({ ...formData, report: e.target.value })
               }
             />
             <p

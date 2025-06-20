@@ -1,6 +1,6 @@
 export interface Organization {
   id: number;
-  report_link: string | null;
+  report: string | null;
   display_name: string;
   profile_image: string | null;
   acronym: string;

@@ -1,8 +1,7 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import CapacityListMainWrapper from "@/app/(auth)/capacity/components/CapacityListMainWrapper";
-import { useCapacityList } from "@/hooks/useCapacityList";
-import { useSession } from "next-auth/react";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useSession } from "next-auth/react";
 
 // Next.js App Router's mock
 jest.mock("next/navigation", () => ({
