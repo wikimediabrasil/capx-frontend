@@ -8,7 +8,7 @@ export const useTerritories = (token: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Reseta o estado quando o token muda
+    // Reset the state when the token changes
     if (!token) {
       setTerritories({});
       setLoading(false);
@@ -16,7 +16,6 @@ export const useTerritories = (token: string | undefined) => {
       return;
     }
 
-    // Função assíncrona dentro do useEffect para carregar os territórios
     const loadTerritories = async () => {
       setLoading(true);
       setError(null);
@@ -35,9 +34,8 @@ export const useTerritories = (token: string | undefined) => {
       }
     };
 
-    // Executa a função para carregar os territórios
     loadTerritories();
-  }, [token]); // O useEffect depende apenas do token
+  }, [token]);
 
   return {
     territories,

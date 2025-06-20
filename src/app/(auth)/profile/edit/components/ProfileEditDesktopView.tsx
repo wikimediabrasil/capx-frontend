@@ -69,6 +69,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
+import BadgesCarousel from "@/components/BadgesCarousel";
+import { useBadges } from "@/contexts/BadgesContext";
+import BadgeSelectionModal from "@/components/BadgeSelectionModal";
+import LetsConnectPopup from "@/components/LetsConnectPopup";
+import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -102,6 +107,11 @@ interface ProfileEditDesktopViewProps {
   refetch: () => Promise<any>;
   goTo: (path: string) => void;
   isImageLoading: boolean;
+  hasLetsConnectData: boolean;
+  showLetsConnectPopup: boolean;
+  setShowLetsConnectPopup: (show: boolean) => void;
+  handleLetsConnectImport: () => void;
+  isLetsConnectLoading: boolean;
 }
 
 export default function ProfileEditDesktopView(
@@ -134,6 +144,11 @@ export default function ProfileEditDesktopView(
     refetch,
     goTo,
     isImageLoading,
+    hasLetsConnectData,
+    showLetsConnectPopup,
+    setShowLetsConnectPopup,
+    handleLetsConnectImport,
+    isLetsConnectLoading,
   } = props;
 
   const router = useRouter();
@@ -321,10 +336,20 @@ export default function ProfileEditDesktopView(
                 >
                   {pageContent["edit-profile-consent-wikidata"]}
                 </span>
+                {hasLetsConnectData && <BaseButton
+                  onClick={() => setShowLetsConnectPopup(true)}
+                  label={pageContent["edit-profile-use-letsconnect"]}
+                  customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
+                  imageUrl={LetsConnectIconWhite}
+                  imageAlt="LetsConnect icon"
+                  imageWidth={30}
+                  imageHeight={30}
+                  disabled={isLetsConnectLoading}
+                />}
                 <BaseButton
                   onClick={() => setShowDeleteProfilePopup(true)}
                   label={pageContent["edit-profile-delete-profile"]}
-                  customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold text-capx-dark-box-bg mb-0 mt-8 bg-[#D43831] text-white`}
+                  customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold text-capx-dark-box-bg mb-0 mt-4 bg-[#D43831] text-white`}
                   imageUrl={DeleteIcon}
                   imageAlt="Delete icon"
                   imageWidth={30}
@@ -1397,6 +1422,12 @@ export default function ProfileEditDesktopView(
           }}
         />
       )}
+
+      <LetsConnectPopup
+        isOpen={showLetsConnectPopup}
+        onClose={() => setShowLetsConnectPopup(false)}
+        onConfirm={handleLetsConnectImport}
+      />
     </div>
   );
 }

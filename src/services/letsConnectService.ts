@@ -1,4 +1,5 @@
 import { LetsConnect } from "@/types/lets_connect";
+import { LetsConnectProfile } from "@/types/profile";
 import axios from "axios";
 
 export interface LetsConnectServiceParams {
@@ -39,11 +40,13 @@ export class LetsConnectService {
     }
   }
 
-  static async getLetsConnect(token?: string): Promise<LetsConnect[]> {
+  static async getLetsConnect(username?: string): Promise<LetsConnectProfile | null> {
     try {
       const response = await axios.get("/api/lets_connect", {
+        params: {
+          username: username
+        },
         headers: {
-          Authorization: `Token ${token}`,
         "Content-Type": "application/json",
       },
     });
