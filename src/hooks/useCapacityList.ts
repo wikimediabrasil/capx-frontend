@@ -79,6 +79,7 @@ export function useCapacityList(token?: string, language: string = "en") {
         const formattedCapacities = response.map((item: any): Capacity => {
           const baseCode = item.code.toString();
           return {
+            wd_code: item.wd_code,
             code: baseCode,
             name: item.name,
             color: baseCode.startsWith("10")
@@ -211,6 +212,7 @@ export function useCapacityList(token?: string, language: string = "en") {
               const baseCode = item.code.toString();
               return {
                 code: baseCode,
+                wd_code: item.wd_code,
                 name: item.name,
                 color: getCapacityColor(parentCapacity?.color || "gray-200"),
                 icon: getCapacityIcon(Number(parentCode)),
@@ -460,6 +462,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                 color: rootCapacity?.color || item.color,
                 icon: rootCapacity?.icon || item.icon,
                 hasChildren: true,
+                wd_code: item.wd_code,
                 parentCapacity: undefined,
                 skill_type: Number(item.code),
                 skill_wikidata_item: item.skill_wikidata_item || "",
@@ -511,6 +514,7 @@ export function useCapacityList(token?: string, language: string = "en") {
                       name: sanitizeCapacityName(item.name, item.code),
                       color: "black", // Always use black for third-level capacities
                       icon: grandparent.icon,
+                      wd_code: item.wd_code,
                       hasChildren: false,
                       metabase_code: "",
                       level: 3, // Always explicitly set level for third-level capacities
@@ -528,6 +532,7 @@ export function useCapacityList(token?: string, language: string = "en") {
               // if didnt find the parent, create a fake parent
               return {
                 code: item.code,
+                wd_code: item.wd_code,
                 name: sanitizeCapacityName(item.name, item.code),
                 color: "black", // Always use black for unknown child capacities
                 icon: "",
@@ -560,6 +565,7 @@ export function useCapacityList(token?: string, language: string = "en") {
             // fallback for any other case
             return {
               code: item.code,
+              wd_code: item.wd_code,
               name: sanitizeCapacityName(item.name, item.code),
               color: "gray-600", // dark gray for unknown capacities
               icon: "",

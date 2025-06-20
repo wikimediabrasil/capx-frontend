@@ -51,6 +51,7 @@ const convertToCapacity = (
 
   return {
     code,
+    wd_code: response.wd_code,
     name: response.name,
     color,
     icon: getCapacityIcon(iconCode),

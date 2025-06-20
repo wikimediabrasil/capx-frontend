@@ -30,6 +30,8 @@ import {
 // Import the new capacity hooks
 import { useCapacities } from "@/hooks/useCapacities";
 import { useCapacityCache } from "@/contexts/CapacityCacheContext";
+import { useLetsConnect } from "@/hooks/useLetsConnect";
+import { useCapacityList } from "@/hooks/useCapacityList";
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -86,7 +88,7 @@ const fetchWikidataImage = async (qid: string) => {
 export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const { avatars, getAvatarById } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
@@ -132,6 +134,8 @@ export default function EditProfilePage() {
 
   // Get the capacity system with React Query
   const { getCapacityById, isLoadingRootCapacities } = useCapacities();
+  const { rootCapacities,  childrenCapacities } = useCapacityList(token, language);
+  const allCapacities = [...rootCapacities, ...Object.values(childrenCapacities).flat()];
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState({
@@ -143,6 +147,8 @@ export default function EditProfilePage() {
   const [selectedCapacityType, setSelectedCapacityType] = useState<
     "known" | "available" | "wanted"
   >("known");
+  const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
+  const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: "",
     affiliation: [],
@@ -476,11 +482,9 @@ export default function EditProfilePage() {
         }
 
         const wikidataQid = await fetchWikidataQid(profile.user.username);
-        console.log("Wikidata QID obtido:", wikidataQid);
 
         if (wikidataQid) {
           const wikidataImage = await fetchWikidataImage(wikidataQid);
-          console.log("Wikidata Image obtida:", wikidataImage);
 
           // Update the state with the Wikidata image
           setSelectedAvatar({
@@ -496,7 +500,6 @@ export default function EditProfilePage() {
             avatar: null, // Remove the avatar when using Wikidata
           };
 
-          console.log("FormData atualizado:", updatedFormData);
           setFormData(updatedFormData);
           setUnsavedData(updatedFormData); // Important: also update the unsavedData
         } else {
@@ -618,12 +621,58 @@ export default function EditProfilePage() {
     router.push(path);
   };
 
+
+  const handleLetsConnectImport = async () => {
+    const allLanguages = Object.entries(languages).map(([id, name]) => ({
+      id: Number(id),
+      name: name,
+      proficiency: "Advanced"
+    }));
+    const letsConnectLanguages = allLanguages.filter((language) => letsConnectData?.reconciled_languages.includes(language.name));
+
+    const letsConnectWantedCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_learn.includes(capacity.wd_code || ""));
+    const letsConnectAvailableCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_share.includes(capacity.wd_code || ""));
+
+    const allAffiliations = Object.entries(affiliations).map(([id, name]) => ({
+      id: Number(id),
+      name: name,
+    }));
+
+    const letsConnectAffiliation = allAffiliations.filter(affiliation => {
+      const affiliationName = affiliation.name.split(' (')[0];  // Get everything before ' ('
+      if (affiliationName === letsConnectData?.reconciled_affiliation) {
+        return affiliation.id;
+      }
+    });
+
+    const allTerritories = Object.entries(territories).map(([id, name]) => ({
+      id: Number(id),
+      name: name,
+    }));
+    const letsConnectTerritoryId = allTerritories.find((territory) => territory.name === letsConnectData?.reconciled_territory)?.id.toString() ?? "";
+
+    if (letsConnectData) {
+      setFormData({
+        ...formData,
+        affiliation: letsConnectAffiliation.map(affiliation => affiliation.id.toString()),
+        language: letsConnectLanguages,
+        territory: [letsConnectTerritoryId],
+        skills_known: letsConnectAvailableCapacities.map(capacity => capacity.code),
+        skills_available: letsConnectAvailableCapacities.map(capacity => capacity.code),
+        skills_wanted: letsConnectWantedCapacities.map(capacity => capacity.code),
+      });
+      showSnackbar(pageContent["snackbar-lets-connect-import-success"], "success");
+    }
+    setShowLetsConnectPopup(false);
+  };
+
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
       src: selectedAvatar.src || NoAvatarIcon,
     },
     handleAvatarSelect,
+    hasLetsConnectData: letsConnectData !== null,
     showAvatarPopup,
     setShowAvatarPopup,
     handleWikidataClick,
@@ -650,6 +699,10 @@ export default function EditProfilePage() {
     profile,
     refetch,
     goTo,
+    showLetsConnectPopup,
+    setShowLetsConnectPopup,
+    handleLetsConnectImport,
+    isLetsConnectLoading,
   };
 
   // When showing debug information, include loading state
