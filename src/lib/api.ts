@@ -1,5 +1,5 @@
-import axios, { AxiosInstance } from "axios";
-import { signOut } from "next-auth/react";
+import axios, { AxiosInstance } from 'axios';
+import { signOut } from 'next-auth/react';
 
 interface ApiResponse<T> {
   data?: T;
@@ -10,7 +10,7 @@ interface ApiResponse<T> {
 // Create an axios instance with interceptors
 const createAxiosInstance = (token?: string): AxiosInstance => {
   const instance = axios.create({
-    baseURL: process.env.BASE_URL || "http://localhost:8000",
+    baseURL: process.env.BASE_URL || 'http://localhost:8000',
     headers: token
       ? {
           Authorization: `Token ${token}`,
@@ -20,8 +20,8 @@ const createAxiosInstance = (token?: string): AxiosInstance => {
 
   // Response interceptor
   instance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
+    response => response,
+    async error => {
       if (error.response?.status === 401) {
         // Check if the response contains the specific invalid token message
         const responseData = error.response?.data;
@@ -31,7 +31,7 @@ const createAxiosInstance = (token?: string): AxiosInstance => {
           console.warn("Token expired detected. Performing automatic logout...");
           await signOut({ redirect: true, callbackUrl: "/" });
         }
-        return Promise.reject(new Error("Unauthorized"));
+        return Promise.reject(new Error('Unauthorized'));
       }
       return Promise.reject(error);
     }
@@ -54,7 +54,7 @@ export const apiGet = async <T>(
     };
   } catch (error: any) {
     return {
-      error: error.response?.data?.message || "An error occurred",
+      error: error.response?.data?.message || 'An error occurred',
       status: error.response?.status || 500,
     };
   }
@@ -74,7 +74,7 @@ export const apiPost = async <T>(
     };
   } catch (error: any) {
     return {
-      error: error.response?.data?.message || "An error occurred",
+      error: error.response?.data?.message || 'An error occurred',
       status: error.response?.status || 500,
     };
   }
@@ -94,16 +94,13 @@ export const apiPut = async <T>(
     };
   } catch (error: any) {
     return {
-      error: error.response?.data?.message || "An error occurred",
+      error: error.response?.data?.message || 'An error occurred',
       status: error.response?.status || 500,
     };
   }
 };
 
-export const apiDelete = async <T>(
-  url: string,
-  token?: string
-): Promise<ApiResponse<T>> => {
+export const apiDelete = async <T>(url: string, token?: string): Promise<ApiResponse<T>> => {
   try {
     const api = createAxiosInstance(token);
     const response = await api.delete<T>(url);
@@ -113,7 +110,7 @@ export const apiDelete = async <T>(
     };
   } catch (error: any) {
     return {
-      error: error.response?.data?.message || "An error occurred",
+      error: error.response?.data?.message || 'An error occurred',
       status: error.response?.status || 500,
     };
   }

@@ -9,10 +9,10 @@ export function useProfile(
   const queryClient = useQueryClient();
   
   const { data, isLoading, error, refetch, ...rest } = useQuery({
-    queryKey: ["profile", token, userId],
+    queryKey: ['profile', token, userId],
     queryFn: async () => {
       if (!token || !userId) {
-        throw new Error("Token or userId is missing");
+        throw new Error('Token or userId is missing');
       }
 
       const response = await profileService.fetchUserProfile({
@@ -26,12 +26,10 @@ export function useProfile(
       });
 
       if (Array.isArray(response)) {
-        let profile = response.find(
-          (p) => p.user.id === userId && p.avatar !== null
-        );
+        let profile = response.find(p => p.user.id === userId && p.avatar !== null);
 
         if (!profile) {
-          profile = response.find((p) => p.user.id === userId);
+          profile = response.find(p => p.user.id === userId);
         }
 
         return profile;
@@ -44,7 +42,7 @@ export function useProfile(
 
   const updateProfile = async (profileData: Partial<Profile>) => {
     if (!token || !userId) {
-      throw new Error("No token or userId available");
+      throw new Error('No token or userId available');
     }
 
     try {
@@ -76,7 +74,7 @@ export function useProfile(
 
   const deleteProfile = async () => {
     if (!token || !userId) {
-      throw new Error("No token or userId available");
+      throw new Error('No token or userId available');
     }
 
     try {

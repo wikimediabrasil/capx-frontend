@@ -8,7 +8,7 @@ const meta: Meta<typeof AuthButton> = {
   title: 'Components/AuthButton',
   component: AuthButton,
   decorators: [
-    (Story) => (
+    Story => (
       <AppProvider>
         <ThemeProvider>
           <Story />
@@ -88,7 +88,8 @@ export const Mobile: Story = {
 
 export const VeryLongText: Story = {
   args: {
-    message: 'Faça login com sua conta da Wikimedia para ter acesso a todos os recursos e funcionalidades disponíveis na plataforma de compartilhamento',
+    message:
+      'Faça login com sua conta da Wikimedia para ter acesso a todos os recursos e funcionalidades disponíveis na plataforma de compartilhamento',
     isSignOut: false,
   },
 };
@@ -103,7 +104,7 @@ export const RTLText: Story = {
 export const MobileDefault: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
+      defaultViewport: 'mobile1',
     },
   },
   args: {
@@ -115,7 +116,7 @@ export const MobileDefault: Story = {
 export const MobileLongText: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
+      defaultViewport: 'mobile1',
     },
   },
   args: {
@@ -127,7 +128,7 @@ export const MobileLongText: Story = {
 export const MobileRTL: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
+      defaultViewport: 'mobile1',
     },
   },
   args: {
@@ -139,11 +140,12 @@ export const MobileRTL: Story = {
 export const MobileVeryLongText: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
+      defaultViewport: 'mobile1',
     },
   },
   args: {
-    message: 'Faça login com sua conta da Wikimedia para ter acesso a todos os recursos e funcionalidades disponíveis na plataforma de compartilhamento e colaboração',
+    message:
+      'Faça login com sua conta da Wikimedia para ter acesso a todos os recursos e funcionalidades disponíveis na plataforma de compartilhamento e colaboração',
     isSignOut: false,
   },
 };
@@ -151,22 +153,21 @@ export const MobileVeryLongText: Story = {
 export const MobileMultipleLanguages: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
+      defaultViewport: 'mobile1',
     },
   },
   args: {
-    message: 'Войдите в систему с помощью учетной записи Викимедиа для доступа ко всем доступным ресурсам',
+    message:
+      'Войдите в систему с помощью учетной записи Викимедиа для доступа ко всем доступным ресурсам',
     isSignOut: false,
   },
 };
 
 export const WithThemeToggle: Story = {
   decorators: [
-    (Story) => (
+    Story => (
       <div className="flex items-center gap-4 bg-gray-100 p-4">
-        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full">
-          🌙
-        </div>
+        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full">🌙</div>
         <Story />
       </div>
     ),
@@ -180,15 +181,13 @@ export const WithThemeToggle: Story = {
 export const MobileWithThemeToggle: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1'
+      defaultViewport: 'mobile1',
     },
   },
   decorators: [
-    (Story) => (
+    Story => (
       <div className="flex items-center gap-2 bg-gray-100 p-4">
-        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full">
-          🌙
-        </div>
+        <div className="w-10 h-10 flex items-center justify-center bg-white rounded-full">🌙</div>
         <Story />
       </div>
     ),
@@ -197,4 +196,4 @@ export const MobileWithThemeToggle: Story = {
     message: 'Entrar com sua conta da Wikimedia',
     isSignOut: false,
   },
-}; 
+};

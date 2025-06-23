@@ -1,12 +1,12 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import Image from "next/image";
-import { OrganizationDocument } from "@/types/document";
-import { useApp } from "@/contexts/AppContext";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import { validateCapXDocumentUrl } from "@/lib/utils/validateDocumentUrl";
-import { useState, useEffect } from "react";
+import { useTheme } from '@/contexts/ThemeContext';
+import CancelIcon from '@/public/static/images/cancel.svg';
+import CancelIconWhite from '@/public/static/images/cancel_white.svg';
+import Image from 'next/image';
+import { OrganizationDocument } from '@/types/document';
+import { useApp } from '@/contexts/AppContext';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { validateCapXDocumentUrl } from '@/lib/utils/validateDocumentUrl';
+import { useState, useEffect } from 'react';
 
 interface DocumentFormItemProps {
   document: OrganizationDocument;
@@ -15,12 +15,7 @@ interface DocumentFormItemProps {
   onChange: (index: number, field: string, value: string) => void;
 }
 
-const DocumentFormItem = ({
-  document,
-  index,
-  onDelete,
-  onChange,
-}: DocumentFormItemProps) => {
+const DocumentFormItem = ({ document, index, onDelete, onChange }: DocumentFormItemProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const { showSnackbar } = useSnackbar();

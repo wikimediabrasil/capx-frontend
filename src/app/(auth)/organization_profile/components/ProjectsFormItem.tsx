@@ -1,11 +1,11 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import ImagesModeIcon from "@/public/static/images/images_mode.svg";
-import AddLinkIcon from "@/public/static/images/add_link.svg";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import Image from "next/image";
-import { Project } from "@/types/project";
-import { useApp } from "@/contexts/AppContext";
+import { useTheme } from '@/contexts/ThemeContext';
+import ImagesModeIcon from '@/public/static/images/images_mode.svg';
+import AddLinkIcon from '@/public/static/images/add_link.svg';
+import CancelIcon from '@/public/static/images/cancel.svg';
+import CancelIconWhite from '@/public/static/images/cancel_white.svg';
+import Image from 'next/image';
+import { Project } from '@/types/project';
+import { useApp } from '@/contexts/AppContext';
 
 interface ProjectFormItemProps {
   project: Project;
@@ -14,12 +14,7 @@ interface ProjectFormItemProps {
   onChange: (index: number, field: keyof Project, value: string) => void;
 }
 
-const ProjectFormItem = ({
-  project,
-  index,
-  onDelete,
-  onChange,
-}: ProjectFormItemProps) => {
+const ProjectFormItem = ({ project, index, onDelete, onChange }: ProjectFormItemProps) => {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
 
@@ -30,13 +25,13 @@ const ProjectFormItem = ({
           <div className="flex flex-row gap-2 w-full items-center text-[12px] md:text-[24px] text-[16px] p-2 border rounded-md bg-transparent">
             <input
               type="text"
-              placeholder={pageContent["organization-profile-project-name"]}
-              value={project.display_name || ""}
-              onChange={(e) => onChange(index, "display_name", e.target.value)}
+              placeholder={pageContent['organization-profile-project-name']}
+              value={project.display_name || ''}
+              onChange={e => onChange(index, 'display_name', e.target.value)}
               className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
                 darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#829BA4] placeholder-[#829BA4]"
+                  ? 'text-white placeholder-gray-400'
+                  : 'text-[#829BA4] placeholder-[#829BA4]'
               }`}
             />
           </div>
@@ -53,16 +48,14 @@ const ProjectFormItem = ({
               </div>
               <input
                 type="text"
-                placeholder={pageContent["organization-profile-project-image"]}
+                placeholder={pageContent['organization-profile-project-image']}
                 className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
                   darkMode
-                    ? "text-white placeholder-gray-400"
-                    : "text-[#829BA4] placeholder-[#829BA4]"
+                    ? 'text-white placeholder-gray-400'
+                    : 'text-[#829BA4] placeholder-[#829BA4]'
                 }`}
                 value={project.profile_image}
-                onChange={(e) =>
-                  onChange(index, "profile_image", e.target.value)
-                }
+                onChange={e => onChange(index, 'profile_image', e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2 p-2 text-[12px] md:text-[24px] border rounded-md w-full md:w-1/2 bg-transparent">
@@ -77,14 +70,14 @@ const ProjectFormItem = ({
               </div>
               <input
                 type="text"
-                placeholder={pageContent["organization-profile-project-link"]}
+                placeholder={pageContent['organization-profile-project-link']}
                 className={`w-full bg-transparent border-none outline-none text-[12px] md:text-[24px] ${
                   darkMode
-                    ? "text-white placeholder-gray-400"
-                    : "text-[#829BA4] placeholder-[#829BA4]"
+                    ? 'text-white placeholder-gray-400'
+                    : 'text-[#829BA4] placeholder-[#829BA4]'
                 }`}
                 value={project.url}
-                onChange={(e) => onChange(index, "url", e.target.value)}
+                onChange={e => onChange(index, 'url', e.target.value)}
               />
             </div>
           </div>
@@ -109,13 +102,11 @@ const ProjectFormItem = ({
         <div className="flex flex-row gap-2 w-full items-center text-[24px] p-2 border rounded-md bg-transparent">
           <input
             type="text"
-            placeholder={pageContent["organization-profile-project-name"]}
-            value={project.display_name || ""}
-            onChange={(e) => onChange(index, "display_name", e.target.value)}
+            placeholder={pageContent['organization-profile-project-name']}
+            value={project.display_name || ''}
+            onChange={e => onChange(index, 'display_name', e.target.value)}
             className={`w-full bg-transparent border-none outline-none ${
-              darkMode
-                ? "text-white placeholder-gray-400"
-                : "text-[#829BA4] placeholder-[#829BA4]"
+              darkMode ? 'text-white placeholder-gray-400' : 'text-[#829BA4] placeholder-[#829BA4]'
             }`}
           />
         </div>
@@ -130,14 +121,14 @@ const ProjectFormItem = ({
             />
             <input
               type="text"
-              placeholder={pageContent["organization-profile-project-image"]}
+              placeholder={pageContent['organization-profile-project-image']}
               className={`w-full text-[24px] bg-transparent border-none outline-none ${
                 darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#829BA4] placeholder-[#829BA4]"
+                  ? 'text-white placeholder-gray-400'
+                  : 'text-[#829BA4] placeholder-[#829BA4]'
               }`}
               value={project.profile_image}
-              onChange={(e) => onChange(index, "profile_image", e.target.value)}
+              onChange={e => onChange(index, 'profile_image', e.target.value)}
             />
           </div>
           <div className="flex items-center gap-2 p-2 text-[24px] border rounded-md w-1/2 bg-transparent">
@@ -152,14 +143,14 @@ const ProjectFormItem = ({
             </div>
             <input
               type="text"
-              placeholder={pageContent["organization-profile-project-link"]}
+              placeholder={pageContent['organization-profile-project-link']}
               className={`w-full bg-transparent border-none outline-none ${
                 darkMode
-                  ? "text-white placeholder-gray-400"
-                  : "text-[#829BA4] placeholder-[#829BA4]"
+                  ? 'text-white placeholder-gray-400'
+                  : 'text-[#829BA4] placeholder-[#829BA4]'
               }`}
               value={project.url}
-              onChange={(e) => onChange(index, "url", e.target.value)}
+              onChange={e => onChange(index, 'url', e.target.value)}
             />
           </div>
         </div>

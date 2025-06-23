@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from "react";
 import { documentService } from "@/services/documentService";
@@ -7,12 +7,7 @@ import { fetchWikimediaData } from "@/lib/utils/fetchWikimediaData";
 import { normalizeDocumentUrl, validateCapXDocumentUrl } from "@/lib/utils/validateDocumentUrl";
 import { ensureCommonsPageUrl } from "@/lib/utils/convertWikimediaUrl";
 
-export const useDocument = (
-  token?: string,
-  id?: number,
-  limit?: number,
-  offset?: number
-) => {
+export const useDocument = (token?: string, id?: number, limit?: number, offset?: number) => {
   const [documents, setDocuments] = useState<WikimediaDocument[]>([]);
   const [document, setDocument] = useState<WikimediaDocument | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,22 +18,18 @@ export const useDocument = (
 
     try {
       setLoading(true);
-      const response = await documentService.fetchAllDocuments(
-        token,
-        limit,
-        offset
-      );
+      const response = await documentService.fetchAllDocuments(token, limit, offset);
 
       // Map to ensure IDs and URLs are correct
-      const formattedDocs = response.map((doc) => ({
+      const formattedDocs = response.map(doc => ({
         ...doc,
         id: doc.id || 0,
-        url: doc.url || "",
+        url: doc.url || '',
       }));
 
       setDocuments(formattedDocs);
     } catch (error) {
-      console.error("Error fetching documents:", error);
+      console.error('Error fetching documents:', error);
       setError(error as string);
     } finally {
       setLoading(false);
@@ -50,20 +41,15 @@ export const useDocument = (
 
     setLoading(true);
     try {
-      const basicDocument = await documentService.fetchSingleDocument(
-        token,
-        id
-      );
+      const basicDocument = await documentService.fetchSingleDocument(token, id);
       if (basicDocument) {
-        const enrichedDocument = await fetchWikimediaData(
-          basicDocument.url || ""
-        );
+        const enrichedDocument = await fetchWikimediaData(basicDocument.url || '');
         setDocument(enrichedDocument);
         return enrichedDocument;
       }
     } catch (error) {
-      console.error("Error fetching document:", error);
-      setError("Failed to fetch document");
+      console.error('Error fetching document:', error);
+      setError('Failed to fetch document');
     } finally {
       setLoading(false);
     }
@@ -71,7 +57,7 @@ export const useDocument = (
 
   const createDocument = async (data: Partial<OrganizationDocument>) => {
     if (!token) {
-      console.error("createDocument: No token provided");
+      console.error('createDocument: No token provided');
       return;
     }
     
@@ -111,7 +97,7 @@ export const useDocument = (
       );
 
       if (response && response.id) {
-        const enrichedDocument = await fetchWikimediaData(response.url || "");
+        const enrichedDocument = await fetchWikimediaData(response.url || '');
         setDocument(enrichedDocument);
       }
 
@@ -129,7 +115,7 @@ export const useDocument = (
       await documentService.deleteDocument(token, id);
       setDocument(null);
     } catch (error) {
-      console.error("Error deleting document:", error);
+      console.error('Error deleting document:', error);
       throw error;
     }
   };

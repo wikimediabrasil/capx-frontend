@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useOrganizations } from "@/hooks/useOrganizationProfile";
-import { Capacity } from "@/types/capacity";
-import { PaginationButtons } from "@/components/PaginationButtons";
+import { useEffect, useMemo, useState } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useOrganizations } from '@/hooks/useOrganizationProfile';
+import { Capacity } from '@/types/capacity';
+import { PaginationButtons } from '@/components/PaginationButtons';
 import {
   createProfilesFromOrganizations,
   FilterState,
   ProfileCapacityType,
   ProfileFilterType,
   Skill,
-} from "@/app/(auth)/feed/types";
-import { Filters } from "@/app/(auth)/feed/components/Filters";
-import { SearchBar } from "@/app/(auth)/feed/components/SearchBar";
+} from '@/app/(auth)/feed/types';
+import { Filters } from '@/app/(auth)/feed/components/Filters';
+import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 
-import Banner from "@/components/Banner";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import OrgListBanner from "@/public/static/images/organization_list.svg";
-import LoadingState from "@/components/LoadingState";
-import ProfileCard from "@/app/(auth)/feed/components/ProfileCard";
+import Banner from '@/components/Banner';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import OrgListBanner from '@/public/static/images/organization_list.svg';
+import LoadingState from '@/components/LoadingState';
+import ProfileCard from '@/app/(auth)/feed/components/ProfileCard';
 
 export default function OrganizationList() {
   const { darkMode } = useTheme();
@@ -104,15 +104,13 @@ export default function OrganizationList() {
   }, [activeFilters]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(
-      (cap) => cap.code == capacity.code
-    );
+    const capacityExists = activeFilters.capacities.some(cap => cap.code == capacity.code);
 
     if (capacityExists) {
       return;
     }
 
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
       capacities: [
         ...prev.capacities,
@@ -125,9 +123,9 @@ export default function OrganizationList() {
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
-      capacities: prev.capacities.filter((cap) => cap.code !== capacityCode),
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
   };
 
@@ -152,8 +150,8 @@ export default function OrganizationList() {
     <div className="w-full flex flex-col items-center pt-24 md:pt-8">
       <Banner
         image={OrgListBanner}
-        title={pageContent["organization-list-banner-page"]}
-        alt={pageContent["organization-list-alt-banner"]}
+        title={pageContent['organization-list-banner-page']}
+        alt={pageContent['organization-list-alt-banner']}
       />
       <div className="container mx-auto px-4 mt-6">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
@@ -163,17 +161,17 @@ export default function OrganizationList() {
             selectedCapacities={activeFilters.capacities}
             onRemoveCapacity={handleRemoveCapacity}
             onCapacityInputFocus={() => setShowSkillModal(true)}
-            capacitiesPlaceholder={pageContent["filters-search-by-capacities"]}
-            removeItemAltText={pageContent["filters-remove-item-alt-icon"]}
+            capacitiesPlaceholder={pageContent['filters-search-by-capacities']}
+            removeItemAltText={pageContent['filters-remove-item-alt-icon']}
             onFilterClick={() => setShowFilters(true)}
-            filterAriaLabel={pageContent["saved-profiles-filters-button"]}
+            filterAriaLabel={pageContent['saved-profiles-filters-button']}
           />
 
           <CapacitySelectionModal
             isOpen={showSkillModal}
             onClose={() => setShowSkillModal(false)}
             onSelect={handleCapacitySelect}
-            title={pageContent["select-capacity"]}
+            title={pageContent['select-capacity']}
           />
 
           {filteredProfiles.length > 0 ? (
@@ -195,19 +193,11 @@ export default function OrganizationList() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
-              <p
-                className={`text-lg font-medium ${
-                  darkMode ? "text-white" : "text-gray-700"
-                }`}
-              >
-                {pageContent["feed-no-data-message"]}
+              <p className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
+                {pageContent['feed-no-data-message']}
               </p>
-              <p
-                className={`mt-2 text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                {pageContent["feed-no-data-description"]}
+              <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {pageContent['feed-no-data-description']}
               </p>
             </div>
           )}

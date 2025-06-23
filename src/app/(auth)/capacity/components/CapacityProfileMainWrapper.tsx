@@ -1,18 +1,16 @@
-"use client";
-import { useApp } from "@/contexts/AppContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import LoadingSection from "@/components/LoadingSection";
-import { useCapacityProfile } from "@/hooks/useCapacityProfile";
-import { useSession } from "next-auth/react";
-import CapacityProfileView from "./CapacityProfileView";
+'use client';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import LoadingSection from '@/components/LoadingSection';
+import { useCapacityProfile } from '@/hooks/useCapacityProfile';
+import { useSession } from 'next-auth/react';
+import CapacityProfileView from './CapacityProfileView';
 interface CapacityProfileMainWrapperProps {
   selectedCapacityId: string;
   language?: string;
 }
 
-export default function CapacityProfileMainWrapper(
-  props: CapacityProfileMainWrapperProps
-) {
+export default function CapacityProfileMainWrapper(props: CapacityProfileMainWrapperProps) {
   const { pageContent, language } = useApp();
   const { darkMode } = useTheme();
   const { data: session } = useSession();
@@ -32,7 +30,7 @@ export default function CapacityProfileMainWrapper(
         darkMode={darkMode}
         selectedCapacityData={selectedCapacityData}
         pageContent={pageContent}
-        userId={session?.user?.id || ""}
+        userId={session?.user?.id || ''}
       />
     </section>
   );

@@ -1,25 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const categoryTag = searchParams.get("category");
-    const tagId = searchParams.get("id") || "";
+    const categoryTag = searchParams.get('category');
+    const tagId = searchParams.get('id') || '';
 
     if (!categoryTag) {
-      return NextResponse.json(
-        { error: "Category parameter is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Category parameter is required' }, { status: 400 });
     }
 
-    const authorization = request.headers.get("authorization");
+    const authorization = request.headers.get('authorization');
     if (!authorization) {
-      return NextResponse.json(
-        { error: "Authorization header is required" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authorization header is required' }, { status: 401 });
     }
 
     const [codeList, userList] = await Promise.all([
@@ -32,10 +26,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     if (!codeList.data.hasOwnProperty(tagId)) {
-      return NextResponse.json(
-        { error: "No item for this tag id." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'No item for this tag id.' }, { status: 404 });
     }
 
     const tagData = {
@@ -46,10 +37,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(tagData);
   } catch (error) {
-    console.error("Tag API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch tag data" },
-      { status: 500 }
-    );
+    console.error('Tag API error:', error);
+    return NextResponse.json({ error: 'Failed to fetch tag data' }, { status: 500 });
   }
 }

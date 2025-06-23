@@ -1,16 +1,12 @@
-import Image from "next/image";
-import CapxLogo from "@/public/static/images/capx_detailed_logo.svg";
+import Image from 'next/image';
+import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 
 // Simple loading component without theme dependency
-export default function SimpleLoading({
-  fullScreen = false,
-}: {
-  fullScreen?: boolean;
-}) {
+export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
   return (
     <div
       className={`flex items-center justify-center ${
-        fullScreen ? "min-h-screen" : "h-[150px]"
+        fullScreen ? 'min-h-screen' : 'h-[150px]'
       } bg-white`}
       role="status"
       data-testid="simple-loading"
@@ -23,7 +19,7 @@ export default function SimpleLoading({
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}
-          style={{ width: "auto", height: "auto" }}
+          style={{ width: 'auto', height: 'auto' }}
           priority
         />
         <style jsx global>{`

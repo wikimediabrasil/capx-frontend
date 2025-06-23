@@ -90,12 +90,12 @@ export default function OrganizationProfileEditMobileView({
   return (
     <div
       className={`relative w-full overflow-x-hidden min-h-screen ${
-        darkMode ? "bg-[#053749] text-white" : "bg-white text-[#053749]"
+        darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
       }`}
     >
       <section
         className={`w-full max-w-screen-xl mx-auto px-4 py-8 ${
-          isMobile ? "mt-[80px]" : "mt-[64px]"
+          isMobile ? 'mt-[80px]' : 'mt-[64px]'
         }`}
       >
         <div className="flex flex-col gap-6 max-w-[600px] mx-auto">
@@ -105,14 +105,14 @@ export default function OrganizationProfileEditMobileView({
               <div className="flex flex-col gap-2">
                 <h1
                   className={`font-[Montserrat] text-[16px] not-italic font-normal leading-[29px] ${
-                    darkMode ? "text-white" : "text-[#053749]"
+                    darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent["edit-profile-welcome"]}
+                  {pageContent['edit-profile-welcome']}
                 </h1>
                 <h2
                   className={`font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] ${
-                    darkMode ? "text-white" : "text-[#053749]"
+                    darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {session?.user?.name}
@@ -123,18 +123,14 @@ export default function OrganizationProfileEditMobileView({
                   <LoadingState />
                 ) : (
                   <Image
-                    src={getProfileImage(
-                      userProfile?.profile_image,
-                      userProfile?.avatar,
-                      avatars
-                    )}
+                    src={getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars)}
                     alt="Avatar"
                     className="w-full h-full"
                     width={75}
                     height={75}
                     priority
                     style={{
-                      objectFit: "cover",
+                      objectFit: 'cover',
                     }}
                   />
                 )}
@@ -146,11 +142,11 @@ export default function OrganizationProfileEditMobileView({
                 alt="User circle icon"
                 width={32}
                 height={32}
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: 'auto', height: 'auto' }}
               />
               <span
                 className={`text-start font-[Montserrat] text-[16px] font-extrabold ${
-                  darkMode ? "text-white" : "text-[#053749]"
+                  darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
                 {formData?.display_name}
@@ -188,7 +184,7 @@ export default function OrganizationProfileEditMobileView({
             <div className="flex flex-col gap-[10px] mt-4">
               <BaseButton
                 onClick={handleSubmit}
-                label={pageContent["edit-profile-save-organization"]}
+                label={pageContent['edit-profile-save-organization']}
                 customClass="w-full flex items-center px-[13px] py-[6px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
                 imageUrl={SaveIcon}
                 imageAlt="Upload icon"
@@ -197,7 +193,7 @@ export default function OrganizationProfileEditMobileView({
               />
               <BaseButton
                 onClick={() => router.back()}
-                label={pageContent["edit-profile-cancel"]}
+                label={pageContent['edit-profile-cancel']}
                 customClass="flex border rounded-[4px] !mb-0 border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg px-4 py-2 rounded-md font-[Montserrat] text-[14px] font-bold pb-[6px]"
                 imageUrl={darkMode ? CancelIconWhite : CancelIcon}
                 imageAlt="Cancel icon"
@@ -218,28 +214,22 @@ export default function OrganizationProfileEditMobileView({
                   height={32}
                 />
               </div>
-              <h2
-                className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold`}
-              >
-                {pageContent["edit-profile-organization-logo"]}
+              <h2 className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold`}>
+                {pageContent['edit-profile-organization-logo']}
               </h2>
             </div>
 
-            <div
-              className={`flex flex-col gap-4 ${
-                darkMode ? "text-white" : "text-[#053749]"
-              }`}
-            >
+            <div className={`flex flex-col gap-4 ${darkMode ? 'text-white' : 'text-[#053749]'}`}>
               <input
                 type="text"
                 placeholder="Wikimedia Commons image's link (ex: File:Example.jpg)"
                 className={`w-full p-2 md:p-3 text-[14px] md:text-[24px] border rounded-md ${
                   darkMode
-                    ? "bg-transparent border-white text-white placeholder-gray-400"
-                    : "border-gray-300 text-[#829BA4]"
+                    ? 'bg-transparent border-white text-white placeholder-gray-400'
+                    : 'border-gray-300 text-[#829BA4]'
                 }`}
-                value={formData.profile_image || ""}
-                onChange={(e) =>
+                value={formData.profile_image || ''}
+                onChange={e =>
                   setFormData({
                     ...formData,
                     profile_image: e.target.value,
@@ -248,10 +238,10 @@ export default function OrganizationProfileEditMobileView({
               />
               <p
                 className={`text-[12px] md:text-[20px] ${
-                  darkMode ? "text-white" : "text-[#053749]"
+                  darkMode ? 'text-white' : 'text-[#053749]'
                 } mt-1`}
               >
-                {pageContent["edit-profile-organization-logo-help"]}
+                {pageContent['edit-profile-organization-logo-help']}
               </p>
 
               {/* Preview da imagem */}
@@ -263,8 +253,8 @@ export default function OrganizationProfileEditMobileView({
                       alt="Organization logo preview"
                       className="object-contain"
                       fill
-                      onError={(e) => {
-                        console.error("Erro ao carregar preview:", e);
+                      onError={e => {
+                        console.error('Erro ao carregar preview:', e);
                         e.currentTarget.src = NoAvatarIcon;
                       }}
                     />
@@ -279,7 +269,7 @@ export default function OrganizationProfileEditMobileView({
                       className="opacity-50"
                     />
                     <span className="text-gray-500 mt-2">
-                      {pageContent["edit-profile-no-image"]}
+                      {pageContent['edit-profile-no-image']}
                     </span>
                   </div>
                 )}
@@ -295,35 +285,31 @@ export default function OrganizationProfileEditMobileView({
                   alt="Report icon"
                   width={28}
                   height={28}
-                  style={{ width: "auto", height: "auto" }}
+                  style={{ width: 'auto', height: 'auto' }}
                 />
               </div>
               <h2 className={`font-[Montserrat] text-[14px] font-bold`}>
-                {pageContent["organization-profile-report-activities-title"]}
+                {pageContent['organization-profile-report-activities-title']}
               </h2>
             </div>
             <input
               type="text"
-              placeholder={pageContent["edit-profile-insert-link"]}
+              placeholder={pageContent['edit-profile-insert-link']}
               className={`w-full p-2 text-[12px] border rounded-md ${
                 darkMode
-                  ? "bg-transparent border-white text-white placeholder-gray-400"
-                  : "border-gray-300 text-gray-700"
+                  ? 'bg-transparent border-white text-white placeholder-gray-400'
+                  : 'border-gray-300 text-gray-700'
               }`}
-              value={formData?.report || ""}
-              onChange={(e) =>
+              value={formData?.report || ''}
+              onChange={e =>
                 setFormData({
                   ...formData,
                   report: e.target.value,
                 })
               }
             />
-            <p
-              className={`text-[12px] ${
-                darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
-            >
-              {pageContent["organization-profile-provide-meta-link"]}
+            <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
+              {pageContent['organization-profile-provide-meta-link']}
             </p>
           </div>
 
@@ -343,15 +329,15 @@ export default function OrganizationProfileEditMobileView({
                 </div>
                 <h2
                   className={`font-[Montserrat] text-[14px] font-bold flex items-center gap-2 ${
-                    darkMode ? "text-white" : "text-[#053749]"
+                    darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent["body-profile-known-capacities-title"]}
+                  {pageContent['body-profile-known-capacities-title']}
                 </h2>
               </div>
               <div
                 className={`flex flex-wrap gap-2 rounded-[4px] ${
-                  darkMode ? "bg-[#04222F]" : "bg-[#EFEFEF]"
+                  darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
                 } flex w-full px-[4px] py-[6px] items-start gap-[12px]`}
               >
                 {formData?.known_capacities?.map((capacity, index) => {
@@ -359,9 +345,8 @@ export default function OrganizationProfileEditMobileView({
 
                   // Sanitize the name to avoid it being a URL in any case
                   const displayName =
-                    typeof capacityName === "string" &&
-                    (capacityName.startsWith("https://") ||
-                      capacityName.includes("entity/Q"))
+                    typeof capacityName === 'string' &&
+                    (capacityName.startsWith('https://') || capacityName.includes('entity/Q'))
                       ? `Capacity ${capacity}`
                       : capacityName;
 
@@ -371,7 +356,7 @@ export default function OrganizationProfileEditMobileView({
                       className="flex items-center gap-1 rounded-md"
                     >
                       <BaseButton
-                        onClick={() => handleRemoveCapacity("known", index)}
+                        onClick={() => handleRemoveCapacity('known', index)}
                         label={displayName}
                         customClass="rounded-[4px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
                         imageUrl={darkMode ? CloseIconWhite : CloseIcon}
@@ -385,24 +370,18 @@ export default function OrganizationProfileEditMobileView({
               </div>
 
               <BaseButton
-                onClick={() => handleAddCapacity("known")}
-                label={pageContent["edit-profile-add-capacities"]}
+                onClick={() => handleAddCapacity('known')}
+                label={pageContent['edit-profile-add-capacities']}
                 customClass={`rounded-[4px] mt-2 flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                  darkMode
-                    ? "text-[#053749] bg-[#EFEFEF]"
-                    : "text-white bg-capx-dark-box-bg"
+                  darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-capx-dark-box-bg'
                 }`}
                 imageUrl={darkMode ? AddIcon : AddIconWhite}
                 imageAlt="Add icon"
                 imageWidth={20}
                 imageHeight={20}
               />
-              <p
-                className={`text-[12px] ${
-                  darkMode ? "text-white" : "text-[#053749]"
-                } mt-1`}
-              >
-                {pageContent["edit-profile-select-skills"]}
+              <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
+                {pageContent['edit-profile-select-skills']}
               </p>
             </div>
 
@@ -418,18 +397,16 @@ export default function OrganizationProfileEditMobileView({
                 </div>
                 <h2
                   className={`font-[Montserrat] text-[14px] font-bold flex items-center gap-2 ${
-                    darkMode ? "text-white" : "text-[#053749]"
+                    darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent["body-profile-available-capacities-title"]}
+                  {pageContent['body-profile-available-capacities-title']}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
                 <div
                   className={`flex flex-wrap gap-2 mt-2 px-1 py-[6px] rounded-[4px] ${
-                    darkMode
-                      ? "text-white bg-[#04222F]"
-                      : "text-[#053749] bg-transparent"
+                    darkMode ? 'text-white bg-[#04222F]' : 'text-[#053749] bg-transparent'
                   }`}
                 >
                   {formData?.available_capacities?.map((capacity, index) => {
@@ -437,9 +414,8 @@ export default function OrganizationProfileEditMobileView({
 
                     // Sanitize the name to avoid it being a URL in any case
                     const displayName =
-                      typeof capacityName === "string" &&
-                      (capacityName.startsWith("https://") ||
-                        capacityName.includes("entity/Q"))
+                      typeof capacityName === 'string' &&
+                      (capacityName.startsWith('https://') || capacityName.includes('entity/Q'))
                         ? `Capacity ${capacity}`
                         : capacityName;
 
@@ -449,9 +425,7 @@ export default function OrganizationProfileEditMobileView({
                         className="flex items-center gap-1 rounded-md"
                       >
                         <BaseButton
-                          onClick={() =>
-                            handleRemoveCapacity("available", index)
-                          }
+                          onClick={() => handleRemoveCapacity('available', index)}
                           label={displayName}
                           customClass="rounded-[4px] border-[1px] border-[solid] border-[#05A300] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
                           imageUrl={darkMode ? CloseIconWhite : CloseIcon}
@@ -464,24 +438,18 @@ export default function OrganizationProfileEditMobileView({
                   })}
                 </div>
                 <BaseButton
-                  onClick={() => handleAddCapacity("available")}
-                  label={pageContent["edit-profile-add-capacities"]}
+                  onClick={() => handleAddCapacity('available')}
+                  label={pageContent['edit-profile-add-capacities']}
                   customClass={`rounded-[4px] mt-2 flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                    darkMode
-                      ? "text-[#053749] bg-[#EFEFEF]"
-                      : "text-white bg-[#053749]"
+                    darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-[#053749]'
                   }`}
                   imageUrl={darkMode ? AddIcon : AddIconWhite}
                   imageAlt="Add icon"
                   imageWidth={20}
                   imageHeight={20}
                 />
-                <p
-                  className={`text-[12px] ${
-                    darkMode ? "text-white" : "text-[#053749]"
-                  } mt-1`}
-                >
-                  {pageContent["body-profile-choose-skills"]}
+                <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
+                  {pageContent['body-profile-choose-skills']}
                 </p>
               </div>
             </div>
@@ -498,18 +466,16 @@ export default function OrganizationProfileEditMobileView({
                 </div>
                 <h2
                   className={`font-[Montserrat] text-[14px] font-bold flex items-center gap-2 ${
-                    darkMode ? "text-white" : "text-[#053749]"
+                    darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent["body-profile-wanted-capacities-title"]}
+                  {pageContent['body-profile-wanted-capacities-title']}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
                 <div
                   className={`flex flex-wrap gap-2 mt-2 px-1 py-[6px] rounded-[4px] ${
-                    darkMode
-                      ? "text-white bg-[#04222F]"
-                      : "text-[#053749] bg-transparent"
+                    darkMode ? 'text-white bg-[#04222F]' : 'text-[#053749] bg-transparent'
                   }`}
                 >
                   {formData?.wanted_capacities?.map((capacity, index) => {
@@ -517,9 +483,8 @@ export default function OrganizationProfileEditMobileView({
 
                     // Sanitize the name to avoid it being a URL in any case
                     const displayName =
-                      typeof capacityName === "string" &&
-                      (capacityName.startsWith("https://") ||
-                        capacityName.includes("entity/Q"))
+                      typeof capacityName === 'string' &&
+                      (capacityName.startsWith('https://') || capacityName.includes('entity/Q'))
                         ? `Capacity ${capacity}`
                         : capacityName;
 
@@ -529,7 +494,7 @@ export default function OrganizationProfileEditMobileView({
                         className="flex items-center gap-1 rounded-md"
                       >
                         <BaseButton
-                          onClick={() => handleRemoveCapacity("wanted", index)}
+                          onClick={() => handleRemoveCapacity('wanted', index)}
                           label={displayName}
                           customClass="rounded-[4px] border-[1px] border-[solid] border-[#D43831] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
                           imageUrl={darkMode ? CloseIconWhite : CloseIcon}
@@ -542,24 +507,18 @@ export default function OrganizationProfileEditMobileView({
                   })}
                 </div>
                 <BaseButton
-                  onClick={() => handleAddCapacity("wanted")}
-                  label={pageContent["edit-profile-add-capacities"]}
+                  onClick={() => handleAddCapacity('wanted')}
+                  label={pageContent['edit-profile-add-capacities']}
                   customClass={`rounded-[4px] mt-2 flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                    darkMode
-                      ? "text-[#053749] bg-[#EFEFEF]"
-                      : "text-white bg-[#053749]"
+                    darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-[#053749]'
                   }`}
                   imageUrl={darkMode ? AddIcon : AddIconWhite}
                   imageAlt="Add icon"
                   imageWidth={20}
                   imageHeight={20}
                 />
-                <p
-                  className={`text-[12px] ${
-                    darkMode ? "text-white" : "text-[#053749]"
-                  } `}
-                >
-                  {pageContent["edit-profile-wanted-capacities"]}
+                <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} `}>
+                  {pageContent['edit-profile-wanted-capacities']}
                 </p>
               </div>
             </div>
@@ -578,10 +537,10 @@ export default function OrganizationProfileEditMobileView({
               </div>
               <h2
                 className={`font-[Montserrat] text-[14px] font-bold ${
-                  darkMode ? "text-white" : "text-[#053749]"
+                  darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
-                {pageContent["edit-profile-main-projects"]}
+                {pageContent['edit-profile-main-projects']}
               </h2>
             </div>
 
@@ -599,11 +558,9 @@ export default function OrganizationProfileEditMobileView({
                 onClick={() => {
                   handleAddProject();
                 }}
-                label={pageContent["edit-profile-add-more-projects"]}
+                label={pageContent['edit-profile-add-more-projects']}
                 customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
-                  darkMode
-                    ? "bg-capx-light-box-bg text-[#04222F]"
-                    : "bg-[#053749] text-white"
+                  darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                 }`}
                 imageUrl={darkMode ? AddIcon : AddIconWhite}
                 imageAlt="Add project"
@@ -611,12 +568,8 @@ export default function OrganizationProfileEditMobileView({
                 imageHeight={20}
               />
             </div>
-            <p
-              className={`text-[12px] ${
-                darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
-            >
-              {pageContent["edit-profile-display-links"]}
+            <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
+              {pageContent['edit-profile-display-links']}
             </p>
           </div>
 
@@ -636,7 +589,7 @@ export default function OrganizationProfileEditMobileView({
                   darkMode ? "text-white" : "text-[#053749]"
                 }`}
               >
-                {pageContent["body-profile-section-title-events"]}
+                {pageContent['body-profile-section-title-events']}
               </h2>
             </div>
 
@@ -662,11 +615,11 @@ export default function OrganizationProfileEditMobileView({
             />
             <BaseButton
               onClick={handleViewAllEvents}
-              label={pageContent["organization-profile-view-all-events"]}
+              label={pageContent['organization-profile-view-all-events']}
               customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
                 darkMode
-                  ? "text-white bg-capx-dark-box-bg border border-white"
-                  : "text-capx-dark-box-bg bg-transparent border border-capx-dark-box-bg"
+                  ? 'text-white bg-capx-dark-box-bg border border-white'
+                  : 'text-capx-dark-box-bg bg-transparent border border-capx-dark-box-bg'
               }`}
               imageUrl={darkMode ? ExpandAllIconWhite : ExpandAllIcon}
               imageAlt="Expand all icon"
@@ -695,10 +648,10 @@ export default function OrganizationProfileEditMobileView({
               </div>
               <h2
                 className={`font-[Montserrat] text-[14px] font-bold ${
-                  darkMode ? "text-white" : "text-[#053749]"
+                  darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
-                {pageContent["edit-profile-news"]}
+                {pageContent['edit-profile-news']}
               </h2>
             </div>
             <div className="flex flex-col w-full gap-2 mb-2">
@@ -714,23 +667,17 @@ export default function OrganizationProfileEditMobileView({
             </div>
             <BaseButton
               onClick={handleAddDiffTag}
-              label={pageContent["edit-profile-add-more-diff-tags"]}
+              label={pageContent['edit-profile-add-more-diff-tags']}
               customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                darkMode
-                  ? "text-capx-dark-box-bg bg-white"
-                  : "text-white bg-capx-dark-box-bg"
+                darkMode ? 'text-capx-dark-box-bg bg-white' : 'text-white bg-capx-dark-box-bg'
               }`}
               imageUrl={darkMode ? AddIcon : AddIconWhite}
               imageAlt="Add icon"
               imageWidth={20}
               imageHeight={20}
             />
-            <p
-              className={`text-[12px] ${
-                darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
-            >
-              {pageContent["edit-profile-enter-diff-tags"]}
+            <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
+              {pageContent['edit-profile-enter-diff-tags']}
             </p>
           </div>
 
@@ -746,10 +693,10 @@ export default function OrganizationProfileEditMobileView({
               </div>
               <h2
                 className={`font-[Montserrat] text-[14px] font-bold ${
-                  darkMode ? "text-white" : "text-[#053749]"
+                  darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
-                {pageContent["body-profile-section-title-documents"]}
+                {pageContent['body-profile-section-title-documents']}
               </h2>
             </div>
             <div className="flex flex-col w-full gap-2 mb-2">
@@ -781,12 +728,8 @@ export default function OrganizationProfileEditMobileView({
               imageWidth={20}
               imageHeight={20}
             />
-            <p
-              className={`text-[12px] ${
-                darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
-            >
-              {pageContent["edit-profile-share-documents-tooltop"]}
+            <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
+              {pageContent['edit-profile-share-documents-tooltop']}
             </p>
           </div>
           {/* Contacts Section */}
@@ -803,37 +746,35 @@ export default function OrganizationProfileEditMobileView({
               </div>
               <h2
                 className={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                  darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                  darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                 }`}
               >
-                {pageContent["body-profile-section-title-contacts"]}
+                {pageContent['body-profile-section-title-contacts']}
               </h2>
             </div>
             <div className="flex flex-col gap-4">
               <div
                 className={`flex flex-row border-[1px] border-[solid] w-full p-2 items-center gap-[12px] rounded-[4px] ${
-                  darkMode ? "bg-capx-dark-box-bg" : "bg-[#FFF]"
+                  darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#FFF]'
                 }`}
               >
                 <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? ContactMetaIconWhite : ContactMetaIcon}
                     alt="Contact Meta"
-                    className={`object-contain ${
-                      darkMode ? "bg-capx-dark-box-bg" : "bg-white"
-                    }`}
+                    className={`object-contain ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}
                   />
                 </div>
                 <input
                   type="text"
                   placeholder="Metawiki"
                   className={`text-start font-[Montserrat] text-[12px] not-italic font-normal leading-[normal] bg-transparent border-none outline-none w-full ${
-                    darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                    darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
-                  value={contactsData.meta_page || ""}
-                  onChange={(e) => {
+                  value={contactsData.meta_page || ''}
+                  onChange={e => {
                     const newValue = e.target.value;
-                    setContactsData((prev) => ({
+                    setContactsData(prev => ({
                       ...prev,
                       meta_page: newValue,
                     }));
@@ -847,21 +788,19 @@ export default function OrganizationProfileEditMobileView({
                   <Image
                     src={darkMode ? ContactEmailIconWhite : ContactEmailIcon}
                     alt="Contact Email"
-                    className={`object-contain ${
-                      darkMode ? "bg-capx-dark-box-bg" : "bg-white"
-                    }`}
+                    className={`object-contain ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}
                   />
                 </div>
                 <input
                   type="text"
                   placeholder="Email"
                   className={`text-start font-[Montserrat] text-[12px] not-italic font-normal leading-[normal] bg-transparent border-none outline-none w-full ${
-                    darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                    darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
-                  value={contactsData.email || ""}
-                  onChange={(e) => {
+                  value={contactsData.email || ''}
+                  onChange={e => {
                     const newValue = e.target.value;
-                    setContactsData((prev) => ({
+                    setContactsData(prev => ({
                       ...prev,
                       email: newValue,
                     }));
@@ -870,28 +809,26 @@ export default function OrganizationProfileEditMobileView({
               </div>
               <div
                 className={`flex flex-row border-[1px] border-[solid] w-full p-2 items-center gap-[12px] rounded-[4px] ${
-                  darkMode ? "bg-capx-dark-box-bg" : "bg-[#FFF]"
+                  darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#FFF]'
                 }`}
               >
                 <div className="relative w-[32px] h-[32px]">
                   <Image
                     src={darkMode ? ContactPortalIconWhite : ContactPortalIcon}
                     alt="Contact Website"
-                    className={`object-contain ${
-                      darkMode ? "bg-capx-dark-box-bg" : "bg-white"
-                    }`}
+                    className={`object-contain ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}
                   />
                 </div>
                 <input
                   type="text"
                   placeholder="Website"
                   className={`text-start font-[Montserrat] text-[12px] not-italic font-normal leading-[normal] bg-transparent border-none outline-none w-full ${
-                    darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                    darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
-                  value={contactsData.website || ""}
-                  onChange={(e) => {
+                  value={contactsData.website || ''}
+                  onChange={e => {
                     const newValue = e.target.value;
-                    setContactsData((prev) => ({
+                    setContactsData(prev => ({
                       ...prev,
                       website: newValue,
                     }));
@@ -900,18 +837,14 @@ export default function OrganizationProfileEditMobileView({
               </div>
             </div>
 
-            <p
-              className={`text-[20px] ${
-                darkMode ? "text-white" : "text-[#053749]"
-              } mt-1`}
-            ></p>
+            <p className={`text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}></p>
           </section>
 
           {/* Save/Cancel Buttons */}
           <div className="flex flex-row gap-2">
             <BaseButton
               onClick={handleSubmit}
-              label={pageContent["edit-profile-save"]}
+              label={pageContent['edit-profile-save']}
               customClass="flex border w-full rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#851970]  items-center justify-between text-white !px-[13px] !py-[6px] rounded-md font-[Montserrat] text-[14px] font-bold pb-[6px]"
               imageUrl={SaveIcon}
               imageAlt="Save icon"
@@ -920,7 +853,7 @@ export default function OrganizationProfileEditMobileView({
             />
             <BaseButton
               onClick={() => router.back()}
-              label={pageContent["edit-profile-cancel"]}
+              label={pageContent['edit-profile-cancel']}
               customClass="flex border w-full rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg !px-[13px] !py-[6px] rounded-md font-[Montserrat] text-[14px] font-bold pb-[6px]"
               imageUrl={CancelIcon}
               imageAlt="Cancel icon"

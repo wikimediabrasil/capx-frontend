@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-function Link({ children, href = "", ...rest }: any) {
+function Link({ children, href = '', ...rest }: any) {
   return (
     <a href={href} {...rest}>
       {children}

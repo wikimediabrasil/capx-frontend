@@ -1,53 +1,46 @@
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { capacityService } from "@/services/capacityService";
-import { Capacity, CapacityResponse } from "@/types/capacity";
-import { useSession } from "next-auth/react";
-import { getCapacityColor, getCapacityIcon } from "@/lib/utils/capacitiesUtils";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { capacityService } from '@/services/capacityService';
+import { Capacity, CapacityResponse } from '@/types/capacity';
+import { useSession } from 'next-auth/react';
+import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 // Cache keys for React Query
 export const CAPACITY_CACHE_KEYS = {
-  all: ["capacities"] as const,
-  root: ["capacities", "root"] as const,
-  byId: (id: number) => ["capacities", id.toString()] as const,
-  byParent: (parentCode: string) =>
-    [...CAPACITY_CACHE_KEYS.all, "byParent", parentCode] as const,
-  search: (query: string) =>
-    [...CAPACITY_CACHE_KEYS.all, "search", query] as const,
-  description: (id: number) =>
-    [...CAPACITY_CACHE_KEYS.byId(id), "description"] as const,
+  all: ['capacities'] as const,
+  root: ['capacities', 'root'] as const,
+  byId: (id: number) => ['capacities', id.toString()] as const,
+  byParent: (parentCode: string) => [...CAPACITY_CACHE_KEYS.all, 'byParent', parentCode] as const,
+  search: (query: string) => [...CAPACITY_CACHE_KEYS.all, 'search', query] as const,
+  description: (id: number) => [...CAPACITY_CACHE_KEYS.byId(id), 'description'] as const,
   children: (id: number | string) =>
-    [...CAPACITY_CACHE_KEYS.all, "children", id.toString()] as const,
-  allHierarchy: ["capacities", "hierarchy"] as const,
+    [...CAPACITY_CACHE_KEYS.all, 'children', id.toString()] as const,
+  allHierarchy: ['capacities', 'hierarchy'] as const,
 };
 
 // Helper function to convert CapacityResponse to Capacity
-const convertToCapacity = (
-  response: CapacityResponse,
-  parentCode?: string
-): Capacity => {
-  const code =
-    typeof response.code === "string" ? Number(response.code) : response.code;
+const convertToCapacity = (response: CapacityResponse, parentCode?: string): Capacity => {
+  const code = typeof response.code === 'string' ? Number(response.code) : response.code;
   const baseCode = code.toString();
-  const color = baseCode.startsWith("10")
-    ? "organizational"
-    : baseCode.startsWith("36")
-    ? "communication"
-    : baseCode.startsWith("50")
-    ? "learning"
-    : baseCode.startsWith("56")
-    ? "community"
-    : baseCode.startsWith("65")
-    ? "social"
-    : baseCode.startsWith("74")
-    ? "strategic"
-    : baseCode.startsWith("106")
-    ? "technology"
-    : "gray-200";
+  const color = baseCode.startsWith('10')
+    ? 'organizational'
+    : baseCode.startsWith('36')
+      ? 'communication'
+      : baseCode.startsWith('50')
+        ? 'learning'
+        : baseCode.startsWith('56')
+          ? 'community'
+          : baseCode.startsWith('65')
+            ? 'social'
+            : baseCode.startsWith('74')
+              ? 'strategic'
+              : baseCode.startsWith('106')
+                ? 'technology'
+                : 'gray-200';
 
   // Convert baseCode to number for getCapacityIcon
   // We use the numeric code for icon lookup
-  const iconCode = parseInt(baseCode.split(".")[0], 10);
+  const iconCode = parseInt(baseCode.split('.')[0], 10);
 
   return {
     code,
@@ -57,7 +50,7 @@ const convertToCapacity = (
     icon: getCapacityIcon(iconCode),
     hasChildren: false, // Default, will be updated if needed
     skill_type: parentCode ? Number(parentCode) : code,
-    skill_wikidata_item: "",
+    skill_wikidata_item: '',
   };
 };
 
@@ -77,30 +70,26 @@ export function prefetchAllCapacityData(token?: string, queryClient?: any) {
       });
 
       // 2. For each root capacity, prefetch its children
-      const childrenPromises = rootCapacities.map(async (rootCapacity) => {
+      const childrenPromises = rootCapacities.map(async rootCapacity => {
         // Safely extract the rootId with proper type handling
         const rootCode = rootCapacity.code as string | number;
-        const rootId =
-          typeof rootCode === "string" ? rootCode : String(rootCode);
+        const rootId = typeof rootCode === 'string' ? rootCode : String(rootCode);
 
         // Prefetch children of this root
         return queryClient.prefetchQuery({
           queryKey: CAPACITY_CACHE_KEYS.children(rootId),
           queryFn: async () => {
-            const children = await capacityService.fetchCapacitiesByType(
-              rootId,
-              {
-                headers: { Authorization: `Token ${token}` },
-              }
-            );
+            const children = await capacityService.fetchCapacitiesByType(rootId, {
+              headers: { Authorization: `Token ${token}` },
+            });
 
             // Store individual capacities in the cache as well
             Object.entries(children).forEach(([childId, childName]) => {
               if (childId) {
-                queryClient.setQueryData(
-                  CAPACITY_CACHE_KEYS.byId(Number(childId)),
-                  { code: childId, name: childName }
-                );
+                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId)), {
+                  code: childId,
+                  name: childName,
+                });
               }
             });
 
@@ -136,18 +125,15 @@ export function useCapacitySearch() {
         });
 
         // Cache individual capacity results
-        results.forEach((capacity) => {
-          const id =
-            typeof capacity.code === "string"
-              ? parseInt(capacity.code)
-              : capacity.code;
+        results.forEach(capacity => {
+          const id = typeof capacity.code === 'string' ? parseInt(capacity.code) : capacity.code;
 
           queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(id), capacity);
         });
 
         return results;
       } catch (error) {
-        console.error("Error searching capacities:", error);
+        console.error('Error searching capacities:', error);
         return [];
       }
     },
@@ -158,11 +144,7 @@ export function useCapacitySearch() {
 }
 
 // Auxiliary functions for capacities
-function fetchAndCacheCapacityById(
-  id: number,
-  token: string,
-  queryClient: any
-) {
+function fetchAndCacheCapacityById(id: number, token: string, queryClient: any) {
   return async () => {
     if (!token) return null;
     try {
@@ -196,41 +178,33 @@ function fetchAndCacheCapacitiesByParent(
   return async () => {
     if (!token || !parentCode) return [];
 
-    const childrenResponse = await capacityService.fetchCapacitiesByType(
-      parentCode,
-      { headers: { Authorization: `Token ${token}` } }
-    );
+    const childrenResponse = await capacityService.fetchCapacitiesByType(parentCode, {
+      headers: { Authorization: `Token ${token}` },
+    });
 
     // Format and cache children
-    const formattedCapacities = Object.entries(childrenResponse).map(
-      ([code, name]) => {
-        const capacity = {
-          code: Number(code),
-          name: name as unknown as string,
-        };
+    const formattedCapacities = Object.entries(childrenResponse).map(([code, name]) => {
+      const capacity = {
+        code: Number(code),
+        name: name as unknown as string,
+      };
 
-        // Cache each child individually
-        queryClient.setQueryData(
-          CAPACITY_CACHE_KEYS.byId(Number(code)),
-          capacity
-        );
+      // Cache each child individually
+      queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(code)), capacity);
 
-        // Find parent for color/icon
-        const parentCapacity = rootCapacities.find(
-          (cap) => cap.code.toString() === parentCode
-        );
+      // Find parent for color/icon
+      const parentCapacity = rootCapacities.find(cap => cap.code.toString() === parentCode);
 
-        return {
-          code: Number(code),
-          name: name as unknown as string,
-          color: parentCapacity?.color || "gray-200",
-          icon: parentCapacity?.icon,
-          hasChildren: false, // Will be updated if needed
-          skill_type: Number(parentCode),
-          skill_wikidata_item: "",
-        };
-      }
-    );
+      return {
+        code: Number(code),
+        name: name as unknown as string,
+        color: parentCapacity?.color || 'gray-200',
+        icon: parentCapacity?.icon,
+        hasChildren: false, // Will be updated if needed
+        skill_type: Number(parentCode),
+        skill_wikidata_item: '',
+      };
+    });
 
     return formattedCapacities;
   };
@@ -238,7 +212,7 @@ function fetchAndCacheCapacitiesByParent(
 
 function fetchCapacityDescription(capacityId: number, token: string) {
   return async () => {
-    if (!token) return { description: "", wdCode: "" };
+    if (!token) return { description: '', wdCode: '' };
     return capacityService.fetchCapacityDescription(capacityId);
   };
 }
@@ -271,7 +245,7 @@ export function useCapacities() {
 
   // Process root capacities
   const rootCapacities = useMemo(() => {
-    return rootCapacitiesData.map((item) => convertToCapacity(item));
+    return rootCapacitiesData.map(item => convertToCapacity(item));
   }, [rootCapacitiesData]);
 
   // Define query functions outside useCallback
@@ -336,16 +310,14 @@ export function useCapacities() {
   // Utility function to get capacity by ID from cache
   const getCapacityById = useCallback(
     (id: number): Capacity | undefined => {
-      const cached = queryClient.getQueryData<CapacityResponse>(
-        CAPACITY_CACHE_KEYS.byId(id)
-      );
+      const cached = queryClient.getQueryData<CapacityResponse>(CAPACITY_CACHE_KEYS.byId(id));
 
       if (cached) {
         return convertToCapacity(cached);
       }
 
       // Fallback to root capacities if not in byId cache
-      const rootResult = rootCapacities.find((cap) => cap.code === id);
+      const rootResult = rootCapacities.find(cap => cap.code === id);
       if (rootResult) return rootResult;
 
       return undefined;
@@ -362,8 +334,7 @@ export function useCapacities() {
   }, [token, rootsSuccess, rootCapacities.length, queryClient]);
 
   // Custom hooks for usage in components
-  const useCapacityById = (id: number) =>
-    useQuery(getCapacityByIdQueryConfig(id));
+  const useCapacityById = (id: number) => useQuery(getCapacityByIdQueryConfig(id));
   const useCapacitiesByParent = (parentCode: string) =>
     useQuery(getCapacitiesByParentQueryConfig(parentCode));
   const useCapacityDescription = (capacityId: number) =>
@@ -390,9 +361,7 @@ export function useCapacityWithDetails(capacityId?: number) {
     queryFn: async () => {
       if (!token || !capacityId) return null;
       try {
-        const response = await capacityService.fetchCapacityById(
-          capacityId.toString()
-        );
+        const response = await capacityService.fetchCapacityById(capacityId.toString());
         return response ? convertToCapacity(response) : null;
       } catch (error) {
         console.error(`Error fetching capacity ${capacityId}:`, error);
@@ -407,7 +376,7 @@ export function useCapacityWithDetails(capacityId?: number) {
   const { data: descriptionData, isLoading: isLoadingDescription } = useQuery({
     queryKey: CAPACITY_CACHE_KEYS.description(capacityId || 0),
     queryFn: async () => {
-      if (!token || !capacityId) return { description: "", wdCode: "" };
+      if (!token || !capacityId) return { description: '', wdCode: '' };
       return capacityService.fetchCapacityDescription(capacityId);
     },
     enabled: !!capacityId && !!token,
@@ -421,8 +390,8 @@ export function useCapacityWithDetails(capacityId?: number) {
 
     return {
       ...capacity,
-      description: descriptionData?.description || "",
-      wdCode: descriptionData?.wdCode || "",
+      description: descriptionData?.description || '',
+      wdCode: descriptionData?.wdCode || '',
     };
   }, [capacity, descriptionData]);
 

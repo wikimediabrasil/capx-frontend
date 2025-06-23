@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
-import { useApp } from "@/contexts/AppContext";
-import BaseInput from "@/components/BaseInput";
-import { CapacityCard } from "./CapacityCard";
-import SearchIcon from "@/public/static/images/search.svg";
-import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
-import { useCapacityList } from "@/hooks/useCapacityList";
-import LoadingState from "@/components/LoadingState";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
+import { useApp } from '@/contexts/AppContext';
+import BaseInput from '@/components/BaseInput';
+import { CapacityCard } from './CapacityCard';
+import SearchIcon from '@/public/static/images/search.svg';
+import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
+import { useCapacityList } from '@/hooks/useCapacityList';
+import LoadingState from '@/components/LoadingState';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface CapacitySearchProps {
   onSearchStart?: () => void;
@@ -18,10 +18,7 @@ interface CapacitySearchProps {
 }
 
 // simple debounce
-function useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-) {
+function useDebounce<T extends (...args: any[]) => any>(callback: T, delay: number) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const debouncedFunction = useCallback(
@@ -55,19 +52,13 @@ function useDebounce<T extends (...args: any[]) => any>(
   return { debouncedFunction, cancel };
 }
 
-export function CapacitySearch({
-  onSearchStart,
-  onSearchEnd,
-  onSearch,
-}: CapacitySearchProps) {
+export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: CapacitySearchProps) {
   const { data: session } = useSession();
   const { language, isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedCapacities, setExpandedCapacities] = useState<
-    Record<string, boolean>
-  >({});
+  const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
   const {
     searchResults,
     descriptions,
@@ -80,11 +71,11 @@ export function CapacitySearch({
   } = useCapacityList(session?.user?.token, language);
 
   // Store the last search term to avoid duplicate requests
-  const lastSearchRef = useRef<string>("");
+  const lastSearchRef = useRef<string>('');
 
   // Notificar o componente pai sobre o termo de busca
   // Usar um ref para rastrear o último termo enviado
-  const lastNotifiedTermRef = useRef<string>("");
+  const lastNotifiedTermRef = useRef<string>('');
 
   useEffect(() => {
     if (session?.user?.token) {
@@ -111,17 +102,14 @@ export function CapacitySearch({
         setSearchResults([]);
         onSearchEnd?.();
         // Clear the last search
-        lastSearchRef.current = "";
+        lastSearchRef.current = '';
       }
     },
     [fetchCapacitySearch, onSearchStart, onSearchEnd, setSearchResults]
   );
 
   // Use the custom debounce hook
-  const { debouncedFunction: debouncedSearch, cancel } = useDebounce(
-    search,
-    300
-  );
+  const { debouncedFunction: debouncedSearch, cancel } = useDebounce(search, 300);
 
   // Effect to call the debounce function when the search term changes
   useEffect(() => {
@@ -140,7 +128,7 @@ export function CapacitySearch({
   const toggleCapacity = useCallback(
     async (parentCode: string) => {
       if (expandedCapacities[parentCode]) {
-        setExpandedCapacities((prev) => ({ ...prev, [parentCode]: false }));
+        setExpandedCapacities(prev => ({ ...prev, [parentCode]: false }));
         return;
       }
 
@@ -151,13 +139,13 @@ export function CapacitySearch({
         }
       }
 
-      setExpandedCapacities((prev) => ({ ...prev, [parentCode]: true }));
+      setExpandedCapacities(prev => ({ ...prev, [parentCode]: true }));
     },
     [expandedCapacities, fetchCapacitiesByParent, fetchCapacityDescription]
   );
 
   // Processa os resultados para garantir níveis corretos e cores consistentes
-  const processedResults = searchResults.map((capacity) => {
+  const processedResults = searchResults.map(capacity => {
     // Determina o nível com base na estrutura de pais
     let level = 1;
     if (capacity.parentCapacity) {
@@ -178,7 +166,7 @@ export function CapacitySearch({
     // Força capacidades de terceiro nível a terem cor preta
     let color = capacity.color;
     if (level === 3) {
-      color = "#507380";
+      color = '#507380';
     }
 
     return {
@@ -193,15 +181,13 @@ export function CapacitySearch({
       <BaseInput
         type="text"
         value={searchTerm}
-        onChange={(e) => {
+        onChange={e => {
           setSearchTerm(e.target.value);
         }}
-        placeholder={pageContent["capacity-search-placeholder"]}
+        placeholder={pageContent['capacity-search-placeholder']}
         className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
-          darkMode
-            ? "text-white border-white"
-            : "text-capx-dark-box-bg border-capx-dark-box-bg "
-        } ${isMobile ? "text-[12px]" : "text-[24px]"}`}
+          darkMode ? 'text-white border-white' : 'text-capx-dark-box-bg border-capx-dark-box-bg '
+        } ${isMobile ? 'text-[12px]' : 'text-[24px]'}`}
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />
@@ -210,7 +196,7 @@ export function CapacitySearch({
         {isLoading ? (
           <LoadingState />
         ) : (
-          processedResults.map((capacity) => {
+          processedResults.map(capacity => {
             return (
               <div key={capacity.code} className="w-full">
                 <CapacityCard
@@ -222,8 +208,8 @@ export function CapacitySearch({
                   color={capacity.color}
                   icon={capacity.icon}
                   parentCapacity={capacity.parentCapacity}
-                  description={descriptions[capacity.code] || ""}
-                  wd_code={wdCodes[capacity.code] || ""}
+                  description={descriptions[capacity.code] || ''}
+                  wd_code={wdCodes[capacity.code] || ''}
                   onInfoClick={fetchCapacityDescription}
                   isSearch={true}
                 />

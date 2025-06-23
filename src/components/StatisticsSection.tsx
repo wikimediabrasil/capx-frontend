@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { useStatistics } from "@/hooks/useStatistics";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useState, useEffect } from "react";
+import { useStatistics } from '@/hooks/useStatistics';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useState, useEffect } from 'react';
 
 // Colors for the charts
 const COLORS = [
-  "#0070b9", // capx-primary-blue
-  "#02AE8C", // capx-primary-green
-  "#D43420", // capx-primary-red
-  "#f0c626", // capx-primary-yellow
-  "#851d6a", // capx-secondary-purple
-  "#053749", // capx-secondary-gray
-  "#D43831", // capx-primary-orange
-  "#05a300", // capx-secondary-green
+  '#0070b9', // capx-primary-blue
+  '#02AE8C', // capx-primary-green
+  '#D43420', // capx-primary-red
+  '#f0c626', // capx-primary-yellow
+  '#851d6a', // capx-secondary-purple
+  '#053749', // capx-secondary-gray
+  '#D43831', // capx-primary-orange
+  '#05a300', // capx-secondary-green
 ];
 
 // Lighter blue color for the animation
-const LIGHTER_BLUE = "#3498db"; // Lighter blue than capx-primary-blue (#0070b9)
+const LIGHTER_BLUE = '#3498db'; // Lighter blue than capx-primary-blue (#0070b9)
 
 const AnimatedPieChart = ({
   total,
@@ -48,10 +48,7 @@ const AnimatedPieChart = ({
 
   return (
     <div className="flex items-center justify-center h-[224px]">
-      <svg
-        className="w-[224px] h-[224px] transform -rotate-90"
-        viewBox="0 0 224 224"
-      >
+      <svg className="w-[224px] h-[224px] transform -rotate-90" viewBox="0 0 224 224">
         {/* Background circle */}
         <circle
           cx="112"
@@ -73,7 +70,7 @@ const AnimatedPieChart = ({
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           style={{
-            transformOrigin: "center",
+            transformOrigin: 'center',
           }}
         />
       </svg>
@@ -81,15 +78,13 @@ const AnimatedPieChart = ({
       <div className="absolute flex flex-col items-center justify-center">
         <span
           className={`text-capx-text-5xl font-bold ${
-            darkMode ? "text-white" : "text-capx-light-text"
+            darkMode ? 'text-white' : 'text-capx-light-text'
           }`}
         >
           {total}
         </span>
         <span
-          className={`text-capx-text-2xl mt-2 ${
-            darkMode ? "text-white" : "text-capx-light-text"
-          }`}
+          className={`text-capx-text-2xl mt-2 ${darkMode ? 'text-white' : 'text-capx-light-text'}`}
         >
           +{Math.round(percentage)}%
         </span>
@@ -107,22 +102,22 @@ export default function StatisticsSection() {
   const barData = data
     ? [
         {
-          name: "Users",
+          name: 'Users',
           total: data.total_users,
           novos: data.new_users,
         },
         {
-          name: "Capacities",
+          name: 'Capacities',
           total: data.total_capacities,
           novos: data.new_capacities,
         },
         {
-          name: "Messages",
+          name: 'Messages',
           total: data.total_messages,
           novos: data.new_messages,
         },
         {
-          name: "Organizations",
+          name: 'Organizations',
           total: data.total_organizations,
           novos: data.new_organizations,
         },
@@ -132,15 +127,15 @@ export default function StatisticsSection() {
   // Data for the pie chart
   const pieData = data
     ? [
-        { name: "Users", value: data.total_users },
-        { name: "Capacities", value: data.total_capacities },
-        { name: "Messages", value: data.total_messages },
-        { name: "Organizations", value: data.total_organizations },
+        { name: 'Users', value: data.total_users },
+        { name: 'Capacities', value: data.total_capacities },
+        { name: 'Messages', value: data.total_messages },
+        { name: 'Organizations', value: data.total_organizations },
       ]
     : [];
 
   // Text style based on the theme
-  const textColor = darkMode ? "#FFFFFF" : "#053749";
+  const textColor = darkMode ? '#FFFFFF' : '#053749';
 
   // Type for the StatCard
   interface StatCardProps {
@@ -148,22 +143,22 @@ export default function StatisticsSection() {
     value: number;
     newValue: number;
     color: string;
-    type: "users" | "capacities" | "messages" | "organizations";
+    type: 'users' | 'capacities' | 'messages' | 'organizations';
   }
 
   // Stats cards to show main numbers
   const StatCard = ({ title, value, newValue, color, type }: StatCardProps) => {
     const getLinkDetails = () => {
       switch (type) {
-        case "capacities":
+        case 'capacities':
           return {
-            href: "/capacity",
-            text: pageContent["navbar-link-capacities"],
+            href: '/capacity',
+            text: pageContent['navbar-link-capacities'],
           };
-        case "organizations":
+        case 'organizations':
           return {
-            href: "/organization_list",
-            text: pageContent["navbar-link-organizations"],
+            href: '/organization_list',
+            text: pageContent['navbar-link-organizations'],
           };
         default:
           return null;
@@ -174,7 +169,7 @@ export default function StatisticsSection() {
 
     return (
       <div className="flex flex-col items-center justify-center">
-        {type === "users" ? (
+        {type === 'users' ? (
           <AnimatedPieChart total={value} newValue={newValue} color={color} />
         ) : (
           <div className="flex items-center justify-center h-[224px]">
@@ -182,15 +177,13 @@ export default function StatisticsSection() {
               className="w-[200px] h-[200px] rounded-full flex items-center justify-center"
               style={{ backgroundColor: color }}
             >
-              <span className="text-white text-capx-text-5xl font-bold">
-                {value}
-              </span>
+              <span className="text-white text-capx-text-5xl font-bold">{value}</span>
             </div>
           </div>
         )}
         <h3
           className={`text-capx-text-xl font-semibold mt-4 ${
-            darkMode ? "text-capx-dark-text" : "text-capx-light-text"
+            darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'
           }`}
         >
           {title}
@@ -198,17 +191,17 @@ export default function StatisticsSection() {
         {newValue > 0 && (
           <p
             className={`text-capx-text-xl font-semibold mt-1 ${
-              darkMode ? "text-capx-dark-text" : "text-capx-light-text"
+              darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'
             }`}
           >
-            +{newValue} {pageContent["statistics-new-label"]}
+            +{newValue} {pageContent['statistics-new-label']}
           </p>
         )}
         {linkDetails && (
           <a
             href={linkDetails.href}
             className={`mt-2 text-capx-text-xl hover:underline text-center ${
-              darkMode ? "text-capx-dark-link" : "text-capx-light-link"
+              darkMode ? 'text-capx-dark-link' : 'text-capx-light-link'
             }`}
           >
             {linkDetails.text}
@@ -222,9 +215,7 @@ export default function StatisticsSection() {
     return (
       <section
         className={`w-full py-16 px-4 ${
-          darkMode
-            ? "bg-capx-dark-box-bg text-white"
-            : "bg-gray-50 text-gray-800"
+          darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-gray-50 text-gray-800'
         }`}
       >
         <div className="max-w-5xl mx-auto">
@@ -233,7 +224,7 @@ export default function StatisticsSection() {
               role="status"
               className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"
             ></div>
-            <p className="ml-2">{pageContent["statistics-loading-text"]}</p>
+            <p className="ml-2">{pageContent['statistics-loading-text']}</p>
           </div>
         </div>
       </section>
@@ -244,16 +235,12 @@ export default function StatisticsSection() {
     return (
       <section
         className={`w-full py-16 px-4 ${
-          darkMode
-            ? "bg-capx-dark-box-bg text-white"
-            : "bg-gray-50 text-gray-800"
+          darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-gray-50 text-gray-800'
         }`}
       >
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-center items-center h-64">
-            <p className="text-red-500">
-              {pageContent["statistics-error-text"]}
-            </p>
+            <p className="text-red-500">{pageContent['statistics-error-text']}</p>
           </div>
         </div>
       </section>
@@ -263,44 +250,42 @@ export default function StatisticsSection() {
   return (
     <section
       id="statistics-section"
-      className={`w-full py-16 px-4 ${
-        darkMode ? "bg-capx-dark-box-bg" : "bg-gray-50"
-      }`}
+      className={`w-full py-16 px-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-gray-50'}`}
     >
       <div className="max-w-5xl mx-auto">
         <h2
           className={`text-capx-text-4xl font-bold mb-8 text-center ${
-            darkMode ? "text-capx-dark-text" : "text-capx-light-text"
+            darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'
           }`}
         >
-          {pageContent["statistics-section-title"]}
+          {pageContent['statistics-section-title']}
         </h2>
 
         {/* Main cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard
-            title={pageContent["statistics-users-title"]}
+            title={pageContent['statistics-users-title']}
             value={data.total_users}
             newValue={data.new_users}
             color={COLORS[0]}
             type="users"
           />
           <StatCard
-            title={pageContent["statistics-capacities-title"]}
+            title={pageContent['statistics-capacities-title']}
             value={data.total_capacities}
             newValue={data.new_capacities}
             color={COLORS[1]}
             type="capacities"
           />
           <StatCard
-            title={pageContent["statistics-messages-title"]}
+            title={pageContent['statistics-messages-title']}
             value={data.total_messages}
             newValue={data.new_messages}
             color={COLORS[2]}
             type="messages"
           />
           <StatCard
-            title={pageContent["statistics-organizations-title"]}
+            title={pageContent['statistics-organizations-title']}
             value={data.total_organizations}
             newValue={data.new_organizations}
             color={COLORS[3]}
@@ -310,12 +295,8 @@ export default function StatisticsSection() {
 
         {/* Data source */}
         <div className="mt-8 text-center">
-          <p
-            className={`text-capx-text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            {pageContent["statistics-source-text"]}
+          <p className={`text-capx-text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {pageContent['statistics-source-text']}
           </p>
         </div>
       </div>

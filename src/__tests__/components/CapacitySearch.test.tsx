@@ -1,11 +1,11 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { CapacitySearch } from "@/app/(auth)/capacity/components/CapacitySearch";
-import { useSession } from "next-auth/react";
-import { useCapacityList } from "@/hooks/useCapacityList";
-import { ThemeProvider } from "@/contexts/ThemeContext";
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
+import { useSession } from 'next-auth/react';
+import { useCapacityList } from '@/hooks/useCapacityList';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 // Next.js App Router's mock
-jest.mock("next/navigation", () => ({
+jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
     back: jest.fn(),
@@ -14,28 +14,28 @@ jest.mock("next/navigation", () => ({
     replace: jest.fn(),
     prefetch: jest.fn(),
   }),
-  usePathname: () => "/",
+  usePathname: () => '/',
   useSearchParams: () => new URLSearchParams(),
 }));
 
-jest.mock("next-auth/react");
-jest.mock("@/hooks/useCapacityList");
-jest.mock("@/contexts/AppContext", () => ({
+jest.mock('next-auth/react');
+jest.mock('@/hooks/useCapacityList');
+jest.mock('@/contexts/AppContext', () => ({
   useApp: () => ({
     isMobile: false,
-    language: "en",
+    language: 'en',
     pageContent: {
-      "capacity-search-placeholder": "Search capacities",
-      "capacity-card-expand-capacity": "Expand capacity",
-      "capacity-card-explore-capacity": "Explore capacity",
-      "capacity-card-info": "Information",
+      'capacity-search-placeholder': 'Search capacities',
+      'capacity-card-expand-capacity': 'Expand capacity',
+      'capacity-card-explore-capacity': 'Explore capacity',
+      'capacity-card-info': 'Information',
     },
   }),
 }));
 
 // ThemeContext mock
-jest.mock("@/contexts/ThemeContext", () => {
-  const originalModule = jest.requireActual("@/contexts/ThemeContext");
+jest.mock('@/contexts/ThemeContext', () => {
+  const originalModule = jest.requireActual('@/contexts/ThemeContext');
   return {
     ...originalModule,
     useTheme: () => ({
@@ -46,11 +46,11 @@ jest.mock("@/contexts/ThemeContext", () => {
   };
 });
 
-describe("CapacitySearch", () => {
+describe('CapacitySearch', () => {
   const mockSession = {
     data: {
       user: {
-        token: "test-token",
+        token: 'test-token',
       },
     },
   };
@@ -77,38 +77,30 @@ describe("CapacitySearch", () => {
     return render(<ThemeProvider>{ui}</ThemeProvider>);
   };
 
-  it("renders search input correctly", () => {
-    renderWithProviders(
-      <CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />
-    );
+  it('renders search input correctly', () => {
+    renderWithProviders(<CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />);
 
-    expect(
-      screen.getByPlaceholderText("Search capacities")
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search capacities')).toBeInTheDocument();
   });
 
-  it("calls fetchCapacitySearch when typing in search input", async () => {
-    renderWithProviders(
-      <CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />
-    );
+  it('calls fetchCapacitySearch when typing in search input', async () => {
+    renderWithProviders(<CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />);
 
-    const searchInput = screen.getByPlaceholderText("Search capacities");
-    fireEvent.change(searchInput, { target: { value: "test" } });
+    const searchInput = screen.getByPlaceholderText('Search capacities');
+    fireEvent.change(searchInput, { target: { value: 'test' } });
 
     // Use waitFor to wait for the debounced call
     await waitFor(() => {
-      expect(mockCapacityList.fetchCapacitySearch).toHaveBeenCalledWith("test");
+      expect(mockCapacityList.fetchCapacitySearch).toHaveBeenCalledWith('test');
     });
   });
 
-  it("calls onSearchStart when search begins", async () => {
+  it('calls onSearchStart when search begins', async () => {
     const onSearchStart = jest.fn();
-    renderWithProviders(
-      <CapacitySearch onSearchStart={onSearchStart} onSearchEnd={jest.fn()} />
-    );
+    renderWithProviders(<CapacitySearch onSearchStart={onSearchStart} onSearchEnd={jest.fn()} />);
 
-    const searchInput = screen.getByPlaceholderText("Search capacities");
-    fireEvent.change(searchInput, { target: { value: "test" } });
+    const searchInput = screen.getByPlaceholderText('Search capacities');
+    fireEvent.change(searchInput, { target: { value: 'test' } });
 
     // Use waitFor to wait for the debounced call
     await waitFor(() => {
@@ -116,10 +108,8 @@ describe("CapacitySearch", () => {
     });
   });
 
-  it("fetches root capacities on mount", () => {
-    renderWithProviders(
-      <CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />
-    );
+  it('fetches root capacities on mount', () => {
+    renderWithProviders(<CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />);
 
     expect(mockCapacityList.fetchRootCapacities).toHaveBeenCalled();
   });

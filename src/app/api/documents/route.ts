@@ -1,25 +1,22 @@
-import axios from "axios";
-import { NextRequest, NextResponse } from "next/server";
+import axios from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.headers.get("Authorization");
+    const token = request.headers.get('Authorization');
     if (!token) {
-      return NextResponse.json(
-        { error: "No authorization token provided" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'No authorization token provided' }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const limit = searchParams.get("limit");
-    const offset = searchParams.get("offset");
+    const limit = searchParams.get('limit');
+    const offset = searchParams.get('offset');
 
     const backendUrl = process.env.BASE_URL;
     const response = await axios.get(`${backendUrl}/document/`, {
       headers: {
         Authorization: token,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       params: {
         limit,
@@ -30,7 +27,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response.data.results);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to fetch documents", details: error.response?.data },
+      { error: 'Failed to fetch documents', details: error.response?.data },
       { status: error.response?.status || 500 }
     );
   }
@@ -39,7 +36,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   
   try {
-    const token = request.headers.get("Authorization");
+    const token = request.headers.get('Authorization');
     if (!token) {
       console.error("❌ API route - No authorization token provided");
       return NextResponse.json(
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
     const response = await axios.post(`${backendUrl}/document/`, body, {
       headers: {
         Authorization: token,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
     
@@ -120,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Failed to create document",
+        error: 'Failed to create document',
         details: error.response?.data || error.message,
         status: error.response?.status,
         backendError: error.response?.data

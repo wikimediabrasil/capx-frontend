@@ -1,12 +1,12 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import Image from "next/image";
-import SearchIcon from "@/public/static/images/search_icon.svg";
-import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
-import FilterIcon from "@/public/static/images/filter_icon.svg";
-import FilterIconWhite from "@/public/static/images/filter_icon_white.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
-import { Skill } from "../types";
+import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
+import SearchIcon from '@/public/static/images/search_icon.svg';
+import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
+import FilterIcon from '@/public/static/images/filter_icon.svg';
+import FilterIconWhite from '@/public/static/images/filter_icon_white.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import { Skill } from '../types';
 
 interface SearchBarProps {
   searchTerm?: string;
@@ -23,32 +23,35 @@ interface SearchBarProps {
 }
 
 export function SearchBar({
-  searchTerm = "",
+  searchTerm = '',
   onSearchChange,
   onFilterClick,
-  searchPlaceholder = "",
-  filterAriaLabel = "",
+  searchPlaceholder = '',
+  filterAriaLabel = '',
   selectedCapacities = [],
   onRemoveCapacity,
   onCapacityInputFocus,
-  capacitiesPlaceholder = "",
-  removeItemAltText = "",
-  showCapacitiesSearch = false
+  capacitiesPlaceholder = '',
+  removeItemAltText = '',
+  showCapacitiesSearch = false,
 }: SearchBarProps) {
   const { darkMode } = useTheme();
-  
+
   return (
     <div className="flex gap-2 mb-6">
       {/* Search Field Container */}
       <div className="flex-1 relative">
         {showCapacitiesSearch ? (
-          <div className={`
+          <div
+            className={`
             flex flex-col rounded-lg border
-            ${darkMode 
-              ? 'bg-capx-dark-box-bg border-gray-700 text-white' 
-              : 'bg-white border-gray-300'
+            ${
+              darkMode
+                ? 'bg-capx-dark-box-bg border-gray-700 text-white'
+                : 'bg-white border-gray-300'
             }
-          `}>
+          `}
+          >
             {/* Search Icon */}
             <div className="absolute right-3 top-4">
               <Image
@@ -60,10 +63,12 @@ export function SearchBar({
             </div>
 
             {/* Container for the selected capacities and the input */}
-            <div className={`
+            <div
+              className={`
               flex flex-wrap items-start gap-2 p-3 pr-12
               ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}
-            `}>
+            `}
+            >
               {/* Selected Capacities */}
               {selectedCapacities.map((capacity, index) => (
                 <span
@@ -122,9 +127,10 @@ export function SearchBar({
               placeholder={searchPlaceholder}
               className={`
                 w-full py-3 px-4 pr-12 rounded-lg border
-                ${darkMode 
-                  ? 'bg-capx-dark-box-bg border-gray-700 text-white placeholder:text-gray-400' 
-                  : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500'
+                ${
+                  darkMode
+                    ? 'bg-capx-dark-box-bg border-gray-700 text-white placeholder:text-gray-400'
+                    : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-500'
                 }
                 focus:outline-none
               `}
@@ -138,19 +144,15 @@ export function SearchBar({
         onClick={onFilterClick}
         className={`
           p-3 rounded-lg border
-          ${darkMode 
-            ? 'bg-capx-dark-box-bg border-gray-700 hover:bg-gray-700' 
-            : 'bg-white border-gray-300 hover:bg-gray-100'
+          ${
+            darkMode
+              ? 'bg-capx-dark-box-bg border-gray-700 hover:bg-gray-700'
+              : 'bg-white border-gray-300 hover:bg-gray-100'
           }
         `}
         aria-label={filterAriaLabel}
       >
-        <Image
-          src={darkMode ? FilterIconWhite : FilterIcon}
-          alt="Filters"
-          width={20}
-          height={20}
-        />
+        <Image src={darkMode ? FilterIconWhite : FilterIcon} alt="Filters" width={20} height={20} />
       </button>
     </div>
   );

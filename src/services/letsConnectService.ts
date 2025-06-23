@@ -10,32 +10,30 @@ export interface LetsConnectServiceParams {
 export class LetsConnectService {
   static async submitLetsConnectForm({
     letsConnect,
-    token
+    token,
   }: LetsConnectServiceParams): Promise<any> {
     try {
       const response = await axios.post(
-        "/api/lets_connect",
+        '/api/lets_connect',
         {
           full_name: letsConnect.full_name,
           email: letsConnect.email,
           role: letsConnect.role,
-          area: Array.isArray(letsConnect.area)
-            ? letsConnect.area.join(", ")
-            : letsConnect.area,
+          area: Array.isArray(letsConnect.area) ? letsConnect.area.join(', ') : letsConnect.area,
           gender: letsConnect.gender,
-          age: letsConnect.age
+          age: letsConnect.age,
         },
         {
           headers: {
             Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
 
       return response.data;
     } catch (error) {
-      console.error("Failed to send lets connect data:", error);
+      console.error('Failed to send lets connect data:', error);
       throw error;
     }
   }
@@ -52,7 +50,7 @@ export class LetsConnectService {
     });
     return response.data;
     } catch (error) {
-      console.error("Failed to get lets connect data:", error);
+      console.error('Failed to get lets connect data:', error);
       throw error;
     }
   }

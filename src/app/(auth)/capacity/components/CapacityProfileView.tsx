@@ -1,7 +1,7 @@
-import Link from "next/link";
-import CapacityProfileNoUser from "./CapacityProfileNoUser";
-import CapacityProfileUserList from "./CapacityProfileUserList";
-import { capitalizeFirstLetter } from "@/lib/utils/stringUtils";
+import Link from 'next/link';
+import CapacityProfileNoUser from './CapacityProfileNoUser';
+import CapacityProfileUserList from './CapacityProfileUserList';
+import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 
 interface CapacityProfileViewProps {
   darkMode: boolean;
@@ -22,20 +22,20 @@ export default function CapacityProfileView({
         <div className="space-y-6">
           <div
             className={
-              (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-              "w-2/6 h-10 rounded-lg animate-pulse"
+              (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+              'w-2/6 h-10 rounded-lg animate-pulse'
             }
           ></div>
           <div
             className={
-              (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-              "w-full px-8 py-4 rounded-lg animate-pulse"
+              (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+              'w-full px-8 py-4 rounded-lg animate-pulse'
             }
           >
             <div
               className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "w-2/6 h-8 rounded-lg animate-pulse"
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'w-2/6 h-8 rounded-lg animate-pulse'
               }
             ></div>
           </div>
@@ -44,42 +44,42 @@ export default function CapacityProfileView({
           <div className="space-y-4">
             <div
               className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "w-2/6 h-8 rounded-lg animate-pulse"
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'w-2/6 h-8 rounded-lg animate-pulse'
               }
             ></div>
             <div
               className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "grid grid-cols-10 w-full min-h-40 p-8 rounded-lg animate-pulse"
-              }
-            ></div>
-          </div>
-          <div className="space-y-4">
-            <div
-              className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "w-2/6 h-8 rounded-lg animate-pulse"
-              }
-            ></div>
-            <div
-              className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "grid grid-cols-10 w-full min-h-40 p-8 rounded-lg animate-pulse"
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'grid grid-cols-10 w-full min-h-40 p-8 rounded-lg animate-pulse'
               }
             ></div>
           </div>
           <div className="space-y-4">
             <div
               className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "w-2/6 h-8 rounded-lg animate-pulse"
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'w-2/6 h-8 rounded-lg animate-pulse'
               }
             ></div>
             <div
               className={
-                (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-                "grid grid-cols-10 w-full min-h-40 p-8 rounded-lg animate-pulse"
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'grid grid-cols-10 w-full min-h-40 p-8 rounded-lg animate-pulse'
+              }
+            ></div>
+          </div>
+          <div className="space-y-4">
+            <div
+              className={
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'w-2/6 h-8 rounded-lg animate-pulse'
+              }
+            ></div>
+            <div
+              className={
+                (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+                'grid grid-cols-10 w-full min-h-40 p-8 rounded-lg animate-pulse'
               }
             ></div>
           </div>
@@ -103,14 +103,11 @@ export default function CapacityProfileView({
             </a>
             ]
           </h1>
-          <Link className="my-auto" href={"/capacity"}>
+          <Link className="my-auto" href={'/capacity'}>
             <div className="rounded-full p-2">
               <svg
                 className={
-                  "w-6 h-6 " +
-                  (darkMode
-                    ? "text-capx-primary-yellow"
-                    : "text-capx-primary-red")
+                  'w-6 h-6 ' + (darkMode ? 'text-capx-primary-yellow' : 'text-capx-primary-red')
                 }
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
@@ -133,13 +130,11 @@ export default function CapacityProfileView({
         {selectedCapacityData.description ? (
           <div
             className={
-              (darkMode ? "bg-capx-dark-box-bg " : "bg-capx-light-box-bg ") +
-              "w-full px-8 py-4 rounded-lg"
+              (darkMode ? 'bg-capx-dark-box-bg ' : 'bg-capx-light-box-bg ') +
+              'w-full px-8 py-4 rounded-lg'
             }
           >
-            <p className="text-xl sm:text-base">
-              {selectedCapacityData.description}
-            </p>
+            <p className="text-xl sm:text-base">{selectedCapacityData.description}</p>
           </div>
         ) : null}
       </div>
@@ -150,15 +145,13 @@ export default function CapacityProfileView({
           selectedCapacityData.users.wanted[0].id === userId ? (
             <CapacityProfileNoUser
               darkMode={darkMode}
-              title={pageContent["body-capacity-wanted-user-list-title"]}
-              noUserMessage={
-                pageContent["body-capacity-user-list-fallback-message"]
-              }
+              title={pageContent['body-capacity-wanted-user-list-title']}
+              noUserMessage={pageContent['body-capacity-user-list-fallback-message']}
             />
           ) : (
             <CapacityProfileUserList
               darkMode={darkMode}
-              title={pageContent["body-capacity-wanted-user-list-title"]}
+              title={pageContent['body-capacity-wanted-user-list-title']}
               data={selectedCapacityData.users.wanted}
               userId={userId}
             />
@@ -166,10 +159,8 @@ export default function CapacityProfileView({
         ) : (
           <CapacityProfileNoUser
             darkMode={darkMode}
-            title={pageContent["body-capacity-wanted-user-list-title"]}
-            noUserMessage={
-              pageContent["body-capacity-user-list-fallback-message"]
-            }
+            title={pageContent['body-capacity-wanted-user-list-title']}
+            noUserMessage={pageContent['body-capacity-user-list-fallback-message']}
           />
         )}
         {selectedCapacityData.users.known?.length > 0 ? (
@@ -178,15 +169,13 @@ export default function CapacityProfileView({
           selectedCapacityData.users.known[0].id === userId ? (
             <CapacityProfileNoUser
               darkMode={darkMode}
-              title={pageContent["body-capacity-known-user-list-title"]}
-              noUserMessage={
-                pageContent["body-capacity-user-list-fallback-message"]
-              }
+              title={pageContent['body-capacity-known-user-list-title']}
+              noUserMessage={pageContent['body-capacity-user-list-fallback-message']}
             />
           ) : (
             <CapacityProfileUserList
               darkMode={darkMode}
-              title={pageContent["body-capacity-known-user-list-title"]}
+              title={pageContent['body-capacity-known-user-list-title']}
               data={selectedCapacityData.users.known}
               userId={userId}
             />
@@ -194,10 +183,8 @@ export default function CapacityProfileView({
         ) : (
           <CapacityProfileNoUser
             darkMode={darkMode}
-            title={pageContent["body-capacity-known-user-list-title"]}
-            noUserMessage={
-              pageContent["body-capacity-user-list-fallback-message"]
-            }
+            title={pageContent['body-capacity-known-user-list-title']}
+            noUserMessage={pageContent['body-capacity-user-list-fallback-message']}
           />
         )}
         {selectedCapacityData.users.available?.length > 0 ? (
@@ -206,15 +193,13 @@ export default function CapacityProfileView({
           selectedCapacityData.users.available[0].id === userId ? (
             <CapacityProfileNoUser
               darkMode={darkMode}
-              title={pageContent["body-capacity-available-user-list-title"]}
-              noUserMessage={
-                pageContent["body-capacity-user-list-fallback-message"]
-              }
+              title={pageContent['body-capacity-available-user-list-title']}
+              noUserMessage={pageContent['body-capacity-user-list-fallback-message']}
             />
           ) : (
             <CapacityProfileUserList
               darkMode={darkMode}
-              title={pageContent["body-capacity-available-user-list-title"]}
+              title={pageContent['body-capacity-available-user-list-title']}
               data={selectedCapacityData.users.available}
               userId={userId}
             />
@@ -222,10 +207,8 @@ export default function CapacityProfileView({
         ) : (
           <CapacityProfileNoUser
             darkMode={darkMode}
-            title={pageContent["body-capacity-available-user-list-title"]}
-            noUserMessage={
-              pageContent["body-capacity-user-list-fallback-message"]
-            }
+            title={pageContent['body-capacity-available-user-list-title']}
+            noUserMessage={pageContent['body-capacity-user-list-fallback-message']}
           />
         )}
       </div>
