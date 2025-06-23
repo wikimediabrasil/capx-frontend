@@ -12,6 +12,7 @@ import { CapacitiesPrefetcher } from "@/components/CapacitiesPrefetcher";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SafeBadgesProvider } from "@/contexts/SafeBadgesProvider";
 import AxiosInterceptorSetup from "@/components/AxiosInterceptorSetup";
+import AuthMonitorSetup from "@/components/AuthMonitorSetup";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <AxiosInterceptorSetup />
           <ThemeProvider>
             <SessionWrapper>
+              <AuthMonitorSetup />
               <Providers>
                 <AppProvider>
                   <ProfileEditProvider>
