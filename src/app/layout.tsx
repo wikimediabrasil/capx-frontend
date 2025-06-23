@@ -11,6 +11,7 @@ import { ProfileEditProvider } from "@/contexts/ProfileEditContext";
 import { CapacitiesPrefetcher } from "@/components/CapacitiesPrefetcher";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SafeBadgesProvider } from "@/contexts/SafeBadgesProvider";
+import AxiosInterceptorSetup from "@/components/AxiosInterceptorSetup";
 
 export const metadata: Metadata = {
   title: "CapX - Capacity Exchange",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body id="root" className="min-h-screen" suppressHydrationWarning>
         <ErrorBoundary>
           <HydrationHandler />
+          <AxiosInterceptorSetup />
           <ThemeProvider>
             <SessionWrapper>
               <Providers>
