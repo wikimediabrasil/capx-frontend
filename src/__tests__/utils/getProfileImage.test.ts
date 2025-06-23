@@ -4,7 +4,7 @@ import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 describe('getProfileImage', () => {
   const mockAvatars = [
     { id: 1, avatar_url: 'avatar1.jpg' },
-    { id: 2, avatar_url: 'avatar2.jpg' }
+    { id: 2, avatar_url: 'avatar2.jpg' },
   ];
 
   it('should return profile image when available', () => {

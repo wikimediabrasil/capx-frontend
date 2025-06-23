@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { BugReportService } from "@/services/bugReportService"; 
-import { BugReport } from "@/types/report";
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { BugReportService } from '@/services/bugReportService';
+import { BugReport } from '@/types/report';
 
 export function useBugReportSubmissions() {
   const { data: session } = useSession();
@@ -14,14 +14,14 @@ export function useBugReportSubmissions() {
   useEffect(() => {
     const fetchReports = async () => {
       if (!token) return;
-      
+
       setIsLoading(true);
       try {
         const data = await BugReportService.getReports(token);
         setReports(data);
       } catch (error) {
-        console.error("Erro ao buscar relatórios:", error);
-        setError("Não foi possível carregar os relatórios");
+        console.error('Erro ao buscar relatórios:', error);
+        setError('Não foi possível carregar os relatórios');
       } finally {
         setIsLoading(false);
       }

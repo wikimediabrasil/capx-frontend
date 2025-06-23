@@ -1,5 +1,5 @@
-"use client";
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+'use client';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 interface AppContextType {
   isMobile: boolean;
@@ -17,7 +17,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const isClient = typeof window !== "undefined";
+const isClient = typeof window !== 'undefined';
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -26,17 +26,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [mobileMenuStatus, setMobileMenuStatus] = useState(false);
 
   // Check language on localStorage. If not found, use "en" as default
-  const initialLanguage = isClient
-    ? localStorage.getItem("language") || "en"
-    : "en";
+  const initialLanguage = isClient ? localStorage.getItem('language') || 'en' : 'en';
   const [language, setLanguage] = useState(initialLanguage);
 
   const [pageContent, setPageContent] = useState({
-    "capacity-card-explore-capacity": "Explore capacity",
-    "capacity-card-expand-capacity": "Expand",
-    "capacity-card-info": "Information",
-    "capacity-banner-title": "Exchange Everything",
-    "capacity-search-no-results": "No results found",
+    'capacity-card-explore-capacity': 'Explore capacity',
+    'capacity-card-expand-capacity': 'Expand',
+    'capacity-card-info': 'Information',
+    'capacity-banner-title': 'Exchange Everything',
+    'capacity-search-no-results': 'No results found',
   });
   const [session, setSession] = useState(null);
 
@@ -46,7 +44,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (!isClient) return;
 
     try {
-      const savedLanguage = localStorage.getItem("language");
+      const savedLanguage = localStorage.getItem('language');
 
       if (savedLanguage && savedLanguage !== language) {
         setLanguage(savedLanguage); // Update state if language is different
@@ -64,15 +62,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       checkIsMobile();
 
       // Add resize listener
-      window.addEventListener("resize", checkIsMobile);
+      window.addEventListener('resize', checkIsMobile);
 
       setMounted(true);
 
       return () => {
-        window.removeEventListener("resize", checkIsMobile);
+        window.removeEventListener('resize', checkIsMobile);
       };
     } catch (error) {
-      console.error("Error initializing AppContext:", error);
+      console.error('Error initializing AppContext:', error);
       setMounted(true); // Ensure we still render the app even if there's an error
     }
   }, []);
@@ -83,10 +81,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (language) {
-        localStorage.setItem("language", language);
+        localStorage.setItem('language', language);
       }
     } catch (error) {
-      console.error("Error saving language to localStorage:", error);
+      console.error('Error saving language to localStorage:', error);
     }
   }, [language, mounted]);
 
@@ -121,7 +119,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 export function useApp() {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
+    throw new Error('useApp must be used within an AppProvider');
   }
   return context;
 }

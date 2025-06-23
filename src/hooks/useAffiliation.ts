@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Affiliations } from "@/types/affiliation";
-import { fetchAffiliations } from "@/services/affiliationService";
+import { useState, useEffect } from 'react';
+import { Affiliations } from '@/types/affiliation';
+import { fetchAffiliations } from '@/services/affiliationService';
 
 export const useAffiliation = (token: string | undefined) => {
   const [affiliations, setAffiliations] = useState<Affiliations>({});
@@ -19,9 +19,7 @@ export const useAffiliation = (token: string | undefined) => {
         });
         setAffiliations(data);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load affiliations"
-        );
+        setError(err instanceof Error ? err.message : 'Failed to load affiliations');
       } finally {
         setLoading(false);
       }

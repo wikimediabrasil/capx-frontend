@@ -1,10 +1,7 @@
 const nextConfig = {
   images: {
-    domains: [
-      'upload.wikimedia.org',
-      'commons.wikimedia.org'
-    ],
+    domains: ['upload.wikimedia.org', 'commons.wikimedia.org'],
   },
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig;

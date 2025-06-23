@@ -1,27 +1,27 @@
-"use client";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useEffect, useMemo, useCallback } from "react";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
-import LoadingState from "@/components/LoadingState";
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-import OrganizationProfileMobileView from "../components/OrganizationProfileMobileView";
-import OrganizationProfileDesktopView from "../components/OrganizationProfileDesktopView";
+'use client';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useEffect, useMemo, useCallback } from 'react';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import LoadingState from '@/components/LoadingState';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import OrganizationProfileMobileView from '../components/OrganizationProfileMobileView';
+import OrganizationProfileDesktopView from '../components/OrganizationProfileDesktopView';
 
 // Hard-coded fallback names for known capacity IDs (same as in the API)
 const FALLBACK_CAPACITY_NAMES = {
-  "69": "Strategic Thinking",
-  "71": "Team Leadership",
-  "97": "Project Management",
-  "10": "Organizational Skills",
-  "36": "Communication",
-  "50": "Learning",
-  "56": "Community Building",
-  "65": "Social Skills",
-  "74": "Strategic Planning",
-  "106": "Technology",
+  '69': 'Strategic Thinking',
+  '71': 'Team Leadership',
+  '97': 'Project Management',
+  '10': 'Organizational Skills',
+  '36': 'Communication',
+  '50': 'Learning',
+  '56': 'Community Building',
+  '65': 'Social Skills',
+  '74': 'Strategic Planning',
+  '106': 'Technology',
 };
 
 export default function OrganizationProfilePage() {
@@ -41,7 +41,7 @@ export default function OrganizationProfilePage() {
     refetch,
   } = useOrganization(token, organizationId);
 
-  const organization = organizations.find((org) => org.id === organizationId);
+  const organization = organizations.find(org => org.id === organizationId);
 
   // Memoize the capacity IDs to prevent unnecessary re-renders
   const allCapacityIds = useMemo(() => {
@@ -62,10 +62,7 @@ export default function OrganizationProfilePage() {
       const name = originalGetCapacityName(id);
 
       // Filter out URLs and replace with fallback
-      if (
-        typeof name === "string" &&
-        (name.startsWith("https://") || name.includes("entity/Q"))
-      ) {
+      if (typeof name === 'string' && (name.startsWith('https://') || name.includes('entity/Q'))) {
         const idStr = id.toString();
         return FALLBACK_CAPACITY_NAMES[idStr] || `Capacity ${id}`;
       }
@@ -88,7 +85,7 @@ export default function OrganizationProfilePage() {
 
   useEffect(() => {
     if (error) {
-      console.error("Error fetching organization:", error);
+      console.error('Error fetching organization:', error);
     }
   }, [error]);
 

@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useSavedItems } from "@/hooks/useSavedItems";
-import LoadingState from "@/components/LoadingState";
-import { NoResults } from "../components/NoResults";
-import SavedItemsIllustration from "@/public/static/images/capx_person_4.svg";
-import SavedItemCard from "./components/SavedItemCard";
-import { PaginationButtons } from "@/components/PaginationButtons";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import Image from 'next/image';
+import { useState } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useSavedItems } from '@/hooks/useSavedItems';
+import LoadingState from '@/components/LoadingState';
+import { NoResults } from '../components/NoResults';
+import SavedItemsIllustration from '@/public/static/images/capx_person_4.svg';
+import SavedItemCard from './components/SavedItemCard';
+import { PaginationButtons } from '@/components/PaginationButtons';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
 export default function SavedProfilesPage() {
   const { darkMode } = useTheme();
@@ -18,14 +18,8 @@ export default function SavedProfilesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const { showSnackbar } = useSnackbar();
-  
-  const { 
-    paginatedProfiles,
-    isLoading, 
-    error, 
-    count, 
-    deleteSavedItem,
-  } = useSavedItems();
+
+  const { paginatedProfiles, isLoading, error, count, deleteSavedItem } = useSavedItems();
 
   const currentProfiles = paginatedProfiles(currentPage, itemsPerPage);
   const totalPages = Math.ceil(count / itemsPerPage);
@@ -37,9 +31,9 @@ export default function SavedProfilesPage() {
   const handleRemoveSavedItem = async (savedItemId: number) => {
     try {
       await deleteSavedItem(savedItemId);
-      showSnackbar(pageContent["saved-profiles-delete-success"], "success");
+      showSnackbar(pageContent['saved-profiles-delete-success'], 'success');
     } catch (error) {
-      showSnackbar(pageContent["saved-profiles-error"], "error");
+      showSnackbar(pageContent['saved-profiles-error'], 'error');
     }
   };
 
@@ -61,27 +55,29 @@ export default function SavedProfilesPage() {
                   priority
                 />
               </div>
-              
+
               {/* Title */}
               <div className="mt-4 md:mt-0 md:ml-auto md:mr-auto flex justify-center">
                 <h1 className="text-2xl md:text-3xl font-bold text-white">
-                  {pageContent["saved-profiles-title"]}
+                  {pageContent['saved-profiles-title']}
                 </h1>
               </div>
             </div>
           </div>
-          
+
           {/* Loading state */}
           {isLoading ? (
             <LoadingState />
           ) : error ? (
-            <div className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-white' : 'bg-red-100 text-red-800'}`}>
+            <div
+              className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-white' : 'bg-red-100 text-red-800'}`}
+            >
               {error}
             </div>
           ) : count > 0 ? (
             <div className="w-full mx-auto space-y-6">
               {currentProfiles.map((profile, index) => (
-                <SavedItemCard 
+                <SavedItemCard
                   id={String(profile.id)}
                   key={index}
                   profile_image={profile.profile_image}
@@ -94,13 +90,13 @@ export default function SavedProfilesPage() {
             </div>
           ) : (
             <NoResults
-              title={pageContent["feed-no-data-message"]}
-              description={pageContent["feed-no-data-description"]}
+              title={pageContent['feed-no-data-message']}
+              description={pageContent['feed-no-data-description']}
             />
           )}
         </div>
       </div>
-      
+
       {/* Pagination buttons */}
       {count > 0 && (
         <PaginationButtons

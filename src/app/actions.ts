@@ -1,5 +1,5 @@
-"use server";
-import { cookies } from "next/headers";
+'use server';
+import { cookies } from 'next/headers';
 
 // Define interface for cookie data
 interface CookieData {
@@ -12,7 +12,7 @@ interface CookieData {
     domain?: string;
     secure?: boolean;
     httpOnly?: boolean;
-    sameSite?: "strict" | "lax" | "none";
+    sameSite?: 'strict' | 'lax' | 'none';
   };
 }
 
@@ -26,7 +26,7 @@ export async function setCookie(data: CookieData): Promise<void> {
     const { name, value, options } = data;
     cookies().set(name, value, options);
   } catch (error) {
-    console.error("Error setting cookie:", error);
+    console.error('Error setting cookie:', error);
     throw error;
   }
 }

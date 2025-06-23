@@ -1,18 +1,18 @@
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import BaseButton from "@/components/BaseButton";
-import EditIcon from "@/public/static/images/edit.svg";
-import EditIconWhite from "@/public/static/images/edit_white.svg";
-import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
-import CopyLinkIcon from "@/public/static/images/icons/copy_link.svg";
-import CopyLinkIconWhite from "@/public/static/images/icons/copy_link_white.svg";
-import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import { useState, useEffect, useCallback } from "react";
-import { useAvatars } from "@/hooks/useAvatars";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import BaseButton from '@/components/BaseButton';
+import EditIcon from '@/public/static/images/edit.svg';
+import EditIconWhite from '@/public/static/images/edit_white.svg';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
+import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { useState, useEffect, useCallback } from 'react';
+import { useAvatars } from '@/hooks/useAvatars';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
 interface ProfileHeaderProps {
   username: string;
@@ -35,7 +35,7 @@ export default function ProfileHeader({
   const { showSnackbar } = useSnackbar();
 
   const loadAvatar = useCallback(async () => {
-    if (typeof avatar === "number" && avatar > 0) {
+    if (typeof avatar === 'number' && avatar > 0) {
       try {
         const avatarData = await getAvatarById(avatar);
         if (avatarData?.avatar_url) {
@@ -43,7 +43,7 @@ export default function ProfileHeader({
           return;
         }
       } catch (error) {
-        console.error("Error fetching avatar:", error);
+        console.error('Error fetching avatar:', error);
       }
     }
     setAvatarUrl(profileImage || NoAvatarIcon);
@@ -56,7 +56,7 @@ export default function ProfileHeader({
     if (profileImage) {
       return profileImage;
     } else if (avatar) {
-      const avatarData = avatars?.find((a) => a.id === avatar);
+      const avatarData = avatars?.find(a => a.id === avatar);
       return avatarData?.avatar_url || NoAvatarIcon;
     }
     return NoAvatarIcon;
@@ -67,10 +67,10 @@ export default function ProfileHeader({
       const baseUrl = window.location.origin;
       const profileUrl = `${baseUrl}/profile/${username}`;
       await navigator.clipboard.writeText(profileUrl);
-      showSnackbar(pageContent["body-profile-copy-link-success"], "success");
+      showSnackbar(pageContent['body-profile-copy-link-success'], 'success');
     } catch (error) {
-      console.error("Error copying link:", error);
-      showSnackbar(pageContent["body-profile-copy-link-error"], "error");
+      console.error('Error copying link:', error);
+      showSnackbar(pageContent['body-profile-copy-link-error'], 'error');
     }
   };
 
@@ -85,46 +85,46 @@ export default function ProfileHeader({
           <Image
             priority
             src={getCorrectImage()}
-            alt={pageContent["navbar-user-profile"]}
+            alt={pageContent['navbar-user-profile']}
             fill
             className="object-cover border rounded-[4px]"
             unoptimized
-            onError={(e) => {
-              console.error("Error fetching avatar:", e);
+            onError={e => {
+              console.error('Error fetching avatar:', e);
               e.currentTarget.src = NoAvatarIcon;
             }}
           />
         </div>
         <h1
           className={` text-[24px] font-[Montserrat] font-normal ${
-            darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
+            darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
           }`}
         >
-          {pageContent["edit-profile-welcome"]}
+          {pageContent['edit-profile-welcome']}
         </h1>
         <div className="flex items-center gap-2">
           <Image
             src={darkMode ? UserCircleIconWhite : UserCircleIcon}
-            alt={pageContent["navbar-user-profile"]}
+            alt={pageContent['navbar-user-profile']}
             width={20}
             height={20}
           />
           <span
             className={`text-[20px] font-[Montserrat] font-bold ${
-              darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
+              darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
             }`}
           >
-            {username || pageContent["loading"]}
+            {username || pageContent['loading']}
           </span>
         </div>
         <div className="flex flex-col gap-2">
           <BaseButton
             onClick={handleCopyLink}
-            label={pageContent["body-profile-copy-link"]}
+            label={pageContent['body-profile-copy-link']}
             customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
               darkMode
-                ? "text-capx-light-bg border-capx-light-bg"
-                : "text-capx-dark-box-bg border-capx-dark-box-bg"
+                ? 'text-capx-light-bg border-capx-light-bg'
+                : 'text-capx-dark-box-bg border-capx-dark-box-bg'
             }`}
             imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
             imageAlt="Copy link"
@@ -134,12 +134,12 @@ export default function ProfileHeader({
 
           {isSameUser && (
             <BaseButton
-              onClick={() => router.push("/profile/edit")}
-              label={pageContent["body-profile-edit-user-button"]}
+              onClick={() => router.push('/profile/edit')}
+              label={pageContent['body-profile-edit-user-button']}
               customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
                 darkMode
-                  ? "text-capx-light-bg border-capx-light-bg"
-                  : "text-capx-dark-box-bg border-capx-dark-box-bg"
+                  ? 'text-capx-light-bg border-capx-light-bg'
+                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
               }`}
               imageUrl={darkMode ? EditIconWhite : EditIcon}
               imageAlt="Edit icon"
@@ -158,12 +158,12 @@ export default function ProfileHeader({
         <Image
           priority
           src={getCorrectImage()}
-          alt={pageContent["navbar-user-profile"]}
+          alt={pageContent['navbar-user-profile']}
           fill
           className="object-cover"
           unoptimized
-          onError={(e) => {
-            console.error("Error fetching avatar:", e);
+          onError={e => {
+            console.error('Error fetching avatar:', e);
             e.currentTarget.src = NoAvatarIcon;
           }}
         />
@@ -171,34 +171,34 @@ export default function ProfileHeader({
       <div className="flex flex-col gap-6">
         <h1
           className={` text-[48px] font-[Montserrat] font-normal ${
-            darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
+            darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
           }`}
         >
-          {pageContent["edit-profile-welcome"]}
+          {pageContent['edit-profile-welcome']}
         </h1>
         <div className="flex items-center gap-2">
           <Image
             src={darkMode ? UserCircleIconWhite : UserCircleIcon}
-            alt={pageContent["navbar-user-profile"]}
+            alt={pageContent['navbar-user-profile']}
             width={42}
             height={42}
           />
           <span
             className={`text-[24px] font-[Montserrat] font-bold ${
-              darkMode ? "text-capx-light-bg" : "text-capx-dark-box-bg"
+              darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
             }`}
           >
-            {username || pageContent["loading"]}
+            {username || pageContent['loading']}
           </span>
         </div>
         <div className="flex flex-col gap-2">
           <BaseButton
             onClick={handleCopyLink}
-            label={pageContent["body-profile-copy-link"]}
+            label={pageContent['body-profile-copy-link']}
             customClass={`w-full font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
               darkMode
-                ? "text-capx-light-bg border-capx-light-bg"
-                : "text-capx-dark-box-bg border-capx-dark-box-bg"
+                ? 'text-capx-light-bg border-capx-light-bg'
+                : 'text-capx-dark-box-bg border-capx-dark-box-bg'
             }`}
             imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
             imageAlt="Copy link"
@@ -207,12 +207,12 @@ export default function ProfileHeader({
           />
           {isSameUser && (
             <BaseButton
-              onClick={() => router.push("/profile/edit")}
-              label={pageContent["body-profile-edit-user-button"]}
+              onClick={() => router.push('/profile/edit')}
+              label={pageContent['body-profile-edit-user-button']}
               customClass={`w-full font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
                 darkMode
-                  ? "text-capx-light-bg border-capx-light-bg"
-                  : "text-capx-dark-box-bg border-capx-dark-box-bg"
+                  ? 'text-capx-light-bg border-capx-light-bg'
+                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
               }`}
               imageUrl={darkMode ? EditIconWhite : EditIcon}
               imageAlt="Edit icon"

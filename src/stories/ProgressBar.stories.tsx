@@ -11,13 +11,13 @@ const meta: Meta<typeof ProgressBar> = {
   argTypes: {
     progress: {
       control: { type: 'range', min: 0, max: 100 },
-      description: 'Progress percentage (0-100)'
+      description: 'Progress percentage (0-100)',
     },
     darkMode: {
       control: 'boolean',
-      description: 'Dark mode theme'
-    }
-  }
+      description: 'Dark mode theme',
+    },
+  },
 };
 
 export default meta;
@@ -26,14 +26,14 @@ type Story = StoryObj<typeof ProgressBar>;
 export const Default: Story = {
   args: {
     progress: 75,
-    darkMode: false
-  }
+    darkMode: false,
+  },
 };
 
 export const DarkMode: Story = {
   args: {
     progress: 75,
-    darkMode: true
+    darkMode: true,
   },
   parameters: {
     backgrounds: {
@@ -45,13 +45,13 @@ export const DarkMode: Story = {
 export const Empty: Story = {
   args: {
     progress: 0,
-    darkMode: false
-  }
+    darkMode: false,
+  },
 };
 
 export const Full: Story = {
   args: {
     progress: 100,
-    darkMode: false
-  }
+    darkMode: false,
+  },
 };

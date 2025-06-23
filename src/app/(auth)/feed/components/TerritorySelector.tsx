@@ -13,19 +13,19 @@ export function TerritorySelector({
   territories,
   selectedTerritories,
   onSelectTerritory,
-  placeholder
+  placeholder,
 }: TerritorySelectorProps) {
   const { pageContent } = useApp();
   const territoriesList = Object.entries(territories).map(([id, name]) => ({
     id,
-    name
+    name,
   }));
 
   return (
     <SelectList
       icon={TerritoryIcon}
       iconDark={TerritoryIconWhite}
-      title={pageContent["filters-territory-title"]}
+      title={pageContent['filters-territory-title']}
       items={territoriesList}
       selectedItems={selectedTerritories}
       onSelect={onSelectTerritory}

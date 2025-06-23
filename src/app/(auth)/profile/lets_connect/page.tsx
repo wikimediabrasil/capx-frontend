@@ -1,7 +1,5 @@
-import LetsConnectPage from "./components/LetsConnectPage";
+import LetsConnectPage from './components/LetsConnectPage';
 
 export default function LetsConnect() {
-  return(
-    <LetsConnectPage />
-  )
+  return <LetsConnectPage />;
 }

@@ -1,12 +1,12 @@
-"use client";
-import React, { useState } from "react";
-import { signOut } from "next-auth/react";
-import axios from "axios";
-import BaseButton from "./BaseButton";
-import Popup from "./Popup";
-import capxPersonIcon from "../../public/static/images/capx_person_icon.svg";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
+'use client';
+import React, { useState } from 'react';
+import { signOut } from 'next-auth/react';
+import axios from 'axios';
+import BaseButton from './BaseButton';
+import Popup from './Popup';
+import capxPersonIcon from '../../public/static/images/capx_person_icon.svg';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 
 interface AuthButtonProps {
   message: string;
@@ -37,38 +37,35 @@ export default function AuthButton({
     setIsLoading(true);
 
     if (isSignOut) {
-      await signOut({ redirect: true, callbackUrl: "/" });
+      await signOut({ redirect: true, callbackUrl: '/' });
       setShowPopup(false);
       return;
     }
 
     try {
       // Clean old tokens before starting new flow
-      localStorage.removeItem("oauth_token");
-      localStorage.removeItem("oauth_token_secret");
+      localStorage.removeItem('oauth_token');
+      localStorage.removeItem('oauth_token_secret');
 
-      const response = await axios.post("/api/login", null, {
+      const response = await axios.post('/api/login', null, {
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
         },
       });
 
       if (response.data?.redirect_url) {
         // Store new tokens
-        localStorage.setItem("oauth_token", response.data.oauth_token);
-        localStorage.setItem(
-          "oauth_token_secret",
-          response.data.oauth_token_secret
-        );
+        localStorage.setItem('oauth_token', response.data.oauth_token);
+        localStorage.setItem('oauth_token_secret', response.data.oauth_token_secret);
         window.location.href = response.data.redirect_url;
       } else {
-        throw new Error("Redirect URL not received");
+        throw new Error('Redirect URL not received');
       }
     } catch (error: any) {
-      console.error("Error:", error);
-      console.error("Response data:", error.response?.data);
-      console.error("Response status:", error.response?.status);
+      console.error('Error:', error);
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
       setShowPopup(false);
       alert(`Error on login: ${error.response?.data?.error || error.message}`);
     } finally {
@@ -98,7 +95,10 @@ export default function AuthButton({
     text-[14px]
     md:text-[24px]
     transition-all
-    ${isMobileMenu ? 'w-full' : `
+    ${
+      isMobileMenu
+        ? 'w-full'
+        : `
       min-w-[120px]
       max-w-[200px]
       px-3 py-2.5
@@ -107,7 +107,8 @@ export default function AuthButton({
       md:max-w-[280px]
       md:px-6
       md:py-3
-    `}
+    `
+    }
     ${customClass || ''}
   `.trim();
 
@@ -128,9 +129,9 @@ export default function AuthButton({
           onContinue={handleAuth}
           onClose={() => setShowPopup(false)}
           image={capxPersonIcon}
-          title={pageContent["auth-dialog-content"]}
-          closeButtonLabel={pageContent["auth-dialog-button-close"]}
-          continueButtonLabel={pageContent["auth-dialog-button-continue"]}
+          title={pageContent['auth-dialog-content']}
+          closeButtonLabel={pageContent['auth-dialog-button-close']}
+          continueButtonLabel={pageContent['auth-dialog-button-continue']}
         />
       )}
     </div>

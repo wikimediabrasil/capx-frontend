@@ -9,7 +9,7 @@ import { SessionProvider } from 'next-auth/react';
 const pushMock = jest.fn();
 
 // Mock do Next.js Router
-jest.mock("next/navigation", () => ({
+jest.mock('next/navigation', () => ({
   useRouter() {
     return {
       push: pushMock,
@@ -19,7 +19,7 @@ jest.mock("next/navigation", () => ({
     };
   },
   usePathname() {
-    return "/";
+    return '/';
   },
   useSearchParams() {
     return new URLSearchParams();
@@ -31,27 +31,27 @@ jest.mock('next-auth/react', () => ({
   useSession: () => ({
     data: {
       user: {
-        id: "123",
-        token: "test-token",
-        username: "test-user",
+        id: '123',
+        token: 'test-token',
+        username: 'test-user',
         first_login: false,
-        name: "Test User",
-        email: "test@example.com",
-        image: "test-image.jpg",
+        name: 'Test User',
+        email: 'test@example.com',
+        image: 'test-image.jpg',
       },
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     },
-    status: 'authenticated'
+    status: 'authenticated',
   }),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 // Mock useOrganization hook
 jest.mock('@/hooks/useOrganizationProfile', () => ({
   useOrganization: () => ({
     organizations: [],
-    isOrgManager: false
-  })
+    isOrgManager: false,
+  }),
 }));
 
 const mockPageContent = {
@@ -63,9 +63,9 @@ const mockPageContent = {
 jest.mock('@/contexts/AppContext', () => ({
   useApp: jest.fn(() => ({
     pageContent: mockPageContent,
-    isMobile: false
+    isMobile: false,
   })),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -75,21 +75,21 @@ jest.mock('@/contexts/ThemeContext', () => ({
     theme: {
       fontSize: {
         mobile: { base: '14px' },
-        desktop: { base: '24px' }
-      }
+        desktop: { base: '24px' },
+      },
     },
     getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
     getBackgroundColor: () => '#FFFFFF',
-    getTextColor: () => '#000000'
+    getTextColor: () => '#000000',
   })),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 describe('ProfileSelect', () => {
   beforeEach(() => {
     (AppContext.useApp as jest.Mock).mockReturnValue({
       pageContent: mockPageContent,
-      isMobile: false
+      isMobile: false,
     });
   });
 
@@ -97,9 +97,7 @@ describe('ProfileSelect', () => {
     return render(
       <SessionProvider>
         <AppProvider>
-          <ThemeProvider>
-            {component}
-          </ThemeProvider>
+          <ThemeProvider>{component}</ThemeProvider>
         </AppProvider>
       </SessionProvider>
     );
@@ -116,14 +114,14 @@ describe('ProfileSelect', () => {
         'navbar-link-profiles': 'Meine Profile und Einstellungen',
         'navbar-user-profile': 'Benutzerprofil',
       },
-      isMobile: false
+      isMobile: false,
     }));
 
     renderWithProviders(<ProfileSelect />);
 
     const selectContainer = screen.getByText('Meine Profile und Einstellungen');
     expect(selectContainer).toHaveClass('css-4yxo90-singleValue');
-    
+
     const container = selectContainer.closest('.css-b62m3t-container');
     expect(container).toHaveClass('relative', 'w-[200px]');
   });
@@ -134,7 +132,7 @@ describe('ProfileSelect', () => {
         'navbar-link-profiles': 'الملفات الشخصية',
         'navbar-user-profile': 'الملف الشخصي',
       },
-      isMobile: false
+      isMobile: false,
     }));
 
     renderWithProviders(<ProfileSelect />);
@@ -143,7 +141,7 @@ describe('ProfileSelect', () => {
 
   it('maintains consistent height across different text lengths', () => {
     const { container } = renderWithProviders(<ProfileSelect />);
-    
+
     const controlElement = container.querySelector('div[class*="flex"][class*="h-[64px]"]');
     expect(controlElement).toBeInTheDocument();
   });
@@ -159,25 +157,25 @@ describe('ProfileSelect', () => {
 
     const selectValue = screen.getByText('My Profiles');
     expect(selectValue).toHaveClass('text-[24px]');
-    
+
     const container = selectValue.closest('div[class*="container"]');
     expect(container).toHaveClass('text-[20px]');
   });
 
   it('renders without crashing', () => {
     renderWithProviders(<ProfileSelect />);
-    
+
     // Check if the default text is present
     expect(screen.getByText('My Profiles')).toBeInTheDocument();
   });
 
   it('shows user profile option when clicked', async () => {
     renderWithProviders(<ProfileSelect />);
-    
+
     // Find the select container
     const selectContainer = screen.getByRole('combobox');
     await userEvent.click(selectContainer);
-    
+
     // Find the profile option using the role 'option'
     const profileOption = screen.getByRole('option', { name: 'User Profile' });
     expect(profileOption).toBeInTheDocument();
@@ -185,25 +183,25 @@ describe('ProfileSelect', () => {
 
   it('handles profile selection correctly', async () => {
     renderWithProviders(<ProfileSelect />);
-    
+
     // Find and click on the select
     const selectContainer = screen.getByRole('combobox');
     await userEvent.click(selectContainer);
-    
+
     // Find and click on the profile option
     const profileOption = screen.getByRole('option', { name: 'User Profile' });
     await userEvent.click(profileOption);
-    
+
     // Check if the router.push was called with the correct path
     expect(pushMock).toHaveBeenCalledWith('/profile');
   });
 
   it('displays correct profile options', async () => {
     renderWithProviders(<ProfileSelect />);
-    
+
     const selectContainer = screen.getByRole('combobox');
     await userEvent.click(selectContainer);
-    
+
     // Check if the correct options are present
     expect(screen.getByText('User Profile')).toBeInTheDocument();
     expect(screen.getByText('My Profiles')).toBeInTheDocument();

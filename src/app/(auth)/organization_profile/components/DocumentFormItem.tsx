@@ -1,9 +1,9 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import Image from "next/image";
-import { OrganizationDocument } from "@/types/document";
-import { useApp } from "@/contexts/AppContext";
+import { useTheme } from '@/contexts/ThemeContext';
+import CancelIcon from '@/public/static/images/cancel.svg';
+import CancelIconWhite from '@/public/static/images/cancel_white.svg';
+import Image from 'next/image';
+import { OrganizationDocument } from '@/types/document';
+import { useApp } from '@/contexts/AppContext';
 
 interface DocumentFormItemProps {
   document: OrganizationDocument;
@@ -12,12 +12,7 @@ interface DocumentFormItemProps {
   onChange: (index: number, field: string, value: string) => void;
 }
 
-const DocumentFormItem = ({
-  document,
-  index,
-  onDelete,
-  onChange,
-}: DocumentFormItemProps) => {
+const DocumentFormItem = ({ document, index, onDelete, onChange }: DocumentFormItemProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
 
@@ -26,15 +21,13 @@ const DocumentFormItem = ({
       <div className="flex flex-col gap-2 w-full">
         <input
           type="text"
-          placeholder={pageContent["edit-profile-insert-link"]}
+          placeholder={pageContent['edit-profile-insert-link']}
           className={`w-full p-2 text-[24px] font-Montserrat border rounded-md bg-transparent ${
-            darkMode
-              ? "text-white border-gray-600"
-              : "text-[#829BA4] border-gray-300"
+            darkMode ? 'text-white border-gray-600' : 'text-[#829BA4] border-gray-300'
           }`}
-          value={document.url || ""}
-          onChange={(e) => {
-            onChange(index, "url", e.target.value);
+          value={document.url || ''}
+          onChange={e => {
+            onChange(index, 'url', e.target.value);
           }}
         />
       </div>

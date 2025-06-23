@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { capacityService } from "@/services/capacityService";
-import { useSession } from "next-auth/react";
-import { Capacity, CapacityResponse } from "@/types/capacity";
-import { useApp } from "@/contexts/AppContext";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CAPACITY_CACHE_KEYS } from "./useCapacities";
+import { useCallback, useEffect, useState, useMemo } from 'react';
+import { capacityService } from '@/services/capacityService';
+import { useSession } from 'next-auth/react';
+import { Capacity, CapacityResponse } from '@/types/capacity';
+import { useApp } from '@/contexts/AppContext';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { CAPACITY_CACHE_KEYS } from './useCapacities';
 
 // Hard-coded fallback names to ensure we always have something to display
 const FALLBACK_NAMES = {
-  "69": "Strategic Thinking",
-  "71": "Team Leadership",
-  "97": "Project Management",
-  "10": "Organizational Skills",
-  "36": "Communication",
-  "50": "Learning",
-  "56": "Community Building",
-  "65": "Social Skills",
-  "74": "Strategic Planning",
-  "106": "Technology",
+  '69': 'Strategic Thinking',
+  '71': 'Team Leadership',
+  '97': 'Project Management',
+  '10': 'Organizational Skills',
+  '36': 'Communication',
+  '50': 'Learning',
+  '56': 'Community Building',
+  '65': 'Social Skills',
+  '74': 'Strategic Planning',
+  '106': 'Technology',
 };
 
 /**
@@ -34,18 +34,14 @@ export function useCapacityDetails(capacityIds: any = []) {
   const token = session?.user?.token;
 
   // Armazenar nomes das capacidades
-  const [capacityNames, setCapacityNames] = useState<Record<string, string>>(
-    {}
-  );
-  const [capacityLoadingState, setCapacityLoadingState] = useState<
-    Record<string, boolean>
-  >({});
+  const [capacityNames, setCapacityNames] = useState<Record<string, string>>({});
+  const [capacityLoadingState, setCapacityLoadingState] = useState<Record<string, boolean>>({});
 
   // Garantir que capacityIds é sempre um array válido
   const safeCapacityIds = useMemo(() => {
     if (!capacityIds) return [];
     return Array.isArray(capacityIds)
-      ? capacityIds.filter((id) => id !== null && id !== undefined)
+      ? capacityIds.filter(id => id !== null && id !== undefined)
       : [];
   }, [capacityIds]);
 
@@ -55,11 +51,11 @@ export function useCapacityDetails(capacityIds: any = []) {
 
     if (!Array.isArray(safeCapacityIds)) return uniqueIds;
 
-    safeCapacityIds.forEach((id) => {
+    safeCapacityIds.forEach(id => {
       let numId: number;
-      if (typeof id === "number") {
+      if (typeof id === 'number') {
         numId = id;
-      } else if (typeof id === "string" && !isNaN(parseInt(id))) {
+      } else if (typeof id === 'string' && !isNaN(parseInt(id))) {
         numId = parseInt(id);
       } else {
         return; // Ignore invalid IDs
@@ -78,12 +74,12 @@ export function useCapacityDetails(capacityIds: any = []) {
 
   // Criar uma string estável para dependency tracking
   const capacityIdsKey = useMemo(() => {
-    return uniqueCapacityIds.sort((a, b) => a - b).join(",");
+    return uniqueCapacityIds.sort((a, b) => a - b).join(',');
   }, [uniqueCapacityIds]);
 
   // Usar uma única consulta para buscar todos os IDs
   const { data: capacityData, isLoading } = useQuery({
-    queryKey: ["capacities", "batch", capacityIdsKey],
+    queryKey: ['capacities', 'batch', capacityIdsKey],
     queryFn: async () => {
       if (!token || !uniqueCapacityIds.length) return {};
 
@@ -92,7 +88,7 @@ export function useCapacityDetails(capacityIds: any = []) {
       // Process in smaller chunks to avoid overwhelming the API
       const processIds = async (ids: number[]) => {
         await Promise.all(
-          ids.map(async (id) => {
+          ids.map(async id => {
             try {
               // Check if already in React Query cache
               const existing = queryClient.getQueryData<CapacityResponse>(
@@ -105,42 +101,32 @@ export function useCapacityDetails(capacityIds: any = []) {
               }
 
               // Fetch from API if not in cache
-              const response = await capacityService.fetchCapacityById(
-                id.toString()
-              );
+              const response = await capacityService.fetchCapacityById(id.toString());
 
               if (response && response.name) {
                 // Check if name is a URL and replace with fallback if needed
                 if (
-                  typeof response.name === "string" &&
-                  (response.name.startsWith("https://") ||
-                    response.name.includes("entity/Q"))
+                  typeof response.name === 'string' &&
+                  (response.name.startsWith('https://') || response.name.includes('entity/Q'))
                 ) {
                   results[id.toString()] =
-                    FALLBACK_NAMES[
-                      id.toString() as keyof typeof FALLBACK_NAMES
-                    ] || `Capacity ${id}`;
+                    FALLBACK_NAMES[id.toString() as keyof typeof FALLBACK_NAMES] ||
+                    `Capacity ${id}`;
                 } else {
                   results[id.toString()] = response.name;
                 }
 
                 // Update the React Query cache
-                queryClient.setQueryData(
-                  CAPACITY_CACHE_KEYS.byId(id),
-                  response
-                );
+                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(id), response);
               } else {
                 // Use fallback if available
                 results[id.toString()] =
-                  FALLBACK_NAMES[
-                    id.toString() as keyof typeof FALLBACK_NAMES
-                  ] || `Capacity ${id}`;
+                  FALLBACK_NAMES[id.toString() as keyof typeof FALLBACK_NAMES] || `Capacity ${id}`;
               }
             } catch (error) {
               console.error(`Error fetching capacity ${id}:`, error);
               results[id.toString()] =
-                FALLBACK_NAMES[id.toString() as keyof typeof FALLBACK_NAMES] ||
-                `Capacity ${id}`;
+                FALLBACK_NAMES[id.toString() as keyof typeof FALLBACK_NAMES] || `Capacity ${id}`;
             }
           })
         );
@@ -191,7 +177,7 @@ export function useCapacityDetails(capacityIds: any = []) {
     const newCapacityLoadingState = { ...capacityLoadingState };
     let hasChanges = false;
 
-    safeCapacityIds.forEach((id) => {
+    safeCapacityIds.forEach(id => {
       if (id === null || id === undefined) return;
 
       const idStr = id.toString();
@@ -199,8 +185,7 @@ export function useCapacityDetails(capacityIds: any = []) {
       // Se não temos este ID no estado, adicione um fallback
       if (!newCapacityNames[idStr]) {
         newCapacityNames[idStr] =
-          FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES] ||
-          `Capacity ${idStr}`;
+          FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES] || `Capacity ${idStr}`;
         newCapacityLoadingState[idStr] = false;
         hasChanges = true;
       }
@@ -218,46 +203,40 @@ export function useCapacityDetails(capacityIds: any = []) {
       try {
         // Early return for undefined/null values with a default message
         if (capacity === null || capacity === undefined) {
-          return pageContent["capacity-unknown"] || "Unknown Capacity";
+          return pageContent['capacity-unknown'] || 'Unknown Capacity';
         }
 
         let idStr: string;
 
-        if (typeof capacity === "object" && capacity && "code" in capacity) {
+        if (typeof capacity === 'object' && capacity && 'code' in capacity) {
           // Handle capacity objects with code property
           const code = capacity.code;
           if (code === null || code === undefined) {
-            return pageContent["capacity-unknown"] || "Unknown Capacity";
+            return pageContent['capacity-unknown'] || 'Unknown Capacity';
           }
           idStr = code.toString();
-        } else if (
-          typeof capacity === "string" ||
-          typeof capacity === "number"
-        ) {
+        } else if (typeof capacity === 'string' || typeof capacity === 'number') {
           // Handle direct ID values (string or number)
           idStr = capacity.toString();
         } else {
           // Fallback for any other unexpected type
-          return pageContent["capacity-unknown"] || "Unknown Capacity";
+          return pageContent['capacity-unknown'] || 'Unknown Capacity';
         }
 
         // Additional validation to prevent empty strings
         if (!idStr || !idStr.trim()) {
-          return pageContent["capacity-unknown"] || "Unknown Capacity";
+          return pageContent['capacity-unknown'] || 'Unknown Capacity';
         }
 
         // Check local cache first
         if (capacityNames[idStr]) {
           // Check if the name is a URL and replace it with fallback
           if (
-            typeof capacityNames[idStr] === "string" &&
-            (capacityNames[idStr].startsWith("https://") ||
-              capacityNames[idStr].includes("entity/Q"))
+            typeof capacityNames[idStr] === 'string' &&
+            (capacityNames[idStr].startsWith('https://') ||
+              capacityNames[idStr].includes('entity/Q'))
           ) {
-            return (
-              FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES] ||
-              `Capacity ${idStr}`
-            );
+            return FALLBACK_NAMES[idStr as keyof typeof FALLBACK_NAMES] || `Capacity ${idStr}`;
           }
           return capacityNames[idStr];
         }
@@ -270,18 +249,15 @@ export function useCapacityDetails(capacityIds: any = []) {
         // Final fallback
         return `Capacity ${idStr}`;
       } catch (error) {
-        console.error("Error in getCapacityName:", error);
-        return pageContent["capacity-error"] || "Error loading capacity";
+        console.error('Error in getCapacityName:', error);
+        return pageContent['capacity-error'] || 'Error loading capacity';
       }
     },
     [capacityNames, pageContent]
   );
 
   // Versão memoizada da função para evitar reconstrução em cada render
-  const memoizedGetCapacityName = useMemo(
-    () => getCapacityName,
-    [getCapacityName]
-  );
+  const memoizedGetCapacityName = useMemo(() => getCapacityName, [getCapacityName]);
 
   return {
     capacityNames,
@@ -295,7 +271,7 @@ export function useCapacity(capacityId?: string | null) {
   const safeSession = useSession();
   const session = safeSession?.data;
   const safeAppContext = useApp();
-  const language = safeAppContext?.language || "en";
+  const language = safeAppContext?.language || 'en';
   const token = session?.user?.token;
 
   const enabled = Boolean(capacityId && token);
@@ -306,9 +282,7 @@ export function useCapacity(capacityId?: string | null) {
     isLoading,
     error,
   } = useQuery({
-    queryKey: capacityId
-      ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId)), language]
-      : [],
+    queryKey: capacityId ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId)), language] : [],
     queryFn: async () => {
       if (!capacityId) return null;
       try {

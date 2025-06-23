@@ -1,8 +1,8 @@
-import { useProject } from "@/hooks/useProjects";
-import Image from "next/image";
-import BaseButton from "@/components/BaseButton";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
+import { useProject } from '@/hooks/useProjects';
+import Image from 'next/image';
+import BaseButton from '@/components/BaseButton';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 
 interface ProjectCardProps {
   projectId: number;
@@ -15,7 +15,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
   const { pageContent } = useApp();
 
   if (isLoading) {
-    return <div className="loading-skeleton">{pageContent["loading"]}</div>;
+    return <div className="loading-skeleton">{pageContent['loading']}</div>;
   }
 
   if (error || !project) {
@@ -29,8 +29,8 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
     }
 
     try {
-      if (url.includes("commons.wikimedia.org/wiki/File:")) {
-        const fileName = url.split("File:").pop();
+      if (url.includes('commons.wikimedia.org/wiki/File:')) {
+        const fileName = url.split('File:').pop();
         if (fileName) {
           return `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${encodeURIComponent(
             fileName
@@ -39,7 +39,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
       }
       return url;
     } catch (error) {
-      console.error("Error processing image URL:", error);
+      console.error('Error processing image URL:', error);
       return null;
     }
   };
@@ -49,7 +49,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
   return (
     <div
       className={`rounded-[16px] w-[350px] flex-shrink-0 flex flex-col h-[400px] ${
-        darkMode ? "bg-[#EFEFEF]" : "bg-[#EFEFEF]"
+        darkMode ? 'bg-[#EFEFEF]' : 'bg-[#EFEFEF]'
       }`}
     >
       <div className="p-6 flex items-center justify-center h-[250px]">
@@ -57,15 +57,15 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt={project.display_name || "Project Image"}
+              alt={project.display_name || 'Project Image'}
               fill
-              style={{ objectFit: "contain" }}
+              style={{ objectFit: 'contain' }}
               className="p-4"
               unoptimized
             />
           ) : (
             <div className="flex items-center justify-center w-full h-full text-gray-400">
-              {pageContent["organization-profile-no-image-available"]}
+              {pageContent['organization-profile-no-image-available']}
             </div>
           )}
         </div>
@@ -73,8 +73,8 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
       <div className="p-6">
         <BaseButton
           customClass="inline-flex h-[32px] px-[18px] py-[8px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] md:text-[24px] h-[64px] not-italic font-extrabold leading-[normal]"
-          label={pageContent["organization-profile-open-project"]}
-          onClick={() => project.url && window.open(project.url, "_blank")}
+          label={pageContent['organization-profile-open-project']}
+          onClick={() => project.url && window.open(project.url, '_blank')}
         />
       </div>
     </div>

@@ -1,18 +1,18 @@
-import { Event } from "@/types/event";
-import BaseButton from "@/components/BaseButton";
-import Image from "next/image";
-import CheckBoxOutlineBlankIcon from "@/public/static/images/check_box_outline_blank.svg";
-import CheckBoxOutlineBlankIconLight from "@/public/static/images/check_box_outline_blank_light.svg";
-import CheckBoxIcon from "@/public/static/images/check_box.svg";
-import CheckBoxIconLight from "@/public/static/images/check_box_light.svg";
-import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
-import MoreHorizIconLight from "@/public/static/images/more_horiz_light.svg";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useEffect, useState, useRef } from "react";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
-import { useSession } from "next-auth/react";
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
+import { Event } from '@/types/event';
+import BaseButton from '@/components/BaseButton';
+import Image from 'next/image';
+import CheckBoxOutlineBlankIcon from '@/public/static/images/check_box_outline_blank.svg';
+import CheckBoxOutlineBlankIconLight from '@/public/static/images/check_box_outline_blank_light.svg';
+import CheckBoxIcon from '@/public/static/images/check_box.svg';
+import CheckBoxIconLight from '@/public/static/images/check_box_light.svg';
+import MoreHorizIcon from '@/public/static/images/more_horiz.svg';
+import MoreHorizIconLight from '@/public/static/images/more_horiz_light.svg';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useEffect, useState, useRef } from 'react';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useSession } from 'next-auth/react';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
 
 interface EventCardProps {
   event: Partial<Event>;
@@ -39,9 +39,7 @@ export function EventCard({
   const capacitiesContainerRef = useRef<HTMLDivElement>(null);
 
   const { organization } = useOrganization(token, event.organization as number);
-  const { getCapacityName } = useCapacityDetails(
-    event.related_skills as number[]
-  );
+  const { getCapacityName } = useCapacityDetails(event.related_skills as number[]);
 
   // Detect overflow of capacities
   useEffect(() => {
@@ -53,11 +51,7 @@ export function EventCard({
             container.scrollWidth > container.clientWidth
         );
 
-        if (
-          !showAllCapacities &&
-          event.related_skills &&
-          event.related_skills.length > 2
-        ) {
+        if (!showAllCapacities && event.related_skills && event.related_skills.length > 2) {
           // Try to find the optimal number of visible capacities that fit in one line
           let optimal = event.related_skills.length;
           for (let i = event.related_skills.length; i > 0; i--) {
@@ -79,10 +73,10 @@ export function EventCard({
     };
 
     checkOverflow();
-    window.addEventListener("resize", checkOverflow);
+    window.addEventListener('resize', checkOverflow);
 
     return () => {
-      window.removeEventListener("resize", checkOverflow);
+      window.removeEventListener('resize', checkOverflow);
     };
   }, [event.related_skills, showAllCapacities]);
 
@@ -90,8 +84,7 @@ export function EventCard({
   useEffect(() => {
     if (organization && event.id) {
       const isEventChosen =
-        Array.isArray(organization.choose_events) &&
-        organization.choose_events.includes(event.id);
+        Array.isArray(organization.choose_events) && organization.choose_events.includes(event.id);
       setIsSelected(isEventChosen);
     }
   }, [organization, event.id]);
@@ -114,9 +107,7 @@ export function EventCard({
   return (
     <div
       className={`flex flex-col rounded rounded-[4px] p-4 min-w-[300px] max-w-[350px] h-fit relative ${
-        darkMode
-          ? "text-white bg-capx-dark-bg"
-          : "text-capx-dark-box-bg bg-capx-light-box-bg"
+        darkMode ? 'text-white bg-capx-dark-bg' : 'text-capx-dark-box-bg bg-capx-light-box-bg'
       }`}
     >
       <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-[260px]">
@@ -124,7 +115,7 @@ export function EventCard({
           <div className="flex flex-row min-h-[110px] py-2">
             <h2
               className={`text-xl font-extrabold mb-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               } font-Montserrat`}
             >
               {event.name}
@@ -136,26 +127,20 @@ export function EventCard({
             <>
               <p
                 className={`text-md font-extrabold ${
-                  darkMode ? "text-white" : "text-[#507380]"
+                  darkMode ? 'text-white' : 'text-[#507380]'
                 } mb-2`}
               >
-                {pageContent["events-available-capacities"] ||
-                  "Available capacities"}
+                {pageContent['events-available-capacities'] || 'Available capacities'}
               </p>
               <div className="flex flex-row gap-2 justify-between">
                 <div
                   ref={capacitiesContainerRef}
                   className={`flex flex-row flex-wrap gap-2 overflow-hidden ${
-                    showAllCapacities ? "" : "max-h-[40px]"
+                    showAllCapacities ? '' : 'max-h-[40px]'
                   }`}
                 >
                   {event.related_skills
-                    .slice(
-                      0,
-                      showAllCapacities
-                        ? event.related_skills.length
-                        : visibleCapacities
-                    )
+                    .slice(0, showAllCapacities ? event.related_skills.length : visibleCapacities)
                     .map((skillId, index) => (
                       <span
                         key={index}
@@ -166,15 +151,14 @@ export function EventCard({
                     ))}
                 </div>
                 {event.related_skills &&
-                  (event.related_skills.length > visibleCapacities ||
-                    overflowing) && (
+                  (event.related_skills.length > visibleCapacities || overflowing) && (
                     <button
                       onClick={toggleCapacitiesView}
                       className="flex items-center w-fit mr-2 shrink-0"
                     >
                       <Image
                         src={darkMode ? MoreHorizIconLight : MoreHorizIcon}
-                        alt={showAllCapacities ? "Show less" : "Show more"}
+                        alt={showAllCapacities ? 'Show less' : 'Show more'}
                         className="cursor-pointer"
                         width={24}
                         height={24}
@@ -191,16 +175,14 @@ export function EventCard({
             <BaseButton
               label={
                 isSelected
-                  ? pageContent["organization-profile-remove-featured"] ||
-                    "Remove featured"
-                  : pageContent["organization-profile-add-featured"] ||
-                    "Add featured"
+                  ? pageContent['organization-profile-remove-featured'] || 'Remove featured'
+                  : pageContent['organization-profile-add-featured'] || 'Add featured'
               }
               onClick={handleChooseEvent}
               customClass={`${
                 isSelected
-                  ? "bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg"
-                  : "bg-capx-dark-box-bg text-white"
+                  ? 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
+                  : 'bg-capx-dark-box-bg text-white'
               } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center hover:opacity-90 transition-opacity !pb-2 !mb-2`}
               imageUrl={
                 isSelected
@@ -208,8 +190,8 @@ export function EventCard({
                     ? CheckBoxIconLight
                     : CheckBoxIcon
                   : darkMode
-                  ? CheckBoxOutlineBlankIconLight
-                  : CheckBoxOutlineBlankIcon
+                    ? CheckBoxOutlineBlankIconLight
+                    : CheckBoxOutlineBlankIcon
               }
               imageAlt="Checkbox icon"
               imageWidth={24}
@@ -218,13 +200,9 @@ export function EventCard({
           )}
 
           <BaseButton
-            onClick={() =>
-              event.url && window.open(event.url as string, "_blank")
-            }
+            onClick={() => event.url && window.open(event.url as string, '_blank')}
             customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg bg-capx-secondary-purple text-center not-italic leading-[normal] text-lg mt-auto`}
-            label={
-              pageContent["organization-profile-view-event"] || "View Event"
-            }
+            label={pageContent['organization-profile-view-event'] || 'View Event'}
           />
         </div>
       </div>

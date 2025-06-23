@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-import { ensureArray, safeStringify } from "@/lib/utils/safeDataAccess";
+import React, { useState, useRef, useEffect } from 'react';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { ensureArray, safeStringify } from '@/lib/utils/safeDataAccess';
 
 interface CapacityDebugProps {
   capacityIds: any[];
@@ -19,7 +19,7 @@ export default function CapacityDebug({
   knownSkills,
   availableSkills,
   wantedSkills,
-  enabled = process.env.NODE_ENV === "development",
+  enabled = process.env.NODE_ENV === 'development',
 }: CapacityDebugProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hookError, setHookError] = useState<Error | null>(null);
@@ -64,7 +64,7 @@ export default function CapacityDebug({
         onClick={togglePanel}
       >
         <span className="font-medium">Capacity Debug</span>
-        <span>{isOpen ? "▲" : "▼"}</span>
+        <span>{isOpen ? '▲' : '▼'}</span>
       </div>
 
       {isOpen && (
@@ -79,9 +79,7 @@ export default function CapacityDebug({
               <pre>{stringify(safeKnown)}</pre>
             </div>
             <div>
-              <h4 className="font-semibold">
-                Available ({safeAvailable.length}):
-              </h4>
+              <h4 className="font-semibold">Available ({safeAvailable.length}):</h4>
               <pre>{stringify(safeAvailable)}</pre>
             </div>
             <div>
@@ -114,7 +112,7 @@ export default function CapacityDebug({
                           return `Error: ${(e as Error).message}`;
                         }
                       })()
-                    : "getCapacityName not available"}
+                    : 'getCapacityName not available'}
                 </span>
               </div>
             ))}

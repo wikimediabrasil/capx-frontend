@@ -1,11 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
-import { Event } from "@/types/event";
-import { eventsService } from "@/services/eventService";
+import { useState, useEffect, useCallback } from 'react';
+import { Event } from '@/types/event';
+import { eventsService } from '@/services/eventService';
 
-export function useOrganizationEvents(
-  organizationId: number | string,
-  token?: string
-) {
+export function useOrganizationEvents(organizationId: number | string, token?: string) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -21,7 +18,7 @@ export function useOrganizationEvents(
 
       // Verify if we got valid data
       if (!response) {
-        console.error("Empty response from events API");
+        console.error('Empty response from events API');
         return [];
       }
 
@@ -30,13 +27,13 @@ export function useOrganizationEvents(
 
       // Ensure allEvents is an array before using filter
       if (!Array.isArray(allEvents)) {
-        console.error("Events data is not an array:", allEvents);
+        console.error('Events data is not an array:', allEvents);
         return [];
       }
 
       // Filter only events related to this organization
       const organizationEvents = allEvents.filter(
-        (event) =>
+        event =>
           event &&
           (event.organization === organizationIdNum ||
             Number(event.organization) === organizationIdNum)
@@ -46,7 +43,7 @@ export function useOrganizationEvents(
       setError(null);
       return organizationEvents;
     } catch (err) {
-      const errorMessage = "Falha ao carregar eventos da organização";
+      const errorMessage = 'Falha ao carregar eventos da organização';
       setError(err instanceof Error ? err : new Error(errorMessage));
       console.error(errorMessage, err);
       return [];
@@ -63,14 +60,14 @@ export function useOrganizationEvents(
       setIsLoading(true);
       try {
         // Create promises for each event
-        const eventPromises = eventIds.map((id) => {
+        const eventPromises = eventIds.map(id => {
           // For each ID, create a promise that tries to search the event, but does not fail the entire promise
           return eventsService
             .getEventById(id, token)
-            .then((event) => {
+            .then(event => {
               return event;
             })
-            .catch((error) => {
+            .catch(error => {
               console.error(`Error loading event ID ${id}:`, error);
               return null; // Return null in case of error to not interrupt the others
             });
@@ -87,7 +84,7 @@ export function useOrganizationEvents(
             }
             return true;
           })
-          .filter((event) => {
+          .filter(event => {
             // Verify if the event belongs to the organization by the organization or organizations field
 
             const matchesOrganization =
@@ -109,7 +106,7 @@ export function useOrganizationEvents(
         setEvents(loadedEvents);
         return loadedEvents;
       } catch (err) {
-        const errorMessage = "Falha ao carregar eventos por IDs";
+        const errorMessage = 'Falha ao carregar eventos por IDs';
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
         return [];
@@ -124,7 +121,7 @@ export function useOrganizationEvents(
   const createEvent = useCallback(
     async (eventData: Partial<Event>) => {
       if (!token) {
-        throw new Error("Token not available to create event");
+        throw new Error('Token not available to create event');
       }
 
       setIsLoading(true);
@@ -140,34 +137,28 @@ export function useOrganizationEvents(
           preparedData.organization = organizationIdNum;
         }
 
-        const createdEvent = await eventsService.createEvent(
-          preparedData,
-          token
-        );
+        const createdEvent = await eventsService.createEvent(preparedData, token);
 
         // Verify if the event was created correctly with the organization
         if (createdEvent.organization !== organizationIdNum) {
-          console.warn(
-            "WARNING: The event was created, but with the wrong organization",
-            {
-              eventId: createdEvent.id,
-              organizationId: organizationIdNum,
-              eventOrganization: createdEvent.organization,
-            }
-          );
+          console.warn('WARNING: The event was created, but with the wrong organization', {
+            eventId: createdEvent.id,
+            organizationId: organizationIdNum,
+            eventOrganization: createdEvent.organization,
+          });
         }
 
         // Update the events list
-        setEvents((prevEvents) => [...prevEvents, createdEvent]);
+        setEvents(prevEvents => [...prevEvents, createdEvent]);
 
         return createdEvent;
       } catch (err) {
-        const errorMessage = "Failed to create event";
+        const errorMessage = 'Failed to create event';
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
         // Detailed error log
         if (err.response) {
-          console.error("API error details:", {
+          console.error('API error details:', {
             status: err.response.status,
             data: err.response.data,
           });
@@ -184,7 +175,7 @@ export function useOrganizationEvents(
   const updateEvent = useCallback(
     async (eventId: number, eventData: Partial<Event>) => {
       if (!token) {
-        throw new Error("Token not available to update event");
+        throw new Error('Token not available to update event');
       }
 
       setIsLoading(true);
@@ -195,39 +186,30 @@ export function useOrganizationEvents(
           organization: organizationIdNum,
         };
 
-        const updatedEvent = await eventsService.updateEvent(
-          eventId,
-          preparedData,
-          token
-        );
+        const updatedEvent = await eventsService.updateEvent(eventId, preparedData, token);
 
         // Verify if the event was updated correctly
         if (updatedEvent.organization !== organizationIdNum) {
-          console.warn(
-            "WARNING: The event was updated, but with the wrong organization",
-            {
-              eventId: updatedEvent.id,
-              organizationId: organizationIdNum,
-              eventOrganization: updatedEvent.organization,
-            }
-          );
+          console.warn('WARNING: The event was updated, but with the wrong organization', {
+            eventId: updatedEvent.id,
+            organizationId: organizationIdNum,
+            eventOrganization: updatedEvent.organization,
+          });
         }
 
         // Update the events list
-        setEvents((prevEvents) =>
-          prevEvents.map((event) =>
-            event.id === eventId ? updatedEvent : event
-          )
+        setEvents(prevEvents =>
+          prevEvents.map(event => (event.id === eventId ? updatedEvent : event))
         );
 
         return updatedEvent;
       } catch (err) {
-        const errorMessage = "Failed to update event";
+        const errorMessage = 'Failed to update event';
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
         // Detailed error log
         if (err.response) {
-          console.error("API error details:", {
+          console.error('API error details:', {
             status: err.response.status,
             data: err.response.data,
           });
@@ -244,7 +226,7 @@ export function useOrganizationEvents(
   const deleteEvent = useCallback(
     async (eventId: number) => {
       if (!token) {
-        throw new Error("Token not available to delete event");
+        throw new Error('Token not available to delete event');
       }
 
       setIsLoading(true);
@@ -252,13 +234,11 @@ export function useOrganizationEvents(
         await eventsService.deleteEvent(eventId, token);
 
         // Remove the event from the list
-        setEvents((prevEvents) =>
-          prevEvents.filter((event) => event.id !== eventId)
-        );
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
 
         return true;
       } catch (err) {
-        const errorMessage = "Failed to delete event";
+        const errorMessage = 'Failed to delete event';
         setError(err instanceof Error ? err : new Error(errorMessage));
         console.error(errorMessage, err);
         throw err;

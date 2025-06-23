@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { Event } from "@/types/event";
+import { useState, useEffect } from 'react';
+import { Event } from '@/types/event';
 import {
   fetchEventDataByURL,
   fetchEventDataByQID,
   fetchEventDataByGenericURL,
-} from "@/services/metabaseService";
+} from '@/services/metabaseService';
 
 interface UseWikidataEventReturn {
   eventData: Partial<Event> | null;
@@ -30,7 +30,7 @@ export function useWikidataEvent(): UseWikidataEventReturn {
    */
   const fetchByURL = async (url: string): Promise<void> => {
     if (!url) {
-      setError(new Error("URL não fornecida"));
+      setError(new Error('URL não fornecida'));
       return;
     }
 
@@ -42,14 +42,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error("Não foi possível obter dados do evento"));
+        setError(new Error('Não foi possível obter dados do evento'));
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Erro desconhecido ao buscar dados")
-      );
+      setError(err instanceof Error ? err : new Error('Erro desconhecido ao buscar dados'));
       setEventData(null);
     } finally {
       setLoading(false);
@@ -62,7 +58,7 @@ export function useWikidataEvent(): UseWikidataEventReturn {
    */
   const fetchByQID = async (qid: string): Promise<void> => {
     if (!qid) {
-      setError(new Error("QID não fornecido"));
+      setError(new Error('QID não fornecido'));
       return;
     }
 
@@ -74,14 +70,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error("Não foi possível obter dados do evento"));
+        setError(new Error('Não foi possível obter dados do evento'));
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Erro desconhecido ao buscar dados")
-      );
+      setError(err instanceof Error ? err : new Error('Erro desconhecido ao buscar dados'));
       setEventData(null);
     } finally {
       setLoading(false);
@@ -94,7 +86,7 @@ export function useWikidataEvent(): UseWikidataEventReturn {
    */
   const fetchByGenericURL = async (url: string): Promise<void> => {
     if (!url) {
-      setError(new Error("URL não fornecida"));
+      setError(new Error('URL não fornecida'));
       return;
     }
 
@@ -106,16 +98,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(
-          new Error("Não foi possível obter dados do evento a partir desta URL")
-        );
+        setError(new Error('Não foi possível obter dados do evento a partir desta URL'));
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Erro desconhecido ao buscar dados")
-      );
+      setError(err instanceof Error ? err : new Error('Erro desconhecido ao buscar dados'));
       setEventData(null);
     } finally {
       setLoading(false);

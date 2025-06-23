@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { CapacityCacheProvider } from "@/contexts/CapacityCacheContext";
-import Footer from "@/components/Footer";
-import { useEffect, useState } from "react";
-import SimpleLoading from "@/components/SimpleLoading";
+import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
+import Footer from '@/components/Footer';
+import { useEffect, useState } from 'react';
+import SimpleLoading from '@/components/SimpleLoading';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);

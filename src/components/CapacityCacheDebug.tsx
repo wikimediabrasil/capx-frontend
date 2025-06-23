@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCapacityCache } from "@/contexts/CapacityCacheContext";
-import { CAPACITY_CACHE_KEYS } from "@/hooks/useCapacitiesQuery";
-import { useRootCapacities } from "@/hooks/useCapacitiesQuery";
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { CAPACITY_CACHE_KEYS } from '@/hooks/useCapacitiesQuery';
+import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 
 /**
  * A debug component to visualize and manage capacity cache data
@@ -20,8 +20,8 @@ export default function CapacityCacheDebug() {
   const allCacheKeys = queryClient
     .getQueryCache()
     .getAll()
-    .map((query) => JSON.stringify(query.queryKey))
-    .filter((key) => key.includes("capacities"));
+    .map(query => JSON.stringify(query.queryKey))
+    .filter(key => key.includes('capacities'));
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -29,7 +29,7 @@ export default function CapacityCacheDebug() {
         onClick={() => setIsOpen(!isOpen)}
         className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full shadow-lg"
       >
-        {isOpen ? "Hide Cache Debug" : "Show Cache Debug"}
+        {isOpen ? 'Hide Cache Debug' : 'Show Cache Debug'}
       </button>
 
       {isOpen && (
@@ -64,14 +64,11 @@ export default function CapacityCacheDebug() {
             </div>
 
             <div className="mb-4">
-              <h3 className="text-lg font-semibold mb-2">
-                Root Capacities in Cache
-              </h3>
+              <h3 className="text-lg font-semibold mb-2">Root Capacities in Cache</h3>
               <div className="border p-2 rounded bg-gray-50 mb-4">
                 <p>
-                  Cache has{" "}
-                  {Array.isArray(rootCapacities) ? rootCapacities.length : 0}{" "}
-                  root capacities
+                  Cache has {Array.isArray(rootCapacities) ? rootCapacities.length : 0} root
+                  capacities
                 </p>
               </div>
             </div>

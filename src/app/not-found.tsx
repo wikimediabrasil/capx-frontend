@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import BaseWrapper from "@/components/BaseWrapper";
-import logo_404_custom from "@/public/static/images/logo_404_custom.svg";
-import not_found_404_search from "@/public/static/images/not_found_404_search.svg";
-import BaseButton from "@/components/BaseButton";
+import Image from 'next/image';
+import BaseWrapper from '@/components/BaseWrapper';
+import logo_404_custom from '@/public/static/images/logo_404_custom.svg';
+import not_found_404_search from '@/public/static/images/not_found_404_search.svg';
+import BaseButton from '@/components/BaseButton';
 
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 export default function NotFoundCustomPage() {
   const router = useRouter();
 
   const handleRedirect = () => {
-    router.push("/");
+    router.push('/');
   };
 
   return (
@@ -37,11 +37,7 @@ export default function NotFoundCustomPage() {
             customClass="h-8 w-full max-w-[200px] text-sm inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] rounded-[6px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] not-italic font-extrabold leading-[normal]"
           />
           <div className="absolute right-0">
-            <Image
-              src={not_found_404_search}
-              alt="Logo404"
-              className="md:w-[90%] w-[70%] h-auto"
-            />
+            <Image src={not_found_404_search} alt="Logo404" className="md:w-[90%] w-[70%] h-auto" />
           </div>
         </div>
       </section>

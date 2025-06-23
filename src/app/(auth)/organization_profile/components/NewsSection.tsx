@@ -1,17 +1,17 @@
-import Image from "next/image";
-import WikimediaIcon from "@/public/static/images/wikimedia_logo_black.svg";
-import WikimediaIconWhite from "@/public/static/images/wikimedia_logo_white.svg";
-import { useTheme } from "@/contexts/ThemeContext";
-import { NewsProps, Post } from "@/types/news";
-import { useEffect, useState } from "react";
-import { useTagDiff } from "@/hooks/useTagDiff";
-import { useSession } from "next-auth/react";
-import { useApp } from "@/contexts/AppContext";
+import Image from 'next/image';
+import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import { useTheme } from '@/contexts/ThemeContext';
+import { NewsProps, Post } from '@/types/news';
+import { useEffect, useState } from 'react';
+import { useTagDiff } from '@/hooks/useTagDiff';
+import { useSession } from 'next-auth/react';
+import { useApp } from '@/contexts/AppContext';
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
 });
 
 export const NewsSection = ({ ids }: NewsProps) => {
@@ -27,14 +27,11 @@ export const NewsSection = ({ ids }: NewsProps) => {
       if (!ids?.length || !session?.user?.token) return;
       try {
         setIsLoading(true);
-        const tagsPromises = ids.map((id) => fetchSingleTag(id));
+        const tagsPromises = ids.map(id => fetchSingleTag(id));
         const tagsResults = await Promise.all(tagsPromises);
         const validTags = tagsResults
-          .filter(
-            (tag): tag is NonNullable<typeof tag> =>
-              tag !== undefined && tag !== null
-          )
-          .map((tag) => tag.tag);
+          .filter((tag): tag is NonNullable<typeof tag> => tag !== undefined && tag !== null)
+          .map(tag => tag.tag);
 
         if (!validTags.length) {
           setPosts([]);
@@ -42,8 +39,8 @@ export const NewsSection = ({ ids }: NewsProps) => {
         }
 
         const allPosts = await Promise.all(
-          validTags.map(async (tag) => {
-            const formattedTag = tag.toLowerCase().replace(/\s+/g, "-");
+          validTags.map(async tag => {
+            const formattedTag = tag.toLowerCase().replace(/\s+/g, '-');
             const url = `https://public-api.wordpress.com/rest/v1.1/sites/175527200/posts/?tag=${formattedTag}`;
             const response = await fetch(url);
             const data = await response.json();
@@ -54,7 +51,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
 
         const combinedPosts = allPosts.flat();
         const uniquePosts = Array.from(
-          new Map(combinedPosts.map((post) => [post.ID, post])).values()
+          new Map(combinedPosts.map(post => [post.ID, post])).values()
         );
 
         // Sort posts by date, from newest to oldest
@@ -64,7 +61,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
 
         setPosts(sortedPosts);
       } catch (error) {
-        console.error("Erro ao buscar notícias:", error);
+        console.error('Erro ao buscar notícias:', error);
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +73,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
   }, [ids, session?.user?.token]);
 
   if (isLoading) {
-    return <div>{pageContent["edit-profile-loading-news"]}</div>;
+    return <div>{pageContent['edit-profile-loading-news']}</div>;
   }
 
   return (
@@ -92,10 +89,10 @@ export const NewsSection = ({ ids }: NewsProps) => {
         </div>
         <h2
           className={`font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] ${
-            darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+            darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
           }`}
         >
-          {pageContent["edit-profile-news"]}
+          {pageContent['edit-profile-news']}
         </h2>
       </div>
 
@@ -106,14 +103,11 @@ export const NewsSection = ({ ids }: NewsProps) => {
           <>
             <button
               className={`hidden md:flex absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center ${
-                darkMode
-                  ? "bg-[#04222F] text-white"
-                  : "bg-[#EFEFEF] text-[#003649]"
+                darkMode ? 'bg-[#04222F] text-white' : 'bg-[#EFEFEF] text-[#003649]'
               }`}
               onClick={() => {
-                const container = document.getElementById("news-carousel");
-                if (container)
-                  container.scrollBy({ left: -370, behavior: "smooth" });
+                const container = document.getElementById('news-carousel');
+                if (container) container.scrollBy({ left: -370, behavior: 'smooth' });
               }}
             >
               {/* TODO: Add arrow left icon */}
@@ -121,14 +115,11 @@ export const NewsSection = ({ ids }: NewsProps) => {
             </button>
             <button
               className={`hidden md:flex absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center ${
-                darkMode
-                  ? "bg-[#04222F] text-white"
-                  : "bg-[#EFEFEF] text-[#003649]"
+                darkMode ? 'bg-[#04222F] text-white' : 'bg-[#EFEFEF] text-[#003649]'
               }`}
               onClick={() => {
-                const container = document.getElementById("news-carousel");
-                if (container)
-                  container.scrollBy({ left: 370, behavior: "smooth" });
+                const container = document.getElementById('news-carousel');
+                if (container) container.scrollBy({ left: 370, behavior: 'smooth' });
               }}
             >
               {/* TODO: Add arrow right icon */}
@@ -142,15 +133,15 @@ export const NewsSection = ({ ids }: NewsProps) => {
           id="news-carousel"
           className="flex flex-row gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
           style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
           }}
         >
           {posts.map((post, index) => (
             <div
               key={index}
               className={`flex-shrink-0 snap-start flex flex-col w-[300px] md:w-[350px] px-[12px] py-[24px] items-center gap-[12px] rounded-[16px] ${
-                darkMode ? "bg-[#04222F]" : "bg-[#EFEFEF]"
+                darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
               }`}
             >
               <div className="relative w-full h-[200px] rounded-[16px] overflow-hidden">
@@ -165,7 +156,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
                   />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full text-gray-400">
-                    {pageContent["organization-profile-no-image-available"]}
+                    {pageContent['organization-profile-no-image-available']}
                   </div>
                 )}
               </div>
@@ -174,7 +165,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`text-center font-[Montserrat] text-[20px] font-bold not-italic leading-[normal] text-start ${
-                  darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                  darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                 }`}
               >
                 {post.title}
@@ -182,11 +173,11 @@ export const NewsSection = ({ ids }: NewsProps) => {
               <div className="flex flex-row gap-2">
                 <p
                   className={`text-center font-[Montserrat] text-[16px] font-normal not-italic leading-[normal] text-start ${
-                    darkMode ? "text-[#F6F6F6]" : "text-[#003649]"
+                    darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
                 >
                   {dateFormatter.format(new Date(post.date))}
-                  &nbsp;{pageContent["organization-profile-news-section-by"]}
+                  &nbsp;{pageContent['organization-profile-news-section-by']}
                   &nbsp;
                   {post.author.name}
                 </p>

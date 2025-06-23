@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
-import { useApp } from "@/contexts/AppContext";
-import BaseInput from "@/components/BaseInput";
-import SearchIcon from "@/public/static/images/search.svg";
-import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
-import { useEvents } from "@/hooks/useEvents";
-import LoadingState from "@/components/LoadingState";
-import { useTheme } from "@/contexts/ThemeContext";
-import { Event } from "@/types/event";
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
+import { useApp } from '@/contexts/AppContext';
+import BaseInput from '@/components/BaseInput';
+import SearchIcon from '@/public/static/images/search.svg';
+import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
+import { useEvents } from '@/hooks/useEvents';
+import LoadingState from '@/components/LoadingState';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Event } from '@/types/event';
 
 interface EventsSearchProps {
   onSearchStart?: () => void;
@@ -19,10 +19,7 @@ interface EventsSearchProps {
   organizationId?: number;
 }
 
-function useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-) {
+function useDebounce<T extends (...args: any[]) => any>(callback: T, delay: number) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const debouncedFunction = useCallback(
@@ -66,7 +63,7 @@ export function EventsSearch({
   const { data: session } = useSession();
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   // Search all events to enable search
@@ -77,7 +74,7 @@ export function EventsSearch({
   } = useEvents(session?.user?.token, 100, 0, organizationId);
 
   // Store the last search term to avoid duplicate requests
-  const lastSearchRef = useRef<string>("");
+  const lastSearchRef = useRef<string>('');
 
   // Search function
   const search = useCallback(
@@ -111,30 +108,26 @@ export function EventsSearch({
 
       try {
         // Safely check for null/undefined values during filtering
-        const filtered = events.filter((event) => {
-          const name = (event.name || "").toLowerCase();
-          const desc = (event.description || "").toLowerCase();
-          const loc = (event.type_of_location || "").toLowerCase();
+        const filtered = events.filter(event => {
+          const name = (event.name || '').toLowerCase();
+          const desc = (event.description || '').toLowerCase();
+          const loc = (event.type_of_location || '').toLowerCase();
           const termLower = term.toLowerCase();
 
           // Enhanced check for specific types
           const matchesLocationType =
             loc === termLower || // Exact match
-            (termLower === "in-person" && loc === "in_person") || // Special mapping for in-person/in_person
-            (termLower === "on-site" && loc === "in_person") || // Mapping for on-site/in_person
+            (termLower === 'in-person' && loc === 'in_person') || // Special mapping for in-person/in_person
+            (termLower === 'on-site' && loc === 'in_person') || // Mapping for on-site/in_person
             loc.includes(termLower); // Keep substring search
 
-          return (
-            name.includes(termLower) ||
-            desc.includes(termLower) ||
-            matchesLocationType
-          );
+          return name.includes(termLower) || desc.includes(termLower) || matchesLocationType;
         });
 
         // Send results to parent component (even if empty)
         onSearchResults?.(filtered);
       } catch (error) {
-        console.error("🔍 Error:", error);
+        console.error('🔍 Error:', error);
         onSearchResults?.([]);
       } finally {
         setIsLoading(false);
@@ -164,15 +157,11 @@ export function EventsSearch({
       <BaseInput
         type="text"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder={
-          pageContent?.["events-search-placeholder"] || "Search for events..."
-        }
+        onChange={e => setSearchTerm(e.target.value)}
+        placeholder={pageContent?.['events-search-placeholder'] || 'Search for events...'}
         className={`w-full h-16 py-6 px-3 rounded-[16px] opacity-50 ${
-          darkMode
-            ? "text-white border-white"
-            : "text-capx-dark-box-bg border-capx-dark-box-bg "
-        } ${isMobile ? "text-[12px]" : "text-[24px]"}`}
+          darkMode ? 'text-white border-white' : 'text-capx-dark-box-bg border-capx-dark-box-bg '
+        } ${isMobile ? 'text-[12px]' : 'text-[24px]'}`}
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />

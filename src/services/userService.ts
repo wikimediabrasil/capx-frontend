@@ -1,5 +1,5 @@
-import axios from "axios";
-import { UserProfile } from "@/types/user";
+import axios from 'axios';
+import { UserProfile } from '@/types/user';
 
 export interface UserFilters {
   username?: string;
@@ -46,7 +46,9 @@ export const userService = {
     }
 
     if (queryParams?.filters?.skills_available?.length) {
-      queryParams.filters.skills_available.forEach(c => params.append('skills_available', c.toString()));
+      queryParams.filters.skills_available.forEach(c =>
+        params.append('skills_available', c.toString())
+      );
     }
 
     if (queryParams?.filters?.skills_wanted?.length) {
@@ -67,7 +69,8 @@ export const userService = {
 
     if (queryParams?.offset) {
       params.append('offset', queryParams.offset.toString());
-    }1
+    }
+    1;
 
     if (queryParams?.filters?.username) {
       params.append('username', queryParams.filters.username);
@@ -80,8 +83,8 @@ export const userService = {
           Authorization: `Token ${queryParams.token}`,
         },
         paramsSerializer: {
-          indexes: null // Ensure arrays are serialized correctly
-        }
+          indexes: null, // Ensure arrays are serialized correctly
+        },
       });
       return response.data;
     } catch (error) {

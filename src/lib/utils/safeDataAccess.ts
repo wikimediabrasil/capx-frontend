@@ -32,8 +32,8 @@ export const safeAccess = <T extends object, K extends keyof T>(
  */
 export const processIdArray = (ids: any[] = []): number[] => {
   return ensureArray(ids)
-    .filter((id) => id !== null && id !== undefined)
-    .map((id) => {
+    .filter(id => id !== null && id !== undefined)
+    .map(id => {
       const num = Number(id);
       return isNaN(num) ? null : num;
     })
@@ -56,7 +56,7 @@ export const createSafeFunction = <T extends (...args: any[]) => any>(
       if (errorLogger) {
         errorLogger(error);
       } else {
-        console.error("Error in safe function:", error);
+        console.error('Error in safe function:', error);
       }
       return fallbackValue;
     }
@@ -66,11 +66,11 @@ export const createSafeFunction = <T extends (...args: any[]) => any>(
 /**
  * Safely stringify a value to JSON, returning a fallback string if it fails
  */
-export const safeStringify = (value: any, fallback: string = "{}"): string => {
+export const safeStringify = (value: any, fallback: string = '{}'): string => {
   try {
     return JSON.stringify(value);
   } catch (error) {
-    console.error("Error stringifying value:", error);
+    console.error('Error stringifying value:', error);
     return fallback;
   }
 };
@@ -82,7 +82,7 @@ export const safeParse = <T>(jsonString: string, fallback: T): T => {
   try {
     return JSON.parse(jsonString) as T;
   } catch (error) {
-    console.error("Error parsing JSON:", error);
+    console.error('Error parsing JSON:', error);
     return fallback;
   }
 };

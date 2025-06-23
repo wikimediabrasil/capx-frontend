@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 interface QueryData {
   params?: {
@@ -23,46 +23,40 @@ export const profileService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+      console.error('Failed to fetch user profile:', error);
       throw error;
     }
   },
 
   async fetchProfileData(queryData: QueryData) {
     try {
-      const [
-        userData,
-        territoryData,
-        languageData,
-        affiliationData,
-        wikiProjectData,
-        skillData,
-      ] = await Promise.all([
-        axios.get("/api/profile", {
-          params: queryData.params,
-          headers: queryData.headers,
-        }),
-        axios.get("/api/list/territory", {
-          params: queryData.params,
-          headers: queryData.headers,
-        }),
-        axios.get("/api/list/language", {
-          params: queryData.params,
-          headers: queryData.headers,
-        }),
-        axios.get("/api/list/affiliation", {
-          params: queryData.params,
-          headers: queryData.headers,
-        }),
-        axios.get("/api/list/wikimedia_project", {
-          params: queryData.params,
-          headers: queryData.headers,
-        }),
-        axios.get("/api/capacity", {
-          params: queryData.params,
-          headers: queryData.headers,
-        }),
-      ]);
+      const [userData, territoryData, languageData, affiliationData, wikiProjectData, skillData] =
+        await Promise.all([
+          axios.get('/api/profile', {
+            params: queryData.params,
+            headers: queryData.headers,
+          }),
+          axios.get('/api/list/territory', {
+            params: queryData.params,
+            headers: queryData.headers,
+          }),
+          axios.get('/api/list/language', {
+            params: queryData.params,
+            headers: queryData.headers,
+          }),
+          axios.get('/api/list/affiliation', {
+            params: queryData.params,
+            headers: queryData.headers,
+          }),
+          axios.get('/api/list/wikimedia_project', {
+            params: queryData.params,
+            headers: queryData.headers,
+          }),
+          axios.get('/api/capacity', {
+            params: queryData.params,
+            headers: queryData.headers,
+          }),
+        ]);
 
       return {
         userData: userData.data,
@@ -73,7 +67,7 @@ export const profileService = {
         skillData: skillData.data,
       };
     } catch (error) {
-      console.error("Failed to fetch profile data:", error);
+      console.error('Failed to fetch profile data:', error);
       throw error;
     }
   },
@@ -92,14 +86,14 @@ export const profileService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Failed to update profile:", error);
+      console.error('Failed to update profile:', error);
       throw error;
     }
   },
 
   async deleteProfile(userId: string, token: string) {
     try {
-      const response = await axios.delete("/api/profile", {
+      const response = await axios.delete('/api/profile', {
         headers: {
           Authorization: `Token ${token}`,
         },
@@ -109,7 +103,7 @@ export const profileService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Failed to delete profile:", error);
+      console.error('Failed to delete profile:', error);
       throw error;
     }
   },

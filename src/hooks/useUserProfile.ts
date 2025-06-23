@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
-import { useSession } from "next-auth/react";
-import { UserProfile } from "@/types/user";
-import { UserFilters, userService } from "@/services/userService";
-import { ProfileCapacityType } from "@/app/(auth)/feed/types";
-import { FilterState } from "@/app/(auth)/feed/types";
+import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import { UserProfile } from '@/types/user';
+import { UserFilters, userService } from '@/services/userService';
+import { ProfileCapacityType } from '@/app/(auth)/feed/types';
+import { FilterState } from '@/app/(auth)/feed/types';
 
 export interface UseAllUsersParams {
   limit?: number;
@@ -16,7 +16,7 @@ export function useUserProfile() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (session?.user?.id && session?.user?.token) {
@@ -27,7 +27,7 @@ export function useUserProfile() {
           );
           setUserProfile(data);
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.error('Error fetching user profile:', error);
           setError(error.message);
         } finally {
           setIsLoading(false);
@@ -43,12 +43,10 @@ export function useUserProfile() {
 
 export function useUserByUsername(username?: string) {
   const { data: session } = useSession();
-  const [userByUsername, setUserByUsername] = useState<UserProfile | null>(
-    null
-  );
+  const [userByUsername, setUserByUsername] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const fetchAllUsers = async () => {
       if (session?.user?.id && session?.user?.token && username) {
@@ -57,13 +55,13 @@ export function useUserByUsername(username?: string) {
             token: session.user.token,
             offset: 0,
             filters: {
-              username
-            }
+              username,
+            },
           });
           // return only one user
           setUserByUsername(data.results[0]);
         } catch (error) {
-          console.error("Error fetching user by user name:", error);
+          console.error('Error fetching user by user name:', error);
           setError(error.message);
         } finally {
           setIsLoading(false);
@@ -83,37 +81,37 @@ export function useAllUsers(params: UseAllUsersParams) {
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const capacitiesCodes = useMemo(() => 
-    params.activeFilters?.capacities?.map(cap => cap.code) || [],
+
+  const capacitiesCodes = useMemo(
+    () => params.activeFilters?.capacities?.map(cap => cap.code) || [],
     [params.activeFilters?.capacities]
   );
-  
-  const territories = useMemo(() => 
-    params.activeFilters?.territories || [],
+
+  const territories = useMemo(
+    () => params.activeFilters?.territories || [],
     [params.activeFilters?.territories]
   );
-  
-  const languages = useMemo(() => 
-    params.activeFilters?.languages || [],
+
+  const languages = useMemo(
+    () => params.activeFilters?.languages || [],
     [params.activeFilters?.languages]
   );
-  
-  const profileCapacityTypes = useMemo(() => 
-    params.activeFilters?.profileCapacityTypes || [],
+
+  const profileCapacityTypes = useMemo(
+    () => params.activeFilters?.profileCapacityTypes || [],
     [params.activeFilters?.profileCapacityTypes]
   );
-  
-  const hasSharer = useMemo(() => 
-    profileCapacityTypes.includes(ProfileCapacityType.Sharer),
+
+  const hasSharer = useMemo(
+    () => profileCapacityTypes.includes(ProfileCapacityType.Sharer),
     [profileCapacityTypes]
   );
-  
-  const hasLearner = useMemo(() => 
-    profileCapacityTypes.includes(ProfileCapacityType.Learner),
+
+  const hasLearner = useMemo(
+    () => profileCapacityTypes.includes(ProfileCapacityType.Learner),
     [profileCapacityTypes]
   );
-  
+
   useEffect(() => {
     const fetchAllUsers = async () => {
       if (!session?.user?.token) {
@@ -129,10 +127,10 @@ export function useAllUsers(params: UseAllUsersParams) {
             skills_wanted: hasLearner ? capacitiesCodes : undefined,
           }),
           ...(territories.length > 0 && {
-            territory: territories
+            territory: territories,
           }),
           ...(languages.length > 0 && {
-            language: languages
+            language: languages,
           }),
           has_skills_available: hasSharer || undefined,
           has_skills_wanted: hasLearner || undefined,
@@ -142,12 +140,12 @@ export function useAllUsers(params: UseAllUsersParams) {
           token: session.user.token,
           limit: params.limit,
           offset: params.offset,
-          filters
+          filters,
         });
         setAllUsers(data.results);
         setCount(data.count);
       } catch (error) {
-        console.error("Error fetching user by user name:", error);
+        console.error('Error fetching user by user name:', error);
         setError(error.message);
       } finally {
         setIsLoading(false);
@@ -156,14 +154,14 @@ export function useAllUsers(params: UseAllUsersParams) {
 
     fetchAllUsers();
   }, [
-    session?.user?.token, 
-    params.limit, 
+    session?.user?.token,
+    params.limit,
     params.offset,
     capacitiesCodes,
     territories,
     languages,
     hasSharer,
-    hasLearner
+    hasLearner,
   ]);
 
   return { allUsers, isLoading, error, count };

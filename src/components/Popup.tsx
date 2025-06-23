@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import BaseButton from "./BaseButton";
-import Image, { StaticImageData } from "next/image";
-import { useTheme } from "@/contexts/ThemeContext";
+import React, { useState } from 'react';
+import BaseButton from './BaseButton';
+import Image, { StaticImageData } from 'next/image';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PopupProps {
   onContinue?: () => void;
@@ -24,7 +24,7 @@ const Popup = ({
   continueButtonLabel,
   children,
   customClass,
-  imageSize = "w-full max-w-[200px] md:max-w-[300px]",
+  imageSize = 'w-full max-w-[200px] md:max-w-[300px]',
 }: PopupProps) => {
   const { darkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
@@ -45,17 +45,12 @@ const Popup = ({
     <div className={customClass}>
       {isOpen && (
         <>
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={onOverlayClick}
-          />
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onOverlayClick} />
           <div
             className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 
             w-[90%] md:w-[880px] xl:w-[1024px]
             min-h-[300px] md:min-h-[400px] max-h-[90vh]
-            rounded-3xl shadow-xl overflow-hidden ${
-              darkMode ? "bg-[#04222F]" : "bg-[#FFFFFF]"
-            }`}
+            rounded-3xl shadow-xl overflow-hidden ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}`}
           >
             <div className="flex flex-col h-full p-4 md:p-8">
               {/* Header */}
@@ -72,13 +67,11 @@ const Popup = ({
                     </div>
                   )}
                   <div
-                    className={`${
-                      image ? "md:w-1/2" : "w-full"
-                    } flex items-center justify-center`}
+                    className={`${image ? 'md:w-1/2' : 'w-full'} flex items-center justify-center`}
                   >
                     <h2
                       className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-normal text-center ${
-                        darkMode ? "text-white" : "text-[#053749]"
+                        darkMode ? 'text-white' : 'text-[#053749]'
                       }`}
                     >
                       {title}
@@ -90,12 +83,12 @@ const Popup = ({
               {/* Content */}
               <div
                 className={`flex-grow flex items-center justify-center ${
-                  children ? "my-4 md:my-6" : "my-2"
+                  children ? 'my-4 md:my-6' : 'my-2'
                 }`}
               >
                 <div
                   className={`w-full text-center text-base md:text-lg ${
-                    darkMode ? "text-white" : "text-[#053749]"
+                    darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {children}

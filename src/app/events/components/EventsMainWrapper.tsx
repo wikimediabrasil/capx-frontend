@@ -1,39 +1,34 @@
-"use client";
+'use client';
 
-import { EventsSearch } from "./EventsSearch";
-import { useSession } from "next-auth/react";
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
-import { PaginationButtons } from "@/components/PaginationButtons";
-import { useEvents } from "@/hooks/useEvents";
-import EventsList from "./EventsList";
-import Banner from "@/components/Banner";
-import LoadingState from "@/components/LoadingState";
-import { useApp } from "@/contexts/AppContext";
-import {
-  EventFilterState,
-  EventFilterType,
-  EventLocationType,
-  EventSkill,
-} from "../types";
-import { EventsFilters } from "./EventsFilters";
-import { useTheme } from "@/contexts/ThemeContext";
-import Image from "next/image";
-import FilterIcon from "@/public/static/images/filter_icon.svg";
-import FilterIconWhite from "@/public/static/images/filter_icon_white.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import { Capacity } from "@/types/capacity";
-import { useRouter } from "next/navigation";
-import CapxPersonEvent from "@/public/static/images/capx_person_events.svg";
+import { EventsSearch } from './EventsSearch';
+import { useSession } from 'next-auth/react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { PaginationButtons } from '@/components/PaginationButtons';
+import { useEvents } from '@/hooks/useEvents';
+import EventsList from './EventsList';
+import Banner from '@/components/Banner';
+import LoadingState from '@/components/LoadingState';
+import { useApp } from '@/contexts/AppContext';
+import { EventFilterState, EventFilterType, EventLocationType, EventSkill } from '../types';
+import { EventsFilters } from './EventsFilters';
+import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
+import FilterIcon from '@/public/static/images/filter_icon.svg';
+import FilterIconWhite from '@/public/static/images/filter_icon_white.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { Capacity } from '@/types/capacity';
+import { useRouter } from 'next/navigation';
+import CapxPersonEvent from '@/public/static/images/capx_person_events.svg';
 
 export default function EventsMainWrapper() {
   const { data: session } = useSession();
   const { darkMode } = useTheme();
   const searchParams = useSearchParams();
-  const organizationId = searchParams.get("organization");
-  const capacityCode = searchParams.get("capacityId");
+  const organizationId = searchParams.get('organization');
+  const capacityCode = searchParams.get('capacityId');
   const { pageContent } = useApp();
   const router = useRouter();
 
@@ -73,7 +68,7 @@ export default function EventsMainWrapper() {
     isLoading: isEventsLoading,
     error: eventsError,
   } = useEvents(
-    session?.user?.token || "",
+    session?.user?.token || '',
     itemsPerPage, // Limit the quantity per page
     offset, // Use offset for pagination with the server
     organizationId ? Number(organizationId) : undefined,
@@ -96,22 +91,20 @@ export default function EventsMainWrapper() {
 
   // Initialize organizationId in filters when URL param changes
   useEffect(() => {
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
       organizationId: organizationId ? Number(organizationId) : undefined,
     }));
   }, [organizationId]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(
-      (cap) => cap.code === capacity.code
-    );
+    const capacityExists = activeFilters.capacities.some(cap => cap.code === capacity.code);
 
     if (capacityExists) {
       return;
     }
 
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
       capacities: [
         ...prev.capacities,
@@ -124,16 +117,16 @@ export default function EventsMainWrapper() {
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
-      capacities: prev.capacities.filter((cap) => cap.code !== capacityCode),
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
 
-    const urlCapacityId = searchParams.get("capacityId");
+    const urlCapacityId = searchParams.get('capacityId');
 
     // If the capacity removed is the same as the URL, update the URL
     if (urlCapacityId && urlCapacityId.toString() === capacityCode.toString()) {
-      router.replace("/events", { scroll: false });
+      router.replace('/events', { scroll: false });
     }
   };
 
@@ -146,12 +139,12 @@ export default function EventsMainWrapper() {
     setIsSearching(false);
   }, []);
 
-  const handleSearchResults = useCallback((results) => {
+  const handleSearchResults = useCallback(results => {
     setSearchResults(results || []);
     setCurrentPage(1); // Return to the first page when receiving search results
   }, []);
 
-  const handleSearchStatusChange = useCallback((isActive) => {
+  const handleSearchStatusChange = useCallback(isActive => {
     setIsSearchMode(isActive);
 
     if (!isActive) {
@@ -160,7 +153,7 @@ export default function EventsMainWrapper() {
   }, []);
 
   const handlePageChange = useCallback(
-    (newPage) => {
+    newPage => {
       if (newPage >= 1 && newPage <= totalPages) {
         setCurrentPage(newPage);
         window.scrollTo(0, 0); // Scroll to the top
@@ -179,8 +172,8 @@ export default function EventsMainWrapper() {
     <section className="w-full flex flex-col min-h-screen pt-24 md:pt-8 gap-4 mx-auto md:max-w-[1200px]">
       <Banner
         image={CapxPersonEvent}
-        title={pageContent["events-banner-title"]}
-        alt={pageContent["events-banner-alt"]}
+        title={pageContent['events-banner-title']}
+        alt={pageContent['events-banner-alt']}
       />
       <div className="flex flex-col min-h-screen">
         <div className="w-full max-w-screen-xl mx-auto p-4">
@@ -192,9 +185,7 @@ export default function EventsMainWrapper() {
                 onSearchEnd={handleSearchEnd}
                 onSearchResults={handleSearchResults}
                 onSearchStatusChange={handleSearchStatusChange}
-                organizationId={
-                  organizationId ? Number(organizationId) : undefined
-                }
+                organizationId={organizationId ? Number(organizationId) : undefined}
               />
             </div>
 
@@ -205,15 +196,15 @@ export default function EventsMainWrapper() {
                 w-16 h-16 flex-shrink-0 rounded-lg flex items-center justify-center
                 ${
                   darkMode
-                    ? "bg-capx-dark-box-bg text-white hover:bg-gray-700"
-                    : "bg-white border border-gray-300 hover:bg-gray-50"
+                    ? 'bg-capx-dark-box-bg text-white hover:bg-gray-700'
+                    : 'bg-white border border-gray-300 hover:bg-gray-50'
                 }
               `}
               aria-label="Open filters"
             >
               <Image
                 src={darkMode ? FilterIconWhite : FilterIcon}
-                alt={pageContent["filters-icon"] || "Filters"}
+                alt={pageContent['filters-icon'] || 'Filters'}
                 width={24}
                 height={24}
               />
@@ -228,11 +219,7 @@ export default function EventsMainWrapper() {
                   key={index}
                   className={`
                     inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px]
-                    ${
-                      darkMode
-                        ? "bg-gray-700 text-white"
-                        : "bg-gray-100 text-gray-800"
-                    }
+                    ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}
                   `}
                 >
                   <span className="truncate">{capacity.name}</span>
@@ -242,9 +229,7 @@ export default function EventsMainWrapper() {
                   >
                     <Image
                       src={darkMode ? CloseIconWhite : CloseIcon}
-                      alt={
-                        pageContent["filters-remove-item-alt-icon"] || "Remove"
-                      }
+                      alt={pageContent['filters-remove-item-alt-icon'] || 'Remove'}
                       width={16}
                       height={16}
                     />
@@ -258,7 +243,7 @@ export default function EventsMainWrapper() {
             isOpen={showSkillModal}
             onClose={() => setShowSkillModal(false)}
             onSelect={handleCapacitySelect}
-            title={pageContent["select-capacity"] || "Selecionar capacidade"}
+            title={pageContent['select-capacity'] || 'Selecionar capacidade'}
           />
 
           {/* Applied filters summary */}
@@ -268,27 +253,25 @@ export default function EventsMainWrapper() {
             activeFilters.organizationId) && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <p className="text-blue-800 font-medium">
-                {pageContent["events-filters-applied"] || "Filters applied:"}
+                {pageContent['events-filters-applied'] || 'Filters applied:'}
                 {activeFilters.locationType !== EventLocationType.All && (
                   <span className="ml-2 inline-block">
                     {activeFilters.locationType === EventLocationType.Online
-                      ? pageContent["filters-location-online"] || "Online"
-                      : activeFilters.locationType ===
-                        EventLocationType.InPerson
-                      ? pageContent["filters-location-in-person"] || "In-person"
-                      : pageContent["filters-location-hybrid"] || "Hybrid"}
+                      ? pageContent['filters-location-online'] || 'Online'
+                      : activeFilters.locationType === EventLocationType.InPerson
+                        ? pageContent['filters-location-in-person'] || 'In-person'
+                        : pageContent['filters-location-hybrid'] || 'Hybrid'}
                   </span>
                 )}
                 {activeFilters.dateRange?.startDate && (
                   <span className="ml-2 inline-block">
-                    {pageContent["filters-from-date"] || "From:"}{" "}
+                    {pageContent['filters-from-date'] || 'From:'}{' '}
                     {activeFilters.dateRange.startDate}
                   </span>
                 )}
                 {activeFilters.dateRange?.endDate && (
                   <span className="ml-2 inline-block">
-                    {pageContent["filters-to-date"] || "To:"}{" "}
-                    {activeFilters.dateRange.endDate}
+                    {pageContent['filters-to-date'] || 'To:'} {activeFilters.dateRange.endDate}
                   </span>
                 )}
               </p>
@@ -298,14 +281,11 @@ export default function EventsMainWrapper() {
           {isSearchMode && (
             <div className="mb-4 p-3 bg-blue-50 rounded-md">
               <p>
-                {pageContent["events-search-results"] ||
-                  "Showing search results:"}{" "}
-                {searchResults.length}{" "}
+                {pageContent['events-search-results'] || 'Showing search results:'}{' '}
+                {searchResults.length}{' '}
                 {searchResults.length === 1
-                  ? pageContent["events-search-results-singular"] ||
-                    "event found"
-                  : pageContent["events-search-results-plural"] ||
-                    "events found"}
+                  ? pageContent['events-search-results-singular'] || 'event found'
+                  : pageContent['events-search-results-plural'] || 'events found'}
               </p>
             </div>
           )}
@@ -317,45 +297,38 @@ export default function EventsMainWrapper() {
           ) : eventsError && !isSearchMode ? (
             <div className="text-center py-8">
               <div className="text-red-500 mb-2">
-                {pageContent["events-search-results-error"] ||
-                  "Error loading events"}
+                {pageContent['events-search-results-error'] || 'Error loading events'}
               </div>
-              <div className="text-gray-600">
-                {eventsError.message || "Try again later"}
-              </div>
+              <div className="text-gray-600">{eventsError.message || 'Try again later'}</div>
               <button
                 onClick={() => window.location.reload()}
                 className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
-                {pageContent["events-main-wrapper-try-again"] || "Try again"}
+                {pageContent['events-main-wrapper-try-again'] || 'Try again'}
               </button>
             </div>
           ) : displayedEvents.length === 0 ? (
             <div className="text-center py-8">
               {isSearchMode
-                ? pageContent["events-search-results-no-results"] ||
-                  "No events found"
+                ? pageContent['events-search-results-no-results'] || 'No events found'
                 : Object.keys(activeFilters).some(
-                    (key) =>
-                      (key === "capacities" &&
-                        activeFilters.capacities.length > 0) ||
-                      (key === "locationType" &&
-                        activeFilters.locationType !== EventLocationType.All) ||
-                      (key === "dateRange" &&
-                        (activeFilters.dateRange?.startDate ||
-                          activeFilters.dateRange?.endDate)) ||
-                      (key === "organizationId" && activeFilters.organizationId)
-                  )
-                ? pageContent["events-no-results-with-filters"] ||
-                  "No events correspond to the selected filters. Try removing some filters."
-                : pageContent["events-no-results"] || "No events available"}
+                      key =>
+                        (key === 'capacities' && activeFilters.capacities.length > 0) ||
+                        (key === 'locationType' &&
+                          activeFilters.locationType !== EventLocationType.All) ||
+                        (key === 'dateRange' &&
+                          (activeFilters.dateRange?.startDate ||
+                            activeFilters.dateRange?.endDate)) ||
+                        (key === 'organizationId' && activeFilters.organizationId)
+                    )
+                  ? pageContent['events-no-results-with-filters'] ||
+                    'No events correspond to the selected filters. Try removing some filters.'
+                  : pageContent['events-no-results'] || 'No events available'}
             </div>
           ) : (
             <>
               <EventsList
-                key={`events-list-page-${currentPage}-${
-                  isSearchMode ? "search" : "normal"
-                }`}
+                key={`events-list-page-${currentPage}-${isSearchMode ? 'search' : 'normal'}`}
                 events={displayedEvents}
                 isHorizontalScroll={false}
               />

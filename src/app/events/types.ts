@@ -1,13 +1,13 @@
 export enum EventFilterType {
-  All = "all",
-  Organization = "organization",
+  All = 'all',
+  Organization = 'organization',
 }
 
 export enum EventLocationType {
-  All = "all",
-  Online = "online",
-  InPerson = "in_person",
-  Hybrid = "hybrid",
+  All = 'all',
+  Online = 'online',
+  InPerson = 'in_person',
+  Hybrid = 'hybrid',
 }
 
 export interface EventSkill {

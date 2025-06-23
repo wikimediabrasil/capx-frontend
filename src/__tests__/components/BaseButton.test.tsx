@@ -1,11 +1,11 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import BaseButton from "../../components/BaseButton";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AppProvider } from "@/contexts/AppContext";
-import * as ThemeContext from "@/contexts/ThemeContext";
+import { render, screen, fireEvent } from '@testing-library/react';
+import BaseButton from '../../components/BaseButton';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AppProvider } from '@/contexts/AppContext';
+import * as ThemeContext from '@/contexts/ThemeContext';
 
 // Mock do Next.js Router
-jest.mock("next/navigation", () => ({
+jest.mock('next/navigation', () => ({
   useRouter() {
     return {
       push: () => jest.fn(),
@@ -15,7 +15,7 @@ jest.mock("next/navigation", () => ({
     };
   },
   usePathname() {
-    return "/";
+    return '/';
   },
   useSearchParams() {
     return new URLSearchParams();
@@ -23,12 +23,12 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock do useTheme
-jest.mock("@/contexts/ThemeContext", () => ({
-  ...jest.requireActual("@/contexts/ThemeContext"),
+jest.mock('@/contexts/ThemeContext', () => ({
+  ...jest.requireActual('@/contexts/ThemeContext'),
   useTheme: jest.fn(),
 }));
 
-describe("BaseButton", () => {
+describe('BaseButton', () => {
   beforeEach(() => {
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
@@ -44,51 +44,41 @@ describe("BaseButton", () => {
     );
   };
 
-  it("renders button with label", () => {
+  it('renders button with label', () => {
     const handleClick = jest.fn();
-    renderWithProviders(
-      <BaseButton label="Test Button" onClick={handleClick} />
-    );
+    renderWithProviders(<BaseButton label="Test Button" onClick={handleClick} />);
 
-    const button = screen.getByText("Test Button");
+    const button = screen.getByText('Test Button');
     expect(button).toBeInTheDocument();
   });
 
-  it("handles click events", () => {
+  it('handles click events', () => {
     const handleClick = jest.fn();
-    renderWithProviders(
-      <BaseButton label="Test Button" onClick={handleClick} />
-    );
+    renderWithProviders(<BaseButton label="Test Button" onClick={handleClick} />);
 
-    const button = screen.getByText("Test Button");
+    const button = screen.getByText('Test Button');
     fireEvent.click(button);
     expect(handleClick).toHaveBeenCalled();
   });
 
-  it("applies custom class", () => {
-    const customClass = "test-custom-class";
+  it('applies custom class', () => {
+    const customClass = 'test-custom-class';
     renderWithProviders(
-      <BaseButton
-        label="Test Button"
-        onClick={() => {}}
-        customClass={customClass}
-      />
+      <BaseButton label="Test Button" onClick={() => {}} customClass={customClass} />
     );
 
-    const button = screen.getByRole("button");
+    const button = screen.getByRole('button');
     expect(button).toHaveClass(customClass);
   });
 
-  it("renders disabled state", () => {
-    renderWithProviders(
-      <BaseButton label="Test Button" onClick={() => {}} disabled={true} />
-    );
+  it('renders disabled state', () => {
+    renderWithProviders(<BaseButton label="Test Button" onClick={() => {}} disabled={true} />);
 
-    const button = screen.getByRole("button");
+    const button = screen.getByRole('button');
     expect(button).toBeDisabled();
   });
 
-  it("renders with image", () => {
+  it('renders with image', () => {
     renderWithProviders(
       <BaseButton
         label="Test Button"
@@ -100,7 +90,7 @@ describe("BaseButton", () => {
       />
     );
 
-    const image = screen.getByAltText("Test Image");
+    const image = screen.getByAltText('Test Image');
     expect(image).toBeInTheDocument();
   });
 

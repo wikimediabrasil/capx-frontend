@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { BadgeService } from "@/services/badgeService";
-import { Badge } from "@/types/badge";
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { BadgeService } from '@/services/badgeService';
+import { Badge } from '@/types/badge';
 
 export function useBadges() {
   const { data: session } = useSession();
@@ -28,8 +28,8 @@ export function useBadges() {
           previous: response.previous,
         });
       } catch (err) {
-        setError("Failed to fetch badges");
-        console.error("Error fetching badges:", err);
+        setError('Failed to fetch badges');
+        console.error('Error fetching badges:', err);
       } finally {
         setIsLoading(false);
       }
@@ -42,8 +42,8 @@ export function useBadges() {
     try {
       return await BadgeService.getBadgeById(badgeId, token);
     } catch (err) {
-      setError("Failed to fetch badge");
-      console.error("Error fetching badge:", err);
+      setError('Failed to fetch badge');
+      console.error('Error fetching badge:', err);
       throw err;
     }
   };

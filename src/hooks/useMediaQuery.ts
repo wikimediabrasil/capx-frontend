@@ -1,5 +1,5 @@
-"use client";
-import { useState, useEffect } from "react";
+'use client';
+import { useState, useEffect } from 'react';
 
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
@@ -16,10 +16,10 @@ export function useMediaQuery(query: string): boolean {
     const listener = () => setMatches(media.matches);
 
     // Add listener
-    media.addEventListener("change", listener);
+    media.addEventListener('change', listener);
 
     // Clean up
-    return () => media.removeEventListener("change", listener);
+    return () => media.removeEventListener('change', listener);
   }, [query]);
 
   // Return false during SSR

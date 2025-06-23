@@ -1,5 +1,5 @@
-import axios from "axios";
-import { OrganizationDocument } from "@/types/document";
+import axios from 'axios';
+import { OrganizationDocument } from '@/types/document';
 
 export const documentService = {
   async fetchAllDocuments(
@@ -9,26 +9,20 @@ export const documentService = {
   ): Promise<OrganizationDocument[]> {
     const headers = { Authorization: `Token ${token}` };
     const params = { limit, offset };
-    const response = await axios.get<OrganizationDocument[]>("/api/documents", {
+    const response = await axios.get<OrganizationDocument[]>('/api/documents', {
       headers,
       params,
     });
     return response.data;
   },
 
-  async fetchSingleDocument(
-    token: string,
-    id: number
-  ): Promise<OrganizationDocument> {
-    const response = await axios.get<OrganizationDocument>(
-      `/api/documents/${id}`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  async fetchSingleDocument(token: string, id: number): Promise<OrganizationDocument> {
+    const response = await axios.get<OrganizationDocument>(`/api/documents/${id}`, {
+      headers: {
+        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
     return response.data;
   },
 
@@ -37,19 +31,15 @@ export const documentService = {
     document: Partial<OrganizationDocument>
   ): Promise<OrganizationDocument> {
     try {
-      const response = await axios.post<OrganizationDocument>(
-        "/api/documents",
-        document,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post<OrganizationDocument>('/api/documents', document, {
+        headers: {
+          Authorization: `Token ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       return response.data;
     } catch (error) {
-      console.error("Error details:", error.response?.data);
+      console.error('Error details:', error.response?.data);
       throw error;
     }
   },
@@ -58,7 +48,7 @@ export const documentService = {
     await axios.delete(`/api/documents/${id}`, {
       headers: {
         Authorization: `Token ${token}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
   },

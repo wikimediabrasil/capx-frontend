@@ -1,29 +1,27 @@
 {
-	"@metadata": {
-		"authors": [
-			"Inabat Allanova"
-		]
-	},
-	"navbar-link-about": "Haqqında",
-	"navbar-link-capacities": "Imkaniyatlar",
-	"navbar-link-events": "Ilajlar",
-	"body-home-section01-title-text": "Almasıw ushın orın",
-	"body-home-section01-title-carousel": "imkaniyat, bilim, kónlikpeler, xızmetler",
-	"body-home-section01-button": "Capacity Exchange (Imkaniyat almaslawǵa) qosılıń!",
-	"body-loggedin-home-main-section-button02": "Meniń profilim",
-	"body-profile-gender-hehim": "Ol/Onı (erkek)",
-	"body-profile-gender-sheher": "Ol/Onı (hayal)",
-	"body-profile-gender-theythem": "Olar/Olardı",
-	"body-profile-gender-other": "Basqa",
-	"body-profile-edit-button": "Profildi redaktorlaw",
-	"body-profile-box-title-wikidata-item": "Wikidata elementi",
-	"body-profile-box-title-alt-wiki-acc": "Alternativ Wikimedia esabı",
-	"body-profile-section-title-territory": "Aymaq",
-	"body-profile-section-title-language": "Til",
-	"body-profile-section-title-affiliation": "Baylanıslılıq",
-	"body-profile-section-title-wikimedia-project": "Wikimedia joybarı",
-	"body-profile-section-title-known-capacity": "Belgili imkaniyatlar",
-	"footer-link-documentation": "Hújjet",
-	"footer-link-wikimedia": "Meta-wikimedia",
-	"footer-message": "Wikimedia háreketi ushın hám tárepinen"
+  "@metadata": {
+    "authors": ["Inabat Allanova"]
+  },
+  "navbar-link-about": "Haqqında",
+  "navbar-link-capacities": "Imkaniyatlar",
+  "navbar-link-events": "Ilajlar",
+  "body-home-section01-title-text": "Almasıw ushın orın",
+  "body-home-section01-title-carousel": "imkaniyat, bilim, kónlikpeler, xızmetler",
+  "body-home-section01-button": "Capacity Exchange (Imkaniyat almaslawǵa) qosılıń!",
+  "body-loggedin-home-main-section-button02": "Meniń profilim",
+  "body-profile-gender-hehim": "Ol/Onı (erkek)",
+  "body-profile-gender-sheher": "Ol/Onı (hayal)",
+  "body-profile-gender-theythem": "Olar/Olardı",
+  "body-profile-gender-other": "Basqa",
+  "body-profile-edit-button": "Profildi redaktorlaw",
+  "body-profile-box-title-wikidata-item": "Wikidata elementi",
+  "body-profile-box-title-alt-wiki-acc": "Alternativ Wikimedia esabı",
+  "body-profile-section-title-territory": "Aymaq",
+  "body-profile-section-title-language": "Til",
+  "body-profile-section-title-affiliation": "Baylanıslılıq",
+  "body-profile-section-title-wikimedia-project": "Wikimedia joybarı",
+  "body-profile-section-title-known-capacity": "Belgili imkaniyatlar",
+  "footer-link-documentation": "Hújjet",
+  "footer-link-wikimedia": "Meta-wikimedia",
+  "footer-message": "Wikimedia háreketi ushın hám tárepinen"
 }

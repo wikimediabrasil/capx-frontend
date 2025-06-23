@@ -1,9 +1,9 @@
-import { Project } from "@/types/project";
-import axios from "axios";
+import { Project } from '@/types/project';
+import axios from 'axios';
 
 export const projectsService = {
   async getProjects(token: string, limit?: number, offset?: number) {
-    const response = await axios.get("/api/projects", {
+    const response = await axios.get('/api/projects', {
       headers: { Authorization: `Token ${token}` },
       params: { limit, offset },
     });
@@ -19,25 +19,21 @@ export const projectsService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching project:", error);
+      console.error('Error fetching project:', error);
       throw error;
     }
   },
-  async updateProject(
-    projectId: number,
-    token: string,
-    data: Partial<Project>
-  ): Promise<Project> {
+  async updateProject(projectId: number, token: string, data: Partial<Project>): Promise<Project> {
     try {
       const response = await axios.put(`/api/projects/${projectId}/`, data, {
         headers: {
           Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
       return response.data;
     } catch (error) {
-      console.error("Error updating project:", error);
+      console.error('Error updating project:', error);
       throw error;
     }
   },
@@ -49,7 +45,7 @@ export const projectsService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Error creating project:", error);
+      console.error('Error creating project:', error);
       throw error;
     }
   },
@@ -59,11 +55,11 @@ export const projectsService = {
       await axios.delete(`/api/projects/${projectId}/`, {
         headers: {
           Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
     } catch (error) {
-      console.error("Error deleting project:", error);
+      console.error('Error deleting project:', error);
       throw error;
     }
   },

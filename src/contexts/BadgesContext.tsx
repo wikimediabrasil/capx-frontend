@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
-import { BadgeService } from "@/services/badgeService";
-import { UserBadgeService } from "@/services/userBadgeService";
-import { Badge, UserBadge } from "@/types/badge";
-import { useSession } from "next-auth/react";
-import { useApp } from "./AppContext";
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { BadgeService } from '@/services/badgeService';
+import { UserBadgeService } from '@/services/userBadgeService';
+import { Badge, UserBadge } from '@/types/badge';
+import { useSession } from 'next-auth/react';
+import { useApp } from './AppContext';
 
 interface BadgesContextType {
   allBadges: Badge[]; // all available badges
@@ -37,8 +37,8 @@ export function BadgesProvider({ children }: { children: React.ReactNode }) {
       const response = await BadgeService.getBadges(token);
       setAllBadges(response.results);
     } catch (err) {
-      setError("Failed to fetch badges");
-      console.error("Error fetching badges:", err);
+      setError('Failed to fetch badges');
+      console.error('Error fetching badges:', err);
     } finally {
       setIsLoading(false);
     }
@@ -48,10 +48,10 @@ export function BadgesProvider({ children }: { children: React.ReactNode }) {
     if (!token) return;
     try {
       setIsLoading(true);
-    const response = await UserBadgeService.getUserBadges(token);
-    const userBadgesData = response.results;
+      const response = await UserBadgeService.getUserBadges(token);
+      const userBadgesData = response.results;
 
-    setUserBadgesRelations(userBadgesData);
+      setUserBadgesRelations(userBadgesData);
 
       // Map user badges with progress and is_displayed
       const badgesWithProgress = allBadges
@@ -61,14 +61,14 @@ export function BadgesProvider({ children }: { children: React.ReactNode }) {
           return {
             ...badge,
             progress: userBadgeRelation?.progress || 0,
-            is_displayed: userBadgeRelation?.is_displayed || false
+            is_displayed: userBadgeRelation?.is_displayed || false,
           };
         });
 
       setUserBadges(badgesWithProgress);
     } catch (err) {
-      setError("Failed to fetch user badges");
-      console.error("Error fetching user badges:", err);
+      setError('Failed to fetch user badges');
+      console.error('Error fetching user badges:', err);
     } finally {
       setIsLoading(false);
     }
@@ -80,12 +80,14 @@ export function BadgesProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
 
       // Update the is_displayed status of all the user's badges
-      const updatePromises = userBadges.map(async (userBadge) => {
+      const updatePromises = userBadges.map(async userBadge => {
         const shouldDisplay = selectedBadgeIds.includes(userBadge.id);
-        const userBadgeId = userBadgesRelations.find(userBadgeRelation => userBadgeRelation.badge === userBadge.id)?.id;
+        const userBadgeId = userBadgesRelations.find(
+          userBadgeRelation => userBadgeRelation.badge === userBadge.id
+        )?.id;
 
         if (!userBadgeId) {
-          console.error("User badge ID not found for badge:", userBadge.id);
+          console.error('User badge ID not found for badge:', userBadge.id);
           return;
         }
 
@@ -100,10 +102,9 @@ export function BadgesProvider({ children }: { children: React.ReactNode }) {
 
       await Promise.all(updatePromises);
       await fetchUserBadges(); // Reload badges to update the display
-      
     } catch (err) {
-      setError("Failed to update badges display status");
-      console.error("Error updating badges display status:", err);
+      setError('Failed to update badges display status');
+      console.error('Error updating badges display status:', err);
       throw err;
     } finally {
       setIsLoading(false);
@@ -138,15 +139,13 @@ export function BadgesProvider({ children }: { children: React.ReactNode }) {
     [allBadges, userBadgesRelations, userBadges, isLoading, error]
   );
 
-  return (
-    <BadgesContext.Provider value={value}>{children}</BadgesContext.Provider>
-  );
+  return <BadgesContext.Provider value={value}>{children}</BadgesContext.Provider>;
 }
 
 export function useBadges() {
   const context = useContext(BadgesContext);
   if (context === undefined) {
-    throw new Error("useBadges must be used within a BadgesProvider");
+    throw new Error('useBadges must be used within a BadgesProvider');
   }
   return context;
 }

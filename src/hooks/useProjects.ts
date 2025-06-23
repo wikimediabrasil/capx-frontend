@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Project } from "@/types/project";
-import { projectsService } from "@/services/projectsService";
+import { useState, useEffect } from 'react';
+import { Project } from '@/types/project';
+import { projectsService } from '@/services/projectsService';
 
 export function useProject(projectId: number, token?: string) {
   const [project, setProject] = useState<Project | null>(null);
@@ -13,16 +13,11 @@ export function useProject(projectId: number, token?: string) {
 
       setIsLoading(true);
       try {
-        const projectData = await projectsService.getProjectById(
-          projectId,
-          token
-        );
+        const projectData = await projectsService.getProjectById(projectId, token);
         setProject(projectData);
         setError(null);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch project")
-        );
+        setError(err instanceof Error ? err : new Error('Failed to fetch project'));
         setProject(null);
       } finally {
         setIsLoading(false);
@@ -37,31 +32,23 @@ export function useProject(projectId: number, token?: string) {
     try {
       const createdProject = await projectsService.createProject(token, data);
       if (!createdProject || !createdProject.id) {
-        throw new Error("Invalid project response from server");
+        throw new Error('Invalid project response from server');
       }
       setProject(createdProject);
       return createdProject;
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error("Failed to create project")
-      );
+      setError(err instanceof Error ? err : new Error('Failed to create project'));
     }
   };
 
   const updateProject = async (projectId: number, data: Partial<Project>) => {
     if (!token || !projectId) return;
     try {
-      const updatedProject = await projectsService.updateProject(
-        projectId,
-        token,
-        data
-      );
+      const updatedProject = await projectsService.updateProject(projectId, token, data);
 
       setProject(updatedProject);
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error("Failed to update project")
-      );
+      setError(err instanceof Error ? err : new Error('Failed to update project'));
     }
   };
 
@@ -71,9 +58,7 @@ export function useProject(projectId: number, token?: string) {
       await projectsService.deleteProject(projectId, token);
       setProject(null);
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error("Failed to delete project")
-      );
+      setError(err instanceof Error ? err : new Error('Failed to delete project'));
     }
   };
 
@@ -103,16 +88,12 @@ export function useProjects(
 
       setIsLoading(true);
       try {
-        const projectPromises = projectIds.map((id) =>
-          projectsService.getProjectById(id, token)
-        );
+        const projectPromises = projectIds.map(id => projectsService.getProjectById(id, token));
         const projectsData = await Promise.all(projectPromises);
         setProjects(projectsData);
         setError(null);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch projects")
-        );
+        setError(err instanceof Error ? err : new Error('Failed to fetch projects'));
         setProjects([]);
       } finally {
         setIsLoading(false);

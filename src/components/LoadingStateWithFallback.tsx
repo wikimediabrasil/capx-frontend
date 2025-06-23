@@ -1,17 +1,13 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useTheme } from "@/contexts/ThemeContext";
-import CapxLogo from "@/public/static/images/capx_detailed_logo.svg";
-import CapxLogoWhite from "@/public/static/images/capx_detailed_logo_white.svg";
-import { useState, useEffect } from "react";
+import Image from 'next/image';
+import { useTheme } from '@/contexts/ThemeContext';
+import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
+import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
+import { useState, useEffect } from 'react';
 
 // Default version that can occupy the entire screen
-export default function LoadingStateWithFallback({
-  fullScreen = false,
-}: {
-  fullScreen?: boolean;
-}) {
+export default function LoadingStateWithFallback({ fullScreen = false }: { fullScreen?: boolean }) {
   const [mounted, setMounted] = useState(false);
   let darkMode = false;
 
@@ -34,9 +30,7 @@ export default function LoadingStateWithFallback({
   if (!mounted) {
     return (
       <div
-        className={`flex items-center justify-center ${
-          fullScreen ? "min-h-screen" : "h-[150px]"
-        }`}
+        className={`flex items-center justify-center ${fullScreen ? 'min-h-screen' : 'h-[150px]'}`}
         role="status"
       />
     );
@@ -45,8 +39,8 @@ export default function LoadingStateWithFallback({
   return (
     <div
       className={`flex items-center justify-center ${
-        fullScreen ? "min-h-screen" : "h-[150px]"
-      } ${darkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg"}`}
+        fullScreen ? 'min-h-screen' : 'h-[150px]'
+      } ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
       role="status"
       data-testid="loading-state"
       aria-label="Loading"
@@ -56,7 +50,7 @@ export default function LoadingStateWithFallback({
           src={darkMode ? CapxLogoWhite : CapxLogo}
           alt="CAPX Logo"
           className="animate-pulse-fade object-contain"
-          style={{ width: "auto", height: "auto" }}
+          style={{ width: 'auto', height: 'auto' }}
           priority
         />
         <style jsx global>{`

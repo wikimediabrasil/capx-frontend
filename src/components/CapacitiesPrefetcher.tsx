@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
-import { useCapacityCache } from "@/contexts/CapacityCacheContext";
-import { useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, useRef } from 'react';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Paths where we don't need to prefetch all capacity data
 const EXCLUDED_PATHS = [
-  "/organization_profile", // Any organization profile path
-  "/profile", // User profile paths
+  '/organization_profile', // Any organization profile path
+  '/profile', // User profile paths
 ];
 
 // Component to load capacities in the background
@@ -22,8 +22,7 @@ export const CapacitiesPrefetcher = () => {
   const queryClient = useQueryClient();
 
   // Check if we should skip prefetching based on the current path
-  const shouldSkipPrefetch =
-    pathname && EXCLUDED_PATHS.some((path) => pathname.includes(path));
+  const shouldSkipPrefetch = pathname && EXCLUDED_PATHS.some(path => pathname.includes(path));
 
   // Clean up any pending prefetch timer when component unmounts
   useEffect(() => {
@@ -57,14 +56,7 @@ export const CapacitiesPrefetcher = () => {
         clearTimeout(prefetchTimerRef.current);
       }
     };
-  }, [
-    session,
-    isLoaded,
-    hasPrefetched,
-    prefetchCapacityData,
-    pathname,
-    shouldSkipPrefetch,
-  ]);
+  }, [session, isLoaded, hasPrefetched, prefetchCapacityData, pathname, shouldSkipPrefetch]);
 
   return null;
 };

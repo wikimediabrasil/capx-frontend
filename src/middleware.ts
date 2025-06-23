@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, NextRequest } from 'next/server';
 
 /**
  * Middleware function to handle request headers
@@ -12,9 +12,9 @@ export function middleware(request: NextRequest) {
   const { origin, pathname } = url;
 
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-url", request.url);
-  requestHeaders.set("x-origin", origin);
-  requestHeaders.set("x-pathname", pathname);
+  requestHeaders.set('x-url', request.url);
+  requestHeaders.set('x-origin', origin);
+  requestHeaders.set('x-pathname', pathname);
 
   return NextResponse.next({
     request: {
@@ -36,6 +36,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

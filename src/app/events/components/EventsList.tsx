@@ -1,5 +1,5 @@
-import { Event } from "@/types/event";
-import EventCard from "./EventCard";
+import { Event } from '@/types/event';
+import EventCard from './EventCard';
 
 interface EventsListProps {
   events: Event[];
@@ -18,17 +18,11 @@ export default function EventsList({
 }: EventsListProps) {
   return (
     <div className="flex flex-col gap-4">
-      <div
-        className={`${
-          isHorizontalScroll ? "overflow-x-auto scrollbar-hide pb-4" : ""
-        }`}
-      >
+      <div className={`${isHorizontalScroll ? 'overflow-x-auto scrollbar-hide pb-4' : ''}`}>
         <div
-          className={`flex flex-nowrap gap-2 ${
-            isHorizontalScroll ? "" : "flex flex-col w-full"
-          }`}
+          className={`flex flex-nowrap gap-2 ${isHorizontalScroll ? '' : 'flex flex-col w-full'}`}
         >
-          {events.map((event) => (
+          {events.map(event => (
             <EventCard
               key={event.id}
               event={event}

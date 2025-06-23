@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import ProfilePage from "../components/ProfilePage";
+import ProfilePage from '../components/ProfilePage';
 
-import { useUserByUsername } from "@/hooks/useUserProfile";
-import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
-import LoadingState from "@/components/LoadingState";
+import { useUserByUsername } from '@/hooks/useUserProfile';
+import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import LoadingState from '@/components/LoadingState';
 
 export default function ProfileByUserName() {
   const params = useParams();
@@ -17,14 +17,12 @@ export default function ProfileByUserName() {
   const { userByUsername } = useUserByUsername(decodedUsername);
 
   const decodedUsernameToLower = decodedUsername?.toLowerCase().trim();
-  const loggedUserNameToLower = session?.user?.name?.toLowerCase().trim() || "";
+  const loggedUserNameToLower = session?.user?.name?.toLowerCase().trim() || '';
   const isSameUser = decodedUsernameToLower === loggedUserNameToLower;
 
   if (!userByUsername) {
     return <LoadingState />;
   }
 
-  return (
-    <ProfilePage isSameUser={isSameUser} profile={userByUsername}></ProfilePage>
-  );
+  return <ProfilePage isSameUser={isSameUser} profile={userByUsername}></ProfilePage>;
 }

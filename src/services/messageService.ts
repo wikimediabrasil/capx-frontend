@@ -1,5 +1,5 @@
-import { Message } from "@/types/message";
-import axios from "axios";
+import { Message } from '@/types/message';
+import axios from 'axios';
 
 export interface MessageServiceParams {
   message: Partial<Message>;
@@ -7,13 +7,10 @@ export interface MessageServiceParams {
 }
 
 export class MessageService {
-  static async sendMessage({
-    message,
-    token
-  }: MessageServiceParams): Promise<any> {
+  static async sendMessage({ message, token }: MessageServiceParams): Promise<any> {
     try {
       const response = await axios.post(
-        "/api/messages",
+        '/api/messages',
         {
           receiver: message.receiver,
           subject: message.subject,
@@ -23,28 +20,28 @@ export class MessageService {
         {
           headers: {
             Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
       return response.data;
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error('Failed to send message:', error);
       throw error;
     }
   }
 
   static async getMessages(token?: string): Promise<Message[]> {
     try {
-      const response = await axios.get("/api/messages", {
+      const response = await axios.get('/api/messages', {
         headers: {
           Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
       return response.data;
     } catch (error) {
-      console.error("Failed to get messages:", error);
+      console.error('Failed to get messages:', error);
       throw error;
     }
   }

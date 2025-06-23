@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { MessageService } from "@/services/messageService";
-import { Message } from "@/types/message";
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { MessageService } from '@/services/messageService';
+import { Message } from '@/types/message';
 
 export function useMessageList() {
   const { data: session } = useSession();
@@ -14,14 +14,14 @@ export function useMessageList() {
   useEffect(() => {
     const fetchMessages = async () => {
       if (!token) return;
-      
+
       setIsLoading(true);
       try {
         const data = await MessageService.getMessages(token);
         setMessages(data);
       } catch (error) {
-        console.error("Error fetching messages:", error);
-        setError("Could not load messages");
+        console.error('Error fetching messages:', error);
+        setError('Could not load messages');
       } finally {
         setIsLoading(false);
       }

@@ -19,7 +19,7 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
 
   const getStatusColor = (status?: string) => {
     if (!status) return '';
-    
+
     switch (status) {
       case 'to_do':
         return 'bg-[#0070B9] text-[#F6F6F6]';
@@ -30,37 +30,33 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
       case 'under_review':
         return 'bg-[#D43831] text-[#F6F6F6]';
       case 'in_progress':
-        return 'bg-[#D43831] text-[#F6F6F6]';        
+        return 'bg-[#D43831] text-[#F6F6F6]';
       default:
         return 'bg-gray-500 text-[#F6F6F6]';
     }
   };
 
   return (
-    <div className={`border rounded-lg overflow-hidden mb-4 ${
-      darkMode 
-        ? 'bg-[#053749] border-[#FFFFFF]'
-        : 'bg-white border-[#507380]'
-      } shadow-sm`}>
+    <div
+      className={`border rounded-lg overflow-hidden mb-4 ${
+        darkMode ? 'bg-[#053749] border-[#FFFFFF]' : 'bg-white border-[#507380]'
+      } shadow-sm`}
+    >
       <div className="p-4">
         <div className="mt-3">
-          <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-            darkMode 
-              ? 'text-[#FFFFFF]'
-              : 'text-[#507380]'
-            }`}>
-            {pageContent["report-bug-title"]}
+          <h4
+            className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+              darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+            }`}
+          >
+            {pageContent['report-bug-title']}
           </h4>
-          <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-            <p className={`text-[12px] md:text-[24px] font-light ${
-              darkMode 
-                ? 'text-[#FFFFFF]'
-                : 'text-[#053749]'
-              }`}>
+          <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+            <p
+              className={`text-[12px] md:text-[24px] font-light ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+              }`}
+            >
               {submission.title}
             </p>
           </div>
@@ -68,20 +64,19 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
 
         {submission.status && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["report-bug-status"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['report-bug-status']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-3 py-1 rounded-md inline-block ${
-                getStatusColor(submission.status)}`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-3 py-1 rounded-md inline-block ${getStatusColor(
+                  submission.status
+                )}`}
+              >
                 {submission.status}
               </span>
             </div>
@@ -90,23 +85,19 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
 
         {isExpanded && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["report-bug-description"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['report-bug-description']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <p className={`text-[12px] md:text-[24px] font-light ${
-                darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#053749]'
-              }`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <p
+                className={`text-[12px] md:text-[24px] font-light ${
+                  darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+                }`}
+              >
                 {submission.description}
               </p>
             </div>
@@ -115,23 +106,19 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
 
         {submission.bug_type && isExpanded && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["report-bug-type"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['report-bug-type']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                darkMode
-                  ? 'bg-[#053749] text-[#FFFFFF]'
-                  : 'bg-[#053749] text-[#FFFFFF]'
-                }`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
+                  darkMode ? 'bg-[#053749] text-[#FFFFFF]' : 'bg-[#053749] text-[#FFFFFF]'
+                }`}
+              >
                 {submission.bug_type}
               </span>
             </div>
@@ -140,48 +127,40 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
 
         {isExpanded && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["report-bug-submitted-at"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['report-bug-submitted-at']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                darkMode
-                  ? 'bg-[#053749] text-[#FFFFFF]'
-                  : 'bg-[#053749] text-[#FFFFFF]'
-                }`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
+                  darkMode ? 'bg-[#053749] text-[#FFFFFF]' : 'bg-[#053749] text-[#FFFFFF]'
+                }`}
+              >
                 {formatDateLocale(submission.created_at, language)}
               </span>
             </div>
           </div>
         )}
-        
-      {isExpanded && (
+
+        {isExpanded && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["report-bug-updated-at"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['report-bug-updated-at']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                darkMode
-                  ? 'bg-[#053749] text-[#FFFFFF]'
-                  : 'bg-[#053749] text-[#FFFFFF]'
-                }`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
+                  darkMode ? 'bg-[#053749] text-[#FFFFFF]' : 'bg-[#053749] text-[#FFFFFF]'
+                }`}
+              >
                 {formatDateLocale(submission.updated_at, language)}
               </span>
             </div>
@@ -192,12 +171,10 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className={`w-full text-[14px] md:text-[24px] font-bold px-[19px] py-[8px] rounded-[8px] font-[Montserrat] ${
-              darkMode 
-                ? 'bg-[#04222F] text-[#F6F6F6]' 
-                : 'bg-[#053749] text-[#F6F6F6]'
+              darkMode ? 'bg-[#04222F] text-[#F6F6F6]' : 'bg-[#053749] text-[#F6F6F6]'
             }`}
           >
-            {isExpanded ? pageContent["report-bug-hide"] : pageContent["report-bug-view"]}
+            {isExpanded ? pageContent['report-bug-hide'] : pageContent['report-bug-view']}
           </button>
         </div>
       </div>

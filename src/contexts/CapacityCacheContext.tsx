@@ -1,26 +1,17 @@
-"use client";
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { capacityService } from "@/services/capacityService";
-import { useSession } from "next-auth/react";
-import { Capacity } from "@/types/capacity";
-import LoadingStateWithFallback, {
-  CompactLoading,
-} from "@/components/LoadingStateWithFallback";
+'use client';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { capacityService } from '@/services/capacityService';
+import { useSession } from 'next-auth/react';
+import { Capacity } from '@/types/capacity';
+import LoadingStateWithFallback, { CompactLoading } from '@/components/LoadingStateWithFallback';
 
 // Query keys for the React Query
 const QUERY_KEYS = {
-  ROOT_CAPACITIES: "root-capacities",
+  ROOT_CAPACITIES: 'root-capacities',
   CHILD_CAPACITIES: (parentCode: number) => `child-capacities-${parentCode}`,
-  ALL_CAPACITIES: "all-capacities-map",
-  CHILDREN_MAP: "children-map",
+  ALL_CAPACITIES: 'all-capacities-map',
+  CHILDREN_MAP: 'children-map',
 };
 
 // Global flag to avoid multiple initializations
@@ -35,7 +26,7 @@ const saveCache = (
   children: Map<number, number[]>,
   isFresh = false
 ) => {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     // Convert Maps to plain objects for serialization
@@ -57,15 +48,13 @@ const saveCache = (
       timestamp: Date.now(), // Add timestamp to track cache age
     };
 
-    localStorage.setItem("capx-capacity-cache", JSON.stringify(cacheData));
+    localStorage.setItem('capx-capacity-cache', JSON.stringify(cacheData));
 
     // Use type assertion to help TypeScript understand this is safe
-    const capacityCount = Object.keys(
-      capacitiesObj as Record<string, any>
-    ).length;
-    localStorage.setItem("capx-capacity-cache-size", String(capacityCount));
+    const capacityCount = Object.keys(capacitiesObj as Record<string, any>).length;
+    localStorage.setItem('capx-capacity-cache-size', String(capacityCount));
   } catch (error) {
-    console.error("Error saving capacity cache:", error);
+    console.error('Error saving capacity cache:', error);
   }
 };
 
@@ -79,10 +68,8 @@ const mapToObject = (map: Map<number, any> | any): Record<string, any> => {
   return obj;
 };
 
-const objectToMap = (
-  obj: Record<string, any> | any
-): Map<number, any> | any => {
-  if (!obj || typeof obj !== "object") return obj;
+const objectToMap = (obj: Record<string, any> | any): Map<number, any> | any => {
+  if (!obj || typeof obj !== 'object') return obj;
   const map = new Map<number, any>();
   Object.entries(obj).forEach(([key, value]) => {
     map.set(Number(key), value);
@@ -110,11 +97,7 @@ const CapacityCacheContext = createContext<CapacityCacheContextType>({
   clearCapacityCache: () => {},
 });
 
-export function CapacityCacheProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function CapacityCacheProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isManuallyLoaded, setIsManuallyLoaded] = useState(false);
@@ -123,11 +106,7 @@ export function CapacityCacheProvider({
 
   // Load cache from localStorage when starting (only once)
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      hasCalled.current ||
-      hasInitializedCache
-    ) {
+    if (typeof window === 'undefined' || hasCalled.current || hasInitializedCache) {
       return;
     }
 
@@ -135,7 +114,7 @@ export function CapacityCacheProvider({
     hasInitializedCache = true;
 
     try {
-      const savedCache = localStorage.getItem("capx-capacity-cache");
+      const savedCache = localStorage.getItem('capx-capacity-cache');
       if (savedCache) {
         const parsedCache = JSON.parse(savedCache);
 
@@ -146,9 +125,7 @@ export function CapacityCacheProvider({
 
           // Debug info - show only once
           const capacityCount = Object.keys(parsedCache.capacities).length;
-          const childrenCount = parsedCache.children
-            ? Object.keys(parsedCache.children).length
-            : 0;
+          const childrenCount = parsedCache.children ? Object.keys(parsedCache.children).length : 0;
         }
 
         if (parsedCache.children) {
@@ -160,17 +137,14 @@ export function CapacityCacheProvider({
         setIsManuallyLoaded(true);
       }
     } catch (e) {
-      console.error("Error recovering cache:", e);
+      console.error('Error recovering cache:', e);
       // In case of error, clear the cache to ensure a clean state
-      localStorage.removeItem("capx-capacity-cache");
+      localStorage.removeItem('capx-capacity-cache');
     }
   }, [queryClient]);
 
   // Use React Query to maintain the persistent cache between navigations
-  const {
-    data: capacityCache = new Map<number, Capacity>(),
-    isSuccess: isCacheLoaded,
-  } = useQuery({
+  const { data: capacityCache = new Map<number, Capacity>(), isSuccess: isCacheLoaded } = useQuery({
     queryKey: [QUERY_KEYS.ALL_CAPACITIES],
     queryFn: () => {
       // Return the existing cache or a new Map
@@ -183,20 +157,18 @@ export function CapacityCacheProvider({
     gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
   });
 
-  const {
-    data: childrenCache = new Map<number, number[]>(),
-    isSuccess: isChildrenCacheLoaded,
-  } = useQuery({
-    queryKey: [QUERY_KEYS.CHILDREN_MAP],
-    queryFn: () => {
-      const existingCache = queryClient.getQueryData<Map<number, number[]>>([
-        QUERY_KEYS.CHILDREN_MAP,
-      ]);
-      return existingCache || new Map<number, number[]>();
-    },
-    staleTime: Infinity,
-    gcTime: 24 * 60 * 60 * 1000,
-  });
+  const { data: childrenCache = new Map<number, number[]>(), isSuccess: isChildrenCacheLoaded } =
+    useQuery({
+      queryKey: [QUERY_KEYS.CHILDREN_MAP],
+      queryFn: () => {
+        const existingCache = queryClient.getQueryData<Map<number, number[]>>([
+          QUERY_KEYS.CHILDREN_MAP,
+        ]);
+        return existingCache || new Map<number, number[]>();
+      },
+      staleTime: Infinity,
+      gcTime: 24 * 60 * 60 * 1000,
+    });
 
   const isLoaded = isCacheLoaded && isChildrenCacheLoaded && isManuallyLoaded;
 
@@ -207,8 +179,8 @@ export function CapacityCacheProvider({
     setIsManuallyLoaded(false);
     hasInitializedCache = false;
     // Also clear from localStorage if being used
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("capx-capacity-cache");
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('capx-capacity-cache');
     }
   }, [queryClient]);
 
@@ -236,14 +208,12 @@ export function CapacityCacheProvider({
 
     // Try to load from localStorage first before making API requests
     try {
-      const savedCache = localStorage.getItem("capx-capacity-cache");
+      const savedCache = localStorage.getItem('capx-capacity-cache');
       if (savedCache) {
         const parsedCache = JSON.parse(savedCache);
         const hasCapacities =
-          parsedCache.capacities &&
-          Object.keys(parsedCache.capacities).length > 0;
-        const hasChildren =
-          parsedCache.children && Object.keys(parsedCache.children).length > 0;
+          parsedCache.capacities && Object.keys(parsedCache.capacities).length > 0;
+        const hasChildren = parsedCache.children && Object.keys(parsedCache.children).length > 0;
 
         if (hasCapacities && hasChildren) {
           // Convert back to Map before using
@@ -269,7 +239,7 @@ export function CapacityCacheProvider({
         }
       }
     } catch (error) {
-      console.error("Error recovering cache:", error);
+      console.error('Error recovering cache:', error);
       // Continue with normal loading in case of error
     }
 
@@ -279,7 +249,7 @@ export function CapacityCacheProvider({
       await fetchFreshData(session.user.token);
       setIsLoading(false);
     } catch (error) {
-      console.error("Error prefetching capacity data:", error);
+      console.error('Error prefetching capacity data:', error);
       setIsLoading(false);
     }
   };
@@ -296,46 +266,38 @@ export function CapacityCacheProvider({
     });
 
     // Store root capacities in persistent cache
-    const newCapacityCache =
-      existingCapacityCache || new Map<number, Capacity>();
-    const newChildrenCache =
-      existingChildrenCache || new Map<number, number[]>();
+    const newCapacityCache = existingCapacityCache || new Map<number, Capacity>();
+    const newChildrenCache = existingChildrenCache || new Map<number, number[]>();
 
     // Initialize cache with root capacities
-    rootCapacities.forEach((rootCapacity) => {
+    rootCapacities.forEach(rootCapacity => {
       const code = Number(rootCapacity.code);
       newCapacityCache.set(code, {
         code,
         name: rootCapacity.name,
-        color: "technology",
-        icon: "",
+        color: 'technology',
+        icon: '',
         hasChildren: false,
         skill_type: code,
-        skill_wikidata_item: "",
-        description: "",
-        wd_code: rootCapacity.wd_code || "",
+        skill_wikidata_item: '',
+        description: '',
+        wd_code: rootCapacity.wd_code || '',
       });
     });
 
     // 2. Load all children in a single request grouped
-    const childPromises = rootCapacities.map(async (rootCapacity) => {
+    const childPromises = rootCapacities.map(async rootCapacity => {
       const code = Number(rootCapacity.code);
       try {
         // Skip if we already have this capacity's children in cache
-        if (
-          newChildrenCache.has(code) &&
-          (newChildrenCache.get(code)?.length ?? 0) > 0
-        ) {
+        if (newChildrenCache.has(code) && (newChildrenCache.get(code)?.length ?? 0) > 0) {
           const cachedChildren = newChildrenCache.get(code);
           return Array.isArray(cachedChildren) ? cachedChildren : [];
         }
 
-        const children = await capacityService.fetchCapacitiesByType(
-          code.toString(),
-          {
-            headers: { Authorization: `Token ${token}` },
-          }
-        );
+        const children = await capacityService.fetchCapacitiesByType(code.toString(), {
+          headers: { Authorization: `Token ${token}` },
+        });
 
         // Process children
         const childCodes = Object.keys(children).map(Number);
@@ -351,21 +313,21 @@ export function CapacityCacheProvider({
         }
 
         // Add children to cache
-        childCodes.forEach((childCode) => {
+        childCodes.forEach(childCode => {
           if (!newCapacityCache.has(childCode)) {
             newCapacityCache.set(childCode, {
               code: childCode,
               name:
-                typeof children[childCode] === "string"
+                typeof children[childCode] === 'string'
                   ? children[childCode]
                   : children[childCode]?.name || `Capacity ${childCode}`,
-              color: "technology",
-              icon: "",
+              color: 'technology',
+              icon: '',
               hasChildren: false,
               skill_type: code,
-              skill_wikidata_item: "",
-              description: "",
-              wd_code: "",
+              skill_wikidata_item: '',
+              description: '',
+              wd_code: '',
               parentCapacity: newCapacityCache.get(code),
             });
           }
@@ -384,8 +346,7 @@ export function CapacityCacheProvider({
 
     // Only fetch grandchildren for capacities we don't already have
     const missingGrandchildren = flatChildCodes.filter(
-      (code) =>
-        !newChildrenCache.has(code) || newChildrenCache.get(code)?.length === 0
+      code => !newChildrenCache.has(code) || newChildrenCache.get(code)?.length === 0
     );
 
     if (missingGrandchildren.length > 0) {
@@ -393,7 +354,7 @@ export function CapacityCacheProvider({
       const BATCH_SIZE = 5;
       for (let i = 0; i < missingGrandchildren.length; i += BATCH_SIZE) {
         const batch = missingGrandchildren.slice(i, i + BATCH_SIZE);
-        const batchPromises = batch.map(async (childCode) => {
+        const batchPromises = batch.map(async childCode => {
           try {
             const grandChildren = await capacityService.fetchCapacitiesByType(
               childCode.toString(),
@@ -415,23 +376,22 @@ export function CapacityCacheProvider({
             }
 
             // Add grandchildren to cache
-            grandChildCodes.forEach((grandChildCode) => {
+            grandChildCodes.forEach(grandChildCode => {
               if (!newCapacityCache.has(grandChildCode)) {
                 const parentCapacity = newCapacityCache.get(childCode);
                 newCapacityCache.set(grandChildCode, {
                   code: grandChildCode,
                   name:
-                    typeof grandChildren[grandChildCode] === "string"
+                    typeof grandChildren[grandChildCode] === 'string'
                       ? grandChildren[grandChildCode]
-                      : grandChildren[grandChildCode]?.name ||
-                        `Capacity ${grandChildCode}`,
-                  color: "technology",
-                  icon: "",
+                      : grandChildren[grandChildCode]?.name || `Capacity ${grandChildCode}`,
+                  color: 'technology',
+                  icon: '',
                   hasChildren: false,
                   skill_type: childCode,
-                  skill_wikidata_item: "",
-                  description: "",
-                  wd_code: "",
+                  skill_wikidata_item: '',
+                  description: '',
+                  wd_code: '',
                   parentCapacity: parentCapacity,
                 });
               }
@@ -439,10 +399,7 @@ export function CapacityCacheProvider({
 
             return { childCode, grandChildCodes };
           } catch (error) {
-            console.error(
-              `Error fetching grandchildren for capacity ${childCode}:`,
-              error
-            );
+            console.error(`Error fetching grandchildren for capacity ${childCode}:`, error);
             return { childCode, grandChildCodes: [] };
           }
         });
@@ -498,9 +455,7 @@ export function CapacityCacheProvider({
   };
 
   return (
-    <CapacityCacheContext.Provider value={contextValue}>
-      {children}
-    </CapacityCacheContext.Provider>
+    <CapacityCacheContext.Provider value={contextValue}>{children}</CapacityCacheContext.Provider>
   );
 }
 
@@ -508,9 +463,7 @@ export function CapacityCacheProvider({
 export function useCapacityCache() {
   const context = useContext(CapacityCacheContext);
   if (!context) {
-    throw new Error(
-      "useCapacityCache must be used within a CapacityCacheProvider"
-    );
+    throw new Error('useCapacityCache must be used within a CapacityCacheProvider');
   }
   return context;
 }

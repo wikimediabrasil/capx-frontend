@@ -1,5 +1,5 @@
-import axios from "axios";
-import { QueryData } from "@/types/capacity";
+import axios from 'axios';
+import { QueryData } from '@/types/capacity';
 
 interface TagResponse {
   data: {
@@ -10,11 +10,7 @@ interface TagResponse {
 }
 
 export const tagService = {
-  async fetchTagById(
-    id: string,
-    category: string,
-    queryData: QueryData
-  ): Promise<TagResponse> {
+  async fetchTagById(id: string, category: string, queryData: QueryData): Promise<TagResponse> {
     try {
       const response = await axios.get(`/api/tag`, {
         params: { id, category, ...queryData.params },
@@ -22,7 +18,7 @@ export const tagService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch tag:", error);
+      console.error('Failed to fetch tag:', error);
       throw error;
     }
   },
@@ -38,7 +34,7 @@ export const tagService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch tags by category:", error);
+      console.error('Failed to fetch tags by category:', error);
       throw error;
     }
   },

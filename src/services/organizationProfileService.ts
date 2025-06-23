@@ -1,5 +1,5 @@
-import axios from "axios";
-import { Organization } from "@/types/organization";
+import axios from 'axios';
+import { Organization } from '@/types/organization';
 
 export interface OrganizationFilters {
   territory?: string[];
@@ -16,39 +16,37 @@ export const organizationProfileService = {
     const params = new URLSearchParams();
 
     if (filters.territory?.length) {
-      filters.territory.forEach((t) => params.append("territory", t));
+      filters.territory.forEach(t => params.append('territory', t));
     }
 
     if (filters.available_capacities?.length) {
-      filters.available_capacities.forEach((c) =>
-        params.append("available_capacities", c.toString())
+      filters.available_capacities.forEach(c =>
+        params.append('available_capacities', c.toString())
       );
     }
 
     if (filters.wanted_capacities?.length) {
-      filters.wanted_capacities.forEach((c) =>
-        params.append("wanted_capacities", c.toString())
-      );
+      filters.wanted_capacities.forEach(c => params.append('wanted_capacities', c.toString()));
     }
 
     if (filters.has_capacities_wanted === true) {
-      params.append("has_capacities_wanted", "true");
+      params.append('has_capacities_wanted', 'true');
     }
 
     if (filters.has_capacities_available === true) {
-      params.append("has_capacities_available", "true");
+      params.append('has_capacities_available', 'true');
     }
 
     if (filters.limit) {
-      params.append("limit", filters.limit.toString());
+      params.append('limit', filters.limit.toString());
     }
 
     if (filters.offset) {
-      params.append("offset", filters.offset.toString());
+      params.append('offset', filters.offset.toString());
     }
 
     try {
-      const response = await axios.get("/api/organizations/", {
+      const response = await axios.get('/api/organizations/', {
         params,
         paramsSerializer: {
           indexes: null, // Ensure arrays are serialized correctly
@@ -56,7 +54,7 @@ export const organizationProfileService = {
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching organizations:", error);
+      console.error('Error fetching organizations:', error);
       return { count: 0, results: [] };
     }
   },
@@ -69,43 +67,31 @@ export const organizationProfileService = {
   },
 
   async getUserProfile(token: string) {
-    const response = await axios.get("/api/profile/", {
+    const response = await axios.get('/api/profile/', {
       headers: { Authorization: `Token ${token}` },
     });
     // return one user
     return response.data[0];
   },
 
-  async updateOrganizationProfile(
-    token: string,
-    id: number,
-    data: Partial<Organization>
-  ) {
+  async updateOrganizationProfile(token: string, id: number, data: Partial<Organization>) {
     const sanitizedData = {
       ...data,
       events: Array.isArray(data.events)
-        ? data.events.map((event: any) =>
-            typeof event === "object" ? event.id : event
-          )
+        ? data.events.map((event: any) => (typeof event === 'object' ? event.id : event))
         : [],
       choose_events: Array.isArray(data.choose_events)
-        ? data.choose_events.map((event: any) =>
-            typeof event === "object" ? event.id : event
-          )
+        ? data.choose_events.map((event: any) => (typeof event === 'object' ? event.id : event))
         : [],
     };
 
-    const response = await axios.put(
-      `/api/organizations/${id}/`,
-      sanitizedData,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.put(`/api/organizations/${id}/`, sanitizedData, {
+      headers: {
+        Authorization: `Token ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
 
     return response.data;
   },

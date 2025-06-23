@@ -1,5 +1,5 @@
-import axios from "axios";
-import { SavedItem } from "@/types/saved_item";
+import axios from 'axios';
+import { SavedItem } from '@/types/saved_item';
 
 export interface SavedItemFilters {
   limit?: number;
@@ -27,12 +27,12 @@ export const savedItemService = {
     }
 
     try {
-      const response = await axios.get("/api/saved_item/", {
+      const response = await axios.get('/api/saved_item/', {
         params,
         headers: { Authorization: `Token ${token}` },
         paramsSerializer: {
-          indexes: null // Ensure arrays are serialized correctly
-        }
+          indexes: null, // Ensure arrays are serialized correctly
+        },
       });
       return response.data;
     } catch (error) {
@@ -59,7 +59,7 @@ export const savedItemService = {
     if (!token || !item.entity_id) return null;
 
     try {
-      const response = await axios.post("/api/saved_item/", item, {
+      const response = await axios.post('/api/saved_item/', item, {
         headers: { Authorization: `Token ${token}` },
       });
       return response.data;
@@ -67,5 +67,5 @@ export const savedItemService = {
       console.error(`Error creating saved item:`, error);
       return null;
     }
-  }
+  },
 };

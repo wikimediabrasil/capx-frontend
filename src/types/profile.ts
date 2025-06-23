@@ -1,4 +1,4 @@
-import { LanguageProficiency } from "./language";
+import { LanguageProficiency } from './language';
 
 interface Capacity {
   id: number;

@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server";
-import axios from "axios";
+import { NextResponse } from 'next/server';
+import axios from 'axios';
 
 export async function GET() {
   try {
-    const backendUrl = "https://capx-backend.toolforge.org/statistics/";
+    const backendUrl = 'https://capx-backend.toolforge.org/statistics/';
 
     const response = await axios.get(backendUrl);
 
     return NextResponse.json(response.data);
   } catch (error) {
-    console.error("Error fetching statistics from backend:", error);
+    console.error('Error fetching statistics from backend:', error);
     return NextResponse.json(
       {
         total_users: 0,
@@ -20,7 +20,7 @@ export async function GET() {
         new_messages: 0,
         total_organizations: 0,
         new_organizations: 0,
-        error: "Failed to fetch statistics",
+        error: 'Failed to fetch statistics',
       },
       { status: 500 }
     );

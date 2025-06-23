@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 interface QueryData {
   headers: {
@@ -11,7 +11,7 @@ interface QueryData {
 export const skillService = {
   async fetchSkills(queryData: QueryData) {
     try {
-      const response = await axios.get("api/skill", {
+      const response = await axios.get('api/skill', {
         headers: queryData.headers,
         params: {
           limit: queryData.limit,
@@ -21,7 +21,7 @@ export const skillService = {
 
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch skills:", error);
+      console.error('Failed to fetch skills:', error);
       throw error;
     }
   },

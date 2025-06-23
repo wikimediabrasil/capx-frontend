@@ -1,5 +1,5 @@
-import axios from "axios";
-import { OrganizationType } from "@/types/organizationType";
+import axios from 'axios';
+import { OrganizationType } from '@/types/organizationType';
 
 export const OrganizationTypeService = {
   async getOrganizationType(
@@ -7,7 +7,7 @@ export const OrganizationTypeService = {
     limit?: number,
     offset?: number
   ): Promise<OrganizationType[]> {
-    const response = await axios.get("/api/organization_type/", {
+    const response = await axios.get('/api/organization_type/', {
       headers: { Authorization: `Token ${token}` },
       params: { limit, offset },
     });

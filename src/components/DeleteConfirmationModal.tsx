@@ -1,10 +1,10 @@
-import React from "react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import Image from "next/image";
-import EmojiObjectsIcon from "@/public/static/images/emoji_objects.svg";
-import EmojiObjectsIconLight from "@/public/static/images/emoji_objects_white.svg";
-import DeleteIcon from "@/public/static/images/delete.svg";
+import React from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import Image from 'next/image';
+import EmojiObjectsIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiObjectsIconLight from '@/public/static/images/emoji_objects_white.svg';
+import DeleteIcon from '@/public/static/images/delete.svg';
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -34,29 +34,26 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   };
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 `}
-    >
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 `}>
       <div
         className={`rounded-lg shadow-lg p-8 w-full max-w-md flex flex-col gap-6 ${
-          darkMode ? "bg-capx-dark-bg" : "bg-white"
+          darkMode ? 'bg-capx-dark-bg' : 'bg-white'
         }`}
       >
         <h2
           className={`text-center text-capx-font-size-mobile-2xl sm:text-capx-font-size-mobile-2xl md:text-capx-font-size-desktop-2xl lg:text-capx-font-size-desktop-2xl font-extrabold font-Montserrat mb-2 ${
-            darkMode ? "text-white" : "text-capx-dark-box-bg"
+            darkMode ? 'text-white' : 'text-capx-dark-box-bg'
           }`}
         >
-          {pageContent["delete-confirmation-title"] ||
-            "Delete event of profile"}
+          {pageContent['delete-confirmation-title'] || 'Delete event of profile'}
         </h2>
         <div>
           <label
             className={`block text-capx-font-size-mobile-md sm:text-capx-font-size-mobile-md md:text-capx-font-size-desktop-md lg:text-capx-font-size-desktop-md font-bold mb-1 ${
-              darkMode ? "text-white" : "text-[#507380]"
+              darkMode ? 'text-white' : 'text-[#507380]'
             }`}
           >
-            {pageContent["delete-confirmation-event-title"] || "Title"}
+            {pageContent['delete-confirmation-event-title'] || 'Title'}
           </label>
           <input
             type="text"
@@ -68,7 +65,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         <div className="flex flex-col gap-2">
           <label
             className={`font-extrabold mb-1 flex items-center gap-2 text-capx-font-size-mobile-md sm:text-capx-font-size-mobile-md md:text-capx-font-size-desktop-md lg:text-capx-font-size-desktop-md ${
-              darkMode ? "text-white" : "text-[#507380]"
+              darkMode ? 'text-white' : 'text-[#507380]'
             }`}
           >
             <Image
@@ -77,8 +74,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
               width={24}
               height={24}
             />
-            {pageContent["delete-confirmation-capacities"] ||
-              "Available capacities"}
+            {pageContent['delete-confirmation-capacities'] || 'Available capacities'}
           </label>
           <div className="flex flex-wrap gap-2 mb-2">
             {capacities.map((cap, idx) => (
@@ -94,11 +90,10 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         <div>
           <label
             className={`block font-bold mb-1 text-capx-font-size-mobile-md sm:text-capx-font-size-mobile-md md:text-capx-font-size-desktop-md lg:text-capx-font-size-desktop-md ${
-              darkMode ? "text-white" : "text-[#507380]"
+              darkMode ? 'text-white' : 'text-[#507380]'
             }`}
           >
-            {pageContent["delete-confirmation-description"] ||
-              "Event description"}
+            {pageContent['delete-confirmation-description'] || 'Event description'}
           </label>
           <textarea
             value={description}
@@ -112,17 +107,17 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
             onClick={onClose}
             className={`flex-1 py-3 rounded-lg border font-extrabold text-capx-font-size-mobile-lg sm:text-capx-font-size-mobile-lg md:text-capx-font-size-desktop-lg lg:text-capx-font-size-desktop-lg transition ${
               darkMode
-                ? "bg-white text-capx-dark-box-bg border-capx-dark-box-bg"
-                : "bg-white text-capx-dark-box-bg border-capx-dark-box-bg"
+                ? 'bg-white text-capx-dark-box-bg border-capx-dark-box-bg'
+                : 'bg-white text-capx-dark-box-bg border-capx-dark-box-bg'
             }`}
           >
-            {pageContent["delete-confirmation-close-tab"] || "Close tab"}
+            {pageContent['delete-confirmation-close-tab'] || 'Close tab'}
           </button>
           <button
             onClick={handleConfirm}
             className="flex-1 py-3 rounded-lg bg-capx-primary-orange text-white font-extrabold text-capx-font-size-mobile-lg sm:text-capx-font-size-mobile-lg md:text-capx-font-size-desktop-lg lg:text-capx-font-size-desktop-lg flex items-center justify-center gap-4 hover:bg-red-700 transition"
           >
-            {pageContent["delete-confirmation-confirm"] || "Delete"}
+            {pageContent['delete-confirmation-confirm'] || 'Delete'}
             <Image src={DeleteIcon} alt="delete" width={24} height={24} />
           </button>
         </div>
