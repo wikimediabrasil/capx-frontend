@@ -120,9 +120,6 @@ const ChildCapacities = ({
 
   const rootColor = findRootColor();
 
-  // Log if we're dealing with grandchildren (3rd level)
-  const isThirdLevel = parentCapacity?.parentCapacity !== undefined;
-
   // Ensure each child has correct parent reference
   const childrenWithParents = children.map(child => {
     // Explicitly check if child is expanded to determine hasChildren
@@ -196,18 +193,16 @@ const ChildCapacities = ({
 
 // Main component with content
 function CapacityListContent() {
-  const { language, pageContent } = useApp();
+  const { language } = useApp();
 
   // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Capacity[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
 
   // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
-  const { data: querySearchResults = [], isLoading: isLoadingSearch } =
-    useCapacitySearch(searchTerm);
+  const { data: querySearchResults = [] } = useCapacitySearch(searchTerm);
 
   // Descriptions context - only for display
   const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
@@ -215,11 +210,6 @@ function CapacityListContent() {
   // Collect all capacity IDs that need descriptions
   const rootCapacityIds = rootCapacities.map(c => c.code).filter(Boolean) as number[];
   const searchCapacityIds = searchResults.map(c => c.code).filter(Boolean) as number[];
-
-  // Simple handlers without useEffect
-  const handleSearchChange = useCallback((results: Capacity[]) => {
-    setSearchResults(results);
-  }, []);
 
   // Toggle expanded
   const handleToggleExpand = useCallback((code: string) => {
@@ -229,13 +219,7 @@ function CapacityListContent() {
     }));
   }, []);
 
-  // Search handlers
-  const handleSearchStart = useCallback(() => {
-    setIsSearching(true);
-  }, []);
-
   const handleSearchEnd = useCallback(() => {
-    setIsSearching(false);
     setSearchTerm('');
     setSearchResults([]);
   }, []);
@@ -304,11 +288,7 @@ function CapacityListContent() {
       <DescriptionLoader capacityIds={searchCapacityIds} />
 
       <CapacityBanner />
-      <CapacitySearch
-        onSearchStart={handleSearchStart}
-        onSearchEnd={handleSearchEnd}
-        onSearch={handleSearch}
-      />
+      <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
 
       {/* Quando não estiver em modo de busca, mostrar as capacidades raiz */}
       {!searchTerm && (
