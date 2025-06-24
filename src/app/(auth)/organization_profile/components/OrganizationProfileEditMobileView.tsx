@@ -38,6 +38,7 @@ import CapacitySelectionModal from "@/components/CapacitySelectionModal";
 import ProjectsFormItem from "./ProjectsFormItem";
 import EventsList from "@/app/events/components/EventsList";
 import NewsFormItem from "./NewsFormItem";
+import DocumentFormItem from "./DocumentFormItem";
 import { useAvatars } from "@/hooks/useAvatars";
 import ExpandAllIcon from "@/public/static/images/expand_all.svg";
 import ExpandAllIconWhite from "@/public/static/images/expand_all_white.svg";
@@ -72,6 +73,8 @@ export default function OrganizationProfileEditMobileView({
   handleEditEvent,
   handleAddEvent,
   handleDeleteEvent,
+  handleDeleteDocument,
+  handleDocumentChange,
   capacities,
   handleChooseEvent,
   handleViewAllEvents,
@@ -752,41 +755,24 @@ export default function OrganizationProfileEditMobileView({
             <div className="flex flex-col w-full gap-2 mb-2">
               {Array.isArray(documentsData) &&
                 documentsData?.map((document, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder={pageContent["edit-profile-insert-link"]}
-                      className="w-full p-2 text-[12px] text-[#829BA4] border border-white bg-transparent rounded-md mb-2"
-                      value={document.url || ""}
-                      onChange={(e) => {
-                        const newDocuments = [...documentsData];
-                        newDocuments[index] = {
-                          ...newDocuments[index],
-                          url: e.target.value,
-                        };
-                        setDocumentsData(newDocuments);
-                      }}
-                    />
-                    <button onClick={() => handleDeleteEvent(index)}>
-                      <div className="relative w-[24px] h-[24px]">
-                        <Image
-                          src={darkMode ? CancelIconWhite : CancelIcon}
-                          alt="Delete icon"
-                          className="object-contain"
-                          width={24}
-                          height={24}
-                        />
-                      </div>
-                    </button>
-                  </div>
+                  <DocumentFormItem
+                    key={index}
+                    document={document}
+                    index={index}
+                    onDelete={handleDeleteDocument}
+                    onChange={handleDocumentChange}
+                  />
                 ))}
             </div>
 
             <BaseButton
               onClick={handleAddDocument}
               label={pageContent["edit-profile-add-more-links"]}
+              disabled={documentsData?.length >= 4}
               customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                darkMode
+                documentsData?.length >= 4
+                  ? "text-gray-400 bg-gray-300 cursor-not-allowed opacity-50"
+                  : darkMode
                   ? "text-capx-dark-box-bg bg-white"
                   : "text-white bg-capx-dark-box-bg"
               }`}

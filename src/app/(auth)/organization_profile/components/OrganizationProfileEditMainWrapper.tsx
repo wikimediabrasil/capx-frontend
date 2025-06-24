@@ -651,10 +651,23 @@ export default function EditOrganizationProfilePage() {
         if (doc.id === 0 || doc.id === null) {
           // Create new document
           try {
-            const newDoc = await createDocument({ url: doc.url });
+            const documentPayload = {
+              url: doc.url,
+              ...(organizationId && { organization: Number(organizationId) }),
+              ...(session?.user?.id && { creator: Number(session.user.id) })
+            };
+            
+            const newDoc = await createDocument(documentPayload);
             return newDoc?.id;
-          } catch (error) {
-            console.error("Error creating document:", error);
+          } catch (error: any) {
+            console.error("❌ Error creating document - Full details:", {
+              error: error.message,
+              status: error.response?.status,
+              data: error.response?.data,
+              documentUrl: doc.url,
+              organizationId,
+              userId: session?.user?.id
+            });
             return null;
           }
         } else {
@@ -795,11 +808,19 @@ export default function EditOrganizationProfilePage() {
         "success"
       );
       router.back();
-    } catch (error) {
-      showSnackbar(
-        pageContent["snackbar-edit-profile-organization-error"],
-        "error"
-      );
+    } catch (error: any) {
+      // Check if error is a validation error with a translation key
+      const errorMessage = error?.message || '';
+      const isTranslationKey = errorMessage && errorMessage.startsWith('snackbar-');
+      
+      if (isTranslationKey && pageContent[errorMessage]) {
+        showSnackbar(pageContent[errorMessage], "error");
+      } else {
+        showSnackbar(
+          pageContent["snackbar-edit-profile-organization-error"] || "Error saving profile",
+          "error"
+        );
+      }
     }
   };
 
@@ -1349,6 +1370,15 @@ export default function EditOrganizationProfilePage() {
 
   // Documents handlers
   const handleAddDocument = () => {
+    // Check if we've reached the maximum limit of 4 documents
+    if (documentsData.length >= 4) {
+      showSnackbar(
+        pageContent["snackbar-edit-profile-organization-max-documents-reached"],
+        "error"
+      );
+      return;
+    }
+
     const newDocument: OrganizationDocument = {
       id: 0,
       url: "",
@@ -1506,6 +1536,8 @@ export default function EditOrganizationProfilePage() {
           handleEventChange={handleEventChange}
           handleAddEvent={handleAddEvent}
           handleDeleteEvent={handleDeleteEvent}
+          handleDeleteDocument={handleDeleteDocument}
+          handleDocumentChange={handleDocumentChange}
           capacities={rootCapacities || []}
           handleChooseEvent={handleChooseEvent}
           handleViewAllEvents={handleViewAllEvents}

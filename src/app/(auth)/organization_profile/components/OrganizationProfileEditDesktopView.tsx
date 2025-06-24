@@ -771,8 +771,11 @@ export default function OrganizationProfileEditDesktopView({
             <BaseButton
               onClick={handleAddDocument}
               label={pageContent["edit-profile-add-more-links"]}
+              disabled={documentsData?.length >= 4}
               customClass={`rounded-[8px] mt-2 flex w-fit !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
-                darkMode
+                documentsData?.length >= 4
+                  ? "text-gray-400 bg-gray-300 cursor-not-allowed opacity-50"
+                  : darkMode
                   ? "text-[#053749] bg-[#EFEFEF]"
                   : "text-white bg-capx-dark-box-bg"
               }`}
