@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { handleApiError, isInvalidTokenError } from "@/lib/utils/api-error-handler";
 
 export async function GET(
   request: NextRequest,
@@ -24,11 +25,10 @@ export async function GET(
     });
 
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch (error: any) {
     console.error("List API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch list data" },
-      { status: 500 }
-    );
+    
+    // Use the new error handling that detects token expired
+    return handleApiError(error);
   }
 }
