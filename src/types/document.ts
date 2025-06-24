@@ -1,10 +1,14 @@
-// Interface básica para o documento da organização
+// Basic interface for the organization document
 export interface OrganizationDocument {
   id: number | null;
   url?: string | null;
+  organization?: number;
+  creator?: number;
+  title?: string;
+  description?: string;
 }
 
-// Interface para o documento enriquecido com dados da Wikimedia
+// Enriched interface for the Wikimedia document
 export interface WikimediaDocument extends OrganizationDocument {
   id: number;
   imageUrl?: string;
