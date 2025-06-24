@@ -9,8 +9,9 @@ import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
 import { Capacity } from '@/types/capacity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useMemo, useRef, useState } from 'react';
+import { StaticImageData } from 'next/image';
 
 interface CapacityCardProps {
   code: number;
@@ -49,11 +50,9 @@ export function CapacityCard({
   level,
 }: CapacityCardProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { isMobile, pageContent } = useApp();
   const { hasChildren: useCapacityCacheHasChildren } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
-  const [hasOverflow, setHasOverflow] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
 
   const hasChildrenFromCache = useCapacityCacheHasChildren(code);
@@ -66,14 +65,6 @@ export function CapacityCard({
     }
     return name;
   }, [name, code]);
-
-  useEffect(() => {
-    if (childrenContainerRef.current) {
-      const hasHorizontalOverflow =
-        childrenContainerRef.current.scrollWidth > childrenContainerRef.current.clientWidth;
-      setHasOverflow(hasHorizontalOverflow);
-    }
-  }, [isExpanded]);
 
   const handleInfoClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the click event from propagating to the card
@@ -188,16 +179,6 @@ export function CapacityCard({
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
-  // determine the button color - use the color of the grandparent if available
-  const getEffectiveColor = () => {
-    if (parentCapacity?.parentCapacity) {
-      return 'gray-600';
-    } else if (parentCapacity?.color) {
-      return parentCapacity.color;
-    }
-    return color;
-  };
-
   // Função para determinar a cor do texto do nome da capacidade
   const getNameColor = (
     isRoot: boolean | undefined,
@@ -261,7 +242,8 @@ export function CapacityCard({
     return 'brightness(0)'; // Isso fará o ícone ficar preto
   };
 
-  const renderIcon = (size: number, iconSrc: any) => {
+  type IconSource = string | StaticImageData;
+  const renderIcon = (size: number, iconSrc: IconSource) => {
     if (!iconSrc) return null;
 
     return (
@@ -358,26 +340,7 @@ export function CapacityCard({
     return 'bg-capx-light-box-bg';
   };
 
-  const getTextColorClass = (): string => {
-    // Use explicit level check first
-    if (level === 3) {
-      return 'text-white';
-    }
-
-    // Third level check consistent with getBgColorClass
-    if (
-      parentCapacity?.parentCapacity ||
-      (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
-    ) {
-      return 'text-white';
-    }
-
-    // Other levels - Let the getNameColor function handle it
-    return '';
-  };
-
   const bgColorClass = getBgColorClass();
-  const textColorClass = getTextColorClass();
 
   if (isSearch) {
     // Search card - sempre renderiza como um card de busca
@@ -390,9 +353,6 @@ export function CapacityCard({
     const backgroundColor = isThirdLevel
       ? '#507380' // Black for third level
       : getCapacityColor(parentCapacity?.color || color);
-
-    // Também garante que o texto seja branco para o terceiro nível
-    const textColor = isThirdLevel ? '#FFFFFF' : undefined;
 
     return (
       <div className="w-full">
@@ -444,9 +404,6 @@ export function CapacityCard({
   }
 
   if (isRoot && hasChildren) {
-    // Root card with children
-    const cardColor = getEffectiveColor();
-
     return (
       <div className="w-full">
         <div
