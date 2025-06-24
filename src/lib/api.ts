@@ -1,14 +1,13 @@
 import axios, { AxiosInstance } from "axios";
 import { signOut } from "next-auth/react";
 
-// Tipos
 interface ApiResponse<T> {
   data?: T;
   error?: string;
   status: number;
 }
 
-// Cria uma instância do axios com interceptors
+// Create an axios instance with interceptors
 const createAxiosInstance = (token?: string): AxiosInstance => {
   const instance = axios.create({
     baseURL: process.env.BASE_URL || "http://localhost:8000",
@@ -19,12 +18,17 @@ const createAxiosInstance = (token?: string): AxiosInstance => {
       : {},
   });
 
-  // Interceptor para respostas
+  // Response interceptor
   instance.interceptors.response.use(
     (response) => response,
     async (error) => {
       if (error.response?.status === 401) {
-        if (typeof window !== "undefined") {
+        // Check if the response contains the specific invalid token message
+        const responseData = error.response?.data;
+        const isInvalidToken = responseData?.detail === 'Invalid token.';
+        
+        if (isInvalidToken && typeof window !== "undefined") {
+          console.warn("Token expired detected. Performing automatic logout...");
           await signOut({ redirect: true, callbackUrl: "/" });
         }
         return Promise.reject(new Error("Unauthorized"));
@@ -36,7 +40,7 @@ const createAxiosInstance = (token?: string): AxiosInstance => {
   return instance;
 };
 
-// Funções HTTP genéricas
+// Generic HTTP functions
 export const apiGet = async <T>(
   url: string,
   token?: string
