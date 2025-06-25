@@ -32,6 +32,7 @@ import { useCapacities } from "@/hooks/useCapacities";
 import { useCapacityCache } from "@/contexts/CapacityCacheContext";
 import { useLetsConnect } from "@/hooks/useLetsConnect";
 import { useCapacityList } from "@/hooks/useCapacityList";
+import { useAllCapacities } from "@/hooks/useAllCapacities";
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -134,8 +135,7 @@ export default function EditProfilePage() {
 
   // Get the capacity system with React Query
   const { getCapacityById, isLoadingRootCapacities } = useCapacities();
-  const { rootCapacities,  childrenCapacities } = useCapacityList(token, language);
-  const allCapacities = [...rootCapacities, ...Object.values(childrenCapacities).flat()];
+  const { allCapacities: capacities, loading: isLoadingAllCapacities } = useAllCapacities(token);
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState({
@@ -383,7 +383,7 @@ export default function EditProfilePage() {
   }
 
   // Show loading state while profile is loading
-  if (profileLoading) {
+  if (profileLoading || isLoadingAllCapacities) {
     return <LoadingState />;
   }
 
@@ -630,8 +630,13 @@ export default function EditProfilePage() {
     }));
     const letsConnectLanguages = allLanguages.filter((language) => letsConnectData?.reconciled_languages.includes(language.name));
 
-    const letsConnectWantedCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_learn.includes(capacity.wd_code || ""));
-    const letsConnectAvailableCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_share.includes(capacity.wd_code || ""));
+    const allCapacities = capacities.map((capacity) => ({
+      id: capacity.id,
+      code: capacity.skill_wikidata_item,
+    }));
+
+    const letsConnectWantedCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_learn.includes(capacity.code || ""));
+    const letsConnectAvailableCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_share.includes(capacity.code || ""));
 
     const allAffiliations = Object.entries(affiliations).map(([id, name]) => ({
       id: Number(id),
@@ -657,9 +662,9 @@ export default function EditProfilePage() {
         affiliation: letsConnectAffiliation.map(affiliation => affiliation.id.toString()),
         language: letsConnectLanguages,
         territory: [letsConnectTerritoryId],
-        skills_known: letsConnectAvailableCapacities.map(capacity => capacity.code),
-        skills_available: letsConnectAvailableCapacities.map(capacity => capacity.code),
-        skills_wanted: letsConnectWantedCapacities.map(capacity => capacity.code),
+        skills_known: letsConnectAvailableCapacities.map(capacity => capacity.id),
+        skills_available: letsConnectAvailableCapacities.map(capacity => capacity.id),
+        skills_wanted: letsConnectWantedCapacities.map(capacity => capacity.id),
       });
       showSnackbar(pageContent["snackbar-lets-connect-import-success"], "success");
     }
