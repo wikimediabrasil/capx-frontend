@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { documentService } from "@/services/documentService";
 import { OrganizationDocument, WikimediaDocument } from "@/types/document";
 import { fetchWikimediaData } from "@/lib/utils/fetchWikimediaData";
+import { normalizeDocumentUrl, validateCapXDocumentUrl } from "@/lib/utils/validateDocumentUrl";
+import { ensureCommonsPageUrl } from "@/lib/utils/convertWikimediaUrl";
 
 export const useDocument = (
   token?: string,
@@ -72,11 +74,37 @@ export const useDocument = (
       console.error("createDocument: No token provided");
       return;
     }
+    
+    // Validate the input data
+    if (!data || !data.url || data.url.trim() === "") {
+      console.error("createDocument: Invalid URL provided", data);
+      throw new Error("URL is required to create a document");
+    }
+    
+    // Validate using CapX-specific rules
+    const capxValidation = validateCapXDocumentUrl(data.url);
+    if (!capxValidation.isValid) {
+      console.error("❌ CapX URL validation failed:", {
+        url: data.url,
+        error: capxValidation.error,
+        suggestion: capxValidation.suggestion
+      });
+      throw new Error(capxValidation.error || "Invalid URL format");
+    }
+    
+    // Also run general validation and normalize
+    const normalizedUrl = normalizeDocumentUrl(data.url);
+    
+    // Convert to Commons page URL format if it's a Wikimedia URL
+    const commonsUrl = ensureCommonsPageUrl(normalizedUrl);
+    
     try {
       const documentPayload = {
-        url: data.url,
+        ...data, // Include all fields from the original data
+        url: commonsUrl, // Use the Commons page URL format expected by the backend
       };
-
+      
+      
       const response = await documentService.createDocument(
         token,
         documentPayload
@@ -88,8 +116,8 @@ export const useDocument = (
       }
 
       return response;
-    } catch (error) {
-      console.error("useDocument - Error:", error);
+    } catch (error: any) {
+      console.error("useDocument - Error:", error.message);
       throw error;
     }
   };
