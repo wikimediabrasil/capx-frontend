@@ -1,5 +1,18 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { Capacity, CapacityResponse, QueryData } from "@/types/capacity";
+import { Capacities, Capacity, CapacityResponse, QueryData } from "@/types/capacity";
+
+export const fetchAllCapacities = async (token: string): Promise<Capacities[] > => {
+  const response = await axios.get<Capacities[]>(`/api/skill/`, {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+    params: {
+      limit: 1000,
+      offset: 0,
+    },
+  });
+  return response.data;
+};
 
 export const capacityService = {
   async fetchCapacities(queryData: QueryData): Promise<CapacityResponse[]> {
