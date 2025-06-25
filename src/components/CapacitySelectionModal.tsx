@@ -240,7 +240,7 @@ export default function CapacitySelectionModal({
         };
       });
     }
-  }, [descriptionData?.id, descriptionData?.description]); // Dependências mais específicas
+  }, [descriptionData?.id, descriptionData?.description]);
 
   // Load root capacities when data is available
   useEffect(() => {
