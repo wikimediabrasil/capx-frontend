@@ -18,11 +18,14 @@ interface CapacitySearchProps {
 }
 
 // simple debounce
-function useDebounce<T extends (...args: any[]) => any>(callback: T, delay: number) {
+function useDebounce<Args extends unknown[], Return>(
+  callback: (...args: Args) => Return,
+  delay: number
+) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const debouncedFunction = useCallback(
-    (...args: Parameters<T>) => {
+    (...args: Args): void => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -35,7 +38,7 @@ function useDebounce<T extends (...args: any[]) => any>(callback: T, delay: numb
   );
 
   // Function to cancel the debounce
-  const cancel = useCallback(() => {
+  const cancel = useCallback((): void => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -109,7 +112,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
   );
 
   // Use the custom debounce hook
-  const { debouncedFunction: debouncedSearch, cancel } = useDebounce(search, 300);
+  const { debouncedFunction: debouncedSearch } = useDebounce(search, 300);
 
   // Effect to call the debounce function when the search term changes
   useEffect(() => {

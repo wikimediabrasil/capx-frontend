@@ -16,6 +16,23 @@ const CAPACITY_NAMES = {
   '106': 'Technology',
 };
 
+export interface Capacity {
+  id: string;
+}
+
+export interface Users {
+  wanted: Capacity[]
+}
+
+export interface CapacityById {
+  code: string;
+  wd_code: string;
+  users: Users[];
+  name: string;
+  description?: string;
+  icon?: string;
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     console.log(`⏳ API: Processing request for capacity ID: ${params.id}`);
