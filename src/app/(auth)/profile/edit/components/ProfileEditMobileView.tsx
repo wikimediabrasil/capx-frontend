@@ -70,6 +70,7 @@ import { useRouter } from "next/navigation";
 import BadgesCarousel from "@/components/BadgesCarousel";
 import { useBadges } from "@/contexts/BadgesContext";
 import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
+import { addLanguageToFormData } from "@/lib/utils/formDataUtils";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -848,13 +849,9 @@ export default function ProfileEditMobileView(
                     value=""
                     onChange={(e) => {
                       if (e.target.value) {
-                        setFormData({
-                          ...formData,
-                          language: [
-                            ...(formData.language || []),
-                            { id: Number(e.target.value), proficiency: "3" },
-                          ],
-                        });
+                        const languageId = Number(e.target.value);
+                        const languageName = languages[e.target.value];
+                        setFormData(addLanguageToFormData(formData, languageId, "3", languageName));
                       }
                     }}
                     className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${

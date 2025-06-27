@@ -26,6 +26,14 @@ import {
   safeAccess,
   createSafeFunction,
 } from "@/lib/utils/safeDataAccess";
+import {
+  addUniqueCapacity,
+  addUniqueCapacities,
+  addUniqueLanguages,
+  addUniqueAffiliations,
+  addUniqueTerritory,
+  addUniqueItem,
+} from "@/lib/utils/formDataUtils";
 
 // Import the new capacity hooks
 import { useCapacities } from "@/hooks/useCapacities";
@@ -33,6 +41,7 @@ import { useCapacityCache } from "@/contexts/CapacityCacheContext";
 import { useLetsConnect } from "@/hooks/useLetsConnect";
 import { useCapacityList } from "@/hooks/useCapacityList";
 import { useAllCapacities } from "@/hooks/useAllCapacities";
+import { LanguageProficiency } from "@/types/language";
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -585,22 +594,22 @@ export default function EditProfilePage() {
 
       switch (selectedCapacityType) {
         case "known":
-          newFormData.skills_known = [
-            ...ensureArray(prev.skills_known),
-            capacityId,
-          ] as number[];
+          newFormData.skills_known = addUniqueCapacity(
+            ensureArray(prev.skills_known),
+            capacityId
+          );
           break;
         case "available":
-          newFormData.skills_available = [
-            ...ensureArray(prev.skills_available),
-            capacityId,
-          ] as number[];
+          newFormData.skills_available = addUniqueCapacity(
+            ensureArray(prev.skills_available),
+            capacityId
+          );
           break;
         case "wanted":
-          newFormData.skills_wanted = [
-            ...ensureArray(prev.skills_wanted),
-            capacityId,
-          ] as number[];
+          newFormData.skills_wanted = addUniqueCapacity(
+            ensureArray(prev.skills_wanted),
+            capacityId
+          );
           break;
       }
       return newFormData;
@@ -611,7 +620,7 @@ export default function EditProfilePage() {
   const handleAddProject = () => {
     setFormData((prev) => ({
       ...prev,
-      wikimedia_project: [...ensureArray<string>(prev.wikimedia_project), ""],
+      wikimedia_project: addUniqueItem(ensureArray<string>(prev.wikimedia_project), ""),
     }));
   };
 
@@ -626,9 +635,9 @@ export default function EditProfilePage() {
     const allLanguages = Object.entries(languages).map(([id, name]) => ({
       id: Number(id),
       name: name,
-      proficiency: "Advanced"
-    }));
-    const letsConnectLanguages = allLanguages.filter((language) => letsConnectData?.reconciled_languages.includes(language.name));
+      proficiency: "3"
+    } as LanguageProficiency));
+    const letsConnectLanguages = allLanguages.filter((language) => letsConnectData?.reconciled_languages.includes(language.name || ""));
 
     const allCapacities = capacities.map((capacity) => ({
       id: capacity.id,
@@ -659,12 +668,30 @@ export default function EditProfilePage() {
     if (letsConnectData) {
       setFormData({
         ...formData,
-        affiliation: letsConnectAffiliation.map(affiliation => affiliation.id.toString()),
-        language: letsConnectLanguages,
-        territory: [letsConnectTerritoryId],
-        skills_known: letsConnectAvailableCapacities.map(capacity => capacity.id),
-        skills_available: letsConnectAvailableCapacities.map(capacity => capacity.id),
-        skills_wanted: letsConnectWantedCapacities.map(capacity => capacity.id),
+        affiliation: addUniqueAffiliations(
+          ensureArray<string>(formData.affiliation), 
+          letsConnectAffiliation.map(affiliation => affiliation.id.toString())
+        ),
+        language: addUniqueLanguages(
+          ensureArray<LanguageProficiency>(formData.language), 
+          letsConnectLanguages
+        ),
+        territory: letsConnectTerritoryId ? addUniqueTerritory(
+          ensureArray<string>(formData.territory), 
+          letsConnectTerritoryId
+        ) : ensureArray<string>(formData.territory),
+        skills_known: addUniqueCapacities(
+          ensureArray<number>(formData.skills_known), 
+          letsConnectAvailableCapacities.map(capacity => capacity.id)
+        ),
+        skills_available: addUniqueCapacities(
+          ensureArray<number>(formData.skills_available), 
+          letsConnectAvailableCapacities.map(capacity => capacity.id)
+        ),
+        skills_wanted: addUniqueCapacities(
+          ensureArray<number>(formData.skills_wanted), 
+          letsConnectWantedCapacities.map(capacity => capacity.id)
+        ),
       });
       showSnackbar(pageContent["snackbar-lets-connect-import-success"], "success");
     }

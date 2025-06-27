@@ -71,6 +71,7 @@ import { useState } from "react";
 import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
 import LetsConnectPopup from "@/components/LetsConnectPopup";
 import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
+import { addLanguageToFormData, addAffiliationToFormData } from "@/lib/utils/formDataUtils";
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -816,13 +817,9 @@ export default function ProfileEditDesktopView(
                   value=""
                   onChange={(e) => {
                     if (e.target.value) {
-                      setFormData({
-                        ...formData,
-                        language: [
-                          ...(formData.language || []),
-                          { id: Number(e.target.value), proficiency: "3" },
-                        ],
-                      });
+                      const languageId = Number(e.target.value);
+                      const languageName = languagesData[e.target.value];
+                      setFormData(addLanguageToFormData(formData, languageId, "3", languageName));
                     }
                   }}
                   className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
@@ -971,17 +968,8 @@ export default function ProfileEditDesktopView(
                 <select
                   value=""
                   onChange={(e) => {
-                    if (
-                      e.target.value &&
-                      !formData.affiliation?.includes(e.target.value)
-                    ) {
-                      setFormData({
-                        ...formData,
-                        affiliation: [
-                          ...(formData.affiliation || []),
-                          e.target.value,
-                        ],
-                      });
+                    if (e.target.value) {
+                      setFormData(addAffiliationToFormData(formData, e.target.value));
                     }
                   }}
                   className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
