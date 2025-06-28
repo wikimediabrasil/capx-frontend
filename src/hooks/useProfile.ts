@@ -1,11 +1,13 @@
 import { Profile } from "@/types/profile";
 import { profileService } from "@/services/profileService";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useProfile(
   token: string | undefined,
   userId: number | undefined
 ) {
+  const queryClient = useQueryClient();
+  
   const { data, isLoading, error, refetch, ...rest } = useQuery({
     queryKey: ["profile", token, userId],
     queryFn: async () => {
@@ -54,6 +56,18 @@ export function useProfile(
       const updatedProfile = Array.isArray(response)
         ? response[response.length - 1]
         : response;
+      
+      // Invalidate and refetch the profile cache to ensure fresh data
+      await queryClient.invalidateQueries({ queryKey: ["profile", token, userId] });
+      
+      // Also invalidate any user-related queries that might be cached
+      await queryClient.invalidateQueries({ queryKey: ["users"] });
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      await queryClient.invalidateQueries({ queryKey: ["userProfile", userId, token] });
+      
+      // Optionally, update the cache immediately with the new data
+      queryClient.setQueryData(["profile", token, userId], updatedProfile);
+      
       return updatedProfile;
     } catch (err) {
       throw err;
@@ -67,10 +81,13 @@ export function useProfile(
 
     try {
       await profileService.deleteProfile(userId.toString(), token);
+      // Invalidate profile cache after deletion
+      await queryClient.invalidateQueries({ queryKey: ["profile", token, userId] });
     } catch (err) {
       throw err;
     }
   };
+  
   return {
     profile: data,
     isLoading,

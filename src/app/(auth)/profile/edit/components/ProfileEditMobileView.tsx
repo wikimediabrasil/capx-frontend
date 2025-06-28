@@ -70,7 +70,7 @@ import { useRouter } from "next/navigation";
 import BadgesCarousel from "@/components/BadgesCarousel";
 import { useBadges } from "@/contexts/BadgesContext";
 import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
-import { addLanguageToFormData } from "@/lib/utils/formDataUtils";
+import { addLanguageToFormData, addTerritoryToFormData, addProjectToFormData } from "@/lib/utils/formDataUtils";
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -1113,11 +1113,8 @@ export default function ProfileEditMobileView(
                     value=""
                     onChange={(e) => {
                       const selected = e.target.value;
-                      if (selected && !formData.territory?.includes(selected)) {
-                        setFormData({
-                          ...formData,
-                          territory: [...(formData.territory || []), selected],
-                        });
+                      if (selected) {
+                        setFormData(addTerritoryToFormData(formData, selected));
                       }
                     }}
                     className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
@@ -1271,13 +1268,7 @@ export default function ProfileEditMobileView(
                       value=""
                       onChange={(e) => {
                         if (e.target.value) {
-                          setFormData({
-                            ...formData,
-                            wikimedia_project: [
-                              ...(formData.wikimedia_project || []),
-                              e.target.value,
-                            ],
-                          });
+                          setFormData(addProjectToFormData(formData, e.target.value));
                           setShowProjectSelector(false); // Hide selector after selection
                         }
                       }}
