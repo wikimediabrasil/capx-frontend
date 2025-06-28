@@ -4,6 +4,7 @@ import { UserProfile } from "@/types/user";
 import { UserFilters, userService } from "@/services/userService";
 import { ProfileCapacityType } from "@/app/(auth)/feed/types";
 import { FilterState } from "@/app/(auth)/feed/types";
+import { useQuery } from "@tanstack/react-query";
 
 export interface UseAllUsersParams {
   limit?: number;
@@ -13,30 +14,22 @@ export interface UseAllUsersParams {
 
 export function useUserProfile() {
   const { data: session } = useSession();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (session?.user?.id && session?.user?.token) {
-        try {
-          const data = await userService.fetchUserProfile(
-            parseInt(session.user.id),
-            session.user.token
-          );
-          setUserProfile(data);
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          setError(error.message);
-        } finally {
-          setIsLoading(false);
-        }
+  const { data: userProfile, isLoading, error } = useQuery({
+    queryKey: ["userProfile", session?.user?.id, session?.user?.token],
+    queryFn: async () => {
+      if (!session?.user?.id || !session?.user?.token) {
+        throw new Error("Session data is missing");
       }
-    };
-
-    fetchUserProfile();
-  }, [session]);
+      
+      const data = await userService.fetchUserProfile(
+        parseInt(session.user.id),
+        session.user.token
+      );
+      return data;
+    },
+    enabled: !!session?.user?.id && !!session?.user?.token,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   return { userProfile, isLoading, error };
 }

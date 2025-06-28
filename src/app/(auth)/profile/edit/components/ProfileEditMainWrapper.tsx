@@ -442,8 +442,16 @@ export default function EditProfilePage() {
     try {
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
+      
+      // Force a refetch to ensure the cache is updated
+      await refetch();
+      
       showSnackbar(pageContent["snackbar-edit-profile-success"], "success");
-      router.push("/profile");
+      
+      // Add a small delay to ensure the cache is updated before navigation
+      setTimeout(() => {
+        router.push("/profile");
+      }, 100);
     } catch (error) {
       console.error("Error updating profile:", error);
       showSnackbar(pageContent["snackbar-edit-profile-failed"], "error");
@@ -654,44 +662,42 @@ export default function EditProfilePage() {
 
     const letsConnectAffiliation = allAffiliations.filter(affiliation => {
       const affiliationName = affiliation.name.split(' (')[0];  // Get everything before ' ('
-      if (affiliationName === letsConnectData?.reconciled_affiliation) {
-        return affiliation.id;
-      }
+      return affiliationName === letsConnectData?.reconciled_affiliation;
     });
 
     const allTerritories = Object.entries(territories).map(([id, name]) => ({
       id: Number(id),
       name: name,
     }));
-    const letsConnectTerritoryId = allTerritories.find((territory) => territory.name === letsConnectData?.reconciled_territory)?.id.toString() ?? "";
+    
+    const letsConnectTerritory = allTerritories.find((territory) => territory.name === letsConnectData?.reconciled_territory);
+    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || "";
 
     if (letsConnectData) {
+      // Ensure the arrays exist and are of the correct type
+      const currentAffiliations = ensureArray<string>(formData.affiliation);
+      const currentTerritories = ensureArray<string>(formData.territory);
+      const currentLanguages = ensureArray<LanguageProficiency>(formData.language);
+      const currentSkillsKnown = ensureArray<number>(formData.skills_known);
+      const currentSkillsAvailable = ensureArray<number>(formData.skills_available);
+      const currentSkillsWanted = ensureArray<number>(formData.skills_wanted);
+
+      // Prepare the new data
+      const newAffiliations = letsConnectAffiliation.map(affiliation => affiliation.id.toString());
+      const newTerritories = letsConnectTerritoryId ? [letsConnectTerritoryId] : [];
+      const newLanguages = letsConnectLanguages;
+      const newSkillsKnown = letsConnectAvailableCapacities.map(capacity => capacity.id);
+      const newSkillsAvailable = letsConnectAvailableCapacities.map(capacity => capacity.id);
+      const newSkillsWanted = letsConnectWantedCapacities.map(capacity => capacity.id);
+
       setFormData({
         ...formData,
-        affiliation: addUniqueAffiliations(
-          ensureArray<string>(formData.affiliation), 
-          letsConnectAffiliation.map(affiliation => affiliation.id.toString())
-        ),
-        language: addUniqueLanguages(
-          ensureArray<LanguageProficiency>(formData.language), 
-          letsConnectLanguages
-        ),
-        territory: letsConnectTerritoryId ? addUniqueTerritory(
-          ensureArray<string>(formData.territory), 
-          letsConnectTerritoryId
-        ) : ensureArray<string>(formData.territory),
-        skills_known: addUniqueCapacities(
-          ensureArray<number>(formData.skills_known), 
-          letsConnectAvailableCapacities.map(capacity => capacity.id)
-        ),
-        skills_available: addUniqueCapacities(
-          ensureArray<number>(formData.skills_available), 
-          letsConnectAvailableCapacities.map(capacity => capacity.id)
-        ),
-        skills_wanted: addUniqueCapacities(
-          ensureArray<number>(formData.skills_wanted), 
-          letsConnectWantedCapacities.map(capacity => capacity.id)
-        ),
+        affiliation: addUniqueAffiliations(currentAffiliations, newAffiliations),
+        language: addUniqueLanguages(currentLanguages, newLanguages),
+        territory: addUniqueTerritory(currentTerritories, letsConnectTerritoryId),
+        skills_known: addUniqueCapacities(currentSkillsKnown, newSkillsKnown),
+        skills_available: addUniqueCapacities(currentSkillsAvailable, newSkillsAvailable),
+        skills_wanted: addUniqueCapacities(currentSkillsWanted, newSkillsWanted),
       });
       showSnackbar(pageContent["snackbar-lets-connect-import-success"], "success");
     }
