@@ -1,4 +1,17 @@
 /**
+ * Gets interface texts for the date picker using the app's translation system
+ */
+export function getDatePickerTexts(pageContent: Record<string, string>) {
+  return {
+    today: pageContent['date-picker-today'] || 'Today',
+    clear: pageContent['date-picker-clear'] || 'Clear',
+    close: pageContent['date-picker-close'] || 'Close',
+    time: pageContent['date-picker-time'] || 'Time',
+    date: pageContent['date-picker-date'] || 'Date'
+  };
+}
+
+/**
  * Maps project language codes to JavaScript locale codes
  */
 const languageToLocaleMap: Record<string, string> = {
