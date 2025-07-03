@@ -337,7 +337,11 @@ export default function ProfileEditDesktopView(
                 {hasLetsConnectData && <BaseButton
                   onClick={() => setShowLetsConnectPopup(true)}
                   label={pageContent["edit-profile-use-letsconnect"]}
-                  customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
+                  customClass={formData.automated_lets_connect ? `w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
+                    darkMode
+                      ? "bg-transparent border-white text-capx-light-bg placeholder-white"
+                      : "border-[#053749] text-capx-dark-box-bg"
+                  } border` : `w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`}
                   imageUrl={LetsConnectIconWhite}
                   imageAlt="LetsConnect icon"
                   imageWidth={30}

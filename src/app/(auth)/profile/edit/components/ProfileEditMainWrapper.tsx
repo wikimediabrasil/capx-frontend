@@ -179,6 +179,8 @@ export default function EditProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string>(
     profile?.avatar ? NoAvatarIcon : NoAvatarIcon
   );
+  // TODO: Remove this after Lets Connect Integration is complete
+  const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [previousImageState, setPreviousImageState] = useState<{
     avatar: number | null;
@@ -440,6 +442,7 @@ export default function EditProfilePage() {
     }
 
     try {
+      formData.automated_lets_connect = hasAutomatedLetsConnect ? true : undefined;
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
       
@@ -690,6 +693,7 @@ export default function EditProfilePage() {
       const newSkillsAvailable = letsConnectAvailableCapacities.map(capacity => capacity.id);
       const newSkillsWanted = letsConnectWantedCapacities.map(capacity => capacity.id);
 
+      setHasAutomatedLetsConnect(true);
       setFormData({
         ...formData,
         affiliation: addUniqueAffiliations(currentAffiliations, newAffiliations),
