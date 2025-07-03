@@ -3,14 +3,10 @@ import { Event } from "@/types/event";
 const METABASE_ENDPOINT = "https://metabase.wikibase.cloud/query/sparql";
 
 /**
- * Serviço para consultas SPARQL ao Metabase do Wikibase Cloud
+ * Service for SPARQL queries to the Metabase of Wikibase Cloud
  */
 
-/**
- * Busca informações de evento a partir do QID do Wikidata
- * @param qid - O QID do Wikidata (ex: Q12345)
- * @returns Uma Promise com os dados do evento ou null se não encontrado
- */
+
 export async function fetchEventDataByQID(
   qid: string
 ): Promise<Partial<Event> | null> {
@@ -19,7 +15,6 @@ export async function fetchEventDataByQID(
     return null;
   }
 
-  // Construir a consulta SPARQL
   const query = `
     PREFIX wd: <http://www.wikidata.org/entity/>
     PREFIX wdt: <http://www.wikidata.org/prop/direct/>
@@ -51,10 +46,10 @@ export async function fetchEventDataByQID(
   `;
 
   try {
-    // Codificar a consulta para uso em URL
+    // Encode the query for use in URL
     const encodedQuery = encodeURIComponent(query);
 
-    // Fazer a requisição ao endpoint SPARQL
+    // Make the request to the SPARQL endpoint
     const response = await fetch(
       `${METABASE_ENDPOINT}?format=json&query=${encodedQuery}`
     );
@@ -65,7 +60,7 @@ export async function fetchEventDataByQID(
 
     const data = await response.json();
 
-    // Se não houver resultados, retorna null
+    // If there are no results, return null
     if (
       !data.results ||
       !data.results.bindings ||
@@ -76,7 +71,8 @@ export async function fetchEventDataByQID(
 
     const result = data.results.bindings[0];
 
-    // Montar o objeto de evento com os dados obtidos
+
+    // Build the event object with the obtained data
     const eventData: Partial<Event> = {
       name: result.name?.value || "",
       wikidata_qid: qid,
@@ -85,40 +81,205 @@ export async function fetchEventDataByQID(
       url: result.url?.value || "",
     };
 
-    // Processar datas se disponíveis
+    // Process dates if available
     if (result.start_date?.value) {
-      eventData.time_begin = new Date(result.start_date.value).toISOString();
+      try {
+        eventData.time_begin = new Date(result.start_date.value).toISOString();
+      } catch (error) {
+        console.error("❌ fetchEventDataByQID - Error processing start_date:", result.start_date.value, error);
+      }
     }
 
     if (result.end_date?.value) {
-      eventData.time_end = new Date(result.end_date.value).toISOString();
+      try {
+        eventData.time_end = new Date(result.end_date.value).toISOString();
+      } catch (error) {
+        console.error("❌ fetchEventDataByQID - Error processing end_date:", result.end_date.value, error);
+      }
     }
 
-    // Se temos localização, definir o tipo como presencial
+    // If we have a location, define the type as in-person
     if (result.location?.value) {
       eventData.type_of_location = "in-person";
 
-      // Se tiver ID do OpenStreetMap, adicionar aqui
-      // Observação: Isso requer uma consulta adicional ou uma propriedade específica
+      // If it has an OpenStreetMap ID, add it here
+      // Note: This requires an additional query or a specific property
     }
 
     return eventData;
   } catch (error) {
-    console.error("Erro ao buscar dados do evento no Metabase:", error);
+    console.error("Error fetching event data from Metabase:", error);
     return null;
   }
 }
 
-/**
- * Extrai o título da página da URL do Wikimedia
- * @param url - URL do Wikimedia
- * @returns O título da página extraído ou undefined se não for encontrado
- */
+export function extractYearFromText(text: string): number | undefined {
+  if (!text) return undefined;
+
+  // Search for year patterns (2020-2030)
+  const yearMatch = text.match(/\b(202[0-9]|203[0-9])\b/);
+  if (yearMatch) {
+    const year = parseInt(yearMatch[1]);
+    return year;
+  }
+
+  return undefined;
+}
+
+
+export function extractDatesFromPageContent(pageContent: string): { time_begin: string; time_end?: string } | undefined {
+  if (!pageContent) return undefined;
+
+  // Universal patterns for different date formats
+  const patterns = [
+    // ISO format: "2025-07-19" to "2025-07-20", "2025-07-19 - 2025-07-20"
+    /(\d{4})-(\d{1,2})-(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{4})-(\d{1,2})-(\d{1,2})/gi,
+    
+    // Numeric format with separators: "19/07/2025 - 20/07/2025", "19.07.2025 to 20.07.2025"
+    /(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/gi,
+    
+    // American format: "07/19/2025 - 07/20/2025", "07-19-2025 to 07-20-2025"
+    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/gi,
+    
+    // Consecutive dates: "19-20/07/2025", "19-20.07.2025", "19-20/07/25"
+    /(\d{1,2})-(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{2,4})/gi,
+    
+    // Simple format with year: "19-20 2025", "19 to 20 2025"
+    /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\d{4})/gi,
+    
+    // Single ISO date: "2025-07-19"
+    /(\d{4})-(\d{1,2})-(\d{1,2})/gi,
+    
+    // Single numeric date: "19/07/2025", "19.07.2025"
+    /(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/gi,
+    
+    // Single American date: "07/19/2025", "07-19-2025"
+    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/gi
+  ];
+
+  // Try each pattern
+  for (let i = 0; i < patterns.length; i++) {
+    const pattern = patterns[i];
+    const matches = Array.from(pageContent.matchAll(pattern));
+    
+    for (const match of matches) {
+      console.log(`📅 Pattern ${i + 1} matched:`, match);
+      
+      try {
+        let startYear: string = '';
+        let startMonth: string = '';
+        let startDay: string = '';
+        let endYear: string = '';
+        let endMonth: string = '';
+        let endDay: string = '';
+
+        if (i === 0) {
+          // Padrão 1: ISO "YYYY-MM-DD to YYYY-MM-DD"
+          [, startYear, startMonth, startDay, endYear, endMonth, endDay] = match;
+        } else if (i === 1) {
+          // Padrão 2: "DD/MM/YYYY to DD/MM/YYYY" (formato europeu)
+          [, startDay, startMonth, startYear, endDay, endMonth, endYear] = match;
+        } else if (i === 2) {
+          // Padrão 3: "MM/DD/YYYY to MM/DD/YYYY" (formato americano)
+          [, startMonth, startDay, startYear, endMonth, endDay, endYear] = match;
+        } else if (i === 3) {
+          // Padrão 4: "DD-DD/MM/YYYY" (dias consecutivos)
+          [, startDay, endDay, startMonth, startYear] = match;
+          endYear = startYear;
+          endMonth = startMonth;
+          
+          // Converter ano de 2 dígitos para 4 dígitos se necessário
+          if (startYear.length === 2) {
+            const year = parseInt(startYear);
+            startYear = endYear = year > 50 ? `19${year}` : `20${year}`;
+          }
+        } else if (i === 4) {
+          // Padrão 5: "DD to DD YYYY" (formato simples)
+          [, startDay, endDay, startYear] = match;
+          endYear = startYear;
+          // Assumir mês atual ou janeiro se não especificado
+          startMonth = endMonth = "01";
+        } else if (i === 5) {
+          // Padrão 6: "YYYY-MM-DD" (ISO único)
+          [, startYear, startMonth, startDay] = match;
+          endYear = startYear;
+          endMonth = startMonth;
+          endDay = startDay;
+        } else if (i === 6) {
+          // Padrão 7: "DD/MM/YYYY" (europeu único)
+          [, startDay, startMonth, startYear] = match;
+          endYear = startYear;
+          endMonth = startMonth;
+          endDay = startDay;
+        } else if (i === 7) {
+          // Padrão 8: "MM/DD/YYYY" (americano único)
+          [, startMonth, startDay, startYear] = match;
+          endYear = startYear;
+          endMonth = startMonth;
+          endDay = startDay;
+        }
+
+        // Validar se temos todos os componentes necessários
+        if (startYear && startMonth && startDay && endYear && endMonth && endDay) {
+          // Validar se os valores são válidos
+          const startYearNum = parseInt(startYear);
+          const startMonthNum = parseInt(startMonth);
+          const startDayNum = parseInt(startDay);
+          const endYearNum = parseInt(endYear);
+          const endMonthNum = parseInt(endMonth);
+          const endDayNum = parseInt(endDay);
+
+          // Verificações básicas de validade
+          if (
+            startYearNum >= 2020 && startYearNum <= 2030 &&
+            startMonthNum >= 1 && startMonthNum <= 12 &&
+            startDayNum >= 1 && startDayNum <= 31 &&
+            endYearNum >= 2020 && endYearNum <= 2030 &&
+            endMonthNum >= 1 && endMonthNum <= 12 &&
+            endDayNum >= 1 && endDayNum <= 31
+          ) {
+            const startDate = `${startYear}-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}T00:00:00.000Z`;
+            const endDate = `${endYear}-${endMonth.padStart(2, '0')}-${endDay.padStart(2, '0')}T23:59:59.000Z`;
+
+            console.log("✅ extractDatesFromPageContent found dates:", {
+              startDay, startMonth, startYear, endDay, endMonth, endYear, startDate, endDate
+            });
+            
+            return {
+              time_begin: startDate,
+              time_end: endDate
+            };
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error processing date match:", error, match);
+        continue;
+      }
+    }
+  }
+
+  // Fallback: tentar extrair pelo menos o ano e criar datas padrão
+  const yearMatch = pageContent.match(/\b(202[0-9]|203[0-9])\b/);
+  if (yearMatch) {
+    const year = yearMatch[1];
+    console.log("📅 extractDatesFromPageContent - Only found year, creating default dates:", year);
+    
+    return {
+      time_begin: `${year}-01-01T00:00:00.000Z`,
+      time_end: `${year}-12-31T23:59:59.000Z`
+    };
+  }
+
+  console.log("❌ extractDatesFromPageContent - No dates found in content");
+  return undefined;
+}
+
+
 export function extractWikimediaTitleFromURL(url: string): string | undefined {
   if (!url) return undefined;
 
   try {
-    // Padrões de URL do Wikimedia
+    // URL patterns for Wikimedia
     const patterns = [
       /wikimedia\.org\/wiki\/([^/#?]+)/i,
       /wikipedia\.org\/wiki\/([^/#?]+)/i,
@@ -128,28 +289,24 @@ export function extractWikimediaTitleFromURL(url: string): string | undefined {
     for (const pattern of patterns) {
       const match = url.match(pattern);
       if (match && match[1]) {
-        // Decodificar o título da URL (para lidar com caracteres especiais)
+        // Decode the URL title (to handle special characters)
         return decodeURIComponent(match[1].replace(/_/g, " "));
       }
     }
 
     return undefined;
   } catch (error) {
-    console.error("Erro ao extrair título da URL:", error);
+    console.error("Error extracting title from URL:", error);
     return undefined;
   }
 }
 
-/**
- * Extrai o QID do Wikidata a partir de uma URL do Wikidata
- * @param url - URL do Wikidata
- * @returns O QID extraído ou undefined se não for encontrado
- */
+
 export function extractQIDFromURL(url: string): string | undefined {
   if (!url) return undefined;
 
   try {
-    // Padrões de URL do Wikidata
+    // URL patterns for Wikidata
     const patterns = [
       /wikidata\.org\/wiki\/(Q\d+)/i,
       /wikidata\.org\/entity\/(Q\d+)/i,
@@ -165,33 +322,23 @@ export function extractQIDFromURL(url: string): string | undefined {
 
     return undefined;
   } catch (error) {
-    console.error("Erro ao extrair QID da URL:", error);
+    console.error("Error extracting QID from URL:", error);
     return undefined;
   }
 }
 
-/**
- * Busca informações de evento a partir de uma URL do Wikidata
- * @param url - URL do Wikidata
- * @returns Uma Promise com os dados do evento ou null se não encontrado
- */
 export async function fetchEventDataByURL(
   url: string
 ): Promise<Partial<Event> | null> {
   const qid = extractQIDFromURL(url);
   if (!qid) {
-    console.error("Não foi possível extrair QID da URL:", url);
+    console.error("Unable to extract QID from URL:", url);
     return null;
   }
 
   return fetchEventDataByQID(qid);
 }
 
-/**
- * Busca informações de localização a partir do ID do OpenStreetMap
- * @param osmId - ID do OpenStreetMap
- * @returns Uma Promise com os dados de localização ou null se não encontrado
- */
 export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
   if (!osmId) return null;
 
@@ -218,7 +365,7 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
     );
 
     if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
+      throw new Error(`Error in request: ${response.status}`);
     }
 
     const data = await response.json();
@@ -233,156 +380,80 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
 
     return data.results.bindings[0];
   } catch (error) {
-    console.error("Erro ao buscar dados de localização no Metabase:", error);
+    console.error("Error fetching location data from Metabase:", error);
     return null;
   }
 }
 
-/**
- * Busca informações de evento a partir de uma URL da Wikimedia
- * @param url - URL da Wikimedia
- * @returns Uma Promise com os dados do evento ou null se não encontrado
- */
 export async function fetchEventDataByWikimediaURL(
   url: string
 ): Promise<Partial<Event> | null> {
+  
   const pageTitle = extractWikimediaTitleFromURL(url);
 
   if (!pageTitle) {
-    console.error("Não foi possível extrair o título da página da URL:", url);
+    console.error("Unable to extract the page title from the URL:", url);
     return null;
   }
 
-  // Buscar primeiro no Wikidata para ver se existe uma entidade correspondente
   try {
-    const query = `
-      PREFIX schema: <http://schema.org/>
-      PREFIX mw: <http://tools.wmflabs.org/mw2sparql/ontology#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-      PREFIX wd: <http://www.wikidata.org/entity/>
+    // Create basic data for events based on the page title
+    const lowerPageTitle = pageTitle.toLowerCase();
+    const extractedYear = extractYearFromText(pageTitle) || extractYearFromText(url);
+    
+    const eventData: Partial<Event> = {
+      name: pageTitle,
+      description: "", // Leave empty for manual editing
+      url: url,
+    };
+    
+    if (extractedYear) {
+      // Identify event type and define a cleaner name
+      if (lowerPageTitle.includes("wikicon")) {
+        eventData.name = `Wikicon ${extractedYear}`;
+        eventData.type_of_location = "hybrid";
+      }
+      else if (lowerPageTitle.includes("wikimania")) {
+        eventData.name = `Wikimania ${extractedYear}`;
+        eventData.type_of_location = "in-person";
+      }
+      else {
+        eventData.type_of_location = "hybrid";
+      }
       
-      SELECT ?item ?name ?description ?location ?date ?url ?image ?type WHERE {
-        # Tentar encontrar por título exato
-        OPTIONAL {
-          ?page schema:name "${pageTitle}"@en;
-                schema:about ?item.
-          ?item rdfs:label ?name.
-          FILTER(LANG(?name) = "en" || LANG(?name) = "pt")
-        }
-        
-        # Ou usar busca por texto
-        OPTIONAL {
-          ?item rdfs:label ?name.
-          FILTER(CONTAINS(LCASE(?name), LCASE("${pageTitle}")))
-          FILTER(LANG(?name) = "en" || LANG(?name) = "pt")
-        }
-        
-        # Buscar dados relevantes para eventos
-        OPTIONAL { ?item schema:description ?description. FILTER(LANG(?description) = "en" || LANG(?description) = "pt") }
-        OPTIONAL { ?item wdt:P276 ?location. }
-        OPTIONAL { ?item wdt:P580 ?date. }  # Data de início
-        OPTIONAL { ?item wdt:P856 ?url. }   # URL oficial
-        OPTIONAL { ?item wdt:P18 ?image. }  # Imagem
-        OPTIONAL { ?item wdt:P31 ?type. }   # Tipo (instância de)
-      }
-      LIMIT 1
-    `;
-
-    const encodedQuery = encodeURIComponent(query);
-    const response = await fetch(
-      `${METABASE_ENDPOINT}?format=json&query=${encodedQuery}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
+      // Leave data fields empty for manual input
+      eventData.time_begin = "";
+      eventData.time_end = "";
     }
 
-    const data = await response.json();
-
-    if (data.results?.bindings && data.results.bindings.length > 0) {
-      const result = data.results.bindings[0];
-
-      // Extrair QID se disponível
-      let qid: string | undefined = undefined;
-      if (result.item?.value) {
-        const qidMatch = result.item.value.match(/\/([Q][0-9]+)$/);
-        qid = qidMatch ? qidMatch[1] : undefined;
-      }
-
-      const eventData: Partial<Event> = {
-        name: result.name?.value || pageTitle,
-        description:
-          result.description?.value ||
-          `Evento baseado na página Wikimedia: ${pageTitle}`,
-        wikidata_qid: qid,
-        url: url,
-      };
-
-      if (result.date?.value) {
-        eventData.time_begin = new Date(result.date.value).toISOString();
-      }
-
-      if (result.image?.value) {
-        eventData.image_url = `https://commons.wikimedia.org/wiki/Special:FilePath/${result.image.value
-          .split("/")
-          .pop()}`;
-      }
-
-      // Se não temos dados do Wikidata, extrair informações diretamente da página
-      if (!result.item?.value) {
-        // Extrair informações básicas do título
-        if (pageTitle.includes("2025")) {
-          eventData.time_begin = "2025-01-01T00:00:00.000Z";
-
-          // Para Wikimania específico, sabemos a data de 2025 pela página que você forneceu
-          if (pageTitle.toLowerCase().includes("wikimania")) {
-            eventData.name = "Wikimania 2025";
-            eventData.description =
-              "Wikimania é a conferência anual oficial do movimento Wikimedia. A edição de 2025 será realizada em Nairobi, Quênia, de 6 a 9 de agosto de 2025.";
-            eventData.time_begin = "2025-08-06T00:00:00.000Z";
-            eventData.time_end = "2025-08-09T00:00:00.000Z";
-            eventData.type_of_location = "in-person";
-            // Não temos um QID específico, então usamos null
-          }
-        }
-      }
-
-      return eventData;
-    }
-
-    // Se não encontrou no Wikidata mas é uma página Wikimania, criar dados básicos
-    if (
-      pageTitle.toLowerCase().includes("wikimania") &&
-      pageTitle.includes("2025")
-    ) {
-      return {
-        name: "Wikimania 2025",
-        description:
-          "Wikimania é a conferência anual oficial do movimento Wikimedia. A edição de 2025 será realizada em Nairobi, Quênia, de 6 a 9 de agosto de 2025.",
-        time_begin: "2025-08-06T00:00:00.000Z",
-        time_end: "2025-08-09T00:00:00.000Z",
-        type_of_location: "in-person",
-        url: url,
-      };
-    }
-
-    return null;
+    return eventData;
   } catch (error) {
-    console.error("Erro ao buscar dados do evento no Metabase:", error);
+    console.error("Error fetching event data from Metabase:", error);
 
-    // Fallback para eventos Wikimania
-    if (
-      pageTitle.toLowerCase().includes("wikimania") &&
-      pageTitle.includes("2025")
-    ) {
+    // Fallback for known events
+    const lowerPageTitle = pageTitle.toLowerCase();
+    const extractedYear = extractYearFromText(pageTitle) || extractYearFromText(url);
+    
+    // Wikicon
+    if (lowerPageTitle.includes("wikicon") && extractedYear) {
       return {
-        name: "Wikimania 2025",
-        description:
-          "Wikimania é a conferência anual oficial do movimento Wikimedia. A edição de 2025 será realizada em Nairobi, Quênia, de 6 a 9 de agosto de 2025.",
-        time_begin: "2025-08-06T00:00:00.000Z",
-        time_end: "2025-08-09T00:00:00.000Z",
-        type_of_location: "in-person",
+        name: `Wikicon ${extractedYear}`,
+        description: "", // Leave empty for manual editing
+        time_begin: "", // Leave empty for manual input
+        time_end: "", // Leave empty for manual input
+        type_of_location: "hybrid",
+        url: url,
+      };
+    }
+    
+    // Fallback genérico para outros eventos com ano identificado
+    if (extractedYear) {
+      return {
+        name: pageTitle,
+        description: "", // Leave empty for manual editing
+        time_begin: "", // Leave empty for manual input
+        time_end: "", // Leave empty for manual input
+        type_of_location: "hybrid",
         url: url,
       };
     }
@@ -391,68 +462,104 @@ export async function fetchEventDataByWikimediaURL(
   }
 }
 
-/**
- * Extrai informações de curso a partir de uma URL do learn.wiki
- * @param url - URL do learn.wiki
- * @returns Uma Promise com os dados do evento ou null se não encontrado
- */
 export async function fetchEventDataByLearnWikiURL(
   url: string
 ): Promise<Partial<Event> | null> {
   if (!url || !url.includes("learn.wiki")) return null;
 
   try {
-    // Extrair o código do curso da URL
+    // Extract the course code from the URL - corrected to work with WikiLearn URLs
     const courseMatch = url.match(/course-v1:([^/]+)/i);
-    const courseCode = courseMatch?.[1]?.replace(/\+/g, " ");
-
-    if (!courseCode) {
-      console.error("Não foi possível extrair o código do curso da URL:", url);
+    if (!courseMatch || !courseMatch[1]) {
+      console.error("Unable to extract the course code from the URL:", url);
       return null;
     }
 
-    // Criar dados do evento baseados na URL do curso
-    const [organization, code, year] = courseCode.split(" ");
+    // Decode the course code correctly
+    const courseCode = decodeURIComponent(courseMatch[1]);
+    // Divide by '+' instead of spaces, as it comes in the URL
+    const courseParts = courseCode.split('+');
+    
+    if (courseParts.length < 3) {
+      console.error("Formato de código de curso inválido:", courseCode);
+      return null;
+    }
 
+    const [organization, code, year] = courseParts;
+
+    // Create a more descriptive name based on the code
+    let courseName = `${code}`;
+    let courseDescription = ""; // Leave empty for manual editing
+
+    // Specific known cases for names
+    if (code === "DIS001") {
+      courseName = "Trust & Safety: Disinformation Training";
+    } else if (code.startsWith("TRAIN")) {
+      courseName = `${organization.replace(/-/g, ' ')} Training Course`;
+    }
+
+    // Leave data fields empty for manual input
     const eventData: Partial<Event> = {
-      name: `${code}: ${organization} Training (${year})`,
-      description: `Curso online oferecido por ${organization} no WikiLearn. Código do curso: ${code}.`,
+      name: courseName,
+      description: courseDescription,
       url: url,
       type_of_location: "virtual",
-      // Datas aproximadas baseadas no ano do curso
-      time_begin: `${year || new Date().getFullYear()}-01-01T00:00:00.000Z`,
-      time_end: `${year || new Date().getFullYear()}-12-31T00:00:00.000Z`,
+      time_begin: "", // Leave empty for manual input
+      time_end: "", // Leave empty for manual input
     };
-
-    // Para o caso específico do curso DIS001
-    if (code === "DIS001") {
-      eventData.name = "Trust & Safety Disinformation Training";
-      eventData.description =
-        "Curso de treinamento sobre desinformação oferecido pela Wikimedia Foundation no WikiLearn.";
-    }
 
     return eventData;
   } catch (error) {
-    console.error("Erro ao processar URL do learn.wiki:", error);
+    console.error("Error processing learn.wiki URL:", error);
     return null;
   }
 }
 
-/**
- * Busca informações de evento a partir de uma URL genérica, tentando várias fontes
- * @param url - URL (Wikidata, Wikimedia, Wikipedia, etc.)
- * @returns Uma Promise com os dados do evento ou null se não encontrado
- */
+export function isValidEventURL(url: string): boolean {
+  
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  const validPatterns = [
+    // Meta Wikimedia URLs
+    { name: "Meta Wikimedia", pattern: /^https?:\/\/meta\.wikimedia\.org\/wiki\/.+/i },
+    // Local Wikimedia URLs (like br.wikimedia.org)
+    { name: "Local Wikimedia", pattern: /^https?:\/\/[a-z]{2}\.wikimedia\.org\/wiki\/.+/i },
+    // WikiLearn URLs
+    { name: "WikiLearn", pattern: /^https?:\/\/app\.learn\.wiki\/learning\/course\/.+/i },
+    // Wikidata URLs (for events)
+    { name: "Wikidata", pattern: /^https?:\/\/www\.wikidata\.org\/(wiki|entity)\/Q\d+/i },
+  ];
+
+  for (const { name, pattern } of validPatterns) {
+    const matches = pattern.test(url);
+    if (matches) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export async function fetchEventDataByGenericURL(
   url: string
 ): Promise<Partial<Event> | null> {
-  // Primeiro, tenta como URL do Wikidata
+  
+  // Validate if the URL is from an accepted source
+  if (!isValidEventURL(url)) {
+    console.error("❌ URL is not from an accepted source:", url);
+    return null;
+  }
+
+  // First, try as Wikidata URL
   const qid = extractQIDFromURL(url);
   if (qid) {
+    console.log("🔗 Found QID, using fetchEventDataByQID:", qid);
     return fetchEventDataByQID(qid);
   }
 
-  // Se não for URL do Wikidata, tenta como URL da Wikimedia
+  // If it's not a Wikidata URL, try as Wikimedia URL
   if (
     url.includes("wikimedia.org") ||
     url.includes("wikipedia.org") ||
@@ -461,14 +568,14 @@ export async function fetchEventDataByGenericURL(
     return fetchEventDataByWikimediaURL(url);
   }
 
-  // Se for uma URL do learn.wiki
+  // If it's a learn.wiki URL
   if (url.includes("learn.wiki")) {
     return fetchEventDataByLearnWikiURL(url);
   }
 
-  // Se nenhuma das opções acima funcionar, retorna null
+  // If none of the above options work, return null
   console.error(
-    "URL não reconhecida como Wikidata, Wikimedia ou learn.wiki:",
+    "❌ URL not recognized as Wikidata, Wikimedia or learn.wiki:",
     url
   );
   return null;
