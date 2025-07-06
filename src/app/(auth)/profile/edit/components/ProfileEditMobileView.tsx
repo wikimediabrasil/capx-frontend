@@ -334,7 +334,11 @@ export default function ProfileEditMobileView(
               {hasLetsConnectData && <BaseButton
                 onClick={() => setShowLetsConnectPopup(true)}
                 label={pageContent["edit-profile-use-letsconnect"]}
-                customClass="w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
+                customClass={formData.automated_lets_connect ? `w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                  darkMode
+                    ? "bg-transparent border-white text-white placeholder-capx-dark-box-bg"
+                    : "border-[#053749]"
+                } border` : `w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`}
                 imageUrl={LetsConnectIconWhite}
                 imageAlt="LetsConnect icon"
                 imageWidth={20}
