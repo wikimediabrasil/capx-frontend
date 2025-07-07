@@ -147,8 +147,8 @@ export default function OrganizationProfileDesktopView({
                 )}
               </div>
             </div>
-  
-            {organization?.report && organization.report.trim() !== "" && (
+
+            {organization?.report && organization.report.trim() !== '' && (
               <div className="flex flex-row justify-between px-[85px] py-[64px] items-center rounded-[4px] bg-[#04222F] w-full h-[399px] flex-shrink-0">
                 <div className="relative w-[619px] h-[271px]">
                   <Image

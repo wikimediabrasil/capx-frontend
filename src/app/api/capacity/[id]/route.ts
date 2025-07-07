@@ -21,7 +21,7 @@ export interface Capacity {
 }
 
 export interface Users {
-  wanted: Capacity[]
+  wanted: Capacity[];
 }
 
 export interface CapacityById {

@@ -148,7 +148,7 @@ export default function OrganizationProfileMobileView({
               </div>
             </div>
 
-            {organization?.report && organization.report.trim() !== "" && (
+            {organization?.report && organization.report.trim() !== '' && (
               <div className="w-full flex flex-col flex-shrink-0 rounded-[4px] bg-[#04222F] justify-center items-center p-6">
                 <div className="relative w-[220px] h-[96px] mb-[30px]">
                   <Image

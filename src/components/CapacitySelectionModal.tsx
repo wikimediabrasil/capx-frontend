@@ -203,7 +203,7 @@ export default function CapacitySelectionModal({
   useEffect(() => {
     if (descriptionData?.id && descriptionData?.description) {
       // Only update if the value is different from the current one
-      setCapacityDescriptions((prev) => {
+      setCapacityDescriptions(prev => {
         if (prev[descriptionData.id] === descriptionData.description) {
           return prev;
         }
@@ -234,13 +234,13 @@ export default function CapacitySelectionModal({
   // Process child capacities data when it changes
   useEffect(() => {
     if (
-      childCapacitiesData && 
-      Array.isArray(childCapacitiesData) && 
+      childCapacitiesData &&
+      Array.isArray(childCapacitiesData) &&
       childCapacitiesData.length > 0 &&
       expandingCapacityId
     ) {
       // Update the child capacities
-      setChildrenCapacities((prev) => ({
+      setChildrenCapacities(prev => ({
         ...prev,
         [expandingCapacityId]: childCapacitiesData,
       }));
@@ -294,10 +294,7 @@ export default function CapacitySelectionModal({
   };
 
   // Function to handle expansion separately
-  const handleCategoryExpand = async (
-    e: React.MouseEvent,
-    category: Capacity
-  ) => {
+  const handleCategoryExpand = async (e: React.MouseEvent, category: Capacity) => {
     e.stopPropagation(); // Prevent the selection when expanding
 
     try {
@@ -306,7 +303,7 @@ export default function CapacitySelectionModal({
 
       if (currentPathIndex !== -1) {
         // If it's already in the path, collapse
-        setSelectedPath((prev) => prev.slice(0, currentPathIndex + 1));
+        setSelectedPath(prev => prev.slice(0, currentPathIndex + 1));
         return;
       }
 

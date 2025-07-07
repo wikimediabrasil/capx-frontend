@@ -26,10 +26,10 @@ const createAxiosInstance = (token?: string): AxiosInstance => {
         // Check if the response contains the specific invalid token message
         const responseData = error.response?.data;
         const isInvalidToken = responseData?.detail === 'Invalid token.';
-        
-        if (isInvalidToken && typeof window !== "undefined") {
-          console.warn("Token expired detected. Performing automatic logout...");
-          await signOut({ redirect: true, callbackUrl: "/" });
+
+        if (isInvalidToken && typeof window !== 'undefined') {
+          console.warn('Token expired detected. Performing automatic logout...');
+          await signOut({ redirect: true, callbackUrl: '/' });
         }
         return Promise.reject(new Error('Unauthorized'));
       }
@@ -41,10 +41,7 @@ const createAxiosInstance = (token?: string): AxiosInstance => {
 };
 
 // Generic HTTP functions
-export const apiGet = async <T>(
-  url: string,
-  token?: string
-): Promise<ApiResponse<T>> => {
+export const apiGet = async <T>(url: string, token?: string): Promise<ApiResponse<T>> => {
   try {
     const api = createAxiosInstance(token);
     const response = await api.get<T>(url);

@@ -187,21 +187,19 @@ export function useCapacityList(token?: string, language: string = 'en') {
                 )
               : rootCapacities.find(cap => cap.code.toString() === parentCode.toString());
 
-          const formattedCapacities = capacityData.map(
-            (item: any): Capacity => {
-              const baseCode = item.code.toString();
-              return {
-                code: baseCode,
-                wd_code: item.wd_code,
-                name: item.name,
-                color: getCapacityColor(parentCapacity?.color || "gray-200"),
-                icon: getCapacityIcon(Number(parentCode)),
-                hasChildren: item.hasChildren,
-                skill_type: Number(parentCode),
-                skill_wikidata_item: "",
-              };
-            }
-          );
+          const formattedCapacities = capacityData.map((item: any): Capacity => {
+            const baseCode = item.code.toString();
+            return {
+              code: baseCode,
+              wd_code: item.wd_code,
+              name: item.name,
+              color: getCapacityColor(parentCapacity?.color || 'gray-200'),
+              icon: getCapacityIcon(Number(parentCode)),
+              hasChildren: item.hasChildren,
+              skill_type: Number(parentCode),
+              skill_wikidata_item: '',
+            };
+          });
 
           // Atualizar o cache global
           globalCache.childrenCapacities[parentCode] = formattedCapacities;

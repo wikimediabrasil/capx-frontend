@@ -1,77 +1,82 @@
 'use client';
 
-import BadgesCarousel from "@/components/BadgesCarousel";
-import BadgeSelectionModal from "@/components/BadgeSelectionModal";
-import Banner from "@/components/Banner";
-import BaseButton from "@/components/BaseButton";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import LoadingImage from "@/components/LoadingImage";
-import Popup from "@/components/Popup";
-import { useApp } from "@/contexts/AppContext";
-import { useBadges } from "@/contexts/BadgesContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useLanguage } from "@/hooks/useLanguage";
-import { useWikimediaProject } from "@/hooks/useWikimediaProject";
-import AccountBoxIcon from "@/public/static/images/account_box.svg";
-import AccountBoxIconWhite from "@/public/static/images/account_box_white.svg";
-import AccountCircleIcon from "@/public/static/images/account_circle.svg";
-import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
-import AddIcon from "@/public/static/images/add.svg";
-import AddIconDark from "@/public/static/images/add_dark.svg";
-import AffiliationIcon from "@/public/static/images/affiliation.svg";
-import AffiliationIconWhite from "@/public/static/images/affiliation_white.svg";
-import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
-import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
-import BarCodeIcon from "@/public/static/images/barcode.svg";
-import BarCodeIconWhite from "@/public/static/images/barcode_white.svg";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
-import ChangeCircleIcon from "@/public/static/images/change_circle.svg";
-import ChangeCircleIconWhite from "@/public/static/images/change_circle_white.svg";
-import CheckBoxFilledIcon from "@/public/static/images/check_box.svg";
-import CheckBoxFilledIconWhite from "@/public/static/images/check_box_light.svg";
-import CheckIcon from "@/public/static/images/check_box_outline_blank.svg";
-import CheckIconWhite from "@/public/static/images/check_box_outline_blank_light.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import DeleteIcon from "@/public/static/images/delete.svg";
-import EmojiIcon from "@/public/static/images/emoji_objects.svg";
-import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
-import ExpandIcon from "@/public/static/images/expand_all.svg";
-import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
-import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
-import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
-import LanguageIcon from "@/public/static/images/language.svg";
-import LanguageIconWhite from "@/public/static/images/language_white.svg";
-import LetsConect from "@/public/static/images/lets_connect_desktop.svg";
-import LetsConectText from "@/public/static/images/lets_connect_text_desktop.svg";
-import LetsConectTitle from "@/public/static/images/lets_connect_title.svg";
-import LetsConectTitleLight from "@/public/static/images/lets_connect_title_light.svg";
-import NeurologyIcon from "@/public/static/images/neurology.svg";
-import NeurologyIconWhite from "@/public/static/images/neurology_white.svg";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import PersonIcon from "@/public/static/images/person_book.svg";
-import PersonIconWhite from "@/public/static/images/person_book_white.svg";
-import SaveIcon from "@/public/static/images/save_as.svg";
-import TargetIcon from "@/public/static/images/target.svg";
-import TargetIconWhite from "@/public/static/images/target_white.svg";
-import TerritoryIcon from "@/public/static/images/territory.svg";
-import TerritoryIconWhite from "@/public/static/images/territory_white.svg";
-import UserCheckIcon from "@/public/static/images/user_check.svg";
-import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
-import WikiIcon from "@/public/static/images/wikimedia_logo_black.svg";
-import WikiIconWhite from "@/public/static/images/wikimedia_logo_white.svg";
-import { Capacity } from "@/types/capacity";
-import { Profile } from "@/types/profile";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
-import LetsConnectPopup from "@/components/LetsConnectPopup";
-import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
-import { addLanguageToFormData, addAffiliationToFormData, addTerritoryToFormData, addProjectToFormData } from "@/lib/utils/formDataUtils";
+import BadgesCarousel from '@/components/BadgesCarousel';
+import BadgeSelectionModal from '@/components/BadgeSelectionModal';
+import Banner from '@/components/Banner';
+import BaseButton from '@/components/BaseButton';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import LoadingImage from '@/components/LoadingImage';
+import Popup from '@/components/Popup';
+import { useApp } from '@/contexts/AppContext';
+import { useBadges } from '@/contexts/BadgesContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useWikimediaProject } from '@/hooks/useWikimediaProject';
+import AccountBoxIcon from '@/public/static/images/account_box.svg';
+import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
+import AccountCircleIcon from '@/public/static/images/account_circle.svg';
+import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
+import AddIcon from '@/public/static/images/add.svg';
+import AddIconDark from '@/public/static/images/add_dark.svg';
+import AffiliationIcon from '@/public/static/images/affiliation.svg';
+import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
+import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
+import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
+import BarCodeIcon from '@/public/static/images/barcode.svg';
+import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
+import CancelIcon from '@/public/static/images/cancel.svg';
+import CancelIconWhite from '@/public/static/images/cancel_white.svg';
+import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
+import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
+import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
+import CheckBoxFilledIcon from '@/public/static/images/check_box.svg';
+import CheckBoxFilledIconWhite from '@/public/static/images/check_box_light.svg';
+import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
+import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import DeleteIcon from '@/public/static/images/delete.svg';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import ExpandIcon from '@/public/static/images/expand_all.svg';
+import ExpandIconWhite from '@/public/static/images/expand_all_white.svg';
+import BadgesIcon from '@/public/static/images/icons/badges_icon.svg';
+import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import LetsConect from '@/public/static/images/lets_connect_desktop.svg';
+import LetsConectText from '@/public/static/images/lets_connect_text_desktop.svg';
+import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
+import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import PersonIcon from '@/public/static/images/person_book.svg';
+import PersonIconWhite from '@/public/static/images/person_book_white.svg';
+import SaveIcon from '@/public/static/images/save_as.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import UserCheckIcon from '@/public/static/images/user_check.svg';
+import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
+import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import { Capacity } from '@/types/capacity';
+import { Profile } from '@/types/profile';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
+import LetsConnectPopup from '@/components/LetsConnectPopup';
+import LetsConnectIconWhite from '@/public/static/images/account_circle_white.svg';
+import {
+  addLanguageToFormData,
+  addAffiliationToFormData,
+  addTerritoryToFormData,
+  addProjectToFormData,
+} from '@/lib/utils/formDataUtils';
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -319,23 +324,29 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 >
                   {pageContent['edit-profile-consent-wikidata']}
                 </span>
-                {hasLetsConnectData && <BaseButton
-                  onClick={() => setShowLetsConnectPopup(true)}
-                  label={pageContent["edit-profile-use-letsconnect"]}
-                  customClass={formData.automated_lets_connect ? `w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
-                    darkMode
-                      ? "bg-transparent border-white text-capx-light-bg placeholder-white"
-                      : "border-[#053749] text-capx-dark-box-bg"
-                  } border` : `w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`}
-                  imageUrl={LetsConnectIconWhite}
-                  imageAlt="LetsConnect icon"
-                  imageWidth={30}
-                  imageHeight={30}
-                  disabled={isLetsConnectLoading}
-                />}
+                {hasLetsConnectData && (
+                  <BaseButton
+                    onClick={() => setShowLetsConnectPopup(true)}
+                    label={pageContent['edit-profile-use-letsconnect']}
+                    customClass={
+                      formData.automated_lets_connect
+                        ? `w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
+                            darkMode
+                              ? 'bg-transparent border-white text-capx-light-bg placeholder-white'
+                              : 'border-[#053749] text-capx-dark-box-bg'
+                          } border`
+                        : `w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`
+                    }
+                    imageUrl={LetsConnectIconWhite}
+                    imageAlt="LetsConnect icon"
+                    imageWidth={30}
+                    imageHeight={30}
+                    disabled={isLetsConnectLoading}
+                  />
+                )}
                 <BaseButton
                   onClick={() => setShowDeleteProfilePopup(true)}
-                  label={pageContent["edit-profile-delete-profile"]}
+                  label={pageContent['edit-profile-delete-profile']}
                   customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold text-capx-dark-box-bg mb-0 mt-4 bg-[#D43831] text-white`}
                   imageUrl={DeleteIcon}
                   imageAlt="Delete icon"
@@ -775,7 +786,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     if (e.target.value) {
                       const languageId = Number(e.target.value);
                       const languageName = languagesData[e.target.value];
-                      setFormData(addLanguageToFormData(formData, languageId, "3", languageName));
+                      setFormData(addLanguageToFormData(formData, languageId, '3', languageName));
                     }
                   }}
                   className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
@@ -917,7 +928,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
               <div className="relative">
                 <select
                   value=""
-                  onChange={(e) => {
+                  onChange={e => {
                     if (e.target.value) {
                       setFormData(addAffiliationToFormData(formData, e.target.value));
                     }
@@ -1020,7 +1031,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
               <div className="relative">
                 <select
                   value=""
-                  onChange={(e) => {
+                  onChange={e => {
                     if (e.target.value) {
                       setFormData(addTerritoryToFormData(formData, e.target.value));
                     }

@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import { useSession } from "next-auth/react";
-import { UserProfile } from "@/types/user";
-import { UserFilters, userService } from "@/services/userService";
-import { ProfileCapacityType } from "@/app/(auth)/feed/types";
-import { FilterState } from "@/app/(auth)/feed/types";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import { UserProfile } from '@/types/user';
+import { UserFilters, userService } from '@/services/userService';
+import { ProfileCapacityType } from '@/app/(auth)/feed/types';
+import { FilterState } from '@/app/(auth)/feed/types';
+import { useQuery } from '@tanstack/react-query';
 
 export interface UseAllUsersParams {
   limit?: number;
@@ -14,13 +14,17 @@ export interface UseAllUsersParams {
 
 export function useUserProfile() {
   const { data: session } = useSession();
-  const { data: userProfile, isLoading, error } = useQuery({
-    queryKey: ["userProfile", session?.user?.id, session?.user?.token],
+  const {
+    data: userProfile,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['userProfile', session?.user?.id, session?.user?.token],
     queryFn: async () => {
       if (!session?.user?.id || !session?.user?.token) {
-        throw new Error("Session data is missing");
+        throw new Error('Session data is missing');
       }
-      
+
       const data = await userService.fetchUserProfile(
         parseInt(session.user.id),
         session.user.token

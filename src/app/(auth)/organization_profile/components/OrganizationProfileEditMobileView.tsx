@@ -1,48 +1,48 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { getProfileImage } from "@/lib/utils/getProfileImage";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import UserCircleIcon from "@/public/static/images/supervised_user_circle.svg";
-import UserCircleIconWhite from "@/public/static/images/supervised_user_circle_white.svg";
-import SaveIcon from "@/public/static/images/save_as.svg";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import ReportIcon from "@/public/static/images/report.svg";
-import ReportIconWhite from "@/public/static/images/report_white.svg";
-import NeurologyIcon from "@/public/static/images/neurology.svg";
-import NeurologyIconWhite from "@/public/static/images/neurology_white.svg";
-import WikimediaIcon from "@/public/static/images/wikimedia_logo_black.svg";
-import WikimediaIconWhite from "@/public/static/images/wikimedia_logo_white.svg";
-import ContactMetaIcon from "@/public/static/images/contact_meta.svg";
-import ContactMetaIconWhite from "@/public/static/images/contact_meta_white.svg";
-import ContactEmailIcon from "@/public/static/images/contact_alternate_email.svg";
-import ContactEmailIconWhite from "@/public/static/images/contact_alternate_email_white.svg";
-import ContactPortalIcon from "@/public/static/images/contact_captive_portal.svg";
-import ContactPortalIconWhite from "@/public/static/images/contact_captive_portal_white.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
-import AddIcon from "@/public/static/images/add_dark.svg";
-import AddIconWhite from "@/public/static/images/add.svg";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import BaseButton from "@/components/BaseButton";
-import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
-import EmojiIcon from "@/public/static/images/emoji_objects.svg";
-import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
-import TargetIcon from "@/public/static/images/target.svg";
-import TargetIconWhite from "@/public/static/images/target_white.svg";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import ProjectsFormItem from "./ProjectsFormItem";
-import EventsList from "@/app/events/components/EventsList";
-import NewsFormItem from "./NewsFormItem";
-import DocumentFormItem from "./DocumentFormItem";
-import { useAvatars } from "@/hooks/useAvatars";
-import ExpandAllIcon from "@/public/static/images/expand_all.svg";
-import ExpandAllIconWhite from "@/public/static/images/expand_all_white.svg";
-import LoadingState from "@/components/LoadingState";
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { getProfileImage } from '@/lib/utils/getProfileImage';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import SaveIcon from '@/public/static/images/save_as.svg';
+import CancelIcon from '@/public/static/images/cancel.svg';
+import CancelIconWhite from '@/public/static/images/cancel_white.svg';
+import ReportIcon from '@/public/static/images/report.svg';
+import ReportIconWhite from '@/public/static/images/report_white.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import ContactMetaIcon from '@/public/static/images/contact_meta.svg';
+import ContactMetaIconWhite from '@/public/static/images/contact_meta_white.svg';
+import ContactEmailIcon from '@/public/static/images/contact_alternate_email.svg';
+import ContactEmailIconWhite from '@/public/static/images/contact_alternate_email_white.svg';
+import ContactPortalIcon from '@/public/static/images/contact_captive_portal.svg';
+import ContactPortalIconWhite from '@/public/static/images/contact_captive_portal_white.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import AddIcon from '@/public/static/images/add_dark.svg';
+import AddIconWhite from '@/public/static/images/add.svg';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import BaseButton from '@/components/BaseButton';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import ProjectsFormItem from './ProjectsFormItem';
+import EventsList from '@/app/events/components/EventsList';
+import NewsFormItem from './NewsFormItem';
+import DocumentFormItem from './DocumentFormItem';
+import { useAvatars } from '@/hooks/useAvatars';
+import ExpandAllIcon from '@/public/static/images/expand_all.svg';
+import ExpandAllIconWhite from '@/public/static/images/expand_all_white.svg';
+import LoadingState from '@/components/LoadingState';
 
 export default function OrganizationProfileEditMobileView({
   handleSubmit,
@@ -586,7 +586,7 @@ export default function OrganizationProfileEditMobileView({
               </div>
               <h2
                 className={`font-[Montserrat] text-[14px] font-bold ${
-                  darkMode ? "text-white" : "text-[#053749]"
+                  darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
                 {pageContent['body-profile-section-title-events']}
@@ -602,11 +602,9 @@ export default function OrganizationProfileEditMobileView({
             />
             <BaseButton
               onClick={handleAddEvent}
-              label={pageContent["edit-profile-add-events"]}
+              label={pageContent['edit-profile-add-events']}
               customClass={`mb-2 rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] md:text-[16px] not-italic font-extrabold leading-[normal] ${
-                darkMode
-                  ? "bg-capx-light-box-bg text-[#04222F]"
-                  : "bg-[#053749] text-white"
+                darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
               }`}
               imageUrl={darkMode ? AddIcon : AddIconWhite}
               imageAlt="Add icon"
@@ -627,12 +625,8 @@ export default function OrganizationProfileEditMobileView({
               imageHeight={20}
             />
 
-            <p
-              className={`text-[12px] ${
-                darkMode ? "text-white" : "text-[#053749]"
-              } mt-2`}
-            >
-              {pageContent["edit-profile-display-events"]}
+            <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-2`}>
+              {pageContent['edit-profile-display-events']}
             </p>
           </div>
 
@@ -714,14 +708,14 @@ export default function OrganizationProfileEditMobileView({
 
             <BaseButton
               onClick={handleAddDocument}
-              label={pageContent["edit-profile-add-more-links"]}
+              label={pageContent['edit-profile-add-more-links']}
               disabled={documentsData?.length >= 4}
               customClass={`rounded-[4px] bg-capx-dark-box-bg flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
                 documentsData?.length >= 4
-                  ? "text-gray-400 bg-gray-300 cursor-not-allowed opacity-50"
+                  ? 'text-gray-400 bg-gray-300 cursor-not-allowed opacity-50'
                   : darkMode
-                  ? "text-capx-dark-box-bg bg-white"
-                  : "text-white bg-capx-dark-box-bg"
+                    ? 'text-capx-dark-box-bg bg-white'
+                    : 'text-white bg-capx-dark-box-bg'
               }`}
               imageUrl={darkMode ? AddIcon : AddIconWhite}
               imageAlt="Add icon"

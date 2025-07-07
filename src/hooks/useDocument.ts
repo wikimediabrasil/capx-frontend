@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { documentService } from "@/services/documentService";
-import { OrganizationDocument, WikimediaDocument } from "@/types/document";
-import { fetchWikimediaData } from "@/lib/utils/fetchWikimediaData";
-import { normalizeDocumentUrl, validateCapXDocumentUrl } from "@/lib/utils/validateDocumentUrl";
-import { ensureCommonsPageUrl } from "@/lib/utils/convertWikimediaUrl";
+import { useState, useEffect } from 'react';
+import { documentService } from '@/services/documentService';
+import { OrganizationDocument, WikimediaDocument } from '@/types/document';
+import { fetchWikimediaData } from '@/lib/utils/fetchWikimediaData';
+import { normalizeDocumentUrl, validateCapXDocumentUrl } from '@/lib/utils/validateDocumentUrl';
+import { ensureCommonsPageUrl } from '@/lib/utils/convertWikimediaUrl';
 
 export const useDocument = (token?: string, id?: number, limit?: number, offset?: number) => {
   const [documents, setDocuments] = useState<WikimediaDocument[]>([]);
@@ -60,41 +60,37 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
       console.error('createDocument: No token provided');
       return;
     }
-    
+
     // Validate the input data
-    if (!data || !data.url || data.url.trim() === "") {
-      console.error("createDocument: Invalid URL provided", data);
-      throw new Error("URL is required to create a document");
+    if (!data || !data.url || data.url.trim() === '') {
+      console.error('createDocument: Invalid URL provided', data);
+      throw new Error('URL is required to create a document');
     }
-    
+
     // Validate using CapX-specific rules
     const capxValidation = validateCapXDocumentUrl(data.url);
     if (!capxValidation.isValid) {
-      console.error("❌ CapX URL validation failed:", {
+      console.error('❌ CapX URL validation failed:', {
         url: data.url,
         error: capxValidation.error,
-        suggestion: capxValidation.suggestion
+        suggestion: capxValidation.suggestion,
       });
-      throw new Error(capxValidation.error || "Invalid URL format");
+      throw new Error(capxValidation.error || 'Invalid URL format');
     }
-    
+
     // Also run general validation and normalize
     const normalizedUrl = normalizeDocumentUrl(data.url);
-    
+
     // Convert to Commons page URL format if it's a Wikimedia URL
     const commonsUrl = ensureCommonsPageUrl(normalizedUrl);
-    
+
     try {
       const documentPayload = {
         ...data, // Include all fields from the original data
         url: commonsUrl, // Use the Commons page URL format expected by the backend
       };
-      
-      
-      const response = await documentService.createDocument(
-        token,
-        documentPayload
-      );
+
+      const response = await documentService.createDocument(token, documentPayload);
 
       if (response && response.id) {
         const enrichedDocument = await fetchWikimediaData(response.url || '');
@@ -103,7 +99,7 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
 
       return response;
     } catch (error: any) {
-      console.error("useDocument - Error:", error.message);
+      console.error('useDocument - Error:', error.message);
       throw error;
     }
   };

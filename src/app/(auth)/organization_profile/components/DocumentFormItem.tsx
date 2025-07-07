@@ -33,7 +33,7 @@ const DocumentFormItem = ({ document, index, onDelete, onChange }: DocumentFormI
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
-    onChange(index, "url", newUrl);
+    onChange(index, 'url', newUrl);
 
     // Validate URL and show snackbar if invalid
     if (newUrl.trim() !== '') {
@@ -42,7 +42,7 @@ const DocumentFormItem = ({ document, index, onDelete, onChange }: DocumentFormI
         // Show error after a short delay to avoid showing on every keystroke
         setTimeout(() => {
           if (!validateCapXDocumentUrl(newUrl).isValid) {
-            showSnackbar(pageContent[validation.error!] || validation.error!, "error");
+            showSnackbar(pageContent[validation.error!] || validation.error!, 'error');
           }
         }, 1000);
       }
@@ -55,28 +55,30 @@ const DocumentFormItem = ({ document, index, onDelete, onChange }: DocumentFormI
         <div className="relative">
           <input
             type="text"
-            placeholder={pageContent["edit-profile-insert-link"]}
+            placeholder={pageContent['edit-profile-insert-link']}
             className={`w-full p-2 text-[12px] md:text-[24px] font-Montserrat border rounded-md bg-transparent ${
               hasValidationError
-                ? "border-red-500 border-2"
+                ? 'border-red-500 border-2'
                 : darkMode
-                ? "text-white border-gray-600"
-                : "text-[#829BA4] border-gray-300"
+                  ? 'text-white border-gray-600'
+                  : 'text-[#829BA4] border-gray-300'
             } ${
               darkMode && !hasValidationError
-                ? "text-white"
+                ? 'text-white'
                 : !hasValidationError
-                ? "text-[#829BA4]"
-                : "text-red-500"
+                  ? 'text-[#829BA4]'
+                  : 'text-red-500'
             }`}
-            value={document.url || ""}
+            value={document.url || ''}
             onChange={handleUrlChange}
           />
           {document.url && document.url.trim() !== '' && (
-            <div className={`absolute right-2 top-1/2 transform -translate-y-1/2 text-sm ${
-              hasValidationError ? "text-red-500" : "text-green-500"
-            }`}>
-              {hasValidationError ? "❌" : "✅"}
+            <div
+              className={`absolute right-2 top-1/2 transform -translate-y-1/2 text-sm ${
+                hasValidationError ? 'text-red-500' : 'text-green-500'
+              }`}
+            >
+              {hasValidationError ? '❌' : '✅'}
             </div>
           )}
         </div>

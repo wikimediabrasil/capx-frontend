@@ -1,7 +1,7 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { Capacities, Capacity, CapacityResponse, QueryData } from "@/types/capacity";
+import axios, { AxiosRequestConfig } from 'axios';
+import { Capacities, Capacity, CapacityResponse, QueryData } from '@/types/capacity';
 
-export const fetchAllCapacities = async (token: string): Promise<Capacities[] > => {
+export const fetchAllCapacities = async (token: string): Promise<Capacities[]> => {
   const response = await axios.get<Capacities[]>(`/api/skill/`, {
     headers: {
       Authorization: `Token ${token}`,

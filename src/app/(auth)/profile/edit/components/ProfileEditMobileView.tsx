@@ -1,76 +1,80 @@
 'use client';
 
-import Image from "next/image";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import AccountCircleIcon from "@/public/static/images/account_circle.svg";
-import AccountCircleIconWhite from "@/public/static/images/account_circle_white.svg";
-import AccountBoxIcon from "@/public/static/images/account_box.svg";
-import AccountBoxIconWhite from "@/public/static/images/account_box_white.svg";
-import ChangeCircleIcon from "@/public/static/images/change_circle.svg";
-import ChangeCircleIconWhite from "@/public/static/images/change_circle_white.svg";
-import CheckBoxFilledIcon from "@/public/static/images/check_box.svg";
-import CheckBoxFilledIconWhite from "@/public/static/images/check_box_light.svg";
-import CheckIcon from "@/public/static/images/check_box_outline_blank.svg";
-import CheckIconWhite from "@/public/static/images/check_box_outline_blank_light.svg";
-import CancelIcon from "@/public/static/images/cancel.svg";
-import CancelIconWhite from "@/public/static/images/cancel_white.svg";
-import PersonIcon from "@/public/static/images/person_book.svg";
-import PersonIconWhite from "@/public/static/images/person_book_white.svg";
-import NeurologyIcon from "@/public/static/images/neurology.svg";
-import NeurologyIconWhite from "@/public/static/images/neurology_white.svg";
-import EmojiIcon from "@/public/static/images/emoji_objects.svg";
-import EmojiIconWhite from "@/public/static/images/emoji_objects_white.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import AddIconDark from "@/public/static/images/add_dark.svg";
-import AddIcon from "@/public/static/images/add.svg";
-import TargetIconWhite from "@/public/static/images/target_white.svg";
-import TargetIcon from "@/public/static/images/target.svg";
-import LanguageIconWhite from "@/public/static/images/language_white.svg";
-import LanguageIcon from "@/public/static/images/language.svg";
-import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
-import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
-import WikiIconWhite from "@/public/static/images/wikimedia_logo_white.svg";
-import WikiIcon from "@/public/static/images/wikimedia_logo_black.svg";
-import AffiliationIconWhite from "@/public/static/images/affiliation_white.svg";
-import AffiliationIcon from "@/public/static/images/affiliation.svg";
-import TerritoryIconWhite from "@/public/static/images/territory_white.svg";
-import TerritoryIcon from "@/public/static/images/territory.svg";
-import BarCodeIconWhite from "@/public/static/images/barcode_white.svg";
-import BarCodeIcon from "@/public/static/images/barcode.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import DeleteIcon from "@/public/static/images/delete.svg";
-import capxPersonIcon from "@/public/static/images/capx_person_icon.svg";
-import SaveIcon from "@/public/static/images/save_as.svg";
-import BaseButton from "@/components/BaseButton";
-import AvatarSelectionPopup from "../../components/AvatarSelectionPopup";
-import Popup from "@/components/Popup";
-import BadgesIcon from "@/public/static/images/icons/badges_icon.svg";
-import BadgesIconWhite from "@/public/static/images/icons/badges_icon_white.svg";
-import ExpandIconWhite from "@/public/static/images/expand_all_white.svg";
-import ExpandIcon from "@/public/static/images/expand_all.svg";
-import BadgeSelectionModal from "@/components/BadgeSelectionModal";
-import LoadingImage from "@/components/LoadingImage";
-import UserCheckIcon from "@/public/static/images/user_check.svg";
-import UserCheckIconDark from "@/public/static/images/user_check_dark.svg";
-import Banner from "@/components/Banner";
-import LetsConectBanner from "@/public/static/images/lets_connect.svg";
-import LetsConectText from "@/public/static/images/lets_connect_text_img.svg";
-import LetsConectTitle from "@/public/static/images/lets_connect_title.svg";
-import LetsConectTitleLight from "@/public/static/images/lets_connect_title_light.svg";
-import LetsConnectPopup from "@/components/LetsConnectPopup";
-import { Profile } from "@/types/profile";
-import { Capacity } from "@/types/capacity";
-import { useState, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import { useAvatars } from "@/hooks/useAvatars";
-import { useRouter } from "next/navigation";
-import BadgesCarousel from "@/components/BadgesCarousel";
-import { useBadges } from "@/contexts/BadgesContext";
-import LetsConnectIconWhite from "@/public/static/images/account_circle_white.svg";
-import { addLanguageToFormData, addTerritoryToFormData, addProjectToFormData } from "@/lib/utils/formDataUtils";
+import Image from 'next/image';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import AccountCircleIcon from '@/public/static/images/account_circle.svg';
+import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
+import AccountBoxIcon from '@/public/static/images/account_box.svg';
+import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
+import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
+import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
+import CheckBoxFilledIcon from '@/public/static/images/check_box.svg';
+import CheckBoxFilledIconWhite from '@/public/static/images/check_box_light.svg';
+import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
+import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
+import CancelIcon from '@/public/static/images/cancel.svg';
+import CancelIconWhite from '@/public/static/images/cancel_white.svg';
+import PersonIcon from '@/public/static/images/person_book.svg';
+import PersonIconWhite from '@/public/static/images/person_book_white.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import AddIconDark from '@/public/static/images/add_dark.svg';
+import AddIcon from '@/public/static/images/add.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
+import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
+import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
+import AffiliationIcon from '@/public/static/images/affiliation.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
+import BarCodeIcon from '@/public/static/images/barcode.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import DeleteIcon from '@/public/static/images/delete.svg';
+import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
+import SaveIcon from '@/public/static/images/save_as.svg';
+import BaseButton from '@/components/BaseButton';
+import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
+import Popup from '@/components/Popup';
+import BadgesIcon from '@/public/static/images/icons/badges_icon.svg';
+import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg';
+import ExpandIconWhite from '@/public/static/images/expand_all_white.svg';
+import ExpandIcon from '@/public/static/images/expand_all.svg';
+import BadgeSelectionModal from '@/components/BadgeSelectionModal';
+import LoadingImage from '@/components/LoadingImage';
+import UserCheckIcon from '@/public/static/images/user_check.svg';
+import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
+import Banner from '@/components/Banner';
+import LetsConectBanner from '@/public/static/images/lets_connect.svg';
+import LetsConectText from '@/public/static/images/lets_connect_text_img.svg';
+import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
+import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
+import LetsConnectPopup from '@/components/LetsConnectPopup';
+import { Profile } from '@/types/profile';
+import { Capacity } from '@/types/capacity';
+import { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import { useRouter } from 'next/navigation';
+import BadgesCarousel from '@/components/BadgesCarousel';
+import { useBadges } from '@/contexts/BadgesContext';
+import LetsConnectIconWhite from '@/public/static/images/account_circle_white.svg';
+import {
+  addLanguageToFormData,
+  addTerritoryToFormData,
+  addProjectToFormData,
+} from '@/lib/utils/formDataUtils';
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -314,20 +318,26 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   {pageContent['edit-profile-consent-wikidata']}
                 </span>
               </div>
-              {hasLetsConnectData && <BaseButton
-                onClick={() => setShowLetsConnectPopup(true)}
-                label={pageContent["edit-profile-use-letsconnect"]}
-                customClass={formData.automated_lets_connect ? `w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
-                  darkMode
-                    ? "bg-transparent border-white text-white placeholder-capx-dark-box-bg"
-                    : "border-[#053749]"
-                } border` : `w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`}
-                imageUrl={LetsConnectIconWhite}
-                imageAlt="LetsConnect icon"
-                imageWidth={20}
-                imageHeight={20}
-                disabled={isLetsConnectLoading}
-              />}
+              {hasLetsConnectData && (
+                <BaseButton
+                  onClick={() => setShowLetsConnectPopup(true)}
+                  label={pageContent['edit-profile-use-letsconnect']}
+                  customClass={
+                    formData.automated_lets_connect
+                      ? `w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                          darkMode
+                            ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
+                            : 'border-[#053749]'
+                        } border`
+                      : `w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`
+                  }
+                  imageUrl={LetsConnectIconWhite}
+                  imageAlt="LetsConnect icon"
+                  imageWidth={20}
+                  imageHeight={20}
+                  disabled={isLetsConnectLoading}
+                />
+              )}
               <div className="flex flex-col gap-[10px]">
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-[10px] mt-0">
@@ -792,7 +802,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       if (e.target.value) {
                         const languageId = Number(e.target.value);
                         const languageName = languages[e.target.value];
-                        setFormData(addLanguageToFormData(formData, languageId, "3", languageName));
+                        setFormData(addLanguageToFormData(formData, languageId, '3', languageName));
                       }
                     }}
                     className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${

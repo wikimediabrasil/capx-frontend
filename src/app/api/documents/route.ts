@@ -34,26 +34,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  
   try {
     const token = request.headers.get('Authorization');
     if (!token) {
-      console.error("❌ API route - No authorization token provided");
-      return NextResponse.json(
-        { error: "No authorization token provided" },
-        { status: 401 }
-      );
+      console.error('❌ API route - No authorization token provided');
+      return NextResponse.json({ error: 'No authorization token provided' }, { status: 401 });
     }
 
     const body = await request.json();
-    
+
     if (!body.url || typeof body.url !== 'string' || body.url.trim() === '') {
-      console.error("❌ API route - Invalid URL in request body:", body);
+      console.error('❌ API route - Invalid URL in request body:', body);
       return NextResponse.json(
-        { 
-          error: "Invalid request body", 
-          details: "URL is required and must be a non-empty string",
-          received: body
+        {
+          error: 'Invalid request body',
+          details: 'URL is required and must be a non-empty string',
+          received: body,
         },
         { status: 400 }
       );
@@ -62,10 +58,10 @@ export async function POST(request: NextRequest) {
     if (body.organization) {
       if (typeof body.organization !== 'number' || body.organization <= 0) {
         return NextResponse.json(
-          { 
-            error: "Invalid organization ID", 
-            details: "Organization must be a positive number",
-            received: body
+          {
+            error: 'Invalid organization ID',
+            details: 'Organization must be a positive number',
+            received: body,
           },
           { status: 400 }
         );
@@ -75,10 +71,10 @@ export async function POST(request: NextRequest) {
     if (body.creator) {
       if (typeof body.creator !== 'number' || body.creator <= 0) {
         return NextResponse.json(
-          { 
-            error: "Invalid creator ID", 
-            details: "Creator must be a positive number",
-            received: body
+          {
+            error: 'Invalid creator ID',
+            details: 'Creator must be a positive number',
+            received: body,
           },
           { status: 400 }
         );
@@ -87,13 +83,9 @@ export async function POST(request: NextRequest) {
 
     const backendUrl = process.env.BASE_URL;
 
-
     if (!backendUrl) {
-      console.error("❌ API route - Backend URL not configured");
-      return NextResponse.json(
-        { error: "Backend URL not configured" },
-        { status: 500 }
-      );
+      console.error('❌ API route - Backend URL not configured');
+      return NextResponse.json({ error: 'Backend URL not configured' }, { status: 500 });
     }
 
     const response = await axios.post(`${backendUrl}/document/`, body, {
@@ -102,17 +94,17 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
     });
-    
+
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Document creation error:", {
+    console.error('Document creation error:', {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
       requestData: error.config?.data,
       backendUrl: process.env.BASE_URL,
       isAxiosError: error.isAxiosError,
-      code: error.code
+      code: error.code,
     });
 
     return NextResponse.json(
@@ -120,7 +112,7 @@ export async function POST(request: NextRequest) {
         error: 'Failed to create document',
         details: error.response?.data || error.message,
         status: error.response?.status,
-        backendError: error.response?.data
+        backendError: error.response?.data,
       },
       { status: error.response?.status || 500 }
     );

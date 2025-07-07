@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
-import { handleApiError, isInvalidTokenError } from "@/lib/utils/api-error-handler";
+import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
+import { handleApiError, isInvalidTokenError } from '@/lib/utils/api-error-handler';
 
 export async function GET(request: NextRequest, { params }: { params: { resource: string } }) {
   try {
@@ -20,8 +20,8 @@ export async function GET(request: NextRequest, { params }: { params: { resource
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("List API error:", error);
-    
+    console.error('List API error:', error);
+
     // Use the new error handling that detects token expired
     return handleApiError(error);
   }

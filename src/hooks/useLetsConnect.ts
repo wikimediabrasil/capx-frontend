@@ -34,11 +34,11 @@ export function useLetsConnect() {
   const fetchLetsConnectData = async (username: string): Promise<LetsConnectProfile | null> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await LetsConnectService.getLetsConnect(username);
       if (!response) {
-        throw new Error("Invalid lets connect data from server");
+        throw new Error('Invalid lets connect data from server');
       }
       setLetsConnectData(response);
       return response;
@@ -64,6 +64,6 @@ export function useLetsConnect() {
     error,
     fetchLetsConnectData,
     letsConnectData,
-    isLoading
+    isLoading,
   };
 }

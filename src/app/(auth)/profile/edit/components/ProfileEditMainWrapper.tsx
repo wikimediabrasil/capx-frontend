@@ -5,27 +5,23 @@ import { useApp } from '@/contexts/AppContext';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import { useProfile } from "@/hooks/useProfile";
-import { useTerritories } from "@/hooks/useTerritories";
-import { Profile } from "@/types/profile";
-import { Capacity } from "@/types/capacity";
-import { useLanguage } from "@/hooks/useLanguage";
-import { useAffiliation } from "@/hooks/useAffiliation";
-import { useWikimediaProject } from "@/hooks/useWikimediaProject";
-import { useAvatars } from "@/hooks/useAvatars";
-import ProfileEditDesktopView from "./ProfileEditDesktopView";
-import ProfileEditMobileView from "./ProfileEditMobileView";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import { useProfileEdit } from "@/contexts/ProfileEditContext";
-import LoadingState from "@/components/LoadingState";
-import DebugPanel from "./DebugPanel";
-import CapacityDebug from "./CapacityDebug";
-import {
-  ensureArray,
-  safeAccess,
-  createSafeFunction,
-} from "@/lib/utils/safeDataAccess";
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { useProfile } from '@/hooks/useProfile';
+import { useTerritories } from '@/hooks/useTerritories';
+import { Profile } from '@/types/profile';
+import { Capacity } from '@/types/capacity';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useAffiliation } from '@/hooks/useAffiliation';
+import { useWikimediaProject } from '@/hooks/useWikimediaProject';
+import { useAvatars } from '@/hooks/useAvatars';
+import ProfileEditDesktopView from './ProfileEditDesktopView';
+import ProfileEditMobileView from './ProfileEditMobileView';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useProfileEdit } from '@/contexts/ProfileEditContext';
+import LoadingState from '@/components/LoadingState';
+import DebugPanel from './DebugPanel';
+import CapacityDebug from './CapacityDebug';
+import { ensureArray, safeAccess, createSafeFunction } from '@/lib/utils/safeDataAccess';
 import {
   addUniqueCapacity,
   addUniqueCapacities,
@@ -33,15 +29,15 @@ import {
   addUniqueAffiliations,
   addUniqueTerritory,
   addUniqueItem,
-} from "@/lib/utils/formDataUtils";
+} from '@/lib/utils/formDataUtils';
 
 // Import the new capacity hooks
-import { useCapacities } from "@/hooks/useCapacities";
-import { useCapacityCache } from "@/contexts/CapacityCacheContext";
-import { useLetsConnect } from "@/hooks/useLetsConnect";
-import { useCapacityList } from "@/hooks/useCapacityList";
-import { useAllCapacities } from "@/hooks/useAllCapacities";
-import { LanguageProficiency } from "@/types/language";
+import { useCapacities } from '@/hooks/useCapacities';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useCapacityList } from '@/hooks/useCapacityList';
+import { useAllCapacities } from '@/hooks/useAllCapacities';
+import { LanguageProficiency } from '@/types/language';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -154,8 +150,8 @@ export default function EditProfilePage() {
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
   const [selectedCapacityType, setSelectedCapacityType] = useState<
-    "known" | "available" | "wanted"
-  >("known");
+    'known' | 'available' | 'wanted'
+  >('known');
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const [formData, setFormData] = useState<Partial<Profile>>({
@@ -176,9 +172,7 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar ? NoAvatarIcon : NoAvatarIcon
-  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -434,15 +428,15 @@ export default function EditProfilePage() {
       formData.automated_lets_connect = hasAutomatedLetsConnect ? true : undefined;
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
-      
+
       // Force a refetch to ensure the cache is updated
       await refetch();
-      
-      showSnackbar(pageContent["snackbar-edit-profile-success"], "success");
-      
+
+      showSnackbar(pageContent['snackbar-edit-profile-success'], 'success');
+
       // Add a small delay to ensure the cache is updated before navigation
       setTimeout(() => {
-        router.push("/profile");
+        router.push('/profile');
       }, 100);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -579,19 +573,16 @@ export default function EditProfilePage() {
       const capacityId = Number(capacity.code);
 
       switch (selectedCapacityType) {
-        case "known":
-          newFormData.skills_known = addUniqueCapacity(
-            ensureArray(prev.skills_known),
-            capacityId
-          );
+        case 'known':
+          newFormData.skills_known = addUniqueCapacity(ensureArray(prev.skills_known), capacityId);
           break;
-        case "available":
+        case 'available':
           newFormData.skills_available = addUniqueCapacity(
             ensureArray(prev.skills_available),
             capacityId
           );
           break;
-        case "wanted":
+        case 'wanted':
           newFormData.skills_wanted = addUniqueCapacity(
             ensureArray(prev.skills_wanted),
             capacityId
@@ -606,7 +597,7 @@ export default function EditProfilePage() {
   const handleAddProject = () => {
     setFormData(prev => ({
       ...prev,
-      wikimedia_project: addUniqueItem(ensureArray<string>(prev.wikimedia_project), ""),
+      wikimedia_project: addUniqueItem(ensureArray<string>(prev.wikimedia_project), ''),
     }));
   };
 
@@ -616,22 +607,30 @@ export default function EditProfilePage() {
     router.push(path);
   };
 
-
   const handleLetsConnectImport = async () => {
-    const allLanguages = Object.entries(languages).map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-      proficiency: "3"
-    } as LanguageProficiency));
-    const letsConnectLanguages = allLanguages.filter((language) => letsConnectData?.reconciled_languages.includes(language.name || ""));
+    const allLanguages = Object.entries(languages).map(
+      ([id, name]) =>
+        ({
+          id: Number(id),
+          name: name,
+          proficiency: '3',
+        }) as LanguageProficiency
+    );
+    const letsConnectLanguages = allLanguages.filter(language =>
+      letsConnectData?.reconciled_languages.includes(language.name || '')
+    );
 
-    const allCapacities = capacities.map((capacity) => ({
+    const allCapacities = capacities.map(capacity => ({
       id: capacity.id,
       code: capacity.skill_wikidata_item,
     }));
 
-    const letsConnectWantedCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_learn.includes(capacity.code || ""));
-    const letsConnectAvailableCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_share.includes(capacity.code || ""));
+    const letsConnectWantedCapacities = allCapacities.filter(capacity =>
+      letsConnectData?.reconciled_want_to_learn.includes(capacity.code || '')
+    );
+    const letsConnectAvailableCapacities = allCapacities.filter(capacity =>
+      letsConnectData?.reconciled_want_to_share.includes(capacity.code || '')
+    );
 
     const allAffiliations = Object.entries(affiliations).map(([id, name]) => ({
       id: Number(id),
@@ -639,7 +638,7 @@ export default function EditProfilePage() {
     }));
 
     const letsConnectAffiliation = allAffiliations.filter(affiliation => {
-      const affiliationName = affiliation.name.split(' (')[0];  // Get everything before ' ('
+      const affiliationName = affiliation.name.split(' (')[0]; // Get everything before ' ('
       return affiliationName === letsConnectData?.reconciled_affiliation;
     });
 
@@ -647,9 +646,11 @@ export default function EditProfilePage() {
       id: Number(id),
       name: name,
     }));
-    
-    const letsConnectTerritory = allTerritories.find((territory) => territory.name === letsConnectData?.reconciled_territory);
-    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || "";
+
+    const letsConnectTerritory = allTerritories.find(
+      territory => territory.name === letsConnectData?.reconciled_territory
+    );
+    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || '';
 
     if (letsConnectData) {
       // Ensure the arrays exist and are of the correct type
@@ -678,7 +679,7 @@ export default function EditProfilePage() {
         skills_available: addUniqueCapacities(currentSkillsAvailable, newSkillsAvailable),
         skills_wanted: addUniqueCapacities(currentSkillsWanted, newSkillsWanted),
       });
-      showSnackbar(pageContent["snackbar-lets-connect-import-success"], "success");
+      showSnackbar(pageContent['snackbar-lets-connect-import-success'], 'success');
     }
     setShowLetsConnectPopup(false);
   };

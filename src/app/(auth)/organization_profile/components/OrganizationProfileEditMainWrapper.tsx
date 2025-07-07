@@ -563,19 +563,19 @@ export default function EditOrganizationProfilePage() {
             const documentPayload = {
               url: doc.url,
               ...(organizationId && { organization: Number(organizationId) }),
-              ...(session?.user?.id && { creator: Number(session.user.id) })
+              ...(session?.user?.id && { creator: Number(session.user.id) }),
             };
-            
+
             const newDoc = await createDocument(documentPayload);
             return newDoc?.id;
           } catch (error: any) {
-            console.error("❌ Error creating document - Full details:", {
+            console.error('❌ Error creating document - Full details:', {
               error: error.message,
               status: error.response?.status,
               data: error.response?.data,
               documentUrl: doc.url,
               organizationId,
-              userId: session?.user?.id
+              userId: session?.user?.id,
             });
             return null;
           }
@@ -706,13 +706,13 @@ export default function EditOrganizationProfilePage() {
       // Check if error is a validation error with a translation key
       const errorMessage = error?.message || '';
       const isTranslationKey = errorMessage && errorMessage.startsWith('snackbar-');
-      
+
       if (isTranslationKey && pageContent[errorMessage]) {
-        showSnackbar(pageContent[errorMessage], "error");
+        showSnackbar(pageContent[errorMessage], 'error');
       } else {
         showSnackbar(
-          pageContent["snackbar-edit-profile-organization-error"] || "Error saving profile",
-          "error"
+          pageContent['snackbar-edit-profile-organization-error'] || 'Error saving profile',
+          'error'
         );
       }
     }
@@ -1233,8 +1233,8 @@ export default function EditOrganizationProfilePage() {
     // Check if we've reached the maximum limit of 4 documents
     if (documentsData.length >= 4) {
       showSnackbar(
-        pageContent["snackbar-edit-profile-organization-max-documents-reached"],
-        "error"
+        pageContent['snackbar-edit-profile-organization-max-documents-reached'],
+        'error'
       );
       return;
     }

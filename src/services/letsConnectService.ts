@@ -1,6 +1,6 @@
-import { LetsConnect } from "@/types/lets_connect";
-import { LetsConnectProfile } from "@/types/profile";
-import axios from "axios";
+import { LetsConnect } from '@/types/lets_connect';
+import { LetsConnectProfile } from '@/types/profile';
+import axios from 'axios';
 
 export interface LetsConnectServiceParams {
   letsConnect: Partial<LetsConnect>;
@@ -40,15 +40,15 @@ export class LetsConnectService {
 
   static async getLetsConnect(username?: string): Promise<LetsConnectProfile | null> {
     try {
-      const response = await axios.get("/api/lets_connect", {
+      const response = await axios.get('/api/lets_connect', {
         params: {
-          username: username
+          username: username,
         },
         headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
     } catch (error) {
       console.error('Failed to get lets connect data:', error);
       throw error;
