@@ -16,10 +16,13 @@ export function LanguageSelector({
   placeholder,
 }: LanguageSelectorProps) {
   const { pageContent } = useApp();
-  const languagesList = Object.entries(languages).map(([id, name]) => ({
-    id,
-    name,
-  }));
+
+  const languagesList = Object.entries(languages)
+    .map(([id, name]) => ({
+      id,
+      name,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <SelectList

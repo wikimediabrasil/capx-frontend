@@ -23,6 +23,8 @@ export interface FilterState {
   territories: string[];
   languages: string[];
   profileFilter: ProfileFilterType;
+  username?: string;
+  affiliations?: string[];
 }
 
 export const createProfilesFromOrganizations = (

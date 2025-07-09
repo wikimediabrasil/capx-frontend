@@ -37,6 +37,10 @@ import { TerritorySelector } from './TerritorySelector';
 import { ProfileCapacityType, ProfileFilterType } from '../types';
 import { Capacity } from '@/types/capacity';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import UserIcon from '@/public/static/images/account_circle.svg';
+import UserIconWhite from '@/public/static/images/account_circle_white.svg';
+import { useAffiliation } from '@/hooks/useAffiliation';
+import { AffiliationSelector } from './AffiliationSelector';
 
 interface FiltersProps {
   isOnlyOrganization?: boolean;
@@ -57,6 +61,7 @@ export function Filters({
   const token = session?.user?.token;
   const { languages } = useLanguage(token);
   const { territories } = useTerritories(token);
+  const { affiliations } = useAffiliation(token);
   const [searchCapacity, setSearchCapacity] = useState('');
   const [filters, setFilters] = useState(initialFilters);
   const [showSkillModal, setShowSkillModal] = useState(false);
@@ -112,6 +117,13 @@ export function Filters({
         : [...prev.profileCapacityTypes, type];
       return { ...prev, profileCapacityTypes: types };
     });
+  };
+
+  const handleUsernameChange = (username: string) => {
+    setFilters(prev => ({
+      ...prev,
+      username: username || undefined,
+    }));
   };
 
   // Avoid multiple scrolls when the modal is open
@@ -276,6 +288,42 @@ export function Filters({
             {/* Divider */}
             <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
+            {/* Username Filter - Only for user profiles */}
+            {!isOnlyOrganization && (
+              <>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={darkMode ? UserIconWhite : UserIcon}
+                      alt={pageContent['filters-username-alt-icon']}
+                      width={24}
+                      height={24}
+                    />
+                    <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
+                      {pageContent['filters-username']}
+                    </h2>
+                  </div>
+                  <input
+                    type="text"
+                    value={filters.username || ''}
+                    onChange={e => handleUsernameChange(e.target.value)}
+                    placeholder={pageContent['filters-search-by-username']}
+                    className={`
+                      w-full p-2 rounded-lg border
+                      ${
+                        darkMode
+                          ? 'bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400'
+                          : 'bg-white border-gray-300 placeholder-gray-500'
+                      }
+                    `}
+                  />
+                </div>
+
+                {/* Divider */}
+                <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+              </>
+            )}
+
             {/* Territory */}
             <TerritorySelector
               territories={territories}
@@ -290,6 +338,31 @@ export function Filters({
               }}
               placeholder={pageContent['filters-add-territory']}
             />
+
+            {/* Divider */}
+            <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+
+            {/* Affiliations - Only for user profiles */}
+            {!isOnlyOrganization && (
+              <>
+                <AffiliationSelector
+                  affiliations={affiliations}
+                  selectedAffiliations={filters.affiliations || []}
+                  onSelectAffiliation={affiliationId => {
+                    setFilters(prev => ({
+                      ...prev,
+                      affiliations: prev.affiliations?.includes(affiliationId)
+                        ? prev.affiliations?.filter(id => id !== affiliationId)
+                        : [...(prev.affiliations || []), affiliationId],
+                    }));
+                  }}
+                  placeholder={pageContent['filters-add-affiliation']}
+                />
+
+                {/* Divider */}
+                <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+              </>
+            )}
 
             {!isOnlyOrganization && (
               <>
