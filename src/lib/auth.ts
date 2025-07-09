@@ -11,12 +11,6 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials: any) {
         const requestId = Math.random().toString(36).substring(7);
         try {
-          console.log(`[${requestId}] NextAuth authorize called with credentials:`, {
-            oauth_token: credentials.oauth_token ? "present" : "missing",
-            oauth_verifier: credentials.oauth_verifier ? "present" : "missing",
-            stored_token: credentials.stored_token ? "present" : "missing",
-            stored_token_secret: credentials.stored_token_secret ? "present" : "missing",
-          });
 
           // Validate required credentials - return null for silent failure
           if (!credentials.oauth_token || !credentials.oauth_verifier || !credentials.stored_token_secret) {
@@ -25,16 +19,13 @@ export const authOptions: NextAuthOptions = {
           }
 
           const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-          
-          console.log(`[${requestId}] Starting authentication process`);
-          
+                    
           // Try the login callback with retry logic
           let response;
           let lastError;
           
           for (let attempt = 1; attempt <= 3; attempt++) {
             try {
-              console.log(`[${requestId}] Attempt ${attempt} to authenticate`);
               
               response = await axios.post(`${baseUrl}/api/login/callback`, {
                 oauth_token: credentials.oauth_token,
@@ -43,10 +34,7 @@ export const authOptions: NextAuthOptions = {
                 stored_token_secret: credentials.stored_token_secret,
               });
 
-              console.log(`[${requestId}] Login callback response:`, response.data);
-
               if (response.data.success && response.data.user) {
-                console.log(`[${requestId}] Authentication successful!`);
                 return {
                   id: response.data.user.id,
                   name: response.data.user.username,
@@ -97,7 +85,6 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       // Accept any successful authentication
       const isValid = !!user;
-      console.log(`NextAuth signIn callback: ${isValid ? 'accepting' : 'rejecting'} user:`, user?.name || 'null');
       return isValid;
     },
     async session({ session, token }) {
@@ -107,7 +94,6 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.user = user;
-        console.log(`NextAuth JWT callback: storing user data for ${user.name}`);
       }
       return token;
     },

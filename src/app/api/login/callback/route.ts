@@ -4,7 +4,6 @@ import axios from "axios";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log("Login callback called with body:", body);
 
     const { oauth_token, oauth_verifier, stored_token, stored_token_secret, oauth_token_secret } =
       body;
@@ -24,19 +23,11 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("Making request to backend with:", {
-      oauth_token,
-      oauth_verifier,
-      oauth_token_secret: token_secret,
-    });
-
     const response = await axios.post(process.env.LOGIN_STEP03_URL as string, {
       oauth_token,
       oauth_verifier,
       oauth_token_secret: token_secret,
     });
-
-    console.log("Backend response:", response.data);
 
     if (response.data && response.data.token) {
       return NextResponse.json({
