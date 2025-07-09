@@ -4,15 +4,19 @@ import axios from "axios";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("Login callback called with body:", body);
 
-    const { oauth_token, oauth_verifier, stored_token, stored_token_secret } =
+    const { oauth_token, oauth_verifier, stored_token, stored_token_secret, oauth_token_secret } =
       body;
 
-    if (!oauth_token || !oauth_verifier || !stored_token_secret) {
+    // Use oauth_token_secret if available, otherwise fallback to stored_token_secret
+    const token_secret = oauth_token_secret || stored_token_secret;
+
+    if (!oauth_token || !oauth_verifier || !token_secret) {
       console.error("Missing required parameters:", {
         oauth_token,
         oauth_verifier,
-        stored_token_secret,
+        token_secret,
       });
       return NextResponse.json(
         { error: "Missing required parameters" },
@@ -20,11 +24,19 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log("Making request to backend with:", {
+      oauth_token,
+      oauth_verifier,
+      oauth_token_secret: token_secret,
+    });
+
     const response = await axios.post(process.env.LOGIN_STEP03_URL as string, {
       oauth_token,
       oauth_verifier,
-      oauth_token_secret: stored_token_secret,
+      oauth_token_secret: token_secret,
     });
+
+    console.log("Backend response:", response.data);
 
     if (response.data && response.data.token) {
       return NextResponse.json({
