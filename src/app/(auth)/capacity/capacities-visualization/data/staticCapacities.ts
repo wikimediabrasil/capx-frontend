@@ -1,7 +1,9 @@
 import { Capacity } from "@/types/capacity";
+import { fetchMetabase } from "@/lib/utils/capacitiesUtils";
 
 // Dados estáticos das capacidades organizadas hierarquicamente
 // Baseado na estrutura real do sistema de capacidades
+// As descrições serão buscadas dinamicamente do Metabase
 
 export const STATIC_CAPACITIES: Capacity[] = [
   {
@@ -13,7 +15,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 10,
     skill_wikidata_item: "",
     level: 1,
-    description: "Competências organizacionais e de gestão",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q10",
     children: [
       {
@@ -25,7 +27,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 10,
         skill_wikidata_item: "",
         level: 2,
-        description: "Gestão de projetos e processos",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q101",
         children: [
           {
@@ -37,7 +39,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 101,
             skill_wikidata_item: "",
             level: 3,
-            description: "Gestão ágil de projetos",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q1011",
           },
           {
@@ -49,7 +51,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 101,
             skill_wikidata_item: "",
             level: 3,
-            description: "Gestão tradicional de projetos",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q1012",
           },
         ],
@@ -63,7 +65,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 10,
         skill_wikidata_item: "",
         level: 2,
-        description: "Liderança de equipes",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q102",
         children: [
           {
@@ -75,7 +77,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 102,
             skill_wikidata_item: "",
             level: 3,
-            description: "Liderança motivacional",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q1021",
           },
           {
@@ -87,7 +89,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 102,
             skill_wikidata_item: "",
             level: 3,
-            description: "Liderança transformacional",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q1022",
           },
         ],
@@ -103,7 +105,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 36,
     skill_wikidata_item: "",
     level: 1,
-    description: "Habilidades de comunicação",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q36",
     children: [
       {
@@ -115,7 +117,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 36,
         skill_wikidata_item: "",
         level: 2,
-        description: "Oratória e apresentações públicas",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q361",
         children: [
           {
@@ -127,7 +129,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 361,
             skill_wikidata_item: "",
             level: 3,
-            description: "Apresentação em conferências",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q3611",
           },
           {
@@ -139,7 +141,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 361,
             skill_wikidata_item: "",
             level: 3,
-            description: "Facilitação de workshops",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q3612",
           },
         ],
@@ -153,7 +155,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 36,
         skill_wikidata_item: "",
         level: 2,
-        description: "Comunicação escrita",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q362",
         children: [
           {
@@ -165,7 +167,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 362,
             skill_wikidata_item: "",
             level: 3,
-            description: "Escrita técnica",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q3621",
           },
           {
@@ -177,7 +179,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 362,
             skill_wikidata_item: "",
             level: 3,
-            description: "Criação de conteúdo",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q3622",
           },
         ],
@@ -193,7 +195,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 50,
     skill_wikidata_item: "",
     level: 1,
-    description: "Aprendizagem e desenvolvimento",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q50",
     children: [
       {
@@ -205,7 +207,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 50,
         skill_wikidata_item: "",
         level: 2,
-        description: "Aprendizagem autodirigida",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q501",
         children: [
           {
@@ -217,7 +219,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 501,
             skill_wikidata_item: "",
             level: 3,
-            description: "Aprendizagem online",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5011",
           },
           {
@@ -229,7 +231,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 501,
             skill_wikidata_item: "",
             level: 3,
-            description: "Habilidades de pesquisa",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5012",
           },
         ],
@@ -243,7 +245,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 50,
         skill_wikidata_item: "",
         level: 2,
-        description: "Compartilhamento de conhecimento",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q502",
         children: [
           {
@@ -255,7 +257,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 502,
             skill_wikidata_item: "",
             level: 3,
-            description: "Mentoria e orientação",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5021",
           },
           {
@@ -267,7 +269,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 502,
             skill_wikidata_item: "",
             level: 3,
-            description: "Desenvolvimento de treinamentos",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5022",
           },
         ],
@@ -283,7 +285,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 56,
     skill_wikidata_item: "",
     level: 1,
-    description: "Construção de comunidades",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q56",
     children: [
       {
@@ -295,7 +297,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 56,
         skill_wikidata_item: "",
         level: 2,
-        description: "Organização de eventos",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q561",
         children: [
           {
@@ -307,7 +309,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 561,
             skill_wikidata_item: "",
             level: 3,
-            description: "Organização de conferências",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5611",
           },
           {
@@ -319,7 +321,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 561,
             skill_wikidata_item: "",
             level: 3,
-            description: "Planejamento de workshops",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5612",
           },
         ],
@@ -333,7 +335,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 56,
         skill_wikidata_item: "",
         level: 2,
-        description: "Construção de redes",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q562",
         children: [
           {
@@ -345,7 +347,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 562,
             skill_wikidata_item: "",
             level: 3,
-            description: "Networking profissional",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5621",
           },
           {
@@ -357,7 +359,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 562,
             skill_wikidata_item: "",
             level: 3,
-            description: "Engajamento da comunidade",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q5622",
           },
         ],
@@ -373,7 +375,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 65,
     skill_wikidata_item: "",
     level: 1,
-    description: "Habilidades sociais",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q65",
     children: [
       {
@@ -385,7 +387,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 65,
         skill_wikidata_item: "",
         level: 2,
-        description: "Inteligência emocional",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q651",
         children: [
           {
@@ -397,7 +399,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 651,
             skill_wikidata_item: "",
             level: 3,
-            description: "Empatia",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q6511",
           },
           {
@@ -409,7 +411,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 651,
             skill_wikidata_item: "",
             level: 3,
-            description: "Resolução de conflitos",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q6512",
           },
         ],
@@ -423,7 +425,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 65,
         skill_wikidata_item: "",
         level: 2,
-        description: "Colaboração",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q652",
         children: [
           {
@@ -435,7 +437,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 652,
             skill_wikidata_item: "",
             level: 3,
-            description: "Colaboração em equipe",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q6521",
           },
           {
@@ -447,7 +449,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 652,
             skill_wikidata_item: "",
             level: 3,
-            description: "Comunicação intercultural",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q6522",
           },
         ],
@@ -463,7 +465,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 74,
     skill_wikidata_item: "",
     level: 1,
-    description: "Planejamento estratégico",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q74",
     children: [
       {
@@ -475,7 +477,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 74,
         skill_wikidata_item: "",
         level: 2,
-        description: "Pensamento estratégico",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q741",
         children: [
           {
@@ -487,7 +489,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 741,
             skill_wikidata_item: "",
             level: 3,
-            description: "Análise de mercado",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q7411",
           },
           {
@@ -499,7 +501,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 741,
             skill_wikidata_item: "",
             level: 3,
-            description: "Análise competitiva",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q7412",
           },
         ],
@@ -513,7 +515,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 74,
         skill_wikidata_item: "",
         level: 2,
-        description: "Tomada de decisão",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q742",
         children: [
           {
@@ -525,7 +527,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 742,
             skill_wikidata_item: "",
             level: 3,
-            description: "Avaliação de riscos",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q7421",
           },
           {
@@ -537,7 +539,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 742,
             skill_wikidata_item: "",
             level: 3,
-            description: "Tomada de decisão baseada em dados",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q7422",
           },
         ],
@@ -553,7 +555,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
     skill_type: 106,
     skill_wikidata_item: "",
     level: 1,
-    description: "Competências tecnológicas",
+    description: "", // Será preenchida dinamicamente
     wd_code: "Q106",
     children: [
       {
@@ -565,7 +567,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 106,
         skill_wikidata_item: "",
         level: 2,
-        description: "Desenvolvimento de software",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q1061",
         children: [
           {
@@ -577,7 +579,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 1061,
             skill_wikidata_item: "",
             level: 3,
-            description: "Desenvolvimento frontend",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q10611",
           },
           {
@@ -589,7 +591,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 1061,
             skill_wikidata_item: "",
             level: 3,
-            description: "Desenvolvimento backend",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q10612",
           },
         ],
@@ -603,7 +605,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
         skill_type: 106,
         skill_wikidata_item: "",
         level: 2,
-        description: "Análise de dados",
+        description: "", // Será preenchida dinamicamente
         wd_code: "Q1062",
         children: [
           {
@@ -615,7 +617,7 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 1062,
             skill_wikidata_item: "",
             level: 3,
-            description: "Análise estatística",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q10621",
           },
           {
@@ -627,11 +629,62 @@ export const STATIC_CAPACITIES: Capacity[] = [
             skill_type: 1062,
             skill_wikidata_item: "",
             level: 3,
-            description: "Visualização de dados",
+            description: "", // Será preenchida dinamicamente
             wd_code: "Q10622",
           },
         ],
       },
     ],
   },
-]; 
+];
+
+// Função para buscar descrições do Metabase
+export const fetchCapacityDescriptions = async (capacities: Capacity[], language: string = "pt"): Promise<Capacity[]> => {
+  try {
+    // Extrair todos os códigos únicos das capacidades
+    const allCodes = new Set<string>();
+    
+    const extractCodes = (cap: Capacity) => {
+      if (cap.wd_code) {
+        allCodes.add(cap.wd_code);
+      }
+      if (cap.children) {
+        cap.children.forEach(extractCodes);
+      }
+    };
+    
+    capacities.forEach(extractCodes);
+    
+    // Buscar descrições do Metabase
+    const codesArray = Array.from(allCodes).map(wd_code => ({ wd_code }));
+    const metabaseResults = await fetchMetabase(codesArray, language);
+    
+    // Criar um mapa de descrições
+    const descriptionsMap = new Map<string, string>();
+    metabaseResults.forEach(result => {
+      descriptionsMap.set(result.wd_code, result.description || "");
+    });
+    
+    // Função para atualizar descrições recursivamente
+    const updateDescriptions = (cap: Capacity): Capacity => {
+      const updatedCap = { ...cap };
+      
+      if (cap.wd_code && descriptionsMap.has(cap.wd_code)) {
+        updatedCap.description = descriptionsMap.get(cap.wd_code) || "";
+      }
+      
+      if (cap.children) {
+        updatedCap.children = cap.children.map(updateDescriptions);
+      }
+      
+      return updatedCap;
+    };
+    
+    // Atualizar todas as capacidades com as descrições do Metabase
+    return capacities.map(updateDescriptions);
+    
+  } catch (error) {
+    console.error("Erro ao buscar descrições do Metabase:", error);
+    return capacities; // Retornar capacidades originais em caso de erro
+  }
+}; 
