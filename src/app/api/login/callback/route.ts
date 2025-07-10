@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { oauth_token, oauth_verifier, stored_token, stored_token_secret, oauth_token_secret } =
+    const { oauth_token, oauth_verifier, stored_token_secret, oauth_token_secret } =
       body;
 
     // Use oauth_token_secret if available, otherwise fallback to stored_token_secret

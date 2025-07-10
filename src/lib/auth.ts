@@ -22,7 +22,6 @@ export const authOptions: NextAuthOptions = {
                     
           // Try the login callback with retry logic
           let response;
-          let lastError;
           
           for (let attempt = 1; attempt <= 3; attempt++) {
             try {
@@ -30,7 +29,6 @@ export const authOptions: NextAuthOptions = {
               response = await axios.post(`${baseUrl}/api/login/callback`, {
                 oauth_token: credentials.oauth_token,
                 oauth_verifier: credentials.oauth_verifier,
-                stored_token: credentials.stored_token,
                 stored_token_secret: credentials.stored_token_secret,
               });
 
@@ -44,10 +42,8 @@ export const authOptions: NextAuthOptions = {
               }
 
               console.warn(`[${requestId}] Invalid response from server:`, response.data);
-              lastError = new Error("Invalid response from server");
               
             } catch (error: any) {
-              lastError = error;
               console.error(`[${requestId}] Attempt ${attempt} failed:`, error.response?.data || error.message);
               
               // If it's a 400 error, this might be because tokens were already used
