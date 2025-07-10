@@ -1,9 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import { OrganizationDocument } from '@/types/document';
 
+import { OrganizationDocument } from '@/types/document';
+import Image from 'next/image';
 // Hooks Mock
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
@@ -30,7 +28,7 @@ jest.mock('next/navigation', () => ({
 // Image Mock
 jest.mock('next/image', () => {
   return function MockedImage({ src, alt, ...props }: any) {
-    return <img src={src} alt={alt} {...props} />;
+    return <Image src={src} alt={alt} {...props} />;
   };
 });
 
