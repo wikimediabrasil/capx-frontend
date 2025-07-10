@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { setDocumentLocale } from "@/lib/utils/dateLocale";
 
 interface AppContextType {
   isMobile: boolean;
@@ -77,13 +78,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Save language to localStorage when it changes
+  // Save language to localStorage and set document locale when it changes
   useEffect(() => {
     if (!isClient || !mounted) return;
 
     try {
       if (language) {
         localStorage.setItem("language", language);
+        // Set locale in the document to affect native calendars
+        setDocumentLocale(language);
       }
     } catch (error) {
       console.error("Error saving language to localStorage:", error);
