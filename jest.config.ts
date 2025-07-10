@@ -19,6 +19,13 @@ const customJestConfig: Config = {
     "<rootDir>/src/__tests__/**/*.test.tsx",
     "<rootDir>/src/__tests__/**/*.test.ts",
   ],
+  // Configurations to improve performance and avoid memory problems
+  maxWorkers: 1,
+  workerIdleMemoryLimit: "512MB",
+  testTimeout: 10000,
+  // Configurations to reduce warnings
+  silent: false,
+  verbose: false,
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
