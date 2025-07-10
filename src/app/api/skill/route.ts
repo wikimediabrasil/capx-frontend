@@ -1,6 +1,8 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 // returns all skills
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");

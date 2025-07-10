@@ -6,6 +6,8 @@ import {
   sanitizeCapacityName,
 } from "@/lib/utils/capacitiesUtils";
 
+export const dynamic = 'force-dynamic';
+
 // Hard-coded fallback names for known capacity IDs
 const CAPACITY_NAMES = {
   "69": "Strategic Thinking",
