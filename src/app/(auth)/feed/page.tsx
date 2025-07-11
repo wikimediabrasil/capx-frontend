@@ -27,7 +27,7 @@ export default function FeedPage() {
   const capacityCode = searchParams.get('capacityId');
 
   const [showFilters, setShowFilters] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
     capacities: [] as Skill[],
     profileCapacityTypes: [
       ProfileCapacityType.Learner,
@@ -36,6 +36,8 @@ export default function FeedPage() {
     territories: [] as string[],
     languages: [] as string[],
     profileFilter: ProfileFilterType.Both,
+    username: undefined,
+    affiliations: [] as string[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 

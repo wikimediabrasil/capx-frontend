@@ -16,10 +16,12 @@ export function TerritorySelector({
   placeholder,
 }: TerritorySelectorProps) {
   const { pageContent } = useApp();
-  const territoriesList = Object.entries(territories).map(([id, name]) => ({
-    id,
-    name,
-  }));
+  const territoriesList = Object.entries(territories)
+    .map(([id, name]) => ({
+      id,
+      name,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <SelectList

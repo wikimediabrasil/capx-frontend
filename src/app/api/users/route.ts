@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
       has_any_skills: searchParams.get('has_any_skills') === 'true' ? true : undefined,
       has_skills_wanted: searchParams.get('has_skills_wanted') === 'true' ? true : undefined,
       has_skills_available: searchParams.get('has_skills_available') === 'true' ? true : undefined,
+      affiliation: searchParams.get('affiliation') || undefined,
     };
 
     const cleanParams = Object.fromEntries(

@@ -5,6 +5,7 @@ export interface UserFilters {
   username?: string;
   language?: string[];
   territory?: string[];
+  affiliations?: string[];
   skills_available?: number[];
   skills_wanted?: number[];
   has_skills_wanted?: boolean;
@@ -43,6 +44,10 @@ export const userService = {
 
     if (queryParams?.filters?.language?.length) {
       queryParams.filters.language.forEach(t => params.append('language', t));
+    }
+
+    if (queryParams?.filters?.affiliations?.length) {
+      queryParams.filters.affiliations.forEach(a => params.append('affiliation', a));
     }
 
     if (queryParams?.filters?.skills_available?.length) {
