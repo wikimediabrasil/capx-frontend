@@ -1,4 +1,5 @@
 import { useTheme } from "@/contexts/ThemeContext";
+import { useApp } from "@/contexts/AppContext";
 import Image from "next/image";
 import SearchIcon from "@/public/static/images/search_icon.svg";
 import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
@@ -36,6 +37,7 @@ export function SearchBar({
   showCapacitiesSearch = false
 }: SearchBarProps) {
   const { darkMode } = useTheme();
+  const { pageContent } = useApp();
   
   return (
     <div className="flex gap-2 mb-6">
@@ -53,7 +55,7 @@ export function SearchBar({
             <div className="absolute right-3 top-4">
               <Image
                 src={darkMode ? SearchIconWhite : SearchIcon}
-                alt="Search"
+                alt={pageContent["alt-search"] || "Search icon"}
                 width={20}
                 height={20}
               />
@@ -81,7 +83,7 @@ export function SearchBar({
                     >
                       <Image
                         src={darkMode ? CloseIconWhite : CloseIcon}
-                        alt={removeItemAltText}
+                        alt={pageContent["alt-close"] || "Close dialog or panel"}
                         width={16}
                         height={16}
                       />
@@ -110,7 +112,7 @@ export function SearchBar({
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               <Image
                 src={darkMode ? SearchIconWhite : SearchIcon}
-                alt="Search"
+                alt={pageContent["alt-search"] || "Search icon"}
                 width={20}
                 height={20}
               />
@@ -147,7 +149,7 @@ export function SearchBar({
       >
         <Image
           src={darkMode ? FilterIconWhite : FilterIcon}
-          alt="Filters"
+          alt={pageContent["alt-filter"] || "Filter options"}
           width={20}
           height={20}
         />
