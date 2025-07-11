@@ -270,7 +270,12 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
           {item.title}
           {item.image && (
             <div className="px-8">
-              <Image src={item.image} alt="Menu icon" width={24} height={24} />
+              <Image 
+                src={item.image} 
+                alt={pageContent["alt-icon-generic"] || "Menu icon"} 
+                width={24} 
+                height={24} 
+              />
             </div>
           )}
         </div>
@@ -295,7 +300,12 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
           {item.title}
           {item.image && (
             <div className="px-8">
-              <Image src={item.image} alt="Menu icon" width={24} height={24} />
+              <Image 
+                src={item.image} 
+                alt={pageContent["alt-icon-generic"] || "Menu icon"} 
+                width={24} 
+                height={24} 
+              />
             </div>
           )}
         </div>
