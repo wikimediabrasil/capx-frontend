@@ -26,7 +26,7 @@ export default function MobileNavbar({
   language,
   setLanguage,
 }: MobileNavbarProps) {
-  const { isMobile, mobileMenuStatus, setMobileMenuStatus } = useApp();
+  const { isMobile, mobileMenuStatus, setMobileMenuStatus, pageContent } = useApp();
   const { darkMode } = useTheme();
   const navbarClasses = `fixed top-0 left-0 right-0 z-50 mb-16 ${
     darkMode ? "bg-capx-dark-box-bg" : "bg-capx-light-bg"
@@ -43,7 +43,7 @@ export default function MobileNavbar({
                 <Image
                   priority
                   src={CapXLogo}
-                  alt="Capacity Exchange logo"
+                  alt={pageContent["alt-logo-main"] || "CapX - Capacity Exchange logo, navigate to homepage"}
                   width={48}
                   height={48}
                   className="w-[48px] h-[48px] mb-2"
@@ -68,7 +68,7 @@ export default function MobileNavbar({
                           ? IconCloseMobileMenuDarkMode
                           : IconCloseMobileMenuLightMode
                       }
-                      alt="Close menu"
+                      alt={pageContent["alt-menu-close"] || "Close navigation menu"}
                       width={32}
                       height={32}
                     />
@@ -77,7 +77,7 @@ export default function MobileNavbar({
                   <button onClick={() => setMobileMenuStatus(true)}>
                     <Image
                       src={darkMode ? BurgerMenuDarkMode : BurgerMenu}
-                      alt="Burger Menu"
+                      alt={pageContent["alt-burger-menu"] || "Open main navigation menu"}
                       width={32}
                       height={32}
                     />
@@ -105,7 +105,7 @@ export default function MobileNavbar({
               <Image
                 priority
                 src={CapXLogo}
-                alt="Capacity Exchange logo"
+                alt={pageContent["alt-logo-main"] || "CapX - Capacity Exchange logo, navigate to homepage"}
                 width={32}
                 height={32}
                 className="w-[32px] h-[32px]"
@@ -125,7 +125,7 @@ export default function MobileNavbar({
               {mobileMenuStatus ? (
                 <button
                   onClick={() => setMobileMenuStatus(false)}
-                  aria-label="close menu"
+                  aria-label={pageContent["alt-menu-close"] || "Close navigation menu"}
                   className="p-2"
                 >
                   <Image
@@ -134,7 +134,7 @@ export default function MobileNavbar({
                         ? IconCloseMobileMenuDarkMode
                         : IconCloseMobileMenuLightMode
                     }
-                    alt="Close Menu"
+                    alt={pageContent["alt-menu-close"] || "Close navigation menu"}
                     width={32}
                     height={32}
                   />
@@ -142,12 +142,12 @@ export default function MobileNavbar({
               ) : (
                 <button
                   onClick={() => setMobileMenuStatus(true)}
-                  aria-label="open menu"
+                  aria-label={pageContent["alt-menu-open"] || "Open navigation menu"}
                   className="p-2"
                 >
                   <Image
                     src={darkMode ? BurgerMenuDarkMode : BurgerMenu}
-                    alt="Burger Menu"
+                    alt={pageContent["alt-burger-menu"] || "Open main navigation menu"}
                     width={32}
                     height={32}
                   />
