@@ -2,8 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import { Capacity } from "@/types/capacity";
+import { Capacity } from "../data/staticCapacities";
 import { getCapacityColor } from "@/lib/utils/capacitiesUtils";
+
+// Função para determinar a cor baseada no id da capacidade
+const getColorForCapacity = (id: number | string): string => {
+  const idStr = String(id);
+  if (idStr === "10") return "organizational";
+  if (idStr === "36") return "communication";
+  if (idStr === "50") return "learning";
+  if (idStr === "56") return "community";
+  if (idStr === "65") return "social";
+  if (idStr === "74") return "strategic";
+  if (idStr === "106") return "technology";
+  return "gray-200";
+};
 
 interface D3TreeVisualizationProps {
   data: Capacity[];
@@ -13,36 +26,40 @@ interface D3TreeVisualizationProps {
 
 export default function D3TreeVisualization({ 
   data, 
-  width = 1000, 
-  height = 1000 
+  width = 1200, 
+  height = 800 
 }: D3TreeVisualizationProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(new Set());
 
-  // Função para transformar dados flat em hierárquicos
+  // Função para transformar dados flat em hierárquicos - sempre expandido
   const createHierarchy = (capacities: Capacity[]) => {
-    const root = {
-      name: "Capacidades",
-      code: 0,
-      color: "#6b7280",
-      level: 0,
-      children: capacities.map(rootCap => ({
-        ...rootCap,
-        level: 1,
-        children: (rootCap.children || []).map(child => ({
+    const rootCapacities = capacities.map(rootCap => {
+      const children = (rootCap.children || []).map(child => {
+        return {
           ...child,
           level: 2,
           children: (child.children || []).map(grandchild => ({
             ...grandchild,
             level: 3
           }))
-        }))
-      }))
-    };
-    return root;
+        };
+      });
+      
+      return {
+        ...rootCap,
+        level: 1,
+        children
+      };
+    });
+    
+    return rootCapacities;
   };
 
   useEffect(() => {
+
+    
     if (!data || data.length === 0 || !svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
@@ -58,15 +75,13 @@ export default function D3TreeVisualization({
 
     // Criar hierarquia
     const hierarchyData = createHierarchy(data);
-    const root = d3.hierarchy(hierarchyData);
+    const roots = hierarchyData.map(item => d3.hierarchy(item));
 
-    // Configurar layout da árvore com mais espaçamento vertical
+    // Configurar layout da árvore vertical
     const treeLayout = d3.tree()
-      .size([innerHeight, innerWidth])
+      .size([innerWidth, innerHeight])
       .separation((a: any, b: any) => {
-        // Aumentar separação entre nós do mesmo nível
         if (a.depth === b.depth) {
-          // Mais espaço para capacidades netas (nível 3)
           if (a.depth === 3) return 2.5;
           if (a.depth === 2) return 2;
           return 1.5;
@@ -74,28 +89,41 @@ export default function D3TreeVisualization({
         return 1;
       });
     
-    const treeData = treeLayout(root);
-
-    // Normalizar para layouts de profundidade fixos
-    const nodes = treeData.descendants();
-    const links = treeData.descendants().slice(1);
-
-    // Definir posições baseadas na profundidade com mais espaçamento
-    nodes.forEach((d: any) => {
-      d.y = d.depth * 180; // Reduzido de 200 para 180
+    // Aplicar layout a todas as raízes
+    const allNodes: any[] = [];
+    const allLinks: any[] = [];
+    let yOffset = 0;
+    
+    roots.forEach((root, index) => {
+      const treeData = treeLayout(root);
+      const nodes = treeData.descendants();
+      const links = treeData.descendants().slice(1);
+      
+      // Ajustar posições para layout vertical
+      nodes.forEach((d: any) => {
+        d.y = d.depth * 120; // Espaçamento vertical entre níveis
+        d.x += yOffset; // Adicionar offset para separar as árvores
+      });
+      
+      allNodes.push(...nodes);
+      allLinks.push(...links);
+      
+      // Calcular offset para próxima árvore
+      if (nodes.length > 0) {
+        const maxX = Math.max(...nodes.map((d: any) => d.x));
+        yOffset = maxX + 80; // Menos espaçamento entre árvores
+      }
     });
 
     // Adicionar links (conexões)
     const link = container.selectAll(".link")
-      .data(links)
+      .data(allLinks)
       .enter()
       .append("path")
       .attr("class", "link")
       .attr("d", (d: any) => {
-        return `M ${d.y} ${d.x}
-                C ${(d.y + d.parent.y) / 2} ${d.x},
-                  ${(d.y + d.parent.y) / 2} ${d.parent.x},
-                  ${d.parent.y} ${d.parent.x}`;
+        return `M ${d.parent.x} ${d.parent.y}
+                L ${d.x} ${d.y}`;
       })
       .style("fill", "none")
       .style("stroke", "#ccc")
@@ -103,13 +131,14 @@ export default function D3TreeVisualization({
 
     // Adicionar nós
     const node = container.selectAll(".node")
-      .data(nodes)
+      .data(allNodes)
       .enter()
       .append("g")
       .attr("class", "node")
-      .attr("transform", (d: any) => `translate(${d.y},${d.x})`)
+      .attr("transform", (d: any) => `translate(${d.x},${d.y})`)
       .style("cursor", "pointer")
       .on("click", (event: any, d: any) => {
+        // Mostrar detalhes da capacidade
         setSelectedNode(d.data);
       })
       .on("mouseover", function(event: any, d: any) {
@@ -130,13 +159,16 @@ export default function D3TreeVisualization({
       .attr("r", 8)
       .style("fill", (d: any) => {
         const nodeData = d.data;
-        if (nodeData.code === 0) return "#6b7280"; // Root
+        if (nodeData.id === "0") return "#6b7280"; // Root
         
         const level = nodeData.level || d.depth;
-        if (level === 1) return getCapacityColor(nodeData.color);
-        if (level === 2) return getCapacityColor(nodeData.color);
-        if (level === 3) return "#507380";
-        return "#e5e7eb";
+        
+        // Para capacidades de terceiro nível, usar cor mais escura
+        if (level === 3) return "#374151";
+        
+        // Para capacidades de primeiro e segundo nível, usar cor baseada no código
+        const colorName = getColorForCapacity(nodeData.id);
+        return getCapacityColor(colorName);
       })
       .style("stroke", "#ffffff")
       .style("stroke-width", "2px");
@@ -154,7 +186,7 @@ export default function D3TreeVisualization({
     // Adicionar ícones (se disponíveis)
     node.append("image")
       .attr("xlink:href", (d: any) => {
-        if (d.data.icon && d.data.code !== 0) {
+        if (d.data.icon && d.data.id !== "0") {
           return `/static/images/${d.data.icon}`;
         }
         return null;
@@ -170,7 +202,7 @@ export default function D3TreeVisualization({
       .attr("dy", "1.5em")
       .attr("x", (d: any) => d.children ? -13 : 13)
       .style("text-anchor", (d: any) => d.children ? "end" : "start")
-      .text((d: any) => d.data.code !== 0 ? `#${d.data.code}` : "")
+      .text((d: any) => d.data.id !== "0" ? `#${d.data.id}` : "")
       .style("font-size", "10px")
       .style("fill", "#6b7280")
       .style("font-weight", "400");
@@ -203,7 +235,7 @@ export default function D3TreeVisualization({
               Visualização Interativa das Capacidades
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Clique nos nós para ver detalhes • Use o mouse para fazer zoom e arrastar • Passe o mouse sobre os nós para destacar
+              Clique nos círculos para ver detalhes • Use o mouse para fazer zoom e arrastar • Layout vertical com todas as capacidades expandidas
             </p>
           </div>
           <div className="w-full overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
@@ -231,10 +263,10 @@ export default function D3TreeVisualization({
                 <span className="font-medium text-gray-700 dark:text-gray-300">Nome:</span>
                 <p className="text-gray-900 dark:text-white mt-1">{selectedNode.name}</p>
               </div>
-              {selectedNode.code !== 0 && (
+              {selectedNode.id !== "0" && (
                 <div>
                   <span className="font-medium text-gray-700 dark:text-gray-300">Código:</span>
-                  <p className="text-gray-900 dark:text-white mt-1">{selectedNode.code}</p>
+                  <p className="text-gray-900 dark:text-white mt-1">{selectedNode.id}</p>
                 </div>
               )}
               {selectedNode.skill_type && (
@@ -279,7 +311,7 @@ export default function D3TreeVisualization({
                   <div className="flex items-center gap-2 mt-1">
                     <div 
                       className="w-4 h-4 rounded border border-gray-300"
-                      style={{ backgroundColor: selectedNode.code === 0 ? "#6b7280" : getCapacityColor(selectedNode.color) }}
+                      style={{ backgroundColor: selectedNode.id === "0" ? "#6b7280" : getCapacityColor(selectedNode.color) }}
                     />
                     <span className="text-gray-900 dark:text-white">{selectedNode.color}</span>
                   </div>
