@@ -188,7 +188,7 @@ export default function FormMessage() {
             {formData.method ? formData.method : pageContent['message-form-method-placeholder']}
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-              alt="Select"
+              alt={pageContent["alt-dropdown-arrow"] || "Dropdown menu arrow"}
               width={20}
               height={20}
             />

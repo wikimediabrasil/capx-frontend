@@ -152,7 +152,7 @@ export default function FormSubmitReportBugPage() {
               : pageContent['report-bug-types-of-reports-placeholder']}
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-              alt="Select"
+              alt={pageContent["alt-dropdown-arrow"] || "Dropdown menu arrow"}
               width={20}
               height={20}
             />
