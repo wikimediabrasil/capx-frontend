@@ -1,20 +1,18 @@
-import { WikimediaImage } from "@/types/wikidataImage";
-import { WikimediaDocument } from "@/types/document";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
+import { WikimediaImage } from '@/types/wikidataImage';
+import { WikimediaDocument } from '@/types/document';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 
-export const fetchWikimediaData = async (
-  url: string
-): Promise<WikimediaDocument> => {
+export const fetchWikimediaData = async (url: string): Promise<WikimediaDocument> => {
   try {
-    let fileName = "";
+    let fileName = '';
 
-    if (url?.includes("commons.wikimedia.org/wiki/File:")) {
-      fileName = url?.split("File:")[1];
-    } else if (url?.includes("upload.wikimedia.org/wikipedia/commons/")) {
-      const parts = url?.split("/");
+    if (url?.includes('commons.wikimedia.org/wiki/File:')) {
+      fileName = url?.split('File:')[1];
+    } else if (url?.includes('upload.wikimedia.org/wikipedia/commons/')) {
+      const parts = url?.split('/');
       fileName = parts[parts.length - 1];
     } else {
-      fileName = url || "";
+      fileName = url || '';
     }
 
     const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&formatversion=2&format=json&iiprop=url%7Cmetadata&iiurlheight=200&titles=File:${encodeURIComponent(
@@ -30,7 +28,7 @@ export const fetchWikimediaData = async (
 
       return {
         id: 0,
-        title: page.title.replace("File:", ""),
+        title: page.title.replace('File:', ''),
         imageUrl: imageInfo?.thumburl,
         fullUrl: imageInfo?.url,
         metadata: imageInfo?.metadata,
@@ -39,39 +37,39 @@ export const fetchWikimediaData = async (
     }
     return {
       id: 0,
-      title: "",
-      imageUrl: "",
-      fullUrl: "",
+      title: '',
+      imageUrl: '',
+      fullUrl: '',
       metadata: [],
     };
   } catch (error) {
-    console.error("Error fetching Wikimedia data:", error);
+    console.error('Error fetching Wikimedia data:', error);
     return {
       id: 0,
-      title: "",
-      imageUrl: "",
-      fullUrl: "",
+      title: '',
+      imageUrl: '',
+      fullUrl: '',
       metadata: [],
     };
   }
 };
 
 export const formatWikiImageUrl = (url: string | undefined): string => {
-  if (!url || url.trim() === "") return NoAvatarIcon;
+  if (!url || url.trim() === '') return NoAvatarIcon;
 
-  if (url.includes("upload.wikimedia.org")) {
+  if (url.includes('upload.wikimedia.org')) {
     return url;
   }
 
-  if (url.includes("commons.wikimedia.org/wiki/File:")) {
-    const fileName = url.split("File:")[1];
+  if (url.includes('commons.wikimedia.org/wiki/File:')) {
+    const fileName = url.split('File:')[1];
     return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=384`;
   }
 
-  if (url.startsWith("File:")) {
+  if (url.startsWith('File:')) {
     return `https://commons.wikimedia.org/wiki/Special:FilePath/${url.replace(
-      "File:",
-      ""
+      'File:',
+      ''
     )}?width=384`;
   }
 
@@ -99,7 +97,7 @@ export const getWikiBirthday = async (username: string) => {
 
     return null;
   } catch (error) {
-    console.error("Error fetching wiki user info:", error);
+    console.error('Error fetching wiki user info:', error);
     return null;
   }
 };

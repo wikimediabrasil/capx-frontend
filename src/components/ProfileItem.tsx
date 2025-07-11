@@ -1,42 +1,42 @@
-import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
+import Image from 'next/image';
+import { useState, useRef, useEffect } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 
-import ArrowDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
-import ArrowDownIconWhite from "@/public/static/images/arrow_drop_down_circle_white.svg";
+import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
+import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 
 const CAPACITY_STYLES = {
   known: {
-    backgroundColor: "bg-[#0070B9]",
-    textColor: "text-white",
+    backgroundColor: 'bg-[#0070B9]',
+    textColor: 'text-white',
   },
   available: {
-    backgroundColor: "bg-[#05A300]",
-    textColor: "text-white",
+    backgroundColor: 'bg-[#05A300]',
+    textColor: 'text-white',
   },
   wanted: {
-    backgroundColor: "bg-[#D43831]",
-    textColor: "text-white",
+    backgroundColor: 'bg-[#D43831]',
+    textColor: 'text-white',
   },
   default: {
-    backgroundColor: "bg-[#EFEFEF]",
-    textColor: "text-black",
+    backgroundColor: 'bg-[#EFEFEF]',
+    textColor: 'text-black',
   },
 } as const;
 
 // Fallback names to use if getItemName returns "loading" for too long
 const FALLBACK_NAMES = {
-  "69": "Strategic Thinking",
-  "71": "Team Leadership",
-  "97": "Project Management",
-  "10": "Organizational Skills",
-  "36": "Communication",
-  "50": "Learning",
-  "56": "Community Building",
-  "65": "Social Skills",
-  "74": "Strategic Planning",
-  "106": "Technology",
+  '69': 'Strategic Thinking',
+  '71': 'Team Leadership',
+  '97': 'Project Management',
+  '10': 'Organizational Skills',
+  '36': 'Communication',
+  '50': 'Learning',
+  '56': 'Community Building',
+  '65': 'Social Skills',
+  '74': 'Strategic Planning',
+  '106': 'Technology',
 };
 
 interface ProfileItemProps {
@@ -53,7 +53,7 @@ export function ProfileItem({
   title,
   items,
   showEmptyDataText = true,
-  customClass = "",
+  customClass = '',
   getItemName,
 }: ProfileItemProps) {
   const { darkMode } = useTheme();
@@ -61,14 +61,14 @@ export function ProfileItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsToggle, setNeedsToggle] = useState(false);
-  const noDataMessage = pageContent["empty-field"];
+  const noDataMessage = pageContent['empty-field'];
   const [localNames, setLocalNames] = useState<{ [key: string]: string }>({});
   const timeoutRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   // Set up local names state with fallbacks after timeout
   useEffect(() => {
     // Clear any existing timeouts when items change
-    Object.values(timeoutRefs.current).forEach((timeout) => {
+    Object.values(timeoutRefs.current).forEach(timeout => {
       clearTimeout(timeout);
     });
     timeoutRefs.current = {};
@@ -78,13 +78,13 @@ export function ProfileItem({
 
     // Set up new timeouts for each item
     if (items && items.length > 0) {
-      items.forEach((id) => {
+      items.forEach(id => {
         const idStr = id.toString();
         const name = getItemName(id);
 
         // If name is already available, use it immediately
-        if (name !== "loading" && name !== pageContent["loading"]) {
-          setLocalNames((prev) => ({ ...prev, [idStr]: name }));
+        if (name !== 'loading' && name !== pageContent['loading']) {
+          setLocalNames(prev => ({ ...prev, [idStr]: name }));
           return;
         }
 
@@ -92,15 +92,12 @@ export function ProfileItem({
         timeoutRefs.current[idStr] = setTimeout(() => {
           // After timeout, check if we have a real name now
           const currentName = getItemName(id);
-          if (
-            currentName !== "loading" &&
-            currentName !== pageContent["loading"]
-          ) {
-            setLocalNames((prev) => ({ ...prev, [idStr]: currentName }));
+          if (currentName !== 'loading' && currentName !== pageContent['loading']) {
+            setLocalNames(prev => ({ ...prev, [idStr]: currentName }));
           } else {
             // Use fallback name if available, otherwise keep the generic one
             const fallbackName = FALLBACK_NAMES[idStr] || `Capacity ${id}`;
-            setLocalNames((prev) => ({ ...prev, [idStr]: fallbackName }));
+            setLocalNames(prev => ({ ...prev, [idStr]: fallbackName }));
           }
         }, 1500); // 1.5 second timeout before fallback
       });
@@ -108,7 +105,7 @@ export function ProfileItem({
 
     return () => {
       // Clean up timeouts
-      Object.values(timeoutRefs.current).forEach((timeout) => {
+      Object.values(timeoutRefs.current).forEach(timeout => {
         clearTimeout(timeout);
       });
     };
@@ -120,43 +117,41 @@ export function ProfileItem({
       const container = containerRef.current;
       if (!container || items.length === 0) return;
 
-      container.style.height = "auto";
-      container.style.overflow = "visible";
+      container.style.height = 'auto';
+      container.style.overflow = 'visible';
 
       const naturalHeight = container.getBoundingClientRect().height;
-      const firstItem = container.querySelector(".capacity-item");
-      const singleLineHeight = firstItem
-        ? firstItem.getBoundingClientRect().height
-        : 0;
+      const firstItem = container.querySelector('.capacity-item');
+      const singleLineHeight = firstItem ? firstItem.getBoundingClientRect().height : 0;
 
-      container.style.removeProperty("height");
-      container.style.removeProperty("overflow");
+      container.style.removeProperty('height');
+      container.style.removeProperty('overflow');
 
       const tolerance = 10;
       setNeedsToggle(naturalHeight > singleLineHeight + tolerance);
     };
 
     const timer = setTimeout(checkOverflow, 0);
-    window.addEventListener("resize", checkOverflow);
+    window.addEventListener('resize', checkOverflow);
     const secondTimer = setTimeout(checkOverflow, 500);
 
     return () => {
       clearTimeout(timer);
       clearTimeout(secondTimer);
-      window.removeEventListener("resize", checkOverflow);
+      window.removeEventListener('resize', checkOverflow);
     };
   }, [items]);
 
   if (!showEmptyDataText && items.length == 0) return null;
 
   const getCapacityStyle = (title: string) => {
-    if (title === pageContent["body-profile-known-capacities-title"]) {
+    if (title === pageContent['body-profile-known-capacities-title']) {
       return CAPACITY_STYLES.known;
     }
-    if (title === pageContent["body-profile-available-capacities-title"]) {
+    if (title === pageContent['body-profile-available-capacities-title']) {
       return CAPACITY_STYLES.available;
     }
-    if (title === pageContent["body-profile-wanted-capacities-title"]) {
+    if (title === pageContent['body-profile-wanted-capacities-title']) {
       return CAPACITY_STYLES.wanted;
     }
     return CAPACITY_STYLES.default;
@@ -170,9 +165,8 @@ export function ProfileItem({
     if (localNames[idStr]) {
       // Verify it's not a URL
       if (
-        typeof localNames[idStr] === "string" &&
-        (localNames[idStr].startsWith("https://") ||
-          localNames[idStr].includes("entity/Q"))
+        typeof localNames[idStr] === 'string' &&
+        (localNames[idStr].startsWith('https://') || localNames[idStr].includes('entity/Q'))
       ) {
         return FALLBACK_NAMES[idStr] || `Capacity ${id}`;
       }
@@ -183,14 +177,11 @@ export function ProfileItem({
     const name = getItemName(id);
 
     // Filter out URLs
-    if (
-      typeof name === "string" &&
-      (name.startsWith("https://") || name.includes("entity/Q"))
-    ) {
+    if (typeof name === 'string' && (name.startsWith('https://') || name.includes('entity/Q'))) {
       return FALLBACK_NAMES[idStr] || `Capacity ${id}`;
     }
 
-    if (name !== "loading" && name !== pageContent["loading"]) {
+    if (name !== 'loading' && name !== pageContent['loading']) {
       return name;
     }
 
@@ -206,16 +197,11 @@ export function ProfileItem({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="relative h-5 w-5 md:h-[42px] md:w-[42px]">
-            <Image
-              src={icon}
-              alt={`${title} icon`}
-              className="object-contain"
-              fill
-            />
+            <Image src={icon} alt={`${title} icon`} className="object-contain" fill />
           </div>
           <h2
             className={`${customClass} font-extrabold text-base md:text-[24px]
-            ${darkMode ? "text-white" : "text-capx-dark-box-bg"}
+            ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}
             `}
           >
             {title}
@@ -227,7 +213,7 @@ export function ProfileItem({
       <div
         className={`
           flex justify-between items-center
-          ${darkMode ? "bg-capx-dark-bg" : "bg-[#EFEFEF]"}
+          ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}
           rounded-[4px]
           p-3
           md:py-6
@@ -239,7 +225,7 @@ export function ProfileItem({
           ref={containerRef}
           className={`
             flex flex-wrap gap-2 flex-1
-            ${!isExpanded && needsToggle ? "max-h-[38px] overflow-hidden" : ""}
+            ${!isExpanded && needsToggle ? 'max-h-[38px] overflow-hidden' : ''}
             transition-all duration-300
           `}
         >
@@ -278,13 +264,13 @@ export function ProfileItem({
         {needsToggle && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            aria-label={isExpanded ? "Show less" : "Show more"}
+            aria-label={isExpanded ? 'Show less' : 'Show more'}
             className="ml-2 self-start"
           >
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
               alt={`${title} icon`}
-              className={`object-contain ${isExpanded ? "rotate-180" : ""}`}
+              className={`object-contain ${isExpanded ? 'rotate-180' : ''}`}
               height={20}
               width={20}
             />

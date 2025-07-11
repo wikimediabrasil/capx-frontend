@@ -1,7 +1,5 @@
-import MessagePage from "./components/MessagePage"
+import MessagePage from './components/MessagePage';
 
 export default function ContactWrapper() {
-    return (
-        <MessagePage/>
-    )
+  return <MessagePage />;
 }

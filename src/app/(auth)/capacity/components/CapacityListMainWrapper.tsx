@@ -1,23 +1,20 @@
-"use client";
+'use client';
 
-import CapacityCacheDebug from "@/components/CapacityCacheDebug";
-import LoadingState from "@/components/LoadingState";
-import LoadingStateWithFallback from "@/components/LoadingStateWithFallback";
-import { AppProvider, useApp } from "@/contexts/AppContext";
-import {
-  CapacityDescriptionProvider,
-  useCapacityDescriptions,
-} from "@/contexts/CapacityContext";
+import CapacityCacheDebug from '@/components/CapacityCacheDebug';
+import LoadingState from '@/components/LoadingState';
+import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
+import { AppProvider, useApp } from '@/contexts/AppContext';
+import { CapacityDescriptionProvider, useCapacityDescriptions } from '@/contexts/CapacityContext';
 import {
   useCapacitiesByParent,
   useCapacitySearch,
   useRootCapacities,
-} from "@/hooks/useCapacitiesQuery";
-import { Capacity } from "@/types/capacity";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { CapacityBanner } from "./CapacityBanner";
-import { CapacityCard } from "./CapacityCard";
-import { CapacitySearch } from "./CapacitySearch";
+} from '@/hooks/useCapacitiesQuery';
+import { Capacity } from '@/types/capacity';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { CapacityBanner } from './CapacityBanner';
+import { CapacityCard } from './CapacityCard';
+import { CapacitySearch } from './CapacitySearch';
 
 // Component for descriptions - separated to avoid re-render cycles
 const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {
@@ -27,7 +24,7 @@ const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {
   // Move processing to useEffect to avoid updates during render
   useEffect(() => {
     // Process any IDs we haven't seen yet
-    capacityIds.forEach((id) => {
+    capacityIds.forEach(id => {
       if (!processedIdsRef.current.has(id) && !isRequested(id)) {
         processedIdsRef.current.add(id);
         requestDescription(id);
@@ -48,40 +45,32 @@ const ChildCapacities = ({
   expandedCapacities: Record<string, boolean>;
   onToggleExpand: (code: string) => void;
 }) => {
-  const { data: children = [], isLoading: isLoadingChildren } =
-    useCapacitiesByParent(parentCode);
+  const { data: children = [], isLoading: isLoadingChildren } = useCapacitiesByParent(parentCode);
 
   const { data: rootCapacities = [] } = useRootCapacities();
 
-  const { getDescription, getWdCode, requestDescription } =
-    useCapacityDescriptions();
+  const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
 
   const { pageContent } = useApp();
   // Get IDs for loader component instead of loading in this component
-  const capacityIds = children
-    .map((child) => child.code)
-    .filter(Boolean) as number[];
+  const capacityIds = children.map(child => child.code).filter(Boolean) as number[];
 
   if (isLoadingChildren) {
-    return <div className="mt-4">{pageContent["loading"]}</div>;
+    return <div className="mt-4">{pageContent['loading']}</div>;
   }
 
   // First, find the actual parent capacity from root capacities or existing children
   // This is essential for proper color inheritance
   const findParentCapacity = () => {
     // Try to find the parent in root capacities
-    const rootParent = rootCapacities.find(
-      (c) => c.code.toString() === parentCode
-    );
+    const rootParent = rootCapacities.find(c => c.code.toString() === parentCode);
     if (rootParent) {
       return rootParent;
     }
 
     // If not found in root, check if any child already has a parent reference
     const childWithParent = children.find(
-      (child) =>
-        child.parentCapacity &&
-        child.parentCapacity.code.toString() === parentCode
+      child => child.parentCapacity && child.parentCapacity.code.toString() === parentCode
     );
 
     if (childWithParent?.parentCapacity) {
@@ -91,14 +80,14 @@ const ChildCapacities = ({
     // If not found anywhere, construct a minimal parent
     return {
       code: parseInt(parentCode, 10),
-      name: "",
-      color: "", // Will be determined by code in formatCapacity
-      icon: "",
+      name: '',
+      color: '', // Will be determined by code in formatCapacity
+      icon: '',
       hasChildren: true,
       skill_type: parseInt(parentCode, 10),
-      skill_wikidata_item: "",
-      description: "",
-      wd_code: "",
+      skill_wikidata_item: '',
+      description: '',
+      wd_code: '',
     } as Capacity;
   };
 
@@ -107,7 +96,7 @@ const ChildCapacities = ({
   // Find the root color to pass down to grandchildren
   const findRootColor = () => {
     // If this is a root capacity, use its color
-    const isRoot = rootCapacities.some((c) => c.code.toString() === parentCode);
+    const isRoot = rootCapacities.some(c => c.code.toString() === parentCode);
     if (isRoot && parentCapacity.color) {
       return parentCapacity.color;
     }
@@ -115,7 +104,7 @@ const ChildCapacities = ({
     // If this is a child capacity (has a parent that is root), use the parent's color
     if (
       parentCapacity.parentCapacity &&
-      rootCapacities.some((c) => c.code === parentCapacity.parentCapacity?.code)
+      rootCapacities.some(c => c.code === parentCapacity.parentCapacity?.code)
     ) {
       return parentCapacity.parentCapacity.color;
     }
@@ -126,16 +115,13 @@ const ChildCapacities = ({
     }
 
     // Default fallback
-    return "";
+    return '';
   };
 
   const rootColor = findRootColor();
 
-  // Log if we're dealing with grandchildren (3rd level)
-  const isThirdLevel = parentCapacity?.parentCapacity !== undefined;
-
   // Ensure each child has correct parent reference
-  const childrenWithParents = children.map((child) => {
+  const childrenWithParents = children.map(child => {
     // Explicitly check if child is expanded to determine hasChildren
     const isExpanded = !!expandedCapacities[child.code];
     // Force hasChildren to true if it has children based on expansion or original value
@@ -155,9 +141,9 @@ const ChildCapacities = ({
       // Add explicit level property - if parentCapacity has a parentCapacity or is not a root, this is level 3
       level: parentCapacity?.parentCapacity
         ? 3
-        : rootCapacities.some((c) => c.code.toString() === parentCode)
-        ? 2
-        : 3,
+        : rootCapacities.some(c => c.code.toString() === parentCode)
+          ? 2
+          : 3,
     };
 
     return enhancedChild;
@@ -171,10 +157,7 @@ const ChildCapacities = ({
       <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
         <div className="flex gap-4 pb-4 w-fit max-w-screen-xl">
           {childrenWithParents.map((child, index) => (
-            <div
-              key={`${parentCode}-${child.code}-${index}`}
-              className="mt-4 max-w-[992px]"
-            >
+            <div key={`${parentCode}-${child.code}-${index}`} className="mt-4 max-w-[992px]">
               <CapacityCard
                 {...child}
                 isExpanded={!!expandedCapacities[child.code]}
@@ -185,7 +168,7 @@ const ChildCapacities = ({
                 description={getDescription(child.code)}
                 wd_code={getWdCode(child.code)}
                 rootColor={rootColor}
-                onInfoClick={async (code) => {
+                onInfoClick={async code => {
                   // Ensure description is loaded for this capacity
                   if (!getDescription(code)) {
                     await requestDescription(code);
@@ -210,55 +193,34 @@ const ChildCapacities = ({
 
 // Main component with content
 function CapacityListContent() {
-  const { language, pageContent } = useApp();
+  const { language } = useApp();
 
   // Basic UI hooks
-  const [expandedCapacities, setExpandedCapacities] = useState<
-    Record<string, boolean>
-  >({});
-  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Capacity[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
 
   // Data hooks
-  const { data: rootCapacities = [], isLoading: isLoadingRoot } =
-    useRootCapacities(language);
-  const { data: querySearchResults = [], isLoading: isLoadingSearch } =
-    useCapacitySearch(searchTerm);
+  const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
+  const { data: querySearchResults = [] } = useCapacitySearch(searchTerm);
 
   // Descriptions context - only for display
-  const { getDescription, getWdCode, requestDescription } =
-    useCapacityDescriptions();
+  const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
 
   // Collect all capacity IDs that need descriptions
-  const rootCapacityIds = rootCapacities
-    .map((c) => c.code)
-    .filter(Boolean) as number[];
-  const searchCapacityIds = searchResults
-    .map((c) => c.code)
-    .filter(Boolean) as number[];
-
-  // Simple handlers without useEffect
-  const handleSearchChange = useCallback((results: Capacity[]) => {
-    setSearchResults(results);
-  }, []);
+  const rootCapacityIds = rootCapacities.map(c => c.code).filter(Boolean) as number[];
+  const searchCapacityIds = searchResults.map(c => c.code).filter(Boolean) as number[];
 
   // Toggle expanded
   const handleToggleExpand = useCallback((code: string) => {
-    setExpandedCapacities((prev) => ({
+    setExpandedCapacities(prev => ({
       ...prev,
       [code]: !prev[code],
     }));
   }, []);
 
-  // Search handlers
-  const handleSearchStart = useCallback(() => {
-    setIsSearching(true);
-  }, []);
-
   const handleSearchEnd = useCallback(() => {
-    setIsSearching(false);
-    setSearchTerm("");
+    setSearchTerm('');
     setSearchResults([]);
   }, []);
 
@@ -270,7 +232,7 @@ function CapacityListContent() {
       setSearchTerm(term);
       if (term && querySearchResults.length > 0) {
         // Process query results to ensure proper level assignments
-        const processedResults = querySearchResults.map((capacity) => {
+        const processedResults = querySearchResults.map(capacity => {
           // Determine level based on parent structure
           let level = 1;
           if (capacity.parentCapacity) {
@@ -293,7 +255,7 @@ function CapacityListContent() {
           // Force third-level capacities to have black color
           let color = capacity.color;
           if (level === 3) {
-            color = "#507380";
+            color = '#507380';
           }
 
           return {
@@ -326,11 +288,7 @@ function CapacityListContent() {
       <DescriptionLoader capacityIds={searchCapacityIds} />
 
       <CapacityBanner />
-      <CapacitySearch
-        onSearchStart={handleSearchStart}
-        onSearchEnd={handleSearchEnd}
-        onSearch={handleSearch}
-      />
+      <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
 
       {/* Quando não estiver em modo de busca, mostrar as capacidades raiz */}
       {!searchTerm && (
@@ -351,7 +309,7 @@ function CapacityListContent() {
                 icon={capacity.icon}
                 description={getDescription(capacity.code)}
                 wd_code={getWdCode(capacity.code)}
-                onInfoClick={async (code) => {
+                onInfoClick={async code => {
                   // Ensure description is loaded for this capacity
                   if (!getDescription(code)) {
                     await requestDescription(code);
@@ -372,7 +330,7 @@ function CapacityListContent() {
       )}
 
       {/* Debug component in development mode */}
-      {process.env.NODE_ENV === "development" && <CapacityCacheDebug />}
+      {process.env.NODE_ENV === 'development' && <CapacityCacheDebug />}
     </section>
   );
 }
@@ -420,21 +378,17 @@ class CapacityErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error("Error in CapacityList component:", error, info);
+    console.error('Error in CapacityList component:', error, info);
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center p-8 mx-auto my-12 max-w-md border border-gray-300 rounded-md bg-white">
-          <h2 className="text-xl font-bold mb-4 text-red-600">
-            Something went wrong
-          </h2>
-          <p className="mb-4">
-            An error occurred while loading the capacities.
-          </p>
+          <h2 className="text-xl font-bold mb-4 text-red-600">Something went wrong</h2>
+          <p className="mb-4">An error occurred while loading the capacities.</p>
           <p className="text-gray-700 text-sm mb-4">
-            {this.state.error?.message || "Context error"}
+            {this.state.error?.message || 'Context error'}
           </p>
           <button
             onClick={() => window.location.reload()}

@@ -1,15 +1,11 @@
-"use client";
+'use client';
 
-import { useContext } from "react";
-import { BadgesProvider } from "./BadgesContext";
-import { useApp } from "./AppContext";
+import { useContext } from 'react';
+import { BadgesProvider } from './BadgesContext';
+import { useApp } from './AppContext';
 
 // This component safely provides BadgesProvider only when AppContext is available
-export function SafeBadgesProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function SafeBadgesProvider({ children }: { children: React.ReactNode }) {
   // Try to safely use the AppContext
   try {
     // If this doesn't throw, AppContext is available

@@ -19,7 +19,7 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
 
   const getStatusColor = (status?: string) => {
     if (!status) return '';
-    
+
     switch (status) {
       case 'sent':
         return 'bg-[#0070B9] text-[#F6F6F6]';
@@ -29,50 +29,45 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
   };
 
   return (
-    <div className={`border rounded-lg overflow-hidden mb-4 ${
-      darkMode 
-        ? 'bg-[#053749] border-[#FFFFFF]'
-        : 'bg-white border-[#507380]'
-      } shadow-sm`}>
+    <div
+      className={`border rounded-lg overflow-hidden mb-4 ${
+        darkMode ? 'bg-[#053749] border-[#FFFFFF]' : 'bg-white border-[#507380]'
+      } shadow-sm`}
+    >
       <div className="p-4">
         <div className="mt-3">
-          <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-            darkMode 
-              ? 'text-[#FFFFFF]'
-              : 'text-[#507380]'
-            }`}>
-            {pageContent["message-to-from"]}
+          <h4
+            className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+              darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+            }`}
+          >
+            {pageContent['message-to-from']}
           </h4>
-          <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-            <p className={`text-[12px] md:text-[24px] font-light px-3 ${
-              darkMode 
-                ? 'text-[#FFFFFF]'
-                : 'text-[#053749]'
-              }`}>
+          <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+            <p
+              className={`text-[12px] md:text-[24px] font-light px-3 ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+              }`}
+            >
               {submission.receiver}
             </p>
           </div>
         </div>
         {submission.status && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["message-form-status"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['message-form-status']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-3 rounded-md inline-block ${
-                getStatusColor(submission.status)}`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-3 rounded-md inline-block ${getStatusColor(
+                  submission.status
+                )}`}
+              >
                 {submission.status}
               </span>
             </div>
@@ -80,23 +75,19 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
         )}
         {submission.method && isExpanded && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["message-form-method"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['message-form-method']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 rounded-md ${
-                darkMode
-                  ? 'bg-[#04222F] text-[#ffffff]'
-                  : 'text-[#053749]'
-                }`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-2 rounded-md ${
+                  darkMode ? 'bg-[#04222F] text-[#ffffff]' : 'text-[#053749]'
+                }`}
+              >
                 {submission.method}
               </span>
             </div>
@@ -105,23 +96,19 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
 
         {isExpanded && (
           <div className="mt-4 md:mt-12">
-            <h4 className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
-              darkMode
-                ? 'text-[#FFFFFF]'
-                : 'text-[#507380]'
-              }`}>
-              {pageContent["message-form-date"]}
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['message-form-date']}
             </h4>
-            <div className={`mt-1 p-3 rounded-md ${
-              darkMode
-                ? 'bg-[#04222F]'
-                : 'bg-[#EFEFEF]'
-              }`}>
-              <span className={`text-[12px] md:text-[24px] font-light px-2 rounded-md ${
-                darkMode
-                  ? 'bg-[#04222F] text-[#FFFFFF]'
-                  : 'text-[#053749]'
-                }`}>
+            <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
+              <span
+                className={`text-[12px] md:text-[24px] font-light px-2 rounded-md ${
+                  darkMode ? 'bg-[#04222F] text-[#FFFFFF]' : 'text-[#053749]'
+                }`}
+              >
                 {formatDateLocale(submission.date, language)}
               </span>
             </div>
@@ -131,12 +118,10 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className={`w-full text-[14px] md:text-[24px] font-bold px-[19px] py-[8px] rounded-[8px] font-[Montserrat] ${
-              darkMode 
-                ? 'bg-[#04222F] text-[#F6F6F6]' 
-                : 'bg-[#053749] text-[#F6F6F6]'
+              darkMode ? 'bg-[#04222F] text-[#F6F6F6]' : 'bg-[#053749] text-[#F6F6F6]'
             }`}
           >
-            {isExpanded ? pageContent["message-form-hide"] : pageContent["message-form-view"]}
+            {isExpanded ? pageContent['message-form-hide'] : pageContent['message-form-view']}
           </button>
         </div>
       </div>

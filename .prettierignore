@@ -1,0 +1,33 @@
+# Translate files that are updated automatically by the bot
+locales/
+
+# Build and cache files
+.next/
+node_modules/
+.swc/
+.yarn/
+
+# Build files
+dist/
+build/
+out/
+
+# Lock files
+yarn.lock
+package-lock.json
+
+# Environment files
+.env*
+!.env.example
+
+# Documentation files
+*.md
+
+# Configuration files
+*.config.js
+*.config.ts
+*.config.mjs
+
+# Temporary files
+*.tmp
+*.temp 

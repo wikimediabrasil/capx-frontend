@@ -3,7 +3,7 @@ export interface BadgesResponse {
   next: string | null;
   previous: string | null;
   results: Badge[];
-} 
+}
 
 export interface UserBadgeResponse {
   count: number;

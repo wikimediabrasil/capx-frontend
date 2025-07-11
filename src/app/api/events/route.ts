@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -13,14 +13,14 @@ export async function GET(request: NextRequest) {
   });
 
   // Parâmetros específicos para garantir que estejam sendo enviados
-  const limit = searchParams.get("limit");
-  const offset = searchParams.get("offset");
-  const capacities = searchParams.get("capacities");
-  const territories = searchParams.get("territories");
-  const location_type = searchParams.get("location_type");
-  const start_date = searchParams.get("start_date");
-  const end_date = searchParams.get("end_date");
-  const organization_id = searchParams.get("organization_id");
+  const limit = searchParams.get('limit');
+  const offset = searchParams.get('offset');
+  const capacities = searchParams.get('capacities');
+  const territories = searchParams.get('territories');
+  const location_type = searchParams.get('location_type');
+  const start_date = searchParams.get('start_date');
+  const end_date = searchParams.get('end_date');
+  const organization_id = searchParams.get('organization_id');
 
   // Garantir que todos os parâmetros estejam incluídos
   if (limit) params.limit = limit;
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   if (territories) params.territories = territories;
   if (location_type) {
     params.location_type = location_type;
-    console.log("API - Enviando location_type:", location_type);
+    console.log('API - Enviando location_type:', location_type);
   }
   if (start_date) params.start_date = start_date;
   if (end_date) params.end_date = end_date;
@@ -46,14 +46,10 @@ export async function GET(request: NextRequest) {
       count: response.data.count || response.data.results?.length || 0,
     });
   } catch (error: any) {
-    console.error(
-      "Error fetching events:",
-      error.message,
-      error.response?.data
-    );
+    console.error('Error fetching events:', error.message, error.response?.data);
     return NextResponse.json(
       {
-        error: "Failed to fetch events",
+        error: 'Failed to fetch events',
         details: error.response?.data || error.message,
       },
       { status: error.response?.status || 500 }
@@ -62,35 +58,31 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
+  const authHeader = request.headers.get('authorization');
   const event = await request.json();
   try {
-    const response = await axios.post(
-      `${process.env.BASE_URL}/events/`,
-      event,
-      {
-        headers: {
-          Authorization: authHeader,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.post(`${process.env.BASE_URL}/events/`, event, {
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+    });
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Event creation error:", {
+    console.error('Event creation error:', {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
       event: event,
       headers: {
         Authorization: authHeader,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
     return NextResponse.json(
       {
-        error: "Failed to create event",
+        error: 'Failed to create event',
         details: error.response?.data || error.message,
       },
       { status: error.response?.status || 500 }

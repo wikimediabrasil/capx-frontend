@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useState } from "react";
-import { Profile } from "@/types/profile";
+import { createContext, useContext, useState } from 'react';
+import { Profile } from '@/types/profile';
 
 interface ProfileEditContextType {
   unsavedData: Partial<Profile> | null;
@@ -28,7 +28,7 @@ export function ProfileEditProvider({ children }: { children: React.ReactNode })
 export function useProfileEdit() {
   const context = useContext(ProfileEditContext);
   if (context === undefined) {
-    throw new Error("useProfileEdit must be used within a ProfileEditProvider");
+    throw new Error('useProfileEdit must be used within a ProfileEditProvider');
   }
   return context;
-} 
+}

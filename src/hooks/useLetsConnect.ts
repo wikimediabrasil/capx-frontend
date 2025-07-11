@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { LetsConnectService } from "@/services/letsConnectService";
-import { LetsConnect } from "@/types/lets_connect";
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { LetsConnectService } from '@/services/letsConnectService';
+import { LetsConnect } from '@/types/lets_connect';
 import { LetsConnectProfile } from '@/types/profile';
 
 export function useLetsConnect() {
@@ -16,14 +16,14 @@ export function useLetsConnect() {
     try {
       const response = await LetsConnectService.submitLetsConnectForm({
         letsConnect,
-        token: session?.user.token ?? ""
+        token: session?.user.token ?? '',
       });
       if (!response) {
-        throw new Error("Invalid lets connect data from server");
+        throw new Error('Invalid lets connect data from server');
       }
       return response;
     } catch (error) {
-      console.error("Error sending lets connect data", error);
+      console.error('Error sending lets connect data', error);
       setError(error.message);
       throw error;
     } finally {
@@ -34,11 +34,11 @@ export function useLetsConnect() {
   const fetchLetsConnectData = async (username: string): Promise<LetsConnectProfile | null> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await LetsConnectService.getLetsConnect(username);
       if (!response) {
-        throw new Error("Invalid lets connect data from server");
+        throw new Error('Invalid lets connect data from server');
       }
       setLetsConnectData(response);
       return response;
@@ -64,6 +64,6 @@ export function useLetsConnect() {
     error,
     fetchLetsConnectData,
     letsConnectData,
-    isLoading
+    isLoading,
   };
 }

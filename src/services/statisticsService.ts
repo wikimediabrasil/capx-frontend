@@ -1,5 +1,5 @@
-import { Statistics } from "@/types/statistics";
-import axios, { AxiosRequestConfig } from "axios";
+import { Statistics } from '@/types/statistics';
+import axios, { AxiosRequestConfig } from 'axios';
 
 /**
  * Service to get platform statistics
@@ -7,10 +7,10 @@ import axios, { AxiosRequestConfig } from "axios";
 export const statisticsService = {
   fetchStatistics: async (config?: AxiosRequestConfig): Promise<Statistics> => {
     try {
-      const response = await axios.get("/api/statistics", config);
+      const response = await axios.get('/api/statistics', config);
       return response.data;
     } catch (error) {
-      console.error("Error fetching statistics:", error);
+      console.error('Error fetching statistics:', error);
       // Return empty data in case of error
       return {
         total_users: 0,

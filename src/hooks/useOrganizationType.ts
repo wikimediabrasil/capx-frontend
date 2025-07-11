@@ -1,17 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { OrganizationTypeService } from "@/services/organizationTypeService";
-import { OrganizationType } from "@/types/organizationType";
+import { useState, useCallback } from 'react';
+import { OrganizationTypeService } from '@/services/organizationTypeService';
+import { OrganizationType } from '@/types/organizationType';
 
-export function useOrganizationType(
-  token,
-  id,
-  limit?: number,
-  offset?: number
-) {
-  const [organizationType, setOrganizationType] =
-    useState<OrganizationType[]>();
+export function useOrganizationType(token, id, limit?: number, offset?: number) {
+  const [organizationType, setOrganizationType] = useState<OrganizationType[]>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,17 +14,11 @@ export function useOrganizationType(
 
     try {
       setIsLoading(true);
-      const data = await OrganizationTypeService.getOrganizationType(
-        token,
-        limit,
-        offset
-      );
+      const data = await OrganizationTypeService.getOrganizationType(token, limit, offset);
       setOrganizationType(data);
       return data;
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Failed to fetch user profile"
-      );
+      setError(error instanceof Error ? error.message : 'Failed to fetch user profile');
     } finally {
       setIsLoading(false);
     }
@@ -41,16 +29,11 @@ export function useOrganizationType(
 
     try {
       setIsLoading(true);
-      const data = await OrganizationTypeService.getOrganizationTypeById(
-        token,
-        id
-      );
+      const data = await OrganizationTypeService.getOrganizationTypeById(token, id);
       setOrganizationType(data);
       return data;
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Failed to fetch user profile"
-      );
+      setError(error instanceof Error ? error.message : 'Failed to fetch user profile');
     } finally {
       setIsLoading(false);
     }
