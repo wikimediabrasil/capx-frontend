@@ -13,7 +13,7 @@ interface BadgesCarouselProps {
 
 export default function BadgesCarousel({ badges, showFullDescription = false }: BadgesCarouselProps) {
   const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+  const { isMobile, pageContent } = useApp();
   
   // Calculating the total width needed to show all badges
   const cardWidth = isMobile ? 150 : 180;
@@ -52,7 +52,7 @@ export default function BadgesCarousel({ badges, showFullDescription = false }: 
             <div className="relative w-20 h-20 md:w-24 md:h-24 mb-2">
               <Image
                 src={badge.picture}
-                alt={badge.name}
+                alt={pageContent["alt-badge"]?.replace("{badgeName}", badge.name) || `Badge: ${badge.name}`}
                 fill
                 className="object-contain transition-transform duration-200"
               />
