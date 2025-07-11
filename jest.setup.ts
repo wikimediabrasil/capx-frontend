@@ -2,12 +2,12 @@ import '@testing-library/jest-dom';
 import React from 'react';
 
 // Mock react-error-boundary
-jest.mock("react-error-boundary", () => ({
+jest.mock('react-error-boundary', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 // Mock matchMedia
-Object.defineProperty(window, "matchMedia", {
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
     matches: false,
@@ -30,14 +30,14 @@ const localStorageMock = {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock next/image
-jest.mock("next/image", () => ({
+jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
     const { fetchPriority, priority, fill, ...rest } = props;
-    return React.createElement("img", {
+    return React.createElement('img', {
       ...rest,
-      priority: priority ? "true" : undefined,
-      fill: fill ? "true" : undefined,
+      priority: priority ? 'true' : undefined,
+      fill: fill ? 'true' : undefined,
     });
   },
 }));

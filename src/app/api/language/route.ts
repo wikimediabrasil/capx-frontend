@@ -1,7 +1,7 @@
-import axios from "axios";
-import fs from "fs";
-import path from "path";
-import { NextRequest, NextResponse } from "next/server";
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 

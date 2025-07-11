@@ -4,10 +4,7 @@ import { fetchMetabase, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id;
     const language = req.nextUrl.searchParams.get('language') || 'en';
