@@ -447,7 +447,7 @@
   "message-button-confirme-and-send": "Confirm/Send",
   "message-button-cancel-message": "Cancel",
   "message-info-popup-title": "This message will be sent via Meta",
-  "message-info-popup": "If yours or user's account are linked to an email address, you can choose whether to send a message via email or via User's Talk page. If either party does not have an email address linked to their Wikimedia account, the message will be sent via the User Talk page. Please note that you will receive a reply via Meta when sending messages via Talk page, but if you send an email, you may receive a reply via email as well.",
+  "message-info-popup": "If yours and user's account are linked to an email address, you can choose whether to send a message via email or via User's Talk page. If either party does not have an email address linked to their Wikimedia account, the message will be sent via the User Talk page. Please note that you will receive a reply via Meta when sending messages via Talk page, but if you send an email, you may receive a reply via email as well.",
   "message-info-alt-icon": "information icon",
   "message-sent-send-new-message": "Send a new message",
   "message-alt-icon": "send icon",
