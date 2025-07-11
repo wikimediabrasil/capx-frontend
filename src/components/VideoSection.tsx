@@ -45,7 +45,7 @@ export default function VideoSection() {
           <div className="relative w-full max-w-[600px] mb-8 ">
             <Image
               src={tabletIllusttration}
-              alt="Tablet illustration"
+              alt={pageContent["alt-illustration"] || "Tablet showing video content"}
               layout="responsive"
               className="w-full h-auto"
             />
@@ -57,7 +57,7 @@ export default function VideoSection() {
                 ) : (
                   <Image
                     src={VideoThumbnail}
-                    alt="Video thumbnail"
+                    alt={pageContent["alt-illustration"] || "Video thumbnail showing CapX introduction"}
                     className="object-contain w-full h-full"
                   />
                 )}
