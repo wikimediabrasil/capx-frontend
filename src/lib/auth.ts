@@ -9,7 +9,7 @@ export const authOptions: NextAuthOptions = {
       name: 'Credentials',
       credentials: {},
       async authorize(credentials: any) {
-        const requestId = Math.random().toString(36).substring(7);
+        const requestId = crypto.randomUUID();
         try {
           // Validate required credentials - return null for silent failure
           if (
