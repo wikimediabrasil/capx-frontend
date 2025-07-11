@@ -10,7 +10,7 @@ export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boo
       } bg-white`}
       role="status"
       data-testid="simple-loading"
-      aria-label="Loading"
+      aria-label="Content is loading"
     >
       <div className="relative w-16 h-16">
         <Image
