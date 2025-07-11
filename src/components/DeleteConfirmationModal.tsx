@@ -34,13 +34,19 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   };
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 `}>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 `}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+    >
       <div
         className={`rounded-lg shadow-lg p-8 w-full max-w-md flex flex-col gap-6 ${
           darkMode ? 'bg-capx-dark-bg' : 'bg-white'
         }`}
       >
         <h2
+          id="delete-modal-title"
           className={`text-center text-capx-font-size-mobile-2xl sm:text-capx-font-size-mobile-2xl md:text-capx-font-size-desktop-2xl lg:text-capx-font-size-desktop-2xl font-extrabold font-Montserrat mb-2 ${
             darkMode ? 'text-white' : 'text-capx-dark-box-bg'
           }`}
@@ -70,7 +76,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           >
             <Image
               src={darkMode ? EmojiObjectsIconLight : EmojiObjectsIcon}
-              alt="capacities"
+              alt={pageContent['alt-capacity'] || 'Capacity icon, view skills and abilities'}
               width={24}
               height={24}
             />
@@ -118,7 +124,12 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
             className="flex-1 py-3 rounded-lg bg-capx-primary-orange text-white font-extrabold text-capx-font-size-mobile-lg sm:text-capx-font-size-mobile-lg md:text-capx-font-size-desktop-lg lg:text-capx-font-size-desktop-lg flex items-center justify-center gap-4 hover:bg-red-700 transition"
           >
             {pageContent['delete-confirmation-confirm'] || 'Delete'}
-            <Image src={DeleteIcon} alt="delete" width={24} height={24} />
+            <Image 
+              src={DeleteIcon} 
+              alt={pageContent['alt-delete'] || 'Delete item'} 
+              width={24} 
+              height={24} 
+            />
           </button>
         </div>
       </div>
