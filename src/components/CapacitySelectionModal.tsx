@@ -626,7 +626,7 @@ export default function CapacitySelectionModal({
               <div className="relative w-[20px] h-[20px]">
                 <Image
                   src={showInfo ? InfoFilledIcon : InfoIcon}
-                  alt="Info"
+                  alt={pageContent["alt-info"] || "Information icon, view additional details"}
                   width={20}
                   height={20}
                   style={{ filter: getIconFilter() }}
@@ -642,7 +642,7 @@ export default function CapacitySelectionModal({
                 <div className="relative w-[20px] h-[20px]">
                   <Image
                     src={ArrowDownIcon}
-                    alt="Expand"
+                    alt={pageContent["alt-expand"] || "Expand to show more details"}
                     width={20}
                     height={20}
                     style={{ filter: getIconFilter() }}
