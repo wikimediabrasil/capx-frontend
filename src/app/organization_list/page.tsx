@@ -1,10 +1,10 @@
-import BaseWrapper from "@/components/BaseWrapper";
-import OrganizationList from "./OrganizationList";
+import BaseWrapper from '@/components/BaseWrapper';
+import OrganizationList from './OrganizationList';
 
-export default function OrganizationListWrapper(){
-
-    return (
-        <BaseWrapper>
-            <OrganizationList/>
-        </BaseWrapper>
-    )}
+export default function OrganizationListWrapper() {
+  return (
+    <BaseWrapper>
+      <OrganizationList />
+    </BaseWrapper>
+  );
+}

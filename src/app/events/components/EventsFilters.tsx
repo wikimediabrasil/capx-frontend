@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useApp } from "@/contexts/AppContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import Image from "next/image";
-import { EventFilterState, EventFilterType, EventLocationType } from "../types";
-import ArrowBackIcon from "@/public/static/images/arrow_back_icon.svg";
-import ArrowBackIconWhite from "@/public/static/images/arrow_back_icon_white.svg";
-import CapxIcon from "@/public/static/images/capx_icon.svg";
-import CapxIconWhite from "@/public/static/images/capx_icon_white.svg";
-import CloseIcon from "@/public/static/images/close_mobile_menu_icon_light_mode.svg";
-import CloseIconWhite from "@/public/static/images/close_mobile_menu_icon_dark_mode.svg";
-import SearchIcon from "@/public/static/images/search_icon.svg";
-import SearchIconWhite from "@/public/static/images/search_icon_white.svg";
-import LocationIcon from "@/public/static/images/location_on_dark.svg";
-import LocationIconWhite from "@/public/static/images/location_on.svg";
-import CheckBoxOutlineBlankIcon from "@/public/static/images/check_box_outline_blank.svg";
-import CheckBoxOutlineBlankIconWhite from "@/public/static/images/check_box_outline_blank_light.svg";
-import CheckBoxIcon from "@/public/static/images/check_box.svg";
-import CheckBoxIconWhite from "@/public/static/images/check_box_light.svg";
-import { useSession } from "next-auth/react";
-import BaseButton from "@/components/BaseButton";
-import { Capacity } from "@/types/capacity";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
+import { useEffect, useState } from 'react';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
+import { EventFilterState, EventFilterType, EventLocationType } from '../types';
+import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
+import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
+import CapxIcon from '@/public/static/images/capx_icon.svg';
+import CapxIconWhite from '@/public/static/images/capx_icon_white.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import SearchIcon from '@/public/static/images/search_icon.svg';
+import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
+import LocationIcon from '@/public/static/images/location_on_dark.svg';
+import LocationIconWhite from '@/public/static/images/location_on.svg';
+import CheckBoxOutlineBlankIcon from '@/public/static/images/check_box_outline_blank.svg';
+import CheckBoxOutlineBlankIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
+import CheckBoxIcon from '@/public/static/images/check_box.svg';
+import CheckBoxIconWhite from '@/public/static/images/check_box_light.svg';
+import { useSession } from 'next-auth/react';
+import BaseButton from '@/components/BaseButton';
+import { Capacity } from '@/types/capacity';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 
 interface EventsFiltersProps {
   onClose: () => void;
@@ -30,31 +30,25 @@ interface EventsFiltersProps {
   initialFilters: EventFilterState;
 }
 
-export function EventsFilters({
-  onClose,
-  onApplyFilters,
-  initialFilters,
-}: EventsFiltersProps) {
+export function EventsFilters({ onClose, onApplyFilters, initialFilters }: EventsFiltersProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const { data: session } = useSession();
   const token = session?.user?.token;
 
-  const [searchCapacity, setSearchCapacity] = useState("");
+  const [searchCapacity, setSearchCapacity] = useState('');
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
-  const [territory, setTerritory] = useState("");
+  const [territory, setTerritory] = useState('');
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = filters.capacities.some(
-      (cap) => cap.code === capacity.code
-    );
+    const capacityExists = filters.capacities.some(cap => cap.code === capacity.code);
 
     if (capacityExists) {
       return;
     }
 
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       capacities: [
         ...prev.capacities,
@@ -70,9 +64,9 @@ export function EventsFilters({
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
-      capacities: prev.capacities.filter((cap) => cap.code !== capacityCode),
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
   };
 
@@ -96,7 +90,7 @@ export function EventsFilters({
   }; */
 
   const handleEventFormatChange = (format: EventLocationType) => {
-    setFilters((prev) => ({
+    setFilters(prev => ({
       ...prev,
       locationType: format,
     }));
@@ -117,16 +111,16 @@ export function EventsFilters({
       organizationId: undefined,
     };
     setFilters(clearedFilters);
-    setTerritory("");
+    setTerritory('');
   };
 
   // Avoid multiple scrolls when the modal is open
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
 
     // Cleanup: restore scroll when the modal closes
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     };
   }, []);
 
@@ -139,7 +133,7 @@ export function EventsFilters({
       <div
         className={`
         relative w-full h-full md:w-[420px] md:max-h-[80vh] md:mt-20 md:rounded-lg
-        ${darkMode ? "bg-capx-dark-bg" : "bg-white"}
+        ${darkMode ? 'bg-capx-dark-bg' : 'bg-white'}
         flex flex-col overflow-hidden
       `}
       >
@@ -149,17 +143,17 @@ export function EventsFilters({
             <button onClick={onClose}>
               <Image
                 src={darkMode ? ArrowBackIconWhite : ArrowBackIcon}
-                alt={pageContent["filters-back-icon"] || "Back"}
+                alt={pageContent['filters-back-icon'] || 'Back'}
                 width={24}
                 height={24}
               />
             </button>
             <h1
               className={`text-xl font-medium leading-[normal] font-Montserrat ${
-                darkMode ? "text-white" : "text-black"
+                darkMode ? 'text-white' : 'text-black'
               }`}
             >
-              {pageContent["filters-title"] || "Filters"}
+              {pageContent['filters-title'] || 'Filters'}
             </h1>
           </div>
         </div>
@@ -176,12 +170,8 @@ export function EventsFilters({
                   width={24}
                   height={24}
                 />
-                <h2
-                  className={`font-medium ${
-                    darkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  {pageContent["filters-capacities"] || "Capacities"}
+                <h2 className={`font-medium ${darkMode ? 'text-white' : 'text-black'}`}>
+                  {pageContent['filters-capacities'] || 'Capacities'}
                 </h2>
               </div>
 
@@ -192,15 +182,14 @@ export function EventsFilters({
                   value={searchCapacity}
                   onFocus={() => setShowCapacityModal(true)}
                   placeholder={
-                    pageContent["filters-search-by-capacities"] ||
-                    "Search by capacities"
+                    pageContent['filters-search-by-capacities'] || 'Search by capacities'
                   }
                   className={`
                     w-full p-2 pl-3 pr-10 rounded-lg border
                     ${
                       darkMode
-                        ? "bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400"
-                        : "bg-white border-gray-300 placeholder-gray-500"
+                        ? 'bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400'
+                        : 'bg-white border-gray-300 placeholder-gray-500'
                     }
                   `}
                 />
@@ -223,7 +212,7 @@ export function EventsFilters({
                       className={`
                         inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm
                         max-w-[150px] shrink-0
-                        ${darkMode ? "bg-gray-700" : "bg-gray-100"}
+                        ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}
                       `}
                     >
                       <span className="truncate" title={capacity.name}>
@@ -338,12 +327,8 @@ export function EventsFilters({
                   width={24}
                   height={24}
                 />
-                <h2
-                  className={`font-medium ${
-                    darkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  {pageContent["filters-event-format"] || "Event format"}
+                <h2 className={`font-medium ${darkMode ? 'text-white' : 'text-black'}`}>
+                  {pageContent['filters-event-format'] || 'Event format'}
                 </h2>
               </div>
 
@@ -355,35 +340,23 @@ export function EventsFilters({
                     ${
                       filters.locationType === EventLocationType.All
                         ? darkMode
-                          ? "border-blue-600"
-                          : "border-blue-600"
+                          ? 'border-blue-600'
+                          : 'border-blue-600'
                         : darkMode
-                        ? "border-gray-700"
-                        : "border-gray-300"
+                          ? 'border-gray-700'
+                          : 'border-gray-300'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"}`}
-                    >
-                      {pageContent["filters-all-formats"] || "All formats"}
+                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
+                      {pageContent['filters-all-formats'] || 'All formats'}
                     </span>
                     {filters.locationType === EventLocationType.All ? (
                       darkMode ? (
-                        <Image
-                          src={CheckBoxIconWhite}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
                       ) : (
-                        <Image
-                          src={CheckBoxIcon}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
                       )
                     ) : darkMode ? (
                       <Image
@@ -404,43 +377,29 @@ export function EventsFilters({
                 </button>
 
                 <button
-                  onClick={() =>
-                    handleEventFormatChange(EventLocationType.Online)
-                  }
+                  onClick={() => handleEventFormatChange(EventLocationType.Online)}
                   className={`
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.Online
                         ? darkMode
-                          ? "border-blue-600"
-                          : "border-blue-600"
+                          ? 'border-blue-600'
+                          : 'border-blue-600'
                         : darkMode
-                        ? "border-gray-700"
-                        : "border-gray-300"
+                          ? 'border-gray-700'
+                          : 'border-gray-300'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"}`}
-                    >
-                      {pageContent["filters-online-event"] || "Online event"}
+                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
+                      {pageContent['filters-online-event'] || 'Online event'}
                     </span>
                     {filters.locationType === EventLocationType.Online ? (
                       darkMode ? (
-                        <Image
-                          src={CheckBoxIconWhite}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
                       ) : (
-                        <Image
-                          src={CheckBoxIcon}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
                       )
                     ) : darkMode ? (
                       <Image
@@ -461,43 +420,29 @@ export function EventsFilters({
                 </button>
 
                 <button
-                  onClick={() =>
-                    handleEventFormatChange(EventLocationType.InPerson)
-                  }
+                  onClick={() => handleEventFormatChange(EventLocationType.InPerson)}
                   className={`
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.InPerson
                         ? darkMode
-                          ? "border-blue-600"
-                          : "border-blue-600"
+                          ? 'border-blue-600'
+                          : 'border-blue-600'
                         : darkMode
-                        ? "border-gray-700"
-                        : "border-gray-300"
+                          ? 'border-gray-700'
+                          : 'border-gray-300'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"}`}
-                    >
-                      {pageContent["filters-onsite-event"] || "On-site event"}
+                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
+                      {pageContent['filters-onsite-event'] || 'On-site event'}
                     </span>
                     {filters.locationType === EventLocationType.InPerson ? (
                       darkMode ? (
-                        <Image
-                          src={CheckBoxIconWhite}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
                       ) : (
-                        <Image
-                          src={CheckBoxIcon}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
                       )
                     ) : darkMode ? (
                       <Image
@@ -518,43 +463,29 @@ export function EventsFilters({
                 </button>
 
                 <button
-                  onClick={() =>
-                    handleEventFormatChange(EventLocationType.Hybrid)
-                  }
+                  onClick={() => handleEventFormatChange(EventLocationType.Hybrid)}
                   className={`
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.Hybrid
                         ? darkMode
-                          ? "border-blue-600"
-                          : "border-blue-600"
+                          ? 'border-blue-600'
+                          : 'border-blue-600'
                         : darkMode
-                        ? "border-gray-700"
-                        : "border-gray-300"
+                          ? 'border-gray-700'
+                          : 'border-gray-300'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span
-                      className={`${darkMode ? "text-white" : "text-black"}`}
-                    >
-                      {pageContent["filters-hybrid-event"] || "Hybrid event"}
+                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
+                      {pageContent['filters-hybrid-event'] || 'Hybrid event'}
                     </span>
                     {filters.locationType === EventLocationType.Hybrid ? (
                       darkMode ? (
-                        <Image
-                          src={CheckBoxIconWhite}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
                       ) : (
-                        <Image
-                          src={CheckBoxIcon}
-                          alt="Checked"
-                          width={24}
-                          height={24}
-                        />
+                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
                       )
                     ) : darkMode ? (
                       <Image
@@ -584,23 +515,19 @@ export function EventsFilters({
             onClick={handleClearAll}
             className={`
               flex-1 px-4 py-3 border rounded-lg text-center
-              ${
-                darkMode
-                  ? "border-gray-700 text-white"
-                  : "border-gray-300 text-gray-700"
-              }
+              ${darkMode ? 'border-gray-700 text-white' : 'border-gray-300 text-gray-700'}
             `}
           >
-            {pageContent["filters-clear-all"] || "Clear all"}
+            {pageContent['filters-clear-all'] || 'Clear all'}
           </button>
 
           <BaseButton
-            label={pageContent["filters-show-results"] || "Show results"}
+            label={pageContent['filters-show-results'] || 'Show results'}
             onClick={handleApply}
             customClass={`flex-1 px-4 py-3 rounded-lg font-medium ${
               darkMode
-                ? "bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black"
-                : "bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black"
+                ? 'bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black'
+                : 'bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black'
             }`}
           />
         </div>
@@ -611,7 +538,7 @@ export function EventsFilters({
         isOpen={showCapacityModal}
         onClose={() => setShowCapacityModal(false)}
         onSelect={handleCapacitySelect}
-        title={pageContent["select-capacity"] || "Select capacity"}
+        title={pageContent['select-capacity'] || 'Select capacity'}
       />
     </div>
   );

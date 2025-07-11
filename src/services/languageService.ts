@@ -1,5 +1,5 @@
-import axios from "axios";
-import { Language, Languages, LanguageProficiency } from "@/types/language";
+import axios from 'axios';
+import { Language, Languages, LanguageProficiency } from '@/types/language';
 
 export const fetchLanguages = async (token: string): Promise<Languages> => {
   const response = await axios.get<Languages>(`/api/list/language/`, {
@@ -18,7 +18,7 @@ export const updateLanguageProficiency = async (
 ): Promise<void> => {
   const response = await axios.put(`/api/profile/${userId}/`, {
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Token ${token}`,
     },
     body: JSON.stringify({ language: languages }),

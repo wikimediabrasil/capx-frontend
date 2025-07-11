@@ -1,5 +1,5 @@
-"use client";
-import { createContext, useContext, useState, useEffect } from "react";
+'use client';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 type ThemeContextType = {
   darkMode: boolean;
@@ -14,33 +14,31 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Only execute on the client
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     try {
-      const savedTheme = localStorage.getItem("theme");
+      const savedTheme = localStorage.getItem('theme');
       if (savedTheme) {
-        setDarkMode(savedTheme === "dark");
+        setDarkMode(savedTheme === 'dark');
       } else {
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         setDarkMode(prefersDark);
       }
     } catch (error) {
-      console.error("Error accessing localStorage:", error);
+      console.error('Error accessing localStorage:', error);
     }
 
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted || typeof window === "undefined") return;
+    if (!mounted || typeof window === 'undefined') return;
 
     try {
-      document.documentElement.classList.toggle("dark", darkMode);
-      localStorage.setItem("theme", darkMode ? "dark" : "light");
+      document.documentElement.classList.toggle('dark', darkMode);
+      localStorage.setItem('theme', darkMode ? 'dark' : 'light');
     } catch (error) {
-      console.error("Error setting theme:", error);
+      console.error('Error setting theme:', error);
     }
   }, [darkMode, mounted]);
 
@@ -51,16 +49,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={{ darkMode, setDarkMode }}>{children}</ThemeContext.Provider>
   );
 }
 
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }

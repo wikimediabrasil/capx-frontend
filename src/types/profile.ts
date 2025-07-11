@@ -1,4 +1,4 @@
-import { LanguageProficiency } from "./language";
+import { LanguageProficiency } from './language';
 
 export interface Profile {
   name: string;

@@ -6,13 +6,13 @@ export const dynamic = 'force-dynamic';
 // GET handler
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const messageId = searchParams.get("messageId");
-  const authHeader = request.headers.get("authorization");
-  const limit = searchParams.get("limit");
-  const offset = searchParams.get("offset");
+  const messageId = searchParams.get('messageId');
+  const authHeader = request.headers.get('authorization');
+  const limit = searchParams.get('limit');
+  const offset = searchParams.get('offset');
 
   try {
-    const req_url = messageId ? `/messages/${messageId}` : "/messages";
+    const req_url = messageId ? `/messages/${messageId}` : '/messages';
     const response = await axios.get(`${process.env.BASE_URL}${req_url}`, {
       headers: {
         Authorization: authHeader,
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response.data.results);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to fetch message" },
+      { error: 'Failed to fetch message' },
       { status: error.response?.status || 500 }
     );
   }
@@ -33,23 +33,19 @@ export async function GET(request: NextRequest) {
 
 // POST handler
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
+  const authHeader = request.headers.get('authorization');
 
   try {
     const body = await request.json();
-    const response = await axios.post(
-      `${process.env.BASE_URL}/messages/`,
-      body,
-      {
-        headers: {
-          Authorization: authHeader,
-        },
-      }
-    );
+    const response = await axios.post(`${process.env.BASE_URL}/messages/`, body, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to create message" },
+      { error: 'Failed to create message' },
       { status: error.response?.status || 500 }
     );
   }
@@ -58,18 +54,15 @@ export async function POST(request: NextRequest) {
 // OPTIONS handler
 export async function OPTIONS(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const messageId = searchParams.get("messageId");
-  const authHeader = request.headers.get("authorization");
+  const messageId = searchParams.get('messageId');
+  const authHeader = request.headers.get('authorization');
 
   try {
-    const response = await axios.options(
-      `${process.env.BASE_URL}/messages/${messageId}`,
-      {
-        headers: {
-          Authorization: authHeader,
-        },
-      }
-    );
+    const response = await axios.options(`${process.env.BASE_URL}/messages/${messageId}`, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
 
     // Removing "user" key/value from response
     const { user, ...formFields } = response.data.actions.PUT;
@@ -77,7 +70,7 @@ export async function OPTIONS(request: NextRequest) {
     return NextResponse.json(formFields);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to fetch form fields" },
+      { error: 'Failed to fetch form fields' },
       { status: error.response?.status || 500 }
     );
   }

@@ -1,5 +1,5 @@
-import { useSession } from "next-auth/react";
-import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
+import { useSession } from 'next-auth/react';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
 
 export function useApi() {
   const { data: session } = useSession();

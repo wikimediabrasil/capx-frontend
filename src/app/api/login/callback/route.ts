@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import axios from "axios";
+import { NextResponse } from 'next/server';
+import axios from 'axios';
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +17,7 @@ export async function POST(request: Request) {
         oauth_verifier,
         token_secret,
       });
-      return NextResponse.json(
-        { error: "Missing required parameters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
     const response = await axios.post(process.env.LOGIN_STEP03_URL as string, {
@@ -41,18 +38,12 @@ export async function POST(request: Request) {
       });
     }
 
-    console.error("Invalid response from server:", response.data);
-    return NextResponse.json(
-      { error: "Invalid response from server" },
-      { status: 400 }
-    );
+    console.error('Invalid response from server:', response.data);
+    return NextResponse.json({ error: 'Invalid response from server' }, { status: 400 });
   } catch (error: any) {
-    console.error(
-      "Login callback error:",
-      error.response?.data || error.message
-    );
+    console.error('Login callback error:', error.response?.data || error.message);
     return NextResponse.json(
-      { error: error.response?.data?.error || "Authentication failed" },
+      { error: error.response?.data?.error || 'Authentication failed' },
       { status: error.response?.status || 500 }
     );
   }

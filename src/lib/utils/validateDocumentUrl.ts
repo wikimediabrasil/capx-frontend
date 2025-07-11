@@ -14,16 +14,16 @@ export const validateDocumentUrl = (url: string): UrlValidationResult => {
   if (!url || typeof url !== 'string') {
     return {
       isValid: false,
-      error: 'URL is required and must be a string'
+      error: 'URL is required and must be a string',
     };
   }
 
   const trimmedUrl = url.trim();
-  
+
   if (trimmedUrl === '') {
     return {
       isValid: false,
-      error: 'URL cannot be empty'
+      error: 'URL cannot be empty',
     };
   }
 
@@ -33,21 +33,21 @@ export const validateDocumentUrl = (url: string): UrlValidationResult => {
       isValid: false,
       error: 'URL must start with http:// or https://',
       suggestion: `Try: https://${trimmedUrl}`,
-      normalizedUrl: `https://${trimmedUrl}`
+      normalizedUrl: `https://${trimmedUrl}`,
     };
   }
 
   // Try to parse as URL
-  try {    
+  try {
     return {
       isValid: true,
-      normalizedUrl: trimmedUrl
+      normalizedUrl: trimmedUrl,
     };
   } catch (error) {
     return {
       isValid: false,
       error: `Invalid URL format: ${error.message}`,
-      suggestion: 'Please check the URL format and try again'
+      suggestion: 'Please check the URL format and try again',
     };
   }
 };
@@ -63,16 +63,16 @@ export const validateCapXDocumentUrl = (url: string): UrlValidationResult => {
   if (!url || typeof url !== 'string') {
     return {
       isValid: false,
-      error: 'snackbar-edit-profile-organization-document-url-invalid-format'
+      error: 'snackbar-edit-profile-organization-document-url-invalid-format',
     };
   }
 
   const trimmedUrl = url.trim();
-  
+
   if (trimmedUrl === '') {
     return {
       isValid: false,
-      error: 'snackbar-edit-profile-organization-document-url-invalid-format'
+      error: 'snackbar-edit-profile-organization-document-url-invalid-format',
     };
   }
 
@@ -80,7 +80,7 @@ export const validateCapXDocumentUrl = (url: string): UrlValidationResult => {
   if (trimmedUrl.length > 200) {
     return {
       isValid: false,
-      error: 'snackbar-edit-profile-organization-document-url-too-long'
+      error: 'snackbar-edit-profile-organization-document-url-too-long',
     };
   }
 
@@ -90,48 +90,48 @@ export const validateCapXDocumentUrl = (url: string): UrlValidationResult => {
       isValid: false,
       error: 'snackbar-edit-profile-organization-document-url-invalid-format',
       suggestion: `Try: https://${trimmedUrl}`,
-      normalizedUrl: `https://${trimmedUrl}`
+      normalizedUrl: `https://${trimmedUrl}`,
     };
   }
 
   // Try to parse as URL
   try {
     const urlObj = new URL(trimmedUrl);
-    
+
     // Check if it's a Wikimedia Commons URL (required by CapX backend)
     const isCommonsUrl = urlObj.hostname === 'commons.wikimedia.org';
     const isUploadUrl = urlObj.hostname === 'upload.wikimedia.org';
-    
+
     if (!isCommonsUrl && !isUploadUrl) {
       return {
         isValid: false,
-        error: 'snackbar-edit-profile-organization-invalid-document-url'
+        error: 'snackbar-edit-profile-organization-invalid-document-url',
       };
     }
 
     return {
       isValid: true,
-      normalizedUrl: trimmedUrl
+      normalizedUrl: trimmedUrl,
     };
   } catch (error) {
     return {
       isValid: false,
       error: 'snackbar-edit-profile-organization-document-url-invalid-format',
-      suggestion: 'Please check the URL format and try again'
+      suggestion: 'Please check the URL format and try again',
     };
   }
 };
 
 export const normalizeDocumentUrl = (url: string): string => {
   const validation = validateDocumentUrl(url);
-  
+
   if (validation.isValid && validation.normalizedUrl) {
     return validation.normalizedUrl;
   }
-  
+
   if (validation.normalizedUrl) {
     return validation.normalizedUrl;
   }
-  
+
   return url.trim();
-}; 
+};

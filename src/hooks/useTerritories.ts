@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Territories } from "@/types/territory";
-import { fetchTerritories } from "@/services/territoryService";
+import { useState, useEffect } from 'react';
+import { Territories } from '@/types/territory';
+import { fetchTerritories } from '@/services/territoryService';
 
 export const useTerritories = (token: string | undefined) => {
   const [territories, setTerritories] = useState<Territories>({});
@@ -24,10 +24,8 @@ export const useTerritories = (token: string | undefined) => {
         const data = await fetchTerritories(token);
         setTerritories(data || {});
       } catch (err) {
-        console.error("Error loading territories:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load territories"
-        );
+        console.error('Error loading territories:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load territories');
         setTerritories({});
       } finally {
         setLoading(false);

@@ -1,5 +1,5 @@
-import "@testing-library/jest-dom";
-import React from "react";
+import '@testing-library/jest-dom';
+import React from 'react';
 
 // Mock react-error-boundary
 jest.mock("react-error-boundary", () => ({
@@ -9,7 +9,7 @@ jest.mock("react-error-boundary", () => ({
 // Mock matchMedia
 Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -27,7 +27,7 @@ const localStorageMock = {
   setItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock next/image
 jest.mock("next/image", () => ({
