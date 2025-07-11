@@ -3,8 +3,6 @@ import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchMetabase, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(req: NextRequest) {
   try {
     const language = req.nextUrl.searchParams.get('language') || 'en';

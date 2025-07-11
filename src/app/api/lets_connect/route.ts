@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
 // POST handler
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
