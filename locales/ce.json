@@ -1,15 +1,17 @@
 {
-  "@metadata": {
-    "authors": ["Умар"]
-  },
-  "navbar-link-about": "Проектах лаьцна",
-  "navbar-link-events": "Хиламаш",
-  "body-home-section01-title-text": "Декъа меттиг",
-  "body-home-section01-description": "Викимедиан боламна лерина йиначу платформехь зӀе латтайе накъосташца, Ӏамаде, декъа хьайн хаарш.",
-  "body-loggedin-home-main-section-button02": "Сан профиль",
-  "body-profile-gender-other": "Кхидерг",
-  "body-profile-box-title-wikidata-item": "Викихаамийн элемент",
-  "body-profile-section-title-territory": "Территори",
-  "body-profile-section-title-language": "Мотт",
-  "footer-link-documentation": "Документаци"
+	"@metadata": {
+		"authors": [
+			"Умар"
+		]
+	},
+	"navbar-link-about": "Проектах лаьцна",
+	"navbar-link-events": "Хиламаш",
+	"body-home-section01-title-text": "Декъа меттиг",
+	"body-home-section01-description": "Викимедиан боламна лерина йиначу платформехь зӀе латтайе накъосташца, Ӏамаде, декъа хьайн хаарш.",
+	"body-loggedin-home-main-section-button02": "Сан профиль",
+	"body-profile-gender-other": "Кхидерг",
+	"body-profile-box-title-wikidata-item": "Викихаамийн элемент",
+	"body-profile-section-title-territory": "Территори",
+	"body-profile-section-title-language": "Мотт",
+	"footer-link-documentation": "Документаци"
 }

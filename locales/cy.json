@@ -1,20 +1,23 @@
 {
-  "@metadata": {
-    "authors": ["Afalau", "Ceirios"]
-  },
-  "navbar-link-about": "Ynghylch",
-  "navbar-link-events": "Digwyddiadau",
-  "body-loggedin-home-main-section-button02": "Fy Mhroffil",
-  "body-profile-gender-hehim": "Fe/Fo/Ei",
-  "body-profile-gender-sheher": "Hi/Ei",
-  "body-profile-gender-theythem": "Nhw/Eu",
-  "body-profile-gender-other": "Arall",
-  "body-profile-edit-button": "Golygu Proffil",
-  "body-profile-box-title-wikidata-item": "Eitem Wicidata",
-  "body-profile-section-title-territory": "Tiriogaeth",
-  "body-profile-section-title-language": "Iaith",
-  "body-profile-section-title-affiliation": "Cysylltiad",
-  "aria-language-input": "Dewiswch iaith",
-  "sign-out-button": "Allgofnodi",
-  "sign-in-button": "Mewngofnodi"
+	"@metadata": {
+		"authors": [
+			"Afalau",
+			"Ceirios"
+		]
+	},
+	"navbar-link-about": "Ynghylch",
+	"navbar-link-events": "Digwyddiadau",
+	"body-loggedin-home-main-section-button02": "Fy Mhroffil",
+	"body-profile-gender-hehim": "Fe/Fo/Ei",
+	"body-profile-gender-sheher": "Hi/Ei",
+	"body-profile-gender-theythem": "Nhw/Eu",
+	"body-profile-gender-other": "Arall",
+	"body-profile-edit-button": "Golygu Proffil",
+	"body-profile-box-title-wikidata-item": "Eitem Wicidata",
+	"body-profile-section-title-territory": "Tiriogaeth",
+	"body-profile-section-title-language": "Iaith",
+	"body-profile-section-title-affiliation": "Cysylltiad",
+	"aria-language-input": "Dewiswch iaith",
+	"sign-out-button": "Allgofnodi",
+	"sign-in-button": "Mewngofnodi"
 }

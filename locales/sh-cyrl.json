@@ -1,28 +1,30 @@
 {
-  "@metadata": {
-    "authors": ["Millodarka"]
-  },
-  "navbar-link-about": "О нама",
-  "navbar-link-capacities": "Директоријум рецурса",
-  "navbar-link-events": "Дешавања",
-  "navbar-link-reports": "извјештаји",
-  "body-home-section01-title-text": "Зона за размјену",
-  "body-home-section01-title-carousel": "Ресурси,знање, вјештине, услуге",
-  "body-home-section01-description": "Повежи се са колегама, учи и размјењуј ресурсе на платформи коју је Wikimedia Мовемент креирао за своје потребе.",
-  "body-home-section01-button": "Укључи се!",
-  "body-loggedin-home-main-section-button02": "Мој профил",
-  "body-profile-gender-hehim": "Он",
-  "body-profile-gender-sheher": "Она",
-  "body-profile-gender-theythem": "Они",
-  "body-profile-gender-notespecified": "Није наведено",
-  "body-profile-edit-button": "Измијени профил",
-  "body-profile-box-title-alt-wiki-acc": "Алтернативни Викимедија налог",
-  "body-profile-section-title-territory": "Држава/Област",
-  "body-profile-section-title-language": "Језик",
-  "body-profile-section-title-affiliation": "Удружење",
-  "body-profile-section-title-wanted-capacity": "Тражени ресурси",
-  "body-profile-section-title-known-capacity": "Познати ресурси",
-  "body-profile-section-title-available-capacity": "Расположиви ресурси",
-  "body-profile-delete-confirmation": "Трајно обриши свој профил?",
-  "body-profile-delete-warning": "Ова акција се не може поништити, али увијек можеш креирати нови профил. Ово нема утицаја на твој Wikimedia налог."
+	"@metadata": {
+		"authors": [
+			"Millodarka"
+		]
+	},
+	"navbar-link-about": "О нама",
+	"navbar-link-capacities": "Директоријум рецурса",
+	"navbar-link-events": "Дешавања",
+	"navbar-link-reports": "извјештаји",
+	"body-home-section01-title-text": "Зона за размјену",
+	"body-home-section01-title-carousel": "Ресурси,знање, вјештине, услуге",
+	"body-home-section01-description": "Повежи се са колегама, учи и размјењуј ресурсе на платформи коју је Wikimedia Мовемент креирао за своје потребе.",
+	"body-home-section01-button": "Укључи се!",
+	"body-loggedin-home-main-section-button02": "Мој профил",
+	"body-profile-gender-hehim": "Он",
+	"body-profile-gender-sheher": "Она",
+	"body-profile-gender-theythem": "Они",
+	"body-profile-gender-notespecified": "Није наведено",
+	"body-profile-edit-button": "Измијени профил",
+	"body-profile-box-title-alt-wiki-acc": "Алтернативни Викимедија налог",
+	"body-profile-section-title-territory": "Држава/Област",
+	"body-profile-section-title-language": "Језик",
+	"body-profile-section-title-affiliation": "Удружење",
+	"body-profile-section-title-wanted-capacity": "Тражени ресурси",
+	"body-profile-section-title-known-capacity": "Познати ресурси",
+	"body-profile-section-title-available-capacity": "Расположиви ресурси",
+	"body-profile-delete-confirmation": "Трајно обриши свој профил?",
+	"body-profile-delete-warning": "Ова акција се не може поништити, али увијек можеш креирати нови профил. Ово нема утицаја на твој Wikimedia налог."
 }
