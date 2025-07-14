@@ -3,8 +3,11 @@ import path from 'path';
 
 async function main() {
   // Use import dinâmico para ES Modules
-  const capacitiesJson = (await import('./capacities_flat.json', { assert: { type: 'json' } })).default;
-  const descriptionsJson = (await import('./capacities_descriptions.json', { assert: { type: 'json' } })).default;
+  const capacitiesJson = (await import('./capacities_flat.json', { assert: { type: 'json' } }))
+    .default;
+  const descriptionsJson = (
+    await import('./capacities_descriptions.json', { assert: { type: 'json' } })
+  ).default;
 
   // Função para montar a hierarquia
   function buildHierarchy(flatMap: Record<string, any>, descriptions: Record<string, string>) {
@@ -37,4 +40,4 @@ async function main() {
   console.log('Arquivo staticCapacities.ts gerado com sucesso!');
 }
 
-main(); 
+main();

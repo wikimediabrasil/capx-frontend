@@ -10,7 +10,9 @@ const staticCapacitiesPath = path.join(__dirname, 'staticCapacities.ts');
 let staticCapacitiesContent = fs.readFileSync(staticCapacitiesPath, 'utf8');
 
 // Extrair o array de capacidades do arquivo TypeScript
-const capacitiesMatch = staticCapacitiesContent.match(/export const staticCapacities: Capacity\[\] = (\[[\s\S]*\]);/);
+const capacitiesMatch = staticCapacitiesContent.match(
+  /export const staticCapacities: Capacity\[\] = (\[[\s\S]*\]);/
+);
 if (!capacitiesMatch) {
   console.error('Não foi possível encontrar o array staticCapacities no arquivo');
   process.exit(1);
@@ -49,4 +51,4 @@ const updatedContent = staticCapacitiesContent.replace(
 // Escrever o arquivo atualizado
 fs.writeFileSync(staticCapacitiesPath, updatedContent, 'utf8');
 
-console.log('Descrições atualizadas com sucesso!'); 
+console.log('Descrições atualizadas com sucesso!');
