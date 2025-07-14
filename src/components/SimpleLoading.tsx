@@ -1,8 +1,11 @@
 import Image from 'next/image';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
+import { useApp } from "@/contexts/AppContext";
 
 // Simple loading component without theme dependency
 export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
+  const { pageContent } = useApp();
+
   return (
     <div
       className={`flex items-center justify-center ${
@@ -10,12 +13,12 @@ export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boo
       } bg-white`}
       role="status"
       data-testid="simple-loading"
-      aria-label="Content is loading"
+      aria-label={pageContent["aria-label-loading"] || "Content is loading"}
     >
       <div className="relative w-16 h-16">
         <Image
           src={CapxLogo}
-          alt="CAPX Logo"
+          alt={pageContent["alt-logo-loading"] || "CapX - Capacity Exchange logo, page is loading"}
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}
