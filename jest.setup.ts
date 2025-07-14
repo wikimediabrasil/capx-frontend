@@ -1,15 +1,15 @@
-import "@testing-library/jest-dom";
-import React from "react";
+import '@testing-library/jest-dom';
+import React from 'react';
 
-// Mock do react-error-boundary
-jest.mock("react-error-boundary", () => ({
+// Mock react-error-boundary
+jest.mock('react-error-boundary', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-// Mock do matchMedia
-Object.defineProperty(window, "matchMedia", {
+// Mock matchMedia
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -27,16 +27,28 @@ const localStorageMock = {
   setItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-// Mock do next/image
-jest.mock("next/image", () => ({
+// Mock next/image
+jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    const { fetchPriority, priority, ...rest } = props;
-    return React.createElement("img", {
+    const { fetchPriority, priority, fill, ...rest } = props;
+    return React.createElement('img', {
       ...rest,
-      priority: priority ? "true" : undefined,
+      priority: priority ? 'true' : undefined,
+      fill: fill ? 'true' : undefined,
     });
   },
 }));
+
+// Mock window.location to avoid navigation error
+Object.defineProperty(window, 'location', {
+  writable: true,
+  value: {
+    href: '',
+    assign: jest.fn(),
+    replace: jest.fn(),
+    reload: jest.fn(),
+  },
+});

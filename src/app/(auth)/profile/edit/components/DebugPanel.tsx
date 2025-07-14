@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
 interface DebugPanelProps {
   data: any;
@@ -11,10 +11,7 @@ interface DebugPanelProps {
  * Um componente utilizado para depuração durante o desenvolvimento
  * Mostra dados em formato JSON em um painel expansível
  */
-export default function DebugPanel({
-  data,
-  title = "Debug Info",
-}: DebugPanelProps) {
+export default function DebugPanel({ data, title = 'Debug Info' }: DebugPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const togglePanel = () => {
@@ -28,14 +25,12 @@ export default function DebugPanel({
         onClick={togglePanel}
       >
         <span className="font-medium">{title}</span>
-        <span>{isOpen ? "▲" : "▼"}</span>
+        <span>{isOpen ? '▲' : '▼'}</span>
       </div>
 
       {isOpen && (
         <div className="p-4 max-h-96 overflow-auto">
-          <pre className="text-xs whitespace-pre-wrap">
-            {JSON.stringify(data, null, 2)}
-          </pre>
+          <pre className="text-xs whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</pre>
         </div>
       )}
     </div>

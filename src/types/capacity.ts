@@ -16,6 +16,12 @@ export interface Capacity {
   level?: number;
 }
 
+export interface Capacities {
+  id: number;
+  skill_wikidata_item: string;
+  skill_type: number;
+}
+
 export interface CapacityResponse {
   code: string;
   wd_code: string;

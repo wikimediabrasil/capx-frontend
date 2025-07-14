@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { setCookie } from "@/app/actions";
-import BaseSelect from "./BaseSelect";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useLanguageSelection } from "@/hooks/useLanguageSelection";
-import { useApp } from "@/contexts/AppContext";
+import { useEffect, useState } from 'react';
+import { setCookie } from '@/app/actions';
+import BaseSelect from './BaseSelect';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguageSelection } from '@/hooks/useLanguageSelection';
+import { useApp } from '@/contexts/AppContext';
 
 interface LanguageSelectProps {
   language: string;
@@ -21,7 +21,7 @@ export default function LanguageSelect({
   language,
   setLanguage,
   isMobile,
-  className = "w-max",
+  className = 'w-max',
 }: LanguageSelectProps) {
   const { darkMode } = useTheme();
   const { setMobileMenuStatus } = useApp();
@@ -31,7 +31,7 @@ export default function LanguageSelect({
   const { pageContent, setPageContent } = useApp();
 
   // Ensure language is never undefined
-  const currentLanguage = language || "en";
+  const currentLanguage = language || 'en';
 
   useEffect(() => {
     async function loadLanguages() {
@@ -54,9 +54,9 @@ export default function LanguageSelect({
     if (selectedOption && selectedOption.value) {
       setLanguage(selectedOption.value);
       await setCookie({
-        name: "language",
+        name: 'language',
         value: selectedOption.value,
-        options: { path: "/" },
+        options: { path: '/' },
       });
     }
   };
@@ -69,7 +69,7 @@ export default function LanguageSelect({
       options={options}
       value={{ value: currentLanguage, label: currentLanguage }}
       onChange={handleSelection}
-      ariaLabel={pageContent?.["aria-language-input"]}
+      ariaLabel={pageContent?.['aria-language-input']}
       isMobile={isMobile}
       darkMode={darkMode}
       className={`${className} flex items-center`}

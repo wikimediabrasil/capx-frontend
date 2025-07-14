@@ -3,16 +3,20 @@
 		"authors": [
 			"Cabadeck",
 			"Kareyac",
+			"Mitte27",
 			"Okras",
 			"Yurina Tatiana"
 		]
 	},
+	"empty-field": "Вы ещё не заполнили это поле",
 	"loading": "Загружается…",
 	"auth-dialog-button-continue": "Продолжить",
 	"auth-dialog-button-close": "Закрыть вкладку",
 	"navbar-link-about": "О проекте",
 	"navbar-link-profiles": "Мои профили",
 	"navbar-link-events": "События",
+	"navbar-link-dark-mode": "Тёмный/светлый режим",
+	"navbar-link-messages": "Сообщения",
 	"body-home-section01-title-text": "Пространство для обмена",
 	"body-home-section01-description": "Общайтесь с коллегами, учитесь и делитесь своими знаниями на платформе, созданной для Движения Викимедиа.",
 	"body-home-section01-about-button": "О CapX",
@@ -20,7 +24,10 @@
 	"body-home-section01-call-to-action-button02": "Создать учётную запись",
 	"body-home-video-section-title": "Как был создан CapX?",
 	"body-loggedin-home-main-section-button02": "Мой профиль",
+	"body-loggedin-home-third-section-button": "Отправить письмо",
+	"body-loggedin-home-third-section-button-success": "Электронный адрес скопирован в буфер обмена!",
 	"body-profile-gender-other": "Другое",
+	"body-profile-edit-button": "Править профиль",
 	"body-profile-box-title-wikidata-item": "Элемент Викиданных",
 	"body-profile-section-title-territory": "Территория",
 	"body-profile-section-title-language": "Язык",
@@ -30,9 +37,13 @@
 	"organization-profile-project-name": "Название проекта",
 	"organization-profile-project-image": "Изображение проекта",
 	"organization-profile-project-link": "Ссылка на проект",
+	"organization-profile-event-url-title": "URL-адрес события",
+	"organization-profile-event-url-placeholder": "Вставить URL-адрес",
 	"organization-profile-event-name": "Название мероприятия",
+	"organization-profile-event-title-of-event": "Название",
 	"organization-profile-click-here": "Нажмите здесь",
 	"organization-profile-open-project": "Открытый проект",
+	"lets-connect-import-data-cancel": "Отмена",
 	"body-profile-section-title-team": "Команда",
 	"footer-link-documentation": "Документация",
 	"footer-privacy-policy": "Политика конфиденциальности",
@@ -60,5 +71,6 @@
 	"edit-profile-add-events": "Добавить события",
 	"edit-profile-news": "Новости",
 	"edit-profile-insert-project": "Вставить проект",
-	"privacy-policy-link-toolforge": "Toolforge"
+	"privacy-policy-link-toolforge": "Toolforge",
+	"statistics-users-title": "Пользователи"
 }

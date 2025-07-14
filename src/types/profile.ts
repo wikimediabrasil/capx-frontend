@@ -1,10 +1,4 @@
-import { LanguageProficiency } from "./language";
-
-interface Capacity {
-  id: number;
-  skill_type: string[];
-  skill_wikidata_item: string;
-}
+import { LanguageProficiency } from './language';
 
 export interface Profile {
   name: string;
@@ -13,6 +7,7 @@ export interface Profile {
   avatar: number | null | undefined;
   contact?: string;
   display_name?: string;
+  automated_lets_connect?: boolean;
   language: LanguageProficiency[];
   profile_image?: string;
   pronoun?: string;
@@ -33,4 +28,15 @@ export interface Profile {
   wiki_alt?: string;
   wikidata_qid?: string;
   wikimedia_project?: string[];
+}
+
+export interface LetsConnectProfile {
+  username: string;
+  username_org: string;
+  reconciled_affiliation: string;
+  reconciled_territory: string;
+  reconciled_languages: string[];
+  reconciled_projects: string[];
+  reconciled_want_to_learn: string[];
+  reconciled_want_to_share: string[];
 }

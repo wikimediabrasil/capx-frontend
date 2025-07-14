@@ -3,7 +3,8 @@
 		"authors": [
 			"Adamw",
 			"HylianAngel",
-			"Vlasta x"
+			"Vlasta x",
+			"Yucavalla"
 		]
 	},
 	"empty-field": "Aún no has rellenado este campo",
@@ -267,5 +268,6 @@
 	"filters-add-territory": "Añadir territorio",
 	"filters-exchange-with": "Intercambiar con",
 	"filters-title": "Filtros",
-	"filters-icon": "Icono de filtros"
+	"filters-icon": "Icono de filtros",
+	"lets-connect-success-popup-title": "¡Bien hecho!"
 }

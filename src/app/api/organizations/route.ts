@@ -1,19 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import axios from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
 
     const params = {
-      limit: searchParams.get("limit") || undefined,
-      offset: searchParams.get("offset") || undefined,
-      search: searchParams.get("search") || undefined,
-      territory: searchParams.get("territory") || undefined,
-      available_capacities: searchParams.get("available_capacities") || undefined,
-      wanted_capacities: searchParams.get("wanted_capacities") || undefined,
-      has_capacities_wanted: searchParams.get("has_capacities_wanted") === "true" ? true : undefined,
-      has_capacities_available: searchParams.get("has_capacities_available") === "true" ? true : undefined,
+      limit: searchParams.get('limit') || undefined,
+      offset: searchParams.get('offset') || undefined,
+      search: searchParams.get('search') || undefined,
+      territory: searchParams.get('territory') || undefined,
+      available_capacities: searchParams.get('available_capacities') || undefined,
+      wanted_capacities: searchParams.get('wanted_capacities') || undefined,
+      has_capacities_wanted:
+        searchParams.get('has_capacities_wanted') === 'true' ? true : undefined,
+      has_capacities_available:
+        searchParams.get('has_capacities_available') === 'true' ? true : undefined,
     };
 
     const cleanParams = Object.fromEntries(
@@ -21,17 +23,17 @@ export async function GET(request: NextRequest) {
     );
 
     const response = await axios.get(`${process.env.BASE_URL}/organizations/`, {
-      params: cleanParams
+      params: cleanParams,
     });
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Error details:", {
+    console.error('Error details:', {
       status: error.response?.status,
       data: error.response?.data,
       message: error.message,
     });
     return NextResponse.json(
-      { error: "Failed to fetch organizations" },
+      { error: 'Failed to fetch organizations' },
       { status: error.response?.status || 500 }
     );
   }

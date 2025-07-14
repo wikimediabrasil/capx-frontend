@@ -1,30 +1,22 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
-import ProfileCard from "./components/ProfileCard";
-import { Filters } from "./components/Filters";
-import { useApp } from "@/contexts/AppContext";
-import {
-  Skill,
-  FilterState,
-  ProfileCapacityType,
-  ProfileFilterType,
-} from "./types";
-import { useOrganizations } from "@/hooks/useOrganizationProfile";
-import { useAllUsers } from "@/hooks/useUserProfile";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useCapacity } from "@/hooks/useCapacityDetails";
-import { Capacity } from "@/types/capacity";
-import { useSavedItems } from "@/hooks/useSavedItems";
-import {
-  createProfilesFromOrganizations,
-  createProfilesFromUsers,
-} from "./types";
-import { PaginationButtons } from "@/components/PaginationButtons";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import { SearchBar } from "./components/SearchBar";
+import { useEffect, useMemo, useState } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
+import ProfileCard from './components/ProfileCard';
+import { Filters } from './components/Filters';
+import { useApp } from '@/contexts/AppContext';
+import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from './types';
+import { useOrganizations } from '@/hooks/useOrganizationProfile';
+import { useAllUsers } from '@/hooks/useUserProfile';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useCapacity } from '@/hooks/useCapacityDetails';
+import { Capacity } from '@/types/capacity';
+import { useSavedItems } from '@/hooks/useSavedItems';
+import { createProfilesFromOrganizations, createProfilesFromUsers } from './types';
+import { PaginationButtons } from '@/components/PaginationButtons';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { SearchBar } from './components/SearchBar';
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
@@ -32,10 +24,10 @@ export default function FeedPage() {
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
-  const capacityCode = searchParams.get("capacityId");
+  const capacityCode = searchParams.get('capacityId');
 
   const [showFilters, setShowFilters] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
     capacities: [] as Skill[],
     profileCapacityTypes: [
       ProfileCapacityType.Learner,
@@ -44,6 +36,8 @@ export default function FeedPage() {
     territories: [] as string[],
     languages: [] as string[],
     profileFilter: ProfileFilterType.Both,
+    username: undefined,
+    affiliations: [] as string[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 
@@ -60,11 +54,11 @@ export default function FeedPage() {
     if (capacity) {
       try {
         const capacityExists = activeFilters.capacities.some(
-          (cap) => cap.code == Number(capacity.code)
+          cap => cap.code == Number(capacity.code)
         );
 
         if (!capacityExists) {
-          setActiveFilters((prev) => ({
+          setActiveFilters(prev => ({
             ...prev,
             capacities: [
               ...prev.capacities,
@@ -76,13 +70,12 @@ export default function FeedPage() {
           }));
         }
       } catch (error) {
-        console.error("Error parsing capacity from URL:", error);
+        console.error('Error parsing capacity from URL:', error);
       }
     }
   }, [capacity, activeFilters.capacities]);
 
-  const shouldFetchOrgs =
-    activeFilters.profileFilter !== ProfileFilterType.User;
+  const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
   const {
     organizations: organizationsLearner,
     count: organizationsLearnerCount,
@@ -98,8 +91,7 @@ export default function FeedPage() {
       : undefined
   );
 
-  const shouldFetchUsers =
-    activeFilters.profileFilter !== ProfileFilterType.Organization;
+  const shouldFetchUsers = activeFilters.profileFilter !== ProfileFilterType.Organization;
   const {
     allUsers: usersLearner,
     count: usersLearnerCount,
@@ -157,9 +149,7 @@ export default function FeedPage() {
   switch (activeFilters.profileFilter) {
     case ProfileFilterType.User:
       totalRecords =
-        (activeFilters.profileCapacityTypes.includes(
-          ProfileCapacityType.Learner
-        )
+        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
           ? usersLearnerCount
           : 0) +
         (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
@@ -168,9 +158,7 @@ export default function FeedPage() {
       break;
     case ProfileFilterType.Organization:
       totalRecords =
-        (activeFilters.profileCapacityTypes.includes(
-          ProfileCapacityType.Learner
-        )
+        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
           ? organizationsLearnerCount
           : 0) +
         (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
@@ -180,9 +168,7 @@ export default function FeedPage() {
     case ProfileFilterType.Both:
     default:
       totalRecords =
-        (activeFilters.profileCapacityTypes.includes(
-          ProfileCapacityType.Learner
-        )
+        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
           ? usersLearnerCount + organizationsLearnerCount
           : 0) +
         (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
@@ -194,9 +180,7 @@ export default function FeedPage() {
     if (!savedItems) return false;
 
     return savedItems.some(
-      (item) =>
-        item.entity_id === profileId &&
-        item.entity === (isOrganization ? "org" : "user")
+      item => item.entity_id === profileId && item.entity === (isOrganization ? 'org' : 'user')
     );
   };
 
@@ -205,7 +189,7 @@ export default function FeedPage() {
     const learnerOrgProfiles = createProfilesFromOrganizations(
       organizationsLearner || [],
       ProfileCapacityType.Learner
-    ).map((profile) => ({
+    ).map(profile => ({
       ...profile,
       isSaved: isProfileSaved(profile.id, true),
     }));
@@ -213,7 +197,7 @@ export default function FeedPage() {
     const availableOrgProfiles = createProfilesFromOrganizations(
       organizationsSharer || [],
       ProfileCapacityType.Sharer
-    ).map((profile) => ({
+    ).map(profile => ({
       ...profile,
       isSaved: isProfileSaved(profile.id, true),
     }));
@@ -234,7 +218,7 @@ export default function FeedPage() {
     const wantedUserProfiles = createProfilesFromUsers(
       usersLearner || [],
       ProfileCapacityType.Learner
-    ).map((profile) => ({
+    ).map(profile => ({
       ...profile,
       isSaved: isProfileSaved(profile.id, false),
     }));
@@ -242,7 +226,7 @@ export default function FeedPage() {
     const availableUserProfiles = createProfilesFromUsers(
       usersSharer || [],
       ProfileCapacityType.Sharer
-    ).map((profile) => ({
+    ).map(profile => ({
       ...profile,
       isSaved: isProfileSaved(profile.id, false),
     }));
@@ -289,15 +273,13 @@ export default function FeedPage() {
   }, [activeFilters]);
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(
-      (cap) => cap.code == capacity.code
-    );
+    const capacityExists = activeFilters.capacities.some(cap => cap.code == capacity.code);
 
     if (capacityExists) {
       return;
     }
 
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
       capacities: [
         ...prev.capacities,
@@ -310,19 +292,19 @@ export default function FeedPage() {
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    setActiveFilters((prev) => ({
+    setActiveFilters(prev => ({
       ...prev,
-      capacities: prev.capacities.filter((cap) => cap.code !== capacityCode),
+      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
 
-    const urlCapacityId = searchParams.get("capacityId");
+    const urlCapacityId = searchParams.get('capacityId');
 
     // If the capacity removed is the same as the URL, update the URL
     if (
       (urlCapacityId && urlCapacityId.toString() == capacityCode.toString()) ||
       (urlCapacityId && urlCapacityId.toString() == capacity?.code?.toString())
     ) {
-      router.replace("/feed", { scroll: false });
+      router.replace('/feed', { scroll: false });
     }
   };
 
@@ -346,9 +328,7 @@ export default function FeedPage() {
     isUsersSharerLoading
   ) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        {pageContent["loading"]}
-      </div>
+      <div className="flex justify-center items-center h-screen">{pageContent['loading']}</div>
     );
   }
 
@@ -356,25 +336,21 @@ export default function FeedPage() {
     try {
       if (profile.isSaved) {
         const savedItem = savedItems?.find(
-          (item) =>
+          item =>
             item.entity_id === profile.id &&
-            item.entity === (profile.isOrganization ? "org" : "user")
+            item.entity === (profile.isOrganization ? 'org' : 'user')
         );
 
         if (savedItem) {
           deleteSavedItem(savedItem.id);
-          showSnackbar(pageContent["saved-profiles-delete-success"], "success");
+          showSnackbar(pageContent['saved-profiles-delete-success'], 'success');
         }
       } else {
-        createSavedItem(
-          profile.isOrganization ? "org" : "user",
-          profile.id,
-          profile.type
-        );
-        showSnackbar(pageContent["saved-profiles-add-success"], "success");
+        createSavedItem(profile.isOrganization ? 'org' : 'user', profile.id, profile.type);
+        showSnackbar(pageContent['saved-profiles-add-success'], 'success');
       }
     } catch (error) {
-      showSnackbar(pageContent["saved-profiles-error"], "error");
+      showSnackbar(pageContent['saved-profiles-error'], 'error');
     }
   };
 
@@ -388,17 +364,17 @@ export default function FeedPage() {
             selectedCapacities={activeFilters.capacities}
             onRemoveCapacity={handleRemoveCapacity}
             onCapacityInputFocus={() => setShowSkillModal(true)}
-            capacitiesPlaceholder={pageContent["filters-search-by-capacities"]}
-            removeItemAltText={pageContent["filters-remove-item-alt-icon"]}
+            capacitiesPlaceholder={pageContent['filters-search-by-capacities']}
+            removeItemAltText={pageContent['filters-remove-item-alt-icon']}
             onFilterClick={() => setShowFilters(true)}
-            filterAriaLabel={pageContent["saved-profiles-filters-button"]}
+            filterAriaLabel={pageContent['saved-profiles-filters-button']}
           />
 
           <CapacitySelectionModal
             isOpen={showSkillModal}
             onClose={() => setShowSkillModal(false)}
             onSelect={handleCapacitySelect}
-            title={pageContent["select-capacity"]}
+            title={pageContent['select-capacity']}
           />
 
           {filteredProfiles.length > 0 ? (
@@ -422,19 +398,11 @@ export default function FeedPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
-              <p
-                className={`text-lg font-medium ${
-                  darkMode ? "text-white" : "text-gray-700"
-                }`}
-              >
-                {pageContent["feed-no-data-message"]}
+              <p className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
+                {pageContent['feed-no-data-message']}
               </p>
-              <p
-                className={`mt-2 text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                {pageContent["feed-no-data-description"]}
+              <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {pageContent['feed-no-data-description']}
               </p>
             </div>
           )}

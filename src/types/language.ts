@@ -1,5 +1,6 @@
 export interface LanguageProficiency {
   id: number;
+  name?: string;
   proficiency: string;
 }
 

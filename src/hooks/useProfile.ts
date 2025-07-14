@@ -1,16 +1,15 @@
-import { Profile } from "@/types/profile";
-import { profileService } from "@/services/profileService";
-import { useQuery } from "@tanstack/react-query";
+import { Profile } from '@/types/profile';
+import { profileService } from '@/services/profileService';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-export function useProfile(
-  token: string | undefined,
-  userId: number | undefined
-) {
+export function useProfile(token: string | undefined, userId: number | undefined) {
+  const queryClient = useQueryClient();
+
   const { data, isLoading, error, refetch, ...rest } = useQuery({
-    queryKey: ["profile", token, userId],
+    queryKey: ['profile', token, userId],
     queryFn: async () => {
       if (!token || !userId) {
-        throw new Error("Token or userId is missing");
+        throw new Error('Token or userId is missing');
       }
 
       const response = await profileService.fetchUserProfile({
@@ -24,12 +23,10 @@ export function useProfile(
       });
 
       if (Array.isArray(response)) {
-        let profile = response.find(
-          (p) => p.user.id === userId && p.avatar !== null
-        );
+        let profile = response.find(p => p.user.id === userId && p.avatar !== null);
 
         if (!profile) {
-          profile = response.find((p) => p.user.id === userId);
+          profile = response.find(p => p.user.id === userId);
         }
 
         return profile;
@@ -42,7 +39,7 @@ export function useProfile(
 
   const updateProfile = async (profileData: Partial<Profile>) => {
     if (!token || !userId) {
-      throw new Error("No token or userId available");
+      throw new Error('No token or userId available');
     }
 
     try {
@@ -51,9 +48,19 @@ export function useProfile(
           Authorization: `Token ${token}`,
         },
       });
-      const updatedProfile = Array.isArray(response)
-        ? response[response.length - 1]
-        : response;
+      const updatedProfile = Array.isArray(response) ? response[response.length - 1] : response;
+
+      // Invalidate and refetch the profile cache to ensure fresh data
+      await queryClient.invalidateQueries({ queryKey: ['profile', token, userId] });
+
+      // Also invalidate any user-related queries that might be cached
+      await queryClient.invalidateQueries({ queryKey: ['users'] });
+      await queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+      await queryClient.invalidateQueries({ queryKey: ['userProfile', userId, token] });
+
+      // Optionally, update the cache immediately with the new data
+      queryClient.setQueryData(['profile', token, userId], updatedProfile);
+
       return updatedProfile;
     } catch (err) {
       throw err;
@@ -62,15 +69,18 @@ export function useProfile(
 
   const deleteProfile = async () => {
     if (!token || !userId) {
-      throw new Error("No token or userId available");
+      throw new Error('No token or userId available');
     }
 
     try {
       await profileService.deleteProfile(userId.toString(), token);
+      // Invalidate profile cache after deletion
+      await queryClient.invalidateQueries({ queryKey: ['profile', token, userId] });
     } catch (err) {
       throw err;
     }
   };
+
   return {
     profile: data,
     isLoading,

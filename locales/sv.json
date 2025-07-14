@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Alicia Fagerving (WMSE)",
+			"Gkyziridis",
 			"Sabelöga"
 		]
 	},
@@ -23,6 +24,10 @@
 	"body-loggedin-home-main-section-title": "Välkommen till CapX!",
 	"body-loggedin-home-main-section-description": "Kul att du är här",
 	"body-loggedin-home-main-section-button02": "Min profil",
+	"body-loggedin-home-third-section-title": "Förslag och feedback",
+	"body-loggedin-home-third-section-description": "Dela dina idéer, kommentarer eller förslag med oss.",
+	"body-loggedin-home-third-section-button": "Skicka e-post",
+	"body-loggedin-home-third-section-button-success": "E-post kopieras till klippbordet!",
 	"body-profile-gender-hehim": "Han/honom",
 	"body-profile-gender-sheher": "Hon/henne",
 	"body-profile-gender-theythem": "Hen",
@@ -92,9 +97,23 @@
 	"oh-no-message": "Ånej!",
 	"no-report-rights": "Antingen har du inte behörighet att uppdatera den här rapporten eller så finns den inte!",
 	"body-profile-languages-title": "Språk",
+	"body-profile-copy-link": "Kopiera länk",
+	"body-profile-copy-link-success": "Profillänk kopierad till urklipp!",
+	"body-profile-copy-link-error": "Misslyckades med att kopiera profillänken",
 	"edit-profile-welcome": "Välkommen!",
 	"edit-profile-use-wikidata": "Wikidataobjekt",
 	"edit-profile-mini-bio-placeholder": "Skriv några ord om dig själv.",
 	"edit-profile-add-language": "Lägg till språk",
-	"privacy-policy-private-information-topic02-link": "OAuth"
+	"privacy-policy-private-information-topic02-link": "OAuth",
+	"statistics-section-title": "Plattformstatistik",
+	"statistics-users-title": "Användare",
+	"statistics-capacities-title": "Kapaciteter",
+	"statistics-messages-title": "Meddelanden",
+	"statistics-organizations-title": "Organisationer",
+	"statistics-new-label": "nytt",
+	"statistics-total-vs-new-title": "Totalt vs Ny",
+	"statistics-source-text": "Datakälla: CapX-plattformsstatistik uppdaterad i realtid.",
+	"statistics-loading-text": "Laddar statistik...",
+	"statistics-error-text": "Kan inte ladda statistik. Försök igen senare.",
+	"statistics-text-link": "Visa alla"
 }

@@ -1,8 +1,8 @@
-import axios from "axios";
-import { NextRequest, NextResponse } from "next/server";
+import axios from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
+  const authHeader = request.headers.get('authorization');
   try {
     const response = await axios.get(`${process.env.BASE_URL}/territory`, {
       headers: {
@@ -11,9 +11,6 @@ export async function GET(request: NextRequest) {
     });
     return NextResponse.json(response.data);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch territories" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch territories' }, { status: 500 });
   }
 }

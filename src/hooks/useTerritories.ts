@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Territories } from "@/types/territory";
-import { fetchTerritories } from "@/services/territoryService";
+import { useState, useEffect } from 'react';
+import { Territories } from '@/types/territory';
+import { fetchTerritories } from '@/services/territoryService';
 
 export const useTerritories = (token: string | undefined) => {
   const [territories, setTerritories] = useState<Territories>({});
@@ -8,7 +8,7 @@ export const useTerritories = (token: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Reseta o estado quando o token muda
+    // Reset the state when the token changes
     if (!token) {
       setTerritories({});
       setLoading(false);
@@ -16,7 +16,6 @@ export const useTerritories = (token: string | undefined) => {
       return;
     }
 
-    // Função assíncrona dentro do useEffect para carregar os territórios
     const loadTerritories = async () => {
       setLoading(true);
       setError(null);
@@ -25,19 +24,16 @@ export const useTerritories = (token: string | undefined) => {
         const data = await fetchTerritories(token);
         setTerritories(data || {});
       } catch (err) {
-        console.error("Error loading territories:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load territories"
-        );
+        console.error('Error loading territories:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load territories');
         setTerritories({});
       } finally {
         setLoading(false);
       }
     };
 
-    // Executa a função para carregar os territórios
     loadTerritories();
-  }, [token]); // O useEffect depende apenas do token
+  }, [token]);
 
   return {
     territories,

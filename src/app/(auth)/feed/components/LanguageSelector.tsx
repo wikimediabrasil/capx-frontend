@@ -13,19 +13,22 @@ export function LanguageSelector({
   languages,
   selectedLanguages,
   onSelectLanguage,
-  placeholder
+  placeholder,
 }: LanguageSelectorProps) {
   const { pageContent } = useApp();
-  const languagesList = Object.entries(languages).map(([id, name]) => ({
-    id,
-    name
-  }));
+
+  const languagesList = Object.entries(languages)
+    .map(([id, name]) => ({
+      id,
+      name,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <SelectList
       icon={LanguageIcon}
       iconDark={LanguageIconWhite}
-      title={pageContent["form-profile-languages"]}
+      title={pageContent['form-profile-languages']}
       items={languagesList}
       selectedItems={selectedLanguages}
       onSelect={onSelectLanguage}
