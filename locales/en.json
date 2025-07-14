@@ -710,6 +710,8 @@
   "alt-banner-generic": "Page banner image",
   "alt-icon-generic": "Page icon",
   "alt-illustration": "Illustration image",
+  "alt-tablet-illustration": "Tablet showing video content",
+  "alt-video-thumbnail": "Video thumbnail showing CapX introduction",
   "alt-decorative": "Decorative image",
   "aria-label-main-navigation": "Main navigation menu",
   "aria-label-user-menu": "User account menu",
