@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Capacity } from '../data/staticCapacities';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
+import { DarkMode } from '@/stories/ProgressBar.stories';
 
 // Função para determinar a cor baseada no id da capacidade
 const getColorForCapacity = (id: number | string): string => {
@@ -30,8 +31,79 @@ export default function D3TreeVisualization({
   height = 800,
 }: D3TreeVisualizationProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const zoomRef = useRef<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [selectedNodeCoords, setSelectedNodeCoords] = useState<{x: number, y: number} | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+
+  // Função para centralizar o nó selecionado
+  const centerOnNode = (nodeX: number, nodeY: number) => {
+    if (!svgRef.current || !zoomRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    const container = svg.select('g');
+    const containerNode = container.node() as any;
+    
+    if (!containerNode) return;
+
+    // Obter as dimensões do container SVG
+    const svgRect = svgRef.current.getBoundingClientRect();
+    
+    // Calcular o centro do viewport
+    const viewportCenterX = svgRect.width / 2;
+    const viewportCenterY = svgRect.height / 2;
+    
+    // Calcular a transformação necessária para centralizar o nó
+    const currentTransform = d3.zoomTransform(svgRef.current);
+    const targetX = viewportCenterX - nodeX * currentTransform.k;
+    const targetY = viewportCenterY - nodeY * currentTransform.k;
+    
+    // Aplicar a transformação com animação suave
+    const newTransform = d3.zoomIdentity
+      .translate(targetX, targetY)
+      .scale(currentTransform.k);
+    
+    svg.transition()
+      .duration(750)
+      .ease(d3.easeCubicOut)
+      .call(zoomRef.current.transform, newTransform);
+
+    // Adicionar efeito visual de destaque no nó centralizado
+    const nodeElement = container.select(`[data-node-id]`).filter((d: any) => d.x === nodeX && d.y === nodeY);
+    if (!nodeElement.empty()) {
+      // Adicionar classe de destaque temporária
+      nodeElement.select('circle')
+        .transition()
+        .duration(200)
+        .style('stroke', '#fbbf24')
+        .style('stroke-width', '4px')
+        .transition()
+        .delay(1000)
+        .duration(200)
+        .style('stroke', '#ffffff')
+        .style('stroke-width', '2px');
+    }
+  };
+
+  // Função para resetar a visualização
+  const resetView = () => {
+    if (!svgRef.current || !zoomRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    const margin = {
+      top: typeof window !== 'undefined' && window.innerWidth < 640 ? 0 : 20,
+      left: 50,
+    };
+
+    const initialTransform = d3.zoomIdentity
+      .translate(margin.left, margin.top)
+      .scale(1);
+
+    svg.transition()
+      .duration(750)
+      .ease(d3.easeCubicOut)
+      .call(zoomRef.current.transform, initialTransform);
+  };
 
   // Função para transformar dados flat em hierárquicos com controle de expansão
   const createHierarchy = (capacities: Capacity[]) => {
@@ -309,11 +381,16 @@ export default function D3TreeVisualization({
       .enter()
       .append('g')
       .attr('class', 'node')
+      .attr('data-node-id', (d: any) => d.data.id)
       .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
       .style('cursor', 'pointer')
       .on('click', (event: any, d: any) => {
         // Mostrar detalhes da capacidade
         setSelectedNode(d.data);
+        setSelectedNodeCoords({ x: d.x, y: d.y });
+
+        // Centralizar na capacidade clicada
+        centerOnNode(d.x, d.y);
 
         // Expandir/colapsar para capacidades raiz e filhas
         if (d.depth === 0) {
@@ -385,8 +462,20 @@ export default function D3TreeVisualization({
 
         return '#6b7280'; // Fallback
       })
-      .style('stroke', '#ffffff')
-      .style('stroke-width', '2px');
+      .style('stroke', (d: any) => {
+        // Destacar o nó selecionado
+        if (selectedNode && selectedNode.id === d.data.id) {
+          return '#fbbf24'; // Amarelo para nó selecionado
+        }
+        return '#ffffff';
+      })
+      .style('stroke-width', (d: any) => {
+        // Destacar o nó selecionado com borda mais grossa
+        if (selectedNode && selectedNode.id === d.data.id) {
+          return '4px';
+        }
+        return '2px';
+      });
 
     // Adicionar texto aos nós (Layout Horizontal)
     node
@@ -465,12 +554,22 @@ export default function D3TreeVisualization({
       });
 
     svg.call(zoom as any);
+    zoomRef.current = zoom; // Atribuir o zoom ao ref
 
     // Centralizar visualização
     const initialTransform = d3.zoomIdentity.translate(margin.left, margin.top).scale(1);
 
     svg.call(zoom.transform as any, initialTransform);
-  }, [data, width, height, expandedNodes]);
+
+    // Adicionar evento de clique no SVG para limpar seleção
+    svg.on('click', (event: any) => {
+      // Só limpar se clicou no SVG, não em um nó
+      if (event.target === svgRef.current) {
+        setSelectedNode(null);
+        setSelectedNodeCoords(null);
+      }
+    });
+  }, [data, width, height, expandedNodes, selectedNode]);
 
   // Calcular largura ajustada para layout vertical das raízes
   const calculateAdjustedWidth = () => {
@@ -522,10 +621,19 @@ export default function D3TreeVisualization({
   const calculateAdjustedHeight = () => {
     if (!data || data.length === 0) return height;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    
     // Altura baseada no número de raízes, com espaçamento adequado
-    const minHeight = isMobile ? 100 : 800; // Reduzido de 200 para 100 no mobile para eliminar margem desnecessária
     const totalHeight = 10 + (data.length - 1) * 80 + 40; // 10px do topo + espaçamento entre capacidades + 40px do final
-    return Math.max(minHeight, totalHeight);
+    
+    // No mobile, limitar a altura máxima para evitar scroll vertical
+    if (isMobile) {
+      const maxMobileHeight = 512; // 32rem = 512px
+      return Math.min(totalHeight, maxMobileHeight);
+    }
+    
+    // No desktop, usar altura mínima de 800px
+    const minDesktopHeight = 800;
+    return Math.max(minDesktopHeight, totalHeight);
   };
 
   const adjustedWidth = calculateAdjustedWidth();
@@ -533,11 +641,26 @@ export default function D3TreeVisualization({
 
   return (
     <div className="w-full">
+      {/* CSS para esconder scrollbars */}
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      
       {/* Título e descrição movidos para fora do container com altura limitada */}
       <div className="mb-4 w-full mt-20">
         <h2
-          className="text-xl font-semibold text-gray-900 dark:text-white mb-2 break-words w-full"
-          style={{ wordBreak: 'break-word' }}
+          className={`text-xl font-semibold text-gray-900 dark:text-white mb-2 break-words w-full ${
+            DarkMode ? 'text-white' : 'text-gray-900'
+          }`}
+          style={{ wordBreak: 'break-word' }
+        
+        }
         >
           Visualização Interativa das Capacidades
         </h2>
@@ -545,16 +668,45 @@ export default function D3TreeVisualization({
           className="text-sm text-gray-600 dark:text-gray-400 mb-4 break-words w-full"
           style={{ wordBreak: 'break-word' }}
         >
-          Clique nas capacidades raiz para expandir/colapsar • Clique nos círculos para ver detalhes
+          Clique nas capacidades raiz para expandir/colapsar • Clique nos círculos para ver detalhes e centralizar
           • Use o mouse para fazer zoom e arrastar
         </p>
+        
+        {/* Botões de controle */}
+        <div className="flex flex-wrap gap-2 mt-4">
+          <button
+            onClick={resetView}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Resetar Visualização
+          </button>
+          {selectedNode && selectedNodeCoords && (
+            <button
+              onClick={() => centerOnNode(selectedNodeCoords.x, selectedNodeCoords.y)}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Centralizar Selecionado
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Visualização D3 */}
         <div className="flex-1">
           <div
-            className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800${typeof window !== 'undefined' && window.innerWidth < 640 ? ' overflow-y-auto overflow-x-auto max-h-[32rem]' : ' overflow-x-auto'}`}
+            className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar${typeof window !== 'undefined' && window.innerWidth < 640 ? ' overflow-x-auto' : ' overflow-x-auto'}`}
+            style={{
+              overflowY: 'hidden',
+              maxHeight: typeof window !== 'undefined' && window.innerWidth < 640 ? '32rem' : 'none',
+            }}
           >
             <svg
               ref={svgRef}
@@ -565,6 +717,7 @@ export default function D3TreeVisualization({
               style={{
                 backgroundColor: 'var(--svg-bg, #fafafa)',
                 maxWidth: '100%',
+                display: 'block',
               }}
               className="dark:bg-gray-800"
             />
@@ -574,9 +727,18 @@ export default function D3TreeVisualization({
         {/* Painel de informações */}
         {selectedNode && (
           <div className="w-full lg:w-80 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 lg:sticky lg:top-0 lg:h-fit">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-              Detalhes da Capacidade
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Detalhes da Capacidade
+              </h3>
+              <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Centralizado
+              </div>
+            </div>
             <div className="space-y-3">
               <div>
                 <span className="font-medium text-gray-700 dark:text-gray-300">Nome:</span>
