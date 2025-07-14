@@ -1,18 +1,11 @@
-"use client";
+'use client';
 
-import { useTheme } from "@/contexts/ThemeContext";
-import { Event } from "@/types/event";
-import { useApp } from "@/contexts/AppContext";
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  useLayoutEffect,
-} from "react";
-import CapacitySelectionModal from "@/components/CapacitySelectionModal";
-import { Capacity } from "@/types/capacity";
+import { useTheme } from '@/contexts/ThemeContext';
+import { Event } from '@/types/event';
+import { useApp } from '@/contexts/AppContext';
+import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { Capacity } from '@/types/capacity';
 import {
   fetchEventDataByURL,
   fetchEventDataByQID,
@@ -44,7 +37,7 @@ const MemoizedInput = memo(
     onChange,
     placeholder,
     className,
-    type = "text",
+    type = 'text',
     disabled = false,
     onKeyDown,
   }: {
@@ -152,10 +145,7 @@ const MemoizedInput = memo(
   (prevProps, nextProps) => {
     // Render again only if important props change
     // Ignore value changes during editing (handled with local state)
-    if (
-      document.activeElement?.tagName === "INPUT" &&
-      prevProps.value !== nextProps.value
-    ) {
+    if (document.activeElement?.tagName === 'INPUT' && prevProps.value !== nextProps.value) {
       // If the field is focused, ignore external value changes
       return true; // avoid re-render
     }
@@ -167,7 +157,7 @@ const MemoizedInput = memo(
     );
   }
 );
-MemoizedInput.displayName = "MemoizedInput";
+MemoizedInput.displayName = 'MemoizedInput';
 
 // Memoized textarea component
 const MemoizedTextarea = memo(
@@ -245,10 +235,7 @@ const MemoizedTextarea = memo(
   },
   // Custom comparison to prevent unnecessary re-renders
   (prevProps, nextProps) => {
-    if (
-      document.activeElement?.tagName === "TEXTAREA" &&
-      prevProps.value !== nextProps.value
-    ) {
+    if (document.activeElement?.tagName === 'TEXTAREA' && prevProps.value !== nextProps.value) {
       // If the textarea is in focus, ignore external value changes
       return true; // prevent re-render
     }
@@ -256,7 +243,7 @@ const MemoizedTextarea = memo(
     return prevProps.className === nextProps.className;
   }
 );
-MemoizedTextarea.displayName = "MemoizedTextarea";
+MemoizedTextarea.displayName = 'MemoizedTextarea';
 
 // Separate component to handle organization loading
 const OrganizationLoader = memo(
@@ -345,7 +332,7 @@ const OrganizationLoader = memo(
     return null;
   }
 );
-OrganizationLoader.displayName = "OrganizationLoader";
+OrganizationLoader.displayName = 'OrganizationLoader';
 
 // Memoize the EventsForm component to avoid unnecessary renders
 const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: EventFormItemProps) => {
@@ -403,9 +390,9 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
       }
 
       // Try to parse as JSON string
-      const parsed = JSON.parse(eventData.related_skills as string);
-      if (Array.isArray(parsed)) {
-        return parsed.map(Number).filter(Boolean);
+      const parsedRelatedSkills = JSON.parse(eventData.related_skills as string);
+      if (Array.isArray(parsedRelatedSkills)) {
+        return parsedRelatedSkills.map(Number).filter(Boolean);
       }
 
       return [];
@@ -820,48 +807,43 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
   return (
     <div className={`${darkMode ? "dark" : ""} ${isMobile ? "mobile" : ""}`}>
       <div className="flex flex-row gap-2">
-        <div
-          className={`flex flex-col gap-2 w-full ${isMobile ? "p-2" : "p-4"}`}
-        >
+        <div className={`flex flex-col gap-2 w-full ${isMobile ? 'p-2' : 'p-4'}`}>
           <h1
             className={`${
-              isMobile ? "text-xl" : "text-[24px]"
+              isMobile ? 'text-xl' : 'text-[24px]'
             } text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2
-            ${darkMode ? "text-white" : "text-capx-dark-box-bg"}
+            ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}
             `}
           >
-            {eventType === "new"
-              ? pageContent["organization-profile-new-event"]
-              : pageContent["organization-profile-edit-event"]}
+            {eventType === 'new'
+              ? pageContent['organization-profile-new-event']
+              : pageContent['organization-profile-edit-event']}
           </h1>
 
           <h2
-            className={`${
-              isMobile ? "text-lg" : "text-[24px]"
-            } font-Montserrat font-bold py-2 ${
-              darkMode ? "text-white" : "text-[#053749]"
+            className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+              darkMode ? 'text-white' : 'text-[#053749]'
             }`}
           >
-            {pageContent["organization-profile-event-url-title"]}
+            {pageContent['organization-profile-event-url-title']}
           </h2>
 
           <div className="flex flex-col gap-2 w-full">
             <div className="flex gap-2 items-center">
               <div
-                className={`flex-1 ${isMobile ? "text-sm" : "text-[24px]"} ${
-                  darkMode ? "border-white" : "border-capx-dark-box-bg"
+                className={`flex-1 ${isMobile ? 'text-sm' : 'text-[24px]'} ${
+                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
                 } rounded-md bg-transparent`}
               >
                 <input
                   type="text"
                   placeholder={
-                    pageContent["organization-profile-event-url-placeholder"] ||
-                    "Insert an URL"
+                    pageContent['organization-profile-event-url-placeholder'] || 'Insert an URL'
                   }
                   className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
                     darkMode
-                      ? "text-white placeholder-gray-400 border-white"
-                      : "text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg"
+                      ? 'text-white placeholder-gray-400 border-white'
+                      : 'text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg'
                   }`}
                   value={urlInput}
                   onChange={handleUrlInputChange}
@@ -872,36 +854,29 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
               <button
                 onClick={handleUrlSubmit}
                 disabled={isLoading}
-                className={`${
-                  isMobile ? "px-3 py-1.5 text-sm" : "px-4 py-2 text-base"
-                } rounded ${
-                  darkMode
-                    ? "text-capx-dark-box-bg bg-white"
-                    : "text-white bg-capx-dark-box-bg"
+                className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-base'} rounded ${
+                  darkMode ? 'text-capx-dark-box-bg bg-white' : 'text-white bg-capx-dark-box-bg'
                 }
                 `}
               >
-                {isLoading
-                  ? "..."
-                  : pageContent["organization-profile-event-search"]}
+                {isLoading ? '...' : pageContent['organization-profile-event-search']}
               </button>
             </div>
 
             {isLoading && (
               <p
-                className={`${isMobile ? "text-sm" : "text-[16px]"} ${
-                  darkMode ? "text-yellow-300" : "text-yellow-700"
+                className={`${isMobile ? 'text-sm' : 'text-[16px]'} ${
+                  darkMode ? 'text-yellow-300' : 'text-yellow-700'
                 }`}
               >
-                {pageContent["event-form-wikidata-loading"] ||
-                  "Searching for event data..."}
+                {pageContent['event-form-wikidata-loading'] || 'Searching for event data...'}
               </p>
             )}
 
             {urlError && (
               <p
-                className={`${isMobile ? "text-sm" : "text-[16px]"} ${
-                  darkMode ? "text-red-300" : "text-red-700"
+                className={`${isMobile ? 'text-sm' : 'text-[16px]'} ${
+                  darkMode ? 'text-red-300' : 'text-red-700'
                 }`}
               >
                 {urlError}
@@ -909,8 +884,8 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
             )}
 
             <p
-              className={`${isMobile ? "text-sm" : "text-[20px]"} ${
-                darkMode ? "text-white" : "text-[#829BA4]"
+              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                darkMode ? 'text-white' : 'text-[#829BA4]'
               }`}
             >
               {pageContent["organization-profile-event-url-tooltip-updated"] ||
@@ -919,30 +894,26 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
           </div>
 
           <h2
-            className={`${
-              isMobile ? "text-lg" : "text-[24px]"
-            } font-Montserrat font-bold py-2 ${
-              darkMode ? "text-white" : "text-[#053749]"
+            className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+              darkMode ? 'text-white' : 'text-[#053749]'
             }`}
           >
-            {pageContent["organization-profile-event-title-of-event"]}
+            {pageContent['organization-profile-event-title-of-event']}
           </h2>
           <div
             className={`flex flex-row gap-2 w-full items-center ${
-              isMobile ? "text-sm" : "text-[24px]"
-            } ${
-              darkMode ? "border-white" : "border-capx-dark-box-bg"
-            } rounded-md bg-transparent`}
+              isMobile ? 'text-sm' : 'text-[24px]'
+            } ${darkMode ? 'border-white' : 'border-capx-dark-box-bg'} rounded-md bg-transparent`}
           >
             <input
               type="text"
               value={localName}
               onChange={handleNameChange}
-              placeholder={pageContent["organization-profile-event-name"]}
+              placeholder={pageContent['organization-profile-event-name']}
               className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
                 darkMode
-                  ? "text-white placeholder-gray-400 border-white"
-                  : "text-[#053749] placeholder-[#829BA4] border-capx-dark-box-bg"
+                  ? 'text-white placeholder-gray-400 border-white'
+                  : 'text-[#053749] placeholder-[#829BA4] border-capx-dark-box-bg'
               }`}
             />
           </div>
@@ -952,19 +923,15 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
 
           <div className="flex flex-col">
             <h2
-              className={`${
-                isMobile ? "text-lg" : "text-[24px]"
-              } font-Montserrat font-bold py-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
+              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {pageContent["organization-profile-event-start-date"]}
+              {pageContent['organization-profile-event-start-date']}
             </h2>
             <div
-              className={`flex ${
-                isMobile ? "flex-col" : "flex-row"
-              } gap-2 w-full items-center ${
-                isMobile ? "text-sm" : "text-[24px]"
+              className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 w-full items-center ${
+                isMobile ? 'text-sm' : 'text-[24px]'
               }`}
             >
               <div
@@ -995,36 +962,30 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
               </div>
             </div>
             <p
-              className={`${isMobile ? "text-sm" : "text-[20px]"} ${
-                darkMode ? "text-white" : "text-[#829BA4]"
+              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                darkMode ? 'text-white' : 'text-[#829BA4]'
               }`}
             >
-              {pageContent["organization-profile-event-start-date-tooltip"]}
+              {pageContent['organization-profile-event-start-date-tooltip']}
             </p>
           </div>
 
           <div className="flex flex-col">
             <h2
-              className={`${
-                isMobile ? "text-lg" : "text-[24px]"
-              } font-Montserrat font-bold py-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
+              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {pageContent["organization-profile-event-end-date"]}
+              {pageContent['organization-profile-event-end-date']}
             </h2>
             <div
-              className={`flex ${
-                isMobile ? "flex-col" : "flex-row"
-              } gap-2 w-full items-center ${
-                isMobile ? "text-sm" : "text-[24px]"
+              className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 w-full items-center ${
+                isMobile ? 'text-sm' : 'text-[24px]'
               }`}
             >
               <div
-                className={`flex ${
-                  isMobile ? "w-full" : "w-1/2"
-                } flex-row gap-2 border ${
-                  darkMode ? "border-white" : "border-capx-dark-box-bg"
+                className={`flex ${isMobile ? 'w-full' : 'w-1/2'} flex-row gap-2 border ${
+                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
                 } rounded-md`}
               >
                 <CustomDatePicker
@@ -1050,36 +1011,34 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
               </div>
             </div>
             <p
-              className={`${isMobile ? "text-sm" : "text-[20px]"} ${
-                darkMode ? "text-white" : "text-[#829BA4]"
+              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                darkMode ? 'text-white' : 'text-[#829BA4]'
               }`}
             >
-              {pageContent["organization-profile-event-end-date-tooltip"]}
+              {pageContent['organization-profile-event-end-date-tooltip']}
             </p>
           </div>
 
           <div className="flex flex-col">
             <h2
-              className={`${
-                isMobile ? "text-lg" : "text-[24px]"
-              } font-Montserrat font-bold py-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
+              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {pageContent["organization-profile-event-format"]}
+              {pageContent['organization-profile-event-format']}
             </h2>
             <div
               className={`flex flex-row gap-2 w-full items-center ${
-                isMobile ? "text-sm" : "text-[24px]"
+                isMobile ? 'text-sm' : 'text-[24px]'
               } p-2 border ${
-                darkMode ? "border-white" : "border-capx-dark-box-bg"
+                darkMode ? 'border-white' : 'border-capx-dark-box-bg'
               } rounded-md bg-transparent`}
             >
               <select
                 className={`w-full bg-transparent outline-none ${
                   darkMode
-                    ? "text-white placeholder-gray-400"
-                    : "text-[#829BA4] placeholder-[#829BA4]"
+                    ? 'text-white placeholder-gray-400'
+                    : 'text-[#829BA4] placeholder-[#829BA4]'
                 }`}
                 value={localLocationType}
                 onChange={handleLocationTypeChange}
@@ -1091,40 +1050,32 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
             </div>
           </div>
 
-          <div
-            className={`flex flex-col gap-4 w-full border-none ${
-              isMobile ? "mt-2" : "mt-4"
-            }`}
-          >
+          <div className={`flex flex-col gap-4 w-full border-none ${isMobile ? 'mt-2' : 'mt-4'}`}>
             <h2
-              className={`${
-                isMobile ? "text-lg" : "text-[24px]"
-              } font-Montserrat font-bold py-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
+              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {pageContent["organization-profile-event-choose-capacities"]}
+              {pageContent['organization-profile-event-choose-capacities']}
             </h2>
 
             <div className="flex flex-col w-full">
               <div
                 onClick={() => setIsModalOpen(true)}
                 className={`flex items-center justify-between w-full ${
-                  isMobile ? "px-3 py-2" : "px-4 py-3"
+                  isMobile ? 'px-3 py-2' : 'px-4 py-3'
                 } border rounded-lg cursor-pointer ${
                   darkMode
-                    ? "bg-transparent border-white text-white"
-                    : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg"
+                    ? 'bg-transparent border-white text-white'
+                    : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg'
                 }`}
               >
-                <div className="flex-1 flex flex-wrap gap-2">
-                  {renderSelectedCapacities()}
-                </div>
+                <div className="flex-1 flex flex-wrap gap-2">{renderSelectedCapacities()}</div>
 
                 <div className="flex-shrink-0 ml-2">
                   <div
                     className={`w-5 h-5 flex items-center justify-center pointer-events-none ${
-                      darkMode ? "text-white" : "text-gray-800"
+                      darkMode ? 'text-white' : 'text-gray-800'
                     }`}
                   >
                     <svg
@@ -1148,47 +1099,43 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               onSelect={handleCapacitySelect}
-              title={
-                pageContent["organization-profile-event-choose-capacities"]
-              }
+              title={pageContent['organization-profile-event-choose-capacities']}
             />
           </div>
 
           <div className="flex flex-col">
             <h2
-              className={`${
-                isMobile ? "text-lg" : "text-[24px]"
-              } font-Montserrat font-bold py-2 ${
-                darkMode ? "text-white" : "text-capx-dark-box-bg"
+              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {pageContent["organization-profile-event-description"]}
+              {pageContent['organization-profile-event-description']}
             </h2>
             <div
               className={`flex flex-col gap-2 w-full items-center ${
-                isMobile ? "text-sm" : "text-[24px]"
+                isMobile ? 'text-sm' : 'text-[24px]'
               } p-2 border ${
-                darkMode ? "border-white" : "border-capx-dark-box-bg"
+                darkMode ? 'border-white' : 'border-capx-dark-box-bg'
               } rounded-md bg-transparent`}
             >
               <textarea
                 value={localDescription}
                 onChange={handleDescriptionChange}
                 className={`w-full bg-transparent rounded-md outline-none ${
-                  isMobile ? "min-h-[100px]" : "min-h-[150px]"
+                  isMobile ? 'min-h-[100px]' : 'min-h-[150px]'
                 } ${
                   darkMode
-                    ? "text-white placeholder-gray-400"
-                    : "text-capx-dark-box-bg placeholder-[#829BA4]"
+                    ? 'text-white placeholder-gray-400'
+                    : 'text-capx-dark-box-bg placeholder-[#829BA4]'
                 }`}
               />
             </div>
             <p
-              className={`${isMobile ? "text-sm" : "text-[20px]"} ${
-                darkMode ? "text-white" : "text-[#829BA4]"
+              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                darkMode ? 'text-white' : 'text-[#829BA4]'
               }`}
             >
-              {pageContent["organization-profile-event-description-tooltip"]}
+              {pageContent['organization-profile-event-description-tooltip']}
             </p>
           </div>
         </div>
@@ -1227,6 +1174,6 @@ const EventsForm = memo(({ eventData, index, onDelete, onChange, eventType }: Ev
 });
 
 // Add displayName to avoid warnings
-EventsForm.displayName = "EventsForm";
+EventsForm.displayName = 'EventsForm';
 
 export default EventsForm;

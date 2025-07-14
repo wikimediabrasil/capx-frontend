@@ -1,7 +1,7 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import Popup from "./Popup";
-import LetsConnectIcon from "@/public/static/images/lets_connect.svg";
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import Popup from './Popup';
+import LetsConnectIcon from '@/public/static/images/lets_connect.svg';
 
 interface LetsConnectPopupProps {
   isOpen: boolean;
@@ -9,11 +9,7 @@ interface LetsConnectPopupProps {
   onConfirm: () => void;
 }
 
-export default function LetsConnectPopup({
-  isOpen,
-  onClose,
-  onConfirm
-}: LetsConnectPopupProps) {
+export default function LetsConnectPopup({ isOpen, onClose, onConfirm }: LetsConnectPopupProps) {
   const { pageContent } = useApp();
   const { darkMode } = useTheme();
 
@@ -21,15 +17,15 @@ export default function LetsConnectPopup({
 
   return (
     <Popup
-      title={pageContent["lets-connect-import-data-title"]}
+      title={pageContent['lets-connect-import-data-title']}
       image={LetsConnectIcon}
       onClose={onClose}
       onContinue={onConfirm}
-      continueButtonLabel={pageContent["lets-connect-import-data-confirm"]}
-      closeButtonLabel={pageContent["lets-connect-import-data-cancel"]}
+      continueButtonLabel={pageContent['lets-connect-import-data-confirm']}
+      closeButtonLabel={pageContent['lets-connect-import-data-cancel']}
     >
-      <p className={`text-center text-lg ${darkMode ? "text-white" : "text-[#053749]"}`}>
-        {pageContent["lets-connect-import-data-description"]}
+      <p className={`text-center text-lg ${darkMode ? 'text-white' : 'text-[#053749]'}`}>
+        {pageContent['lets-connect-import-data-description']}
       </p>
     </Popup>
   );

@@ -1,31 +1,27 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
-import { useApp } from "@/contexts/AppContext";
-import { useRouter } from "next/navigation";
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useSession } from 'next-auth/react';
+import { useApp } from '@/contexts/AppContext';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import { useProfile } from "@/hooks/useProfile";
-import { useTerritories } from "@/hooks/useTerritories";
-import { Profile } from "@/types/profile";
-import { Capacity } from "@/types/capacity";
-import { useLanguage } from "@/hooks/useLanguage";
-import { useAffiliation } from "@/hooks/useAffiliation";
-import { useWikimediaProject } from "@/hooks/useWikimediaProject";
-import { useAvatars } from "@/hooks/useAvatars";
-import ProfileEditDesktopView from "./ProfileEditDesktopView";
-import ProfileEditMobileView from "./ProfileEditMobileView";
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import { useProfileEdit } from "@/contexts/ProfileEditContext";
-import LoadingState from "@/components/LoadingState";
-import DebugPanel from "./DebugPanel";
-import CapacityDebug from "./CapacityDebug";
-import {
-  ensureArray,
-  safeAccess,
-  createSafeFunction,
-} from "@/lib/utils/safeDataAccess";
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { useProfile } from '@/hooks/useProfile';
+import { useTerritories } from '@/hooks/useTerritories';
+import { Profile } from '@/types/profile';
+import { Capacity } from '@/types/capacity';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useAffiliation } from '@/hooks/useAffiliation';
+import { useWikimediaProject } from '@/hooks/useWikimediaProject';
+import { useAvatars } from '@/hooks/useAvatars';
+import ProfileEditDesktopView from './ProfileEditDesktopView';
+import ProfileEditMobileView from './ProfileEditMobileView';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useProfileEdit } from '@/contexts/ProfileEditContext';
+import LoadingState from '@/components/LoadingState';
+import DebugPanel from './DebugPanel';
+import CapacityDebug from './CapacityDebug';
+import { ensureArray, safeAccess, createSafeFunction } from '@/lib/utils/safeDataAccess';
 import {
   addUniqueCapacity,
   addUniqueCapacities,
@@ -33,15 +29,15 @@ import {
   addUniqueAffiliations,
   addUniqueTerritory,
   addUniqueItem,
-} from "@/lib/utils/formDataUtils";
+} from '@/lib/utils/formDataUtils';
 
 // Import the new capacity hooks
-import { useCapacities } from "@/hooks/useCapacities";
-import { useCapacityCache } from "@/contexts/CapacityCacheContext";
-import { useLetsConnect } from "@/hooks/useLetsConnect";
-import { useCapacityList } from "@/hooks/useCapacityList";
-import { useAllCapacities } from "@/hooks/useAllCapacities";
-import { LanguageProficiency } from "@/types/language";
+import { useCapacities } from '@/hooks/useCapacities';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useCapacityList } from '@/hooks/useCapacityList';
+import { useAllCapacities } from '@/hooks/useAllCapacities';
+import { LanguageProficiency } from '@/types/language';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -63,11 +59,11 @@ const fetchWikidataQid = async (name: string) => {
     const data = await response.json();
 
     if (data?.results?.bindings?.length > 0) {
-      return data.results.bindings[0].item.value.split("/").pop();
+      return data.results.bindings[0].item.value.split('/').pop();
     }
     return null;
   } catch (error) {
-    console.error("Error fetching Wikidata Qid:", error);
+    console.error('Error fetching Wikidata Qid:', error);
     return null;
   }
 };
@@ -90,7 +86,7 @@ const fetchWikidataImage = async (qid: string) => {
     }
     return null;
   } catch (error) {
-    console.error("Error fetching Wikidata image:", error);
+    console.error('Error fetching Wikidata image:', error);
     return null;
   }
 };
@@ -138,7 +134,7 @@ export default function EditProfilePage() {
   // Log wikimedia project error for debugging
   useEffect(() => {
     if (wikimediaProjectsError) {
-      console.warn("Wikimedia Projects API error:", wikimediaProjectsError);
+      console.warn('Wikimedia Projects API error:', wikimediaProjectsError);
     }
   }, [wikimediaProjectsError]);
 
@@ -154,31 +150,31 @@ export default function EditProfilePage() {
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
   const [selectedCapacityType, setSelectedCapacityType] = useState<
-    "known" | "available" | "wanted"
-  >("known");
+    'known' | 'available' | 'wanted'
+  >('known');
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const [formData, setFormData] = useState<Partial<Profile>>({
-    about: "",
+    about: '',
     affiliation: [],
-    contact: "",
-    display_name: "",
+    contact: '',
+    display_name: '',
     language: [],
-    profile_image: "",
-    pronoun: "",
+    profile_image: '',
+    pronoun: '',
     skills_available: [],
     skills_known: [],
     skills_wanted: [],
     social: [],
-    team: "",
+    team: '',
     territory: undefined,
-    wiki_alt: "",
-    wikidata_qid: "",
+    wiki_alt: '',
+    wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar ? NoAvatarIcon : NoAvatarIcon
-  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
+  // TODO: Remove this after Lets Connect Integration is complete
+  const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [previousImageState, setPreviousImageState] = useState<{
     avatar: number | null;
@@ -187,8 +183,8 @@ export default function EditProfilePage() {
     src: string;
   }>({
     avatar: null,
-    profile_image: "",
-    wikidata_qid: "",
+    profile_image: '',
+    wikidata_qid: '',
     src: NoAvatarIcon,
   });
 
@@ -199,7 +195,7 @@ export default function EditProfilePage() {
         ...(formData?.skills_known || []),
         ...(formData?.skills_available || []),
         ...(formData?.skills_wanted || []),
-      ].map((id) => Number(id)),
+      ].map(id => Number(id)),
     [formData]
   );
 
@@ -208,25 +204,25 @@ export default function EditProfilePage() {
     (capacityId: any) => {
       try {
         if (capacityId === null || capacityId === undefined) {
-          return "Unknown Capacity";
+          return 'Unknown Capacity';
         }
 
         let id: number;
-        if (typeof capacityId === "object" && capacityId.code) {
+        if (typeof capacityId === 'object' && capacityId.code) {
           id = Number(capacityId.code);
         } else {
           id = Number(capacityId);
         }
 
         if (isNaN(id)) {
-          return "Unknown Capacity";
+          return 'Unknown Capacity';
         }
 
         const capacity = getCapacityById(id);
         return capacity?.name || `Capacity ${id}`;
       } catch (error) {
-        console.error("Error getting capacity name:", error);
-        return "Unknown Capacity";
+        console.error('Error getting capacity name:', error);
+        return 'Unknown Capacity';
       }
     },
     [getCapacityById]
@@ -234,8 +230,8 @@ export default function EditProfilePage() {
 
   // Redirect to home if not authenticated
   useEffect(() => {
-    if (sessionStatus === "unauthenticated") {
-      router.push("/");
+    if (sessionStatus === 'unauthenticated') {
+      router.push('/');
     }
   }, [sessionStatus, router]);
 
@@ -249,8 +245,8 @@ export default function EditProfilePage() {
         ...profile,
         affiliation: ensureArray<string>(profile.affiliation),
         territory: profile.territory,
-        profile_image: profile.profile_image || "",
-        wikidata_qid: profile.wikidata_qid || "",
+        profile_image: profile.profile_image || '',
+        wikidata_qid: profile.wikidata_qid || '',
         wikimedia_project: ensureArray<string>(profile.wikimedia_project),
         language: ensureArray<any>(profile.language),
         skills_known: ensureArray<number>(profile.skills_known),
@@ -271,9 +267,7 @@ export default function EditProfilePage() {
         });
       } else if (profile.avatar) {
         // If the user is not using Wikidata, set the avatar
-        const avatarData = avatars?.find(
-          (avatar) => avatar.id === profile.avatar
-        );
+        const avatarData = avatars?.find(avatar => avatar.id === profile.avatar);
         setSelectedAvatar({
           id: profile.avatar,
           src: avatarData?.avatar_url || NoAvatarIcon,
@@ -289,12 +283,11 @@ export default function EditProfilePage() {
       // Save the initial state
       setPreviousImageState({
         avatar: profile.avatar || null,
-        profile_image: profile.profile_image || "",
-        wikidata_qid: profile.wikidata_qid || "",
+        profile_image: profile.profile_image || '',
+        wikidata_qid: profile.wikidata_qid || '',
         src: isUsingWikidata
           ? profile.profile_image || NoAvatarIcon
-          : avatars?.find((a) => a.id === profile.avatar)?.avatar_url ||
-            NoAvatarIcon,
+          : avatars?.find(a => a.id === profile.avatar)?.avatar_url || NoAvatarIcon,
       });
     }
   }, [profile, avatars]);
@@ -305,7 +298,7 @@ export default function EditProfilePage() {
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
     if (unsavedData) {
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
         ...unsavedData,
       }));
@@ -315,7 +308,7 @@ export default function EditProfilePage() {
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
     if (unsavedData) {
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
         ...unsavedData,
       }));
@@ -339,7 +332,7 @@ export default function EditProfilePage() {
           });
 
           if (!wikidataImageLoadedRef.current) {
-            setFormData((prev) => ({
+            setFormData(prev => ({
               ...prev,
               profile_image: wikidataImage,
             }));
@@ -357,11 +350,7 @@ export default function EditProfilePage() {
 
   // Memoize the fetch avatar function to avoid recreating it on every render
   const fetchAvatar = useCallback(async () => {
-    if (
-      typeof profile?.avatar === "number" &&
-      profile?.avatar > 0 &&
-      !avatarLoadedRef.current
-    ) {
+    if (typeof profile?.avatar === 'number' && profile?.avatar > 0 && !avatarLoadedRef.current) {
       try {
         const avatarData = await getAvatarById(profile.avatar);
         if (avatarData?.avatar_url) {
@@ -369,7 +358,7 @@ export default function EditProfilePage() {
           avatarLoadedRef.current = true;
         }
       } catch (error) {
-        console.error("Error fetching avatar:", error);
+        console.error('Error fetching avatar:', error);
       }
     }
   }, [profile?.avatar, getAvatarById]);
@@ -382,12 +371,12 @@ export default function EditProfilePage() {
   }, [fetchAvatar]);
 
   // Show loading state while session is loading
-  if (sessionStatus === "loading") {
+  if (sessionStatus === 'loading') {
     return <LoadingState />;
   }
 
   // If session is unauthenticated, don't render anything
-  if (sessionStatus === "unauthenticated") {
+  if (sessionStatus === 'unauthenticated') {
     return null;
   }
 
@@ -398,21 +387,17 @@ export default function EditProfilePage() {
 
   // Handle error state
   if (profileError) {
-    console.error("Error loading profile:", profileError);
+    console.error('Error loading profile:', profileError);
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <p className="text-xl text-red-500">
-          {safeAccess(
-            pageContent,
-            "error-loading-profile",
-            "Error loading profile"
-          )}
+          {safeAccess(pageContent, 'error-loading-profile', 'Error loading profile')}
         </p>
         <button
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-          onClick={() => router.push("/")}
+          onClick={() => router.push('/')}
         >
-          {safeAccess(pageContent, "go-back", "Go back")}
+          {safeAccess(pageContent, 'go-back', 'Go back')}
         </button>
       </div>
     );
@@ -420,59 +405,58 @@ export default function EditProfilePage() {
 
   const handleDeleteProfile = async () => {
     if (!token) {
-      console.error("No token available");
+      console.error('No token available');
       return;
     }
 
     try {
       await deleteProfile();
-      router.push("/");
+      router.push('/');
     } catch (error) {
-      console.error("Error deleting profile:", error);
+      console.error('Error deleting profile:', error);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
-      console.error("No token available");
+      console.error('No token available');
       return;
     }
 
     try {
+      formData.automated_lets_connect = hasAutomatedLetsConnect ? true : undefined;
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
-      
+
       // Force a refetch to ensure the cache is updated
       await refetch();
-      
-      showSnackbar(pageContent["snackbar-edit-profile-success"], "success");
-      
+
+      showSnackbar(pageContent['snackbar-edit-profile-success'], 'success');
+
       // Add a small delay to ensure the cache is updated before navigation
       setTimeout(() => {
-        router.push("/profile");
+        router.push('/profile');
       }, 100);
     } catch (error) {
-      console.error("Error updating profile:", error);
-      showSnackbar(pageContent["snackbar-edit-profile-failed"], "error");
+      console.error('Error updating profile:', error);
+      showSnackbar(pageContent['snackbar-edit-profile-failed'], 'error');
     } finally {
       setIsImageLoading(false);
     }
   };
 
   const handleAvatarSelect = (avatarId: number) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       avatar: avatarId,
-      profile_image: "", // Clear Wikidata data
-      wikidata_qid: "", // Clear Wikidata data
+      profile_image: '', // Clear Wikidata data
+      wikidata_qid: '', // Clear Wikidata data
     }));
 
     setIsWikidataSelected(false);
 
-    const selectedAvatarUrl = avatars?.find(
-      (avatar) => avatar.id === avatarId
-    )?.avatar_url;
+    const selectedAvatarUrl = avatars?.find(avatar => avatar.id === avatarId)?.avatar_url;
 
     setSelectedAvatar({
       id: avatarId,
@@ -489,13 +473,13 @@ export default function EditProfilePage() {
         // Save the current state before fetching the Wikidata image
         setPreviousImageState({
           avatar: formData.avatar || null,
-          profile_image: formData.profile_image || "",
-          wikidata_qid: formData.wikidata_qid || "",
+          profile_image: formData.profile_image || '',
+          wikidata_qid: formData.wikidata_qid || '',
           src: selectedAvatar.src,
         });
 
         if (!profile?.user.username) {
-          throw new Error("Username not found");
+          throw new Error('Username not found');
         }
 
         const wikidataQid = await fetchWikidataQid(profile.user.username);
@@ -512,7 +496,7 @@ export default function EditProfilePage() {
           // Update the formData with the Wikidata data
           const updatedFormData = {
             ...formData,
-            profile_image: wikidataImage || "",
+            profile_image: wikidataImage || '',
             wikidata_qid: wikidataQid,
             avatar: null, // Remove the avatar when using Wikidata
           };
@@ -520,10 +504,7 @@ export default function EditProfilePage() {
           setFormData(updatedFormData);
           setUnsavedData(updatedFormData); // Important: also update the unsavedData
         } else {
-          showSnackbar(
-            "Wikidata information not found for this username",
-            "error"
-          );
+          showSnackbar('Wikidata information not found for this username', 'error');
         }
       } else {
         // When unselecting the Wikidata option
@@ -537,19 +518,16 @@ export default function EditProfilePage() {
         // Update the formData removing the Wikidata data
         const restoredFormData = {
           ...formData,
-          profile_image: "",
-          wikidata_qid: "",
+          profile_image: '',
+          wikidata_qid: '',
           avatar: null, // Important: use null instead of 0
         };
         setFormData(restoredFormData);
         setUnsavedData(restoredFormData);
       }
     } catch (error) {
-      console.error("Error fetching Wikidata data:", error);
-      showSnackbar(
-        pageContent["snackbar-edit-profile-failed-generic"],
-        "error"
-      );
+      console.error('Error fetching Wikidata data:', error);
+      showSnackbar(pageContent['snackbar-edit-profile-failed-generic'], 'error');
 
       // In case of error, restore the previous state
       setSelectedAvatar({
@@ -561,16 +539,10 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleRemoveCapacity = (
-    type: "known" | "available" | "wanted",
-    index: number
-  ) => {
-    setFormData((prev) => {
+  const handleRemoveCapacity = (type: 'known' | 'available' | 'wanted', index: number) => {
+    setFormData(prev => {
       const newFormData = { ...prev };
-      const key = `skills_${type}` as
-        | "skills_known"
-        | "skills_available"
-        | "skills_wanted";
+      const key = `skills_${type}` as 'skills_known' | 'skills_available' | 'skills_wanted';
 
       // Guarantee the array exists before filtering
       const currentArray = ensureArray<number>(newFormData[key]);
@@ -590,30 +562,27 @@ export default function EditProfilePage() {
     });
   };
 
-  const handleAddCapacity = (type: "known" | "available" | "wanted") => {
+  const handleAddCapacity = (type: 'known' | 'available' | 'wanted') => {
     setSelectedCapacityType(type);
     setShowCapacityModal(true);
   };
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    setFormData((prev) => {
+    setFormData(prev => {
       const newFormData = { ...prev };
       const capacityId = Number(capacity.code);
 
       switch (selectedCapacityType) {
-        case "known":
-          newFormData.skills_known = addUniqueCapacity(
-            ensureArray(prev.skills_known),
-            capacityId
-          );
+        case 'known':
+          newFormData.skills_known = addUniqueCapacity(ensureArray(prev.skills_known), capacityId);
           break;
-        case "available":
+        case 'available':
           newFormData.skills_available = addUniqueCapacity(
             ensureArray(prev.skills_available),
             capacityId
           );
           break;
-        case "wanted":
+        case 'wanted':
           newFormData.skills_wanted = addUniqueCapacity(
             ensureArray(prev.skills_wanted),
             capacityId
@@ -626,9 +595,9 @@ export default function EditProfilePage() {
   };
 
   const handleAddProject = () => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      wikimedia_project: addUniqueItem(ensureArray<string>(prev.wikimedia_project), ""),
+      wikimedia_project: addUniqueItem(ensureArray<string>(prev.wikimedia_project), ''),
     }));
   };
 
@@ -638,22 +607,30 @@ export default function EditProfilePage() {
     router.push(path);
   };
 
-
   const handleLetsConnectImport = async () => {
-    const allLanguages = Object.entries(languages).map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-      proficiency: "3"
-    } as LanguageProficiency));
-    const letsConnectLanguages = allLanguages.filter((language) => letsConnectData?.reconciled_languages.includes(language.name || ""));
+    const allLanguages = Object.entries(languages).map(
+      ([id, name]) =>
+        ({
+          id: Number(id),
+          name: name,
+          proficiency: '3',
+        }) as LanguageProficiency
+    );
+    const letsConnectLanguages = allLanguages.filter(language =>
+      letsConnectData?.reconciled_languages.includes(language.name || '')
+    );
 
-    const allCapacities = capacities.map((capacity) => ({
+    const allCapacities = capacities.map(capacity => ({
       id: capacity.id,
       code: capacity.skill_wikidata_item,
     }));
 
-    const letsConnectWantedCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_learn.includes(capacity.code || ""));
-    const letsConnectAvailableCapacities = allCapacities.filter((capacity) => letsConnectData?.reconciled_want_to_share.includes(capacity.code || ""));
+    const letsConnectWantedCapacities = allCapacities.filter(capacity =>
+      letsConnectData?.reconciled_want_to_learn.includes(capacity.code || '')
+    );
+    const letsConnectAvailableCapacities = allCapacities.filter(capacity =>
+      letsConnectData?.reconciled_want_to_share.includes(capacity.code || '')
+    );
 
     const allAffiliations = Object.entries(affiliations).map(([id, name]) => ({
       id: Number(id),
@@ -661,7 +638,7 @@ export default function EditProfilePage() {
     }));
 
     const letsConnectAffiliation = allAffiliations.filter(affiliation => {
-      const affiliationName = affiliation.name.split(' (')[0];  // Get everything before ' ('
+      const affiliationName = affiliation.name.split(' (')[0]; // Get everything before ' ('
       return affiliationName === letsConnectData?.reconciled_affiliation;
     });
 
@@ -669,9 +646,11 @@ export default function EditProfilePage() {
       id: Number(id),
       name: name,
     }));
-    
-    const letsConnectTerritory = allTerritories.find((territory) => territory.name === letsConnectData?.reconciled_territory);
-    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || "";
+
+    const letsConnectTerritory = allTerritories.find(
+      territory => territory.name === letsConnectData?.reconciled_territory
+    );
+    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || '';
 
     if (letsConnectData) {
       // Ensure the arrays exist and are of the correct type
@@ -690,6 +669,7 @@ export default function EditProfilePage() {
       const newSkillsAvailable = letsConnectAvailableCapacities.map(capacity => capacity.id);
       const newSkillsWanted = letsConnectWantedCapacities.map(capacity => capacity.id);
 
+      setHasAutomatedLetsConnect(true);
       setFormData({
         ...formData,
         affiliation: addUniqueAffiliations(currentAffiliations, newAffiliations),
@@ -699,7 +679,7 @@ export default function EditProfilePage() {
         skills_available: addUniqueCapacities(currentSkillsAvailable, newSkillsAvailable),
         skills_wanted: addUniqueCapacities(currentSkillsWanted, newSkillsWanted),
       });
-      showSnackbar(pageContent["snackbar-lets-connect-import-success"], "success");
+      showSnackbar(pageContent['snackbar-lets-connect-import-success'], 'success');
     }
     setShowLetsConnectPopup(false);
   };
@@ -748,7 +728,7 @@ export default function EditProfilePage() {
     return (
       <>
         <ProfileEditMobileView {...ViewProps} />
-        {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === 'development' && (
           <>
             <DebugPanel
               data={{
@@ -772,7 +752,7 @@ export default function EditProfilePage() {
   return (
     <>
       <ProfileEditDesktopView {...ViewProps} />
-      {process.env.NODE_ENV === "development" && (
+      {process.env.NODE_ENV === 'development' && (
         <>
           <DebugPanel
             data={{

@@ -1,5 +1,5 @@
-import { Organization } from "@/types/organization";
-import { UserProfile } from "@/types/user";
+import { Organization } from '@/types/organization';
+import { UserProfile } from '@/types/user';
 
 export enum ProfileCapacityType {
   Learner = 'learner',
@@ -9,7 +9,7 @@ export enum ProfileCapacityType {
 export enum ProfileFilterType {
   Both = 'both',
   User = 'user',
-  Organization = 'organization'
+  Organization = 'organization',
 }
 
 export interface Skill {
@@ -25,19 +25,23 @@ export interface FilterState {
   profileFilter: ProfileFilterType;
 }
 
-export const createProfilesFromOrganizations = (organizations: Organization[], type: ProfileCapacityType) => {
+export const createProfilesFromOrganizations = (
+  organizations: Organization[],
+  type: ProfileCapacityType
+) => {
   const profiles: any[] = [];
   organizations.forEach(org => {
-      profiles.push({
-        id: org.id,
-        username: org.display_name,
-        capacities: type === ProfileCapacityType.Learner ? org.wanted_capacities : org.available_capacities,
-        type,
-        profile_image: org.profile_image,
-        territory: org.territory?.[0],
-        avatar: org.profile_image || undefined,
-        isOrganization: true
-      });
+    profiles.push({
+      id: org.id,
+      username: org.display_name,
+      capacities:
+        type === ProfileCapacityType.Learner ? org.wanted_capacities : org.available_capacities,
+      type,
+      profile_image: org.profile_image,
+      territory: org.territory?.[0],
+      avatar: org.profile_image || undefined,
+      isOrganization: true,
+    });
   });
   return profiles;
 };
@@ -54,7 +58,7 @@ export const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapac
       profile_image: user.profile_image,
       territory: user.territory?.[0],
       avatar: user.avatar,
-      isOrganization: false
+      isOrganization: false,
     });
   });
   return profiles;

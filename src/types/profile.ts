@@ -1,4 +1,4 @@
-import { LanguageProficiency } from "./language";
+import { LanguageProficiency } from './language';
 
 export interface Profile {
   name: string;
@@ -7,6 +7,7 @@ export interface Profile {
   avatar: number | null | undefined;
   contact?: string;
   display_name?: string;
+  automated_lets_connect?: boolean;
   language: LanguageProficiency[];
   profile_image?: string;
   pronoun?: string;

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Statistics } from "@/types/statistics";
-import { statisticsService } from "@/services/statisticsService";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from 'react';
+import { Statistics } from '@/types/statistics';
+import { statisticsService } from '@/services/statisticsService';
+import { useSession } from 'next-auth/react';
 
 export const useStatistics = () => {
   const [data, setData] = useState<Statistics | null>(null);
@@ -22,10 +22,8 @@ export const useStatistics = () => {
         const statisticsData = await statisticsService.fetchStatistics(config);
         setData(statisticsData);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch statistics")
-        );
-        console.error("Error fetching statistics:", err);
+        setError(err instanceof Error ? err : new Error('Failed to fetch statistics'));
+        console.error('Error fetching statistics:', err);
       } finally {
         setIsLoading(false);
       }

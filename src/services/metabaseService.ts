@@ -1,6 +1,6 @@
-import { Event } from "@/types/event";
+import { Event } from '@/types/event';
 
-const METABASE_ENDPOINT = "https://metabase.wikibase.cloud/query/sparql";
+const METABASE_ENDPOINT = 'https://metabase.wikibase.cloud/query/sparql';
 
 /**
  * Service for SPARQL queries to the Metabase of Wikibase Cloud
@@ -73,11 +73,11 @@ export async function fetchEventDataByQID(
 
     // Build the event object with the obtained data
     const eventData: Partial<Event> = {
-      name: result.name?.value || "",
+      name: result.name?.value || '',
       wikidata_qid: qid,
-      description: result.description?.value || "",
-      image_url: result.image_url?.value || "",
-      url: result.url?.value || "",
+      description: result.description?.value || '',
+      image_url: result.image_url?.value || '',
+      url: result.url?.value || '',
     };
 
     // Process dates if available
@@ -101,7 +101,7 @@ export async function fetchEventDataByQID(
 
     // If we have a location, define the type as in-person
     if (result.location?.value) {
-      eventData.type_of_location = "in-person";
+      eventData.type_of_location = 'in-person';
 
       // If it has an OpenStreetMap ID, add it here
       // Note: This requires an additional query or a specific property
@@ -501,9 +501,7 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
 
   try {
     const encodedQuery = encodeURIComponent(query);
-    const response = await fetch(
-      `${METABASE_ENDPOINT}?format=json&query=${encodedQuery}`
-    );
+    const response = await fetch(`${METABASE_ENDPOINT}?format=json&query=${encodedQuery}`);
 
     if (!response.ok) {
       throw new Error(`Error in request: ${response.status}`);
@@ -511,11 +509,7 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
 
     const data = await response.json();
 
-    if (
-      !data.results ||
-      !data.results.bindings ||
-      data.results.bindings.length === 0
-    ) {
+    if (!data.results || !data.results.bindings || data.results.bindings.length === 0) {
       return null;
     }
 
@@ -1025,9 +1019,9 @@ export async function fetchEventDataByGenericURL(
 
   // If it's not a Wikidata URL, try as Wikimedia URL
   if (
-    url.includes("wikimedia.org") ||
-    url.includes("wikipedia.org") ||
-    url.includes("meta.wikimedia.org")
+    url.includes('wikimedia.org') ||
+    url.includes('wikipedia.org') ||
+    url.includes('meta.wikimedia.org')
   ) {
     return fetchEventDataByWikimediaURL(url);
   }

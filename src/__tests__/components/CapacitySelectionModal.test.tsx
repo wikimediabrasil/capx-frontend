@@ -15,44 +15,44 @@ import { SessionProvider } from 'next-auth/react';
 // Services and hooks mocks
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  SessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/contexts/ThemeContext', () => ({
   useTheme: jest.fn(),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/contexts/AppContext', () => ({
   useApp: jest.fn(),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/hooks/useCapacities', () => ({
   useCapacities: jest.fn(),
   CAPACITY_CACHE_KEYS: {
     root: ['rootCapacities'],
-    children: (id: string) => ['childrenCapacities', id]
-  }
+    children: (id: string) => ['childrenCapacities', id],
+  },
 }));
 
 jest.mock('@/contexts/CapacityCacheContext', () => ({
   useCapacityCache: jest.fn(),
-  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn(),
   useQueryClient: jest.fn(),
   QueryClient: jest.fn(),
-  QueryClientProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+  QueryClientProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/services/capacityService', () => ({
   capacityService: {
     fetchCapacities: jest.fn(),
-    fetchCapacitiesByType: jest.fn()
-  }
+    fetchCapacitiesByType: jest.fn(),
+  },
 }));
 
 // Test data mocks
@@ -66,7 +66,7 @@ const mockCapacities = [
     skill_type: 50,
     skill_wikidata_item: '',
     level: 1,
-    description: 'Capacidade de aprendizado'
+    description: 'Capacidade de aprendizado',
   },
   {
     code: 36,
@@ -77,8 +77,8 @@ const mockCapacities = [
     skill_type: 36,
     skill_wikidata_item: '',
     level: 1,
-    description: 'Capacidade de comunicação'
-  }
+    description: 'Capacidade de comunicação',
+  },
 ];
 
 const mockChildCapacities = [
@@ -91,8 +91,8 @@ const mockChildCapacities = [
     skill_type: 50,
     skill_wikidata_item: '',
     level: 2,
-    description: 'Capacidade de aprendizado ativo'
-  }
+    description: 'Capacidade de aprendizado ativo',
+  },
 ];
 
 // Wrapper for the necessary providers
@@ -112,9 +112,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AppProvider>
-            <CapacityCacheProvider>
-              {children}
-            </CapacityCacheProvider>
+            <CapacityCacheProvider>{children}</CapacityCacheProvider>
           </AppProvider>
         </ThemeProvider>
       </QueryClientProvider>
@@ -126,41 +124,41 @@ describe('CapacitySelectionModal', () => {
   const mockOnClose = jest.fn();
   const mockOnSelect = jest.fn();
   const mockQueryClient = {
-    invalidateQueries: jest.fn()
+    invalidateQueries: jest.fn(),
   };
 
   beforeEach(() => {
     // Setup mocks
     (useSession as jest.Mock).mockReturnValue({
-      data: { user: { token: 'mock-token' } }
+      data: { user: { token: 'mock-token' } },
     });
 
     (useTheme as jest.Mock).mockReturnValue({
-      darkMode: false
+      darkMode: false,
     });
 
     (useApp as jest.Mock).mockReturnValue({
       pageContent: {},
-      isMobile: false
+      isMobile: false,
     });
 
     (useCapacities as jest.Mock).mockReturnValue({
-      getCapacityById: jest.fn()
+      getCapacityById: jest.fn(),
     });
 
     (useCapacityCache as jest.Mock).mockReturnValue({
       getCapacity: jest.fn(),
       hasChildren: jest.fn().mockReturnValue(true),
-      preloadCapacities: jest.fn()
+      preloadCapacities: jest.fn(),
     });
 
     // Mock useQuery with stable data and no side effects
     (useQuery as jest.Mock).mockImplementation(({ queryKey }) => {
       if (queryKey[0] === 'rootCapacities') {
-        return { 
-          data: mockCapacities, 
+        return {
+          data: mockCapacities,
           isLoading: false,
-          isFetching: false
+          isFetching: false,
         };
       }
       if (queryKey[0] === 'capacityDescription') {
@@ -168,29 +166,29 @@ describe('CapacitySelectionModal', () => {
           data: {
             id: 50,
             description: 'Capacidade de aprendizado',
-            wdCode: 'Q123'
+            wdCode: 'Q123',
           },
           isLoading: false,
-          isFetching: false
+          isFetching: false,
         };
       }
       if (queryKey[0] === 'childrenCapacities' && queryKey[1] === '50') {
-        return { 
-          data: mockChildCapacities, 
+        return {
+          data: mockChildCapacities,
           isLoading: false,
-          isFetching: false
+          isFetching: false,
         };
       }
-      return { 
-        data: [], 
+      return {
+        data: [],
         isLoading: false,
-        isFetching: false
+        isFetching: false,
       };
     });
 
     (useQueryClient as jest.Mock).mockReturnValue({
       ...mockQueryClient,
-      invalidateQueries: jest.fn().mockResolvedValue(undefined)
+      invalidateQueries: jest.fn().mockResolvedValue(undefined),
     });
 
     (capacityService.fetchCapacities as jest.Mock).mockResolvedValue(mockCapacities);
@@ -210,25 +208,23 @@ describe('CapacitySelectionModal', () => {
           staleTime: 0,
           refetchOnWindowFocus: false,
           refetchOnMount: false,
-          refetchOnReconnect: false
+          refetchOnReconnect: false,
         },
       },
     });
 
-    return render(ui, { 
+    return render(ui, {
       wrapper: ({ children }) => (
         <SessionProvider session={null}>
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
               <AppProvider>
-                <CapacityCacheProvider>
-                  {children}
-                </CapacityCacheProvider>
+                <CapacityCacheProvider>{children}</CapacityCacheProvider>
               </AppProvider>
             </ThemeProvider>
           </QueryClientProvider>
         </SessionProvider>
-      )
+      ),
     });
   };
 
@@ -242,14 +238,20 @@ describe('CapacitySelectionModal', () => {
       />
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-      expect(screen.getByText('Comunicação')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+        expect(screen.getByText('Comunicação')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('não deve renderizar o modal quando fechado', () => {
@@ -278,9 +280,12 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the close button (the ✕ icon button)
     const closeButton = screen.getByText('✕');
@@ -300,18 +305,24 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the expand button of the first capacity
     const expandButtons = screen.getAllByLabelText('Expand');
     fireEvent.click(expandButtons[0]);
 
     // Wait for the render of the child capacities
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem Ativa')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem Ativa')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('deve selecionar uma capacidade e chamar onSelect', async () => {
@@ -325,30 +336,38 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the expand button of the first capacity
     const expandButtons = screen.getAllByLabelText('Expand');
     fireEvent.click(expandButtons[0]);
 
     // Wait for the render of the child capacity and click on it
-    await waitFor(() => {
-      const childCapacity = screen.getByText('Aprendizagem Ativa');
-      expect(childCapacity).toBeInTheDocument();
-      fireEvent.click(childCapacity);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        const childCapacity = screen.getByText('Aprendizagem Ativa');
+        expect(childCapacity).toBeInTheDocument();
+        fireEvent.click(childCapacity);
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the confirm button (the last button)
     const buttons = screen.getAllByRole('button');
     const confirmButton = buttons[buttons.length - 1];
     fireEvent.click(confirmButton);
 
-    expect(mockOnSelect).toHaveBeenCalledWith(expect.objectContaining({
-      code: 501,
-      name: 'Aprendizagem Ativa'
-    }));
+    expect(mockOnSelect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 501,
+        name: 'Aprendizagem Ativa',
+      })
+    );
   });
 
   it('deve mostrar informações da capacidade quando o ícone de info for clicado', async () => {
@@ -362,18 +381,24 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the info button of the first capacity
     const infoButtons = screen.getAllByLabelText('Info');
     fireEvent.click(infoButtons[0]);
 
     // Wait for the description to be displayed
-    await waitFor(() => {
-      expect(screen.getByText('Capacidade de aprendizado')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Capacidade de aprendizado')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('deve navegar corretamente entre os níveis de capacidade', async () => {
@@ -387,18 +412,24 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the expand button of the first capacity
     const expandButtons = screen.getAllByLabelText('Expand');
     fireEvent.click(expandButtons[0]);
 
     // Wait for the render of the child capacities
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem Ativa')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem Ativa')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the child capacity
     const childCapacity = screen.getByText('Aprendizagem Ativa');
@@ -421,19 +452,25 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the expand button of the first capacity
     const expandButtons = screen.getAllByLabelText('Expand');
     fireEvent.click(expandButtons[0]);
 
     // Wait for the path to be updated
-    await waitFor(() => {
-      const pathElement = screen.getByText((content) => content.includes('Aprendizagem'));
-      expect(pathElement).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        const pathElement = screen.getByText(content => content.includes('Aprendizagem'));
+        expect(pathElement).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('deve fechar o modal e limpar o estado ao clicar em cancelar', async () => {
@@ -447,9 +484,12 @@ describe('CapacitySelectionModal', () => {
     );
 
     // Wait for the initial render
-    await waitFor(() => {
-      expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Click on the cancel button (the first button of the action buttons)
     const actionButtons = screen.getAllByRole('button');
@@ -458,4 +498,4 @@ describe('CapacitySelectionModal', () => {
 
     expect(mockOnClose).toHaveBeenCalled();
   });
-}); 
+});

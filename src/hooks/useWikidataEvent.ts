@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { Event } from "@/types/event";
+import { useState, useEffect } from 'react';
+import { Event } from '@/types/event';
 import {
   fetchEventDataByURL,
   fetchEventDataByQID,
   fetchEventDataByGenericURL,
-} from "@/services/metabaseService";
+} from '@/services/metabaseService';
 
 interface UseWikidataEventReturn {
   eventData: Partial<Event> | null;

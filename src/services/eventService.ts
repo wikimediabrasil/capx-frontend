@@ -1,6 +1,6 @@
-import { Event } from "@/types/event";
-import axios from "axios";
-import { EventFilterState, EventLocationType } from "@/app/events/types";
+import { Event } from '@/types/event';
+import axios from 'axios';
+import { EventFilterState, EventLocationType } from '@/app/events/types';
 
 interface EventsResponse {
   results: Event[];
@@ -8,10 +8,10 @@ interface EventsResponse {
 }
 
 const locationTypeToAPIMapping: Record<string, string> = {
-  [EventLocationType.Online]: "virtual",
-  [EventLocationType.InPerson]: "in_person",
-  [EventLocationType.Hybrid]: "hybrid",
-  [EventLocationType.All]: "all",
+  [EventLocationType.Online]: 'virtual',
+  [EventLocationType.InPerson]: 'in_person',
+  [EventLocationType.Hybrid]: 'hybrid',
+  [EventLocationType.All]: 'all',
 };
 
 export const eventsService = {
@@ -31,34 +31,28 @@ export const eventsService = {
       // Add capacities as query string
       if (filters.capacities && filters.capacities.length > 0) {
         // Convert codes to string for the API
-        const capacityCodes = filters.capacities
-          .map((cap) => cap.code.toString())
-          .join(",");
+        const capacityCodes = filters.capacities.map(cap => cap.code.toString()).join(',');
         params.capacities = capacityCodes;
       }
 
       // Add territories
       if (filters.territories && filters.territories.length > 0) {
-        params.territories = filters.territories.join(",");
+        params.territories = filters.territories.join(',');
       }
 
       // Add location type filter (online, physical, hybrid)
-      if (
-        filters.locationType &&
-        filters.locationType !== EventLocationType.All
-      ) {
+      if (filters.locationType && filters.locationType !== EventLocationType.All) {
         // Convert frontend to API format
         const locationValue =
-          locationTypeToAPIMapping[filters.locationType] ||
-          filters.locationType;
+          locationTypeToAPIMapping[filters.locationType] || filters.locationType;
 
         // For specific types, use specific values for backend
         if (filters.locationType === EventLocationType.InPerson) {
-          params.location_type = "in_person";
+          params.location_type = 'in_person';
         } else if (filters.locationType === EventLocationType.Hybrid) {
-          params.location_type = "hybrid";
+          params.location_type = 'hybrid';
         } else if (filters.locationType === EventLocationType.Online) {
-          params.location_type = "virtual";
+          params.location_type = 'virtual';
         } else {
           params.location_type = locationValue;
         }
@@ -81,30 +75,26 @@ export const eventsService = {
     }
 
     try {
-      const response = await axios.get("/api/events/", {
+      const response = await axios.get('/api/events/', {
         params,
       });
 
       // If the response is already in the format { results, count }, return it directly
-      if (
-        response.data &&
-        typeof response.data === "object" &&
-        "results" in response.data
-      ) {
+      if (response.data && typeof response.data === 'object' && 'results' in response.data) {
         return response.data;
       }
 
       // Otherwise, format the response to the expected format
       return {
         results: Array.isArray(response.data) ? response.data : [],
-        count: response.headers["x-total-count"]
-          ? parseInt(response.headers["x-total-count"])
+        count: response.headers['x-total-count']
+          ? parseInt(response.headers['x-total-count'])
           : Array.isArray(response.data)
-          ? response.data.length
-          : 0,
+            ? response.data.length
+            : 0,
       };
     } catch (error) {
-      console.error("Erro ao buscar eventos:", error);
+      console.error('Erro ao buscar eventos:', error);
       throw error;
     }
   },
@@ -132,10 +122,7 @@ export const eventsService = {
       }
 
       // Check if the organization field exists
-      if (
-        response.data.organization === undefined ||
-        response.data.organization === null
-      ) {
+      if (response.data.organization === undefined || response.data.organization === null) {
         console.warn(
           `eventService: event ${eventId} does not have organization field`,
           response.data
@@ -158,21 +145,17 @@ export const eventsService = {
   async createEvent(event: Partial<Event>, token: string): Promise<Event> {
     const headers = { Authorization: `Token ${token}` };
     try {
-      const response = await axios.post("/api/events/", event, {
+      const response = await axios.post('/api/events/', event, {
         headers,
       });
       return response.data;
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error('Error creating event:', error);
       throw error;
     }
   },
 
-  async updateEvent(
-    eventId: number,
-    event: Partial<Event>,
-    token: string
-  ): Promise<Event> {
+  async updateEvent(eventId: number, event: Partial<Event>, token: string): Promise<Event> {
     const payload = {
       ...event,
     };
@@ -193,7 +176,7 @@ export const eventsService = {
         headers,
       });
     } catch (error) {
-      console.error("Error deleting event:", error);
+      console.error('Error deleting event:', error);
       throw error;
     }
   },

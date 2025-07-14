@@ -1,27 +1,25 @@
 {
-	"@metadata": {
-		"authors": [
-			"Eleassar"
-		]
-	},
-	"body-profile-gender-hehim": "On",
-	"body-profile-gender-sheher": "Ona",
-	"body-profile-gender-theythem": "On_a",
-	"body-profile-gender-notespecified": "Neopredeljeno",
-	"body-profile-gender-other": "Drugo",
-	"body-profile-edit-button": "Uredi profil",
-	"body-profile-box-title-wikidata-item": "Predmet Wikipodatkov",
-	"body-profile-box-title-alt-wiki-acc": "Alternativni Wikimedia račun",
-	"body-profile-section-title-territory": "Ozemlje",
-	"body-profile-section-title-language": "Jezik",
-	"body-profile-section-title-affiliation": "Afiliacija",
-	"body-profile-section-title-wikimedia-project": "Projekt Wikimedie",
-	"body-profile-section-title-wanted-capacity": "Želene možnosti",
-	"body-profile-section-title-known-capacity": "Znane možnosti",
-	"body-profile-section-title-available-capacity": "Razpoložljive možnosti",
-	"body-capacity-wanted-user-list-title": "Uporabniki, ki se želijo seznaniti s to možnostjo:",
-	"body-capacity-known-user-list-title": "Uporabniki, ki vedo za to možnost:",
-	"body-capacity-available-user-list-title": "Uporabniki, ki poznajo to možnost in so na voljo za zagotavljanje storitev z njo:",
-	"body-tag-user-list-title": "Uporabniki s to oznako na svojem profilu:",
-	"body-tag-user-list-fallback-message": "Ni uporabnikov s to oznako na svojem profilu."
+  "@metadata": {
+    "authors": ["Eleassar"]
+  },
+  "body-profile-gender-hehim": "On",
+  "body-profile-gender-sheher": "Ona",
+  "body-profile-gender-theythem": "On_a",
+  "body-profile-gender-notespecified": "Neopredeljeno",
+  "body-profile-gender-other": "Drugo",
+  "body-profile-edit-button": "Uredi profil",
+  "body-profile-box-title-wikidata-item": "Predmet Wikipodatkov",
+  "body-profile-box-title-alt-wiki-acc": "Alternativni Wikimedia račun",
+  "body-profile-section-title-territory": "Ozemlje",
+  "body-profile-section-title-language": "Jezik",
+  "body-profile-section-title-affiliation": "Afiliacija",
+  "body-profile-section-title-wikimedia-project": "Projekt Wikimedie",
+  "body-profile-section-title-wanted-capacity": "Želene možnosti",
+  "body-profile-section-title-known-capacity": "Znane možnosti",
+  "body-profile-section-title-available-capacity": "Razpoložljive možnosti",
+  "body-capacity-wanted-user-list-title": "Uporabniki, ki se želijo seznaniti s to možnostjo:",
+  "body-capacity-known-user-list-title": "Uporabniki, ki vedo za to možnost:",
+  "body-capacity-available-user-list-title": "Uporabniki, ki poznajo to možnost in so na voljo za zagotavljanje storitev z njo:",
+  "body-tag-user-list-title": "Uporabniki s to oznako na svojem profilu:",
+  "body-tag-user-list-fallback-message": "Ni uporabnikov s to oznako na svojem profilu."
 }
