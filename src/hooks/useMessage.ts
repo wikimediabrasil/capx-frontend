@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useSession } from "next-auth/react";
-import { MessageService } from "@/services/messageService";
-import { Message } from "@/types/message";
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { MessageService } from '@/services/messageService';
+import { Message } from '@/types/message';
 
 export function useMessage() {
   const { data: session } = useSession();
@@ -14,14 +14,14 @@ export function useMessage() {
     try {
       const response = await MessageService.sendMessage({
         message,
-        token: session?.user.token ?? ""
+        token: session?.user.token ?? '',
       });
       if (!response || !response.id) {
-        throw new Error("Invalid message response from server");
+        throw new Error('Invalid message response from server');
       }
       return response;
     } catch (error) {
-      console.error("Error sending message", error);
+      console.error('Error sending message', error);
       setError(error.message);
       throw error;
     } finally {
@@ -37,4 +37,3 @@ export function useMessage() {
     error,
   };
 }
-

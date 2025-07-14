@@ -1,22 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { tagDiffService } from "@/services/tagDiffService";
-import { tagDiff } from "@/types/tagDiff";
+import { useState } from 'react';
+import { tagDiffService } from '@/services/tagDiffService';
+import { tagDiff } from '@/types/tagDiff';
 
-export const useTagDiff = (
-  token?: string,
-  id?: number,
-  limit?: number,
-  offset?: number
-) => {
+export const useTagDiff = (token?: string, id?: number, limit?: number, offset?: number) => {
   const [tagDiff, setTagDiff] = useState<tagDiff[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTags = async () => {
     if (!token) {
-      console.error("fetchNews: No token provided");
+      console.error('fetchNews: No token provided');
       return;
     }
     try {
@@ -24,8 +19,8 @@ export const useTagDiff = (
       const tagDiff = await tagDiffService.fetchAllNews(token, limit, offset);
       setTagDiff(tagDiff);
     } catch (error) {
-      console.error("Error fetching news:", error);
-      setError(error instanceof Error ? error.message : "Failed to fetch news");
+      console.error('Error fetching news:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch news');
     } finally {
       setLoading(false);
     }
@@ -33,19 +28,17 @@ export const useTagDiff = (
 
   const fetchSingleTag = async (id: number) => {
     if (!token || !id) {
-      console.error("fetchSingleNews: Missing token or id");
+      console.error('fetchSingleNews: Missing token or id');
       return;
     }
     try {
       setLoading(true);
       const tagDiff = await tagDiffService.fetchSingleNews(token, id);
-      setTagDiff((prev) => [...prev, tagDiff]);
+      setTagDiff(prev => [...prev, tagDiff]);
       return tagDiff;
     } catch (error) {
-      console.error("Error fetching single news:", error);
-      setError(
-        error instanceof Error ? error.message : "Failed to fetch single news"
-      );
+      console.error('Error fetching single news:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch single news');
     } finally {
       setLoading(false);
     }
@@ -53,7 +46,7 @@ export const useTagDiff = (
 
   const createTag = async (data: Partial<tagDiff>) => {
     if (!token) {
-      console.error("createTag: No token provided");
+      console.error('createTag: No token provided');
       return null;
     }
     try {
@@ -61,12 +54,12 @@ export const useTagDiff = (
       const response = await tagDiffService.createTag(data, token);
 
       if (!response || !response.id) {
-        throw new Error("Invalid response from tag creation");
+        throw new Error('Invalid response from tag creation');
       }
       return response;
     } catch (error) {
-      console.error("useTagDiff - Error:", error);
-      setError(error instanceof Error ? error.message : "Failed to create tag");
+      console.error('useTagDiff - Error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to create tag');
       return null;
     } finally {
       setLoading(false);
@@ -75,18 +68,16 @@ export const useTagDiff = (
 
   const deleteTag = async (newsId: number) => {
     if (!token) {
-      console.error("deleteNews: No token provided");
+      console.error('deleteNews: No token provided');
       return;
     }
     try {
       setLoading(true);
       await tagDiffService.deleteNews(token, newsId);
-      setTagDiff((prev) => prev.filter((n) => n.id !== newsId));
+      setTagDiff(prev => prev.filter(n => n.id !== newsId));
     } catch (error) {
-      console.error("Error deleting news:", error);
-      setError(
-        error instanceof Error ? error.message : "Failed to delete news"
-      );
+      console.error('Error deleting news:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete news');
     } finally {
       setLoading(false);
     }

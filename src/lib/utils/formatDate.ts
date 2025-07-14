@@ -9,14 +9,14 @@ export function formatDateToLocaleString(dateString: string): string {
 
     // Verifica se a data é válida
     if (isNaN(date.getTime())) {
-      return "";
+      return '';
     }
 
     // Retorna a data formatada de acordo com a localidade do usuário
     return date.toLocaleDateString();
   } catch (error) {
-    console.error("Erro ao formatar data:", error);
-    return "";
+    console.error('Erro ao formatar data:', error);
+    return '';
   }
 }
 
@@ -31,13 +31,13 @@ export function formatDateTimeToLocaleString(dateString: string): string {
 
     // Verifica se a data é válida
     if (isNaN(date.getTime())) {
-      return "";
+      return '';
     }
 
     // Retorna a data e hora formatada de acordo com a localidade do usuário
     return date.toLocaleString();
   } catch (error) {
-    console.error("Erro ao formatar data e hora:", error);
-    return "";
+    console.error('Erro ao formatar data e hora:', error);
+    return '';
   }
 }

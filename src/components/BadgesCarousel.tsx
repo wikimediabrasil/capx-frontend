@@ -1,39 +1,42 @@
-"use client";
+'use client';
 
-import { useTheme } from "@/contexts/ThemeContext";
-import { useApp } from "@/contexts/AppContext";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Badge } from "@/types/badge";
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { Badge } from '@/types/badge';
 
 interface BadgesCarouselProps {
   badges: Badge[];
   showFullDescription?: boolean;
 }
 
-export default function BadgesCarousel({ badges, showFullDescription = false }: BadgesCarouselProps) {
+export default function BadgesCarousel({
+  badges,
+  showFullDescription = false,
+}: BadgesCarouselProps) {
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
-  
+
   // Calculating the total width needed to show all badges
   const cardWidth = isMobile ? 150 : 180;
   const cardGap = 16; // gap-4 = 16px
   const visibleCards = isMobile ? 2 : 4;
-  const totalWidth = (badges.length * (cardWidth + cardGap)) - (visibleCards * (cardWidth + cardGap));
-  
+  const totalWidth = badges.length * (cardWidth + cardGap) - visibleCards * (cardWidth + cardGap);
+
   return (
     <div className="w-full overflow-hidden px-4">
       <motion.div
         drag="x"
         dragConstraints={{
           left: -totalWidth,
-          right: 0
+          right: 0,
         }}
         dragElastic={0.1}
         dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
         className="flex gap-4"
       >
-        {badges.map((badge) => (
+        {badges.map(badge => (
           <div
             key={badge.id}
             className={`
@@ -41,7 +44,7 @@ export default function BadgesCarousel({ badges, showFullDescription = false }: 
               w-[150px] md:w-[180px]
               p-4 
               rounded-lg 
-              ${darkMode ? "bg-capx-dark-box-bg" : "bg-[#F6F6F6]"}
+              ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
               transition-transform duration-200 
               hover:scale-105
               flex flex-col 
@@ -57,23 +60,27 @@ export default function BadgesCarousel({ badges, showFullDescription = false }: 
                 className="object-contain transition-transform duration-200"
               />
             </div>
-            <h3 className={`
+            <h3
+              className={`
               text-sm md:text-base 
               font-bold 
               mt-2 
               text-center 
-              ${darkMode ? "text-white" : "text-[#053749]"}
-            `}>
+              ${darkMode ? 'text-white' : 'text-[#053749]'}
+            `}
+            >
               {badge.name}
             </h3>
             {showFullDescription && (
-              <p className={`
+              <p
+                className={`
                 text-xs md:text-sm 
                 mt-1 
                 text-center
                 font-medium
-                ${darkMode ? "text-gray-300" : "text-gray-600"}
-            `}>
+                ${darkMode ? 'text-gray-300' : 'text-gray-600'}
+            `}
+              >
                 {badge.description}
               </p>
             )}

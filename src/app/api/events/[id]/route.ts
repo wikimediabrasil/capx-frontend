@@ -1,11 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { NextRequest, NextResponse } from 'next/server';
+import axios from 'axios';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const authHeader = request.headers.get("authorization");
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  const authHeader = request.headers.get('authorization');
   const id = params.id;
 
   try {
@@ -16,19 +13,19 @@ export async function GET(
     });
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Event fetch error:", {
+    console.error('Event fetch error:', {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
       url: `${process.env.BASE_URL}/events/${id}`,
       headers: {
-        Authorization: authHeader ? "Present" : "Missing",
+        Authorization: authHeader ? 'Present' : 'Missing',
       },
     });
 
     return NextResponse.json(
       {
-        error: "Failed to fetch event with id " + id,
+        error: 'Failed to fetch event with id ' + id,
         details: error.response?.data || error.message,
       },
       { status: error.response?.status || 500 }
@@ -36,17 +33,14 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json();
-    const authHeader = request.headers.get("authorization");
+    const authHeader = request.headers.get('authorization');
 
     const payload = {
       ...body,
-      type_of_location: body.type_of_location || "virtual",
+      type_of_location: body.type_of_location || 'virtual',
     };
 
     const updateResponse = await axios.put(
@@ -55,14 +49,14 @@ export async function PUT(
       {
         headers: {
           Authorization: authHeader,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       }
     );
 
     return NextResponse.json(updateResponse.data);
   } catch (error: any) {
-    console.error("Error details:", error.response?.data || error);
+    console.error('Error details:', error.response?.data || error);
     return NextResponse.json(
       {
         error: `Failed to update event with id ${params.id}`,
@@ -73,30 +67,21 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const authHeader = request.headers.get("authorization");
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const authHeader = request.headers.get('authorization');
   const id = params.id;
 
   if (!authHeader) {
-    return NextResponse.json(
-      { error: "Authorization header missing" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Authorization header missing' }, { status: 401 });
   }
 
   try {
-    const response = await axios.delete(
-      `${process.env.BASE_URL}/events/${id}/`,
-      {
-        headers: {
-          Authorization: authHeader,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.delete(`${process.env.BASE_URL}/events/${id}/`, {
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { skillService } from "@/services/skillService";
-import { useSession } from "next-auth/react";
-import { useQuery } from "@tanstack/react-query";
+import { skillService } from '@/services/skillService';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
 
 export function useSkills(limit?: number, offset?: number) {
   const { data: session } = useSession();
@@ -13,7 +13,7 @@ export function useSkills(limit?: number, offset?: number) {
     isLoading: isSkillsLoading,
     error: skillsError,
   } = useQuery({
-    queryKey: ["skills", token],
+    queryKey: ['skills', token],
     queryFn: () =>
       skillService.fetchSkills({
         headers: {
@@ -27,7 +27,7 @@ export function useSkills(limit?: number, offset?: number) {
 
   const useSkillById = (id: string) => {
     return useQuery({
-      queryKey: ["skill", id, token],
+      queryKey: ['skill', id, token],
       queryFn: () =>
         skillService.fetchSkillById(id, {
           headers: {

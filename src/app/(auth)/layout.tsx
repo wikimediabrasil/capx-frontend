@@ -1,18 +1,14 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import BaseWrapper from "@/components/BaseWrapper";
-import { authOptions } from "@/lib/auth";
-import { Providers } from "@/app/(auth)/providers";
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import BaseWrapper from '@/components/BaseWrapper';
+import { authOptions } from '@/lib/auth';
+import { Providers } from '@/app/(auth)/providers';
 
-export default async function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/");
+    redirect('/');
   }
 
   return (

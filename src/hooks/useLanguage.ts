@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
-import { Languages, LanguageProficiency } from "@/types/language";
-import {
-  fetchLanguages,
-  updateLanguageProficiency,
-} from "@/services/languageService";
+import { useState, useEffect } from 'react';
+import { Languages, LanguageProficiency } from '@/types/language';
+import { fetchLanguages, updateLanguageProficiency } from '@/services/languageService';
 
 export const useLanguage = (token: string | undefined) => {
   const [languages, setLanguages] = useState<Languages>({});
@@ -18,9 +15,7 @@ export const useLanguage = (token: string | undefined) => {
         const data = await fetchLanguages(token);
         setLanguages(data);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load languages"
-        );
+        setError(err instanceof Error ? err.message : 'Failed to load languages');
       } finally {
         setLoading(false);
       }
@@ -29,20 +24,13 @@ export const useLanguage = (token: string | undefined) => {
     loadLanguages();
   }, [token]);
 
-  const updateProficiency = async (
-    userId: number,
-    languages: LanguageProficiency[]
-  ) => {
+  const updateProficiency = async (userId: number, languages: LanguageProficiency[]) => {
     if (!token) return;
 
     try {
       await updateLanguageProficiency(token, userId, languages);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to update language proficiency"
-      );
+      setError(err instanceof Error ? err.message : 'Failed to update language proficiency');
       throw err;
     }
   };

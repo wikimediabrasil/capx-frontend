@@ -1,5 +1,5 @@
-import axios from "axios";
-import { useState, useCallback } from "react";
+import axios from 'axios';
+import { useState, useCallback } from 'react';
 
 interface LanguageOption {
   value: string;
@@ -14,14 +14,14 @@ export function useLanguageSelection() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get("/api/language");
+      const response = await axios.get('/api/language');
       const languages = response.data;
       return languages.map((lang: string) => ({
         value: lang,
         label: lang,
       }));
     } catch (err) {
-      setError("Failed to fetch languages");
+      setError('Failed to fetch languages');
       return [];
     } finally {
       setIsLoading(false);
@@ -32,12 +32,12 @@ export function useLanguageSelection() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get("/api/language", {
+      const response = await axios.get('/api/language', {
         params: { lang },
       });
       return response.data;
     } catch (err) {
-      setError("Failed to fetch translations");
+      setError('Failed to fetch translations');
       return {};
     } finally {
       setIsLoading(false);

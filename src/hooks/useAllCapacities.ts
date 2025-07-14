@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { fetchAllCapacities } from "@/services/capacityService";
-import { Capacities } from "@/types/capacity";
+import { useState, useEffect } from 'react';
+import { fetchAllCapacities } from '@/services/capacityService';
+import { Capacities } from '@/types/capacity';
 
 export const useAllCapacities = (token: string | undefined) => {
   const [allCapacities, setAllCapacities] = useState<Capacities[]>([]);
@@ -24,10 +24,8 @@ export const useAllCapacities = (token: string | undefined) => {
         const data = await fetchAllCapacities(token);
         setAllCapacities(data || []);
       } catch (err) {
-        console.error("Error loading all capacities:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load all capacities"
-        );
+        console.error('Error loading all capacities:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load all capacities');
         setAllCapacities([]);
       } finally {
         setLoading(false);

@@ -1,16 +1,16 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import axios from "axios";
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import axios from 'axios';
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      id: "credentials",
-      name: "Credentials",
+      id: 'credentials',
+      name: 'Credentials',
       credentials: {},
       async authorize(credentials: any) {
         try {
-          const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
           const response = await axios.post(`${baseUrl}/api/login/callback`, {
             oauth_token: credentials.oauth_token,
             oauth_verifier: credentials.oauth_verifier,
@@ -27,9 +27,9 @@ export const authOptions: NextAuthOptions = {
             };
           }
 
-          throw new Error("Invalid response from server");
+          throw new Error('Invalid response from server');
         } catch (error: any) {
-          console.error("NextAuth authorize error:", error);
+          console.error('NextAuth authorize error:', error);
           throw error;
         }
       },
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
@@ -56,7 +56,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/",
-    error: "/auth/error",
+    signIn: '/',
+    error: '/auth/error',
   },
 };

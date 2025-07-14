@@ -1,14 +1,14 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import MobileNavbar from "../../components/MobileNavbar";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AppProvider } from "@/contexts/AppContext";
-import * as ThemeContext from "@/contexts/ThemeContext";
-import * as AppContext from "@/contexts/AppContext";
-import axios from "axios";
-import { Session } from "next-auth";
+import { render, screen, fireEvent } from '@testing-library/react';
+import MobileNavbar from '../../components/MobileNavbar';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AppProvider } from '@/contexts/AppContext';
+import * as ThemeContext from '@/contexts/ThemeContext';
+import * as AppContext from '@/contexts/AppContext';
+import axios from 'axios';
+import { Session } from 'next-auth';
 
 // Mock do Next.js Router
-jest.mock("next/navigation", () => ({
+jest.mock('next/navigation', () => ({
   useRouter() {
     return {
       push: () => jest.fn(),
@@ -18,7 +18,7 @@ jest.mock("next/navigation", () => ({
     };
   },
   usePathname() {
-    return "/";
+    return '/';
   },
   useSearchParams() {
     return new URLSearchParams();
@@ -26,45 +26,45 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock do useTheme
-jest.mock("@/contexts/ThemeContext", () => ({
-  ...jest.requireActual("@/contexts/ThemeContext"),
+jest.mock('@/contexts/ThemeContext', () => ({
+  ...jest.requireActual('@/contexts/ThemeContext'),
   useTheme: jest.fn(),
 }));
 
 // useApp's mock
-jest.mock("@/contexts/AppContext", () => ({
-  ...jest.requireActual("@/contexts/AppContext"),
+jest.mock('@/contexts/AppContext', () => ({
+  ...jest.requireActual('@/contexts/AppContext'),
   useApp: jest.fn(),
 }));
 
 // Axios's mock
-jest.mock("axios");
+jest.mock('axios');
 (axios.get as jest.Mock).mockImplementation((url: string) => {
-  if (url.includes("/languages")) {
+  if (url.includes('/languages')) {
     return Promise.resolve({
-      data: ["pt-BR", "en", "es"],
+      data: ['pt-BR', 'en', 'es'],
     });
   }
   return Promise.resolve({
     data: {
-      "sign-in-button": "Entrar",
-      "sign-out-button": "Sair",
+      'sign-in-button': 'Entrar',
+      'sign-out-button': 'Sair',
     },
   });
 });
 
 // LanguageSelect's mock
-jest.mock("../../components/LanguageSelect", () => ({
+jest.mock('../../components/LanguageSelect', () => ({
   __esModule: true,
   default: () => <div data-testid="language-select-mock">Language Select</div>,
 }));
 
 const mockPageContent = {
-  "sign-in-button": "Sign in",
-  "sign-out-button": "Sign out",
+  'sign-in-button': 'Sign in',
+  'sign-out-button': 'Sign out',
 };
 
-describe("MobileNavbar", () => {
+describe('MobileNavbar', () => {
   beforeEach(() => {
     // Standard configuration for useTheme
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
@@ -77,7 +77,7 @@ describe("MobileNavbar", () => {
       isMobile: true,
       mobileMenuStatus: false,
       setMobileMenuStatus: jest.fn(),
-      pageContent: mockPageContent
+      pageContent: mockPageContent,
     });
 
     // Clear axios's mocks after each test
@@ -92,29 +92,23 @@ describe("MobileNavbar", () => {
     );
   };
 
-  it("renders logo correctly", () => {
-    renderWithProviders(
-      <MobileNavbar
-        session={null}
-        language="en"
-        setLanguage={() => {}}
-      />
-    );
+  it('renders logo correctly', () => {
+    renderWithProviders(<MobileNavbar session={null} language="en" setLanguage={() => {}} />);
 
-    const logo = screen.getByAltText("Capacity Exchange logo");
+    const logo = screen.getByAltText('Capacity Exchange logo');
     expect(logo).toBeInTheDocument();
   });
 
-  it("toggles mobile menu when burger menu is clicked", () => {
+  it('toggles mobile menu when burger menu is clicked', () => {
     const validSession: Session = {
       user: {
-        id: "123",
-        token: "test-token",
-        username: "test-user",
+        id: '123',
+        token: 'test-token',
+        username: 'test-user',
         first_login: false,
-        name: "Test User",
-        email: "test@example.com",
-        image: "test-image.jpg",
+        name: 'Test User',
+        email: 'test@example.com',
+        image: 'test-image.jpg',
       },
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     };
@@ -127,53 +121,41 @@ describe("MobileNavbar", () => {
     });
 
     renderWithProviders(
-      <MobileNavbar
-        session={validSession}
-        language="en"
-        setLanguage={() => {}}
-      />
+      <MobileNavbar session={validSession} language="en" setLanguage={() => {}} />
     );
 
-    const burgerMenu = screen.getByAltText("Burger Menu");
+    const burgerMenu = screen.getByAltText('Burger Menu');
     fireEvent.click(burgerMenu);
 
     expect(setMobileMenuStatus).toHaveBeenCalledWith(true);
   });
 
-  it("applies dark mode styles", () => {
+  it('applies dark mode styles', () => {
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: true,
       setDarkMode: jest.fn(),
     });
 
     const { container } = renderWithProviders(
-      <MobileNavbar
-        session={null}
-        language="en"
-        setLanguage={() => {}}
-      />
+      <MobileNavbar session={null} language="en" setLanguage={() => {}} />
     );
 
     const navbar = container.firstChild as HTMLElement;
-    expect(navbar?.className).toContain("bg-capx-dark-box-bg");
+    expect(navbar?.className).toContain('bg-capx-dark-box-bg');
   });
 
-  it("applies light mode styles", () => {
+  it('applies light mode styles', () => {
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
       setDarkMode: jest.fn(),
     });
 
     const { container } = renderWithProviders(
-      <MobileNavbar
-        session={null}
-        language="en"
-        setLanguage={() => {}}
-      />
+      <MobileNavbar session={null} language="en" setLanguage={() => {}} />
     );
 
     const navbar = container.firstChild;
-    expect(navbar).toHaveClass("bg-capx-light-bg");
+    expect(navbar).toHaveClass('bg-capx-light-bg');
   });
 
   // Clear all mocks after each test

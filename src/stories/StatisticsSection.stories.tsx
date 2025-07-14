@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AppProvider } from "@/contexts/AppContext";
-import { Statistics } from "@/types/statistics";
-import React from "react";
+import type { Meta, StoryObj } from '@storybook/react';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AppProvider } from '@/contexts/AppContext';
+import { Statistics } from '@/types/statistics';
+import React from 'react';
 
 // We're creating a mock version of the StatisticsSection component for Storybook
 // rather than using the actual component which relies on a hook we can't easily mock
@@ -43,18 +43,18 @@ const lowNumbersData: Statistics = {
 
 // Colors for the charts (copied from original component)
 const COLORS = [
-  "#0070b9", // capx-primary-blue
-  "#02AE8C", // capx-primary-green
-  "#D43420", // capx-primary-red
-  "#f0c626", // capx-primary-yellow
-  "#851d6a", // capx-secondary-purple
-  "#053749", // capx-secondary-gray
-  "#D43831", // capx-primary-orange
-  "#05a300", // capx-secondary-green
+  '#0070b9', // capx-primary-blue
+  '#02AE8C', // capx-primary-green
+  '#D43420', // capx-primary-red
+  '#f0c626', // capx-primary-yellow
+  '#851d6a', // capx-secondary-purple
+  '#053749', // capx-secondary-gray
+  '#D43831', // capx-primary-orange
+  '#05a300', // capx-secondary-green
 ];
 
 // Lighter blue color for the animation
-const LIGHTER_BLUE = "#3498db"; // Lighter blue than capx-primary-blue (#0070b9)
+const LIGHTER_BLUE = '#3498db'; // Lighter blue than capx-primary-blue (#0070b9)
 
 // Mock AnimatedPieChart component from the original
 const AnimatedPieChart = ({
@@ -74,10 +74,7 @@ const AnimatedPieChart = ({
 
   return (
     <div className="flex items-center justify-center h-[224px]">
-      <svg
-        className="w-[224px] h-[224px] transform -rotate-90"
-        viewBox="0 0 224 224"
-      >
+      <svg className="w-[224px] h-[224px] transform -rotate-90" viewBox="0 0 224 224">
         <circle
           cx="112"
           cy="112"
@@ -101,15 +98,13 @@ const AnimatedPieChart = ({
       <div className="absolute flex flex-col items-center justify-center">
         <span
           className={`text-capx-text-5xl font-bold ${
-            darkMode ? "text-white" : "text-capx-light-text"
+            darkMode ? 'text-white' : 'text-capx-light-text'
           }`}
         >
           {total}
         </span>
         <span
-          className={`text-capx-text-2xl mt-2 ${
-            darkMode ? "text-white" : "text-capx-light-text"
-          }`}
+          className={`text-capx-text-2xl mt-2 ${darkMode ? 'text-white' : 'text-capx-light-text'}`}
         >
           +{Math.round((newValue / total) * 100)}%
         </span>
@@ -133,17 +128,17 @@ const MockStatisticsSection = ({
 }) => {
   // Simulated page content
   const pageContent = {
-    "statistics-section-title": "Platform Statistics",
-    "statistics-users-title": "Users",
-    "statistics-capacities-title": "Capacities",
-    "statistics-messages-title": "Messages",
-    "statistics-organizations-title": "Organizations",
-    "statistics-new-label": "new",
-    "statistics-loading-text": "Loading statistics...",
-    "statistics-error-text": "Error loading statistics",
-    "statistics-source-text": "Data updated daily",
-    "navbar-link-capacities": "View all capacities",
-    "navbar-link-organizations": "View all organizations",
+    'statistics-section-title': 'Platform Statistics',
+    'statistics-users-title': 'Users',
+    'statistics-capacities-title': 'Capacities',
+    'statistics-messages-title': 'Messages',
+    'statistics-organizations-title': 'Organizations',
+    'statistics-new-label': 'new',
+    'statistics-loading-text': 'Loading statistics...',
+    'statistics-error-text': 'Error loading statistics',
+    'statistics-source-text': 'Data updated daily',
+    'navbar-link-capacities': 'View all capacities',
+    'navbar-link-organizations': 'View all organizations',
   };
 
   interface StatCardProps {
@@ -151,21 +146,21 @@ const MockStatisticsSection = ({
     value: number;
     newValue: number;
     color: string;
-    type: "users" | "capacities" | "messages" | "organizations";
+    type: 'users' | 'capacities' | 'messages' | 'organizations';
   }
 
   const StatCard = ({ title, value, newValue, color, type }: StatCardProps) => {
     const getLinkDetails = () => {
       switch (type) {
-        case "capacities":
+        case 'capacities':
           return {
-            href: "/capacity",
-            text: pageContent["navbar-link-capacities"],
+            href: '/capacity',
+            text: pageContent['navbar-link-capacities'],
           };
-        case "organizations":
+        case 'organizations':
           return {
-            href: "/organization_list",
-            text: pageContent["navbar-link-organizations"],
+            href: '/organization_list',
+            text: pageContent['navbar-link-organizations'],
           };
         default:
           return null;
@@ -176,28 +171,21 @@ const MockStatisticsSection = ({
 
     return (
       <div className="flex flex-col items-center justify-center">
-        {type === "users" ? (
-          <AnimatedPieChart
-            total={value}
-            newValue={newValue}
-            color={color}
-            darkMode={darkMode}
-          />
+        {type === 'users' ? (
+          <AnimatedPieChart total={value} newValue={newValue} color={color} darkMode={darkMode} />
         ) : (
           <div className="flex items-center justify-center h-[224px]">
             <div
               className="w-[200px] h-[200px] rounded-full flex items-center justify-center"
               style={{ backgroundColor: color }}
             >
-              <span className="text-white text-capx-text-5xl font-bold">
-                {value}
-              </span>
+              <span className="text-white text-capx-text-5xl font-bold">{value}</span>
             </div>
           </div>
         )}
         <h3
           className={`text-capx-text-xl font-semibold mt-4 ${
-            darkMode ? "text-capx-dark-text" : "text-capx-light-text"
+            darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'
           }`}
         >
           {title}
@@ -205,17 +193,17 @@ const MockStatisticsSection = ({
         {newValue > 0 && (
           <p
             className={`text-capx-text-xl font-semibold mt-1 ${
-              darkMode ? "text-capx-dark-text" : "text-capx-light-text"
+              darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'
             }`}
           >
-            +{newValue} {pageContent["statistics-new-label"]}
+            +{newValue} {pageContent['statistics-new-label']}
           </p>
         )}
         {linkDetails && (
           <a
             href={linkDetails.href}
             className={`mt-2 text-capx-text-xl hover:underline text-center ${
-              darkMode ? "text-capx-dark-link" : "text-capx-light-link"
+              darkMode ? 'text-capx-dark-link' : 'text-capx-light-link'
             }`}
           >
             {linkDetails.text}
@@ -229,9 +217,7 @@ const MockStatisticsSection = ({
     return (
       <section
         className={`w-full py-16 px-4 ${
-          darkMode
-            ? "bg-capx-dark-box-bg text-white"
-            : "bg-gray-50 text-gray-800"
+          darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-gray-50 text-gray-800'
         }`}
       >
         <div className="max-w-5xl mx-auto">
@@ -240,7 +226,7 @@ const MockStatisticsSection = ({
               role="status"
               className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"
             ></div>
-            <p className="ml-2">{pageContent["statistics-loading-text"]}</p>
+            <p className="ml-2">{pageContent['statistics-loading-text']}</p>
           </div>
         </div>
       </section>
@@ -251,16 +237,12 @@ const MockStatisticsSection = ({
     return (
       <section
         className={`w-full py-16 px-4 ${
-          darkMode
-            ? "bg-capx-dark-box-bg text-white"
-            : "bg-gray-50 text-gray-800"
+          darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-gray-50 text-gray-800'
         }`}
       >
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-center items-center h-64">
-            <p className="text-red-500">
-              {pageContent["statistics-error-text"]}
-            </p>
+            <p className="text-red-500">{pageContent['statistics-error-text']}</p>
           </div>
         </div>
       </section>
@@ -270,43 +252,41 @@ const MockStatisticsSection = ({
   return (
     <section
       id="statistics-section"
-      className={`w-full py-16 px-4 ${
-        darkMode ? "bg-capx-dark-box-bg" : "bg-gray-50"
-      }`}
+      className={`w-full py-16 px-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-gray-50'}`}
     >
       <div className="max-w-5xl mx-auto">
         <h2
           className={`text-capx-text-4xl font-bold mb-8 text-center ${
-            darkMode ? "text-capx-dark-text" : "text-capx-light-text"
+            darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'
           }`}
         >
-          {pageContent["statistics-section-title"]}
+          {pageContent['statistics-section-title']}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard
-            title={pageContent["statistics-users-title"]}
+            title={pageContent['statistics-users-title']}
             value={data.total_users}
             newValue={data.new_users}
             color={COLORS[0]}
             type="users"
           />
           <StatCard
-            title={pageContent["statistics-capacities-title"]}
+            title={pageContent['statistics-capacities-title']}
             value={data.total_capacities}
             newValue={data.new_capacities}
             color={COLORS[1]}
             type="capacities"
           />
           <StatCard
-            title={pageContent["statistics-messages-title"]}
+            title={pageContent['statistics-messages-title']}
             value={data.total_messages}
             newValue={data.new_messages}
             color={COLORS[2]}
             type="messages"
           />
           <StatCard
-            title={pageContent["statistics-organizations-title"]}
+            title={pageContent['statistics-organizations-title']}
             value={data.total_organizations}
             newValue={data.new_organizations}
             color={COLORS[3]}
@@ -315,12 +295,8 @@ const MockStatisticsSection = ({
         </div>
 
         <div className="mt-8 text-center">
-          <p
-            className={`text-capx-text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            {pageContent["statistics-source-text"]}
+          <p className={`text-capx-text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {pageContent['statistics-source-text']}
           </p>
         </div>
       </div>
@@ -330,10 +306,10 @@ const MockStatisticsSection = ({
 
 // Define the meta for the component
 const meta: Meta<typeof MockStatisticsSection> = {
-  title: "Components/StatisticsSection",
+  title: 'Components/StatisticsSection',
   component: MockStatisticsSection,
   decorators: [
-    (Story) => (
+    Story => (
       <AppProvider>
         <ThemeProvider>
           <div className="w-full">
@@ -344,9 +320,9 @@ const meta: Meta<typeof MockStatisticsSection> = {
     ),
   ],
   parameters: {
-    layout: "fullscreen",
+    layout: 'fullscreen',
   },
-  tags: ["autodocs"],
+  tags: ['autodocs'],
 };
 
 export default meta;
@@ -369,7 +345,7 @@ export const Loading: Story = {
 
 export const ErrorState: Story = {
   args: {
-    error: new Error("Failed to load statistics"),
+    error: new Error('Failed to load statistics'),
   },
 };
 
@@ -380,7 +356,7 @@ export const DarkMode: Story = {
   },
   parameters: {
     backgrounds: {
-      default: "dark",
+      default: 'dark',
     },
   },
 };
@@ -403,7 +379,7 @@ export const Mobile: Story = {
   },
   parameters: {
     viewport: {
-      defaultViewport: "mobile1",
+      defaultViewport: 'mobile1',
     },
   },
 };

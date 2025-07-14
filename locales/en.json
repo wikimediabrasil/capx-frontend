@@ -531,7 +531,7 @@
   "lets-connect-info-popup-continue": "Confirm/Send",
   "lets-connect-success-popup-close-tab": "Close Tab",
   "lets-connect-success-popup-title": "Well done!",
-  "lets-connect-success-popup-info":"Now, to finish the process, you must click on 'Save profile'. It will save all the alterations on your CapX profile.",
+  "lets-connect-success-popup-info": "Now, to finish the process, you must click on 'Save profile'. It will save all the alterations on your CapX profile.",
   "lets-connect-alt-banner": "Lets Connect Title",
   "statistics-section-title": "Platform Statistics",
   "statistics-users-title": "Users",
@@ -550,5 +550,5 @@
   "body-profile-badges-no-badges": "You don't have any active badges yet.",
   "body-profile-badges-title": "Badges",
   "body-profile-badges-see-all": "View all badges",
-  "body-profile-badges-description": "See the full collection of badges you've earned (and the ones waiting for you!)"  
+  "body-profile-badges-description": "See the full collection of badges you've earned (and the ones waiting for you!)"
 }

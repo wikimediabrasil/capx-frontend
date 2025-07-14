@@ -13,53 +13,54 @@ export interface WikimediaUrlConversion {
 
 /**
  * Converts a direct Wikimedia file URL to a Commons page URL
- * Example: 
+ * Example:
  * https://upload.wikimedia.org/wikipedia/commons/e/e1/Wikipedia_de_A_a_Z.pdf
  * -> https://commons.wikimedia.org/wiki/File:Wikipedia_de_A_a_Z.pdf
  */
 export const convertToCommonsPageUrl = (url: string): WikimediaUrlConversion => {
   const originalUrl = url.trim();
-  
+
   // Check if it's already a Commons page URL
   if (originalUrl.includes('commons.wikimedia.org/wiki/File:')) {
     return {
       isWikimediaUrl: true,
       originalUrl,
       commonsPageUrl: originalUrl,
-      filename: originalUrl.split('File:')[1]
+      filename: originalUrl.split('File:')[1],
     };
   }
-  
+
   // Check if it's a direct upload URL
-  const uploadUrlPattern = /https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/[a-f0-9]\/[a-f0-9]{2}\/(.+)$/;
+  const uploadUrlPattern =
+    /https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/[a-f0-9]\/[a-f0-9]{2}\/(.+)$/;
   const match = originalUrl.match(uploadUrlPattern);
-  
+
   if (match) {
     const filename = match[1];
     const commonsPageUrl = `https://commons.wikimedia.org/wiki/File:${filename}`;
-    
+
     return {
       isWikimediaUrl: true,
       originalUrl,
       commonsPageUrl,
       directFileUrl: originalUrl,
-      filename
+      filename,
     };
   }
-  
+
   // Check if it's some other Wikimedia URL format
   if (originalUrl.includes('wikimedia.org') || originalUrl.includes('wikipedia.org')) {
     return {
       isWikimediaUrl: true,
       originalUrl,
-      error: 'Unsupported Wikimedia URL format'
+      error: 'Unsupported Wikimedia URL format',
     };
   }
-  
+
   // Not a Wikimedia URL
   return {
     isWikimediaUrl: false,
-    originalUrl
+    originalUrl,
   };
 };
 
@@ -72,20 +73,20 @@ export const convertToCommonsPageUrl = (url: string): WikimediaUrlConversion => 
  */
 export const convertToDirectFileUrl = (url: string): WikimediaUrlConversion => {
   const originalUrl = url.trim();
-  
+
   // Check if it's a Commons page URL
   if (originalUrl.includes('commons.wikimedia.org/wiki/File:')) {
     const filename = originalUrl.split('File:')[1];
-    
+
     return {
       isWikimediaUrl: true,
       originalUrl,
       commonsPageUrl: originalUrl,
       filename,
-      error: 'Direct file URL conversion requires API call to Commons'
+      error: 'Direct file URL conversion requires API call to Commons',
     };
   }
-  
+
   // Already a direct URL or not a Commons URL
   return convertToCommonsPageUrl(originalUrl);
 };
@@ -98,19 +99,18 @@ export const ensureCommonsPageUrl = (url: string): string => {
   if (!url || url.trim() === '') {
     return url.trim();
   }
-  
+
   const conversion = convertToCommonsPageUrl(url);
-  
+
   if (conversion.error) {
     console.warn('⚠️ URL conversion warning:', conversion.error, 'for URL:', url);
     return url; // Return original URL if conversion fails
   }
-  
-  if (conversion.commonsPageUrl) {
 
+  if (conversion.commonsPageUrl) {
     return conversion.commonsPageUrl;
   }
-  
+
   // Not a Wikimedia URL, return as-is
   return url;
-}; 
+};

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 /**
  * Component to handle hydration issues and provide better error detection
@@ -10,17 +10,17 @@ export default function HydrationHandler() {
 
   useEffect(() => {
     // Check and remove problematic attributes that cause hydration errors
-    if (typeof document !== "undefined") {
+    if (typeof document !== 'undefined') {
       // Common attribute added by Chrome extensions
-      const body = document.querySelector("body");
+      const body = document.querySelector('body');
       if (body) {
         const problematicAttributes = [
-          "cz-shortcut-listen",
-          "data-new-gr-c-s-check-loaded",
-          "data-gr-ext-installed",
+          'cz-shortcut-listen',
+          'data-new-gr-c-s-check-loaded',
+          'data-gr-ext-installed',
         ];
 
-        problematicAttributes.forEach((attr) => {
+        problematicAttributes.forEach(attr => {
           if (body.hasAttribute(attr)) {
             body.removeAttribute(attr);
           }
@@ -28,9 +28,9 @@ export default function HydrationHandler() {
       }
 
       // Fix problem with Next.js that sometimes adds an inline style that causes problems
-      const styleTag = document.getElementById("__NEXT_DATA__");
-      if (styleTag && styleTag.hasAttribute("style")) {
-        styleTag.removeAttribute("style");
+      const styleTag = document.getElementById('__NEXT_DATA__');
+      if (styleTag && styleTag.hasAttribute('style')) {
+        styleTag.removeAttribute('style');
       }
 
       // Mark as hydrated
@@ -38,13 +38,9 @@ export default function HydrationHandler() {
 
       // Check if there are elements with hydration problems
       setTimeout(() => {
-        const hydrationErrors = document.querySelectorAll(
-          '[data-hydration-error="true"]'
-        );
+        const hydrationErrors = document.querySelectorAll('[data-hydration-error="true"]');
         if (hydrationErrors.length > 0) {
-          console.warn(
-            `Detected ${hydrationErrors.length} elements with hydration errors`
-          );
+          console.warn(`Detected ${hydrationErrors.length} elements with hydration errors`);
         }
       }, 1000);
 
@@ -54,11 +50,11 @@ export default function HydrationHandler() {
         // Check if it's a hydration error
         if (
           message &&
-          (message.toString().includes("Hydration") ||
-            message.toString().includes("hydrate") ||
-            message.toString().includes("hydrating"))
+          (message.toString().includes('Hydration') ||
+            message.toString().includes('hydrate') ||
+            message.toString().includes('hydrating'))
         ) {
-          console.error("Hydration error detected:", {
+          console.error('Hydration error detected:', {
             message,
             source,
             lineno,
@@ -67,7 +63,7 @@ export default function HydrationHandler() {
         }
 
         // Call the original handler, if it exists
-        if (typeof originalOnError === "function") {
+        if (typeof originalOnError === 'function') {
           return originalOnError(message, source, lineno, colno, error);
         }
         return false;
@@ -77,11 +73,8 @@ export default function HydrationHandler() {
 
   // Inject style to facilitate viewing hydration errors in development
   useEffect(() => {
-    if (
-      process.env.NODE_ENV === "development" &&
-      typeof document !== "undefined"
-    ) {
-      const style = document.createElement("style");
+    if (process.env.NODE_ENV === 'development' && typeof document !== 'undefined') {
+      const style = document.createElement('style');
       style.innerHTML = `
         [data-hydration-error="true"] {
           outline: 2px solid red !important;
@@ -105,8 +98,8 @@ export default function HydrationHandler() {
 
   return (
     <div
-      style={{ display: "none" }}
-      data-hydration-status={hydrationComplete ? "complete" : "pending"}
+      style={{ display: 'none' }}
+      data-hydration-status={hydrationComplete ? 'complete' : 'pending'}
     >
       {/* This component does not render anything visible */}
     </div>

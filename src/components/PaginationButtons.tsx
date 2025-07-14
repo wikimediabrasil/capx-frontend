@@ -54,18 +54,16 @@ export function PaginationButtons({
 
   const buttonStyle = `
     px-3 py-2 rounded-lg transition-colors text-sm
-    ${darkMode 
-      ? 'hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-600' 
-      : 'hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400'
+    ${
+      darkMode
+        ? 'hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-600'
+        : 'hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400'
     }
   `;
 
   const activeButtonStyle = `
     ${buttonStyle}
-    ${darkMode 
-      ? 'bg-gray-700 text-white' 
-      : 'bg-gray-100 text-gray-900'
-    }
+    ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'}
   `;
 
   return (
@@ -77,7 +75,7 @@ export function PaginationButtons({
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
           class_name={buttonStyle}
-          aria-label={pageContent?.["pagination-first"] || "First page"}
+          aria-label={pageContent?.['pagination-first'] || 'First page'}
         >
           &laquo;
         </SimpleButton>
@@ -88,14 +86,14 @@ export function PaginationButtons({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           class_name={buttonStyle}
-          aria-label={pageContent?.["pagination-previous"] || "Previous page"}
+          aria-label={pageContent?.['pagination-previous'] || 'Previous page'}
         >
           &lsaquo;
         </SimpleButton>
 
         {/* Numbers of pages */}
         <div className="flex items-center gap-1 mx-2">
-          {getPageNumbers().map((page, index) => (
+          {getPageNumbers().map((page, index) =>
             typeof page === 'number' ? (
               <SimpleButton
                 key={index}
@@ -107,14 +105,11 @@ export function PaginationButtons({
                 {page}
               </SimpleButton>
             ) : (
-              <span 
-                key={index} 
-                className={`px-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
-              >
+              <span key={index} className={`px-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {page}
               </span>
             )
-          ))}
+          )}
         </div>
 
         {/* Next page button */}
@@ -123,7 +118,7 @@ export function PaginationButtons({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           class_name={buttonStyle}
-          aria-label={pageContent?.["pagination-next"] || "Next page"}
+          aria-label={pageContent?.['pagination-next'] || 'Next page'}
         >
           &rsaquo;
         </SimpleButton>
@@ -134,7 +129,7 @@ export function PaginationButtons({
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
           class_name={buttonStyle}
-          aria-label={pageContent?.["pagination-last"] || "Last page"}
+          aria-label={pageContent?.['pagination-last'] || 'Last page'}
         >
           &raquo;
         </SimpleButton>
@@ -142,7 +137,8 @@ export function PaginationButtons({
 
       {/* Current page information */}
       <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-        {pageContent?.["pagination-page"]} {currentPage} {pageContent?.["pagination-of"]} {totalPages}
+        {pageContent?.['pagination-page']} {currentPage} {pageContent?.['pagination-of']}{' '}
+        {totalPages}
       </div>
     </div>
   );

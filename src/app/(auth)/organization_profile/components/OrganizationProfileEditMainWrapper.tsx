@@ -1,40 +1,37 @@
-"use client";
+'use client';
 
-import { useSnackbar } from "@/app/providers/SnackbarProvider";
-import LoadingState from "@/components/LoadingState";
-import { useApp } from "@/contexts/AppContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useAvatars } from "@/hooks/useAvatars";
-import { CAPACITY_CACHE_KEYS, useCapacities } from "@/hooks/useCapacities";
-import { useCapacityDetails } from "@/hooks/useCapacityDetails";
-import { useDocument } from "@/hooks/useDocument";
-import { useOrganizationEvents } from "@/hooks/useOrganizationEvents";
-import { useOrganization } from "@/hooks/useOrganizationProfile";
-import { useProject, useProjects } from "@/hooks/useProjects";
-import { useTagDiff } from "@/hooks/useTagDiff";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { formatWikiImageUrl } from "@/lib/utils/fetchWikimediaData";
-import { getProfileImage } from "@/lib/utils/getProfileImage";
-import {
-  createSafeFunction,
-  ensureArray
-} from "@/lib/utils/safeDataAccess";
-import NoAvatarIcon from "@/public/static/images/no_avatar.svg";
-import { Capacity } from "@/types/capacity";
-import { Contacts } from "@/types/contacts";
-import { OrganizationDocument } from "@/types/document";
-import { Event } from "@/types/event";
-import { Organization } from "@/types/organization";
-import { Project } from "@/types/project";
-import { tagDiff } from "@/types/tagDiff";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import CapacityDebug from "../../profile/edit/components/CapacityDebug";
-import EventsForm from "./EventsEditForm";
-import OrganizationProfileEditDesktopView from "./OrganizationProfileEditDesktopView";
-import OrganizationProfileEditMobileView from "./OrganizationProfileEditMobileView";
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import LoadingState from '@/components/LoadingState';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import { CAPACITY_CACHE_KEYS, useCapacities } from '@/hooks/useCapacities';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { useDocument } from '@/hooks/useDocument';
+import { useOrganizationEvents } from '@/hooks/useOrganizationEvents';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useProject, useProjects } from '@/hooks/useProjects';
+import { useTagDiff } from '@/hooks/useTagDiff';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { getProfileImage } from '@/lib/utils/getProfileImage';
+import { createSafeFunction, ensureArray } from '@/lib/utils/safeDataAccess';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { Capacity } from '@/types/capacity';
+import { Contacts } from '@/types/contacts';
+import { OrganizationDocument } from '@/types/document';
+import { Event } from '@/types/event';
+import { Organization } from '@/types/organization';
+import { Project } from '@/types/project';
+import { tagDiff } from '@/types/tagDiff';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import CapacityDebug from '../../profile/edit/components/CapacityDebug';
+import EventsForm from './EventsEditForm';
+import OrganizationProfileEditDesktopView from './OrganizationProfileEditDesktopView';
+import OrganizationProfileEditMobileView from './OrganizationProfileEditMobileView';
 
 interface ProfileOption {
   value: string;
@@ -59,9 +56,7 @@ export default function EditOrganizationProfilePage() {
 
   // State for profile options
   const [profileOptions, setProfileOptions] = useState<ProfileOption[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileOption | null>(
-    null
-  );
+  const [selectedProfile, setSelectedProfile] = useState<ProfileOption | null>(null);
 
   // State for projects
   const [projectsData, setProjectsData] = useState<Project[]>([]);
@@ -76,9 +71,7 @@ export default function EditOrganizationProfilePage() {
 
   // State for events
   const [showEventModal, setShowEventModal] = useState(false);
-  const [currentEditingEvent, setCurrentEditingEvent] = useState<Event | null>(
-    null
-  );
+  const [currentEditingEvent, setCurrentEditingEvent] = useState<Event | null>(null);
   const [editedEvents, setEditedEvents] = useState<{
     [key: number]: boolean;
   }>({});
@@ -88,9 +81,9 @@ export default function EditOrganizationProfilePage() {
 
   // State for capacities
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentCapacityType, setCurrentCapacityType] = useState<
-    "known" | "available" | "wanted"
-  >("known");
+  const [currentCapacityType, setCurrentCapacityType] = useState<'known' | 'available' | 'wanted'>(
+    'known'
+  );
 
   /* Setters */
 
@@ -121,19 +114,13 @@ export default function EditOrganizationProfilePage() {
     error: projectsError,
   } = useProjects(organization?.projects, token);
 
-  const { createProject, updateProject, deleteProject } = useProject(
-    projectId,
-    token
-  );
+  const { createProject, updateProject, deleteProject } = useProject(projectId, token);
 
   // Tags setters
-  const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } =
-    useTagDiff(token);
+  const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } = useTagDiff(token);
 
   // Documents setters
-  const [documentsData, setDocumentsData] = useState<OrganizationDocument[]>(
-    []
-  );
+  const [documentsData, setDocumentsData] = useState<OrganizationDocument[]>([]);
 
   // Events setters
   const {
@@ -148,10 +135,10 @@ export default function EditOrganizationProfilePage() {
 
   // Contacts setters
   const [contactsData, setContactsData] = useState<Contacts>({
-    id: "",
-    email: "",
-    meta_page: "",
-    website: "",
+    id: '',
+    email: '',
+    meta_page: '',
+    website: '',
   });
 
   // Capacities setters
@@ -166,49 +153,35 @@ export default function EditOrganizationProfilePage() {
   useEffect(() => {
     if (userProfile && organizations) {
       const managedOrgOptions = (userProfile.is_manager || [])
-        .map((orgId) => {
-          const org = organizations.find((o) => o.id === orgId);
+        .map(orgId => {
+          const org = organizations.find(o => o.id === orgId);
           if (!org) return null;
 
           return {
             value: `org_${org.id}`,
-            label: org.display_name || "",
-            image: org.profile_image
-              ? formatWikiImageUrl(org.profile_image)
-              : NoAvatarIcon,
+            label: org.display_name || '',
+            image: org.profile_image ? formatWikiImageUrl(org.profile_image) : NoAvatarIcon,
           };
         })
         .filter((item): item is NonNullable<typeof item> => item !== null);
 
       const options: ProfileOption[] = [
         {
-          value: "user",
-          label: userProfile.display_name || session?.user?.name || "",
-          image: getProfileImage(
-            userProfile?.profile_image,
-            userProfile?.avatar,
-            avatars
-          ),
+          value: 'user',
+          label: userProfile.display_name || session?.user?.name || '',
+          image: getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars),
         },
         ...managedOrgOptions,
       ];
 
       setProfileOptions(options);
 
-      const currentOrgOption = options.find(
-        (opt) => opt.value === `org_${organizationId}`
-      );
+      const currentOrgOption = options.find(opt => opt.value === `org_${organizationId}`);
       if (currentOrgOption) {
         setSelectedProfile(currentOrgOption);
       }
     }
-  }, [
-    userProfile,
-    organizations,
-    organizationId,
-    session?.user?.name,
-    avatars,
-  ]);
+  }, [userProfile, organizations, organizationId, session?.user?.name, avatars]);
 
   // Effect to load projects
   useEffect(() => {
@@ -247,9 +220,7 @@ export default function EditOrganizationProfilePage() {
       }
 
       // Ensure events is an array
-      const eventsArray = Array.isArray(organization.events)
-        ? organization.events
-        : [];
+      const eventsArray = Array.isArray(organization.events) ? organization.events : [];
 
       if (eventsArray.length === 0) {
         setEventsData([]);
@@ -259,9 +230,7 @@ export default function EditOrganizationProfilePage() {
 
       if (!eventsLoaded.current && !isEventsLoading) {
         try {
-          const validEventIds = eventsArray.filter(
-            (id) => id !== null && id !== undefined
-          );
+          const validEventIds = eventsArray.filter(id => id !== null && id !== undefined);
 
           if (validEventIds.length === 0) {
             setEventsData([]);
@@ -275,7 +244,7 @@ export default function EditOrganizationProfilePage() {
           setEventsData(loadedEvents || []);
           eventsLoaded.current = true;
         } catch (error) {
-          console.error("Erro ao carregar eventos:", error);
+          console.error('Erro ao carregar eventos:', error);
           setEventsData([]);
           eventsLoaded.current = true;
         }
@@ -283,13 +252,7 @@ export default function EditOrganizationProfilePage() {
     };
 
     loadEvents();
-  }, [
-    organization,
-    organization?.events,
-    token,
-    isEventsLoading,
-    fetchEventsByIds,
-  ]);
+  }, [organization, organization?.events, token, isEventsLoading, fetchEventsByIds]);
 
   // Effect to load documents
   useEffect(() => {
@@ -303,22 +266,20 @@ export default function EditOrganizationProfilePage() {
         documents
       ) {
         try {
-          const validDocIds = organization.documents.filter(
-            (id) => id !== null && id !== undefined
-          );
+          const validDocIds = organization.documents.filter(id => id !== null && id !== undefined);
 
           if (validDocIds.length === 0) {
             setDocumentsData([]);
             return;
           }
 
-          const existingDocuments = validDocIds.map((docId) => ({
+          const existingDocuments = validDocIds.map(docId => ({
             id: docId,
-            url: documents?.find((d) => d && d.id === docId)?.url || "",
+            url: documents?.find(d => d && d.id === docId)?.url || '',
           }));
           setDocumentsData(existingDocuments);
         } catch (error) {
-          console.error("Error loading documents:", error);
+          console.error('Error loading documents:', error);
           setDocumentsData([]);
         }
       } else {
@@ -331,30 +292,20 @@ export default function EditOrganizationProfilePage() {
 
   // Form data
   const [formData, setFormData] = useState<Partial<Organization>>({
-    display_name: organization?.display_name || "",
-    report: organization?.report || "",
-    profile_image: organization?.profile_image || "",
-    acronym: organization?.acronym || "",
-    meta_page: organization?.meta_page || "",
-    mastodon: organization?.mastodon || "",
-    tag_diff: Array.isArray(organization?.tag_diff)
-      ? organization?.tag_diff
-      : [],
+    display_name: organization?.display_name || '',
+    report: organization?.report || '',
+    profile_image: organization?.profile_image || '',
+    acronym: organization?.acronym || '',
+    meta_page: organization?.meta_page || '',
+    mastodon: organization?.mastodon || '',
+    tag_diff: Array.isArray(organization?.tag_diff) ? organization?.tag_diff : [],
     events: Array.isArray(organization?.events) ? organization?.events : [],
-    documents: Array.isArray(organization?.documents)
-      ? organization?.documents
-      : [],
-    projects: Array.isArray(organization?.projects)
-      ? organization?.projects
-      : [],
-    home_project: organization?.home_project || "",
+    documents: Array.isArray(organization?.documents) ? organization?.documents : [],
+    projects: Array.isArray(organization?.projects) ? organization?.projects : [],
+    home_project: organization?.home_project || '',
     type: organization?.type || 0,
-    territory: Array.isArray(organization?.territory)
-      ? organization?.territory
-      : [],
-    managers: Array.isArray(organization?.managers)
-      ? organization?.managers
-      : [],
+    territory: Array.isArray(organization?.territory) ? organization?.territory : [],
+    managers: Array.isArray(organization?.managers) ? organization?.managers : [],
     known_capacities: Array.isArray(organization?.known_capacities)
       ? organization?.known_capacities
       : [],
@@ -364,41 +315,29 @@ export default function EditOrganizationProfilePage() {
     wanted_capacities: Array.isArray(organization?.wanted_capacities)
       ? organization?.wanted_capacities
       : [],
-    choose_events: Array.isArray(organization?.choose_events)
-      ? organization?.choose_events
-      : [],
+    choose_events: Array.isArray(organization?.choose_events) ? organization?.choose_events : [],
   });
 
   // Use effect to initialize the form data
   useEffect(() => {
     if (organization && !isInitialized) {
       setFormData({
-        display_name: organization.display_name || "",
-        report: organization.report || "",
-        profile_image: organization.profile_image || "",
-        acronym: organization.acronym || "",
-        meta_page: organization.meta_page || "",
-        email: organization.email || "",
-        website: organization.website || "",
-        mastodon: organization.mastodon || "",
-        tag_diff: Array.isArray(organization.tag_diff)
-          ? organization.tag_diff
-          : [],
-        projects: Array.isArray(organization.projects)
-          ? organization.projects
-          : [],
+        display_name: organization.display_name || '',
+        report: organization.report || '',
+        profile_image: organization.profile_image || '',
+        acronym: organization.acronym || '',
+        meta_page: organization.meta_page || '',
+        email: organization.email || '',
+        website: organization.website || '',
+        mastodon: organization.mastodon || '',
+        tag_diff: Array.isArray(organization.tag_diff) ? organization.tag_diff : [],
+        projects: Array.isArray(organization.projects) ? organization.projects : [],
         events: Array.isArray(organization.events) ? organization.events : [],
-        documents: Array.isArray(organization.documents)
-          ? organization.documents
-          : [],
-        home_project: organization.home_project || "",
+        documents: Array.isArray(organization.documents) ? organization.documents : [],
+        home_project: organization.home_project || '',
         type: organization.type || 0,
-        territory: Array.isArray(organization.territory)
-          ? organization.territory
-          : [],
-        managers: Array.isArray(organization.managers)
-          ? organization.managers
-          : [],
+        territory: Array.isArray(organization.territory) ? organization.territory : [],
+        managers: Array.isArray(organization.managers) ? organization.managers : [],
         known_capacities: Array.isArray(organization.known_capacities)
           ? organization.known_capacities
           : [],
@@ -408,9 +347,7 @@ export default function EditOrganizationProfilePage() {
         wanted_capacities: Array.isArray(organization.wanted_capacities)
           ? organization.wanted_capacities
           : [],
-        choose_events: Array.isArray(organization.choose_events)
-          ? organization.choose_events
-          : [],
+        choose_events: Array.isArray(organization.choose_events) ? organization.choose_events : [],
       });
 
       // Initialize projects data
@@ -423,26 +360,19 @@ export default function EditOrganizationProfilePage() {
           try {
             // Ensure tag_diff is an array and has valid values
             const validTagIds =
-              organization.tag_diff?.filter(
-                (id) => id !== null && id !== undefined
-              ) || [];
+              organization.tag_diff?.filter(id => id !== null && id !== undefined) || [];
 
             if (validTagIds.length === 0) {
               setDiffTagsData([]);
               return;
             }
 
-            const tagPromises = validTagIds.map((tagId) =>
-              fetchSingleTag(tagId)
-            );
+            const tagPromises = validTagIds.map(tagId => fetchSingleTag(tagId));
 
             const tagsResults = await Promise.all(tagPromises);
             const validTags = tagsResults
-              .filter(
-                (tag): tag is NonNullable<typeof tag> =>
-                  tag !== undefined && tag !== null
-              )
-              .map((tagData) => ({
+              .filter((tag): tag is NonNullable<typeof tag> => tag !== undefined && tag !== null)
+              .map(tagData => ({
                 id: tagData.id,
                 tag: tagData.tag,
                 created_at: tagData.created_at || new Date().toISOString(),
@@ -451,12 +381,10 @@ export default function EditOrganizationProfilePage() {
             setDiffTagsData(validTags);
           } catch (error) {
             showSnackbar(
-              pageContent[
-                "snackbar-edit-profile-organization-fetch-tags-failed"
-              ],
-              "error"
+              pageContent['snackbar-edit-profile-organization-fetch-tags-failed'],
+              'error'
             );
-            console.error("Error fetching tags:", error);
+            console.error('Error fetching tags:', error);
             setDiffTagsData([]);
           }
         };
@@ -467,14 +395,10 @@ export default function EditOrganizationProfilePage() {
       }
 
       // Initialize documents data
-      if (
-        organization.documents &&
-        organization.documents.length > 0 &&
-        documents
-      ) {
-        const existingDocuments = organization.documents.map((docId) => ({
+      if (organization.documents && organization.documents.length > 0 && documents) {
+        const existingDocuments = organization.documents.map(docId => ({
           id: docId,
-          url: documents?.find((d) => d.id === docId)?.url || "",
+          url: documents?.find(d => d.id === docId)?.url || '',
         }));
         setDocumentsData(existingDocuments);
       }
@@ -482,10 +406,10 @@ export default function EditOrganizationProfilePage() {
       // Initialize contacts data
       if (organization) {
         setContactsData({
-          id: organization.id?.toString() || "",
-          email: organization.email || "",
-          meta_page: organization.meta_page || "",
-          website: organization.website || "",
+          id: organization.id?.toString() || '',
+          email: organization.email || '',
+          meta_page: organization.meta_page || '',
+          website: organization.website || '',
         });
       }
       setIsInitialized(true);
@@ -515,26 +439,16 @@ export default function EditOrganizationProfilePage() {
     const wantedCapacities = ensureArray(formData.wanted_capacities);
 
     // Combine all arrays and remove duplicates
-    const allIds = [
-      ...knownCapacities,
-      ...availableCapacities,
-      ...wantedCapacities,
-    ];
-    const uniqueIds = Array.from(new Set(allIds)).filter(
-      (id) => id !== null && id !== undefined
-    );
+    const allIds = [...knownCapacities, ...availableCapacities, ...wantedCapacities];
+    const uniqueIds = Array.from(new Set(allIds)).filter(id => id !== null && id !== undefined);
 
     return uniqueIds;
-  }, [
-    formData?.known_capacities,
-    formData?.available_capacities,
-    formData?.wanted_capacities,
-  ]);
+  }, [formData?.known_capacities, formData?.available_capacities, formData?.wanted_capacities]);
 
   // Capacity details setters - com tratamento seguro de erro
-  const [safeGetCapacityName, setSafeGetCapacityName] = useState<
-    (id: any) => string
-  >(() => (id) => `Capacity ${id}`);
+  const [safeGetCapacityName, setSafeGetCapacityName] = useState<(id: any) => string>(
+    () => id => `Capacity ${id}`
+  );
 
   // Get React Query client for manual cache access
   const queryClient = useQueryClient();
@@ -554,18 +468,18 @@ export default function EditOrganizationProfilePage() {
       if (capacityDetailsRef.current) {
         const { getCapacityName } = capacityDetailsRef.current;
 
-        if (typeof getCapacityName === "function") {
+        if (typeof getCapacityName === 'function') {
           // Create an optimized version that checks React Query cache first
           const optimizedGetCapacityName = (id: any) => {
             try {
               // Skip processing for invalid IDs
               if (id === null || id === undefined) {
-                return pageContent["capacity-unknown"] || "Unknown Capacity";
+                return pageContent['capacity-unknown'] || 'Unknown Capacity';
               }
 
               // First, sanitize the ID if it's a Wikibase URL or other non-standard format
               let sanitizedId = id;
-              if (typeof id === "object" && id?.code) {
+              if (typeof id === 'object' && id?.code) {
                 sanitizedId = sanitizeCapacityCode(id.code);
               } else {
                 sanitizedId = sanitizeCapacityCode(id);
@@ -581,10 +495,10 @@ export default function EditOrganizationProfilePage() {
               // Only use cache data if it has a valid name that's not a URL
               if (
                 cachedCapacity &&
-                typeof cachedCapacity === "object" &&
-                "name" in cachedCapacity &&
-                typeof cachedCapacity.name === "string" &&
-                !cachedCapacity.name.startsWith("https://")
+                typeof cachedCapacity === 'object' &&
+                'name' in cachedCapacity &&
+                typeof cachedCapacity.name === 'string' &&
+                !cachedCapacity.name.startsWith('https://')
               ) {
                 return cachedCapacity.name;
               }
@@ -593,31 +507,28 @@ export default function EditOrganizationProfilePage() {
               const originalName = getCapacityName(sanitizedId);
 
               // Don't return URLs as capacity names
-              if (
-                typeof originalName === "string" &&
-                originalName.startsWith("https://")
-              ) {
+              if (typeof originalName === 'string' && originalName.startsWith('https://')) {
                 return `Capacity ${idStr}`;
               }
 
               return originalName;
             } catch (error) {
-              console.error("Error in optimizedGetCapacityName:", error);
+              console.error('Error in optimizedGetCapacityName:', error);
               return `Capacity ${id}`;
             }
           };
 
           const safeFunction = createSafeFunction(
             optimizedGetCapacityName,
-            "Unknown Capacity",
-            (error) => console.error("Error in getCapacityName:", error)
+            'Unknown Capacity',
+            error => console.error('Error in getCapacityName:', error)
           );
 
           setSafeGetCapacityName(() => safeFunction);
         }
       }
     } catch (error) {
-      console.error("Error extracting getCapacityName:", error);
+      console.error('Error extracting getCapacityName:', error);
     }
   }, [capacityIds, queryClient, pageContent]);
 
@@ -642,31 +553,29 @@ export default function EditOrganizationProfilePage() {
       updatedFormData.website = contactsData.website;
 
       // Process documents data - create/update documents via API
-      const validDocuments = documentsData.filter(
-        (doc) => doc.url && doc.url.trim() !== ""
-      );
+      const validDocuments = documentsData.filter(doc => doc.url && doc.url.trim() !== '');
 
       // Create new documents and collect existing document IDs
-      const documentPromises = validDocuments.map(async (doc) => {
+      const documentPromises = validDocuments.map(async doc => {
         if (doc.id === 0 || doc.id === null) {
           // Create new document
           try {
             const documentPayload = {
               url: doc.url,
               ...(organizationId && { organization: Number(organizationId) }),
-              ...(session?.user?.id && { creator: Number(session.user.id) })
+              ...(session?.user?.id && { creator: Number(session.user.id) }),
             };
-            
+
             const newDoc = await createDocument(documentPayload);
             return newDoc?.id;
           } catch (error: any) {
-            console.error("❌ Error creating document - Full details:", {
+            console.error('❌ Error creating document - Full details:', {
               error: error.message,
               status: error.response?.status,
               data: error.response?.data,
               documentUrl: doc.url,
               organizationId,
-              userId: session?.user?.id
+              userId: session?.user?.id,
             });
             return null;
           }
@@ -684,11 +593,9 @@ export default function EditOrganizationProfilePage() {
       updatedFormData.documents = validDocumentIds;
 
       // Process DiffTags data - create new tags and collect existing tag IDs
-      const validTags = diffTagsData.filter(
-        (tag) => tag.tag && tag.tag.trim() !== ""
-      );
+      const validTags = diffTagsData.filter(tag => tag.tag && tag.tag.trim() !== '');
 
-      const tagPromises = validTags.map(async (tag) => {
+      const tagPromises = validTags.map(async tag => {
         if (tag.id < 0 || tag.id === 0) {
           // Create new tag
           try {
@@ -698,7 +605,7 @@ export default function EditOrganizationProfilePage() {
             });
             return newTag?.id;
           } catch (error) {
-            console.error("Error creating tag:", error);
+            console.error('Error creating tag:', error);
             return null;
           }
         } else {
@@ -708,34 +615,26 @@ export default function EditOrganizationProfilePage() {
       });
 
       const tagIds = await Promise.all(tagPromises);
-      const validTagIds = tagIds.filter(
-        (id): id is number => id !== null && id !== undefined
-      );
+      const validTagIds = tagIds.filter((id): id is number => id !== null && id !== undefined);
 
       updatedFormData.tag_diff = validTagIds;
 
       // Ensure valid project IDs are included
       const validProjectIds = projectsData
         .filter(
-          (project) =>
-            project.id !== 0 &&
-            project.display_name &&
-            project.display_name.trim() !== ""
+          project => project.id !== 0 && project.display_name && project.display_name.trim() !== ''
         )
-        .map((project) => project.id);
+        .map(project => project.id);
       updatedFormData.projects = validProjectIds;
 
       // Create/update projects without valid IDs
       const newProjects = projectsData.filter(
-        (project) =>
-          project.id === 0 &&
-          project.display_name &&
-          project.display_name.trim() !== ""
+        project => project.id === 0 && project.display_name && project.display_name.trim() !== ''
       );
 
       if (newProjects.length > 0) {
         const createdProjects = await Promise.all(
-          newProjects.map((project) =>
+          newProjects.map(project =>
             createProject({
               ...project,
               organization: Number(organizationId),
@@ -747,20 +646,20 @@ export default function EditOrganizationProfilePage() {
         updatedFormData.projects = [
           ...updatedFormData.projects,
           ...createdProjects
-            .map((project) => project?.id)
+            .map(project => project?.id)
             .filter((id): id is number => id !== undefined),
         ];
       }
 
       // Update existing events
       const updateEventPromises = eventsData
-        .filter((event) => event.id !== 0)
-        .map((event) => updateEvent(event.id, event));
+        .filter(event => event.id !== 0)
+        .map(event => updateEvent(event.id, event));
 
       // Create new events
       const createEventPromises = eventsData
-        .filter((event) => event.id === 0)
-        .map((event) =>
+        .filter(event => event.id === 0)
+        .map(event =>
           createEvent({
             ...event,
             organization: Number(organizationId),
@@ -776,12 +675,10 @@ export default function EditOrganizationProfilePage() {
       // Collect all event IDs (existing and new)
       const allEventIds = [
         ...(Array.isArray(updatedEvents)
-          ? updatedEvents.map((event) => event?.id).filter(Boolean)
+          ? updatedEvents.map(event => event?.id).filter(Boolean)
           : []),
-        ...(Array.isArray(newEvents)
-          ? newEvents.map((event) => event?.id).filter(Boolean)
-          : []),
-      ].filter((id) => id !== undefined && id !== null) as number[];
+        ...(Array.isArray(newEvents) ? newEvents.map(event => event?.id).filter(Boolean) : []),
+      ].filter(id => id !== undefined && id !== null) as number[];
 
       // Update the events list in formData
       if (allEventIds.length > 0) {
@@ -789,7 +686,7 @@ export default function EditOrganizationProfilePage() {
         let updatedEventIds = [...(organization?.events || [])];
 
         // Add new events that are not already in the list
-        allEventIds.forEach((eventId) => {
+        allEventIds.forEach(eventId => {
           if (!updatedEventIds.includes(eventId)) {
             updatedEventIds.push(eventId);
           }
@@ -803,22 +700,19 @@ export default function EditOrganizationProfilePage() {
       updatedFormData.choose_events = formData.choose_events || [];
 
       await updateOrganization(updatedFormData);
-      showSnackbar(
-        pageContent["snackbar-edit-profile-organization-success"],
-        "success"
-      );
+      showSnackbar(pageContent['snackbar-edit-profile-organization-success'], 'success');
       router.back();
     } catch (error: any) {
       // Check if error is a validation error with a translation key
       const errorMessage = error?.message || '';
       const isTranslationKey = errorMessage && errorMessage.startsWith('snackbar-');
-      
+
       if (isTranslationKey && pageContent[errorMessage]) {
-        showSnackbar(pageContent[errorMessage], "error");
+        showSnackbar(pageContent[errorMessage], 'error');
       } else {
         showSnackbar(
-          pageContent["snackbar-edit-profile-organization-error"] || "Error saving profile",
-          "error"
+          pageContent['snackbar-edit-profile-organization-error'] || 'Error saving profile',
+          'error'
         );
       }
     }
@@ -828,24 +722,24 @@ export default function EditOrganizationProfilePage() {
   const handleAddProject = () => {
     const newProject: Project = {
       id: 0,
-      display_name: "",
-      profile_image: "",
-      url: "",
-      description: "",
+      display_name: '',
+      profile_image: '',
+      url: '',
+      description: '',
       organization: Number(organizationId),
       creation_date: new Date().toISOString(),
       creator: Number(session?.user?.id),
       related_skills: [],
     };
 
-    setProjectsData((prev) => [...prev, newProject]);
+    setProjectsData(prev => [...prev, newProject]);
   };
 
   const handleDeleteProject = async (projectId: number) => {
     try {
       if (projectId === 0) {
-        setProjectsData((prev) => {
-          const index = prev.findIndex((p) => p.id === 0);
+        setProjectsData(prev => {
+          const index = prev.findIndex(p => p.id === 0);
           if (index !== -1) {
             const updated = [...prev];
             updated.splice(index, 1);
@@ -856,28 +750,22 @@ export default function EditOrganizationProfilePage() {
         return;
       }
       await deleteProject(projectId);
-      setProjectsData((prev) => prev.filter((p) => p.id !== projectId));
+      setProjectsData(prev => prev.filter(p => p.id !== projectId));
       showSnackbar(
-        pageContent[
-          "snackbar-edit-profile-organization-delete-project-success"
-        ],
-        "success"
+        pageContent['snackbar-edit-profile-organization-delete-project-success'],
+        'success'
       );
     } catch (error) {
       showSnackbar(
-        pageContent["snackbar-edit-profile-organization-delete-project-failed"],
-        "error"
+        pageContent['snackbar-edit-profile-organization-delete-project-failed'],
+        'error'
       );
-      console.error("Error deleting project:", error);
+      console.error('Error deleting project:', error);
     }
   };
 
-  const handleProjectChange = (
-    index: number,
-    field: keyof Project,
-    value: string
-  ) => {
-    setProjectsData((prev) => {
+  const handleProjectChange = (index: number, field: keyof Project, value: string) => {
+    setProjectsData(prev => {
       const updated = [...prev];
       updated[index] = {
         ...updated[index],
@@ -891,10 +779,10 @@ export default function EditOrganizationProfilePage() {
   const handleAddEvent = () => {
     const eventData: Event = {
       id: 0,
-      name: "",
-      type_of_location: "virtual",
-      url: "",
-      image_url: "",
+      name: '',
+      type_of_location: 'virtual',
+      url: '',
+      image_url: '',
       time_begin: new Date().toISOString(),
       time_end: new Date().toISOString(),
       organization: Number(organizationId),
@@ -902,10 +790,10 @@ export default function EditOrganizationProfilePage() {
       updated_at: new Date().toISOString(),
       creator: Number(session?.user?.id),
       team: [],
-      description: "",
+      description: '',
       related_skills: [],
-      openstreetmap_id: "",
-      wikidata_qid: "",
+      openstreetmap_id: '',
+      wikidata_qid: '',
     };
     setCurrentEditingEvent(eventData);
     setShowEventModal(true);
@@ -917,9 +805,9 @@ export default function EditOrganizationProfilePage() {
       ...event,
       related_skills: Array.isArray(event.related_skills)
         ? event.related_skills
-        : typeof event.related_skills === "string"
-        ? JSON.parse(event.related_skills)
-        : [],
+        : typeof event.related_skills === 'string'
+          ? JSON.parse(event.related_skills)
+          : [],
     };
 
     setCurrentEditingEvent(eventToEdit);
@@ -929,7 +817,7 @@ export default function EditOrganizationProfilePage() {
   const handleChooseEvent = useCallback(
     async (event: Event) => {
       if (!event || !event.id) {
-        console.error("Invalid event object in handleChooseEvent", event);
+        console.error('Invalid event object in handleChooseEvent', event);
         return;
       }
 
@@ -938,7 +826,7 @@ export default function EditOrganizationProfilePage() {
 
         // Make sure organization exists
         if (!organization) {
-          console.error("Organization is undefined in handleChooseEvent");
+          console.error('Organization is undefined in handleChooseEvent');
           return;
         }
 
@@ -948,16 +836,14 @@ export default function EditOrganizationProfilePage() {
           : [];
 
         // Update local state immediately for visual feedback
-        const isAlreadySelected = chooseEvents.some(
-          (chosenEvent) => chosenEvent === event.id
-        );
+        const isAlreadySelected = chooseEvents.some(chosenEvent => chosenEvent === event.id);
 
         // Create an updated copy of the organization
         const updatedOrg = { ...organization };
 
         // Set choose_events array safely
         updatedOrg.choose_events = isAlreadySelected
-          ? chooseEvents.filter((chosenEvent) => chosenEvent !== event.id)
+          ? chooseEvents.filter(chosenEvent => chosenEvent !== event.id)
           : [...chooseEvents, event.id];
 
         // Send update to the backend
@@ -966,28 +852,25 @@ export default function EditOrganizationProfilePage() {
         });
 
         // Update form data too to keep UI in sync
-        setFormData((prev) => ({
+        setFormData(prev => ({
           ...prev,
           choose_events: updatedOrg.choose_events,
         }));
 
         showSnackbar(
           isAlreadySelected
-            ? pageContent[
-                "snackbar-edit-profile-organization-remove-event-success"
-              ] || "Event removed successfully"
-            : pageContent[
-                "snackbar-edit-profile-organization-add-event-success"
-              ] || "Event added successfully",
-          "success"
+            ? pageContent['snackbar-edit-profile-organization-remove-event-success'] ||
+                'Event removed successfully'
+            : pageContent['snackbar-edit-profile-organization-add-event-success'] ||
+                'Event added successfully',
+          'success'
         );
       } catch (error) {
-        console.error("Error in handleChooseEvent:", error);
+        console.error('Error in handleChooseEvent:', error);
         showSnackbar(
-          pageContent[
-            "snackbar-edit-profile-organization-update-event-failed"
-          ] || "Failed to update event",
-          "error"
+          pageContent['snackbar-edit-profile-organization-update-event-failed'] ||
+            'Failed to update event',
+          'error'
         );
       } finally {
         setLoadingChooseEvent(false);
@@ -1001,7 +884,7 @@ export default function EditOrganizationProfilePage() {
     try {
       // If it's a new event (id = 0), just remove it from the list
       if (eventId === 0) {
-        setEventsData((prev) => prev.filter((e) => e.id !== 0));
+        setEventsData(prev => prev.filter(e => e.id !== 0));
         return;
       }
 
@@ -1009,36 +892,35 @@ export default function EditOrganizationProfilePage() {
       await deleteEvent(eventId);
 
       // Remove the event from the list of events displayed
-      setEventsData((prev) => prev.filter((e) => e.id !== eventId));
+      setEventsData(prev => prev.filter(e => e.id !== eventId));
 
       // Update the formData to remove the deleted event ID
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
-        events: (prev.events || []).filter((id) => id !== eventId),
+        events: (prev.events || []).filter(id => id !== eventId),
       }));
 
       // Update the organization in the backend to remove the event
       if (organization) {
         const updatedOrgData = {
           ...organization,
-          events: (organization.events || []).filter((id) => id !== eventId),
+          events: (organization.events || []).filter(id => id !== eventId),
         };
 
         await updateOrganization(updatedOrgData);
       }
 
       showSnackbar(
-        pageContent[
-          "snackbar-edit-profile-organization-delete-event-success"
-        ] || "Evento excluído com sucesso",
-        "success"
+        pageContent['snackbar-edit-profile-organization-delete-event-success'] ||
+          'Evento excluído com sucesso',
+        'success'
       );
     } catch (error) {
-      console.error("Erro ao excluir evento:", error);
+      console.error('Erro ao excluir evento:', error);
       showSnackbar(
-        pageContent["snackbar-edit-profile-organization-delete-event-failed"] ||
-          "Erro ao excluir evento",
-        "error"
+        pageContent['snackbar-edit-profile-organization-delete-event-failed'] ||
+          'Erro ao excluir evento',
+        'error'
       );
     }
   };
@@ -1048,15 +930,15 @@ export default function EditOrganizationProfilePage() {
     async (index: number, field: keyof Event, value: string) => {
       // Ensure eventsData is an array before trying to modify it
       if (!Array.isArray(eventsData)) {
-        console.error("eventsData is not an array:", eventsData);
+        console.error('eventsData is not an array:', eventsData);
         return;
       }
 
       // Use functional updates to prevent unnecessary re-renders
-      setEventsData((prev) => {
+      setEventsData(prev => {
         // Additional array check
         if (!Array.isArray(prev)) {
-          console.error("prev is not an array in handleEventChange:", prev);
+          console.error('prev is not an array in handleEventChange:', prev);
           return prev;
         }
 
@@ -1068,7 +950,7 @@ export default function EditOrganizationProfilePage() {
         }
 
         // Special treatment for fields that may need conversion
-        if (field === "related_skills") {
+        if (field === 'related_skills') {
           try {
             // If the value is a JSON string, parse it
             const parsedValue = JSON.parse(value);
@@ -1097,7 +979,7 @@ export default function EditOrganizationProfilePage() {
       // Batch state updates by using a timeout
       if (eventsData[index] && eventsData[index].id) {
         setTimeout(() => {
-          setEditedEvents((prev) => ({
+          setEditedEvents(prev => ({
             ...prev,
             [eventsData[index].id]: true,
           }));
@@ -1112,15 +994,15 @@ export default function EditOrganizationProfilePage() {
     (index: number, field: keyof Event, value: string) => {
       if (!currentEditingEvent) return;
 
-      setCurrentEditingEvent((prev) => {
+      setCurrentEditingEvent(prev => {
         if (!prev) return prev;
 
         let updatedValue: any = value;
 
         // Special treatment for specific fields
-        if (field === "time_begin" || field === "time_end") {
+        if (field === 'time_begin' || field === 'time_end') {
           updatedValue = new Date(value).toISOString();
-        } else if (field === "related_skills") {
+        } else if (field === 'related_skills') {
           try {
             // If the value is a JSON string, parse it
             const parsedValue = JSON.parse(value);
@@ -1153,10 +1035,10 @@ export default function EditOrganizationProfilePage() {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           team: currentEditingEvent.team || [Number(session?.user?.id)],
-          type_of_location: currentEditingEvent.type_of_location || "virtual",
-          url: currentEditingEvent.url || "",
-          image_url: currentEditingEvent.image_url || "",
-          description: currentEditingEvent.description || "",
+          type_of_location: currentEditingEvent.type_of_location || 'virtual',
+          url: currentEditingEvent.url || '',
+          image_url: currentEditingEvent.image_url || '',
+          description: currentEditingEvent.description || '',
           related_skills: currentEditingEvent.related_skills || [],
           organization: Number(organizationId),
         };
@@ -1165,7 +1047,7 @@ export default function EditOrganizationProfilePage() {
           const createdEvent = await createEvent(newEventData);
 
           if (createdEvent && createdEvent.id) {
-            setEventsData((prev) => [...prev, createdEvent]);
+            setEventsData(prev => [...prev, createdEvent]);
 
             // Update the formData with the new event
             const updatedEvents = [...(formData.events || [])];
@@ -1173,7 +1055,7 @@ export default function EditOrganizationProfilePage() {
               updatedEvents.push(createdEvent.id);
             }
 
-            setFormData((prev) => ({
+            setFormData(prev => ({
               ...prev,
               events: updatedEvents,
             }));
@@ -1187,58 +1069,44 @@ export default function EditOrganizationProfilePage() {
 
               await updateOrganization(updatedOrgData);
             } catch (updateOrgError) {
-              console.error(
-                "Error updating organization with new event:",
-                updateOrgError
-              );
+              console.error('Error updating organization with new event:', updateOrgError);
             }
 
             showSnackbar(
-              pageContent[
-                "snackbar-edit-profile-organization-create-event-success"
-              ],
-              "success"
+              pageContent['snackbar-edit-profile-organization-create-event-success'],
+              'success'
             );
           }
         } catch (createError) {
-          console.error("Error creating event:", createError);
+          console.error('Error creating event:', createError);
           showSnackbar(
-            pageContent[
-              "snackbar-edit-profile-organization-create-event-failed"
-            ],
-            "error"
+            pageContent['snackbar-edit-profile-organization-create-event-failed'],
+            'error'
           );
         }
       } else {
         // Update existing event
         try {
-          const updatedEvent = await updateEvent(
-            currentEditingEvent.id,
-            currentEditingEvent
-          );
+          const updatedEvent = await updateEvent(currentEditingEvent.id, currentEditingEvent);
 
           if (updatedEvent) {
             // Update the events list
-            setEventsData((prev) =>
-              prev.map((event) =>
-                event.id === updatedEvent.id ? updatedEvent : event
-              )
+            setEventsData(prev =>
+              prev.map(event => (event.id === updatedEvent.id ? updatedEvent : event))
             );
 
             showSnackbar(
-              pageContent[
-                "snackbar-edit-profile-organization-update-event-success"
-              ] || "Evento atualizado com sucesso",
-              "success"
+              pageContent['snackbar-edit-profile-organization-update-event-success'] ||
+                'Evento atualizado com sucesso',
+              'success'
             );
           }
         } catch (updateError) {
-          console.error("Erro ao atualizar evento:", updateError);
+          console.error('Erro ao atualizar evento:', updateError);
           showSnackbar(
-            pageContent[
-              "snackbar-edit-profile-organization-update-event-failed"
-            ] || "Erro ao atualizar evento",
-            "error"
+            pageContent['snackbar-edit-profile-organization-update-event-failed'] ||
+              'Erro ao atualizar evento',
+            'error'
           );
         }
       }
@@ -1247,11 +1115,11 @@ export default function EditOrganizationProfilePage() {
       setShowEventModal(false);
       setCurrentEditingEvent(null);
     } catch (error) {
-      console.error("Erro ao salvar evento:", error);
+      console.error('Erro ao salvar evento:', error);
       showSnackbar(
-        pageContent["snackbar-edit-profile-organization-save-event-failed"] ||
-          "Erro ao salvar evento",
-        "error"
+        pageContent['snackbar-edit-profile-organization-save-event-failed'] ||
+          'Erro ao salvar evento',
+        'error'
       );
     }
   };
@@ -1264,19 +1132,15 @@ export default function EditOrganizationProfilePage() {
   const handleAddDiffTag = () => {
     const newTag = {
       id: Math.floor(Math.random() * -1000), // Temporary negative ID for new tags
-      tag: "", // Empty string instead of default text
+      tag: '', // Empty string instead of default text
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       creator: Number(session?.user?.id),
     };
-    setDiffTagsData((prev) => [...(prev || []), newTag]);
+    setDiffTagsData(prev => [...(prev || []), newTag]);
   };
 
-  const handleDiffTagChange = async (
-    index: number,
-    field: string,
-    value: string
-  ) => {
+  const handleDiffTagChange = async (index: number, field: string, value: string) => {
     const newDiffTags = [...diffTagsData];
     newDiffTags[index] = {
       ...newDiffTags[index],
@@ -1293,7 +1157,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   // Capacities handlers
-  const handleAddCapacity = (type: "known" | "available" | "wanted") => {
+  const handleAddCapacity = (type: 'known' | 'available' | 'wanted') => {
     setCurrentCapacityType(type);
     setIsModalOpen(true);
   };
@@ -1301,15 +1165,15 @@ export default function EditOrganizationProfilePage() {
   // Helper function to sanitize capacity codes
   const sanitizeCapacityCode = (code: any): number => {
     // If it's already a valid number, return it
-    if (typeof code === "number" && !isNaN(code)) {
+    if (typeof code === 'number' && !isNaN(code)) {
       return code;
     }
 
     // If it's a string, check for URLs or try to convert to number
-    if (typeof code === "string") {
+    if (typeof code === 'string') {
       // Check for Wikibase URLs
-      if (code.indexOf("wikibase") !== -1 || code.indexOf("entity/Q") !== -1) {
-        console.warn("Converting Wikibase URL to numeric ID:", code);
+      if (code.indexOf('wikibase') !== -1 || code.indexOf('entity/Q') !== -1) {
+        console.warn('Converting Wikibase URL to numeric ID:', code);
         // Extract Q-number if possible
         const match = code.match(/Q(\d+)/);
         if (match && match[1]) {
@@ -1325,14 +1189,13 @@ export default function EditOrganizationProfilePage() {
     }
 
     // Return a fallback value if all else fails
-    console.warn("Could not sanitize capacity code:", code);
-    return typeof code === "number" ? code : 0;
+    console.warn('Could not sanitize capacity code:', code);
+    return typeof code === 'number' ? code : 0;
   };
 
   const handleCapacitySelect = (capacity: Capacity) => {
-    setFormData((prev) => {
-      const capacityField =
-        `${currentCapacityType}_capacities` as keyof typeof prev;
+    setFormData(prev => {
+      const capacityField = `${currentCapacityType}_capacities` as keyof typeof prev;
       const currentCapacities = (prev[capacityField] as number[]) || [];
 
       // Sanitize the capacity code
@@ -1352,11 +1215,8 @@ export default function EditOrganizationProfilePage() {
     setIsModalOpen(false);
   };
 
-  const handleRemoveCapacity = (
-    type: "known" | "available" | "wanted",
-    index: number
-  ) => {
-    setFormData((prev) => {
+  const handleRemoveCapacity = (type: 'known' | 'available' | 'wanted', index: number) => {
+    setFormData(prev => {
       const capacityField = `${type}_capacities` as keyof typeof prev;
       const currentCapacities = [...((prev[capacityField] as number[]) || [])];
       currentCapacities.splice(index, 1);
@@ -1373,38 +1233,34 @@ export default function EditOrganizationProfilePage() {
     // Check if we've reached the maximum limit of 4 documents
     if (documentsData.length >= 4) {
       showSnackbar(
-        pageContent["snackbar-edit-profile-organization-max-documents-reached"],
-        "error"
+        pageContent['snackbar-edit-profile-organization-max-documents-reached'],
+        'error'
       );
       return;
     }
 
     const newDocument: OrganizationDocument = {
       id: 0,
-      url: "",
+      url: '',
     };
-    setDocumentsData((prev) => [...(prev || []), newDocument]);
+    setDocumentsData(prev => [...(prev || []), newDocument]);
   };
 
   const handleDeleteDocument = (index: number) => {
-    setDocumentsData((prev) => {
+    setDocumentsData(prev => {
       const newDocs = [...prev];
       newDocs.splice(index, 1);
       return newDocs;
     });
   };
 
-  const handleDocumentChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
+  const handleDocumentChange = (index: number, field: string, value: string) => {
     if (!Array.isArray(documentsData)) {
       setDocumentsData([]);
       return;
     }
 
-    setDocumentsData((prev) => {
+    setDocumentsData(prev => {
       const newDocuments = [...prev];
       newDocuments[index] = {
         ...newDocuments[index],
@@ -1430,7 +1286,7 @@ export default function EditOrganizationProfilePage() {
         />
         <div
           className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
-            darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+            darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
           }`}
         >
           <button
@@ -1440,12 +1296,7 @@ export default function EditOrganizationProfilePage() {
             }}
             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -1466,7 +1317,7 @@ export default function EditOrganizationProfilePage() {
                     setCurrentEditingEvent(null);
                   }}
                   onChange={handleModalEventChange}
-                  eventType={currentEditingEvent?.id === 0 ? "new" : "edit"}
+                  eventType={currentEditingEvent?.id === 0 ? 'new' : 'edit'}
                 />
               </>
             )}
@@ -1480,24 +1331,19 @@ export default function EditOrganizationProfilePage() {
               }}
               className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
                 darkMode
-                  ? "bg-capx-dark-box-bg text-white hover:text-black hover:bg-white"
-                  : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg"
+                  ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
+                  : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
               }`}
             >
-              {pageContent["organization-profile-event-popup-cancel"] ||
-                "Cancel"}
+              {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
             </button>
             <button
               onClick={handleSaveEventChanges}
               className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
             >
               {currentEditingEvent?.id === 0
-                ? pageContent[
-                    "organization-profile-event-popup-create-event"
-                  ] || "Create event"
-                : pageContent[
-                    "organization-profile-event-popup-save-changes"
-                  ] || "Save changes"}
+                ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
+                : pageContent['organization-profile-event-popup-save-changes'] || 'Save changes'}
             </button>
           </div>
         </div>
@@ -1589,7 +1435,7 @@ export default function EditOrganizationProfilePage() {
       {showEventModal && <EventsFormPopup />}
 
       {/* Debug Tools - Only in Development */}
-      {process.env.NODE_ENV === "development" && (
+      {process.env.NODE_ENV === 'development' && (
         <CapacityDebug
           capacityIds={capacityIds}
           knownSkills={formData.known_capacities}
