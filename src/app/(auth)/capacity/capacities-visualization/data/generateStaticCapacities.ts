@@ -3,7 +3,7 @@ import path from 'path';
 
 async function main() {
   // Use import dinâmico para ES Modules
-  const capacitiesJson = (await import('./capacities_flat.json', { assert: { type: 'json' } }))
+  const capacitiesJson = (await import('./capacities.json', { assert: { type: 'json' } }))
     .default;
   const descriptionsJson = (
     await import('./capacities_descriptions.json', { assert: { type: 'json' } })
@@ -30,7 +30,7 @@ async function main() {
     return roots;
   }
 
-  const flatMap = Object.fromEntries(capacitiesJson.json);
+  const flatMap = capacitiesJson;
   const descriptions = descriptionsJson;
   const hierarchy = buildHierarchy(flatMap, descriptions);
 
