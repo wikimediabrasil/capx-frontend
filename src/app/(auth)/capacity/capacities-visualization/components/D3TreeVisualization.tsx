@@ -750,8 +750,7 @@ export default function D3TreeVisualization({
           style={{ wordBreak: 'break-word' }}
         >
           Clique nas capacidades raiz para expandir/colapsar e focar • Clique nos círculos para ver
-          detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Mostrar
-          todas para resetar o foco
+          detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em "Retornar a visualização inicial" para resetar o foco
         </p>
 
         {/* Control buttons */}
