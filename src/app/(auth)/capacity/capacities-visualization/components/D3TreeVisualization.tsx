@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Capacity } from '../data/staticCapacities';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
-import { DarkMode } from '@/stories/ProgressBar.stories';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Função para determinar a cor baseada no id da capacidade
 const getColorForCapacity = (id: number | string): string => {
@@ -38,6 +38,9 @@ export default function D3TreeVisualization({
   );
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
+  const { darkMode } = useTheme();
+  
+
 
   // Definir margens horizontais para uso global
   const margin = {
@@ -220,44 +223,17 @@ export default function D3TreeVisualization({
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
+  // Remover useEffect desnecessário - o dark mode já é detectado pelo useTheme
+
+  // Forçar re-renderização do SVG quando o dark mode mudar
   useEffect(() => {
-    // Atualizar a variável CSS do fundo do SVG baseada no dark mode
-    const updateSvgBackground = () => {
-      const isDarkMode =
-        document.documentElement.classList.contains('dark') ||
-        window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.style.setProperty('--svg-bg', isDarkMode ? '#1f2937' : '#fafafa');
-    };
-
-    // Atualizar inicialmente
-    updateSvgBackground();
-
-    // Observar mudanças no dark mode
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          updateSvgBackground();
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    // Observar mudanças no tema do sistema
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleThemeChange = () => {
-      updateSvgBackground();
-    };
-    mediaQuery.addEventListener('change', handleThemeChange);
-
-    return () => {
-      observer.disconnect();
-      mediaQuery.removeEventListener('change', handleThemeChange);
-    };
-  }, []);
+    // Forçar re-renderização do SVG
+    if (svgRef.current) {
+      const svg = d3.select(svgRef.current);
+      svg.style('backgroundColor', darkMode ? '#053749' : '#fafafa');
+      svg.style('color', darkMode ? '#f3f4f6' : '#222');
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     if (!data || data.length === 0 || !svgRef.current) return;
@@ -431,14 +407,7 @@ export default function D3TreeVisualization({
                 L ${d.target.x} ${d.target.y}`;
       })
       .style('fill', 'none')
-      .style('stroke', (d: any) => {
-        // Verificar se está em dark mode de forma mais robusta
-        const isDarkMode =
-          typeof window !== 'undefined' &&
-          (document.documentElement.classList.contains('dark') ||
-            window.matchMedia('(prefers-color-scheme: dark)').matches);
-        return isDarkMode ? '#6b7280' : '#d1d5db'; // Cinza mais claro no dark mode, mais escuro no light mode
-      })
+      .style('stroke', (d: any) => darkMode ? '#6b7280' : '#d1d5db') // cor do link conforme tema
       .style('stroke-width', '2px')
       .style('opacity', (d: any) => {
         // Aplicar fade-out para links de capacidades raiz não focadas
@@ -550,8 +519,8 @@ export default function D3TreeVisualization({
         }
 
         // Para capacidades de níveis mais profundos, usar cor mais escura
-        if (level >= 2) return '#1f2937';
-        if (level === 1) return '#374151';
+        if (level >= 2) return '#053749';
+        if (level === 1) return '#0a4a5f';
 
         return '#6b7280'; // Fallback
       })
@@ -623,14 +592,7 @@ export default function D3TreeVisualization({
         if (d.depth === 0) return `${nodeFontSize}px`;
         return isMobile ? '24px' : '18px';
       })
-      .style('fill', (d: any) => {
-        // Verificar se está em dark mode de forma mais robusta
-        const isDarkMode =
-          typeof window !== 'undefined' &&
-          (document.documentElement.classList.contains('dark') ||
-            window.matchMedia('(prefers-color-scheme: dark)').matches);
-        return isDarkMode ? '#e5e7eb' : '#374151'; // Cinza claro no dark mode, escuro no light mode
-      })
+      .style('fill', (d: any) => darkMode ? '#f3f4f6' : '#222') // cor do texto conforme tema
       .style('font-weight', '600') // Deixar mais negrito no mobile também
       .style('opacity', (d: any) => {
         // Aplicar fade-out para capacidades raiz não focadas
@@ -674,6 +636,8 @@ export default function D3TreeVisualization({
 
     svg.call(zoom.transform as any, initialTransform);
 
+    // Remover renderização de detalhes dentro do SVG
+
     // Adicionar evento de clique no SVG para limpar seleção
     svg.on('click', (event: any) => {
       // Só limpar se clicou no SVG, não em um nó
@@ -682,7 +646,7 @@ export default function D3TreeVisualization({
         setSelectedNodeCoords(null);
       }
     });
-  }, [data, width, height, expandedNodes, selectedNode, focusedRootId]);
+  }, [data, width, height, expandedNodes, selectedNode, focusedRootId, darkMode]);
 
   // Calcular largura ajustada para layout vertical das raízes
   const calculateAdjustedWidth = () => {
@@ -769,7 +733,7 @@ export default function D3TreeVisualization({
       <div className="mb-4 w-full mt-20">
         <h2
           className={`text-xl font-semibold text-gray-900 dark:text-white mb-2 break-words w-full ${
-            DarkMode ? 'text-white' : 'text-gray-900'
+            darkMode ? 'text-white' : 'text-gray-900'
           }`}
           style={{ wordBreak: 'break-word' }}
         >
@@ -803,77 +767,32 @@ export default function D3TreeVisualization({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Visualização D3 */}
-        <div className="flex-1 relative">
-          <div
-            className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar${isMobile ? ' overflow-x-auto' : ' overflow-x-auto'}`}
-            style={{
-              overflowY: 'hidden',
-              height: svgHeight,
-              maxHeight: svgHeight,
-              position: 'relative',
-            }}
-          >
-            <svg
-              ref={svgRef}
-              width="100%"
-              height={svgHeight}
-              viewBox={`0 0 ${adjustedWidth} ${svgHeight}`}
-              preserveAspectRatio="xMidYMid meet"
-              style={{
-                backgroundColor: 'var(--svg-bg, #fafafa)',
+      {/* Visualização D3 */}
+      <div className="relative">
+        <div
+          className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar${isMobile ? ' overflow-x-auto' : ' overflow-x-auto'}`}
+          style={{
+            overflowY: 'hidden',
+            height: svgHeight,
+            maxHeight: svgHeight,
+            position: 'relative',
+          }}
+        >
+          <svg
+            key={`svg-${darkMode}`}
+            ref={svgRef}
+            width="100%"
+            height={svgHeight}
+            viewBox={`0 0 ${adjustedWidth} ${svgHeight}`}
+            preserveAspectRatio="xMidYMid meet"
+                          style={{
+                backgroundColor: darkMode ? '#053749' : '#fafafa',
+                color: darkMode ? '#f3f4f6' : '#222',
                 maxWidth: '100%',
                 display: 'block',
               }}
-              className="dark:bg-gray-800"
-            />
-            {/* Detalhes no mobile: nome e descrição no final do SVG */}
-            {isMobile && selectedNode && (
-              <div
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  padding: '8px 16px',
-                  background: 'rgba(250,250,250,0.95)',
-                  fontSize: 14,
-                  color: '#222',
-                  zIndex: 10,
-                  minHeight: 48,
-                  borderTop: '1px solid #eee',
-                }}
-                className="dark:bg-gray-800 dark:text-gray-100"
-              >
-                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 2 }}>
-                  {capitalizeFirst(selectedNode.name)}
-                </div>
-                {selectedNode.description && (
-                  <div style={{ fontSize: 13 }}>{selectedNode.description}</div>
-                )}
-              </div>
-            )}
-          </div>
+                    />
         </div>
-        {/* Detalhes no desktop: nome e descrição ao lado direito do SVG */}
-        {!isMobile && selectedNode && (
-          <div
-            style={{
-              minWidth: 220,
-              maxWidth: 320,
-              alignSelf: 'flex-start',
-              padding: '16px 0 0 8px',
-            }}
-          >
-            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>
-              {capitalizeFirst(selectedNode.name)}
-            </div>
-            {selectedNode.description && (
-              <div style={{ fontSize: 15 }}>{selectedNode.description}</div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
