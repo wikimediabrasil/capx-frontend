@@ -12,172 +12,172 @@ export interface Capacity {
 export const staticCapacities: Capacity[] = [
   {
     id: '10',
-    name: 'organizational structure',
+    name: 'estrutura organizacional',
     color: 'organizational',
     description:
-      'The frameworks that define governance, decision-making, and operational roles within Wikimedia organizations and initiatives',
+      'Os frameworks que definem governança, tomada de decisão e papéis operacionais dentro das organizações e iniciativas Wikimedia',
     children: [
       {
         id: '11',
-        name: 'finance',
+        name: 'finanças',
         color: 'gray-200',
         description:
-          'The management and allocation of financial resources within the Wikimedia movement, including funding for grants, affiliates, and initiatives',
+          'A gestão e alocação de recursos financeiros dentro do movimento Wikimedia, incluindo financiamento para bolsas, afiliadas e iniciativas',
         children: [
           {
             id: '12',
-            name: 'budgeting',
+            name: 'orçamentação',
             color: 'gray-200',
             description:
-              'The process of planning, allocating, and managing financial resources within the Wikimedia movement to support projects, affiliates, and initiatives that advance free knowledge',
+              'O processo de planejamento, alocação e gestão de recursos financeiros dentro do movimento Wikimedia para apoiar projetos, afiliadas e iniciativas que promovem o conhecimento livre',
             children: [],
           },
           {
             id: '13',
-            name: 'financial management',
+            name: 'gestão financeira',
             color: 'gray-200',
             description:
-              'The responsible planning and oversight of funds in Wikimedia projects and organizations to ensure sustainability and impact',
+              'O planejamento responsável e supervisão de fundos em projetos e organizações Wikimedia para garantir sustentabilidade e impacto',
             children: [],
           },
           {
             id: '14',
-            name: 'financial reporting',
+            name: 'relatórios financeiros',
             color: 'gray-200',
             description:
-              'The process of documenting and analyzing financial activities within Wikimedia affiliates and initiatives to maintain transparency',
+              'O processo de documentar e analisar atividades financeiras dentro de afiliadas e iniciativas Wikimedia para manter transparência',
             children: [],
           },
         ],
       },
       {
         id: '15',
-        name: 'governance',
+        name: 'governança',
         color: 'gray-200',
         description:
-          'The structures and processes guiding decision-making within the Wikimedia movement, from community self-governance to affiliate leadership',
+          'As estruturas e processos que orientam a tomada de decisão dentro do movimento Wikimedia, desde a autogovernança comunitária até a liderança das afiliadas',
         children: [
           {
             id: '16',
-            name: 'accountability',
+            name: 'prestação de contas',
             color: 'gray-200',
             description:
-              'The responsibility of individuals, groups, and organizations within the Wikimedia movement to act transparently, advocating community values, and ensure decisions align with the principles of free knowledge',
+              'A responsabilidade de indivíduos, grupos e organizações dentro do movimento Wikimedia de agir com transparência, defendendo valores comunitários e garantindo que decisões estejam alinhadas com os princípios do conhecimento livre',
             children: [],
           },
           {
             id: '17',
-            name: 'documentation',
+            name: 'documentação',
             color: 'gray-200',
             description:
-              'Written guides, policies, and resources created within the Wikimedia movement to support contributors, improve project understanding, and facilitate community processes',
+              'Guias escritos, políticas e recursos criados dentro do movimento Wikimedia para apoiar contribuidores, melhorar a compreensão dos projetos e facilitar processos comunitários',
             children: [],
           },
           {
             id: '18',
-            name: 'legal obligation',
+            name: 'obrigação legal',
             color: 'gray-200',
             description:
-              'A requirement under law or policy affecting Wikimedia projects, affiliates, and contributors',
+              'Um requisito sob lei ou política que afeta projetos, afiliadas e contribuidores Wikimedia',
             children: [],
           },
           {
             id: '19',
-            name: 'reporting',
+            name: 'relatórios',
             color: 'gray-200',
             description:
-              'Documentation of activities, outcomes, and impact within Wikimedia projects, often required for grants and community initiatives',
+              'Documentação de atividades, resultados e impacto dentro de projetos Wikimedia, frequentemente necessária para bolsas e iniciativas comunitárias',
             children: [],
           },
           {
             id: '20',
-            name: 'delegation',
+            name: 'delegação',
             color: 'gray-200',
             description:
-              'The distribution of responsibilities within Wikimedia communities, projects, and affiliates to support collaboration, governance, and sustainability',
+              'A distribuição de responsabilidades dentro de comunidades, projetos e afiliadas Wikimedia para apoiar colaboração, governança e sustentabilidade',
             children: [],
           },
           {
             id: '61',
-            name: 'Diversity, Equity, and Inclusion',
+            name: 'Diversidade, Equidade e Inclusão',
             color: 'gray-200',
             description:
-              'Principles guiding the Wikimedia movement’s commitment to ensuring equitable representation, participation, and access to free knowledge for historically underrepresented communities',
+              'Princípios que orientam o compromisso do movimento Wikimedia de garantir representação equitativa, participação e acesso ao conhecimento livre para comunidades historicamente sub-representadas',
             children: [],
           },
         ],
       },
       {
         id: '21',
-        name: 'grant proposal',
+        name: 'proposta de bolsa',
         color: 'gray-200',
         description:
-          'A document submitted by Wikimedia volunteers, affiliates, or communities to request funding for projects that enhance free knowledge diversity, reach, and impact',
+          'Um documento submetido por voluntários, afiliadas ou comunidades Wikimedia para solicitar financiamento para projetos que melhoram a diversidade, alcance e impacto do conhecimento livre',
         children: [
           {
             id: '22',
-            name: 'Wikimedia Grant',
+            name: 'Bolsa Wikimedia',
             color: 'gray-200',
             description:
-              'Funding provided by the Wikimedia Foundation to support community-led initiatives',
+              'Financiamento fornecido pela Wikimedia Foundation para apoiar iniciativas lideradas pela comunidade',
             children: [],
           },
         ],
       },
       {
         id: '23',
-        name: 'organizational behavior',
+        name: 'comportamento organizacional',
         color: 'gray-200',
         description:
-          'The study of how Wikimedia communities and affiliates function, collaborate, and evolve',
+          'O estudo de como comunidades e afiliadas Wikimedia funcionam, colaboram e evoluem',
         children: [
           {
             id: '24',
-            name: 'change management',
+            name: 'gestão de mudanças',
             color: 'gray-200',
             description:
-              'Strategies and practices used within the Wikimedia movement to support communities, affiliates, and governance structures in adapting to new policies, technologies, and organizational shifts',
+              'Estratégias e práticas usadas dentro do movimento Wikimedia para apoiar comunidades, afiliadas e estruturas de governança na adaptação a novas políticas, tecnologias e mudanças organizacionais',
             children: [],
           },
           {
             id: '25',
-            name: 'knowledge management',
+            name: 'gestão do conhecimento',
             color: 'gray-200',
             description:
-              'The practice of organizing, sharing, and applying collective knowledge within the Wikimedia movement to improve collaboration and decision-making',
+              'A prática de organizar, compartilhar e aplicar conhecimento coletivo dentro do movimento Wikimedia para melhorar colaboração e tomada de decisão',
             children: [],
           },
           {
             id: '26',
-            name: 'leadership',
+            name: 'liderança',
             color: 'gray-200',
             description:
-              'The ability of individuals or groups to guide, inspire, and support Wikimedia communities and initiatives',
+              'A capacidade de indivíduos ou grupos de orientar, inspirar e apoiar comunidades e iniciativas Wikimedia',
             children: [],
           },
         ],
       },
       {
         id: '27',
-        name: 'plan & strategy',
+        name: 'planejamento e estratégia',
         color: 'gray-200',
         description:
-          'The process of defining Wikimedia movement goals, priorities, and resource allocation for sustainable growth',
+          'O processo de definir objetivos, prioridades e alocação de recursos do movimento Wikimedia para crescimento sustentável',
         children: [
           {
             id: '28',
-            name: 'assessment',
+            name: 'avaliação',
             color: 'gray-200',
             description:
-              'The evaluation of Wikimedia projects, programs, and contributions to determine impact, effectiveness, and areas for improvement in advancing free knowledge',
+              'A avaliação de projetos, programas e contribuições Wikimedia para determinar impacto, eficácia e áreas de melhoria no avanço do conhecimento livre',
             children: [],
           },
           {
             id: '29',
-            name: 'evaluation',
+            name: 'avaliação',
             color: 'gray-200',
             description:
-              'The process of assessing the impact, effectiveness, and quality of Wikimedia projects, initiatives, and contributions',
+              'O processo de avaliar o impacto, eficácia e qualidade de projetos, iniciativas e contribuições Wikimedia',
             children: [],
           },
           {
@@ -185,56 +185,56 @@ export const staticCapacities: Capacity[] = [
             name: 'Wikimedia 2030',
             color: 'gray-200',
             description:
-              'Movement strategy outlining the vision and direction of Wikimedia by the year 2030',
+              'Estratégia do movimento que define a visão e direção da Wikimedia até o ano 2030',
             children: [],
           },
           {
             id: '31',
-            name: 'Theory of Change',
+            name: 'Teoria da Mudança',
             color: 'gray-200',
             description:
-              'Methodology used in Wikimedia movement strategy to define long-term impact goals',
+              'Metodologia usada na estratégia do movimento Wikimedia para definir objetivos de impacto de longo prazo',
             children: [],
           },
         ],
       },
       {
         id: '32',
-        name: 'team management',
+        name: 'gestão de equipe',
         color: 'gray-200',
         description:
-          'Coordination of Wikimedia project teams, working groups, and affiliate organizations',
+          'Coordenação de equipes de projetos Wikimedia, grupos de trabalho e organizações afiliadas',
         children: [
           {
             id: '33',
-            name: 'performance appraisal',
+            name: 'avaliação de desempenho',
             color: 'gray-200',
             description:
-              'The assessment of contributions and impact within Wikimedia roles, projects, and programs',
+              'A avaliação de contribuições e impacto dentro de papéis, projetos e programas Wikimedia',
             children: [],
           },
           {
             id: '34',
-            name: 'recruitment',
+            name: 'recrutamento',
             color: 'gray-200',
             description:
-              'Process of attracting and onboarding new contributors, organizers, and affiliates in the Wikimedia movement',
+              'Processo de atrair e integrar novos contribuidores, organizadores e afiliadas no movimento Wikimedia',
             children: [],
           },
           {
             id: '35',
-            name: 'staff development',
+            name: 'desenvolvimento de equipe',
             color: 'gray-200',
             description:
-              'Training and professional growth of Wikimedia Foundation and affiliate staff to support movement goals',
+              'Treinamento e crescimento profissional de funcionários da Wikimedia Foundation e afiliadas para apoiar objetivos do movimento',
             children: [],
           },
           {
             id: '73',
-            name: 'team-building',
+            name: 'construção de equipe',
             color: 'gray-200',
             description:
-              'Activities to strengthen collaboration and trust among Wikimedia contributors and community members',
+              'Atividades para fortalecer colaboração e confiança entre contribuidores e membros da comunidade Wikimedia',
             children: [],
           },
         ],
@@ -243,190 +243,190 @@ export const staticCapacities: Capacity[] = [
   },
   {
     id: '36',
-    name: 'communication',
+    name: 'comunicação',
     color: 'communication',
     description:
-      'The exchange of information within and about the Wikimedia movement to coordinate activities, share knowledge, and engage communities across different projects and languages',
+      'A troca de informações dentro e sobre o movimento Wikimedia para coordenar atividades, compartilhar conhecimento e engajar comunidades em diferentes projetos e idiomas',
     children: [
       {
         id: '37',
-        name: 'administrative communication',
+        name: 'comunicação administrativa',
         color: 'gray-200',
         description:
-          'The exchange of information within Wikimedia communities, affiliates, and governance structures, ensuring effective coordination, decision-making, and engagement with stakeholders',
+          'A troca de informações dentro de comunidades, afiliadas e estruturas de governança Wikimedia, garantindo coordenação eficaz, tomada de decisão e engajamento com partes interessadas',
         children: [],
       },
       {
         id: '38',
-        name: 'community engagement',
+        name: 'engajamento comunitário',
         color: 'gray-200',
         description:
-          'Efforts to foster participation, dialogue, and collaboration among Wikimedia contributors, affiliates, and partners to strengthen the movement and its projects',
+          'Esforços para fomentar participação, diálogo e colaboração entre contribuidores, afiliadas e parceiros Wikimedia para fortalecer o movimento e seus projetos',
         children: [],
       },
       {
         id: '39',
-        name: 'cultural translation',
+        name: 'tradução cultural',
         color: 'gray-200',
         description:
-          'The adaptation of Wikimedia content to different cultural contexts, ensuring that free knowledge is accessible and relevant across diverse linguistic and social backgrounds',
+          'A adaptação do conteúdo Wikimedia para diferentes contextos culturais, garantindo que o conhecimento livre seja acessível e relevante em diversos contextos linguísticos e sociais',
         children: [],
       },
       {
         id: '40',
-        name: 'corrective feedback',
+        name: 'feedback corretivo',
         color: 'gray-200',
         description:
-          'Constructive input provided within Wikimedia projects, including peer reviews, edit summaries, and discussions, to help contributors improve content and align with movement standards',
+          'Contribuições construtivas fornecidas dentro de projetos Wikimedia, incluindo revisões por pares, resumos de edição e discussões, para ajudar contribuidores a melhorar conteúdo e alinhar com padrões do movimento',
         children: [],
       },
       {
         id: '41',
-        name: 'datagraphic',
+        name: 'datagráfico',
         color: 'gray-200',
         description:
-          'A visual representation of data used in Wikimedia projects, such as infographics on Commons or structured data visualizations in Wikidata, to present information clearly and accessibly',
+          'Uma representação visual de dados usada em projetos Wikimedia, como infográficos no Commons ou visualizações de dados estruturados no Wikidata, para apresentar informações de forma clara e acessível',
         children: [],
       },
       {
         id: '42',
-        name: 'journalistic interview',
+        name: 'entrevista jornalística',
         color: 'gray-200',
         description:
-          'Questions and answers that are usually led by journalists and that can be used by Wikimedians to gather information and data about Wikimedia initiatives, policies, and projects',
+          'Perguntas e respostas que geralmente são conduzidas por jornalistas e que podem ser usadas por wikimedistas para coletar informações e dados sobre iniciativas, políticas e projetos Wikimedia',
         children: [],
       },
       {
         id: '43',
-        name: 'media',
+        name: 'mídia',
         color: 'gray-200',
         description:
-          'Knowledge about the use of media to communicate about Wikimedia initiatives, organizations, policies, campaigns and projects to different public',
+          'Conhecimento sobre o uso da mídia para comunicar sobre iniciativas, organizações, políticas, campanhas e projetos Wikimedia para diferentes públicos',
         children: [],
       },
       {
         id: '44',
-        name: 'presentation',
+        name: 'apresentação',
         color: 'gray-200',
         description:
-          'The practice of sharing Wikimedia-related knowledge, ideas, and project updates with an audience',
+          'A prática de compartilhar conhecimento, ideias e atualizações de projetos relacionados à Wikimedia com uma audiência',
         children: [],
       },
       {
         id: '45',
-        name: 'press release',
+        name: 'comunicado de imprensa',
         color: 'gray-200',
         description:
-          'An official Wikimedia statement to inform the public, media, or stakeholders about movement news and developments',
+          'Uma declaração oficial Wikimedia para informar o público, mídia ou partes interessadas sobre notícias e desenvolvimentos do movimento',
         children: [],
       },
       {
         id: '46',
-        name: 'public speaking',
+        name: 'oratória',
         color: 'gray-200',
         description:
-          'Skill used in Wikimedia conferences, meetups, and advocacy efforts to engage audiences on free knowledge topics',
+          'Habilidade usada em conferências, encontros e esforços de advocacy Wikimedia para engajar audiências em tópicos de conhecimento livre',
         children: [],
       },
       {
         id: '47',
-        name: 'social media',
+        name: 'mídia social',
         color: 'gray-200',
         description:
-          'Platforms used for outreach, advocacy, and community engagement within the Wikimedia movement',
+          'Plataformas usadas para divulgação, advocacy e engajamento comunitário dentro do movimento Wikimedia',
         children: [],
       },
       {
         id: '48',
-        name: 'storytelling',
+        name: 'narrativa',
         color: 'gray-200',
         description:
-          'Technique used to communicate the impact of Wikimedia projects through blogs, reports, and presentations',
+          'Técnica usada para comunicar o impacto de projetos Wikimedia através de blogs, relatórios e apresentações',
         children: [],
       },
       {
         id: '49',
-        name: 'target audience',
+        name: 'público-alvo',
         color: 'gray-200',
         description:
-          'Specific groups Wikimedia outreach efforts aim to engage, such as educators, GLAM institutions, and underrepresented communities',
+          'Grupos específicos que os esforços de divulgação Wikimedia visam engajar, como educadores, instituições GLAM e comunidades sub-representadas',
         children: [],
       },
     ],
   },
   {
     id: '50',
-    name: 'Learning and Evaluation',
+    name: 'Aprendizado e Avaliação',
     color: 'learning',
     description:
-      'A Wikimedia project dedicated to assessing and improving the effectiveness of movement activities',
+      'Um projeto Wikimedia dedicado a avaliar e melhorar a eficácia das atividades do movimento',
     children: [
       {
         id: '51',
-        name: 'case study',
+        name: 'estudo de caso',
         color: 'gray-200',
         description:
-          'A detailed analysis of a Wikimedia project, initiative, or community effort, highlighting lessons learned, impact, and best practices within the movement',
+          'Uma análise detalhada de um projeto, iniciativa ou esforço comunitário Wikimedia, destacando lições aprendidas, impacto e melhores práticas dentro do movimento',
         children: [],
       },
       {
         id: '52',
-        name: 'assessment method',
+        name: 'método de avaliação',
         color: 'gray-200',
         description:
-          'Structured approaches used within the Wikimedia movement to evaluate contributions, programs, or initiatives, generating insights to support decision-making and continuous improvement',
+          'Abordagens estruturadas usadas dentro do movimento Wikimedia para avaliar contribuições, programas ou iniciativas, gerando insights para apoiar tomada de decisão e melhoria contínua',
         children: [],
       },
       {
         id: '53',
-        name: 'focus groups',
+        name: 'grupos focais',
         color: 'gray-200',
         description:
-          'Small, structured discussions within Wikimedia communities to gather insights, feedback, and perspectives on movement-related topics',
+          'Discussões pequenas e estruturadas dentro de comunidades Wikimedia para coletar insights, feedback e perspectivas sobre tópicos relacionados ao movimento',
         children: [],
       },
       {
         id: '54',
-        name: 'survey',
+        name: 'pesquisa',
         color: 'gray-200',
         description:
-          'Tool used in Wikimedia research, community consultations, and project evaluations',
+          'Ferramenta usada em pesquisa Wikimedia, consultas comunitárias e avaliações de projetos',
         children: [],
       },
       {
         id: '55',
-        name: 'user experience',
+        name: 'experiência do usuário',
         color: 'gray-200',
         description:
-          'How contributors and readers interact with Wikimedia platforms, shaping design and accessibility improvements',
+          'Como contribuidores e leitores interagem com plataformas Wikimedia, moldando melhorias de design e acessibilidade',
         children: [],
       },
       {
         id: '124',
-        name: 'Wikimedia tools',
+        name: 'ferramentas Wikimedia',
         color: 'gray-200',
-        description: 'External applications and scripts designed to assist Wikimedia contributors',
+        description: 'Aplicações e scripts externos projetados para auxiliar contribuidores Wikimedia',
         children: [
           {
             id: '125',
-            name: 'Abuse filter',
+            name: 'Filtro de Abuso',
             color: 'gray-200',
             description:
-              'A Wikimedia page documenting the AbuseFilter extension, which helps prevent disruptive edits across projects',
+              'Uma página Wikimedia documentando a extensão AbuseFilter, que ajuda a prevenir edições disruptivas em projetos',
             children: [],
           },
           {
             id: '126',
             name: 'AutoWikiBrowser',
             color: 'gray-200',
-            description: 'Semi-automated tool for repetitive Wikipedia editing tasks',
+            description: 'Ferramenta semi-automatizada para tarefas repetitivas de edição da Wikipedia',
             children: [],
           },
           {
             id: '127',
-            name: 'Wikimedia bot',
+            name: 'bot Wikimedia',
             color: 'gray-200',
-            description: 'Automated script used to perform repetitive tasks on Wikimedia projects',
+            description: 'Script automatizado usado para realizar tarefas repetitivas em projetos Wikimedia',
             children: [],
           },
           {
@@ -434,7 +434,7 @@ export const staticCapacities: Capacity[] = [
             name: 'Central Notice',
             color: 'gray-200',
             description:
-              'A Wikimedia-wide banner system used to communicate key announcements, campaigns, and events to contributors across multiple projects',
+              'Um sistema de banner Wikimedia-wide usado para comunicar anúncios importantes, campanhas e eventos para contribuidores em múltiplos projetos',
             children: [],
           },
           {
@@ -442,7 +442,7 @@ export const staticCapacities: Capacity[] = [
             name: 'Event Metrics',
             color: 'gray-200',
             description:
-              'A Wikimedia tool for tracking participation and contributions in Wikimedia events',
+              'Uma ferramenta Wikimedia para rastrear participação e contribuições em eventos Wikimedia',
             children: [],
           },
           {
@@ -450,22 +450,22 @@ export const staticCapacities: Capacity[] = [
             name: 'Fountain',
             color: 'gray-200',
             description:
-              'A Wikimedia tool used for organizing and tracking article-writing contests and edit-a-thons',
+              'Uma ferramenta Wikimedia usada para organizar e rastrear concursos de escrita de artigos e edit-a-thons',
             children: [],
           },
           {
             id: '131',
-            name: 'Wikimedia gadget',
+            name: 'gadget Wikimedia',
             color: 'gray-200',
-            description: 'Community-developed JavaScript tools enhancing MediaWiki functionality',
+            description: 'Ferramentas JavaScript desenvolvidas pela comunidade que melhoram a funcionalidade MediaWiki',
             children: [],
           },
           {
             id: '132',
-            name: 'Hashtag search',
+            name: 'busca por hashtag',
             color: 'gray-200',
             description:
-              'A Wikimedia tool for tracking and analyzing contributions associated with specific hashtags on Wikimedia projects',
+              'Uma ferramenta Wikimedia para rastrear e analisar contribuições associadas a hashtags específicas em projetos Wikimedia',
             children: [],
           },
           {
@@ -473,7 +473,7 @@ export const staticCapacities: Capacity[] = [
             name: 'HotCat',
             color: 'gray-200',
             description:
-              'A JavaScript tool that simplifies the addition, removal, and modification of categories on Wikimedia pages',
+              'Uma ferramenta JavaScript que simplifica a adição, remoção e modificação de categorias em páginas Wikimedia',
             children: [],
           },
           {
@@ -481,7 +481,7 @@ export const staticCapacities: Capacity[] = [
             name: 'Lua',
             color: 'gray-200',
             description:
-              'Scripting language used in MediaWiki through the Scribunto extension to create dynamic templates and modules',
+              'Linguagem de script usada no MediaWiki através da extensão Scribunto para criar templates e módulos dinâmicos',
             children: [],
           },
           {
@@ -489,14 +489,14 @@ export const staticCapacities: Capacity[] = [
             name: 'OpenRefine',
             color: 'gray-200',
             description:
-              'A tool frequently used in Wikimedia projects for cleaning and structuring data before adding it to Wikidata',
+              'Uma ferramenta frequentemente usada em projetos Wikimedia para limpar e estruturar dados antes de adicioná-los ao Wikidata',
             children: [],
           },
           {
             id: '136',
             name: 'Pattypan',
             color: 'gray-200',
-            description: 'An open-source tool for batch-uploading files to Wikimedia Commons',
+            description: 'Uma ferramenta de código aberto para upload em lote de arquivos para Wikimedia Commons',
             children: [],
           },
           {
@@ -504,7 +504,7 @@ export const staticCapacities: Capacity[] = [
             name: 'PAWS',
             color: 'gray-200',
             description:
-              'A web-based development environment that enables scripting, data analysis, and automation for Wikimedia projects',
+              'Um ambiente de desenvolvimento baseado na web que permite script, análise de dados e automação para projetos Wikimedia',
             children: [],
           },
           {
@@ -512,7 +512,7 @@ export const staticCapacities: Capacity[] = [
             name: 'Programs & Events Dashboard',
             color: 'gray-200',
             description:
-              'A Wikimedia tool for tracking contributions, participation, and impact in outreach and educational programs and campaigns',
+              'Uma ferramenta Wikimedia para rastrear contribuições, participação e impacto em programas e campanhas de divulgação e educacionais',
             children: [],
           },
           {
@@ -520,7 +520,7 @@ export const staticCapacities: Capacity[] = [
             name: 'Pywikibot',
             color: 'gray-200',
             description:
-              'Python library for automating tasks on Wikimedia wikis, such as editing pages, managing categories, and processing data',
+              'Biblioteca Python para automatizar tarefas em wikis Wikimedia, como editar páginas, gerenciar categorias e processar dados',
             children: [],
           },
           {
@@ -528,29 +528,29 @@ export const staticCapacities: Capacity[] = [
             name: 'Quarry',
             color: 'gray-200',
             description:
-              'Public querying platform for analyzing Wikimedia database replicas using SQL',
+              'Plataforma pública de consulta para analisar réplicas de banco de dados Wikimedia usando SQL',
             children: [],
           },
           {
             id: '141',
             name: 'QuickStatements',
             color: 'gray-200',
-            description: 'Tool for batch-editing Wikidata items',
+            description: 'Ferramenta para edição em lote de itens Wikidata',
             children: [],
           },
           {
             id: '142',
-            name: 'MediaWiki userscript',
+            name: 'userscript MediaWiki',
             color: 'gray-200',
             description:
-              'A customizable script that enhances user experience and functionality on Wikimedia projects',
+              'Um script personalizável que melhora a experiência do usuário e funcionalidade em projetos Wikimedia',
             children: [],
           },
           {
             id: '143',
-            name: 'Wikidata Query Service',
+            name: 'Serviço de Consulta Wikidata',
             color: 'gray-200',
-            description: 'Tool for retrieving and analyzing Wikidata information using SPARQL',
+            description: 'Ferramenta para recuperar e analisar informações Wikidata usando SPARQL',
             children: [],
           },
         ],
@@ -559,219 +559,219 @@ export const staticCapacities: Capacity[] = [
   },
   {
     id: '56',
-    name: 'community health',
+    name: 'saúde comunitária',
     color: 'community',
     description:
-      'The well-being of Wikimedia communities, including efforts to promote inclusivity, prevent harassment, support contributor retention, and maintain a positive editing environment',
+      'O bem-estar das comunidades Wikimedia, incluindo esforços para promover inclusividade, prevenir assédio, apoiar retenção de contribuidores e manter um ambiente de edição positivo',
     children: [
       {
         id: '57',
-        name: 'Anti-harassment tools',
+        name: 'Ferramentas Anti-assédio',
         color: 'gray-200',
         description:
-          'Measures and policies in Wikimedia projects to prevent harassment, ensure safety, and uphold community standards like the Universal Code of Conduct, considering the diversity and global nature of the Wikimedia Movement',
+          'Medidas e políticas em projetos Wikimedia para prevenir assédio, garantir segurança e manter padrões comunitários como o Código Universal de Conduta, considerando a diversidade e natureza global do Movimento Wikimedia',
         children: [],
       },
       {
         id: '58',
-        name: 'community development',
+        name: 'desenvolvimento comunitário',
         color: 'gray-200',
         description:
-          'The process by which Wikimedia communities collaborate, strengthen local and global participation, and build sustainable initiatives to address shared challenges',
+          'O processo pelo qual comunidades Wikimedia colaboram, fortalecem participação local e global, e constroem iniciativas sustentáveis para abordar desafios compartilhados',
         children: [],
       },
       {
         id: '59',
-        name: 'conflict management',
+        name: 'gestão de conflitos',
         color: 'gray-200',
         description:
-          'The process of addressing disagreements within Wikimedia communities in a way that promotes constructive dialogue, consensus-building, and adherence to movement values',
+          'O processo de abordar desacordos dentro de comunidades Wikimedia de forma que promova diálogo construtivo, construção de consenso e aderência aos valores do movimento',
         children: [],
       },
       {
         id: '60',
-        name: 'culture of innovation',
+        name: 'cultura de inovação',
         color: 'gray-200',
         description:
-          'The shared values and practices within the Wikimedia movement that encourage experimentation, technological advancements, and new approaches to expanding free knowledge',
+          'Os valores e práticas compartilhados dentro do movimento Wikimedia que encorajam experimentação, avanços tecnológicos e novas abordagens para expandir o conhecimento livre',
         children: [],
       },
       {
         id: '62',
-        name: 'experience design',
+        name: 'design de experiência',
         color: 'gray-200',
         description:
-          'The process of optimizing Wikimedia platforms, tools, and community engagement to improve user experiences and accessibility',
+          'O processo de otimizar plataformas, ferramentas e engajamento comunitário Wikimedia para melhorar experiências do usuário e acessibilidade',
         children: [],
       },
       {
         id: '63',
-        name: 'non-violent communication technique',
+        name: 'técnica de comunicação não-violenta',
         color: 'gray-200',
         description:
-          'A method used in Wikimedia discussions to foster constructive dialogue and conflict resolution',
+          'Um método usado em discussões Wikimedia para fomentar diálogo construtivo e resolução de conflitos',
         children: [],
       },
       {
         id: '64',
-        name: 'policy',
+        name: 'política',
         color: 'gray-200',
         description:
-          'A set of principles and guidelines that govern Wikimedia projects, community behavior, and decision-making',
+          'Um conjunto de princípios e diretrizes que governam projetos Wikimedia, comportamento comunitário e tomada de decisão',
         children: [],
       },
     ],
   },
   {
     id: '65',
-    name: 'social skill',
+    name: 'habilidade social',
     color: 'social',
     description:
-      'Essential for collaboration in Wikimedia projects, especially in discussions, consensus-building, and edit conflicts',
+      'Essencial para colaboração em projetos Wikimedia, especialmente em discussões, construção de consenso e conflitos de edição',
     children: [
       {
         id: '66',
-        name: 'adaptability',
+        name: 'adaptabilidade',
         color: 'gray-200',
         description:
-          'The ability of Wikimedia communities, projects, and contributors to evolve in response to emerging challenges, new technologies, and shifting global contexts while maintaining an open and collaborative environment',
+          'A capacidade de comunidades, projetos e contribuidores Wikimedia evoluírem em resposta a desafios emergentes, novas tecnologias e contextos globais em mudança, mantendo um ambiente aberto e colaborativo',
         children: [],
       },
       {
         id: '67',
-        name: 'assertiveness',
+        name: 'assertividade',
         color: 'gray-200',
         description:
-          'The ability of Wikimedia contributors to express ideas, uphold community guidelines, and engage in constructive discussions with confidence while fostering a respectful and collaborative environment',
+          'A capacidade de contribuidores Wikimedia expressarem ideias, defenderem diretrizes comunitárias e se engajarem em discussões construtivas com confiança, fomentando um ambiente respeitoso e colaborativo',
         children: [],
       },
       {
         id: '68',
-        name: 'empathy',
+        name: 'empatia',
         color: 'gray-200',
         description:
-          'The capacity to understand and support diverse perspectives within Wikimedia communities, fostering inclusive collaboration',
+          'A capacidade de entender e apoiar perspectivas diversas dentro de comunidades Wikimedia, fomentando colaboração inclusiva',
         children: [],
       },
       {
         id: '69',
-        name: 'mentorship',
+        name: 'mentoria',
         color: 'gray-200',
         description:
-          'A guiding relationship within the Wikimedia movement where experienced contributors support newcomers in navigating projects and communities',
+          'Um relacionamento de orientação dentro do movimento Wikimedia onde contribuidores experientes apoiam novatos na navegação de projetos e comunidades',
         children: [],
       },
       {
         id: '70',
-        name: 'peer support',
+        name: 'apoio entre pares',
         color: 'gray-200',
         description:
-          'A practice within Wikimedia communities where contributors help each other through knowledge sharing, troubleshooting, and mentorship',
+          'Uma prática dentro de comunidades Wikimedia onde contribuidores se ajudam através de compartilhamento de conhecimento, solução de problemas e mentoria',
         children: [],
       },
       {
         id: '71',
-        name: 'problem solving',
+        name: 'resolução de problemas',
         color: 'gray-200',
         description:
-          'The application of Wikimedia community-driven solutions to challenges in content, governance, and technical development',
+          'A aplicação de soluções lideradas pela comunidade Wikimedia para desafios em conteúdo, governança e desenvolvimento técnico',
         children: [],
       },
       {
         id: '72',
-        name: 'self-awareness',
+        name: 'autoconsciência',
         color: 'gray-200',
         description:
-          'Critical skill for Wikimedia contributors to reflect on biases, engagement, and community interactions',
+          'Habilidade crítica para contribuidores Wikimedia refletirem sobre vieses, engajamento e interações comunitárias',
         children: [],
       },
       {
         id: '86',
-        name: 'facilitation',
+        name: 'facilitação',
         color: 'gray-200',
         description:
-          'The practice of guiding Wikimedia discussions, collaborations, and decision-making processes in an inclusive and constructive manner',
+          'A prática de orientar discussões, colaborações e processos de tomada de decisão Wikimedia de forma inclusiva e construtiva',
         children: [],
       },
     ],
   },
   {
     id: '74',
-    name: 'strategic management process',
+    name: 'processo de gestão estratégica',
     color: 'strategic',
     description:
-      'Framework guiding Wikimedia movement strategy, including the Wikimedia 2030 recommendations',
+      'Framework orientando a estratégia do movimento Wikimedia, incluindo as recomendações Wikimedia 2030',
     children: [
       {
         id: '75',
         name: 'advocacy',
         color: 'gray-200',
         description:
-          'Efforts by Wikimedians, affiliates, and allies to influence policies, institutions, and public discourse in support of free and open knowledge, open access, and digital rights',
+          'Esforços de wikimedistas, afiliadas e aliados para influenciar políticas, instituições e discurso público em apoio ao conhecimento livre e aberto, acesso aberto e direitos digitais',
         children: [],
       },
       {
         id: '76',
-        name: 'education',
+        name: 'educação',
         color: 'gray-200',
         description:
-          'The process of sharing knowledge and skills, including Wikimedia’s efforts to integrate free knowledge into learning environments',
+          'O processo de compartilhar conhecimento e habilidades, incluindo esforços da Wikimedia para integrar conhecimento livre em ambientes de aprendizagem',
         children: [
           {
             id: '77',
-            name: 'educational program',
+            name: 'programa educacional',
             color: 'gray-200',
             description:
-              'A structured Wikimedia initiative that partners with educational institutions or professionals to support learning through Wikimedia projects',
+              'Uma iniciativa estruturada Wikimedia que se associa com instituições educacionais ou profissionais para apoiar aprendizagem através de projetos Wikimedia',
             children: [],
           },
           {
             id: '78',
-            name: 'youth engagement',
+            name: 'engajamento juvenil',
             color: 'gray-200',
             description:
-              'Involvement of young people in Wikimedia projects through education programs and advocacy initiatives',
+              'Envolvimento de jovens em projetos Wikimedia através de programas educacionais e iniciativas de advocacy',
             children: [],
           },
         ],
       },
       {
         id: '79',
-        name: 'event',
+        name: 'evento',
         color: 'gray-200',
         description:
-          'A scheduled Wikimedia gathering, in person or remotely, such as workshops, conferences, or edit-a-thons, aimed at engaging communities and advancing movement goals',
+          'Um encontro Wikimedia agendado, presencial ou remoto, como workshops, conferências ou edit-a-thons, visando engajar comunidades e avançar objetivos do movimento',
         children: [
           {
             id: '80',
-            name: 'campaign',
+            name: 'campanha',
             color: 'gray-200',
             description:
-              'A coordinated effort by Wikimedia contributors, affiliates, or partners to achieve a specific goal, such as increasing content diversity, raising awareness, or advocating for open knowledge',
+              'Um esforço coordenado por contribuidores, afiliadas ou parceiros Wikimedia para alcançar um objetivo específico, como aumentar diversidade de conteúdo, conscientizar ou advogar pelo conhecimento aberto',
             children: [],
           },
           {
             id: '81',
-            name: 'conference',
+            name: 'conferência',
             color: 'gray-200',
             description:
-              'A gathering of Wikimedians, affiliates, and partners to exchange ideas, collaborate on movement strategies, and discuss innovations in free knowledge',
+              'Um encontro de wikimedistas, afiliadas e parceiros para trocar ideias, colaborar em estratégias do movimento e discutir inovações em conhecimento livre',
             children: [],
           },
           {
             id: '82',
-            name: 'competition',
+            name: 'competição',
             color: 'gray-200',
             description:
-              'A structured challenge within the Wikimedia movement where contributors strive to improve content quality, expand knowledge, or engage in friendly rivalry to enhance Wikimedia projects',
+              'Um desafio estruturado dentro do movimento Wikimedia onde contribuidores se esforçam para melhorar qualidade de conteúdo, expandir conhecimento ou se engajar em rivalidade amigável para melhorar projetos Wikimedia',
             children: [],
           },
           {
             id: '83',
-            name: 'computer literacy',
+            name: 'alfabetização digital',
             color: 'gray-200',
             description:
-              'The ability of Wikimedia contributors to effectively use digital tools, platforms, and Wikimedia-specific technologies to create, edit, and share free knowledge',
+              'A capacidade de contribuidores Wikimedia usarem efetivamente ferramentas digitais, plataformas e tecnologias específicas da Wikimedia para criar, editar e compartilhar conhecimento livre',
             children: [],
           },
           {
@@ -779,47 +779,47 @@ export const staticCapacities: Capacity[] = [
             name: 'edit-a-thon',
             color: 'gray-200',
             description:
-              'A collaborative event where Wikimedians gather in person or online to improve content on a specific topic, often engaging new contributors and institutional partners',
+              'Um evento colaborativo onde wikimedistas se reúnem presencialmente ou online para melhorar conteúdo sobre um tópico específico, frequentemente engajando novos contribuidores e parceiros institucionais',
             children: [],
           },
           {
             id: '85',
-            name: 'event management',
+            name: 'gestão de eventos',
             color: 'gray-200',
             description:
-              'The planning and coordination of Wikimedia activities, including logistics, facilitation, and participant engagement',
+              'O planejamento e coordenação de atividades Wikimedia, incluindo logística, facilitação e engajamento de participantes',
             children: [],
           },
           {
             id: '87',
-            name: 'meetup',
+            name: 'encontro',
             color: 'gray-200',
             description:
-              'In-person or virtual gathering of Wikimedians to collaborate and discuss Wikimedia projects',
+              'Encontro presencial ou virtual de wikimedistas para colaborar e discutir projetos Wikimedia',
             children: [],
           },
           {
             id: '88',
-            name: 'partnership',
+            name: 'parceria',
             color: 'gray-200',
             description:
-              'A collaboration between Wikimedia communities, affiliates, or external organizations to advance shared knowledge goals',
+              'Uma colaboração entre comunidades, afiliadas ou organizações externas Wikimedia para avançar objetivos de conhecimento compartilhados',
             children: [],
           },
           {
             id: '89',
-            name: 'stress management',
+            name: 'gestão do estresse',
             color: 'gray-200',
             description:
-              'Important for Wikimedia volunteers and organizers to avoid burnout in community engagement and advocacy work',
+              'Importante para voluntários e organizadores Wikimedia evitarem burnout em trabalho de engajamento comunitário e advocacy',
             children: [],
           },
           {
             id: '90',
-            name: 'corporate travel management',
+            name: 'gestão de viagens corporativas',
             color: 'gray-200',
             description:
-              'The planning and coordination of travel logistics for Wikimedia affiliates, staff, and volunteers participating in movement-related events and conferences',
+              'O planejamento e coordenação de logística de viagem para afiliadas, funcionários e voluntários Wikimedia participando de eventos e conferências relacionados ao movimento',
             children: [],
           },
           {
@@ -827,7 +827,7 @@ export const staticCapacities: Capacity[] = [
             name: 'workshop',
             color: 'gray-200',
             description:
-              'Wikimedia training sessions focused on editing, policies, or community-building',
+              'Sessões de treinamento Wikimedia focadas em edição, políticas ou construção comunitária',
             children: [],
           },
         ],
@@ -837,38 +837,38 @@ export const staticCapacities: Capacity[] = [
         name: 'GLAM',
         color: 'gray-200',
         description:
-          'A Wikimedia initiative that partners with Galleries, Libraries, Archives, and Museums to share cultural heritage through free knowledge projects',
+          'Uma iniciativa Wikimedia que se associa com Galerias, Bibliotecas, Arquivos e Museus para compartilhar patrimônio cultural através de projetos de conhecimento livre',
         children: [
           {
             id: '93',
-            name: 'digitization',
+            name: 'digitalização',
             color: 'gray-200',
             description:
-              'The process of converting physical documents, books, or historical materials into digital formats for inclusion in Wikimedia projects such as Wikisource and Wikimedia Commons',
+              'O processo de converter documentos físicos, livros ou materiais históricos em formatos digitais para inclusão em projetos Wikimedia como Wikisource e Wikimedia Commons',
             children: [],
           },
           {
             id: '94',
-            name: 'GLAM-Wiki project',
+            name: 'projeto GLAM-Wiki',
             color: 'gray-200',
             description:
-              'A Wikimedia collaboration focused on strengthening partnerships with cultural institutions to increase access to public domain content',
+              'Uma colaboração Wikimedia focada em fortalecer parcerias com instituições culturais para aumentar acesso a conteúdo de domínio público',
             children: [],
           },
           {
             id: '95',
-            name: 'impact assessment',
+            name: 'avaliação de impacto',
             color: 'gray-200',
             description:
-              'The evaluation of the effects and outcomes of Wikimedia initiatives, policies, and projects to inform future improvements',
+              'A avaliação dos efeitos e resultados de iniciativas, políticas e projetos Wikimedia para informar melhorias futuras',
             children: [],
           },
           {
             id: '96',
-            name: 'photo contest',
+            name: 'concurso de fotos',
             color: 'gray-200',
             description:
-              'A Wikimedia competition that encourages contributors to upload and share quality photographs on Commons',
+              'Uma competição Wikimedia que encoraja contribuidores a fazer upload e compartilhar fotografias de qualidade no Commons',
             children: [],
           },
           {
@@ -876,65 +876,65 @@ export const staticCapacities: Capacity[] = [
             name: 'https://metabase.wikibase.cloud/entity/Q22314',
             color: 'gray-200',
             description:
-              'The frameworks that define governance, decision-making, and operational roles within Wikimedia organizations and initiatives',
+              'Os frameworks que definem governança, tomada de decisão e papéis operacionais dentro de organizações e iniciativas Wikimedia',
             children: [],
           },
         ],
       },
       {
         id: '98',
-        name: 'research',
+        name: 'pesquisa',
         color: 'gray-200',
         description:
-          'Systematic study of Wikimedia projects, content, and communities to improve knowledge equity and platform development',
+          'Estudo sistemático de projetos, conteúdo e comunidades Wikimedia para melhorar equidade de conhecimento e desenvolvimento de plataforma',
         children: [
           {
             id: '99',
-            name: 'academic skills',
+            name: 'habilidades acadêmicas',
             color: 'gray-200',
             description:
-              'Methods and approaches used by Wikimedians to conduct research, learn, and share knowledge in and about Wikimedia projects, supporting the accuracy and credibility of free knowledge',
+              'Métodos e abordagens usados por wikimedistas para conduzir pesquisa, aprender e compartilhar conhecimento em e sobre projetos Wikimedia, apoiando a precisão e credibilidade do conhecimento livre',
             children: [],
           },
         ],
       },
       {
         id: '100',
-        name: 'training',
+        name: 'treinamento',
         color: 'organizational',
         description:
-          'Capacity-building initiatives in Wikimedia, such as editing workshops and leadership programs',
+          'Iniciativas de capacitação na Wikimedia, como workshops de edição e programas de liderança',
         children: [
           {
             id: '101',
-            name: 'learning analytics',
+            name: 'análise de aprendizagem',
             color: 'organizational',
             description:
-              'The study of participation trends and engagement data in Wikimedia projects to improve educational and outreach efforts',
+              'O estudo de tendências de participação e dados de engajamento em projetos Wikimedia para melhorar esforços educacionais e de divulgação',
             children: [],
           },
           {
             id: '102',
-            name: 'outreach',
+            name: 'divulgação',
             color: 'organizational',
             description:
-              'Wikimedia activities aimed at engaging new contributors, partners, and underrepresented communities in free knowledge projects',
+              'Atividades Wikimedia visando engajar novos contribuidores, parceiros e comunidades sub-representadas em projetos de conhecimento livre',
             children: [],
           },
           {
             id: '103',
-            name: 'technical support',
+            name: 'suporte técnico',
             color: 'organizational',
             description:
-              'Assistance provided for MediaWiki software, Wikimedia tools, and community tech issues',
+              'Assistência fornecida para software MediaWiki, ferramentas Wikimedia e problemas técnicos comunitários',
             children: [],
           },
           {
             id: '104',
-            name: 'training method',
+            name: 'método de treinamento',
             color: 'organizational',
             description:
-              'Approaches used in Wikimedia learning programs, including peer mentoring and online courses',
+              'Abordagens usadas em programas de aprendizagem Wikimedia, incluindo mentoria entre pares e cursos online',
             children: [],
           },
           {
@@ -942,7 +942,7 @@ export const staticCapacities: Capacity[] = [
             name: 'tutorial',
             color: 'organizational',
             description:
-              'Instructional content for new contributors, often found on Wikimedia help pages and outreach programs',
+              'Conteúdo instrucional para novos contribuidores, frequentemente encontrado em páginas de ajuda Wikimedia e programas de divulgação',
             children: [],
           },
         ],
@@ -951,41 +951,41 @@ export const staticCapacities: Capacity[] = [
   },
   {
     id: '106',
-    name: 'technology',
+    name: 'tecnologia',
     color: 'organizational',
     description:
-      'Tools, platforms, and technical knowledge that enable the creation, improvement, and sharing of free knowledge within Wikimedia projects, including software, bots, and infrastructure used by contributors',
+      'Ferramentas, plataformas e conhecimento técnico que permitem a criação, melhoria e compartilhamento de conhecimento livre dentro de projetos Wikimedia, incluindo software, bots e infraestrutura usados por contribuidores',
     children: [
       {
         id: '107',
-        name: 'donation',
+        name: 'doação',
         color: 'organizational',
         description:
-          'Voluntary contribution of resources—such as money, time, expertise, or content—to support Wikimedia projects, communities, and initiatives that advance free knowledge',
+          'Contribuição voluntária de recursos—como dinheiro, tempo, expertise ou conteúdo—para apoiar projetos, comunidades e iniciativas Wikimedia que avançam o conhecimento livre',
         children: [
           {
             id: '108',
-            name: 'data donations',
+            name: 'doações de dados',
             color: 'organizational',
             description:
-              'The voluntary sharing of structured data by individuals or institutions to enhance Wikimedia projects, including Wikidata and Wikimedia Commons, expanding access to freely available and reusable information',
+              'O compartilhamento voluntário de dados estruturados por indivíduos ou instituições para melhorar projetos Wikimedia, incluindo Wikidata e Wikimedia Commons, expandindo acesso a informações livremente disponíveis e reutilizáveis',
             children: [],
           },
         ],
       },
       {
         id: '109',
-        name: 'Wikimedia project',
+        name: 'projeto Wikimedia',
         color: 'organizational',
         description:
-          'Any of the Wikimedia Foundation-hosted platforms, including Wikipedia, Wikidata, and Wikisource',
+          'Qualquer uma das plataformas hospedadas pela Wikimedia Foundation, incluindo Wikipedia, Wikidata e Wikisource',
         children: [
           {
             id: '110',
             name: 'MediaWiki',
             color: 'gray-200',
             description:
-              'The open-source software that powers Wikimedia projects, with extensive documentation available for contributors and developers',
+              'O software de código aberto que alimenta projetos Wikimedia, com documentação extensa disponível para contribuidores e desenvolvedores',
             children: [],
           },
           {
@@ -993,21 +993,21 @@ export const staticCapacities: Capacity[] = [
             name: 'Wikimedia Meta-Wiki',
             color: 'gray-200',
             description:
-              'Coordination hub for Wikimedia communities, policies, and movement-wide discussions',
+              'Hub de coordenação para comunidades, políticas e discussões Wikimedia-wide',
             children: [],
           },
           {
             id: '112',
             name: 'Wikibooks',
             color: 'gray-200',
-            description: 'Wikimedia project for creating and hosting open textbooks',
+            description: 'Projeto Wikimedia para criar e hospedar livros didáticos abertos',
             children: [],
           },
           {
             id: '113',
             name: 'Wikidata',
             color: 'gray-200',
-            description: 'Structured data repository within the Wikimedia ecosystem',
+            description: 'Repositório de dados estruturados dentro do ecossistema Wikimedia',
             children: [],
           },
           {
@@ -1015,14 +1015,14 @@ export const staticCapacities: Capacity[] = [
             name: 'Wikifunctions',
             color: 'gray-200',
             description:
-              'Wikimedia project enabling collaborative creation of reusable functions and code',
+              'Projeto Wikimedia permitindo criação colaborativa de funções e código reutilizáveis',
             children: [],
           },
           {
             id: '115',
             name: 'Wikimedia Commons',
             color: 'gray-200',
-            description: 'Repository of freely licensed media files for Wikimedia projects',
+            description: 'Repositório de arquivos de mídia licenciados livremente para projetos Wikimedia',
             children: [],
           },
           {
@@ -1030,14 +1030,14 @@ export const staticCapacities: Capacity[] = [
             name: 'Wikimedia Incubator',
             color: 'gray-200',
             description:
-              'Platform for developing new Wikimedia language editions before official launch',
+              'Plataforma para desenvolver novas edições de idioma Wikimedia antes do lançamento oficial',
             children: [],
           },
           {
             id: '117',
             name: 'Wikinews',
             color: 'gray-200',
-            description: 'Wikimedia project for collaborative journalism and free news reporting',
+            description: 'Projeto Wikimedia para jornalismo colaborativo e reportagem de notícias livre',
             children: [],
           },
           {
@@ -1045,42 +1045,42 @@ export const staticCapacities: Capacity[] = [
             name: 'Wikipedia',
             color: 'gray-200',
             description:
-              'Free, multilingual encyclopedia and the most well-known Wikimedia project',
+              'Enciclopédia livre e multilíngue e o projeto Wikimedia mais conhecido',
             children: [],
           },
           {
             id: '119',
             name: 'Wikiquote',
             color: 'gray-200',
-            description: 'Wikimedia project collecting notable quotes from various sources',
+            description: 'Projeto Wikimedia coletando citações notáveis de várias fontes',
             children: [],
           },
           {
             id: '120',
             name: 'Wikisource',
             color: 'gray-200',
-            description: 'Digital library for freely licensed or public domain texts',
+            description: 'Biblioteca digital para textos licenciados livremente ou de domínio público',
             children: [],
           },
           {
             id: '121',
             name: 'Wikispecies',
             color: 'gray-200',
-            description: 'Open database of biological taxonomy',
+            description: 'Banco de dados aberto de taxonomia biológica',
             children: [],
           },
           {
             id: '122',
             name: 'Wikivoyage',
             color: 'gray-200',
-            description: 'Wikimedia project for creating free travel guides',
+            description: 'Projeto Wikimedia para criar guias de viagem gratuitos',
             children: [],
           },
           {
             id: '123',
             name: 'Wiktionary',
             color: 'gray-200',
-            description: 'Free dictionary and lexicon project under Wikimedia',
+            description: 'Projeto de dicionário e léxico livre sob Wikimedia',
             children: [],
           },
         ],
