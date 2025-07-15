@@ -33,7 +33,9 @@ export default function D3TreeVisualization({
   const svgRef = useRef<SVGSVGElement>(null);
   const zoomRef = useRef<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [selectedNodeCoords, setSelectedNodeCoords] = useState<{x: number, y: number} | null>(null);
+  const [selectedNodeCoords, setSelectedNodeCoords] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
 
@@ -55,11 +57,14 @@ export default function D3TreeVisualization({
     if (isMobile) {
       // Espaçamento extra no mobile
       const gapFactor = 1.3;
-      const y = ((svgHeight - nodeFontSize) * (rootCount === 1 ? 0.5 : i / (rootCount - 1))) * gapFactor;
+      const y =
+        (svgHeight - nodeFontSize) * (rootCount === 1 ? 0.5 : i / (rootCount - 1)) * gapFactor;
       rootPositions.push({ x: 50, y });
     } else {
       // Desktop: padding vertical padrão
-      const y = verticalPadding + (availableHeight - nodeFontSize) * (rootCount === 1 ? 0.5 : i / (rootCount - 1));
+      const y =
+        verticalPadding +
+        (availableHeight - nodeFontSize) * (rootCount === 1 ? 0.5 : i / (rootCount - 1));
       rootPositions.push({ x: 50, y });
     }
   }
@@ -67,7 +72,7 @@ export default function D3TreeVisualization({
   // Função para centralizar o nó selecionado
   const centerOnNode = (nodeX: number, nodeY: number) => {
     console.log('centerOnNode chamada com coordenadas:', nodeX, nodeY);
-    
+
     if (!svgRef.current || !zoomRef.current) {
       console.log('svgRef ou zoomRef não disponível');
       return;
@@ -75,7 +80,7 @@ export default function D3TreeVisualization({
 
     const svg = d3.select(svgRef.current);
     const container = svg.select('g');
-    
+
     if (container.empty()) {
       console.log('Container não encontrado');
       return;
@@ -83,21 +88,21 @@ export default function D3TreeVisualization({
 
     // Obter as dimensões do container SVG
     const svgRect = svgRef.current.getBoundingClientRect();
-    
+
     // Calcular o centro do viewport
     const viewportCenterX = svgRect.width / 2;
     const viewportCenterY = svgRect.height / 2;
-    
+
     // Calcular a transformação necessária para centralizar o nó
     const currentTransform = d3.zoomTransform(svgRef.current);
-    
+
     // Ajustar as coordenadas considerando as margens
     const adjustedNodeX = nodeX + margin.left;
     const adjustedNodeY = nodeY; // não usar margin.top
-    
+
     const targetX = viewportCenterX - adjustedNodeX * currentTransform.k;
     const targetY = viewportCenterY - adjustedNodeY * currentTransform.k;
-    
+
     console.log('Transformação calculada:', {
       viewportCenterX,
       viewportCenterY,
@@ -105,26 +110,28 @@ export default function D3TreeVisualization({
       adjustedNodeY,
       targetX,
       targetY,
-      currentScale: currentTransform.k
+      currentScale: currentTransform.k,
     });
-    
+
     // Aplicar a transformação com animação suave
-    const newTransform = d3.zoomIdentity
-      .translate(targetX, targetY)
-      .scale(currentTransform.k);
-    
+    const newTransform = d3.zoomIdentity.translate(targetX, targetY).scale(currentTransform.k);
+
     console.log('Aplicando transformação:', newTransform);
-    
-    svg.transition()
+
+    svg
+      .transition()
       .duration(750)
       .ease(d3.easeCubicOut)
       .call(zoomRef.current.transform, newTransform);
 
     // Adicionar efeito visual de destaque no nó centralizado
-    const nodeElement = container.selectAll('.node').filter((d: any) => d.x === nodeX && d.y === nodeY);
+    const nodeElement = container
+      .selectAll('.node')
+      .filter((d: any) => d.x === nodeX && d.y === nodeY);
     if (!nodeElement.empty()) {
       // Adicionar classe de destaque temporária
-      nodeElement.select('circle')
+      nodeElement
+        .select('circle')
         .transition()
         .duration(200)
         .style('stroke', '#fbbf24')
@@ -147,11 +154,10 @@ export default function D3TreeVisualization({
       left: 50,
     };
 
-    const initialTransform = d3.zoomIdentity
-      .translate(margin.left, margin.top)
-      .scale(1);
+    const initialTransform = d3.zoomIdentity.translate(margin.left, margin.top).scale(1);
 
-    svg.transition()
+    svg
+      .transition()
       .duration(750)
       .ease(d3.easeCubicOut)
       .call(zoomRef.current.transform, initialTransform);
@@ -438,18 +444,18 @@ export default function D3TreeVisualization({
         // Aplicar fade-out para links de capacidades raiz não focadas
         if (focusedRootId) {
           // Determinar se o link pertence à capacidade raiz focada
-          const sourceNode = allNodes.find((node: any) => 
-            node.x === d.source.x && node.y === d.source.y
+          const sourceNode = allNodes.find(
+            (node: any) => node.x === d.source.x && node.y === d.source.y
           );
-          const targetNode = allNodes.find((node: any) => 
-            node.x === d.target.x && node.y === d.target.y
+          const targetNode = allNodes.find(
+            (node: any) => node.x === d.target.x && node.y === d.target.y
           );
-          
+
           if (sourceNode && targetNode) {
             const sourceRootColor = sourceNode.rootColor;
             const targetRootColor = targetNode.rootColor;
             const focusedRootColor = getColorForCapacity(focusedRootId);
-            
+
             // Se ambos os nós pertencem à mesma árvore da capacidade focada
             if (sourceRootColor === focusedRootColor && targetRootColor === focusedRootColor) {
               return 1;
@@ -567,7 +573,9 @@ export default function D3TreeVisualization({
         // Aplicar fade-out para capacidades raiz não focadas
         if (focusedRootId && d.depth === 0) {
           // Se há uma capacidade raiz focada, mostrar apenas ela e seus descendentes
-          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId) ? 1 : 0.2;
+          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
+            ? 1
+            : 0.2;
         }
         return 1; // Mostrar todas as capacidades normalmente
       });
@@ -628,7 +636,9 @@ export default function D3TreeVisualization({
         // Aplicar fade-out para capacidades raiz não focadas
         if (focusedRootId && d.depth === 0) {
           // Se há uma capacidade raiz focada, mostrar apenas ela e seus descendentes
-          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId) ? 1 : 0.2;
+          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
+            ? 1
+            : 0.2;
         }
         return 1; // Mostrar todas as capacidades normalmente
       });
@@ -724,16 +734,16 @@ export default function D3TreeVisualization({
   const calculateAdjustedHeight = () => {
     if (!data || data.length === 0) return height;
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    
+
     // Altura baseada no número de raízes, com espaçamento adequado
     const totalHeight = 10 + (data.length - 1) * 80 + 40; // 10px do topo + espaçamento entre capacidades + 40px do final
-    
+
     // No mobile, limitar a altura máxima para evitar scroll vertical
     if (isMobile) {
       const maxMobileHeight = 512; // 32rem = 512px
       return Math.min(totalHeight, maxMobileHeight);
     }
-    
+
     // No desktop, usar altura mínima de 800px
     const minDesktopHeight = 800;
     return Math.max(minDesktopHeight, totalHeight);
@@ -754,16 +764,14 @@ export default function D3TreeVisualization({
           scrollbar-width: none;
         }
       `}</style>
-      
+
       {/* Título e descrição movidos para fora do container com altura limitada */}
       <div className="mb-4 w-full mt-20">
         <h2
           className={`text-xl font-semibold text-gray-900 dark:text-white mb-2 break-words w-full ${
             DarkMode ? 'text-white' : 'text-gray-900'
           }`}
-          style={{ wordBreak: 'break-word' }
-        
-        }
+          style={{ wordBreak: 'break-word' }}
         >
           Visualização Interativa das Capacidades
         </h2>
@@ -771,10 +779,11 @@ export default function D3TreeVisualization({
           className="text-sm text-gray-600 dark:text-gray-400 mb-4 break-words w-full"
           style={{ wordBreak: 'break-word' }}
         >
-          Clique nas capacidades raiz para expandir/colapsar e focar • Clique nos círculos para ver detalhes e centralizar automaticamente
-          • Use o mouse para fazer zoom e arrastar • Mostrar todas para resetar o foco
+          Clique nas capacidades raiz para expandir/colapsar e focar • Clique nos círculos para ver
+          detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Mostrar
+          todas para resetar o foco
         </p>
-        
+
         {/* Botões de controle */}
         <div className="flex flex-wrap gap-2 mt-4">
           <button
@@ -782,7 +791,12 @@ export default function D3TreeVisualization({
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             Mostrar Todas as Capacidades
           </button>
@@ -832,7 +846,9 @@ export default function D3TreeVisualization({
                 }}
                 className="dark:bg-gray-800 dark:text-gray-100"
               >
-                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 2 }}>{capitalizeFirst(selectedNode.name)}</div>
+                <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 2 }}>
+                  {capitalizeFirst(selectedNode.name)}
+                </div>
                 {selectedNode.description && (
                   <div style={{ fontSize: 13 }}>{selectedNode.description}</div>
                 )}
@@ -842,8 +858,17 @@ export default function D3TreeVisualization({
         </div>
         {/* Detalhes no desktop: nome e descrição ao lado direito do SVG */}
         {!isMobile && selectedNode && (
-          <div style={{ minWidth: 220, maxWidth: 320, alignSelf: 'flex-start', padding: '16px 0 0 8px' }}>
-            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>{capitalizeFirst(selectedNode.name)}</div>
+          <div
+            style={{
+              minWidth: 220,
+              maxWidth: 320,
+              alignSelf: 'flex-start',
+              padding: '16px 0 0 8px',
+            }}
+          >
+            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>
+              {capitalizeFirst(selectedNode.name)}
+            </div>
             {selectedNode.description && (
               <div style={{ fontSize: 15 }}>{selectedNode.description}</div>
             )}

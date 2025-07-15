@@ -3,8 +3,7 @@ import path from 'path';
 
 async function main() {
   // Use import dinâmico para ES Modules
-  const capacitiesJson = (await import('./capacities.json', { assert: { type: 'json' } }))
-    .default;
+  const capacitiesJson = (await import('./capacities.json', { assert: { type: 'json' } })).default;
   const descriptionsJson = (
     await import('./capacities_descriptions.json', { assert: { type: 'json' } })
   ).default;
