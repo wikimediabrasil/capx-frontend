@@ -395,7 +395,7 @@ export default function D3TreeVisualization({
       allLinks.push(...links);
     });
 
-    // Adicionar links (conexões)
+    // Adicionar links (conexões) - usando curvas suaves em vez de linhas retas
     const link = container
       .selectAll('.link')
       .data(allLinks)
@@ -403,12 +403,21 @@ export default function D3TreeVisualization({
       .append('path')
       .attr('class', 'link')
       .attr('d', (d: any) => {
-        return `M ${d.source.x} ${d.source.y}
-                L ${d.target.x} ${d.target.y}`;
+        // Criar curva suave entre os nós
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dr = Math.sqrt(dx * dx + dy * dy);
+        
+        // Calcular ponto de controle para criar uma curva suave
+        const controlX = d.source.x + dx * 0.5;
+        const controlY = d.source.y + dy * 0.5 + (dr * 0.1); // Pequena curvatura
+        
+        return `M ${d.source.x} ${d.source.y} Q ${controlX} ${controlY} ${d.target.x} ${d.target.y}`;
       })
       .style('fill', 'none')
       .style('stroke', (d: any) => darkMode ? '#6b7280' : '#d1d5db') // cor do link conforme tema
       .style('stroke-width', '2px')
+      .style('stroke-linecap', 'round') // Pontas arredondadas
       .style('opacity', (d: any) => {
         // Aplicar fade-out para links de capacidades raiz não focadas
         if (focusedRootId) {
@@ -490,64 +499,61 @@ export default function D3TreeVisualization({
           });
       });
 
-    // Adicionar círculos para os nós
-    node
-      .append('circle')
-      .attr('r', (d: any) => {
-        const level = d.depth;
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-        if (level === 0) return isMobile ? 15 : 10; // Raízes maiores no mobile
-        if (level === 1) return isMobile ? 12 : 8; // Filhos médios no mobile
-        return isMobile ? 10 : 6; // Netos menores no mobile
-      })
-      .style('fill', (d: any) => {
-        const nodeData = d.data;
-        if (nodeData.id === '0') return '#6b7280'; // Root
-
-        const level = d.depth;
-
-        // Usar a cor da raiz para todos os níveis
-        if (d.rootColor) {
-          return getCapacityColor(d.rootColor);
-        }
-
-        // Fallback para capacidades de primeiro nível
-        if (level === 0) {
-          const colorName = getColorForCapacity(nodeData.id);
-          return getCapacityColor(colorName);
-        }
-
-        // Para capacidades de níveis mais profundos, usar cor mais escura
-        if (level >= 2) return '#053749';
-        if (level === 1) return '#0a4a5f';
-
-        return '#6b7280'; // Fallback
-      })
-      .style('stroke', (d: any) => {
-        // Destacar o nó selecionado
-        if (selectedNode && selectedNode.id === d.data.id) {
-          return '#fbbf24'; // Amarelo para nó selecionado
-        }
-        return '#ffffff';
-      })
-      .style('stroke-width', (d: any) => {
-        // Destacar o nó selecionado com borda mais grossa
-        if (selectedNode && selectedNode.id === d.data.id) {
-          return '4px';
-        }
-        return '2px';
-      })
-      .style('opacity', (d: any) => {
-        // Aplicar fade-out para capacidades raiz não focadas
-        if (focusedRootId && d.depth === 0) {
-          // Se há uma capacidade raiz focada, mostrar apenas ela e seus descendentes
-          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
-            ? 1
-            : 0.2;
-        }
-        return 1; // Mostrar todas as capacidades normalmente
-      });
+    // Adicionar formas para os nós (hexágonos para melhor visualização)
+    node.each(function(d: any) {
+      const level = d.depth;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      
+      let radius;
+      if (level === 0) radius = isMobile ? 15 : 10; // Raízes maiores
+      else if (level === 1) radius = isMobile ? 12 : 8; // Filhos médios
+      else radius = isMobile ? 10 : 6; // Netos menores
+      
+      // Determinar a cor de preenchimento
+      const nodeData = d.data;
+      let fillColor;
+      if (nodeData.id === '0') {
+        fillColor = '#6b7280'; // Root
+      } else if (d.rootColor) {
+        fillColor = getCapacityColor(d.rootColor);
+      } else if (level === 0) {
+        const colorName = getColorForCapacity(nodeData.id);
+        fillColor = getCapacityColor(colorName);
+      } else if (level >= 2) {
+        fillColor = '#053749';
+      } else if (level === 1) {
+        fillColor = '#0a4a5f';
+      } else {
+        fillColor = '#6b7280';
+      }
+      
+      // Determinar a cor da borda
+      const strokeColor = selectedNode && selectedNode.id === d.data.id ? '#fbbf24' : '#ffffff';
+      const strokeWidth = selectedNode && selectedNode.id === d.data.id ? '4px' : '2px';
+      
+      // Determinar a opacidade
+      let opacity = 1;
+      if (focusedRootId && d.depth === 0) {
+        opacity = d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId) ? 1 : 0.2;
+      }
+      
+      // Criar hexágono
+      const hexagon = d3.select(this).append('path');
+      const points: string[] = [];
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI) / 3;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        points.push(`${x},${y}`);
+      }
+      
+      hexagon
+        .attr('d', `M ${points.join(' L ')} Z`)
+        .style('fill', fillColor)
+        .style('stroke', strokeColor)
+        .style('stroke-width', strokeWidth)
+        .style('opacity', opacity);
+    });
 
     // Adicionar texto aos nós (Layout Horizontal)
     node
