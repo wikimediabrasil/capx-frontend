@@ -52,7 +52,7 @@ export default function D3TreeVisualization({
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const nodeFontSize = isMobile ? 56 : 22; // px (mobile bem maior)
   const verticalPadding = isMobile ? 0 : 32; // padding vertical só no desktop
-  const svgHeight = 512;
+  const svgHeight = 432; // Reduzido de 512 para 432 para eliminar área vazia
   const rootCount = data.length;
   const availableHeight = svgHeight - 2 * verticalPadding;
   const rootPositions: { x: number; y: number }[] = [];
@@ -767,33 +767,65 @@ export default function D3TreeVisualization({
         </div>
       </div>
 
-      {/* Visualização D3 */}
-      <div className="relative">
-        <div
-          className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar${isMobile ? ' overflow-x-auto' : ' overflow-x-auto'}`}
-          style={{
-            overflowY: 'hidden',
-            height: svgHeight,
-            maxHeight: svgHeight,
-            position: 'relative',
-          }}
-        >
-          <svg
-            key={`svg-${darkMode}`}
-            ref={svgRef}
-            width="100%"
-            height={svgHeight}
-            viewBox={`0 0 ${adjustedWidth} ${svgHeight}`}
-            preserveAspectRatio="xMidYMid meet"
-                          style={{
+            <div className="flex flex-col lg:flex-row gap-6">
+        {/* Visualização D3 */}
+        <div className="flex-1 relative">
+          <div
+            className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar${isMobile ? ' overflow-x-auto' : ' overflow-x-auto'}`}
+            style={{
+              overflowY: 'hidden',
+              height: svgHeight,
+              maxHeight: svgHeight,
+              position: 'relative',
+            }}
+          >
+            <svg
+              key={`svg-${darkMode}`}
+              ref={svgRef}
+              width="100%"
+              height={svgHeight}
+              viewBox={`0 0 ${adjustedWidth} ${svgHeight}`}
+              preserveAspectRatio="xMidYMid meet"
+              style={{
                 backgroundColor: darkMode ? '#053749' : '#fafafa',
                 color: darkMode ? '#f3f4f6' : '#222',
                 maxWidth: '100%',
                 display: 'block',
               }}
-                    />
+            />
+          </div>
         </div>
+        
+        {/* Detalhes da capacidade */}
+        {selectedNode && (
+          <div className="lg:w-80 flex-shrink-0">
+            <div 
+              className="p-6 rounded-lg border border-gray-200 dark:border-gray-700 h-full"
+              style={{
+                backgroundColor: darkMode ? '#1f2937' : '#fafafa',
+                color: darkMode ? '#f3f4f6' : '#222',
+              }}
+            >
+              <h3 
+                className="text-xl font-semibold mb-4"
+                style={{ color: darkMode ? '#f3f4f6' : '#222' }}
+              >
+                {capitalizeFirst(selectedNode.name)}
+              </h3>
+              {selectedNode.description && (
+                <p 
+                  className="leading-relaxed"
+                  style={{ color: darkMode ? '#d1d5db' : '#374151' }}
+                >
+                  {selectedNode.description}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+      
+
     </div>
   );
 }
