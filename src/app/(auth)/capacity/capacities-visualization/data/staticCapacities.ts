@@ -405,7 +405,8 @@ export const staticCapacities: Capacity[] = [
         id: '124',
         name: 'ferramentas Wikimedia',
         color: 'gray-200',
-        description: 'Aplicações e scripts externos projetados para auxiliar contribuidores Wikimedia',
+        description:
+          'Aplicações e scripts externos projetados para auxiliar contribuidores Wikimedia',
         children: [
           {
             id: '125',
@@ -419,14 +420,16 @@ export const staticCapacities: Capacity[] = [
             id: '126',
             name: 'AutoWikiBrowser',
             color: 'gray-200',
-            description: 'Ferramenta semi-automatizada para tarefas repetitivas de edição da Wikipedia',
+            description:
+              'Ferramenta semi-automatizada para tarefas repetitivas de edição da Wikipedia',
             children: [],
           },
           {
             id: '127',
             name: 'bot Wikimedia',
             color: 'gray-200',
-            description: 'Script automatizado usado para realizar tarefas repetitivas em projetos Wikimedia',
+            description:
+              'Script automatizado usado para realizar tarefas repetitivas em projetos Wikimedia',
             children: [],
           },
           {
@@ -457,7 +460,8 @@ export const staticCapacities: Capacity[] = [
             id: '131',
             name: 'gadget Wikimedia',
             color: 'gray-200',
-            description: 'Ferramentas JavaScript desenvolvidas pela comunidade que melhoram a funcionalidade MediaWiki',
+            description:
+              'Ferramentas JavaScript desenvolvidas pela comunidade que melhoram a funcionalidade MediaWiki',
             children: [],
           },
           {
@@ -496,7 +500,8 @@ export const staticCapacities: Capacity[] = [
             id: '136',
             name: 'Pattypan',
             color: 'gray-200',
-            description: 'Uma ferramenta de código aberto para upload em lote de arquivos para Wikimedia Commons',
+            description:
+              'Uma ferramenta de código aberto para upload em lote de arquivos para Wikimedia Commons',
             children: [],
           },
           {
@@ -1022,7 +1027,8 @@ export const staticCapacities: Capacity[] = [
             id: '115',
             name: 'Wikimedia Commons',
             color: 'gray-200',
-            description: 'Repositório de arquivos de mídia licenciados livremente para projetos Wikimedia',
+            description:
+              'Repositório de arquivos de mídia licenciados livremente para projetos Wikimedia',
             children: [],
           },
           {
@@ -1037,15 +1043,15 @@ export const staticCapacities: Capacity[] = [
             id: '117',
             name: 'Wikinews',
             color: 'gray-200',
-            description: 'Projeto Wikimedia para jornalismo colaborativo e reportagem de notícias livre',
+            description:
+              'Projeto Wikimedia para jornalismo colaborativo e reportagem de notícias livre',
             children: [],
           },
           {
             id: '118',
             name: 'Wikipedia',
             color: 'gray-200',
-            description:
-              'Enciclopédia livre e multilíngue e o projeto Wikimedia mais conhecido',
+            description: 'Enciclopédia livre e multilíngue e o projeto Wikimedia mais conhecido',
             children: [],
           },
           {
@@ -1059,7 +1065,8 @@ export const staticCapacities: Capacity[] = [
             id: '120',
             name: 'Wikisource',
             color: 'gray-200',
-            description: 'Biblioteca digital para textos licenciados livremente ou de domínio público',
+            description:
+              'Biblioteca digital para textos licenciados livremente ou de domínio público',
             children: [],
           },
           {
