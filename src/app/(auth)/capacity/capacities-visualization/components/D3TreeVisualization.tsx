@@ -749,7 +749,7 @@ export default function D3TreeVisualization({
           className="text-sm text-gray-600 dark:text-gray-400 mb-4 break-words w-full"
           style={{ wordBreak: 'break-word' }}
         >
-          Clique nas capacidades raiz para expandir/colapsar e focar • Clique nos círculos para ver
+          Clique nas capacidades de origem para expandir/ocultar e focar • Clique nos ícones para ver
           detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
         </p>
 
@@ -767,7 +767,7 @@ export default function D3TreeVisualization({
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            Retornar a visualização inicial
+            Retornar à visualização inicial
           </button>
         </div>
       </div>
