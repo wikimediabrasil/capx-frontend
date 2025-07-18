@@ -4,7 +4,7 @@ import { useApp } from "@/contexts/AppContext";
 
 // Simple loading component without theme dependency
 export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
-  const { pageContent } = useApp();
+  // const { pageContent } = useApp();
 
   return (
     <div
@@ -13,12 +13,12 @@ export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boo
       } bg-white`}
       role="status"
       data-testid="simple-loading"
-      aria-label={pageContent["aria-label-loading"] || "Content is loading"}
+      aria-label={"Content is loading"}
     >
       <div className="relative w-16 h-16">
         <Image
           src={CapxLogo}
-          alt={pageContent["alt-logo-loading"] || "CapX - Capacity Exchange logo, page is loading"}
+          alt={"CapX - Capacity Exchange logo, page is loading"}
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}
