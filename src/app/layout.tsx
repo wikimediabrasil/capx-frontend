@@ -7,10 +7,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { SnackbarProvider } from './providers/SnackbarProvider';
 import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
 import HydrationHandler from '@/components/HydrationHandler';
-import { ProfileEditProvider } from '@/contexts/ProfileEditContext';
 import { CapacitiesPrefetcher } from '@/components/CapacitiesPrefetcher';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { SafeBadgesProvider } from '@/contexts/SafeBadgesProvider';
 import AxiosInterceptorSetup from '@/components/AxiosInterceptorSetup';
 import AuthMonitorSetup from '@/components/AuthMonitorSetup';
 
@@ -37,16 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <AuthMonitorSetup />
               <Providers>
                 <AppProvider>
-                  <ProfileEditProvider>
                     <SnackbarProvider>
                       <CapacityCacheProvider>
-                        <SafeBadgesProvider>
                           <CapacitiesPrefetcher />
                           {children}
-                        </SafeBadgesProvider>
                       </CapacityCacheProvider>
                     </SnackbarProvider>
-                  </ProfileEditProvider>
                 </AppProvider>
               </Providers>
             </SessionWrapper>
