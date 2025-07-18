@@ -8,28 +8,6 @@ export default function CapacitiesTreeVisualization() {
   const [capacities, setCapacities] = useState<Capacity[]>(staticCapacities);
   const [isLoading, setIsLoading] = useState(false); // Temporariamente desabilitado
 
-  // Temporariamente comentado para evitar problemas de autenticação
-  /*
-  useEffect(() => {
-    const loadCapacitiesWithDescriptions = async () => {
-      try {
-        setIsLoading(true);
-        // Buscar descrições do Metabase
-        const capacitiesWithDescriptions = await fetchCapacityDescriptions(STATIC_CAPACITIES, "pt");
-        setCapacities(capacitiesWithDescriptions);
-      } catch (error) {
-        console.error("Erro ao carregar descrições das capacidades:", error);
-        // Em caso de erro, usar as capacidades originais
-        setCapacities(STATIC_CAPACITIES);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCapacitiesWithDescriptions();
-  }, []);
-  */
-
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto p-4 sm:p-6">

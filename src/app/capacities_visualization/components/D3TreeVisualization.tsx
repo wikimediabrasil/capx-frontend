@@ -41,6 +41,7 @@ export default function D3TreeVisualization({
   const { darkMode } = useTheme();
   
 
+  console.log(darkMode ? 'Dark mode is enabled' : 'Light mode is enabled');
 
   // Define horizontal margins for global use
   const margin = {
@@ -227,11 +228,23 @@ export default function D3TreeVisualization({
 
   // Force SVG re-render when dark mode changes
   useEffect(() => {
+    console.log('Dark mode changed:', darkMode);
     // Force SVG re-render
     if (svgRef.current) {
       const svg = d3.select(svgRef.current);
-      svg.style('backgroundColor', darkMode ? '#053749' : '#fafafa');
-      svg.style('color', darkMode ? '#f3f4f6' : '#222');
+      const backgroundColor = darkMode ? '#053749' : '#fafafa';
+      const textColor = darkMode ? '#f3f4f6' : '#222';
+      
+      console.log('Applying theme to SVG:', { backgroundColor, textColor });
+      
+      svg.style('backgroundColor', backgroundColor);
+      svg.style('color', textColor);
+      
+      // Also update the container background
+      const container = svg.select('g');
+      if (!container.empty()) {
+        console.log('Updating container theme');
+      }
     }
   }, [darkMode]);
 
@@ -415,7 +428,11 @@ export default function D3TreeVisualization({
         return `M ${d.source.x} ${d.source.y} Q ${controlX} ${controlY} ${d.target.x} ${d.target.y}`;
       })
       .style('fill', 'none')
-      .style('stroke', (d: any) => darkMode ? '#6b7280' : '#d1d5db') // link color according to theme
+      .style('stroke', (d: any) => {
+        const linkColor = darkMode ? '#9ca3af' : '#9ca3af'; // More visible in both themes
+        console.log('Link color:', linkColor, 'darkMode:', darkMode);
+        return linkColor;
+      })
       .style('stroke-width', '2px')
       .style('stroke-linecap', 'round') // Rounded ends
               .style('opacity', (d: any) => {
@@ -598,7 +615,11 @@ export default function D3TreeVisualization({
         if (d.depth === 0) return `${nodeFontSize}px`;
         return isMobile ? '24px' : '18px';
       })
-      .style('fill', (d: any) => darkMode ? '#f3f4f6' : '#222') // text color according to theme
+      .style('fill', (d: any) => {
+        const textColor = darkMode ? '#ffffff' : '#000000'; // More contrast
+        console.log('Text color:', textColor, 'darkMode:', darkMode);
+        return textColor;
+      })
       .style('font-weight', '600') // Keep bold on mobile too
               .style('opacity', (d: any) => {
           // Apply fade-out for non-focused root capacities
@@ -733,6 +754,16 @@ export default function D3TreeVisualization({
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        
+        .dark-theme {
+          background-color: #053749 !important;
+          color: #f3f4f6 !important;
+        }
+        
+        .light-theme {
+          background-color: #fafafa !important;
+          color: #222 !important;
+        }
       `}</style>
 
       {/* Title and description moved outside container with limited height */}
@@ -791,6 +822,7 @@ export default function D3TreeVisualization({
               height={svgHeight}
               viewBox={`0 0 ${adjustedWidth} ${svgHeight}`}
               preserveAspectRatio="xMidYMid meet"
+              className={darkMode ? 'dark-theme' : 'light-theme'}
               style={{
                 backgroundColor: darkMode ? '#053749' : '#fafafa',
                 color: darkMode ? '#f3f4f6' : '#222',
