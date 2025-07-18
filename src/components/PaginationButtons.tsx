@@ -93,7 +93,7 @@ export function PaginationButtons({
 
         {/* Numbers of pages */}
         <div className="flex items-center gap-1 mx-2" role="group" aria-label={pageContent?.["pagination-pages"] || "Page numbers"}>
-          {getPageNumbers().map((page, index) => (
+          {getPageNumbers().map((page, index) =>
             typeof page === 'number' ? (
               <SimpleButton
                 key={index}

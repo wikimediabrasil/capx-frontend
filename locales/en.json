@@ -148,6 +148,7 @@
   "footer-message": "For and by the Wikimedia Movement",
   "footer-privacy-policy": "Privacy policy",
   "aria-language-input": "Select a language",
+  "aria-label-profile-selector": "Select profile to view",
   "sign-out-button": "Logout",
   "sign-in-button": "Login",
   "form-talk-page": "Talk page",
@@ -306,6 +307,7 @@
   "filters-learners": "Learners",
   "filters-sharers": "Sharers",
   "filters-search-by-capacities": "Search by capacities",
+  "aria-label-search-by-capacities": "Search by capacities",
   "filters-capacities": "Capacities",
   "filters-capacities-alt-icon": "Capacities icon",
   "filters-all-profiles": "All profiles",
@@ -731,5 +733,7 @@
   "aria-label-error-message": "Error message",
   "aria-label-success-message": "Success message",
   "aria-label-info-message": "Information message",
-  "aria-label-warning-message": "Warning message"
+  "aria-label-warning-message": "Warning message",
+  "aria-label-report-bug-description": "Report bug description",
+  "aria-label-report-bug-title": "Report bug title"
 }

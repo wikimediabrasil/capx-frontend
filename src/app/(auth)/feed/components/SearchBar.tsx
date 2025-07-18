@@ -102,6 +102,7 @@ export function SearchBar({
                 <input
                   readOnly
                   type="text"
+                  aria-label={pageContent['aria-label-search-by-capacities'] || 'Search by capacities'}
                   onFocus={onCapacityInputFocus}
                   placeholder={selectedCapacities.length === 0 ? capacitiesPlaceholder : ''}
                   className={`
