@@ -7,9 +7,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 export default function CapacitiesVisualizationWrapper() {
   return (
       <AppProvider>
-        <ThemeProvider>
-          <CapacitiesTreeVisualization />
-        </ThemeProvider>
+        <CapacitiesTreeVisualization />
       </AppProvider>
   ); 
 }

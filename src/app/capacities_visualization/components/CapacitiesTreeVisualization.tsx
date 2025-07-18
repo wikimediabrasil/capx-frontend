@@ -6,7 +6,7 @@ import { staticCapacities, Capacity } from '../data/staticCapacities';
 
 export default function CapacitiesTreeVisualization() {
   const [capacities, setCapacities] = useState<Capacity[]>(staticCapacities);
-  const [isLoading, setIsLoading] = useState(false); // Temporariamente desabilitado
+  const [isLoading, setIsLoading] = useState(false); 
 
   if (isLoading) {
     return (
