@@ -1,10 +1,8 @@
 import Image from 'next/image';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
-import { useApp } from "@/contexts/AppContext";
 
 // Simple loading component without theme dependency
 export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
-  // const { pageContent } = useApp();
 
   return (
     <div
