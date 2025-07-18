@@ -94,6 +94,13 @@ export function useAllUsers(params: UseAllUsersParams) {
     [params.activeFilters?.languages]
   );
 
+  const username = useMemo(() => params.activeFilters?.username, [params.activeFilters?.username]);
+
+  const affiliations = useMemo(
+    () => params.activeFilters?.affiliations || [],
+    [params.activeFilters?.affiliations]
+  );
+
   const profileCapacityTypes = useMemo(
     () => params.activeFilters?.profileCapacityTypes || [],
     [params.activeFilters?.profileCapacityTypes]
@@ -129,6 +136,8 @@ export function useAllUsers(params: UseAllUsersParams) {
           ...(languages.length > 0 && {
             language: languages,
           }),
+          ...(username && { username }),
+          ...(affiliations.length > 0 && { affiliations }),
           has_skills_available: hasSharer || undefined,
           has_skills_wanted: hasLearner || undefined,
         };
@@ -157,6 +166,8 @@ export function useAllUsers(params: UseAllUsersParams) {
     capacitiesCodes,
     territories,
     languages,
+    username,
+    affiliations,
     hasSharer,
     hasLearner,
   ]);

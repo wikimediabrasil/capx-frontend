@@ -5,13 +5,16 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { oauth_token, oauth_verifier, stored_token, stored_token_secret } = body;
+    const { oauth_token, oauth_verifier, stored_token_secret, oauth_token_secret } = body;
 
-    if (!oauth_token || !oauth_verifier || !stored_token_secret) {
+    // Use oauth_token_secret if available, otherwise fallback to stored_token_secret
+    const token_secret = oauth_token_secret || stored_token_secret;
+
+    if (!oauth_token || !oauth_verifier || !token_secret) {
       console.error('Missing required parameters:', {
         oauth_token,
         oauth_verifier,
-        stored_token_secret,
+        token_secret,
       });
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
     const response = await axios.post(process.env.LOGIN_STEP03_URL as string, {
       oauth_token,
       oauth_verifier,
-      oauth_token_secret: stored_token_secret,
+      oauth_token_secret: token_secret,
     });
 
     if (response.data && response.data.token) {
