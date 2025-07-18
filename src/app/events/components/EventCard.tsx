@@ -1,31 +1,32 @@
-import { Event } from '@/types/event';
-import BaseButton from '@/components/BaseButton';
-import Image from 'next/image';
-import AlarmDarkIcon from '@/public/static/images/alarm_dark.svg';
-import AlarmLightIcon from '@/public/static/images/alarm.svg';
-import LocationDarkIcon from '@/public/static/images/location_on_dark.svg';
-import LocationLightIcon from '@/public/static/images/location_on.svg';
-import CalendarDarkIcon from '@/public/static/images/calendar_month_dark.svg';
-import CalendarLightIcon from '@/public/static/images/calendar_month.svg';
-import EmojiObjectsDarkIcon from '@/public/static/images/emoji_objects_events.svg';
-import EmojiObjectsLightIcon from '@/public/static/images/emoji_objects_white.svg';
-import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import { useOrganization } from '@/hooks/useOrganizationProfile';
-import MoreHorizIcon from '@/public/static/images/more_horiz.svg';
-import MoreHorizLightIcon from '@/public/static/images/more_horiz_light.svg';
-import ArrowDropDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
-import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
-import LoadingState from '@/components/LoadingState';
-import CheckBoxOutlineBlankIconLight from '@/public/static/images/check_box_outline_blank_light.svg';
-import CheckBoxIcon from '@/public/static/images/check_box.svg';
-import EditIcon from '@/public/static/images/edit.svg';
-import EditIconLight from '@/public/static/images/edit_white.svg';
-import DeleteIcon from '@/public/static/images/delete.svg';
-import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import { useTheme } from '@/contexts/ThemeContext';
+import { Event } from "@/types/event";
+import BaseButton from "@/components/BaseButton";
+import Image from "next/image";
+import AlarmDarkIcon from "@/public/static/images/alarm_dark.svg";
+import AlarmLightIcon from "@/public/static/images/alarm.svg";
+import LocationDarkIcon from "@/public/static/images/location_on_dark.svg";
+import LocationLightIcon from "@/public/static/images/location_on.svg";
+import CalendarDarkIcon from "@/public/static/images/calendar_month_dark.svg";
+import CalendarLightIcon from "@/public/static/images/calendar_month.svg";
+import EmojiObjectsDarkIcon from "@/public/static/images/emoji_objects_events.svg";
+import EmojiObjectsLightIcon from "@/public/static/images/emoji_objects_white.svg";
+import { useSession } from "next-auth/react";
+import { useApp } from "@/contexts/AppContext";
+import { useCapacityDetails } from "@/hooks/useCapacityDetails";
+import { useOrganization } from "@/hooks/useOrganizationProfile";
+import MoreHorizIcon from "@/public/static/images/more_horiz.svg";
+import MoreHorizLightIcon from "@/public/static/images/more_horiz_light.svg";
+import ArrowDropDownIcon from "@/public/static/images/arrow_drop_down_circle.svg";
+import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
+import LoadingState from "@/components/LoadingState";
+import CheckBoxOutlineBlankIconLight from "@/public/static/images/check_box_outline_blank_light.svg";
+import CheckBoxIcon from "@/public/static/images/check_box.svg";
+import EditIcon from "@/public/static/images/edit.svg";
+import EditIconLight from "@/public/static/images/edit_white.svg";
+import DeleteIcon from "@/public/static/images/delete.svg";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import { useTheme } from "@/contexts/ThemeContext";
+import { formatDateForLanguage, formatDateTimeForLanguage, getLocaleFromLanguage } from "@/lib/utils/dateLocale";
 
 interface EventCardProps {
   event: Partial<Event>;
@@ -46,7 +47,7 @@ export default function EventCard({
   isLoading,
   error,
 }: EventCardProps) {
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const { data: session } = useSession();
   const { darkMode } = useTheme();
   const token = session?.user?.token;
@@ -110,7 +111,7 @@ export default function EventCard({
     };
   }, [event.related_skills, showAllCapacities]);
 
-  // Function to format time in the desired format (2:00 PM - 2:40 PM (UTC))
+  // Function to format time in the desired format using locale
   const formatTimeRange = (startDateStr: string, endDateStr: string) => {
     try {
       // Create date objects from the strings
@@ -122,20 +123,17 @@ export default function EventCard({
         throw new Error('Invalid date');
       }
 
-      // Format time in 12h (AM/PM) format
+      const locale = getLocaleFromLanguage(language);
+      const use12Hour = locale.startsWith('en-');
+
+      // Format time using locale
       const formatTime = (date: Date) => {
-        let hours = date.getUTCHours();
-        const minutes = date.getUTCMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-
-        // Convert to 12h format
-        hours = hours % 12;
-        hours = hours ? hours : 12; // If it's 0, show as 12
-
-        // Add zero to the left for minutes < 10
-        const minutesStr = minutes < 10 ? '0' + minutes : minutes;
-
-        return `${hours}:${minutesStr} ${ampm}`;
+        return date.toLocaleTimeString(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: use12Hour,
+          timeZone: 'UTC'
+        });
       };
 
       // Format start and end times
@@ -150,7 +148,7 @@ export default function EventCard({
     }
   };
 
-  // Function to format date as "Mon, Sep 2023"
+  // Function to format date using locale
   const formatMonthYear = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -160,39 +158,15 @@ export default function EventCard({
         throw new Error('Invalid date');
       }
 
-      // Array with the abbreviated names of the weekdays
-      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const locale = getLocaleFromLanguage(language);
 
-      // Array with the abbreviated names of the months
-      const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-
-      // Get the abbreviated weekday
-      const weekday = weekdays[date.getDay()];
-
-      // Get the abbreviated month
-      const month = months[date.getMonth()];
-
-      // Get the day
-      const day = date.getDate();
-
-      // Get the year
-      const year = date.getFullYear();
-
-      // Return in the format "Mon, 15 Sep 2023"
-      return `${weekday}, ${day} ${month} ${year}`;
+      // Format date using locale
+      return date.toLocaleDateString(locale, {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
     } catch (error) {
       console.error('Error formatting date:', error);
       return dateString;

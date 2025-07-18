@@ -536,6 +536,11 @@
   "lets-connect-info-popup-continue": "Confirm/Send",
   "lets-connect-success-popup-close-tab": "Close Tab",
   "lets-connect-success-popup-title": "Well done!",
+  "organization-profile-event-url-invalid": "Invalid URL. Please use Meta Wikimedia URLs (e.g., meta.wikimedia.org/wiki/Event) or WikiLearn URLs (app.learn.wiki/learning/course/...)",
+  "organization-profile-event-url-tooltip-updated": "Paste a URL from a Meta Wikimedia event page or a WikiLearn course. The tool will automatically fill in the event details.",
+  "event-form-wikidata-loading": "Searching for event data...",
+  "event-form-wikidata-not-found": "Could not find event data for this URL",
+  "event-form-wikidata-error": "An error occurred while searching for event data",
   "lets-connect-success-popup-info": "Now, to finish the process, you must click on 'Save profile'. It will save all the alterations on your CapX profile.",
   "lets-connect-alt-banner": "Lets Connect Title",
   "statistics-section-title": "Platform Statistics",
@@ -555,5 +560,10 @@
   "body-profile-badges-no-badges": "You don't have any active badges yet.",
   "body-profile-badges-title": "Badges",
   "body-profile-badges-see-all": "View all badges",
-  "body-profile-badges-description": "See the full collection of badges you've earned (and the ones waiting for you!)"
+  "body-profile-badges-description": "See the full collection of badges you've earned (and the ones waiting for you!)",
+  "date-picker-today": "Today",
+  "date-picker-clear": "Clear",
+  "date-picker-close": "Close",
+  "date-picker-time": "Time",
+  "date-picker-date": "Date"
 }
