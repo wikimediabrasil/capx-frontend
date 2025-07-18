@@ -324,8 +324,8 @@ export default function D3TreeVisualization({
                   if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
             // Calculate spacing based on child names length
             const childNames = node.children.map((c: any) => c.data.name);
-            const minChildSpacing = 120; // Reduced minimum spacing between children
-            const spacingPerChildChar = 6; // Reduced additional spacing per character
+            const minChildSpacing = 50; // Reduced minimum spacing between children
+            const spacingPerChildChar = 2; // Reduced additional spacing per character
 
             // Calculate Y positions of children based on name length
             let currentChildY = parentY;
@@ -367,8 +367,8 @@ export default function D3TreeVisualization({
                           if (expandedNodes.has(child.data.id) && child.children && child.children.length > 0) {
                 // Calculate spacing based on grandchild names length
                 const grandChildNames = child.children.map((gc: any) => gc.data.name);
-                const minGrandChildSpacing = 100; // Reduced minimum spacing between grandchildren
-                const spacingPerGrandChildChar = 5; // Reduced additional spacing per character
+                const minGrandChildSpacing = 40; // Reduced minimum spacing between grandchildren
+                const spacingPerGrandChildChar = 1; // Reduced additional spacing per character
 
                 // Calculate Y positions of grandchildren based on name length
                 let currentGrandChildY = childY;
@@ -790,7 +790,7 @@ export default function D3TreeVisualization({
             color: darkMode ? '#f3f4f6' : '#4b5563' // text-white : text-gray-600
           }}
         >
-          Clique nas capacidades raiz para expandir/colapsar e focar • Clique nos círculos para ver
+          Clique nas capacidades principais para expandir/colapsar e focar • Clique nos ícones para ver
           detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
         </p>
 
