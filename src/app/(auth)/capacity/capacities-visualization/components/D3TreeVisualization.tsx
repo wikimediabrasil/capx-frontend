@@ -39,8 +39,6 @@ export default function D3TreeVisualization({
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
   const { darkMode } = useTheme();
-  
-
 
   // Define horizontal margins for global use
   const margin = {
@@ -299,90 +297,90 @@ export default function D3TreeVisualization({
         nodes.push(currentNode);
 
         // Process children if expanded
-                  if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
-            // Calculate spacing based on child names length
-            const childNames = node.children.map((c: any) => c.data.name);
-            const minChildSpacing = 120; // Reduced minimum spacing between children
-            const spacingPerChildChar = 6; // Reduced additional spacing per character
+        if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
+          // Calculate spacing based on child names length
+          const childNames = node.children.map((c: any) => c.data.name);
+          const minChildSpacing = 120; // Reduced minimum spacing between children
+          const spacingPerChildChar = 6; // Reduced additional spacing per character
 
-            // Calculate Y positions of children based on name length
-            let currentChildY = parentY;
-            const childPositions: number[] = [];
+          // Calculate Y positions of children based on name length
+          let currentChildY = parentY;
+          const childPositions: number[] = [];
 
-            node.children.forEach((child: any) => {
-              const nameLength = child.data.name.length;
-              const spacing = minChildSpacing + nameLength * spacingPerChildChar;
+          node.children.forEach((child: any) => {
+            const nameLength = child.data.name.length;
+            const spacing = minChildSpacing + nameLength * spacingPerChildChar;
 
-              childPositions.push(currentChildY);
-              currentChildY += spacing;
+            childPositions.push(currentChildY);
+            currentChildY += spacing;
+          });
+
+          // Center children group relative to parent
+          const totalChildHeight = currentChildY - parentY - minChildSpacing;
+          const offsetY = -totalChildHeight / 2;
+
+          node.children.forEach((child: any, childIndex: number) => {
+            const childY = childPositions[childIndex] + offsetY;
+            // Increase horizontal offset on mobile
+            const childX = parentX + (isMobile ? 700 : 400); // was 500, now 700 on mobile
+
+            const childNode = {
+              ...child,
+              x: childX,
+              y: childY,
+              depth: level + 1,
+              rootColor: currentRootColor,
+            };
+            nodes.push(childNode);
+
+            // Add link
+            links.push({
+              source: { x: parentX, y: parentY },
+              target: { x: childX, y: childY },
             });
 
-            // Center children group relative to parent
-            const totalChildHeight = currentChildY - parentY - minChildSpacing;
-            const offsetY = -totalChildHeight / 2;
+            // Process grandchildren if expanded
+            if (expandedNodes.has(child.data.id) && child.children && child.children.length > 0) {
+              // Calculate spacing based on grandchild names length
+              const grandChildNames = child.children.map((gc: any) => gc.data.name);
+              const minGrandChildSpacing = 100; // Reduced minimum spacing between grandchildren
+              const spacingPerGrandChildChar = 5; // Reduced additional spacing per character
 
-                      node.children.forEach((child: any, childIndex: number) => {
-              const childY = childPositions[childIndex] + offsetY;
-              // Increase horizontal offset on mobile
-              const childX = parentX + (isMobile ? 700 : 400); // was 500, now 700 on mobile
+              // Calculate Y positions of grandchildren based on name length
+              let currentGrandChildY = childY;
+              const grandChildPositions: number[] = [];
 
-              const childNode = {
-                ...child,
-                x: childX,
-                y: childY,
-                depth: level + 1,
-                rootColor: currentRootColor,
-              };
-              nodes.push(childNode);
+              child.children.forEach((grandChild: any) => {
+                const nameLength = grandChild.data.name.length;
+                const spacing = minGrandChildSpacing + nameLength * spacingPerGrandChildChar;
 
-              // Add link
-              links.push({
-                source: { x: parentX, y: parentY },
-                target: { x: childX, y: childY },
+                grandChildPositions.push(currentGrandChildY);
+                currentGrandChildY += spacing;
               });
 
-              // Process grandchildren if expanded
-                          if (expandedNodes.has(child.data.id) && child.children && child.children.length > 0) {
-                // Calculate spacing based on grandchild names length
-                const grandChildNames = child.children.map((gc: any) => gc.data.name);
-                const minGrandChildSpacing = 100; // Reduced minimum spacing between grandchildren
-                const spacingPerGrandChildChar = 5; // Reduced additional spacing per character
+              // Center grandchildren group relative to parent
+              const totalGrandChildHeight = currentGrandChildY - childY - minGrandChildSpacing;
+              const offsetY = -totalGrandChildHeight / 2;
 
-                // Calculate Y positions of grandchildren based on name length
-                let currentGrandChildY = childY;
-                const grandChildPositions: number[] = [];
+              child.children.forEach((grandChild: any, grandChildIndex: number) => {
+                const grandChildY = grandChildPositions[grandChildIndex] + offsetY;
+                const grandChildX = childX + (isMobile ? 600 : 350); // Increased from 400 to 600 on mobile
 
-                child.children.forEach((grandChild: any) => {
-                  const nameLength = grandChild.data.name.length;
-                  const spacing = minGrandChildSpacing + nameLength * spacingPerGrandChildChar;
+                const grandChildNode = {
+                  ...grandChild,
+                  x: grandChildX,
+                  y: grandChildY,
+                  depth: level + 2,
+                  rootColor: currentRootColor,
+                };
+                nodes.push(grandChildNode);
 
-                  grandChildPositions.push(currentGrandChildY);
-                  currentGrandChildY += spacing;
+                // Add link
+                links.push({
+                  source: { x: childX, y: childY },
+                  target: { x: grandChildX, y: grandChildY },
                 });
-
-                // Center grandchildren group relative to parent
-                const totalGrandChildHeight = currentGrandChildY - childY - minGrandChildSpacing;
-                const offsetY = -totalGrandChildHeight / 2;
-
-                              child.children.forEach((grandChild: any, grandChildIndex: number) => {
-                  const grandChildY = grandChildPositions[grandChildIndex] + offsetY;
-                  const grandChildX = childX + (isMobile ? 600 : 350); // Increased from 400 to 600 on mobile
-
-                  const grandChildNode = {
-                    ...grandChild,
-                    x: grandChildX,
-                    y: grandChildY,
-                    depth: level + 2,
-                    rootColor: currentRootColor,
-                  };
-                  nodes.push(grandChildNode);
-
-                  // Add link
-                  links.push({
-                    source: { x: childX, y: childY },
-                    target: { x: grandChildX, y: grandChildY },
-                  });
-                });
+              });
             }
           });
         }
@@ -407,42 +405,42 @@ export default function D3TreeVisualization({
         const dx = d.target.x - d.source.x;
         const dy = d.target.y - d.source.y;
         const dr = Math.sqrt(dx * dx + dy * dy);
-        
+
         // Calculate control point to create a smooth curve
         const controlX = d.source.x + dx * 0.5;
-        const controlY = d.source.y + dy * 0.5 + (dr * 0.1); // Small curvature
-        
+        const controlY = d.source.y + dy * 0.5 + dr * 0.1; // Small curvature
+
         return `M ${d.source.x} ${d.source.y} Q ${controlX} ${controlY} ${d.target.x} ${d.target.y}`;
       })
       .style('fill', 'none')
-      .style('stroke', (d: any) => darkMode ? '#6b7280' : '#d1d5db') // link color according to theme
+      .style('stroke', (d: any) => (darkMode ? '#6b7280' : '#d1d5db')) // link color according to theme
       .style('stroke-width', '2px')
       .style('stroke-linecap', 'round') // Rounded ends
-              .style('opacity', (d: any) => {
-          // Apply fade-out for non-focused root capacity links
-          if (focusedRootId) {
-            // Determine if link belongs to focused root capacity
-            const sourceNode = allNodes.find(
-              (node: any) => node.x === d.source.x && node.y === d.source.y
-            );
-            const targetNode = allNodes.find(
-              (node: any) => node.x === d.target.x && node.y === d.target.y
-            );
+      .style('opacity', (d: any) => {
+        // Apply fade-out for non-focused root capacity links
+        if (focusedRootId) {
+          // Determine if link belongs to focused root capacity
+          const sourceNode = allNodes.find(
+            (node: any) => node.x === d.source.x && node.y === d.source.y
+          );
+          const targetNode = allNodes.find(
+            (node: any) => node.x === d.target.x && node.y === d.target.y
+          );
 
-            if (sourceNode && targetNode) {
-              const sourceRootColor = sourceNode.rootColor;
-              const targetRootColor = targetNode.rootColor;
-              const focusedRootColor = getColorForCapacity(focusedRootId);
+          if (sourceNode && targetNode) {
+            const sourceRootColor = sourceNode.rootColor;
+            const targetRootColor = targetNode.rootColor;
+            const focusedRootColor = getColorForCapacity(focusedRootId);
 
-              // If both nodes belong to the same focused capacity tree
-              if (sourceRootColor === focusedRootColor && targetRootColor === focusedRootColor) {
-                return 1;
-              }
-              return 0.2; // Fade-out for unrelated links
+            // If both nodes belong to the same focused capacity tree
+            if (sourceRootColor === focusedRootColor && targetRootColor === focusedRootColor) {
+              return 1;
             }
+            return 0.2; // Fade-out for unrelated links
           }
-          return 1; // Show all links normally
-        });
+        }
+        return 1; // Show all links normally
+      });
 
     // Add nodes
     const node = container
@@ -500,53 +498,58 @@ export default function D3TreeVisualization({
       });
 
     // Add shapes for nodes (hexagons for better visualization)
-    node.each(function(d: any) {
+    node.each(function (d: any) {
       const level = d.depth;
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-      
+
       let radius;
-      if (level === 0) radius = isMobile ? 15 : 10; // Larger roots
-      else if (level === 1) radius = isMobile ? 12 : 8; // Medium children
+      if (level === 0)
+        radius = isMobile ? 15 : 10; // Larger roots
+      else if (level === 1)
+        radius = isMobile ? 12 : 8; // Medium children
       else radius = isMobile ? 10 : 6; // Smaller grandchildren
-      
-              // Determine fill color
-        const nodeData = d.data;
-        let fillColor;
-        if (nodeData.id === '0') {
-          fillColor = '#6b7280'; // Root
-        } else if (d.rootColor) {
-          fillColor = getCapacityColor(d.rootColor);
-        } else if (level === 0) {
-          const colorName = getColorForCapacity(nodeData.id);
-          fillColor = getCapacityColor(colorName);
-        } else if (level >= 2) {
-          fillColor = '#053749';
-        } else if (level === 1) {
-          fillColor = '#0a4a5f';
-        } else {
-          fillColor = '#6b7280';
-        }
-        
-        // Determine border color
-        const strokeColor = selectedNode && selectedNode.id === d.data.id ? '#fbbf24' : '#ffffff';
-        const strokeWidth = selectedNode && selectedNode.id === d.data.id ? '4px' : '2px';
-        
-        // Determine opacity
-        let opacity = 1;
-        if (focusedRootId && d.depth === 0) {
-          opacity = d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId) ? 1 : 0.2;
-        }
-        
-        // Create hexagon
-        const hexagon = d3.select(this).append('path');
-        const points: string[] = [];
-        for (let i = 0; i < 6; i++) {
-          const angle = (i * Math.PI) / 3;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-          points.push(`${x},${y}`);
-        }
-      
+
+      // Determine fill color
+      const nodeData = d.data;
+      let fillColor;
+      if (nodeData.id === '0') {
+        fillColor = '#6b7280'; // Root
+      } else if (d.rootColor) {
+        fillColor = getCapacityColor(d.rootColor);
+      } else if (level === 0) {
+        const colorName = getColorForCapacity(nodeData.id);
+        fillColor = getCapacityColor(colorName);
+      } else if (level >= 2) {
+        fillColor = '#053749';
+      } else if (level === 1) {
+        fillColor = '#0a4a5f';
+      } else {
+        fillColor = '#6b7280';
+      }
+
+      // Determine border color
+      const strokeColor = selectedNode && selectedNode.id === d.data.id ? '#fbbf24' : '#ffffff';
+      const strokeWidth = selectedNode && selectedNode.id === d.data.id ? '4px' : '2px';
+
+      // Determine opacity
+      let opacity = 1;
+      if (focusedRootId && d.depth === 0) {
+        opacity =
+          d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
+            ? 1
+            : 0.2;
+      }
+
+      // Create hexagon
+      const hexagon = d3.select(this).append('path');
+      const points: string[] = [];
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI) / 3;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        points.push(`${x},${y}`);
+      }
+
       hexagon
         .attr('d', `M ${points.join(' L ')} Z`)
         .style('fill', fillColor)
@@ -598,18 +601,18 @@ export default function D3TreeVisualization({
         if (d.depth === 0) return `${nodeFontSize}px`;
         return isMobile ? '24px' : '18px';
       })
-      .style('fill', (d: any) => darkMode ? '#f3f4f6' : '#222') // text color according to theme
+      .style('fill', (d: any) => (darkMode ? '#f3f4f6' : '#222')) // text color according to theme
       .style('font-weight', '600') // Keep bold on mobile too
-              .style('opacity', (d: any) => {
-          // Apply fade-out for non-focused root capacities
-          if (focusedRootId && d.depth === 0) {
-            // If there's a focused root capacity, show only it and its descendants
-            return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
-              ? 1
-              : 0.2;
-          }
-          return 1; // Show all capacities normally
-        });
+      .style('opacity', (d: any) => {
+        // Apply fade-out for non-focused root capacities
+        if (focusedRootId && d.depth === 0) {
+          // If there's a focused root capacity, show only it and its descendants
+          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
+            ? 1
+            : 0.2;
+        }
+        return 1; // Show all capacities normally
+      });
 
     // Add icons (if available)
     node
@@ -749,8 +752,9 @@ export default function D3TreeVisualization({
           className="text-sm text-gray-600 dark:text-gray-400 mb-4 break-words w-full"
           style={{ wordBreak: 'break-word' }}
         >
-          Clique nas capacidades raiz para expandir/colapsar e focar • Clique nos círculos para ver
-          detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
+          Clique nas capacidades de origem para expandir/ocultar e focar • Clique nos ícones para
+          ver detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar •
+          Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
         </p>
 
         {/* Control buttons */}
@@ -767,12 +771,12 @@ export default function D3TreeVisualization({
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            Retornar a visualização inicial
+            Retornar à visualização inicial
           </button>
         </div>
       </div>
 
-            <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* D3 Visualization */}
         <div className="flex-1 relative">
           <div
@@ -800,28 +804,25 @@ export default function D3TreeVisualization({
             />
           </div>
         </div>
-        
+
         {/* Capacity details */}
         {selectedNode && (
           <div className="lg:w-80 flex-shrink-0">
-            <div 
+            <div
               className="p-6 rounded-lg border border-gray-200 dark:border-gray-700 h-full"
               style={{
                 backgroundColor: darkMode ? '#1f2937' : '#fafafa',
                 color: darkMode ? '#f3f4f6' : '#222',
               }}
             >
-              <h3 
+              <h3
                 className="text-xl font-semibold mb-4"
                 style={{ color: darkMode ? '#f3f4f6' : '#222' }}
               >
                 {capitalizeFirst(selectedNode.name)}
               </h3>
               {selectedNode.description && (
-                <p 
-                  className="leading-relaxed"
-                  style={{ color: darkMode ? '#d1d5db' : '#374151' }}
-                >
+                <p className="leading-relaxed" style={{ color: darkMode ? '#d1d5db' : '#374151' }}>
                   {selectedNode.description}
                 </p>
               )}
@@ -829,8 +830,6 @@ export default function D3TreeVisualization({
           </div>
         )}
       </div>
-      
-
     </div>
   );
 }
