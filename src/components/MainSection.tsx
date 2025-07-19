@@ -65,7 +65,7 @@ export default function MainSection() {
             <Image
               priority={true}
               src={MainImage}
-              alt="Main image."
+              alt={pageContent["alt-illustration"] || "Main illustration showing people collaborating"}
               className="mx-auto px-10 w-full h-full"
             />
           </div>
@@ -140,7 +140,12 @@ export default function MainSection() {
             </div>
           </div>
           <div className="w-1/3 aspect-square">
-            <Image priority={true} src={MainImage} alt="Main image." className="w-full h-full" />
+            <Image
+              priority={true}
+              src={MainImage}
+              alt={pageContent['alt-illustration'] || 'Main illustration showing people collaborating'}
+              className="w-full h-full"
+            />
           </div>
         </div>
         <div className="w-full flex flex-row items-center justify-between mb-12">

@@ -3,6 +3,7 @@ import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 
 // Simple loading component without theme dependency
 export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
+
   return (
     <div
       className={`flex items-center justify-center ${
@@ -10,12 +11,12 @@ export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boo
       } bg-white`}
       role="status"
       data-testid="simple-loading"
-      aria-label="Loading"
+      aria-label={"Content is loading"}
     >
       <div className="relative w-16 h-16">
         <Image
           src={CapxLogo}
-          alt="CAPX Logo"
+          alt={"CapX - Capacity Exchange logo, page is loading"}
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}

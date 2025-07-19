@@ -197,7 +197,12 @@ export function ProfileItem({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="relative h-5 w-5 md:h-[42px] md:w-[42px]">
-            <Image src={icon} alt={`${title} icon`} className="object-contain" fill />
+            <Image
+              src={icon}
+              alt={pageContent['alt-capacity']?.replace('{capacityType}', title) || `${title} icon`}
+              className="object-contain"
+              fill
+            />
           </div>
           <h2
             className={`${customClass} font-extrabold text-base md:text-[24px]
@@ -264,12 +269,16 @@ export function ProfileItem({
         {needsToggle && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            aria-label={isExpanded ? 'Show less' : 'Show more'}
+            aria-label={isExpanded 
+              ? pageContent["alt-collapse"]?.replace("{section}", title) || `Show less ${title}` 
+              : pageContent["alt-expand"]?.replace("{section}", title) || `Show more ${title}`
+            }
+            aria-expanded={isExpanded}
             className="ml-2 self-start"
           >
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-              alt={`${title} icon`}
+              alt={isExpanded ? pageContent['alt-collapse']?.replace('{section}', title) || `Show less ${title}` : pageContent['alt-expand']?.replace('{section}', title) || `Show more ${title}`}
               className={`object-contain ${isExpanded ? 'rotate-180' : ''}`}
               height={20}
               width={20}

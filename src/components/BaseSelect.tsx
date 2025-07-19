@@ -1,4 +1,5 @@
 import Select from 'react-select';
+import { useApp } from '@/contexts/AppContext';
 import ArrowDropDownCircle from '../../public/static/images/arrow_drop_down_circle.svg';
 import ArrowDropDownCircleWhite from '../../public/static/images/arrow_drop_down_circle_white.svg';
 import Image from 'next/image';
@@ -23,10 +24,10 @@ interface BaseSelectProps {
   placeholder?: string;
 }
 
-const DropdownIndicator = (isMobile: boolean, darkMode: boolean) => (
+const DropdownIndicator = (isMobile: boolean, darkMode: boolean, pageContent: any) => (
   <Image
     src={darkMode ? ArrowDropDownCircleWhite : ArrowDropDownCircle}
-    alt="dropdown indicator"
+    alt={pageContent["alt-dropdown-arrow"] || "Dropdown menu arrow"}
     width={isMobile ? 20 : 40}
     height={isMobile ? 20 : 40}
     className="object-contain"
@@ -100,6 +101,7 @@ export default function BaseSelect({
   onMenuOpen,
   placeholder,
 }: BaseSelectProps) {
+  const { pageContent } = useApp();
   return (
     <div onClick={onContainerClick}>
       <Select
@@ -112,7 +114,7 @@ export default function BaseSelect({
           darkMode ? 'text-white border-white' : 'text-[#053749] border-[#053749]'
         }`}
         components={{
-          DropdownIndicator: () => DropdownIndicator(isMobile, darkMode),
+          DropdownIndicator: () => DropdownIndicator(isMobile, darkMode, pageContent),
           IndicatorSeparator: () => null,
         }}
         unstyled={true}
