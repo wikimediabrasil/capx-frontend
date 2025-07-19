@@ -16,8 +16,8 @@ interface UseWikidataEventReturn {
 }
 
 /**
- * Hook para buscar e gerenciar dados de eventos de várias fontes (Wikidata, Wikimedia, WikiLearn)
- * @returns Objeto com dados do evento, estados de carregamento e funções de busca
+ * Hook to fetch and manage event data from various sources (Wikidata, Wikimedia, WikiLearn)
+ * @returns Object with event data, loading states and search functions
  */
 export function useWikidataEvent(): UseWikidataEventReturn {
   const [eventData, setEventData] = useState<Partial<Event> | null>(null);
@@ -25,12 +25,12 @@ export function useWikidataEvent(): UseWikidataEventReturn {
   const [error, setError] = useState<Error | null>(null);
 
   /**
-   * Busca dados de evento a partir da URL do Wikidata
-   * @param url - URL do Wikidata
+   * Fetch event data from Wikidata URL
+   * @param url - Wikidata URL
    */
   const fetchByURL = async (url: string): Promise<void> => {
     if (!url) {
-      setError(new Error('URL não fornecida'));
+      setError(new Error('URL not provided'));
       return;
     }
 
@@ -42,10 +42,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error('Não foi possível obter dados do evento'));
+        setError(new Error('Unable to fetch event data'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erro desconhecido ao buscar dados'));
+      setError(err instanceof Error ? err : new Error('Unknown error fetching data'));
       setEventData(null);
     } finally {
       setLoading(false);
@@ -53,12 +53,12 @@ export function useWikidataEvent(): UseWikidataEventReturn {
   };
 
   /**
-   * Busca dados de evento a partir do QID do Wikidata
-   * @param qid - QID do Wikidata (ex: Q12345)
+   * Fetch event data from Wikidata QID
+   * @param qid - Wikidata QID (ex: Q12345)
    */
   const fetchByQID = async (qid: string): Promise<void> => {
     if (!qid) {
-      setError(new Error('QID não fornecido'));
+      setError(new Error('QID not provided'));
       return;
     }
 
@@ -70,10 +70,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error('Não foi possível obter dados do evento'));
+        setError(new Error('Unable to fetch event data'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erro desconhecido ao buscar dados'));
+      setError(err instanceof Error ? err : new Error('Unknown error fetching data'));
       setEventData(null);
     } finally {
       setLoading(false);
@@ -81,12 +81,12 @@ export function useWikidataEvent(): UseWikidataEventReturn {
   };
 
   /**
-   * Busca dados de evento a partir de qualquer URL (Wikidata, Wikimedia ou WikiLearn)
-   * @param url - URL genérica
+   * Fetch event data from any URL (Wikidata, Wikimedia or WikiLearn)
+   * @param url - Generic URL
    */
   const fetchByGenericURL = async (url: string): Promise<void> => {
     if (!url) {
-      setError(new Error('URL não fornecida'));
+      setError(new Error('URL not provided'));
       return;
     }
 
@@ -98,10 +98,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error('Não foi possível obter dados do evento a partir desta URL'));
+        setError(new Error('Unable to fetch event data from this URL'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erro desconhecido ao buscar dados'));
+      setError(err instanceof Error ? err : new Error('Unknown error fetching data'));
       setEventData(null);
     } finally {
       setLoading(false);

@@ -795,6 +795,7 @@ export default function EditOrganizationProfilePage() {
       openstreetmap_id: '',
       wikidata_qid: '',
     };
+    editingEventRef.current = eventData;
     setCurrentEditingEvent(eventData);
     setShowEventModal(true);
   };
@@ -810,6 +811,7 @@ export default function EditOrganizationProfilePage() {
           : [],
     };
 
+    editingEventRef.current = eventToEdit;
     setCurrentEditingEvent(eventToEdit);
     setShowEventModal(true);
   };
@@ -989,57 +991,62 @@ export default function EditOrganizationProfilePage() {
     [eventsData]
   );
 
+  // Use ref to maintain stable reference to the editing event
+  const editingEventRef = useRef<Event | null>(null);
+
   // Handler to listen to event changes on the modal
-  const handleModalEventChange = useCallback(
-    (index: number, field: keyof Event, value: string) => {
-      if (!currentEditingEvent) return;
+  const handleModalEventChange = useCallback((index: number, field: keyof Event, value: string) => {
+    if (!editingEventRef.current) return;
 
-      setCurrentEditingEvent(prev => {
-        if (!prev) return prev;
+    let updatedValue: any = value;
 
-        let updatedValue: any = value;
+    // Special treatment for specific fields
+    if (field === 'time_begin' || field === 'time_end') {
+      // Don't convert if it's already an ISO string
+      if (value && !value.includes('T')) {
+        updatedValue = new Date(value).toISOString();
+      } else {
+        updatedValue = value;
+      }
+    } else if (field === 'related_skills') {
+      try {
+        // If the value is a JSON string, parse it
+        const parsedValue = JSON.parse(value);
+        updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
+      } catch (e) {
+        // If it's not a valid JSON, use empty array
+        updatedValue = [];
+      }
+    }
 
-        // Special treatment for specific fields
-        if (field === 'time_begin' || field === 'time_end') {
-          updatedValue = new Date(value).toISOString();
-        } else if (field === 'related_skills') {
-          try {
-            // If the value is a JSON string, parse it
-            const parsedValue = JSON.parse(value);
-            updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
-          } catch (e) {
-            // If it's not a valid JSON, use empty array
-            updatedValue = [];
-          }
-        }
+    // Update the ref directly to avoid triggering re-renders
+    editingEventRef.current = {
+      ...editingEventRef.current,
+      [field]: updatedValue,
+    };
 
-        return {
-          ...prev,
-          [field]: updatedValue,
-        };
-      });
-    },
-    [currentEditingEvent]
-  );
+    // DON'T update the state to prevent re-renders
+    // The ref maintains the current data and the form handles its own state
+  }, []);
 
   const handleSaveEventChanges = async () => {
     try {
-      if (!currentEditingEvent) return;
+      if (!editingEventRef.current) return;
 
-      if (currentEditingEvent.id === 0) {
+      if (editingEventRef.current.id === 0) {
         // Create new event
         const newEventData = {
-          ...currentEditingEvent,
+          ...editingEventRef.current,
           organizations: [Number(organizationId)],
           creator: Number(session?.user?.id),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          team: currentEditingEvent.team || [Number(session?.user?.id)],
-          type_of_location: currentEditingEvent.type_of_location || 'virtual',
-          url: currentEditingEvent.url || '',
-          image_url: currentEditingEvent.image_url || '',
-          description: currentEditingEvent.description || '',
-          related_skills: currentEditingEvent.related_skills || [],
+          team: editingEventRef.current.team || [Number(session?.user?.id)],
+          type_of_location: editingEventRef.current.type_of_location || 'virtual',
+          url: editingEventRef.current.url || '',
+          image_url: editingEventRef.current.image_url || '',
+          description: editingEventRef.current.description || '',
+          related_skills: editingEventRef.current.related_skills || [],
           organization: Number(organizationId),
         };
 
@@ -1087,7 +1094,10 @@ export default function EditOrganizationProfilePage() {
       } else {
         // Update existing event
         try {
-          const updatedEvent = await updateEvent(currentEditingEvent.id, currentEditingEvent);
+          const updatedEvent = await updateEvent(
+            editingEventRef.current.id,
+            editingEventRef.current
+          );
 
           if (updatedEvent) {
             // Update the events list
@@ -1114,6 +1124,7 @@ export default function EditOrganizationProfilePage() {
       // Close the modal and clear the event in edit
       setShowEventModal(false);
       setCurrentEditingEvent(null);
+      editingEventRef.current = null;
     } catch (error) {
       console.error('Erro ao salvar evento:', error);
       showSnackbar(
@@ -1274,83 +1285,6 @@ export default function EditOrganizationProfilePage() {
     return <LoadingState />;
   }
 
-  const EventsFormPopup = () => {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div
-          className="absolute inset-0 bg-black bg-opacity-50"
-          onClick={() => {
-            setShowEventModal(false);
-            setCurrentEditingEvent(null);
-          }}
-        />
-        <div
-          className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
-            darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
-          }`}
-        >
-          <button
-            onClick={() => {
-              setShowEventModal(false);
-              setCurrentEditingEvent(null);
-            }}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
-          <div className="mb-6">
-            {currentEditingEvent && (
-              <>
-                <EventsForm
-                  eventData={currentEditingEvent}
-                  index={0}
-                  onDelete={() => {
-                    setShowEventModal(false);
-                    setCurrentEditingEvent(null);
-                  }}
-                  onChange={handleModalEventChange}
-                  eventType={currentEditingEvent?.id === 0 ? 'new' : 'edit'}
-                />
-              </>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-4 mt-6 border-t pt-4">
-            <button
-              onClick={() => {
-                setShowEventModal(false);
-                setCurrentEditingEvent(null);
-              }}
-              className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
-                darkMode
-                  ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
-                  : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
-              }`}
-            >
-              {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
-            </button>
-            <button
-              onClick={handleSaveEventChanges}
-              className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
-            >
-              {currentEditingEvent?.id === 0
-                ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
-                : pageContent['organization-profile-event-popup-save-changes'] || 'Save changes'}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   if (isMobile) {
     return (
       <>
@@ -1390,7 +1324,82 @@ export default function EditOrganizationProfilePage() {
           handleEditEvent={handleEditEvent}
         />
 
-        {showEventModal && <EventsFormPopup />}
+        {showEventModal && editingEventRef.current && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50"
+              onClick={() => {
+                setShowEventModal(false);
+                setCurrentEditingEvent(null);
+                editingEventRef.current = null;
+              }}
+            />
+            <div
+              className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
+                darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
+              }`}
+            >
+              <button
+                onClick={() => {
+                  setShowEventModal(false);
+                  setCurrentEditingEvent(null);
+                  editingEventRef.current = null;
+                }}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+
+              <div className="mb-6">
+                <EventsForm
+                  key={`${editingEventRef.current.id}-${editingEventRef.current.organization}`}
+                  eventData={editingEventRef.current}
+                  index={0}
+                  onDelete={() => {
+                    setShowEventModal(false);
+                    setCurrentEditingEvent(null);
+                    editingEventRef.current = null;
+                  }}
+                  onChange={handleModalEventChange}
+                  eventType={editingEventRef.current?.id === 0 ? 'new' : 'edit'}
+                />
+              </div>
+
+              <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+                <button
+                  onClick={() => {
+                    setShowEventModal(false);
+                    setCurrentEditingEvent(null);
+                    editingEventRef.current = null;
+                  }}
+                  className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
+                    darkMode
+                      ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
+                      : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
+                  }`}
+                >
+                  {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
+                </button>
+                <button
+                  onClick={handleSaveEventChanges}
+                  className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
+                >
+                  {editingEventRef.current?.id === 0
+                    ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
+                    : pageContent['organization-profile-event-popup-save-changes'] ||
+                      'Save changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     );
   }
@@ -1432,7 +1441,81 @@ export default function EditOrganizationProfilePage() {
         handleViewAllEvents={handleViewAllEvents}
       />
 
-      {showEventModal && <EventsFormPopup />}
+      {showEventModal && editingEventRef.current && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => {
+              setShowEventModal(false);
+              setCurrentEditingEvent(null);
+              editingEventRef.current = null;
+            }}
+          />
+          <div
+            className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
+              darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
+            }`}
+          >
+            <button
+              onClick={() => {
+                setShowEventModal(false);
+                setCurrentEditingEvent(null);
+                editingEventRef.current = null;
+              }}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <div className="mb-6">
+              <EventsForm
+                key={`${editingEventRef.current.id}-${editingEventRef.current.organization}`}
+                eventData={editingEventRef.current}
+                index={0}
+                onDelete={() => {
+                  setShowEventModal(false);
+                  setCurrentEditingEvent(null);
+                  editingEventRef.current = null;
+                }}
+                onChange={handleModalEventChange}
+                eventType={editingEventRef.current?.id === 0 ? 'new' : 'edit'}
+              />
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+              <button
+                onClick={() => {
+                  setShowEventModal(false);
+                  setCurrentEditingEvent(null);
+                  editingEventRef.current = null;
+                }}
+                className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
+                  darkMode
+                    ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
+                    : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
+                }`}
+              >
+                {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
+              </button>
+              <button
+                onClick={handleSaveEventChanges}
+                className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
+              >
+                {editingEventRef.current?.id === 0
+                  ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
+                  : pageContent['organization-profile-event-popup-save-changes'] || 'Save changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Debug Tools - Only in Development */}
       {process.env.NODE_ENV === 'development' && (

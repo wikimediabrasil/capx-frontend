@@ -10,11 +10,14 @@ import {
   fetchEventDataByURL,
   fetchEventDataByQID,
   fetchEventDataByGenericURL,
+  isValidEventURL,
 } from '@/services/metabaseService';
 import { useSession } from 'next-auth/react';
 import { useCapacityDetails } from '@/hooks/useCapacityDetails';
 import React, { memo } from 'react';
 import { organizationProfileService } from '@/services/organizationProfileService';
+import { dateToDateTimeLocal, dateTimeLocalToDate } from '@/lib/utils/dateLocale';
+import CustomDatePicker from '@/components/CustomDatePicker';
 
 interface EventFormItemProps {
   eventData: Event;
@@ -169,6 +172,7 @@ const MemoizedTextarea = memo(
     const [localValue, setLocalValue] = useState(value);
     const [isEditing, setIsEditing] = useState(false);
     const prevValueRef = useRef(value);
+    const lastPropagationRef = useRef(0);
 
     // Sync with external value when needed
     useEffect(() => {
@@ -196,9 +200,6 @@ const MemoizedTextarea = memo(
       },
       [onChange]
     );
-
-    // Use ref to track last propagation time
-    const lastPropagationRef = useRef(0);
 
     // Editing state controllers
     const handleFocus = useCallback(() => {
@@ -251,51 +252,78 @@ const OrganizationLoader = memo(
     onOrganizationLoaded: (name: string) => void;
   }) => {
     const { data: session } = useSession();
-    const [attemptedLoad, setAttemptedLoad] = useState(false);
-    const prevOrgIdRef = useRef<number | null>(null);
-    const prevTokenRef = useRef<string | null>(null);
+    const [loadedOrgId, setLoadedOrgId] = useState<number | null>(null);
+    const isMountedRef = useRef(true);
+    const isLoadingRef = useRef(false);
 
-    // Only load once when component mounts or when dependencies genuinely change
+    // Update mount status
     useEffect(() => {
-      let isMounted = true;
+      isMountedRef.current = true;
+      return () => {
+        isMountedRef.current = false;
+      };
+    }, []);
+
+    // Stable callback reference
+    const callbackRef = useRef(onOrganizationLoaded);
+    useEffect(() => {
+      callbackRef.current = onOrganizationLoaded;
+    }, [onOrganizationLoaded]);
+
+    // Stabilize token reference to prevent unnecessary re-renders
+    const tokenRef = useRef(session?.user?.token);
+    useEffect(() => {
+      tokenRef.current = session?.user?.token;
+    }, [session?.user?.token]);
+
+    // Only load once when organization ID changes and we haven't loaded it yet
+    useEffect(() => {
       const abortController = new AbortController();
 
-      // Skip if we've already attempted to load with these parameters
-      const token = session?.user?.token;
-      if (
-        !organizationId ||
-        !token ||
-        (attemptedLoad && prevOrgIdRef.current === organizationId && prevTokenRef.current === token)
-      ) {
+      // Skip if we don't have the required data or if we've already loaded this org
+      const token = tokenRef.current;
+      if (!organizationId || !token || loadedOrgId === organizationId) {
+        return;
+      }
+
+      // Prevent multiple simultaneous loads
+      if (isLoadingRef.current) {
         return;
       }
 
       const loadOrg = async () => {
+        isLoadingRef.current = true;
+
         try {
           const response = await organizationProfileService.getOrganizationById(
             token,
             organizationId
           );
 
-          if (isMounted && response?.display_name) {
-            onOrganizationLoaded(response.display_name);
-            // Record that we've attempted to load with these parameters
-            prevOrgIdRef.current = organizationId;
-            prevTokenRef.current = token;
-            setAttemptedLoad(true);
+          if (isMountedRef.current && response?.display_name) {
+            callbackRef.current(response.display_name);
+            setLoadedOrgId(organizationId); // Mark this org as loaded
+          } else {
+            if (isMountedRef.current) {
+              callbackRef.current(''); // Clear organization name if no display_name
+            }
           }
         } catch (error) {
-          // Silently handle error
+          console.error('🏢 Error loading organization:', error);
+          if (isMountedRef.current) {
+            callbackRef.current(''); // Clear organization name on error
+          }
+        } finally {
+          isLoadingRef.current = false;
         }
       };
 
       loadOrg();
 
       return () => {
-        isMounted = false;
         abortController.abort();
       };
-    }, [organizationId, session?.user?.token, onOrganizationLoaded, attemptedLoad]);
+    }, [organizationId, loadedOrgId]); // Removed session?.user?.token dependency
 
     // This component doesn't render anything visible
     return null;
@@ -307,8 +335,9 @@ OrganizationLoader.displayName = 'OrganizationLoader';
 const EventsForm = memo(
   ({ eventData, index, onDelete, onChange, eventType }: EventFormItemProps) => {
     const { darkMode } = useTheme();
-    const { isMobile, pageContent } = useApp();
-    const { data: session, status: sessionStatus } = useSession();
+    const { isMobile, pageContent, language } = useApp();
+    const { data: session } = useSession();
+    const { capacityNames } = useCapacityDetails();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
     const [showMobile, setShowMobile] = useState(false);
@@ -316,67 +345,73 @@ const EventsForm = memo(
     const [urlError, setUrlError] = useState<string | null>(null);
     const [urlInput, setUrlInput] = useState(eventData.url || '');
     const [organizationName, setOrganizationName] = useState<string>('');
-    const [isEditingAnyField, setIsEditingAnyField] = useState<boolean>(false);
+    const [organizationLoading, setOrganizationLoading] = useState<boolean>(false);
 
-    // Refs to maintain local state
-    const eventNameRef = useRef(eventData.name || '');
-    const debounceTimerRef = useRef<number | null>(null);
+    // Log initial values for debugging (only on mount)
+    useEffect(() => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          '🚀 EventsForm mounted - organizationId:',
+          eventData.organization,
+          'eventId:',
+          eventData.id
+        );
+      }
+    }, []); // Empty dependency array - only runs on mount
 
     // Calculate organizationId once
-    const organizationId = useMemo(() => eventData.organization, [eventData.organization]);
+    const organizationId = useMemo(() => {
+      return eventData.organization;
+    }, [eventData.organization]);
 
     // Handle organization loading through the separate component
     const handleOrganizationLoaded = useCallback((name: string) => {
-      if (name) {
-        setOrganizationName(name);
-      }
+      setOrganizationName(name || '');
+      setOrganizationLoading(false);
     }, []);
 
-    // Extract capacity IDs from event data more robustly
-    const parseRelatedSkills = useCallback(() => {
-      if (!eventData.related_skills) return [];
+    // Set loading state only when organizationId changes
+    useEffect(() => {
+      if (organizationId) {
+        setOrganizationLoading(true);
+        setOrganizationName(''); // Clear previous name
+      }
+    }, [organizationId]); // Only depend on organizationId
 
-      try {
-        if (Array.isArray(eventData.related_skills)) {
-          return eventData.related_skills;
-        } else if (typeof eventData.related_skills === 'string') {
-          const parsed = JSON.parse(eventData.related_skills);
-          return parsed;
-        }
-      } catch (error) {
-        // Error silently handled
+    // Parse related skills from eventData.related_skills
+    const parseRelatedSkills = useCallback(() => {
+      if (!eventData.related_skills || eventData.related_skills.length === 0) {
+        return [];
       }
 
-      return [];
+      try {
+        // Check if it's already an array
+        if (Array.isArray(eventData.related_skills)) {
+          return eventData.related_skills.map(Number).filter(Boolean);
+        }
+
+        // Try to parse as JSON string
+        const parsedRelatedSkills = JSON.parse(eventData.related_skills as string);
+        if (Array.isArray(parsedRelatedSkills)) {
+          return parsedRelatedSkills.map(Number).filter(Boolean);
+        }
+
+        return [];
+      } catch (error) {
+        console.error('Error parsing related_skills:', error);
+        return [];
+      }
     }, [eventData.related_skills]);
 
-    // Memoize capacityIds
     const capacityIds = useMemo(() => parseRelatedSkills(), [parseRelatedSkills]);
-
-    // Use the hook to get capacity details
-    const { capacityNames } = useCapacityDetails(capacityIds);
 
     // Sincronizar capacidades quando as IDs ou nomes mudarem
     useEffect(() => {
       // Skip if no capacity IDs
       if (!capacityIds || capacityIds.length === 0) {
-        // Only update if there are currently selected capacities (prevent unnecessary state update)
-        if (selectedCapacities.length > 0) {
-          setSelectedCapacities([]);
-        }
+        setSelectedCapacities([]);
         return;
       }
-
-      // Skip if no capacity names are available yet and we don't need placeholder capacities
-      if (
-        (!capacityNames || Object.keys(capacityNames).length === 0) &&
-        selectedCapacities.length > 0
-      ) {
-        return;
-      }
-
-      // Create a stable reference to the current selectedCapacities to avoid dependency issues
-      const currentCapacities = selectedCapacities;
 
       // Create the new capacities
       let newCapacities: Capacity[];
@@ -405,34 +440,13 @@ const EventsForm = memo(
         }));
       }
 
-      // Check if we need to update (optimization to prevent unnecessary renders)
-      let needsUpdate = newCapacities.length !== currentCapacities.length;
-
-      if (!needsUpdate) {
-        // Check if any capacity has changed
-        const currentCodesMap = new Map(currentCapacities.map(cap => [cap.code, cap.name]));
-
-        needsUpdate = newCapacities.some(newCap => {
-          const currentName = currentCodesMap.get(newCap.code);
-          return currentName === undefined || currentName !== newCap.name;
-        });
-      }
-
-      // Only update state if necessary
-      if (needsUpdate) {
-        setSelectedCapacities(newCapacities);
-      }
-    }, [capacityIds, capacityNames]); // Removed selectedCapacities from the dependency array
-
-    // Change the event name locally before propagating
-    useEffect(() => {
-      eventNameRef.current = eventData.name || '';
-    }, [eventData.name]);
+      setSelectedCapacities(newCapacities);
+    }, [capacityIds, capacityNames]); // Simplified dependencies
 
     // Helper function for debounce
     const handleChange = useCallback(
       (field: keyof Event, value: string) => {
-        // Use debounce to reduce updates
+        // Direct update without debounce for immediate feedback
         onChange(index, field, value);
       },
       [onChange, index]
@@ -441,7 +455,21 @@ const EventsForm = memo(
     // Function to fetch event data from a URL
     const fetchEventData = useCallback(
       async (url: string) => {
-        if (!url || url.trim() === '') return;
+        if (!url || url.trim() === '') {
+          return;
+        }
+
+        // Validate URL format first
+        const isValid = isValidEventURL(url);
+
+        if (!isValid) {
+          setUrlError(
+            pageContent['organization-profile-event-url-invalid'] ||
+              'URL inválida. Use URLs do Meta Wikimedia (ex: meta.wikimedia.org/wiki/Event) ou WikiLearn (app.learn.wiki/learning/course/...)'
+          );
+          setIsLoading(false);
+          return;
+        }
 
         setIsLoading(true);
         setUrlError(null);
@@ -461,29 +489,49 @@ const EventsForm = memo(
 
           if (data) {
             // Update the event data with the new information
-            if (data.name) handleChange('name', data.name);
-            if (data.description) handleChange('description', data.description);
-            if (data.image_url) handleChange('image_url', data.image_url);
-            if (data.time_begin) handleChange('time_begin', data.time_begin);
-            if (data.time_end) handleChange('time_end', data.time_end);
-            if (data.type_of_location) handleChange('type_of_location', data.type_of_location);
-            if (data.wikidata_qid) handleChange('wikidata_qid', data.wikidata_qid);
+            if (data.name) {
+              setLocalName(data.name); // Update local state immediately
+              handleChange('name', data.name);
+            }
+            if (data.description) {
+              setLocalDescription(data.description); // Update local state immediately
+              handleChange('description', data.description);
+            }
+            if (data.image_url) {
+              handleChange('image_url', data.image_url);
+            }
+            if (data.time_begin) {
+              setLocalStartDate(dateToDateTimeLocal(new Date(data.time_begin)));
+              handleChange('time_begin', data.time_begin);
+            } else {
+              setLocalEndDate(dateToDateTimeLocal(new Date(data.time_end)));
+              handleChange('time_end', data.time_end);
+            }
+            if (data.type_of_location) {
+              setLocalLocationType(data.type_of_location);
+              handleChange('type_of_location', data.type_of_location);
+            }
+            if (data.wikidata_qid) {
+              handleChange('wikidata_qid', data.wikidata_qid);
+            }
 
             // Update URL only if it's different
             if (data.url && data.url !== urlInput) {
               setUrlInput(data.url);
               handleChange('url', data.url);
             }
+
+            // Show success message
           } else {
             setUrlError(
               pageContent['event-form-wikidata-not-found'] ||
-                'It was not possible to find event data for this URL'
+                'Não foi possível encontrar dados do evento para esta URL'
             );
           }
         } catch (error) {
+          console.error('Error fetching event data:', error);
           setUrlError(
-            pageContent['event-form-wikidata-error'] ||
-              'An error occurred while searching for event data'
+            pageContent['event-form-wikidata-error'] || 'Ocorreu um erro ao buscar dados do evento'
           );
         } finally {
           setIsLoading(false);
@@ -492,68 +540,20 @@ const EventsForm = memo(
       [urlInput, handleChange, pageContent]
     );
 
-    // Define global listeners to detect when the user is editing
+    // Local state for name to avoid re-renders
+    const [localName, setLocalName] = useState(eventData.name || '');
+
+    // Update local name when eventData changes externally
     useEffect(() => {
-      const handleFocusIn = (e: FocusEvent) => {
-        const target = e.target as HTMLElement;
-        if (
-          (target.tagName === 'INPUT' && target.getAttribute('type') === 'text') ||
-          target.tagName === 'TEXTAREA'
-        ) {
-          setIsEditingAnyField(true);
-        }
-      };
+      setLocalName(eventData.name || '');
+    }, [eventData.name]);
 
-      const handleFocusOut = (e: FocusEvent) => {
-        const target = e.target as HTMLElement;
-        if (
-          (target.tagName === 'INPUT' && target.getAttribute('type') === 'text') ||
-          target.tagName === 'TEXTAREA'
-        ) {
-          setIsEditingAnyField(false);
-        }
-      };
-
-      // Add listeners
-      document.addEventListener('focusin', handleFocusIn);
-      document.addEventListener('focusout', handleFocusOut);
-
-      return () => {
-        // Remove listeners on unmount
-        document.removeEventListener('focusin', handleFocusIn);
-        document.removeEventListener('focusout', handleFocusOut);
-      };
-    }, []);
-
-    // Event handlers with optimization to avoid rendering
-    const handleNameChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Update the ref immediately to have the most current value
-        eventNameRef.current = e.target.value;
-
-        // Clear previous timer if it exists
-        if (debounceTimerRef.current !== null) {
-          clearTimeout(debounceTimerRef.current);
-        }
-
-        // Mark that we are in edit mode to avoid API calls
-        setIsEditingAnyField(true);
-
-        // Implement debounce to reduce API calls
-        const newValue = e.target.value;
-
-        // We use a reference to maintain the timer
-        debounceTimerRef.current = window.setTimeout(() => {
-          // Update the value
-          onChange(index, 'name', newValue);
-          // Reset the edit state after debounce
-          setIsEditingAnyField(false);
-          // Clear the timer reference
-          debounceTimerRef.current = null;
-        }, 500); // Wait 500ms of inactivity before propagating the change
-      },
-      [onChange, index, setIsEditingAnyField]
-    );
+    // Simple name change handler with local state
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setLocalName(newValue);
+      onChange(index, 'name', newValue);
+    };
 
     // handleCapacitySelect should use useCallback to avoid re-renders
     const handleCapacitySelect = useCallback(
@@ -589,16 +589,25 @@ const EventsForm = memo(
 
     // Optimize other field handlers for use of debounce
     const handleUrlInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      setUrlInput(e.target.value);
+      const newValue = e.target.value;
+      setUrlInput(newValue);
     }, []);
 
     const handleUrlSubmit = useCallback(() => {
+      // Get the current value from the input element directly
+      const inputElement = document.querySelector(
+        'input[placeholder*="Insert an URL"]'
+      ) as HTMLInputElement;
+      const currentInputValue = inputElement?.value || '';
+
+      const finalUrl = currentInputValue || urlInput;
+
       // Debounce to avoid multiple calls
-      handleChange('url', urlInput);
-      if (urlInput && urlInput.trim() !== '') {
-        fetchEventData(urlInput);
+      handleChange('url', finalUrl);
+      if (finalUrl && finalUrl.trim() !== '') {
+        fetchEventData(finalUrl);
       }
-    }, [urlInput, handleChange, fetchEventData]);
+    }, [urlInput, handleChange, fetchEventData, eventData.url]);
 
     // Add handler for Enter key
     const handleUrlKeyDown = useCallback(
@@ -611,46 +620,60 @@ const EventsForm = memo(
       [handleUrlSubmit]
     );
 
-    const handleDescriptionChange = useCallback(
-      (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const value = e.target.value;
+    // Local state for description to avoid re-renders
+    const [localDescription, setLocalDescription] = useState(eventData.description || '');
 
-        // Clear any existing debounce timer
-        if (debounceTimerRef.current !== null) {
-          clearTimeout(debounceTimerRef.current);
-        }
+    // Update local description when eventData changes externally
+    useEffect(() => {
+      setLocalDescription(eventData.description || '');
+    }, [eventData.description]);
 
-        // Set editing state to prevent API calls
-        setIsEditingAnyField(true);
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
+      setLocalDescription(newValue);
+      onChange(index, 'description', newValue);
+    };
 
-        // Store value locally instead of updating state immediately
-        // Use a stable reference to avoid capturing state in closure
-        const descriptionValue = value;
-        const fieldToUpdate = 'description';
-        const indexCopy = index;
-
-        // Debounce the update to reduce API calls
-        debounceTimerRef.current = window.setTimeout(() => {
-          // Use the callback version of onChange to avoid closure over state
-          onChange(indexCopy, fieldToUpdate, descriptionValue);
-
-          // Reset editing state after debounce
-          // Use setTimeout to break potential call stack cycles
-          window.setTimeout(() => {
-            setIsEditingAnyField(false);
-          }, 0);
-
-          // Clear the timer reference
-          debounceTimerRef.current = null;
-        }, 800); // Longer delay for description field
-      },
-      [index, onChange]
+    // Local state for dates to avoid re-renders
+    const [localStartDate, setLocalStartDate] = useState(
+      eventData.time_begin ? dateToDateTimeLocal(new Date(eventData.time_begin)) : ''
     );
+    const [localEndDate, setLocalEndDate] = useState(
+      eventData.time_end ? dateToDateTimeLocal(new Date(eventData.time_end)) : ''
+    );
+
+    // Update local dates when eventData changes externally
+    useEffect(() => {
+      setLocalStartDate(
+        eventData.time_begin ? dateToDateTimeLocal(new Date(eventData.time_begin)) : ''
+      );
+    }, [eventData.time_begin]);
+
+    useEffect(() => {
+      setLocalEndDate(eventData.time_end ? dateToDateTimeLocal(new Date(eventData.time_end)) : '');
+    }, [eventData.time_end]);
+
+    // Local state for location type to avoid re-renders
+    const [localLocationType, setLocalLocationType] = useState(
+      eventData.type_of_location || 'virtual'
+    );
+
+    // Update local location type when eventData changes externally
+    useEffect(() => {
+      setLocalLocationType(eventData.type_of_location || 'virtual');
+    }, [eventData.type_of_location]);
 
     const handleStartDateChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        handleChange('time_begin', value);
+        setLocalStartDate(value);
+        if (value) {
+          // Convert datetime-local to ISO string for proper date handling
+          const date = dateTimeLocalToDate(value);
+          handleChange('time_begin', date.toISOString());
+        } else {
+          handleChange('time_begin', '');
+        }
       },
       [handleChange]
     );
@@ -658,7 +681,14 @@ const EventsForm = memo(
     const handleEndDateChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        handleChange('time_end', value);
+        setLocalEndDate(value);
+        if (value) {
+          // Convert datetime-local to ISO string for proper date handling
+          const date = dateTimeLocalToDate(value);
+          handleChange('time_end', date.toISOString());
+        } else {
+          handleChange('time_end', '');
+        }
       },
       [handleChange]
     );
@@ -666,6 +696,7 @@ const EventsForm = memo(
     const handleLocationTypeChange = useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
+        setLocalLocationType(value);
         handleChange('type_of_location', value);
       },
       [handleChange]
@@ -673,10 +704,11 @@ const EventsForm = memo(
 
     // Effect to sync the input with eventData when it changes externally
     useEffect(() => {
-      if (eventData.url !== urlInput) {
-        setUrlInput(eventData.url || '');
+      // Only sync if eventData.url has actually changed and is different from current input
+      if (eventData.url && eventData.url !== urlInput) {
+        setUrlInput(eventData.url);
       }
-    }, [eventData.url, urlInput]);
+    }, [eventData.url]); // Only depend on eventData.url to avoid loops
 
     useEffect(() => {
       setShowMobile(isMobile);
@@ -719,384 +751,411 @@ const EventsForm = memo(
       ));
     }, [selectedCapacities, isMobile, darkMode, pageContent, handleRemoveCapacity]);
 
-    const organizationSectionContent = useMemo(
-      () => (
-        <div className="flex flex-col">
-          <h2
-            className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+    const organizationSectionContent = (
+      <div className="flex flex-col">
+        <h2
+          className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+            darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+          }`}
+        >
+          {pageContent['organization-profile-event-organized-by']}
+        </h2>
+        <div
+          className={`flex flex-row gap-2 w-full items-center ${
+            isMobile ? 'text-sm' : 'text-[24px]'
+          } p-2 border ${
+            darkMode ? 'border-white' : 'border-capx-dark-box-bg'
+          } rounded-md bg-transparent`}
+        >
+          {/* Hidden loader component that handles the API call */}
+          <OrganizationLoader
+            organizationId={organizationId}
+            onOrganizationLoaded={handleOrganizationLoaded}
+          />
+
+          {/* Display organization name or loading state */}
+          <span
+            className={`w-full outline-none ${
+              organizationName ? (darkMode ? 'text-white' : 'text-[#829BA4]') : 'text-gray-400'
             }`}
           >
-            {pageContent['organization-profile-event-organized-by']}
-          </h2>
-          <div
-            className={`flex flex-row gap-2 w-full items-center ${
-              isMobile ? 'text-sm' : 'text-[24px]'
-            } p-2 border ${
-              darkMode ? 'border-white' : 'border-capx-dark-box-bg'
-            } rounded-md bg-transparent`}
-          >
-            {/* Hidden loader component that handles the API call */}
-            <OrganizationLoader
-              organizationId={organizationId}
-              onOrganizationLoaded={handleOrganizationLoaded}
-            />
-
-            {/* Display organization name or loading state */}
-            <span
-              className={`w-full outline-none ${
-                organizationName ? (darkMode ? 'text-white' : 'text-[#829BA4]') : 'text-gray-400'
-              }`}
-            >
-              {organizationName || pageContent['loading'] || 'Loading...'}
-            </span>
-          </div>
+            {organizationName ||
+              (organizationLoading
+                ? pageContent['loading'] || 'Loading...'
+                : pageContent['organization-not-found'] || 'Organization not found')}
+          </span>
         </div>
-      ),
-      [organizationId, handleOrganizationLoaded, organizationName, isMobile, darkMode, pageContent]
+      </div>
     );
 
     return (
-      <div className="flex flex-row gap-2">
-        <div className={`flex flex-col gap-2 w-full ${isMobile ? 'p-2' : 'p-4'}`}>
-          <h1
-            className={`${
-              isMobile ? 'text-xl' : 'text-[24px]'
-            } text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2
+      <div className={`${darkMode ? 'dark' : ''} ${isMobile ? 'mobile' : ''}`}>
+        <div className="flex flex-row gap-2">
+          <div className={`flex flex-col gap-2 w-full ${isMobile ? 'p-2' : 'p-4'}`}>
+            <h1
+              className={`${
+                isMobile ? 'text-xl' : 'text-[24px]'
+              } text-capx-dark-box-bg font-Montserrat font-extrabold text-center py-2
             ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}
             `}
-          >
-            {eventType === 'new'
-              ? pageContent['organization-profile-new-event']
-              : pageContent['organization-profile-edit-event']}
-          </h1>
+            >
+              {eventType === 'new'
+                ? pageContent['organization-profile-new-event']
+                : pageContent['organization-profile-edit-event']}
+            </h1>
 
-          <h2
-            className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-              darkMode ? 'text-white' : 'text-[#053749]'
-            }`}
-          >
-            {pageContent['organization-profile-event-url-title']}
-          </h2>
+            <h2
+              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                darkMode ? 'text-white' : 'text-[#053749]'
+              }`}
+            >
+              {pageContent['organization-profile-event-url-title']}
+            </h2>
 
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex gap-2 items-center">
-              <div
-                className={`flex-1 ${isMobile ? 'text-sm' : 'text-[24px]'} ${
-                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
-                } rounded-md bg-transparent`}
-              >
-                <MemoizedInput
-                  type="text"
-                  placeholder={
-                    pageContent['organization-profile-event-url-placeholder'] || 'Insert an URL'
+            <div className="flex flex-col gap-2 w-full">
+              <div className="flex gap-2 items-center">
+                <div
+                  className={`flex-1 ${isMobile ? 'text-sm' : 'text-[24px]'} ${
+                    darkMode ? 'border-white' : 'border-capx-dark-box-bg'
+                  } rounded-md bg-transparent`}
+                >
+                  <input
+                    type="text"
+                    placeholder={
+                      pageContent['organization-profile-event-url-placeholder'] || 'Insert an URL'
+                    }
+                    className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
+                      darkMode
+                        ? 'text-white placeholder-gray-400 border-white'
+                        : 'text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg'
+                    }`}
+                    value={urlInput}
+                    onChange={handleUrlInputChange}
+                    onKeyDown={handleUrlKeyDown}
+                  />
+                </div>
+
+                <button
+                  onClick={handleUrlSubmit}
+                  disabled={isLoading}
+                  className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-base'} rounded ${
+                    darkMode ? 'text-capx-dark-box-bg bg-white' : 'text-white bg-capx-dark-box-bg'
                   }
-                  className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
-                    darkMode
-                      ? 'text-white placeholder-gray-400 border-white'
-                      : 'text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg'
-                  }`}
-                  value={urlInput}
-                  onChange={handleUrlInputChange}
-                  onKeyDown={handleUrlKeyDown}
-                />
-              </div>
-
-              <button
-                onClick={handleUrlSubmit}
-                disabled={isLoading}
-                className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-base'} rounded ${
-                  darkMode ? 'text-capx-dark-box-bg bg-white' : 'text-white bg-capx-dark-box-bg'
-                }
                 `}
-              >
-                {isLoading ? '...' : pageContent['organization-profile-event-search']}
-              </button>
-            </div>
+                >
+                  {isLoading ? '...' : pageContent['organization-profile-event-search']}
+                </button>
+              </div>
 
-            {isLoading && (
+              {isLoading && (
+                <p
+                  className={`${isMobile ? 'text-sm' : 'text-[16px]'} ${
+                    darkMode ? 'text-yellow-300' : 'text-yellow-700'
+                  }`}
+                >
+                  {pageContent['event-form-wikidata-loading'] || 'Searching for event data...'}
+                </p>
+              )}
+
+              {urlError && (
+                <p
+                  className={`${isMobile ? 'text-sm' : 'text-[16px]'} ${
+                    darkMode ? 'text-red-300' : 'text-red-700'
+                  }`}
+                >
+                  {urlError}
+                </p>
+              )}
+
               <p
-                className={`${isMobile ? 'text-sm' : 'text-[16px]'} ${
-                  darkMode ? 'text-yellow-300' : 'text-yellow-700'
+                className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                  darkMode ? 'text-white' : 'text-[#829BA4]'
                 }`}
               >
-                {pageContent['event-form-wikidata-loading'] || 'Searching for event data...'}
+                {pageContent['organization-profile-event-url-tooltip-updated'] ||
+                  'Paste a URL from a Meta Wikimedia event page or a WikiLearn course. The tool will automatically fill in the event details.'}
               </p>
-            )}
-
-            {urlError && (
-              <p
-                className={`${isMobile ? 'text-sm' : 'text-[16px]'} ${
-                  darkMode ? 'text-red-300' : 'text-red-700'
-                }`}
-              >
-                {urlError}
-              </p>
-            )}
-
-            <p
-              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
-                darkMode ? 'text-white' : 'text-[#829BA4]'
-              }`}
-            >
-              {pageContent['organization-profile-event-url-tooltip'] ||
-                'If your URL is a Meta event or a WikiLearn course, the tool will sync some fields automatically.'}
-            </p>
-          </div>
-
-          <h2
-            className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-              darkMode ? 'text-white' : 'text-[#053749]'
-            }`}
-          >
-            {pageContent['organization-profile-event-title-of-event']}
-          </h2>
-          <div
-            className={`flex flex-row gap-2 w-full items-center ${
-              isMobile ? 'text-sm' : 'text-[24px]'
-            } ${darkMode ? 'border-white' : 'border-capx-dark-box-bg'} rounded-md bg-transparent`}
-          >
-            <MemoizedInput
-              value={eventData.name || ''}
-              onChange={handleNameChange}
-              placeholder={pageContent['organization-profile-event-name']}
-              className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
-                darkMode
-                  ? 'text-white placeholder-gray-400 border-white'
-                  : 'text-[#053749] placeholder-[#829BA4] border-capx-dark-box-bg'
-              }`}
-            />
-          </div>
-
-          {/* Render the organization section */}
-          {organizationSectionContent}
-
-          <div className="flex flex-col">
-            <h2
-              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {pageContent['organization-profile-event-start-date']}
-            </h2>
-            <div
-              className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 w-full items-center ${
-                isMobile ? 'text-sm' : 'text-[24px]'
-              }`}
-            >
-              <div
-                className={`flex ${isMobile ? 'w-full' : 'w-1/2'} flex-row gap-2 border ${
-                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
-                } rounded-md`}
-              >
-                <input
-                  type="datetime-local"
-                  value={
-                    eventData.time_begin
-                      ? new Date(eventData.time_begin).toISOString().slice(0, 16)
-                      : ''
-                  }
-                  onChange={handleStartDateChange}
-                  className={`w-full bg-transparent border rounded-md p-2 outline-none 
-                    ${
-                      darkMode
-                        ? 'text-white placeholder-gray-400 [&::-webkit-calendar-picker-indicator]:invert'
-                        : 'text-[#829BA4] placeholder-[#829BA4]'
-                    }
-                  `}
-                />
-              </div>
             </div>
-            <p
-              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
-                darkMode ? 'text-white' : 'text-[#829BA4]'
-              }`}
-            >
-              {pageContent['organization-profile-event-start-date-tooltip']}
-            </p>
-          </div>
 
-          <div className="flex flex-col">
             <h2
               className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                darkMode ? 'text-white' : 'text-[#053749]'
               }`}
             >
-              {pageContent['organization-profile-event-end-date']}
-            </h2>
-            <div
-              className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 w-full items-center ${
-                isMobile ? 'text-sm' : 'text-[24px]'
-              }`}
-            >
-              <div
-                className={`flex ${isMobile ? 'w-full' : 'w-1/2'} flex-row gap-2 border ${
-                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
-                } rounded-md`}
-              >
-                <input
-                  type="datetime-local"
-                  value={
-                    eventData.time_end
-                      ? new Date(eventData.time_end).toISOString().slice(0, 16)
-                      : ''
-                  }
-                  onChange={handleEndDateChange}
-                  className={`w-full bg-transparent rounded-md p-2 outline-none 
-                    ${
-                      darkMode
-                        ? 'text-white placeholder-gray-400 [&::-webkit-calendar-picker-indicator]:invert'
-                        : 'text-[#829BA4] placeholder-[#829BA4]'
-                    }
-                  `}
-                />
-              </div>
-            </div>
-            <p
-              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
-                darkMode ? 'text-white' : 'text-[#829BA4]'
-              }`}
-            >
-              {pageContent['organization-profile-event-end-date-tooltip']}
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <h2
-              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {pageContent['organization-profile-event-format']}
+              {pageContent['organization-profile-event-title-of-event']}
             </h2>
             <div
               className={`flex flex-row gap-2 w-full items-center ${
                 isMobile ? 'text-sm' : 'text-[24px]'
-              } p-2 border ${
-                darkMode ? 'border-white' : 'border-capx-dark-box-bg'
-              } rounded-md bg-transparent`}
+              } ${darkMode ? 'border-white' : 'border-capx-dark-box-bg'} rounded-md bg-transparent`}
             >
-              <select
-                className={`w-full bg-transparent outline-none ${
+              <input
+                type="text"
+                value={localName}
+                onChange={handleNameChange}
+                placeholder={pageContent['organization-profile-event-name']}
+                className={`w-full bg-transparent outline-none border p-2 rounded rounded-[4px] ${
                   darkMode
-                    ? 'text-white placeholder-gray-400'
-                    : 'text-[#829BA4] placeholder-[#829BA4]'
-                }`}
-                value={eventData.type_of_location || 'virtual'}
-                onChange={handleLocationTypeChange}
-              >
-                <option value="virtual">Virtual</option>
-                <option value="in_person">In person</option>
-                <option value="hybrid">Hybrid</option>
-              </select>
-            </div>
-          </div>
-
-          <div className={`flex flex-col gap-4 w-full border-none ${isMobile ? 'mt-2' : 'mt-4'}`}>
-            <h2
-              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {pageContent['organization-profile-event-choose-capacities']}
-            </h2>
-
-            <div className="flex flex-col w-full">
-              <div
-                onClick={() => setIsModalOpen(true)}
-                className={`flex items-center justify-between w-full ${
-                  isMobile ? 'px-3 py-2' : 'px-4 py-3'
-                } border rounded-lg cursor-pointer ${
-                  darkMode
-                    ? 'bg-transparent border-white text-white'
-                    : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg'
-                }`}
-              >
-                <div className="flex-1 flex flex-wrap gap-2">{renderSelectedCapacities()}</div>
-
-                {/* SVG Arrow down icon to mantain UI consistency */}
-                <div className="flex-shrink-0 ml-2">
-                  <div
-                    className={`w-5 h-5 flex items-center justify-center pointer-events-none ${
-                      darkMode ? 'text-white' : 'text-gray-800'
-                    }`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <CapacitySelectionModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              onSelect={handleCapacitySelect}
-              title={pageContent['organization-profile-event-choose-capacities']}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <h2
-              className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {pageContent['organization-profile-event-description']}
-            </h2>
-            <div
-              className={`flex flex-col gap-2 w-full items-center ${
-                isMobile ? 'text-sm' : 'text-[24px]'
-              } p-2 border ${
-                darkMode ? 'border-white' : 'border-capx-dark-box-bg'
-              } rounded-md bg-transparent`}
-            >
-              <MemoizedTextarea
-                value={eventData.description || ''}
-                onChange={handleDescriptionChange}
-                className={`w-full bg-transparent rounded-md outline-none ${
-                  isMobile ? 'min-h-[100px]' : 'min-h-[150px]'
-                } ${
-                  darkMode
-                    ? 'text-white placeholder-gray-400'
-                    : 'text-capx-dark-box-bg placeholder-[#829BA4]'
+                    ? 'text-white placeholder-gray-400 border-white'
+                    : 'text-[#053749] placeholder-[#829BA4] border-capx-dark-box-bg'
                 }`}
               />
             </div>
-            <p
-              className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
-                darkMode ? 'text-white' : 'text-[#829BA4]'
-              }`}
-            >
-              {pageContent['organization-profile-event-description-tooltip']}
-            </p>
+
+            {/* Render the organization section */}
+            {organizationSectionContent}
+
+            <div className="flex flex-col">
+              <h2
+                className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                }`}
+              >
+                {pageContent['organization-profile-event-start-date']}
+              </h2>
+              <div
+                className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 w-full items-center ${
+                  isMobile ? 'text-sm' : 'text-[24px]'
+                }`}
+              >
+                <div className={`flex ${isMobile ? 'w-full' : 'w-1/2'} flex-row gap-2`}>
+                  <CustomDatePicker
+                    value={localStartDate}
+                    onChange={value => {
+                      setLocalStartDate(value);
+                      if (value) {
+                        const date = dateTimeLocalToDate(value);
+                        handleChange('time_begin', date.toISOString());
+                      } else {
+                        handleChange('time_begin', '');
+                      }
+                    }}
+                    className={`w-full bg-transparent border rounded-md p-2 outline-none 
+                    ${
+                      darkMode
+                        ? 'text-white placeholder-gray-400 border-white'
+                        : 'text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg'
+                    }
+                  `}
+                    placeholder={
+                      pageContent['organization-profile-event-start-date'] || 'Data de início'
+                    }
+                  />
+                </div>
+              </div>
+              <p
+                className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                  darkMode ? 'text-white' : 'text-[#829BA4]'
+                }`}
+              >
+                {pageContent['organization-profile-event-start-date-tooltip']}
+              </p>
+            </div>
+
+            <div className="flex flex-col">
+              <h2
+                className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                }`}
+              >
+                {pageContent['organization-profile-event-end-date']}
+              </h2>
+              <div
+                className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-2 w-full items-center ${
+                  isMobile ? 'text-sm' : 'text-[24px]'
+                }`}
+              >
+                <div
+                  className={`flex ${isMobile ? 'w-full' : 'w-1/2'} flex-row gap-2 border ${
+                    darkMode ? 'border-white' : 'border-capx-dark-box-bg'
+                  } rounded-md`}
+                >
+                  <CustomDatePicker
+                    value={localEndDate}
+                    onChange={value => {
+                      setLocalEndDate(value);
+                      if (value) {
+                        const date = dateTimeLocalToDate(value);
+                        handleChange('time_end', date.toISOString());
+                      } else {
+                        handleChange('time_end', '');
+                      }
+                    }}
+                    className={`w-full bg-transparent rounded-md p-2 outline-none 
+                    ${
+                      darkMode
+                        ? 'text-white placeholder-gray-400 border-white'
+                        : 'text-[#829BA4] placeholder-[#829BA4] border-capx-dark-box-bg'
+                    }
+                  `}
+                    placeholder={
+                      pageContent['organization-profile-event-end-date'] || 'Data de fim'
+                    }
+                  />
+                </div>
+              </div>
+              <p
+                className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                  darkMode ? 'text-white' : 'text-[#829BA4]'
+                }`}
+              >
+                {pageContent['organization-profile-event-end-date-tooltip']}
+              </p>
+            </div>
+
+            <div className="flex flex-col">
+              <h2
+                className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                }`}
+              >
+                {pageContent['organization-profile-event-format']}
+              </h2>
+              <div
+                className={`flex flex-row gap-2 w-full items-center ${
+                  isMobile ? 'text-sm' : 'text-[24px]'
+                } p-2 border ${
+                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
+                } rounded-md bg-transparent`}
+              >
+                <select
+                  className={`w-full bg-transparent outline-none ${
+                    darkMode
+                      ? 'text-white placeholder-gray-400'
+                      : 'text-[#829BA4] placeholder-[#829BA4]'
+                  }`}
+                  value={localLocationType}
+                  onChange={handleLocationTypeChange}
+                >
+                  <option value="virtual">Virtual</option>
+                  <option value="in_person">In person</option>
+                  <option value="hybrid">Hybrid</option>
+                </select>
+              </div>
+            </div>
+
+            <div className={`flex flex-col gap-4 w-full border-none ${isMobile ? 'mt-2' : 'mt-4'}`}>
+              <h2
+                className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                }`}
+              >
+                {pageContent['organization-profile-event-choose-capacities']}
+              </h2>
+
+              <div className="flex flex-col w-full">
+                <div
+                  onClick={() => setIsModalOpen(true)}
+                  className={`flex items-center justify-between w-full ${
+                    isMobile ? 'px-3 py-2' : 'px-4 py-3'
+                  } border rounded-lg cursor-pointer ${
+                    darkMode
+                      ? 'bg-transparent border-white text-white'
+                      : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg'
+                  }`}
+                >
+                  <div className="flex-1 flex flex-wrap gap-2">{renderSelectedCapacities()}</div>
+
+                  <div className="flex-shrink-0 ml-2">
+                    <div
+                      className={`w-5 h-5 flex items-center justify-center pointer-events-none ${
+                        darkMode ? 'text-white' : 'text-gray-800'
+                      }`}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <CapacitySelectionModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelect={handleCapacitySelect}
+                title={pageContent['organization-profile-event-choose-capacities']}
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <h2
+                className={`${isMobile ? 'text-lg' : 'text-[24px]'} font-Montserrat font-bold py-2 ${
+                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                }`}
+              >
+                {pageContent['organization-profile-event-description']}
+              </h2>
+              <div
+                className={`flex flex-col gap-2 w-full items-center ${
+                  isMobile ? 'text-sm' : 'text-[24px]'
+                } p-2 border ${
+                  darkMode ? 'border-white' : 'border-capx-dark-box-bg'
+                } rounded-md bg-transparent`}
+              >
+                <textarea
+                  value={localDescription}
+                  onChange={handleDescriptionChange}
+                  className={`w-full bg-transparent rounded-md outline-none ${
+                    isMobile ? 'min-h-[100px]' : 'min-h-[150px]'
+                  } ${
+                    darkMode
+                      ? 'text-white placeholder-gray-400'
+                      : 'text-capx-dark-box-bg placeholder-[#829BA4]'
+                  }`}
+                />
+              </div>
+              <p
+                className={`${isMobile ? 'text-sm' : 'text-[20px]'} ${
+                  darkMode ? 'text-white' : 'text-[#829BA4]'
+                }`}
+              >
+                {pageContent['organization-profile-event-description-tooltip']}
+              </p>
+            </div>
           </div>
         </div>
       </div>
     );
   },
-  // Custom comparator for React.memo
   (prevProps, nextProps) => {
-    // Compare only the important props for rendering
-    return (
-      prevProps.index === nextProps.index &&
-      prevProps.eventData.id === nextProps.eventData.id &&
-      prevProps.eventData.name === nextProps.eventData.name &&
-      prevProps.eventData.url === nextProps.eventData.url &&
-      prevProps.eventData.description === nextProps.eventData.description &&
-      JSON.stringify(prevProps.eventData.related_skills) ===
-        JSON.stringify(nextProps.eventData.related_skills)
-    );
+    // Enhanced comparator to prevent unnecessary re-renders
+    if (prevProps.index !== nextProps.index) return false;
+    if (prevProps.eventType !== nextProps.eventType) return false;
+
+    // Deep comparison of event data
+    const prevEvent = prevProps.eventData;
+    const nextEvent = nextProps.eventData;
+
+    // Compare essential fields
+    if (prevEvent.id !== nextEvent.id) return false;
+    if (prevEvent.organization !== nextEvent.organization) return false;
+    if (prevEvent.name !== nextEvent.name) return false;
+    if (prevEvent.description !== nextEvent.description) return false;
+    if (prevEvent.url !== nextEvent.url) return false;
+    if (prevEvent.time_begin !== nextEvent.time_begin) return false;
+    if (prevEvent.time_end !== nextEvent.time_end) return false;
+    if (prevEvent.type_of_location !== nextEvent.type_of_location) return false;
+
+    // Compare related_skills arrays
+    const prevSkills = JSON.stringify(prevEvent.related_skills);
+    const nextSkills = JSON.stringify(nextEvent.related_skills);
+    if (prevSkills !== nextSkills) return false;
+
+    // Compare callback functions by reference
+    if (prevProps.onChange !== nextProps.onChange) return false;
+    if (prevProps.onDelete !== nextProps.onDelete) return false;
+
+    return true; // Props are equal, prevent re-render
   }
 );
 
