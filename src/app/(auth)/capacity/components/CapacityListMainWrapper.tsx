@@ -154,12 +154,12 @@ const ChildCapacities = ({
       {/* Loader component handles description fetching */}
       <DescriptionLoader capacityIds={capacityIds} />
 
-      <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
-        <div className={`flex gap-4 pb-4 ${isMobile ? 'w-full' : 'w-fit'} max-w-screen-xl`}>
+      <div className={`mt-4 overflow-x-auto scrollbar-hide ${isMobile ? 'w-full' : 'w-full'}`}>
+        <div className={`flex ${isMobile ? 'gap-2' : 'gap-4'} pb-4 ${isMobile ? 'w-full min-w-full' : 'w-fit'} ${isMobile ? 'w-full' : 'max-w-screen-xl'}`}>
           {childrenWithParents.map((child, index) => (
             <div
               key={`${parentCode}-${child.code}-${index}`}
-              className={`mt-4 ${isMobile ? 'w-full' : 'max-w-[992px]'}`}
+              className={`mt-4 ${isMobile ? 'w-[280px] flex-shrink-0' : 'max-w-[992px]'}`}
             >
               <CapacityCard
                 {...child}
@@ -285,7 +285,7 @@ function CapacityListContent() {
   }
 
   return (
-    <section className="flex flex-col max-w-screen-xl mx-auto py-8 px-4 lg:px-12 gap-[40px]">
+    <section className={`flex flex-col ${isMobile ? 'w-full' : 'max-w-screen-xl mx-auto'} py-8 px-4 lg:px-12 gap-[40px]`}>
       {/* Separate loader components for descriptions */}
       <DescriptionLoader capacityIds={rootCapacityIds} />
       <DescriptionLoader capacityIds={searchCapacityIds} />
@@ -301,7 +301,7 @@ function CapacityListContent() {
               key={`root-${capacity.code}-${index}`}
               className={
                 isMobile
-                  ? 'w-full'
+                  ? 'w-full overflow-hidden'
                   : `xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`
               }
             >
