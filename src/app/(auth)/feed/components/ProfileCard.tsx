@@ -123,30 +123,34 @@ export const ProfileCard = ({
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
-                  {profile_image || avatar ? (
-                    <Image
-                      src={
-                        isOrganization
-                          ? formatWikiImageUrl(profile_image || '')
-                          : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
-                      }
-                      alt={username || 'User profile'}
+                {profile_image || avatar ? (
+                  <Image
+                    src={
+                      isOrganization
+                      ? formatWikiImageUrl(
+                       profile_image || ""
+                      )
+                      : getProfileImage(
+                      profile_image,
+                      avatar ? Number(avatar) : null,
+                      avatars
+                    )}
+                    alt={pageContent["alt-profile-picture"] || "User profile picture"}
+                    fill
+                    className="object-contain rounded-[4px]"
+                    unoptimized
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Image src={defaultAvatar}
+                      alt={pageContent["alt-profile-picture-default"] || "Default user profile picture"}
                       fill
                       className="object-contain rounded-[4px]"
                       unoptimized
                       loading="lazy"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Image
-                        src={defaultAvatar}
-                        alt="User profile"
-                        fill
-                        className="object-contain rounded-[4px]"
-                        unoptimized
-                        loading="lazy"
-                      />
-                    </div>
+                  </div>
                   )}
                 </div>
               </div>
@@ -211,7 +215,7 @@ export const ProfileCard = ({
               >
                 <Image
                   src={darkMode ? AccountCircleWhite : AccountCircle}
-                  alt={pageContent['body-profile-languages-title']}
+                  alt={pageContent["alt-view-profile-user"] || "View user profile"}
                   width={32}
                   height={32}
                   className="w-[32px] h-[32px] md:w-[42px] md:h-[42px]"
@@ -221,19 +225,19 @@ export const ProfileCard = ({
               {/* Bookmark Button */}
               {onToggleSaved && (
                 <button
-                  className={`inline-flex items-center justify-center p-1.5 rounded-full ${
-                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                  }`}
-                  onClick={toggleSaved}
-                  aria-label={isSaved ? 'Remove dos salvos' : 'Salvar perfil'}
+                className={`inline-flex items-center justify-center p-1.5 rounded-full ${
+                  darkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                }`}
+                onClick={toggleSaved}
+                aria-label={isSaved ? pageContent["alt-bookmark-remove"] || "Remove this profile from your saved list" : pageContent["alt-bookmark-add"] || "Save this profile to your saved list"}
                 >
-                  <Image
-                    src={bookmarkIcon}
-                    alt={isSaved ? 'Perfil salvo' : 'Salvar perfil'}
-                    width={32}
-                    height={32}
-                    className="w-[32px] h-[32px]"
-                  />
+                <Image
+                  src={bookmarkIcon}
+                  alt={isSaved ? pageContent["alt-bookmark-saved"] || "Profile saved to your list" : pageContent["alt-bookmark-add"] || "Save this profile to your saved list"}
+                  width={32}
+                  height={32}
+                  className="w-[32px] h-[32px]"
+                />
                 </button>
               )}
             </div>

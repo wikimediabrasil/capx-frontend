@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
 import { useState, useEffect } from 'react';
@@ -10,15 +11,19 @@ import { useState, useEffect } from 'react';
 export default function LoadingStateWithFallback({ fullScreen = false }: { fullScreen?: boolean }) {
   const [mounted, setMounted] = useState(false);
   let darkMode = false;
+  let pageContent = {};
 
   try {
     // Only use the hook if we're in a client component
     // This is safer than using it in useEffect
     const theme = useTheme();
+    const app = useApp();
     darkMode = theme?.darkMode || false;
+    pageContent = app?.pageContent || {};
   } catch (error) {
     // If ThemeContext is not available, use default theme
     darkMode = false;
+    pageContent = {};
   }
 
   // Handle mounting to avoid hydration mismatch
@@ -43,12 +48,12 @@ export default function LoadingStateWithFallback({ fullScreen = false }: { fullS
       } ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
       role="status"
       data-testid="loading-state"
-      aria-label="Loading"
+      aria-label={pageContent["aria-label-loading"] || "Content is loading"}
     >
       <div className="relative w-16 h-16">
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
-          alt="CAPX Logo"
+          alt={pageContent["alt-logo-loading"] || "CapX - Capacity Exchange logo, page is loading"}
           className="animate-pulse-fade object-contain"
           style={{ width: 'auto', height: 'auto' }}
           priority

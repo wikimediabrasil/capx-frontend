@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
 import SimpleLoading from './SimpleLoading';
@@ -8,6 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 // The core loading component that requires ThemeContext
 function ThemeAwareLoading({ fullScreen = false }) {
   const { darkMode } = useTheme();
+  const { pageContent } = useApp();
 
   return (
     <div
@@ -16,12 +18,12 @@ function ThemeAwareLoading({ fullScreen = false }) {
       } ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
       role="status"
       data-testid="loading-state"
-      aria-label="Loading"
+      aria-label={pageContent["aria-label-loading"] || "Content is loading"}
     >
       <div className="relative w-16 h-16">
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
-          alt="CAPX Logo"
+          alt={pageContent["alt-logo-loading"] || "CapX - Capacity Exchange logo, page is loading"}
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}

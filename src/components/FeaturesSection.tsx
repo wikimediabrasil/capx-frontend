@@ -13,6 +13,7 @@ const Row = (illustration: StaticImageData, description: string, index: number, 
   };
 
   const { darkMode } = useTheme();
+  const { pageContent } = useApp();
 
   return (
     <div
@@ -25,7 +26,7 @@ const Row = (illustration: StaticImageData, description: string, index: number, 
           <div className="relative w-full h-full">
             <Image
               src={illustration}
-              alt={description || 'Image description'}
+              alt={pageContent['alt-illustration']?.replace('{description}', description) || description || 'Feature illustration'}
               className="object-contain"
               fill
             />
