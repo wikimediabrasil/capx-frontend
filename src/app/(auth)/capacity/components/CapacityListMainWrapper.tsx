@@ -157,7 +157,10 @@ const ChildCapacities = ({
       <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
         <div className={`flex gap-4 pb-4 ${isMobile ? 'w-full' : 'w-fit'} max-w-screen-xl`}>
           {childrenWithParents.map((child, index) => (
-            <div key={`${parentCode}-${child.code}-${index}`} className={`mt-4 ${isMobile ? 'w-full' : 'max-w-[992px]'}`}>
+            <div
+              key={`${parentCode}-${child.code}-${index}`}
+              className={`mt-4 ${isMobile ? 'w-full' : 'max-w-[992px]'}`}
+            >
               <CapacityCard
                 {...child}
                 isExpanded={!!expandedCapacities[child.code]}
@@ -296,7 +299,11 @@ function CapacityListContent() {
           {rootCapacities.map((capacity, index) => (
             <div
               key={`root-${capacity.code}-${index}`}
-              className={isMobile ? 'w-full' : `xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`}
+              className={
+                isMobile
+                  ? 'w-full'
+                  : `xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`
+              }
             >
               <CapacityCard
                 {...capacity}

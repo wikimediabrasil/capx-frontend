@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { setDocumentLocale } from "@/lib/utils/dateLocale";
+import { setDocumentLocale } from '@/lib/utils/dateLocale';
 
 interface AppContextType {
   isMobile: boolean;
@@ -79,7 +79,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (language) {
-        localStorage.setItem("language", language);
+        localStorage.setItem('language', language);
         // Set locale in the document to affect native calendars
         setDocumentLocale(language);
       }

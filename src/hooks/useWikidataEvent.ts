@@ -30,7 +30,7 @@ export function useWikidataEvent(): UseWikidataEventReturn {
    */
   const fetchByURL = async (url: string): Promise<void> => {
     if (!url) {
-      setError(new Error("URL not provided"));
+      setError(new Error('URL not provided'));
       return;
     }
 
@@ -42,14 +42,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error("Unable to fetch event data"));
+        setError(new Error('Unable to fetch event data'));
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Unknown error fetching data")
-      );
+      setError(err instanceof Error ? err : new Error('Unknown error fetching data'));
       setEventData(null);
     } finally {
       setLoading(false);
@@ -62,7 +58,7 @@ export function useWikidataEvent(): UseWikidataEventReturn {
    */
   const fetchByQID = async (qid: string): Promise<void> => {
     if (!qid) {
-      setError(new Error("QID not provided"));
+      setError(new Error('QID not provided'));
       return;
     }
 
@@ -74,14 +70,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(new Error("Unable to fetch event data"));
+        setError(new Error('Unable to fetch event data'));
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Unknown error fetching data")
-      );
+      setError(err instanceof Error ? err : new Error('Unknown error fetching data'));
       setEventData(null);
     } finally {
       setLoading(false);
@@ -94,7 +86,7 @@ export function useWikidataEvent(): UseWikidataEventReturn {
    */
   const fetchByGenericURL = async (url: string): Promise<void> => {
     if (!url) {
-      setError(new Error("URL not provided"));
+      setError(new Error('URL not provided'));
       return;
     }
 
@@ -106,16 +98,10 @@ export function useWikidataEvent(): UseWikidataEventReturn {
       setEventData(data);
 
       if (!data) {
-        setError(
-          new Error("Unable to fetch event data from this URL")
-        );
+        setError(new Error('Unable to fetch event data from this URL'));
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Unknown error fetching data")
-      );
+      setError(err instanceof Error ? err : new Error('Unknown error fetching data'));
       setEventData(null);
     } finally {
       setLoading(false);
