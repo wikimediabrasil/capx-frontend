@@ -51,7 +51,7 @@ const ChildCapacities = ({
 
   const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
 
-  const { pageContent } = useApp();
+  const { pageContent, isMobile } = useApp();
   // Get IDs for loader component instead of loading in this component
   const capacityIds = children.map(child => child.code).filter(Boolean) as number[];
 
@@ -155,9 +155,9 @@ const ChildCapacities = ({
       <DescriptionLoader capacityIds={capacityIds} />
 
       <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
-        <div className="flex gap-4 pb-4 w-fit max-w-screen-xl">
+        <div className={`flex gap-4 pb-4 ${isMobile ? 'w-full' : 'w-fit'} max-w-screen-xl`}>
           {childrenWithParents.map((child, index) => (
-            <div key={`${parentCode}-${child.code}-${index}`} className="mt-4 max-w-[992px]">
+            <div key={`${parentCode}-${child.code}-${index}`} className={`mt-4 ${isMobile ? 'w-full' : 'max-w-[992px]'}`}>
               <CapacityCard
                 {...child}
                 isExpanded={!!expandedCapacities[child.code]}
@@ -193,7 +193,7 @@ const ChildCapacities = ({
 
 // Main component with content
 function CapacityListContent() {
-  const { language } = useApp();
+  const { language, isMobile } = useApp();
 
   // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
@@ -296,7 +296,7 @@ function CapacityListContent() {
           {rootCapacities.map((capacity, index) => (
             <div
               key={`root-${capacity.code}-${index}`}
-              className={`xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`}
+              className={isMobile ? 'w-full' : `xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`}
             >
               <CapacityCard
                 {...capacity}

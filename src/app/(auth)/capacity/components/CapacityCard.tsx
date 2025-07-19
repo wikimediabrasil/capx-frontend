@@ -368,14 +368,14 @@ export function CapacityCard({
           <div
             className={`flex p-4 ${
               isMobile
-                ? 'h-[191px] flex-col mt-12 mx-6 gap-6'
+                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
                 : 'flex-row h-[326px] justify-around items-center'
             }`}
           >
             {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-              <div className="flex items-center w-[378px] h-full">
+              <div className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}>
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
@@ -418,14 +418,14 @@ export function CapacityCard({
           <div
             className={`flex p-4 ${
               isMobile
-                ? 'h-[191px] flex-col mt-12 mx-6 gap-6'
+                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
                 : 'flex-row h-[326px] justify-around items-center'
             }`}
           >
             {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-              <div className="flex items-center w-[378px] h-full">
+              <div className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}>
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
@@ -486,7 +486,7 @@ export function CapacityCard({
                 : renderIcon(68, icon)}
             <div
               className={`flex flex-row items-center justify-between ${
-                isRoot ? 'w-max' : ''
+                isRoot && !isMobile ? 'w-max' : ''
               } min-w-0 flex-1`}
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
