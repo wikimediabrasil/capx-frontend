@@ -368,14 +368,16 @@ export function CapacityCard({
           <div
             className={`flex p-4 ${
               isMobile
-                ? 'h-[191px] flex-col mt-12 mx-6 gap-6'
+                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
                 : 'flex-row h-[326px] justify-around items-center'
             }`}
           >
             {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-              <div className="flex items-center w-[378px] h-full">
+              <div
+                className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
+              >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
@@ -418,14 +420,16 @@ export function CapacityCard({
           <div
             className={`flex p-4 ${
               isMobile
-                ? 'h-[191px] flex-col mt-12 mx-6 gap-6'
+                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
                 : 'flex-row h-[326px] justify-around items-center'
             }`}
           >
             {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-              <div className="flex items-center w-[378px] h-full">
+              <div
+                className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
+              >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
@@ -460,8 +464,8 @@ export function CapacityCard({
           )}
         </div>
         {isExpanded && (
-          <div ref={childrenContainerRef} className="mt-4 w-full overflow-x-auto scrollbar-hide">
-            <div className="flex flex-nowrap gap-4 pb-4">
+          <div ref={childrenContainerRef} className={`mt-4 ${isMobile ? 'w-full' : 'w-full'} overflow-x-auto scrollbar-hide`}>
+            <div className={`flex flex-nowrap ${isMobile ? 'gap-2' : 'gap-4'} pb-4 ${isMobile ? 'w-full' : ''}`}>
               {/* the expanded content will be rendered here by the parent component */}
             </div>
           </div>
@@ -477,7 +481,7 @@ export function CapacityCard({
         onClick={handleCardClick}
         className={`flex flex-col w-full rounded-lg ${bgColorClass} cursor-pointer hover:shadow-md transition-shadow`}
       >
-        <div className="flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-12">
+        <div className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 ${isMobile ? 'px-4' : 'px-12'}`}>
           <div className={`flex items-center ${isRoot ? 'gap-12' : 'gap-4'} min-w-0`}>
             {icon && isRoot
               ? renderIcon(48, icon)
@@ -486,7 +490,7 @@ export function CapacityCard({
                 : renderIcon(68, icon)}
             <div
               className={`flex flex-row items-center justify-between ${
-                isRoot ? 'w-max' : ''
+                isRoot && !isMobile ? 'w-max' : ''
               } min-w-0 flex-1`}
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
@@ -506,7 +510,7 @@ export function CapacityCard({
               </Link>
             </div>
           </div>
-          <div className={`flex items-center gap-4 mr-4 z-10 flex-shrink-0`}>
+          <div className={`flex items-center gap-4 ${isMobile ? 'mr-2' : 'mr-4'} z-10 flex-shrink-0`}>
             <div className="relative" style={{ zIndex: 10, visibility: 'visible' }}>
               {isRoot
                 ? renderInfoButton(24, InfoIcon)

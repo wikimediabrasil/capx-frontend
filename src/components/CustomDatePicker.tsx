@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { useApp } from "@/contexts/AppContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import { getLocaleFromLanguage, getDatePickerTexts } from "@/lib/utils/dateLocale";
+import { useState, useRef, useEffect } from 'react';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { getLocaleFromLanguage, getDatePickerTexts } from '@/lib/utils/dateLocale';
 
 interface CustomDatePickerProps {
   value: string; // format: "2025-07-19T14:30"
@@ -24,9 +24,9 @@ interface DateTimeValue {
 export default function CustomDatePicker({
   value,
   onChange,
-  className = "",
+  className = '',
   disabled = false,
-  placeholder = ""
+  placeholder = '',
 }: CustomDatePickerProps) {
   const { language, pageContent } = useApp();
   const { darkMode } = useTheme();
@@ -47,7 +47,7 @@ export default function CustomDatePicker({
         month: date.getMonth(),
         day: date.getDate(),
         hour: date.getHours(),
-        minute: date.getMinutes()
+        minute: date.getMinutes(),
       };
     } catch {
       return null;
@@ -59,7 +59,7 @@ export default function CustomDatePicker({
   // Localized texts
   const getLocalizedTexts = () => {
     const locale = getLocaleFromLanguage(language);
-    
+
     // Month names
     const months = Array.from({ length: 12 }, (_, i) => {
       const date = new Date(2024, i, 1);
@@ -92,7 +92,7 @@ export default function CustomDatePicker({
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: locale.startsWith('en-')
+        hour12: locale.startsWith('en-'),
       });
     } catch {
       return val;
@@ -103,20 +103,20 @@ export default function CustomDatePicker({
   const getCalendarDays = () => {
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
-    
+
     // First day of the month
     const firstDay = new Date(year, month, 1);
     // Last day of the month
     const lastDay = new Date(year, month + 1, 0);
-    
+
     // First Sunday of the week that contains the first day
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - startDate.getDay());
-    
+
     // Last Saturday of the week that contains the last day
     const endDate = new Date(lastDay);
     endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
-    
+
     const days: Array<{
       date: Date;
       isCurrentMonth: boolean;
@@ -124,20 +124,22 @@ export default function CustomDatePicker({
       isSelected: boolean;
     }> = [];
     const current = new Date(startDate);
-    
+
     while (current <= endDate) {
       days.push({
         date: new Date(current),
         isCurrentMonth: current.getMonth() === month,
         isToday: current.toDateString() === new Date().toDateString(),
-        isSelected: Boolean(currentValue && 
-                   current.getFullYear() === currentValue.year &&
-                   current.getMonth() === currentValue.month &&
-                   current.getDate() === currentValue.day)
+        isSelected: Boolean(
+          currentValue &&
+            current.getFullYear() === currentValue.year &&
+            current.getMonth() === currentValue.month &&
+            current.getDate() === currentValue.day
+        ),
       });
       current.setDate(current.getDate() + 1);
     }
-    
+
     return days;
   };
 
@@ -155,10 +157,16 @@ export default function CustomDatePicker({
       month: date.getMonth(),
       day: date.getDate(),
       hour: currentValue?.hour || 12,
-      minute: currentValue?.minute || 0
+      minute: currentValue?.minute || 0,
     };
-    
-    const newDate = new Date(newValue.year, newValue.month, newValue.day, newValue.hour, newValue.minute);
+
+    const newDate = new Date(
+      newValue.year,
+      newValue.month,
+      newValue.day,
+      newValue.hour,
+      newValue.minute
+    );
     onChange(newDate.toISOString().slice(0, 16));
     setCurrentView('time');
   };
@@ -166,9 +174,15 @@ export default function CustomDatePicker({
   // Update time
   const updateTime = (field: 'hour' | 'minute', val: number) => {
     if (!currentValue) return;
-    
+
     const newValue = { ...currentValue, [field]: val };
-    const newDate = new Date(newValue.year, newValue.month, newValue.day, newValue.hour, newValue.minute);
+    const newDate = new Date(
+      newValue.year,
+      newValue.month,
+      newValue.day,
+      newValue.hour,
+      newValue.minute
+    );
     onChange(newDate.toISOString().slice(0, 16));
   };
 
@@ -216,7 +230,7 @@ export default function CustomDatePicker({
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={`${className} cursor-pointer`}
         />
-        <div 
+        <div
           className={`absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none ${
             darkMode ? 'text-white' : 'text-gray-600'
           }`}
@@ -227,20 +241,25 @@ export default function CustomDatePicker({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className={`absolute top-full left-0 mt-1 z-50 w-80 rounded-lg border shadow-lg ${
-          darkMode 
-            ? 'bg-capx-dark-box-bg border-white text-white' 
-            : 'bg-white border-gray-300 text-gray-800'
-        }`}>
-          
+        <div
+          className={`absolute top-full left-0 mt-1 z-50 w-80 rounded-lg border shadow-lg ${
+            darkMode
+              ? 'bg-capx-dark-box-bg border-white text-white'
+              : 'bg-white border-gray-300 text-gray-800'
+          }`}
+        >
           {/* Header with tabs */}
           <div className={`flex border-b ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
             <button
               onClick={() => setCurrentView('calendar')}
               className={`flex-1 px-4 py-2 text-sm font-medium ${
                 currentView === 'calendar'
-                  ? darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
-                  : darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+                  ? darkMode
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-gray-100 text-gray-900'
+                  : darkMode
+                    ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               {texts.date}
@@ -249,8 +268,12 @@ export default function CustomDatePicker({
               onClick={() => setCurrentView('time')}
               className={`flex-1 px-4 py-2 text-sm font-medium ${
                 currentView === 'time'
-                  ? darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
-                  : darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+                  ? darkMode
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-gray-100 text-gray-900'
+                  : darkMode
+                    ? 'text-gray-300 hover:text-white'
+                    : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               {texts.time}
@@ -299,13 +322,19 @@ export default function CustomDatePicker({
                       key={i}
                       onClick={() => selectDate(day.date)}
                       className={`p-2 text-sm rounded text-center hover:bg-opacity-20 ${
-                        !day.isCurrentMonth 
-                          ? darkMode ? 'text-gray-500' : 'text-gray-400'
+                        !day.isCurrentMonth
+                          ? darkMode
+                            ? 'text-gray-500'
+                            : 'text-gray-400'
                           : day.isSelected
                             ? 'bg-blue-500 text-white'
                             : day.isToday
-                              ? darkMode ? 'bg-blue-800 text-blue-200' : 'bg-blue-100 text-blue-800'
-                              : darkMode ? 'hover:bg-white' : 'hover:bg-gray-500'
+                              ? darkMode
+                                ? 'bg-blue-800 text-blue-200'
+                                : 'bg-blue-100 text-blue-800'
+                              : darkMode
+                                ? 'hover:bg-white'
+                                : 'hover:bg-gray-500'
                       }`}
                     >
                       {day.date.getDate()}
@@ -322,10 +351,10 @@ export default function CustomDatePicker({
                     <label className="text-xs mb-1">Hora</label>
                     <select
                       value={currentValue?.hour || 12}
-                      onChange={(e) => updateTime('hour', parseInt(e.target.value))}
+                      onChange={e => updateTime('hour', parseInt(e.target.value))}
                       className={`p-2 rounded border ${
-                        darkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white' 
+                        darkMode
+                          ? 'bg-gray-700 border-gray-600 text-white'
                           : 'bg-white border-gray-300 text-gray-800'
                       }`}
                     >
@@ -344,10 +373,10 @@ export default function CustomDatePicker({
                     <label className="text-xs mb-1">Min</label>
                     <select
                       value={currentValue?.minute || 0}
-                      onChange={(e) => updateTime('minute', parseInt(e.target.value))}
+                      onChange={e => updateTime('minute', parseInt(e.target.value))}
                       className={`p-2 rounded border ${
-                        darkMode 
-                          ? 'bg-gray-700 border-gray-600 text-white' 
+                        darkMode
+                          ? 'bg-gray-700 border-gray-600 text-white'
                           : 'bg-white border-gray-300 text-gray-800'
                       }`}
                     >
@@ -367,20 +396,20 @@ export default function CustomDatePicker({
               <button
                 onClick={setToday}
                 className={`px-3 py-1 text-sm rounded ${
-                  darkMode 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                  darkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                 }`}
               >
                 {texts.today}
               </button>
-              
+
               <div className="space-x-2">
                 <button
                   onClick={clearValue}
                   className={`px-3 py-1 text-sm rounded ${
-                    darkMode 
-                      ? 'bg-red-800 hover:bg-red-700 text-white' 
+                    darkMode
+                      ? 'bg-red-800 hover:bg-red-700 text-white'
                       : 'bg-red-100 hover:bg-red-200 text-red-800'
                   }`}
                 >
@@ -389,8 +418,8 @@ export default function CustomDatePicker({
                 <button
                   onClick={() => setIsOpen(false)}
                   className={`px-3 py-1 text-sm rounded ${
-                    darkMode 
-                      ? 'bg-blue-800 hover:bg-blue-700 text-white' 
+                    darkMode
+                      ? 'bg-blue-800 hover:bg-blue-700 text-white'
                       : 'bg-blue-100 hover:bg-blue-200 text-blue-800'
                   }`}
                 >
