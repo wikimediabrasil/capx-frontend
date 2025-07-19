@@ -7,9 +7,13 @@ import LightMode from '@/public/static/images/light_mode.svg';
 export default function DarkModeButton() {
   const { darkMode, setDarkMode } = useTheme();
 
+  const handleThemeToggle = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
     <button
-      onClick={() => setDarkMode(!darkMode)}
+      onClick={handleThemeToggle}
       className="flex items-center cursor-pointer py-[8px]"
       aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
     >

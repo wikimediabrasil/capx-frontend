@@ -12,14 +12,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
+  // Wrapper function to log setDarkMode calls
+  const setDarkModeWithLog = (value: boolean) => {
+    setDarkMode(value);
+  };
+
   useEffect(() => {
     // Only execute on the client
     if (typeof window === 'undefined') return;
 
     try {
       const savedTheme = localStorage.getItem('theme');
+      
       if (savedTheme) {
-        setDarkMode(savedTheme === 'dark');
+        const shouldBeDark = savedTheme === 'dark';
+        setDarkMode(shouldBeDark);
       } else {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         setDarkMode(prefersDark);
@@ -30,6 +37,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     setMounted(true);
   }, []);
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      // Only update if no theme is saved in localStorage
+      const savedTheme = localStorage.getItem('theme');
+      if (!savedTheme) {
+        setDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    };
+  }, [mounted, setDarkMode]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
@@ -49,7 +77,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ darkMode, setDarkMode }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ darkMode, setDarkMode: setDarkModeWithLog }}>{children}</ThemeContext.Provider>
   );
 }
 

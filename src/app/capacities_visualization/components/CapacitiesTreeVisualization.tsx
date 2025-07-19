@@ -6,29 +6,7 @@ import { staticCapacities, Capacity } from '../data/staticCapacities';
 
 export default function CapacitiesTreeVisualization() {
   const [capacities, setCapacities] = useState<Capacity[]>(staticCapacities);
-  const [isLoading, setIsLoading] = useState(false); // Temporariamente desabilitado
-
-  // Temporariamente comentado para evitar problemas de autenticação
-  /*
-  useEffect(() => {
-    const loadCapacitiesWithDescriptions = async () => {
-      try {
-        setIsLoading(true);
-        // Buscar descrições do Metabase
-        const capacitiesWithDescriptions = await fetchCapacityDescriptions(STATIC_CAPACITIES, "pt");
-        setCapacities(capacitiesWithDescriptions);
-      } catch (error) {
-        console.error("Erro ao carregar descrições das capacidades:", error);
-        // Em caso de erro, usar as capacidades originais
-        setCapacities(STATIC_CAPACITIES);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCapacitiesWithDescriptions();
-  }, []);
-  */
+  const [isLoading, setIsLoading] = useState(false); 
 
   if (isLoading) {
     return (
