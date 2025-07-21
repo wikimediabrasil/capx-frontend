@@ -534,6 +534,11 @@
 	"lets-connect-info-popup-continue": "Confirmé/Mandé",
 	"lets-connect-success-popup-close-tab": "Saré la scheda",
 	"lets-connect-success-popup-title": "Bin fàit!",
+	"organization-profile-event-url-invalid": "URL nen bon. Për piasì, ch'a deuvra dj'URL ëd Meta Wikimedia (për esempi, meta.wikimedia.org/wiki/Event) o URL ëd WikiLearn (app.learn.wiki/learning/course/...)",
+	"organization-profile-event-url-tooltip-updated": "Ancolé n'URL da na pàgina d'eveniment ëd Meta Wikimedia o ëd cors ëd WikiLearn. L'utiss a completërà an automàtich ij detaj dl'eveniment.",
+	"event-form-wikidata-loading": "Arserca dij dàit ëd l'eveniment...",
+	"event-form-wikidata-not-found": "Impossìbil trové ij dàit ëd l'eveniment për cost URL",
+	"event-form-wikidata-error": "A-i é staje n'eror durant l'arserca dij dàit ëd l'eveniment",
 	"lets-connect-success-popup-info": "Adess, për livré ël process, a dev ësgnaché su «Argistré ël profil». Tute le modìfiche fàite a sò profil CapX a saran argistrà.",
 	"lets-connect-alt-banner": "Tìtol ëd Let's Connect",
 	"statistics-section-title": "Statìstiche an sle piataforme",
@@ -553,5 +558,10 @@
 	"body-profile-badges-no-badges": "A l'ha ancor gnun distintiv ativ.",
 	"body-profile-badges-title": "Distintiv",
 	"body-profile-badges-see-all": "Smon-e tuti ij distintiv",
-	"body-profile-badges-description": "Vëdde la colession completa dij distintiv che a l'ha vagnà (e coj ch'a lo speto!)"
+	"body-profile-badges-description": "Vëdde la colession completa dij distintiv che a l'ha vagnà (e coj ch'a lo speto!)",
+	"date-picker-today": "Ancheuj",
+	"date-picker-clear": "Dëscancelé",
+	"date-picker-close": "Saré",
+	"date-picker-time": "Ora",
+	"date-picker-date": "Dàita"
 }
