@@ -143,7 +143,10 @@ export default function EditProfilePage() {
   const { allCapacities: capacities, loading: isLoadingAllCapacities } = useAllCapacities(token);
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState({
+  const [selectedAvatar, setSelectedAvatar] = useState<{
+    id: number | null;
+    src: string;
+  }>({
     id: 0,
     src: NoAvatarIcon,
   });
@@ -446,7 +449,7 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleAvatarSelect = (avatarId: number) => {
+  const handleAvatarSelect = (avatarId: number | null) => {
     setFormData(prev => ({
       ...prev,
       avatar: avatarId,
@@ -456,7 +459,10 @@ export default function EditProfilePage() {
 
     setIsWikidataSelected(false);
 
-    const selectedAvatarUrl = avatars?.find(avatar => avatar.id === avatarId)?.avatar_url;
+    // Se avatarId for null, usar a imagem NoAvatar
+    const selectedAvatarUrl = avatarId === null 
+      ? 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
+      : avatars?.find(avatar => avatar.id === avatarId)?.avatar_url;
 
     setSelectedAvatar({
       id: avatarId,

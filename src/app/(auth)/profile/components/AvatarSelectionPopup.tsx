@@ -8,8 +8,8 @@ import { useApp } from '@/contexts/AppContext';
 
 interface AvatarSelectionPopupProps {
   onClose: () => void;
-  onSelect: (avatarId: number) => void;
-  selectedAvatarId: number;
+  onSelect: (avatarId: number | null) => void;
+  selectedAvatarId: number | null;
   onUpdate?: () => void;
 }
 
@@ -21,8 +21,16 @@ export default function AvatarSelectionPopup({
 }: AvatarSelectionPopupProps) {
   const { avatars, isLoading } = useAvatars();
   const { pageContent, isMobile } = useApp();
-  const [tempSelectedId, setTempSelectedId] = useState(selectedAvatarId);
+  const [tempSelectedId, setTempSelectedId] = useState<number | null>(selectedAvatarId);
   const { darkMode } = useTheme();
+
+  // Create virtual avatar for the "no avatar" option
+  const noAvatarOption = {
+    id: null as number | null,
+    avatar_url: 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
+  };
+
+  const allAvatars = [noAvatarOption, ...(avatars || [])];
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -76,9 +84,9 @@ export default function AvatarSelectionPopup({
 
           <div className="overflow-y-auto flex-1 p-6">
             <div className="grid grid-cols-2 gap-4">
-              {avatars?.map(avatar => (
+              {allAvatars?.map(avatar => (
                 <button
-                  key={avatar.id}
+                  key={avatar.id ?? 'no-avatar'}
                   onClick={() => setTempSelectedId(avatar.id)}
                   className="flex justify-center"
                 >
@@ -92,7 +100,7 @@ export default function AvatarSelectionPopup({
                     <div className="relative w-full h-full">
                       <Image
                         src={avatar.avatar_url}
-                        alt={`Avatar ${avatar.id}`}
+                        alt={`Avatar ${avatar.id ?? 'no-avatar'}`}
                         fill
                         className="object-contain"
                       />
@@ -140,9 +148,9 @@ export default function AvatarSelectionPopup({
 
         <div className="flex overflow-y-auto scrollbar-hide flex-1 p-6 justify-center min-h-0">
           <div className="grid grid-cols-2 gap-4 w-fit">
-            {avatars?.map(avatar => (
+            {allAvatars?.map(avatar => (
               <button
-                key={avatar.id}
+                key={avatar.id ?? 'no-avatar'}
                 onClick={() => setTempSelectedId(avatar.id)}
                 className="flex justify-center"
               >
@@ -156,7 +164,7 @@ export default function AvatarSelectionPopup({
                   <div className="relative w-full h-full">
                     <Image
                       src={avatar.avatar_url}
-                      alt={`Avatar ${avatar.id}`}
+                      alt={`Avatar ${avatar.id ?? 'no-avatar'}`}
                       fill
                       className="object-contain"
                     />
