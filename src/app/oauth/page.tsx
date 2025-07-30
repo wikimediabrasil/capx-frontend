@@ -4,6 +4,7 @@ import { signIn, useSession, SessionProvider } from 'next-auth/react';
 import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
+import LoadingState from '@/components/LoadingState';
 
 function OAuthContent() {
   const router = useRouter();
@@ -154,7 +155,7 @@ function OAuthLoading() {
 export default function OAuth() {
   return (
     <SessionProvider>
-      <Suspense fallback={<OAuthLoading />}>
+      <Suspense fallback={<LoadingState fullScreen />}>
         <OAuthContent />
       </Suspense>
     </SessionProvider>

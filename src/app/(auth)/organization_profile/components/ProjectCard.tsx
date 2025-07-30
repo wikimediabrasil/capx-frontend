@@ -3,6 +3,7 @@ import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
+import { CompactLoading } from '@/components/LoadingStateWithFallback';
 
 interface ProjectCardProps {
   projectId: number;
@@ -15,7 +16,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
   const { pageContent } = useApp();
 
   if (isLoading) {
-    return <div className="loading-skeleton">{pageContent['loading']}</div>;
+    return <CompactLoading />;
   }
 
   if (error || !project) {

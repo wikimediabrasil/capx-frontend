@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
+import { CompactLoading } from '@/components/LoadingStateWithFallback';
 
 interface AvatarSelectionPopupProps {
   onClose: () => void;
@@ -41,13 +42,7 @@ export default function AvatarSelectionPopup({
   };
 
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg">
-          <p>Loading avatars...</p>
-        </div>
-      </div>
-    );
+    return <CompactLoading />;
   }
 
   if (isMobile) {
