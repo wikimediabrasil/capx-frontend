@@ -1202,8 +1202,8 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     placeholder={pageContent['edit-profile-insert-project']}
                     onChange={e => {
                       const searchTerm = e.target.value.toLowerCase();
-                      const filteredProjects = Object.entries(wikimediaProjectsData).filter(([id, name]) =>
-                        name.toLowerCase().includes(searchTerm)
+                      const filteredProjects = Object.entries(wikimediaProjectsData).filter(
+                        ([id, name]) => name.toLowerCase().includes(searchTerm)
                       );
                       setFilteredProjects(filteredProjects);
                     }}
@@ -1223,11 +1223,13 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     }}
                     autoFocus
                   />
-                  
+
                   {/* Dropdown with filtered projects */}
-                  <div className={`absolute top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-[16px] border ${
-                    darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
-                  } z-50 shadow-lg`}>
+                  <div
+                    className={`absolute top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-[16px] border ${
+                      darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
+                    } z-50 shadow-lg`}
+                  >
                     {filteredProjects.length > 0 ? (
                       filteredProjects.map(([id, name]) => (
                         <button
@@ -1238,8 +1240,8 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                             setFilteredProjects([]);
                           }}
                           className={`w-full px-4 py-3 text-left font-[Montserrat] text-[20px] hover:bg-opacity-80 transition-colors ${
-                            darkMode 
-                              ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]' 
+                            darkMode
+                              ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]'
                               : 'text-[#053749] hover:bg-gray-100'
                           }`}
                         >
@@ -1247,14 +1249,17 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                         </button>
                       ))
                     ) : (
-                      <div className={`px-4 py-3 font-[Montserrat] text-[18px] ${
-                        darkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        {pageContent['edit-profile-no-projects-found'] || 'Nenhum projeto encontrado'}
+                      <div
+                        className={`px-4 py-3 font-[Montserrat] text-[18px] ${
+                          darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}
+                      >
+                        {pageContent['edit-profile-no-projects-found'] ||
+                          'Nenhum projeto encontrado'}
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Close button */}
                   <button
                     onClick={() => {

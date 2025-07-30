@@ -1222,8 +1222,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       placeholder={pageContent['edit-profile-insert-project']}
                       onChange={e => {
                         const searchTerm = e.target.value.toLowerCase();
-                        const filteredProjects = Object.entries(wikimediaProjects).filter(([id, name]) =>
-                          name.toLowerCase().includes(searchTerm)
+                        const filteredProjects = Object.entries(wikimediaProjects).filter(
+                          ([id, name]) => name.toLowerCase().includes(searchTerm)
                         );
                         setFilteredProjects(filteredProjects);
                       }}
@@ -1243,11 +1243,13 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       }}
                       autoFocus
                     />
-                    
+
                     {/* Dropdown with filtered projects */}
-                    <div className={`absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-[4px] border ${
-                      darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
-                    } z-50 shadow-lg`}>
+                    <div
+                      className={`absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-[4px] border ${
+                        darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
+                      } z-50 shadow-lg`}
+                    >
                       {filteredProjects.length > 0 ? (
                         filteredProjects.map(([id, name]) => (
                           <button
@@ -1258,8 +1260,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                               setFilteredProjects([]);
                             }}
                             className={`w-full px-4 py-2 text-left font-[Montserrat] text-[12px] hover:bg-opacity-80 transition-colors ${
-                              darkMode 
-                                ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]' 
+                              darkMode
+                                ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]'
                                 : 'text-[#053749] hover:bg-gray-100'
                             }`}
                           >
@@ -1267,14 +1269,17 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                           </button>
                         ))
                       ) : (
-                        <div className={`px-4 py-2 font-[Montserrat] text-[12px] ${
-                          darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
-                          {pageContent['edit-profile-no-projects-found'] || 'Nenhum projeto encontrado'}
+                        <div
+                          className={`px-4 py-2 font-[Montserrat] text-[12px] ${
+                            darkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}
+                        >
+                          {pageContent['edit-profile-no-projects-found'] ||
+                            'Nenhum projeto encontrado'}
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Close button */}
                     <button
                       onClick={() => {
