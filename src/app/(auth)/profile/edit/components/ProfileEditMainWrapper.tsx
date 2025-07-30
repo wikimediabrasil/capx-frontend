@@ -460,9 +460,10 @@ export default function EditProfilePage() {
     setIsWikidataSelected(false);
 
     // Se avatarId for null, usar a imagem NoAvatar
-    const selectedAvatarUrl = avatarId === null 
-      ? 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
-      : avatars?.find(avatar => avatar.id === avatarId)?.avatar_url;
+    const selectedAvatarUrl =
+      avatarId === null
+        ? 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
+        : avatars?.find(avatar => avatar.id === avatarId)?.avatar_url;
 
     setSelectedAvatar({
       id: avatarId,

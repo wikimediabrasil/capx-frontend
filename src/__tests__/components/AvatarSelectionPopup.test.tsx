@@ -148,7 +148,9 @@ describe('AvatarSelectionPopup', () => {
       const noAvatarButton = screen.getByAltText('Avatar no-avatar').closest('button');
       fireEvent.click(noAvatarButton!);
 
-      const selectedNoAvatar = screen.getByAltText('Avatar no-avatar').closest('div')?.parentElement;
+      const selectedNoAvatar = screen
+        .getByAltText('Avatar no-avatar')
+        .closest('div')?.parentElement;
       expect(selectedNoAvatar).toHaveClass('border-2', 'border-[#851970]');
     });
 
@@ -293,9 +295,7 @@ describe('AvatarSelectionPopup', () => {
     });
 
     it('handles selectedAvatarId as null', () => {
-      renderWithProviders(
-        <AvatarSelectionPopup {...defaultProps} selectedAvatarId={null} />
-      );
+      renderWithProviders(<AvatarSelectionPopup {...defaultProps} selectedAvatarId={null} />);
 
       // The "No Avatar" option should be selected
       const noAvatar = screen.getByAltText('Avatar no-avatar').closest('div')?.parentElement;
@@ -356,4 +356,4 @@ describe('AvatarSelectionPopup', () => {
     jest.clearAllMocks();
     document.body.style.overflow = 'unset';
   });
-}); 
+});

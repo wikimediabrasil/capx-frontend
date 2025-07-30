@@ -27,9 +27,9 @@ export default function AvatarSelectionPopup({
   // Create virtual avatar for the "no avatar" option
   const noAvatarOption = {
     id: null as number | null,
-    avatar_url: darkMode 
+    avatar_url: darkMode
       ? 'https://upload.wikimedia.org/wikipedia/commons/7/7a/CapX_-_No_avatar_white.svg'
-      : 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
+      : 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg',
   };
 
   const allAvatars = [noAvatarOption, ...(avatars || [])];
@@ -69,7 +69,11 @@ export default function AvatarSelectionPopup({
   if (isMobile) {
     return (
       <>
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={handleBackdropClick} data-testid="backdrop" />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={handleBackdropClick}
+          data-testid="backdrop"
+        />
         <div
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
             darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
@@ -137,7 +141,11 @@ export default function AvatarSelectionPopup({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={handleBackdropClick} data-testid="backdrop" />
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        onClick={handleBackdropClick}
+        data-testid="backdrop"
+      />
       <div
         className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[90vw] max-h-[90vh] w-[600px] ${
           darkMode ? 'bg-[#005B3F] text-white' : 'bg-white text-[#053749]'
