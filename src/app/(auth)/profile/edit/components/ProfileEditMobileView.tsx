@@ -187,6 +187,27 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
     }
   }, [profile?.avatar, getAvatarById]); // Include getAvatarById in the dependency array
 
+  const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
+
+  // Close project selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showProjectSelector && !target.closest('.project-selector')) {
+        setShowProjectSelector(false);
+        setFilteredProjects([]);
+      }
+    };
+
+    if (showProjectSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showProjectSelector]);
+
   return (
     <>
       <div
@@ -1195,52 +1216,90 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
 
                 {/* Selector for adding new projects - only shown when button is clicked */}
                 {showProjectSelector && (
-                  <div className="relative">
-                    <select
-                      value=""
+                  <div className="relative project-selector">
+                    <input
+                      type="text"
+                      placeholder={pageContent['edit-profile-insert-project']}
                       onChange={e => {
-                        if (e.target.value) {
-                          setFormData(addProjectToFormData(formData, e.target.value));
-                          setShowProjectSelector(false); // Hide selector after selection
+                        const searchTerm = e.target.value.toLowerCase();
+                        const filteredProjects = Object.entries(wikimediaProjects).filter(([id, name]) =>
+                          name.toLowerCase().includes(searchTerm)
+                        );
+                        setFilteredProjects(filteredProjects);
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Escape') {
+                          setShowProjectSelector(false);
+                          setFilteredProjects([]);
                         }
                       }}
-                      className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
+                      className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] ${
                         darkMode
-                          ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
-                          : 'border-[#053749] text-[#829BA4]'
+                          ? 'bg-transparent border-white text-white placeholder-gray-400'
+                          : 'border-[#053749] text-[#053749]'
                       } border`}
                       style={{
                         backgroundColor: darkMode ? '#053749' : 'white',
-                        color: darkMode ? 'white' : '#053749',
                       }}
-                    >
-                      <option value="">{pageContent['edit-profile-insert-project']}</option>
-                      {Object.entries(wikimediaProjects).map(([id, name]) => (
-                        <option
-                          key={id}
-                          value={id}
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <Image
-                        src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                        alt="Select"
-                        width={20}
-                        height={20}
-                      />
+                      autoFocus
+                    />
+                    
+                    {/* Dropdown with filtered projects */}
+                    <div className={`absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-[4px] border ${
+                      darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
+                    } z-50 shadow-lg`}>
+                      {filteredProjects.length > 0 ? (
+                        filteredProjects.map(([id, name]) => (
+                          <button
+                            key={id}
+                            onClick={() => {
+                              setFormData(addProjectToFormData(formData, id));
+                              setShowProjectSelector(false);
+                              setFilteredProjects([]);
+                            }}
+                            className={`w-full px-4 py-2 text-left font-[Montserrat] text-[12px] hover:bg-opacity-80 transition-colors ${
+                              darkMode 
+                                ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]' 
+                                : 'text-[#053749] hover:bg-gray-100'
+                            }`}
+                          >
+                            {name}
+                          </button>
+                        ))
+                      ) : (
+                        <div className={`px-4 py-2 font-[Montserrat] text-[12px] ${
+                          darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {pageContent['edit-profile-no-projects-found'] || 'Nenhum projeto encontrado'}
+                        </div>
+                      )}
                     </div>
+                    
+                    {/* Close button */}
+                    <button
+                      onClick={() => {
+                        setShowProjectSelector(false);
+                        setFilteredProjects([]);
+                      }}
+                      className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full ${
+                        darkMode ? 'hover:bg-white hover:bg-opacity-10' : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Close"
+                        width={16}
+                        height={16}
+                      />
+                    </button>
                   </div>
                 )}
 
                 <BaseButton
-                  onClick={() => setShowProjectSelector(true)}
+                  onClick={() => {
+                    setShowProjectSelector(true);
+                    setFilteredProjects(Object.entries(wikimediaProjects));
+                  }}
                   label={pageContent['edit-profile-add-projects']}
                   customClass={`w-full flex ${
                     darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
