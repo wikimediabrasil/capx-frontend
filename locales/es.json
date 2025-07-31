@@ -4,7 +4,8 @@
 			"Adamw",
 			"HylianAngel",
 			"Vlasta x",
-			"Yucavalla"
+			"Yucavalla",
+			"Yupik"
 		]
 	},
 	"empty-field": "Aún no has rellenado este campo",
@@ -269,5 +270,6 @@
 	"filters-exchange-with": "Intercambiar con",
 	"filters-title": "Filtros",
 	"filters-icon": "Icono de filtros",
+	"filters-username": "Nombre de usuario",
 	"lets-connect-success-popup-title": "¡Bien hecho!"
 }

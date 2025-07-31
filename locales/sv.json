@@ -3,7 +3,8 @@
 		"authors": [
 			"Alicia Fagerving (WMSE)",
 			"Gkyziridis",
-			"Sabelöga"
+			"Sabelöga",
+			"Yupik"
 		]
 	},
 	"empty-field": "Du har inte fyllt i det här fältet än",
@@ -105,6 +106,7 @@
 	"edit-profile-mini-bio-placeholder": "Skriv några ord om dig själv.",
 	"edit-profile-add-language": "Lägg till språk",
 	"privacy-policy-private-information-topic02-link": "OAuth",
+	"filters-username": "Användarnamn",
 	"statistics-section-title": "Plattformstatistik",
 	"statistics-users-title": "Användare",
 	"statistics-capacities-title": "Kapaciteter",
