@@ -3,13 +3,15 @@ import Image from "next/image";
 import BaseButton from "@/components/BaseButton";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useApp } from "@/contexts/AppContext";
+import { useEffect } from "react";
 
 interface ProjectCardProps {
   projectId: number;
   token?: string;
+  updateRenderedProjectsCount: () => void;
 }
 
-export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
+export const ProjectCard = ({ projectId, token, updateRenderedProjectsCount }: ProjectCardProps) => {
   const { project, isLoading, error } = useProject(projectId, token);
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -18,9 +20,24 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
     return <div className="loading-skeleton">{pageContent["loading"]}</div>;
   }
 
-  if (error || !project) {
-    return null;
-  }
+  // useEffect(() => {
+  // if (!isLoading && (error || !project || !project.url)) {
+  //   updateRenderedProjectsCount();
+  // }
+  // }, [isLoading, error, project, updateRenderedProjectsCount]);
+
+    // if (isLoading || !project || !project.url) {
+  //   return null;
+  // }
+
+
+  // if (error || project) {
+  //   return null;
+  // }
+
+  //   if (error || !project) {
+  //   return null;
+  // }
 
   // Convert Commons file page URL to direct image URL if needed
   const getImageUrl = (url: string | null | undefined) => {

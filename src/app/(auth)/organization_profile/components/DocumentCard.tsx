@@ -1,16 +1,17 @@
-import { useDocument } from "@/hooks/useDocument";
-import Image from "next/image";
-import BaseButton from "@/components/BaseButton";
-import { useTheme } from "@/contexts/ThemeContext";
-import { WikimediaDocument } from "@/types/document";
-import { useApp } from "@/contexts/AppContext";
+import { useDocument } from '@/hooks/useDocument';
+import Image from 'next/image';
+import BaseButton from '@/components/BaseButton';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
+import { useEffect } from 'react';
 
 interface DocumentCardProps {
   documentId: number;
   token?: string;
+  updateRenderedDocumentsCount: () => void;
 }
 
-export const DocumentCard = ({ documentId, token }: DocumentCardProps) => {
+export const DocumentCard = ({ documentId, token, updateRenderedDocumentsCount }: DocumentCardProps) => {
   const { document, loading, error } = useDocument(token, documentId);
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -18,12 +19,13 @@ export const DocumentCard = ({ documentId, token }: DocumentCardProps) => {
   if (loading) {
     return <div className="loading-skeleton">{pageContent["loading"]}</div>;
   }
+  useEffect(() => {
+    if (!loading && (error || !document || (!document.imageUrl && !document.url))) {
+      updateRenderedDocumentsCount();
+    }
+  }, [loading, error, document, updateRenderedDocumentsCount]);
 
-  if (error || !document) {
-    return null;
-  }
-
-  if (!document || (!document.imageUrl && !document.url)) {
+  if (loading || !document || (!document.imageUrl && !document.url)) {
     return null;
   }
 

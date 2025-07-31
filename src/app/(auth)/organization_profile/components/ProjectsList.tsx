@@ -4,6 +4,7 @@ import WikimediaIconWhite from "@/public/static/images/wikimedia_logo_white.svg"
 import { useApp } from "@/contexts/AppContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { ProjectCard } from "./ProjectCard";
+import { useState } from 'react';
 
 interface ProjectsListProps {
   title: string;
@@ -18,10 +19,19 @@ export default function ProjectsList({
 }: ProjectsListProps) {
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
+  const [renderedProjects, setRenderedProjects] = useState(itemIds.length);
 
-  if (itemIds.length === 0) {
+  const updateRenderedProjectsCount = () => {
+    setRenderedProjects(renderedProjects - 1);
+  }
+
+  if (itemIds.length === 0 || renderedProjects === 0) {
     return null;
   }
+
+  // if (itemIds.length === 0) {
+  //   return null;
+  // }
 
   return (
     <section className="flex flex-col gap-4">
@@ -46,8 +56,8 @@ export default function ProjectsList({
         </h2>
       </div>
       <div className="flex flex-row gap-8 justify-start overflow-x-auto scrollbar-hide">
-        {itemIds.map((id) => (
-          <ProjectCard key={id} projectId={id} token={token} />
+        {itemIds.map(id => (
+          <ProjectCard key={id} projectId={id} token={token} updateRenderedProjectsCount={updateRenderedProjectsCount} />
         ))}
       </div>
     </section>
