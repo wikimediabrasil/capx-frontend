@@ -4,13 +4,15 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useDocument } from '@/hooks/useDocument';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 interface DocumentCardProps {
   documentId: number;
   token?: string;
+  updateRenderedDocumentsCount: () => void;
 }
 
-export const DocumentCard = ({ documentId, token }: DocumentCardProps) => {
+export const DocumentCard = ({ documentId, token, updateRenderedDocumentsCount }: DocumentCardProps) => {
   const { document, loading, error } = useDocument(token, documentId);
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -18,12 +20,13 @@ export const DocumentCard = ({ documentId, token }: DocumentCardProps) => {
   if (loading) {
     return <LoadingState />;
   }
+  useEffect(() => {
+    if (!loading && (error || !document || (!document.imageUrl && !document.url))) {
+      updateRenderedDocumentsCount();
+    }
+  }, [loading, error, document, updateRenderedDocumentsCount]);
 
-  if (error || !document) {
-    return null;
-  }
-
-  if (!document || (!document.imageUrl && !document.url)) {
+  if (loading || !document || (!document.imageUrl && !document.url)) {
     return null;
   }
 

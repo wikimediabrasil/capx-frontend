@@ -8,9 +8,10 @@ import { CompactLoading } from '@/components/LoadingStateWithFallback';
 interface ProjectCardProps {
   projectId: number;
   token?: string;
+  updateRenderedProjectsCount: () => void;
 }
 
-export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
+export const ProjectCard = ({ projectId, token, updateRenderedProjectsCount }: ProjectCardProps) => {
   const { project, isLoading, error } = useProject(projectId, token);
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -19,9 +20,24 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
     return <CompactLoading />;
   }
 
-  if (error || !project) {
-    return null;
-  }
+  // useEffect(() => {
+  // if (!isLoading && (error || !project || !project.url)) {
+  //   updateRenderedProjectsCount();
+  // }
+  // }, [isLoading, error, project, updateRenderedProjectsCount]);
+
+    // if (isLoading || !project || !project.url) {
+  //   return null;
+  // }
+
+
+  // if (error || project) {
+  //   return null;
+  // }
+
+  //   if (error || !project) {
+  //   return null;
+  // }
 
   // Convert Commons file page URL to direct image URL if needed
   const getImageUrl = (url: string | null | undefined) => {
@@ -58,7 +74,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt={project.display_name || 'Project Image'}
+              alt={project?.display_name || 'Project Image'}
               fill
               style={{ objectFit: 'contain' }}
               className="p-4"
@@ -75,7 +91,7 @@ export const ProjectCard = ({ projectId, token }: ProjectCardProps) => {
         <BaseButton
           customClass="inline-flex h-[32px] px-[18px] py-[8px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] md:text-[24px] h-[64px] not-italic font-extrabold leading-[normal]"
           label={pageContent['organization-profile-open-project']}
-          onClick={() => project.url && window.open(project.url, '_blank')}
+          onClick={() => project?.url && window.open(project.url, '_blank')}
         />
       </div>
     </div>
