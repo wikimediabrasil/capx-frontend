@@ -292,7 +292,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
                   label={pageContent['edit-profile-use-wikidata-photograph']}
-                  customClass={`w-full flex justify-between items-start px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                  customClass={`w-full flex justify-between items-start px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] text-left ${
                     darkMode
                       ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
                       : 'border-[#053749]'
@@ -1122,7 +1122,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   <BaseButton
                     onClick={() => handleWikidataClick(!isWikidataSelected)}
                     label={pageContent['edit-profile-use-wikidata-item']}
-                    customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                    customClass={`w-full flex justify-between items-start px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] text-left ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                         : 'border-[#053749] text-[#829BA4]'
