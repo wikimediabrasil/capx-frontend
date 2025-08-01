@@ -1270,7 +1270,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
             />
             <BaseButton
               onClick={() => goTo('/profile/lets_connect')}
-              label={pageContent['lets-connect-form-user-edit']}
+              label={formData?.automated_lets_connect ? pageContent['lets-connect-form-user-button-update-profile'] : pageContent['lets-connect-form-user-edit']}
               customClass={`w-1/2 flex ${
                 darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
