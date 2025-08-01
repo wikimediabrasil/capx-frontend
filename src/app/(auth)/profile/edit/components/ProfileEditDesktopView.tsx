@@ -324,19 +324,11 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 >
                   {pageContent['edit-profile-consent-wikidata']}
                 </span>
-                {hasLetsConnectData && (
+                {hasLetsConnectData && !formData?.automated_lets_connect && (
                   <BaseButton
                     onClick={() => setShowLetsConnectPopup(true)}
                     label={pageContent['edit-profile-use-letsconnect']}
-                    customClass={
-                      formData.automated_lets_connect
-                        ? `w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
-                            darkMode
-                              ? 'bg-transparent border-white text-capx-light-bg placeholder-white'
-                              : 'border-[#053749] text-capx-dark-box-bg'
-                          } border`
-                        : `w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`
-                    }
+                    customClass={`w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`}
                     imageUrl={LetsConnectIconWhite}
                     imageAlt="LetsConnect icon"
                     imageWidth={30}
@@ -1270,7 +1262,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
             />
             <BaseButton
               onClick={() => goTo('/profile/lets_connect')}
-              label={pageContent['lets-connect-form-user-edit']}
+              label={formData?.automated_lets_connect ? pageContent['lets-connect-form-user-button-update-profile'] : pageContent['lets-connect-form-user-edit']}
               customClass={`w-1/2 flex ${
                 darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}

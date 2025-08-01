@@ -318,19 +318,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   {pageContent['edit-profile-consent-wikidata']}
                 </span>
               </div>
-              {hasLetsConnectData && (
+              {hasLetsConnectData && !formData?.automated_lets_connect && (
                 <BaseButton
                   onClick={() => setShowLetsConnectPopup(true)}
                   label={pageContent['edit-profile-use-letsconnect']}
-                  customClass={
-                    formData.automated_lets_connect
-                      ? `w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
-                          darkMode
-                            ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
-                            : 'border-[#053749]'
-                        } border`
-                      : `w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`
-                  }
+                  customClass={`w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`}
                   imageUrl={LetsConnectIconWhite}
                   imageAlt="LetsConnect icon"
                   imageWidth={20}
@@ -1289,7 +1281,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
               </div>
               <BaseButton
                 onClick={() => goTo('/profile/lets_connect')}
-                label={pageContent['lets-connect-form-user-edit']}
+                label={formData?.automated_lets_connect ? pageContent['lets-connect-form-user-button-update-profile'] : pageContent['lets-connect-form-user-edit']}
                 customClass={`w-full flex mx-auto ${
                   darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                 } rounded-md py-2 font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
