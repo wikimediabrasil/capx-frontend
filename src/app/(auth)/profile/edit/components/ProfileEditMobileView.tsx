@@ -291,8 +291,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
               <div className="flex flex-col items-center gap-2">
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata']}
-                  customClass={`w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                  label={pageContent['edit-profile-use-wikidata-photograph']}
+                  customClass={`w-full flex justify-between items-start px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
                     darkMode
                       ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
                       : 'border-[#053749]'
@@ -315,7 +315,18 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata']}
+                  {pageContent['edit-profile-consent-wikidata-before-link']}{' '}
+                  <a
+                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline ${
+                      darkMode ? 'text-blue-300' : 'text-blue-600'
+                    } hover:opacity-80`}
+                  >
+                    {pageContent['edit-profile-consent-wikidata-link']}
+                  </a>
+                  {pageContent['edit-profile-consent-wikidata-after-link']}
                 </span>
               </div>
               {hasLetsConnectData && !formData?.automated_lets_connect && (
@@ -1110,7 +1121,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 <div className="flex items-center gap-2 py-[6px] ">
                   <BaseButton
                     onClick={() => handleWikidataClick(!isWikidataSelected)}
-                    label={pageContent['edit-profile-use-wikidata']}
+                    label={pageContent['edit-profile-use-wikidata-item']}
                     customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
@@ -1135,7 +1146,18 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata-item']}
+                  {pageContent['edit-profile-consent-wikidata-item-before-link']}{' '}
+                  <a
+                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline ${
+                      darkMode ? 'text-blue-300' : 'text-blue-600'
+                    } hover:opacity-80`}
+                  >
+                    {pageContent['edit-profile-consent-wikidata-link']}
+                  </a>
+                  {pageContent['edit-profile-consent-wikidata-item-after-link']}
                 </span>
               </div>
 
