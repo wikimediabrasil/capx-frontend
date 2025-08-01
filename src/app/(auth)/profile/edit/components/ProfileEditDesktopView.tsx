@@ -80,7 +80,7 @@ import {
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
-  handleAvatarSelect: (avatarId: number) => void;
+  handleAvatarSelect: (avatarId: number | null) => void;
   showAvatarPopup: boolean;
   setShowAvatarPopup: (show: boolean) => void;
   handleWikidataClick: (newWikidataSelected: boolean) => void;

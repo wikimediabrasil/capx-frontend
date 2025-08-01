@@ -78,7 +78,7 @@ import {
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
-  handleAvatarSelect: (avatarId: number) => void;
+  handleAvatarSelect: (avatarId: number | null) => void;
   showAvatarPopup: boolean;
   handleWikidataClick: (newWikidataSelected: boolean) => void;
   setShowAvatarPopup: (show: boolean) => void;
