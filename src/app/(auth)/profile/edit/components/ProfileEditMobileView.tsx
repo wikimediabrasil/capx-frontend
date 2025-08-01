@@ -291,8 +291,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
               <div className="flex flex-col items-center gap-2">
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata']}
-                  customClass={`w-full flex justify-between items-center px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                  label={pageContent['edit-profile-use-wikidata-photograph']}
+                  customClass={`w-full flex justify-between items-start px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] text-left ${
                     darkMode
                       ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
                       : 'border-[#053749]'
@@ -315,7 +315,18 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata']}
+                  {pageContent['edit-profile-consent-wikidata-before-link']}{' '}
+                  <a
+                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline ${
+                      darkMode ? 'text-blue-300' : 'text-blue-600'
+                    } hover:opacity-80`}
+                  >
+                    {pageContent['edit-profile-consent-wikidata-link']}
+                  </a>
+                  {pageContent['edit-profile-consent-wikidata-after-link']}
                 </span>
               </div>
               {hasLetsConnectData && !formData?.automated_lets_connect && (
@@ -1110,8 +1121,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 <div className="flex items-center gap-2 py-[6px] ">
                   <BaseButton
                     onClick={() => handleWikidataClick(!isWikidataSelected)}
-                    label={pageContent['edit-profile-use-wikidata']}
-                    customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] ${
+                    label={pageContent['edit-profile-use-wikidata-item']}
+                    customClass={`w-full flex justify-between items-start px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] text-left ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                         : 'border-[#053749] text-[#829BA4]'
@@ -1135,7 +1146,18 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata-item']}
+                  {pageContent['edit-profile-consent-wikidata-item-before-link']}{' '}
+                  <a
+                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline ${
+                      darkMode ? 'text-blue-300' : 'text-blue-600'
+                    } hover:opacity-80`}
+                  >
+                    {pageContent['edit-profile-consent-wikidata-link']}
+                  </a>
+                  {pageContent['edit-profile-consent-wikidata-item-after-link']}
                 </span>
               </div>
 
@@ -1281,7 +1303,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
               </div>
               <BaseButton
                 onClick={() => goTo('/profile/lets_connect')}
-                label={formData?.automated_lets_connect ? pageContent['lets-connect-form-user-button-update-profile'] : pageContent['lets-connect-form-user-edit']}
+                label={
+                  formData?.automated_lets_connect
+                    ? pageContent['lets-connect-form-user-button-update-profile']
+                    : pageContent['lets-connect-form-user-edit']
+                }
                 customClass={`w-full flex mx-auto ${
                   darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                 } rounded-md py-2 font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}

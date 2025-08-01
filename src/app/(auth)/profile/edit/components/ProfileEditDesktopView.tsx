@@ -298,7 +298,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 )}
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata']}
+                  label={pageContent['edit-profile-use-wikidata-photograph']}
                   customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
                     darkMode
                       ? 'bg-transparent border-white text-capx-light-bg placeholder-white'
@@ -322,7 +322,18 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata']}
+                  {pageContent['edit-profile-consent-wikidata-before-link']}{' '}
+                  <a
+                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline ${
+                      darkMode ? 'text-blue-300' : 'text-blue-600'
+                    } hover:opacity-80`}
+                  >
+                    {pageContent['edit-profile-consent-wikidata-link']}
+                  </a>
+                  {pageContent['edit-profile-consent-wikidata-after-link']}
                 </span>
                 {hasLetsConnectData && !formData?.automated_lets_connect && (
                   <BaseButton
@@ -1091,7 +1102,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
               <div className="flex items-center gap-2 py-[6px] ">
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata']}
+                  label={pageContent['edit-profile-use-wikidata-item']}
                   customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[16px] font-[Montserrat] text-[24px] appearance-none mb-0 pb-[6px] ${
                     darkMode
                       ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
@@ -1116,7 +1127,18 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
-                {pageContent['edit-profile-consent-wikidata-item']}
+                {pageContent['edit-profile-consent-wikidata-item-before-link']}{' '}
+                <a
+                  href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`underline ${
+                    darkMode ? 'text-blue-300' : 'text-blue-600'
+                  } hover:opacity-80`}
+                >
+                  {pageContent['edit-profile-consent-wikidata-link']}
+                </a>
+                {pageContent['edit-profile-consent-wikidata-item-after-link']}
               </span>
             </div>
 
@@ -1262,7 +1284,11 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
             />
             <BaseButton
               onClick={() => goTo('/profile/lets_connect')}
-              label={formData?.automated_lets_connect ? pageContent['lets-connect-form-user-button-update-profile'] : pageContent['lets-connect-form-user-edit']}
+              label={
+                formData?.automated_lets_connect
+                  ? pageContent['lets-connect-form-user-button-update-profile']
+                  : pageContent['lets-connect-form-user-edit']
+              }
               customClass={`w-1/2 flex ${
                 darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
