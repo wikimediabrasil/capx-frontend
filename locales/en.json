@@ -572,5 +572,7 @@
   "date-picker-clear": "Clear",
   "date-picker-close": "Close",
   "date-picker-time": "Time",
-  "date-picker-date": "Date"
+  "date-picker-date": "Date",
+  "edit-profile-mini-bio-exceeded-chars": "characters exceeded",
+  "edit-profile-mini-bio-remaining-chars": "characters remaining"
 }
