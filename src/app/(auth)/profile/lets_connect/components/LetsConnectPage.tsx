@@ -28,6 +28,8 @@ import { useEffect, useState } from 'react';
 import Checklist from './CheckList';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
+import { useProfile } from '@/hooks/useProfile';
+import { useSession } from 'next-auth/react';
 
 export enum LetsConnectRole {
   A = 'A',
@@ -40,6 +42,14 @@ export enum LetsConnectRole {
 
 export default function LetsConnectPage() {
   const { pageContent, isMobile } = useApp();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const userId = session?.user?.id ? Number(session.user.id) : undefined;
+  const {
+    profile,
+  } = useProfile(token, userId);
+  const hasLetsConnectData = profile?.automated_lets_connect;
+
   const { darkMode } = useTheme();
   const router = useRouter();
   const { submitLetsConnectForm } = useLetsConnect();
@@ -164,15 +174,17 @@ export default function LetsConnectPage() {
           />
           
           {/*Informative text*/}
-          <div className="mt-6 mb-2">
-            <p
-              className={`mt-1 text-[10px] md:text-[20px] text-left ${
-                darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
-              }`}
-            >
-              {pageContent['lets-connect-form-informative-text']}
-            </p>
-          </div>
+          {hasLetsConnectData && (
+            <div className="mt-6 mb-2">
+              <p
+                className={`mt-1 text-[10px] md:text-[20px] text-left ${
+                  darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['lets-connect-form-informative-text']}
+              </p>
+            </div>
+          )}
 
           <div className="flex items-start gap-2 text-left mt-6">
             <Image
@@ -197,7 +209,7 @@ export default function LetsConnectPage() {
               >
                 {pageContent['lets-connect-form-full-name-optional']}
               </h4>
-              {!showFullNameInput && (
+              {hasLetsConnectData && !showFullNameInput && (
                 <BaseButton
                   onClick={() => setShowFullNameInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -215,7 +227,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {showFullNameInput && (
+          {(showFullNameInput || !hasLetsConnectData) && (
             <input
               type="text"
               id="full_name"
@@ -239,7 +251,7 @@ export default function LetsConnectPage() {
               >
                 {pageContent['lets-connect-form-email']}
               </h4>
-              {!showEmailInput && (
+              {hasLetsConnectData && !showEmailInput && (
                 <BaseButton
                   onClick={() => setShowEmailInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -257,7 +269,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {showEmailInput && (
+          {(showEmailInput || !hasLetsConnectData) && (
             <input
               type="text"
               id="email"
@@ -275,7 +287,7 @@ export default function LetsConnectPage() {
           {/* Roles Input */}
           <div className="mt-6 mb-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className={`${showRoleInput ? 'w-full' : 'w-[75%]'} md:w-[75%]`}>
+              <div className={`${showRoleInput || !hasLetsConnectData ? 'w-full' : 'w-[75%]'} md:w-[75%]`}>
 
                 <h4
                   className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
@@ -285,7 +297,7 @@ export default function LetsConnectPage() {
                 </h4>
               </div>
 
-              {!showRoleInput && (
+              {hasLetsConnectData && !showRoleInput && (
                 <BaseButton
                   onClick={() => setShowRoleInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -302,7 +314,7 @@ export default function LetsConnectPage() {
               )}
             </div>
 
-            {showRoleInput && (
+            {(showRoleInput || !hasLetsConnectData) && (
               <>
                 <p
                   className={`text-[10px] mt-2 mb-2 md:text-[18px] text-start font-[Montserrat] ${
@@ -371,7 +383,7 @@ export default function LetsConnectPage() {
                   {pageContent['lets-connect-form-topic-check']}
                 </h4>
               </div>
-              {!showAreaInput && (
+              {hasLetsConnectData && !showAreaInput && (
                 <div className="flex-shrink-0">
                   <BaseButton
                     onClick={() => setAreaInput(true)}
@@ -391,7 +403,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {showAreaInput && (
+          {(showAreaInput || !hasLetsConnectData) && (
             <Checklist
               other={pageContent['lets-connect-form-topic-check-other']}
               description={pageContent['lets-connect-form-topic-check-text']}
@@ -413,7 +425,7 @@ export default function LetsConnectPage() {
                   {pageContent['lets-connect-form-gender-identify']}
                 </h4>
               </div>
-              {!showGenderInput && (
+              {hasLetsConnectData && !showGenderInput && (
                 <BaseButton
                   onClick={() => setGenderInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -431,7 +443,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {showGenderInput && (
+          {(showGenderInput || !hasLetsConnectData) && (
             <Checklist
               other={pageContent['lets-connect-form-gender-identify-not-listed']}
               setFormData={(gender: string) => setFormData({ ...formData, gender })}
@@ -451,7 +463,7 @@ export default function LetsConnectPage() {
                   {pageContent['lets-connect-form-age-range']}
                 </h4>
               </div>
-              {!showAgeInput && (
+              {hasLetsConnectData && !showAgeInput && (
                 <BaseButton
                   onClick={() => setAgeInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -469,7 +481,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {showAgeInput && (
+          {(showAgeInput || !hasLetsConnectData) && (
             <Checklist
               setFormData={(age: string) => setFormData({ ...formData, age })}
               itemsList={ageOptions}
