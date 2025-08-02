@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 type ChecklistProps = {
-  title: string;
-  other: string;
+  title?: string;
+  other?: string;
   placeholder?: string;
   description?: string;
   itemsList?: string[];
@@ -85,7 +85,7 @@ export default function Checklist({
 
   return (
     <div
-      className={`w-full sm:px-6 md:px-1 rounded-md py-6 space-y-4 ${
+      className={`w-full sm:px-6 md:px-1 rounded-md space-y-4 ${
         darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
       }`}
     >

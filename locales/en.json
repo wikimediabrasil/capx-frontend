@@ -495,6 +495,8 @@
   "lets-connect-form-gender-identify": "Gender identity (optional)",
   "lets-connect-form-gender-identify-not-listed": "Not listed:",
   "lets-connect-form-age-range": "Age range (optional)",
+  "lets-connect-form-edit-inputs": "Edit",
+  "lets-connect-form-informative-text": "To update your Let's Connect information, click on the Edit button on each field to be able to insert new data. It will delete the outdated data by overwriting the Let's Connect database. You cannot review your old data because it is kept on a special database only accessible to the Let's Connect team. We advise you to update any information you are unclear about by editing the correspondent field on this form. Attention! You always have to update your main role (obligatory) to be able to save your changes.",
   "lets-connect-register-alt-icon": "Register button icon",
   "lets-connect-register-button": "Sign in/Update",
   "lets-connect-back-button-alt": "Back to user profile icon",
