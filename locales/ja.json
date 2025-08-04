@@ -204,7 +204,7 @@
 	"edit-profile-image-title": "プロフィール画像",
 	"edit-profile-choose-avatar": "アバターを選ぶ",
 	"edit-profile-choose-avatar-tooltip": "ウィキデータ項目の画像 (存在する場合) の代わりに、CapX プロフィールに表示するアバターを選択します。",
-	"edit-profile-use-wikidata": "自身のウィキデータ項目をプロフィールに表示",
+	"edit-profile-use-wikidata-photograph": "自身のウィキデータ項目をプロフィールに表示",
 	"edit-profile-consent-wikidata": "ここをクリックし、私自身のウィキデータ項目の画像を CapX プロフィールに表示することに同意します。このツールはウィキデータでご自身の利用者名に関連する QID を検索し、見つかった場合はそれを表示します。",
 	"edit-profile-delete-profile": "プロフィールを削除",
 	"edit-profile-save": "プロフィールを保存",

@@ -167,7 +167,7 @@
 	"edit-profile-welcome": "¡Bienvenido!",
 	"edit-profile-image-title": "Imagen del perfil",
 	"edit-profile-choose-avatar": "Elegir avatar",
-	"edit-profile-use-wikidata": "Utilizar mi elemento de Wikidata",
+	"edit-profile-use-wikidata-photograph": "Utilizar mi elemento de Wikidata",
 	"edit-profile-consent-wikidata": "Al hacer clic aquí, acepto que la foto presente en mi elemento en Wikidata se muestre en mi perfil de CapX. La herramienta buscará en Wikidata una imagen vinculada a tu nombre de usuario, informado en Wikidata, y la mostrará como foto de perfil, si la encuentra.",
 	"edit-profile-save": "Guardar perfil",
 	"edit-profile-cancel": "Cancelar edición",

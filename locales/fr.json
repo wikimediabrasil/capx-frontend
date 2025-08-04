@@ -216,7 +216,7 @@
 	"edit-profile-image-title": "Image de profil",
 	"edit-profile-choose-avatar": "Choisir un avatar",
 	"edit-profile-choose-avatar-tooltip": "Choisissez un avatar à afficher sur votre profil CapX, à la place de l’image de votre élément Wikidata (si elle existe).",
-	"edit-profile-use-wikidata": "Afficher la photo de mon élément Wikidata sur mon profil",
+	"edit-profile-use-wikidata-photograph": "Afficher la photo de mon élément Wikidata sur mon profil",
 	"edit-profile-consent-wikidata": "En cliquant ici, j’accepte que l’image de mon élément Wikidata soit affichée sur mon profil CapX. L’outil recherchera dans Wikidata un QID associé à votre nom d’utilisateur et l’affichera s’il le trouve.",
 	"edit-profile-delete-profile": "Supprimer le profil",
 	"edit-profile-save": "Enregistrer le profil",

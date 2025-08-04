@@ -211,8 +211,8 @@
 	"edit-profile-image-title": "Profielafbeelding",
 	"edit-profile-choose-avatar": "Avatar kiezen",
 	"edit-profile-choose-avatar-tooltip": "Kies een avatar om op uw CapX-profiel weer te geven, in plaats van de afbeelding van uw Wikidata-item (indien aanwezig).",
-	"edit-profile-use-wikidata": "Mijn Wikidata-itemfoto op mijn profiel weergeven",
-	"edit-profile-consent-wikidata": "Door hier te klikken ga ik ermee akkoord dat de afbeelding van mijn Wikidata-item op mijn profiel van CapX wordt weergegeven. De tool zoekt in Wikidata naar een QID die verband houdt met uw gebruikersnaam en geeft deze indien gevonden weer.",
+	"edit-profile-use-wikidata-photograph": "Mijn Wikidata-itemfoto op mijn profiel weergeven",
+	"edit-profile-consent-wikidata": "Door hier te klikken ga ik ermee akkoord dat de afbeelding van mijn Wikidata-item op mijn profiel van CapX wordt weergegeven. De tool zoekt in Wikidata naar een QID die verband houdt met uw gebruikersnaam en geeft deze indien gevonden weer. Om een item op Wikidata te hebben, moet men voldoen aan de",
 	"edit-profile-delete-profile": "Profiel verwijderen",
 	"edit-profile-save": "Profiel opslaan",
 	"edit-profile-cancel": "Bewerking annuleren",
@@ -297,5 +297,9 @@
 	"pagination-of": "van",
 	"feed-no-data-message": "Geen gegevens gevonden",
 	"snackbar-edit-profile-organization-success": "Succesvol opgeslagen",
-	"snackbar-edit-profile-organization-delete-project-success": "Project succesvol verwijderd"
+	"snackbar-edit-profile-organization-delete-project-success": "Project succesvol verwijderd",
+	"lets-connect-form-edit-inputs": "Bewerken",
+	"date-picker-today": "Vandaag",
+	"date-picker-time": "Tijd",
+	"date-picker-date": "Datum"
 }
