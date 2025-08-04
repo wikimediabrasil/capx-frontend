@@ -5,6 +5,7 @@
 			"Kareyac",
 			"Mitte27",
 			"Okras",
+			"Yupik",
 			"Yurina Tatiana"
 		]
 	},
@@ -72,5 +73,6 @@
 	"edit-profile-news": "Новости",
 	"edit-profile-insert-project": "Вставить проект",
 	"privacy-policy-link-toolforge": "Toolforge",
+	"filters-username": "Имя участника",
 	"statistics-users-title": "Пользователи"
 }

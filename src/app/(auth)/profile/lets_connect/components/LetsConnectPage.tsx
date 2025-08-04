@@ -26,6 +26,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Checklist from './CheckList';
+import EditIcon from '@/public/static/images/edit.svg';
+import EditIconWhite from '@/public/static/images/edit_white.svg';
+import { useProfile } from '@/hooks/useProfile';
+import { useSession } from 'next-auth/react';
 
 export enum LetsConnectRole {
   A = 'A',
@@ -37,7 +41,15 @@ export enum LetsConnectRole {
 }
 
 export default function LetsConnectPage() {
-  const { pageContent } = useApp();
+  const { pageContent, isMobile } = useApp();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const userId = session?.user?.id ? Number(session.user.id) : undefined;
+  const {
+    profile,
+  } = useProfile(token, userId);
+  const hasLetsConnectData = profile?.automated_lets_connect;
+
   const { darkMode } = useTheme();
   const router = useRouter();
   const { submitLetsConnectForm } = useLetsConnect();
@@ -45,6 +57,12 @@ export default function LetsConnectPage() {
   const [showMainRoleSelector, setShowMainRoleSelector] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showFullNameInput, setShowFullNameInput] = useState(false);
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [showAreaInput, setAreaInput] = useState(false);
+  const [showGenderInput, setGenderInput] = useState(false);
+  const [showAgeInput, setAgeInput] = useState(false);
+  const [showRoleInput, setShowRoleInput] = useState(false);
 
   const letsConnectRoleLabels: Record<string, string> = {
     [LetsConnectRole.A]: pageContent['lets-connect-form-role-a'],
@@ -144,16 +162,30 @@ export default function LetsConnectPage() {
           <BaseButton
             onClick={() => router.back()}
             label={pageContent['lets-connect-form-user-button-back-to-user-profile']}
-            customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[4px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] md:px-8 md:py-4 md:text-[24px] md:w-1/3 ${
+            customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[4px] pb-[4px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] md:px-8 md:py-4 md:text-[24px] md:w-1/3 ${
               darkMode
                 ? 'border-white text-white bg-[#053749]'
                 : 'border-[#053749] text-[#053749] bg-[#FFFFFF]'
             } rounded-md py-3 font-bold mb-0`}
             imageUrl={darkMode ? UserCircleIconWhite : UserCircleIcon}
             imageAlt="Cancel icon"
-            imageWidth={30}
-            imageHeight={30}
+              imageWidth={isMobile ? 20 : 30 }
+              imageHeight={isMobile ? 20 : 30 }
           />
+          
+          {/*Informative text*/}
+          {hasLetsConnectData && (
+            <div className="mt-6 mb-2">
+              <p
+                className={`mt-1 text-[10px] md:text-[20px] text-left ${
+                  darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['lets-connect-form-informative-text']}
+              </p>
+            </div>
+          )}
+
           <div className="flex items-start gap-2 text-left mt-6">
             <Image
               src={darkMode ? UserCheckIcon : UserCheckIconDark}
@@ -169,13 +201,33 @@ export default function LetsConnectPage() {
           </div>
 
           {/* Full Name Input */}
-          <div className="mt-6 ">
-            <h4
-              className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
+          <div className="mt-6 mb-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h4
+                className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
                   ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
-            >
-              {pageContent['lets-connect-form-full-name-optional']}
-            </h4>
+              >
+                {pageContent['lets-connect-form-full-name-optional']}
+              </h4>
+              {hasLetsConnectData && !showFullNameInput && (
+                <BaseButton
+                  onClick={() => setShowFullNameInput(true)}
+                  label={pageContent['lets-connect-form-edit-inputs']}
+                  customClass={`w-fit flex ${
+                    darkMode 
+                      ? 'bg-capx-light-box-bg text-[#04222F]' 
+                      : 'bg-[#053749] text-white'
+                  } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
+                  imageUrl={darkMode ? EditIcon : EditIconWhite}
+                  imageAlt="Edit icon"
+                  imageWidth={isMobile ? 15 : 30}
+                  imageHeight={isMobile ? 15 : 30}
+                />
+              )}
+            </div>
+          </div>
+
+          {(showFullNameInput || !hasLetsConnectData) && (
             <input
               type="text"
               id="full_name"
@@ -188,16 +240,36 @@ export default function LetsConnectPage() {
               }`}
               placeholder={pageContent['lets-connect-form-full-name-placeholder']}
             />
-          </div>
+          )}
 
           {/* Email Input */}
-          <div className="mt-6 mb-6">
-            <h4
-              className={`mb-2 text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
-                    ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
-            >
-              {pageContent['lets-connect-form-email']}
-            </h4>
+          <div className="mt-6 mb-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h4
+                className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
+                  ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
+              >
+                {pageContent['lets-connect-form-email']}
+              </h4>
+              {hasLetsConnectData && !showEmailInput && (
+                <BaseButton
+                  onClick={() => setShowEmailInput(true)}
+                  label={pageContent['lets-connect-form-edit-inputs']}
+                  customClass={`w-fit flex ${
+                    darkMode 
+                      ? 'bg-capx-light-box-bg text-[#04222F]' 
+                      : 'bg-[#053749] text-white'
+                  } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
+                  imageUrl={darkMode ? EditIcon : EditIconWhite}
+                  imageAlt="Edit icon"
+                  imageWidth={isMobile ? 15 : 30}
+                  imageHeight={isMobile ? 15 : 30}
+                />
+              )}
+            </div>
+          </div>
+
+          {(showEmailInput || !hasLetsConnectData) && (
             <input
               type="text"
               id="email"
@@ -210,100 +282,214 @@ export default function LetsConnectPage() {
               }`}
               placeholder={pageContent['lets-connect-form-email-placeholder']}
             />
-          </div>
+          )}
 
           {/* Roles Input */}
-          <div className="mt-2">
-            <h4
-              className={`text-[12px] font-[Montserrat] font-bold mb-2 md:text-[24px] text-start ${
-                darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
-              }`}
-            >
-              {pageContent['lets-connect-form-roles']}
-            </h4>
-            <p
-              className={`text-[10px] mt-2 mb-2 md:text-[18px] text-start font-[Montserrat] ${
-                darkMode ? 'text-[#829BA4]' : 'text-[#053749]'
-              }`}
-            >
-              {pageContent['lets-connect-form-roles-info']}
-            </p>
+          <div className="mt-6 mb-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className={`${showRoleInput || !hasLetsConnectData ? 'w-full' : 'w-[75%]'} md:w-[75%]`}>
 
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowMainRoleSelector(!showMainRoleSelector)}
-                className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-                  darkMode
-                    ? 'bg-[#04222F] border-[#FFFFFF] text-[#FFFFFF]'
-                    : `border-[#053749] ${formData.role ? 'text-[#053749]' : 'text-[#829BA4]'}`
-                } flex justify-between items-center`}
-              >
-                {formData.role ? formData.role : pageContent['message-form-method-placeholder']}
-                <Image
-                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                  alt="Select"
-                  width={20}
-                  height={20}
-                />
-              </button>
-
-              {showMainRoleSelector && (
-                <div
-                  className={`absolute z-10 w-full mt-1 rounded-md shadow-lg ${
-                    darkMode ? 'bg-[#04222F] border-gray-700' : 'bg-[#FFFFFF] border-gray-200'
-                  } border`}
+                <h4
+                  className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
+                    ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
                 >
-                  {Object.values(LetsConnectRole).map(role => (
-                    <button
-                      key={letsConnectRoleLabels[role]}
-                      className={`block w-full text-left px-4 py-2 text-sm ${
-                        darkMode
-                          ? 'text-white hover:bg-[#053749]'
-                          : 'text-gray-700 hover:bg-gray-100'
+                  {pageContent['lets-connect-form-roles']}
+                </h4>
+              </div>
+
+              {hasLetsConnectData && !showRoleInput && (
+                <BaseButton
+                  onClick={() => setShowRoleInput(true)}
+                  label={pageContent['lets-connect-form-edit-inputs']}
+                  customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
+                    darkMode
+                      ? 'bg-capx-light-box-bg text-[#04222F]'
+                      : 'bg-[#053749] text-white'
+                  } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
+                  imageUrl={darkMode ? EditIcon : EditIconWhite}
+                  imageAlt="Edit icon"
+                  imageWidth={isMobile ? 15 : 30}
+                  imageHeight={isMobile ? 15 : 30}
+                />
+              )}
+            </div>
+
+            {(showRoleInput || !hasLetsConnectData) && (
+              <>
+                <p
+                  className={`text-[10px] mt-2 mb-2 md:text-[18px] text-start font-[Montserrat] ${
+                    darkMode ? 'text-[#829BA4]' : 'text-[#053749]'
+                  }`}
+                >
+                  {pageContent['lets-connect-form-roles-info']}
+                </p>
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowMainRoleSelector(!showMainRoleSelector)}
+                    className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+                      darkMode
+                        ? 'bg-[#04222F] border-[#FFFFFF] text-[#FFFFFF]'
+                        : `border-[#053749] ${formData.role ? 'text-[#053749]' : 'text-[#829BA4]'}`
+                    } flex justify-between items-center`}
+                  >
+                    {formData.role ? formData.role : pageContent['message-form-method-placeholder']}
+                    <Image
+                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                      alt="Select"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
+
+                  {showMainRoleSelector && (
+                    <div
+                      className={`absolute z-10 w-full mt-1 rounded-md shadow-lg border ${
+                        darkMode ? 'bg-[#04222F] border-gray-700' : 'bg-[#FFFFFF] border-gray-200'
                       }`}
-                      onClick={() => {
-                        setFormData({ ...formData, role: letsConnectRoleLabels[role] });
-                        setShowMainRoleSelector(false);
-                      }}
                     >
-                      {letsConnectRoleLabels[role]}
-                    </button>
-                  ))}
+                      {Object.values(LetsConnectRole).map(role => (
+                        <button
+                          key={letsConnectRoleLabels[role]}
+                          className={`block w-full text-left px-4 py-2 text-sm ${
+                            darkMode
+                              ? 'text-white hover:bg-[#053749]'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                          onClick={() => {
+                            setFormData({ ...formData, role: letsConnectRoleLabels[role] });
+                            setShowMainRoleSelector(false);
+                          }}
+                        >
+                          {letsConnectRoleLabels[role]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Area Input */}
+          <div className="mt-6 mb-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="w-[75%] md:w-[75%]">
+                <h4
+                  className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start break-words 
+                    ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
+                >
+                  {pageContent['lets-connect-form-topic-check']}
+                </h4>
+              </div>
+              {hasLetsConnectData && !showAreaInput && (
+                <div className="flex-shrink-0">
+                  <BaseButton
+                    onClick={() => setAreaInput(true)}
+                    label={pageContent['lets-connect-form-edit-inputs']}
+                    customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
+                      darkMode
+                        ? 'bg-capx-light-box-bg text-[#04222F]'
+                        : 'bg-[#053749] text-white'
+                    } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
+                    imageUrl={darkMode ? EditIcon : EditIconWhite}
+                    imageAlt="Edit icon"
+                    imageWidth={isMobile ? 15 : 30}
+                    imageHeight={isMobile ? 15 : 30}
+                  />
                 </div>
               )}
             </div>
           </div>
 
-          {/* Area Input */}
-          <Checklist
-            title={pageContent['lets-connect-form-topic-check']}
-            other={pageContent['lets-connect-form-topic-check-other']}
-            description={pageContent['lets-connect-form-topic-check-text']}
-            setFormData={(area: string) => setFormData({ ...formData, area })}
-            multiple={true}
-            itemsList={areaOptions}
-            showOther={true}
-          />
+          {(showAreaInput || !hasLetsConnectData) && (
+            <Checklist
+              other={pageContent['lets-connect-form-topic-check-other']}
+              description={pageContent['lets-connect-form-topic-check-text']}
+              setFormData={(area: string) => setFormData({ ...formData, area })}
+              multiple={true}
+              itemsList={areaOptions}
+              showOther={true}
+            />
+          )}
 
           {/* Gender Input */}
-          <Checklist
-            title={pageContent['lets-connect-form-gender-identify']}
-            other={pageContent['lets-connect-form-gender-identify-not-listed']}
-            setFormData={(gender: string) => setFormData({ ...formData, gender })}
-            itemsList={genderOptions}
-            showOther={true}
-          />
+          <div className="mt-6 mb-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="w-[65%] md:w-[75%]">
+                <h4
+                  className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
+                    ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
+                >
+                  {pageContent['lets-connect-form-gender-identify']}
+                </h4>
+              </div>
+              {hasLetsConnectData && !showGenderInput && (
+                <BaseButton
+                  onClick={() => setGenderInput(true)}
+                  label={pageContent['lets-connect-form-edit-inputs']}
+                  customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
+                    darkMode
+                      ? 'bg-capx-light-box-bg text-[#04222F]'
+                      : 'bg-[#053749] text-white'
+                  } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
+                  imageUrl={darkMode ? EditIcon : EditIconWhite}
+                  imageAlt="Edit icon"
+                  imageWidth={isMobile ? 15 : 30}
+                  imageHeight={isMobile ? 15 : 30}
+                />
+              )}
+            </div>
+          </div>
+
+          {(showGenderInput || !hasLetsConnectData) && (
+            <Checklist
+              other={pageContent['lets-connect-form-gender-identify-not-listed']}
+              setFormData={(gender: string) => setFormData({ ...formData, gender })}
+              itemsList={genderOptions}
+              showOther={true}
+            />
+          )}
 
           {/* Age Input */}
-          <Checklist
-            title={pageContent['lets-connect-form-age-range']}
-            other={''}
-            setFormData={(age: string) => setFormData({ ...formData, age })}
-            itemsList={ageOptions}
-          />
+          <div className="mt-6 mb-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="w-[65%] md:w-[75%]">           
+                <h4
+                  className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
+                    ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
+                >
+                  {pageContent['lets-connect-form-age-range']}
+                </h4>
+              </div>
+              {hasLetsConnectData && !showAgeInput && (
+                <BaseButton
+                  onClick={() => setAgeInput(true)}
+                  label={pageContent['lets-connect-form-edit-inputs']}
+                  customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
+                    darkMode
+                      ? 'bg-capx-light-box-bg text-[#04222F]'
+                      : 'bg-[#053749] text-white'
+                  } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
+                  imageUrl={darkMode ? EditIcon : EditIconWhite}
+                  imageAlt="Edit icon"
+                  imageWidth={isMobile ? 15 : 30}
+                  imageHeight={isMobile ? 15 : 30}
+                />
+              )}              
+            </div>
+          </div>
+
+          {(showAgeInput || !hasLetsConnectData) && (
+            <Checklist
+              setFormData={(age: string) => setFormData({ ...formData, age })}
+              itemsList={ageOptions}
+            />
+          )}
         </div>
       </div>
+
       <ActionButtons
         handleAhead={handleContinueInfoPopup}
         labelButtonAhead={pageContent['lets-connect-register-button']}

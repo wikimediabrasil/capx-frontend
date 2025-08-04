@@ -216,7 +216,7 @@
 	"edit-profile-image-title": "Image de profil",
 	"edit-profile-choose-avatar": "Choisir un avatar",
 	"edit-profile-choose-avatar-tooltip": "Choisissez un avatar à afficher sur votre profil CapX, à la place de l’image de votre élément Wikidata (si elle existe).",
-	"edit-profile-use-wikidata": "Afficher la photo de mon élément Wikidata sur mon profil",
+	"edit-profile-use-wikidata-photograph": "Afficher la photo de mon élément Wikidata sur mon profil",
 	"edit-profile-consent-wikidata": "En cliquant ici, j’accepte que l’image de mon élément Wikidata soit affichée sur mon profil CapX. L’outil recherchera dans Wikidata un QID associé à votre nom d’utilisateur et l’affichera s’il le trouve.",
 	"edit-profile-delete-profile": "Supprimer le profil",
 	"edit-profile-save": "Enregistrer le profil",
@@ -547,6 +547,11 @@
 	"lets-connect-info-popup-continue": "Confirmer/Envoyer",
 	"lets-connect-success-popup-close-tab": "Fermer l’onglet",
 	"lets-connect-success-popup-title": "Bien joué !",
+	"organization-profile-event-url-invalid": "URL invalide. Veuillez utiliser des URL de Méta Wikimédia (p. ex., meta.wikimedia.org/wiki/Event) ou de WikiLearn (app.learn.wiki/learning/course/...)",
+	"organization-profile-event-url-tooltip-updated": "Collez l’URL de la page d’un événement Méta Wikimédia ou d’un cours WikiLearn. L'outil renseignera automatiquement les détails de l’événement.",
+	"event-form-wikidata-loading": "Recherche des données de l’événement…",
+	"event-form-wikidata-not-found": "Données d’événement introuvables pour cette URL",
+	"event-form-wikidata-error": "Une erreur s’est produite lors de la recherche de données d’événement",
 	"lets-connect-success-popup-info": "Pour finaliser le processus, cliquez sur « Enregistrer le profil ». Toutes les modifications apportées à votre profil CapX seront enregistrées.",
 	"lets-connect-alt-banner": "Titre de Let's Connect",
 	"statistics-section-title": "Statistiques sur les plateformes",
@@ -566,5 +571,10 @@
 	"body-profile-badges-no-badges": "Vous n’avez pas encore de badges actifs.",
 	"body-profile-badges-title": "Badges",
 	"body-profile-badges-see-all": "Afficher tous les badges",
-	"body-profile-badges-description": "Découvrez la collection complète des badges que vous avez gagnés (et ceux qui vous attendent !)"
+	"body-profile-badges-description": "Découvrez la collection complète des badges que vous avez gagnés (et ceux qui vous attendent !)",
+	"date-picker-today": "Aujourd’hui",
+	"date-picker-clear": "Effacer",
+	"date-picker-close": "Fermer",
+	"date-picker-time": "Heure",
+	"date-picker-date": "Date"
 }

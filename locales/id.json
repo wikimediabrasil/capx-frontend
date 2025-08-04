@@ -213,7 +213,7 @@
 	"edit-profile-image-title": "Gambar profil",
 	"edit-profile-choose-avatar": "Pilih avatar",
 	"edit-profile-choose-avatar-tooltip": "Pilih avatar untuk ditampilkan pada profil CapX Anda, bukan gambar item Wikidata Anda (jika ada).",
-	"edit-profile-use-wikidata": "Gunakan gambar item Wikidata",
+	"edit-profile-use-wikidata-photograph": "Gunakan gambar item Wikidata",
 	"edit-profile-consent-wikidata": "Dengan mengeklik di sini, saya setuju untuk menampilkan gambar item Wikidata saya di profil CapX. Alat tersebut akan mencari QID yang terkait dengan nama pengguna Anda di Wikidata dan akan menampilkan gambarnya jika ditemukan.",
 	"edit-profile-delete-profile": "Hapus profil",
 	"edit-profile-save": "Simpan profil",
