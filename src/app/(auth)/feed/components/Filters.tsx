@@ -1,46 +1,47 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { FilterState } from '../types';
 
+import BaseButton from '@/components/BaseButton';
+import AccountCircleIcon from '@/public/static/images/account_circle.svg';
+import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
+import AllProfilesIcon from '@/public/static/images/all_profiles_icon.svg';
+import AllProfilesIconWhite from '@/public/static/images/all_profiles_icon_white.svg';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
 import CapxIconWhite from '@/public/static/images/capx_icon_white.svg';
-import ProfilesIcon from '@/public/static/images/profiles_icon.svg';
-import ProfilesIconWhite from '@/public/static/images/profiles_icon_white.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import BaseButton from '@/components/BaseButton';
-import SearchIcon from '@/public/static/images/search_icon.svg';
-import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
-import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
-import OrganizationIcon from '@/public/static/images/supervised_user_circle.svg';
-import OrganizationIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
-import AllProfilesIcon from '@/public/static/images/all_profiles_icon.svg';
-import AllProfilesIconWhite from '@/public/static/images/all_profiles_icon_white.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import LearnerIcon from '@/public/static/images/learner_icon.svg';
 import LearnerIconWhite from '@/public/static/images/learner_icon_white.svg';
+import ProfilesIcon from '@/public/static/images/profiles_icon.svg';
+import ProfilesIconWhite from '@/public/static/images/profiles_icon_white.svg';
+import SearchIcon from '@/public/static/images/search_icon.svg';
+import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import SharerIcon from '@/public/static/images/sharer_icon.svg';
 import SharerIconWhite from '@/public/static/images/sharer_icon_white.svg';
+import OrganizationIcon from '@/public/static/images/supervised_user_circle.svg';
+import OrganizationIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 
-import { useTerritories } from '@/hooks/useTerritories';
-import { useLanguage } from '@/hooks/useLanguage';
-import { useSession } from 'next-auth/react';
-import { LanguageSelector } from './LanguageSelector';
-import { CheckboxButton } from './CheckboxButton';
-import { TerritorySelector } from './TerritorySelector';
-import { ProfileCapacityType, ProfileFilterType } from '../types';
-import { Capacity } from '@/types/capacity';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { useAffiliation } from '@/hooks/useAffiliation';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useTerritories } from '@/hooks/useTerritories';
+import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import UserIcon from '@/public/static/images/account_circle.svg';
 import UserIconWhite from '@/public/static/images/account_circle_white.svg';
-import { useAffiliation } from '@/hooks/useAffiliation';
+import { Capacity } from '@/types/capacity';
+import { useSession } from 'next-auth/react';
+import { ProfileCapacityType, ProfileFilterType } from '../types';
 import { AffiliationSelector } from './AffiliationSelector';
+import { CheckboxButton } from './CheckboxButton';
+import { LanguageSelector } from './LanguageSelector';
+import { TerritorySelector } from './TerritorySelector';
 
 interface FiltersProps {
   isOnlyOrganization?: boolean;
@@ -65,26 +66,6 @@ export function Filters({
   const [searchCapacity, setSearchCapacity] = useState('');
   const [filters, setFilters] = useState(initialFilters);
   const [showSkillModal, setShowSkillModal] = useState(false);
-
-  // Helper function to add unique capacities
-  const addUniqueCapacities = (
-    existingCapacities: Array<{ name: string; code: number }>,
-    newCapacities: Capacity[]
-  ) => {
-    const result = [...existingCapacities];
-
-    newCapacities.forEach(capacity => {
-      const capacityExists = result.some(cap => cap.code == capacity.code);
-      if (!capacityExists) {
-        result.push({
-          name: capacity.name,
-          code: capacity.code,
-        });
-      }
-    });
-
-    return result;
-  };
 
   const handleCapacitySelect = (capacities: Capacity[]) => {
     setFilters(prev => ({

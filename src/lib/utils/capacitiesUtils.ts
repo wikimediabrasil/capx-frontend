@@ -1,12 +1,24 @@
-import OrganizationalIcon from '@/public/static/images/corporate_fare.svg';
-import CommunicationIcon from '@/public/static/images/communication.svg';
-import LearningIcon from '@/public/static/images/local_library.svg';
-import CommunityIcon from '@/public/static/images/communities.svg';
 import SocialIcon from '@/public/static/images/cheer.svg';
 import StrategicIcon from '@/public/static/images/chess_pawn.svg';
+import CommunicationIcon from '@/public/static/images/communication.svg';
+import CommunityIcon from '@/public/static/images/communities.svg';
+import OrganizationalIcon from '@/public/static/images/corporate_fare.svg';
+import LearningIcon from '@/public/static/images/local_library.svg';
 import TechnologyIcon from '@/public/static/images/wifi_tethering.svg';
-import { Dispatch, SetStateAction } from 'react';
+import { Capacity } from '@/types/capacity';
 import axios from 'axios';
+import { Dispatch, SetStateAction } from 'react';
+
+/**
+ * Consolidated utility functions for handling capacity operations
+ * This file combines all capacity-related utilities to avoid duplication
+ */
+
+// Types
+export interface CapacityItem {
+  code: number;
+  name: string;
+}
 
 const colorMap: Record<string, string> = {
   organizational: '#0078D4',
@@ -143,10 +155,10 @@ export const fetchMetabase = async (codes: any, language: string) => {
       return [];
     }
 
-    const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>  
-      SELECT ?item ?itemLabel ?itemDescription ?value WHERE {  
-      VALUES ?value {${codes.map(code => `"${code.wd_code}"`).join(' ')}}  
-      ?item wbt:P67/wbt:P1 ?value.  
+    const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
+      SELECT ?item ?itemLabel ?itemDescription ?value WHERE {
+      VALUES ?value {${codes.map(code => `"${code.wd_code}"`).join(' ')}}
+      ?item wbt:P67/wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
     const response = await axios.post(
@@ -199,3 +211,45 @@ export const sanitizeCapacityName = (name: string | undefined, code: string | nu
 
   return name;
 };
+
+// =============================================================================
+// FILTER AND LIST OPERATIONS
+// Functions for handling capacity operations in filters and lists
+// =============================================================================
+
+/**
+ * Adds unique capacities to an existing array, avoiding duplicates
+ * Used specifically for filter operations where we need {code, name} objects
+ */
+export function addUniqueCapacities(
+  existingCapacities: CapacityItem[],
+  newCapacities: Capacity[]
+): CapacityItem[] {
+  const result = [...existingCapacities];
+
+  newCapacities.forEach(capacity => {
+    const capacityExists = result.some(cap => cap.code === capacity.code);
+    if (!capacityExists) {
+      result.push({
+        code: capacity.code,
+        name: capacity.name,
+      });
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Ensures that a value is an array
+ */
+export function ensureArray<T>(value: T[] | undefined): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
+/**
+ * Sanitizes a capacity code to ensure it's a number
+ */
+export function sanitizeCapacityCode(code: number | string): number {
+  return typeof code === 'string' ? parseInt(code, 10) : code;
+}

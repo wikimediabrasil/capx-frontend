@@ -1,27 +1,27 @@
 'use client';
 
-import { EventsSearch } from './EventsSearch';
-import { useSession } from 'next-auth/react';
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { PaginationButtons } from '@/components/PaginationButtons';
-import { useEvents } from '@/hooks/useEvents';
-import EventsList from './EventsList';
 import Banner from '@/components/Banner';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
+import { PaginationButtons } from '@/components/PaginationButtons';
 import { useApp } from '@/contexts/AppContext';
-import { EventFilterState, EventFilterType, EventLocationType, EventSkill } from '../types';
-import { EventsFilters } from './EventsFilters';
 import { useTheme } from '@/contexts/ThemeContext';
-import Image from 'next/image';
+import { useEvents } from '@/hooks/useEvents';
+import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
+import CapxPersonEvent from '@/public/static/images/capx_person_events.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import FilterIcon from '@/public/static/images/filter_icon.svg';
 import FilterIconWhite from '@/public/static/images/filter_icon_white.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
-import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { Capacity } from '@/types/capacity';
-import { useRouter } from 'next/navigation';
-import CapxPersonEvent from '@/public/static/images/capx_person_events.svg';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { EventFilterState, EventFilterType, EventLocationType, EventSkill } from '../types';
+import { EventsFilters } from './EventsFilters';
+import EventsList from './EventsList';
+import { EventsSearch } from './EventsSearch';
 
 export default function EventsMainWrapper() {
   const { data: session } = useSession();
@@ -96,26 +96,6 @@ export default function EventsMainWrapper() {
       organizationId: organizationId ? Number(organizationId) : undefined,
     }));
   }, [organizationId]);
-
-  // Helper function to add unique capacities
-  const addUniqueCapacities = (
-    existingCapacities: Array<{ code: number; name: string }>,
-    newCapacities: Capacity[]
-  ) => {
-    const result = [...existingCapacities];
-
-    newCapacities.forEach(capacity => {
-      const capacityExists = result.some(cap => cap.code === capacity.code);
-      if (!capacityExists) {
-        result.push({
-          code: capacity.code,
-          name: capacity.name,
-        });
-      }
-    });
-
-    return result;
-  };
 
   const handleCapacitySelect = (capacities: Capacity[]) => {
     setActiveFilters(prev => ({

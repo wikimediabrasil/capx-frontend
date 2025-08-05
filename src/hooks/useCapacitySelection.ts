@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from 'react';
 import { Capacity } from '@/types/capacity';
+import { useCallback, useMemo } from 'react';
 
 // Types for different use cases
 export interface FilterCapacitySelectionConfig {
