@@ -44,7 +44,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
 
   const { handleCapacitySelect } = useFilterCapacitySelection(
     filters.capacities,
-    (newCapacities) => {
+    newCapacities => {
       setFilters(prev => ({
         ...prev,
         capacities: newCapacities,

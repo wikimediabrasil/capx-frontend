@@ -104,9 +104,12 @@ export default function OrganizationList() {
   }, [activeFilters]);
 
   // Helper function to add unique capacities
-  const addUniqueCapacities = (existingCapacities: Array<{code: number; name: string}>, newCapacities: Capacity[]) => {
+  const addUniqueCapacities = (
+    existingCapacities: Array<{ code: number; name: string }>,
+    newCapacities: Capacity[]
+  ) => {
     const result = [...existingCapacities];
-    
+
     newCapacities.forEach(capacity => {
       const capacityExists = result.some(cap => cap.code == capacity.code);
       if (!capacityExists) {
@@ -116,7 +119,7 @@ export default function OrganizationList() {
         });
       }
     });
-    
+
     return result;
   };
 

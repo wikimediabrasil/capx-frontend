@@ -275,7 +275,7 @@ export default function FeedPage() {
 
   const { handleCapacitySelect } = useFilterCapacitySelection(
     activeFilters.capacities,
-    (newCapacities) => {
+    newCapacities => {
       setActiveFilters(prev => ({
         ...prev,
         capacities: newCapacities,

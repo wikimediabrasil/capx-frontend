@@ -585,8 +585,6 @@ export default function EditProfilePage() {
     setShowCapacityModal(true);
   };
 
-
-
   const handleAddProject = () => {
     setFormData(prev => ({
       ...prev,

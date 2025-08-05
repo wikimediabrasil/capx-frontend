@@ -1212,13 +1212,16 @@ export default function EditOrganizationProfilePage() {
   }, [formData, currentCapacityType]);
 
   // Memoize the update function to avoid recreating it on every render
-  const updateCapacities = useCallback((updatedCapacities: number[]) => {
-    const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
-    setFormData(prev => ({
-      ...prev,
-      [capacityField]: updatedCapacities,
-    }));
-  }, [currentCapacityType, setFormData]);
+  const updateCapacities = useCallback(
+    (updatedCapacities: number[]) => {
+      const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
+      setFormData(prev => ({
+        ...prev,
+        [capacityField]: updatedCapacities,
+      }));
+    },
+    [currentCapacityType, setFormData]
+  );
 
   const { handleCapacitySelect } = useFormCapacitySelection(
     currentCapacities,

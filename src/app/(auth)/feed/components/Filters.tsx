@@ -67,9 +67,12 @@ export function Filters({
   const [showSkillModal, setShowSkillModal] = useState(false);
 
   // Helper function to add unique capacities
-  const addUniqueCapacities = (existingCapacities: Array<{name: string; code: number}>, newCapacities: Capacity[]) => {
+  const addUniqueCapacities = (
+    existingCapacities: Array<{ name: string; code: number }>,
+    newCapacities: Capacity[]
+  ) => {
     const result = [...existingCapacities];
-    
+
     newCapacities.forEach(capacity => {
       const capacityExists = result.some(cap => cap.code == capacity.code);
       if (!capacityExists) {
@@ -79,7 +82,7 @@ export function Filters({
         });
       }
     });
-    
+
     return result;
   };
 

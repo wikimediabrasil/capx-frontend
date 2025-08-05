@@ -150,7 +150,8 @@ describe('CapacitySelectionModal', () => {
         'capacity-selection-modal-selected': 'Selected',
         'capacity-selection-modal-select-capacity': 'Capacity',
         'capacity-selection-modal-see-more-information': 'See more information',
-        'capacity-selection-modal-hover-view-capacity-feed': 'Click to view it in the Capacity Feed',
+        'capacity-selection-modal-hover-view-capacity-feed':
+          'Click to view it in the Capacity Feed',
       },
       isMobile: false,
     });
@@ -380,7 +381,7 @@ describe('CapacitySelectionModal', () => {
         expect.objectContaining({
           code: 501,
           name: 'Active Learning',
-        })
+        }),
       ])
     );
   });
@@ -567,7 +568,7 @@ describe('CapacitySelectionModal', () => {
           expect.objectContaining({
             code: 36,
             name: 'Communication',
-          })
+          }),
         ])
       );
     });
@@ -670,7 +671,7 @@ describe('CapacitySelectionModal', () => {
       // Click on both capacities to select them
       const learningCard = screen.getByText('Learning').closest('div');
       const communicationCard = screen.getByText('Communication').closest('div');
-      
+
       fireEvent.click(learningCard!);
       fireEvent.click(communicationCard!);
 
@@ -725,7 +726,7 @@ describe('CapacitySelectionModal', () => {
           expect.objectContaining({
             code: 36,
             name: 'Communication',
-          })
+          }),
         ])
       );
 
@@ -735,7 +736,7 @@ describe('CapacitySelectionModal', () => {
           expect.objectContaining({
             code: 50,
             name: 'Learning',
-          })
+          }),
         ])
       );
     });

@@ -286,7 +286,7 @@ export default function CapacitySelectionModal({
         // Multiple selection mode
         setSelectedCapacities(prev => {
           const isAlreadySelected = prev.some(cap => cap.code === categoryId);
-          
+
           if (isAlreadySelected) {
             // Remove from selection if already selected
             return prev.filter(cap => cap.code !== categoryId);
@@ -344,8 +344,7 @@ export default function CapacitySelectionModal({
     if (selectedCapacities.length > 0) {
       const capacitiesToReturn = selectedCapacities.map(capacity => ({
         ...capacity,
-        skill_type:
-          selectedPath.length > 0 ? selectedPath[selectedPath.length - 1] : capacity.code,
+        skill_type: selectedPath.length > 0 ? selectedPath[selectedPath.length - 1] : capacity.code,
       }));
       onSelect(capacitiesToReturn);
       onClose();
@@ -414,8 +413,6 @@ export default function CapacitySelectionModal({
     }
   };
 
-
-
   // Function to render a custom capacity card for the modal
   const renderCapacityCard = (capacity: Capacity, isRoot: boolean) => {
     const isSelected = selectedCapacities.some(cap => cap.code === capacity.code);
@@ -435,12 +432,12 @@ export default function CapacitySelectionModal({
       if (isRoot) {
         return capacity;
       }
-      
+
       // For child capacities, find the root from the selectedPath
       if (selectedPath.length > 0) {
         return findCapacityByCode(selectedPath[0]);
       }
-      
+
       return undefined;
     };
 
@@ -457,12 +454,6 @@ export default function CapacitySelectionModal({
         ? 3
         : 2;
 
-
-
-
-
-
-
     // Get background color for capacity
     const getBackgroundColor = () => {
       if (isRoot) {
@@ -471,10 +462,10 @@ export default function CapacitySelectionModal({
         return hexColor;
       } else {
         // For child capacities, use the exact same color as root
-        const rootHexColor = rootCapacity 
+        const rootHexColor = rootCapacity
           ? getHexColorFromCode(rootCapacity.code)
           : getHexColorFromCode(capacity.code);
-        
+
         // Use exact same color for all levels
         return rootHexColor;
       }
@@ -487,15 +478,15 @@ export default function CapacitySelectionModal({
     const isLightColor = (hexColor: string): boolean => {
       // Remove # if present
       const hex = hexColor.replace('#', '');
-      
+
       // Parse RGB
       const r = parseInt(hex.substr(0, 2), 16);
       const g = parseInt(hex.substr(2, 2), 16);
       const b = parseInt(hex.substr(4, 2), 16);
-      
+
       // Calculate luminance to determine if the color is light or dark
       const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      
+
       return luminance > 0.6;
     };
 
@@ -585,10 +576,12 @@ export default function CapacitySelectionModal({
               {/* Multi-selection indicator */}
               {allowMultipleSelection && isSelected && (
                 <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2">
-                  <span className={`${getCheckmarkColor()} text-xs font-bold drop-shadow-lg`}>✓</span>
+                  <span className={`${getCheckmarkColor()} text-xs font-bold drop-shadow-lg`}>
+                    ✓
+                  </span>
                 </div>
               )}
-              
+
               <button
                 onClick={e => toggleCapacityInfo(e, capacity)}
                 className="p-1 flex-shrink-0 mr-1"
@@ -707,7 +700,7 @@ export default function CapacitySelectionModal({
                 <span className={`${getCheckmarkColor()} text-xs font-bold drop-shadow-lg`}>✓</span>
               </div>
             )}
-            
+
             <button
               onClick={e => toggleCapacityInfo(e, capacity)}
               className="p-1 flex-shrink-0 mr-1"
@@ -811,18 +804,25 @@ export default function CapacitySelectionModal({
               <button
                 onClick={() => setSelectedPath(prev => prev.slice(0, -1))}
                 className={`flex items-center gap-2 mb-2 px-2 py-1 rounded-md transition-colors ${
-                  darkMode 
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-700' 
+                  darkMode
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
                 <span className="text-sm">{pageContent['capacity-selection-modal-back']}</span>
               </button>
             )}
-            
+
             {/* Breadcrumb trail */}
             <div className="flex items-center gap-1 text-sm overflow-x-auto scrollbar-hide pb-1">
               {/* Home/Root */}
@@ -830,17 +830,24 @@ export default function CapacitySelectionModal({
                 onClick={() => setSelectedPath([])}
                 className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 ${
                   selectedPath.length === 0
-                    ? darkMode 
-                      ? 'bg-gray-700 text-white' 
+                    ? darkMode
+                      ? 'bg-gray-700 text-white'
                       : 'bg-gray-100 text-gray-900'
-                    : darkMode 
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-700' 
+                    : darkMode
+                      ? 'text-gray-300 hover:text-white hover:bg-gray-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9,22 9,12 15,12 15,22"/>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9,22 9,12 15,12 15,22" />
                 </svg>
                 <span className="hidden sm:inline">
                   {pageContent['capacity-selection-modal-root-capacities']}
@@ -851,36 +858,38 @@ export default function CapacitySelectionModal({
               {selectedPath.map((pathId, index) => {
                 const capacity = findCapacityByCode(pathId);
                 const isLast = index === selectedPath.length - 1;
-                const capacityName = capacity?.name || `${pageContent['capacity-selection-modal-select-capacity']} ${pathId}`;
-                
+                const capacityName =
+                  capacity?.name ||
+                  `${pageContent['capacity-selection-modal-select-capacity']} ${pathId}`;
+
                 // Get icon from capacity or generate it based on code if not found
                 const capacityIcon = capacity?.icon || getCapacityIcon(pathId);
 
                 return (
                   <React.Fragment key={`path-${pathId}-${index}`}>
                     {/* Separator */}
-                    <svg 
-                      width="12" 
-                      height="12" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
                       strokeWidth="2"
                       className={`flex-shrink-0 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}
                     >
-                      <polyline points="9,18 15,12 9,6"/>
+                      <polyline points="9,18 15,12 9,6" />
                     </svg>
-                    
+
                     {/* Breadcrumb item */}
                     <button
                       onClick={() => setSelectedPath(prev => prev.slice(0, index + 1))}
                       className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 max-w-[150px] ${
                         isLast
-                          ? darkMode 
-                            ? 'bg-gray-700 text-white' 
+                          ? darkMode
+                            ? 'bg-gray-700 text-white'
                             : 'bg-gray-100 text-gray-900'
-                          : darkMode 
-                            ? 'text-gray-300 hover:text-white hover:bg-gray-700' 
+                          : darkMode
+                            ? 'text-gray-300 hover:text-white hover:bg-gray-700'
                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                       title={capacityName}
@@ -893,23 +902,18 @@ export default function CapacitySelectionModal({
                             alt={capacityName}
                             width={14}
                             height={14}
-                            style={{ 
-                              filter: darkMode 
-                                ? 'brightness(0) invert(1)' 
-                                : 'brightness(0)' 
+                            style={{
+                              filter: darkMode ? 'brightness(0) invert(1)' : 'brightness(0)',
                             }}
                           />
                         </div>
                       )}
-                      <span className="truncate block">
-                        {capacityName}
-                      </span>
+                      <span className="truncate block">{capacityName}</span>
                     </button>
                   </React.Fragment>
                 );
               })}
             </div>
-            
           </div>
 
           {/* Capacity list */}
@@ -938,15 +942,17 @@ export default function CapacitySelectionModal({
                       style={isRoot ? rootStyle : undefined}
                     >
                       {renderCapacityCard(capacity, isRoot)}
-                      {!allowMultipleSelection && selectedCapacities.length > 0 && selectedCapacities[0].code === capacity.code && (
-                        <div
-                          className={`text-sm mt-1 text-center ${
-                            darkMode ? 'text-gray-400' : 'text-gray-500'
-                          }`}
-                        >
-                          {pageContent['capacity-selection-modal-selected']}
-                        </div>
-                      )}
+                      {!allowMultipleSelection &&
+                        selectedCapacities.length > 0 &&
+                        selectedCapacities[0].code === capacity.code && (
+                          <div
+                            className={`text-sm mt-1 text-center ${
+                              darkMode ? 'text-gray-400' : 'text-gray-500'
+                            }`}
+                          >
+                            {pageContent['capacity-selection-modal-selected']}
+                          </div>
+                        )}
                     </div>
                   );
                 })}
@@ -970,7 +976,7 @@ export default function CapacitySelectionModal({
             <BaseButton
               label={
                 allowMultipleSelection && selectedCapacities.length > 1
-                  ?  `${selectedCapacities.length} ${pageContent['capacity-selection-modal-select-capacity-button-multiple-capacities']} ${pageContent['capacity-selection-modal-select-capacity-button-multiple-selected']}`
+                  ? `${selectedCapacities.length} ${pageContent['capacity-selection-modal-select-capacity-button-multiple-capacities']} ${pageContent['capacity-selection-modal-select-capacity-button-multiple-selected']}`
                   : pageContent['capacity-selection-modal-select-capacity-button']
               }
               customClass={`bg-capx-secondary-purple rounded-[6px] !py-2 !px-4 font-extrabold text-white hover:bg-capx-primary-green w-1/2 md:w-1/3 ${

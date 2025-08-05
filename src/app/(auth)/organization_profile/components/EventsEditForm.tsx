@@ -559,7 +559,7 @@ const EventsForm = memo(
     const handleCapacitySelect = useCallback(
       (capacities: Capacity[]) => {
         let newCapacities = [...selectedCapacities];
-        
+
         capacities.forEach(capacity => {
           if (!newCapacities.find(cap => cap.code === capacity.code)) {
             // Add the full capacity with its real name
