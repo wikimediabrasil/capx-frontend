@@ -2,17 +2,16 @@ import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
+import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
 import { Capacity } from '@/types/capacity';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
-import { StaticImageData } from 'next/image';
-import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 
 interface CapacityCardProps {
   code: number;
