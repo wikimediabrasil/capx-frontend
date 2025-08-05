@@ -520,20 +520,14 @@ export function CapacityCard({
             className={`flex items-center gap-4 ${isMobile ? 'mr-2' : 'mr-4'} z-10 flex-shrink-0`}
           >
             <div className="relative" style={{ zIndex: 10, visibility: 'visible' }}>
-              {isRoot
-                ? renderInfoButton(24, InfoIcon)
-                : isMobile
-                  ? renderInfoButton(24, InfoIcon)
-                  : renderInfoButton(40, InfoIcon)}
+              {isRoot || isMobile ? renderInfoButton(24, InfoIcon) : renderInfoButton(40, InfoIcon)}
             </div>
 
             {hasChildrenFromCache && (
               <div className="relative" style={{ zIndex: 10, visibility: 'visible' }}>
-                {isRoot
+                {isRoot || isMobile
                   ? renderArrowButton(24, ArrowDownIcon)
-                  : isMobile
-                    ? renderArrowButton(24, ArrowDownIcon)
-                    : renderArrowButton(40, ArrowDownIcon)}
+                  : renderArrowButton(40, ArrowDownIcon)}
               </div>
             )}
           </div>
