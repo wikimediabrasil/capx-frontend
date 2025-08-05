@@ -38,6 +38,7 @@ import { useLetsConnect } from '@/hooks/useLetsConnect';
 import { useCapacityList } from '@/hooks/useCapacityList';
 import { useAllCapacities } from '@/hooks/useAllCapacities';
 import { LanguageProficiency } from '@/types/language';
+import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -373,6 +374,16 @@ export default function EditProfilePage() {
     fetchAvatar();
   }, [fetchAvatar]);
 
+  // Initialize capacity selection hook before any early returns
+  const { handleCapacitySelect } = useProfileFormCapacitySelection(
+    selectedCapacityType,
+    formData,
+    setFormData,
+    addUniqueCapacity,
+    ensureArray,
+    () => setShowCapacityModal(false)
+  );
+
   // Show loading state while session is loading
   if (sessionStatus === 'loading') {
     return <LoadingState />;
@@ -574,37 +585,7 @@ export default function EditProfilePage() {
     setShowCapacityModal(true);
   };
 
-  const handleCapacitySelect = (capacities: Capacity[]) => {
-    setFormData(prev => {
-      const newFormData = { ...prev };
-      
-      // Process each selected capacity
-      capacities.forEach(capacity => {
-        const capacityId = Number(capacity.code);
-        
-        switch (selectedCapacityType) {
-          case 'known':
-            newFormData.skills_known = addUniqueCapacity(ensureArray(newFormData.skills_known), capacityId);
-            break;
-          case 'available':
-            newFormData.skills_available = addUniqueCapacity(
-              ensureArray(newFormData.skills_available),
-              capacityId
-            );
-            break;
-          case 'wanted':
-            newFormData.skills_wanted = addUniqueCapacity(
-              ensureArray(newFormData.skills_wanted),
-              capacityId
-            );
-            break;
-        }
-      });
-      
-      return newFormData;
-    });
-    setShowCapacityModal(false);
-  };
+
 
   const handleAddProject = () => {
     setFormData(prev => ({

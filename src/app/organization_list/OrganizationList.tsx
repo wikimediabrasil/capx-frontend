@@ -103,23 +103,26 @@ export default function OrganizationList() {
     setCurrentPage(1);
   }, [activeFilters]);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(cap => cap.code == capacity.code);
-
-    if (capacityExists) {
-      return;
-    }
-
-    setActiveFilters(prev => ({
-      ...prev,
-      capacities: [
-        ...prev.capacities,
-        {
-          code: capacity.code,
-          name: capacity.name,
-        },
-      ],
-    }));
+  const handleCapacitySelect = (capacities: Capacity[]) => {
+    setActiveFilters(prev => {
+      const newCapacities = [...prev.capacities];
+      
+      capacities.forEach(capacity => {
+        const capacityExists = newCapacities.some(cap => cap.code == capacity.code);
+        
+        if (!capacityExists) {
+          newCapacities.push({
+            code: capacity.code,
+            name: capacity.name,
+          });
+        }
+      });
+      
+      return {
+        ...prev,
+        capacities: newCapacities,
+      };
+    });
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {

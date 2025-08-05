@@ -13,6 +13,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from '@/hooks/useCapacityDetails';
 import { Capacity } from '@/types/capacity';
 import { useSavedItems } from '@/hooks/useSavedItems';
+import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 import { createProfilesFromOrganizations, createProfilesFromUsers } from './types';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
@@ -272,24 +273,15 @@ export default function FeedPage() {
     setCurrentPage(1);
   }, [activeFilters]);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(cap => cap.code == capacity.code);
-
-    if (capacityExists) {
-      return;
+  const { handleCapacitySelect } = useFilterCapacitySelection(
+    activeFilters.capacities,
+    (newCapacities) => {
+      setActiveFilters(prev => ({
+        ...prev,
+        capacities: newCapacities,
+      }));
     }
-
-    setActiveFilters(prev => ({
-      ...prev,
-      capacities: [
-        ...prev.capacities,
-        {
-          code: capacity.code,
-          name: capacity.name,
-        },
-      ],
-    }));
-  };
+  );
 
   const handleRemoveCapacity = (capacityCode: number) => {
     setActiveFilters(prev => ({

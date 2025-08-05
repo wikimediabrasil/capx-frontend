@@ -23,6 +23,7 @@ import { useSession } from 'next-auth/react';
 import BaseButton from '@/components/BaseButton';
 import { Capacity } from '@/types/capacity';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 
 interface EventsFiltersProps {
   onClose: () => void;
@@ -41,27 +42,16 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
   const [showCapacityModal, setShowCapacityModal] = useState(false);
   const [territory, setTerritory] = useState('');
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = filters.capacities.some(cap => cap.code === capacity.code);
-
-    if (capacityExists) {
-      return;
-    }
-
-    setFilters(prev => ({
-      ...prev,
-      capacities: [
-        ...prev.capacities,
-        {
-          name: capacity.name,
-          code: capacity.code,
-        },
-      ],
-    }));
-
-    // Close the modal after selection
-    setShowCapacityModal(false);
-  };
+  const { handleCapacitySelect } = useFilterCapacitySelection(
+    filters.capacities,
+    (newCapacities) => {
+      setFilters(prev => ({
+        ...prev,
+        capacities: newCapacities,
+      }));
+    },
+    () => setShowCapacityModal(false)
+  );
 
   const handleRemoveCapacity = (capacityCode: number) => {
     setFilters(prev => ({

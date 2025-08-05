@@ -66,23 +66,26 @@ export function Filters({
   const [filters, setFilters] = useState(initialFilters);
   const [showSkillModal, setShowSkillModal] = useState(false);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = filters.capacities.some(cap => cap.code == capacity.code);
-
-    if (capacityExists) {
-      return;
-    }
-
-    setFilters(prev => ({
-      ...prev,
-      capacities: [
-        ...prev.capacities,
-        {
-          name: capacity.name,
-          code: capacity.code,
-        },
-      ],
-    }));
+  const handleCapacitySelect = (capacities: Capacity[]) => {
+    setFilters(prev => {
+      const newCapacities = [...prev.capacities];
+      
+      capacities.forEach(capacity => {
+        const capacityExists = newCapacities.some(cap => cap.code == capacity.code);
+        
+        if (!capacityExists) {
+          newCapacities.push({
+            name: capacity.name,
+            code: capacity.code,
+          });
+        }
+      });
+      
+      return {
+        ...prev,
+        capacities: newCapacities,
+      };
+    });
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
