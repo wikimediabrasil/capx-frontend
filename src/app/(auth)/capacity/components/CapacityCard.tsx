@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { StaticImageData } from 'next/image';
+import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 
 interface CapacityCardProps {
   code: number;
@@ -90,7 +91,7 @@ export function CapacityCard({
   const renderExpandedContent = () => {
     if (!showInfo) return null;
 
-    // Determinar a cor de fundo do botão
+    // Determine the background color of the button
     const getButtonBackgroundColor = () => {
       // For root capacities (level 1), don't try to access bgColorClass
       if (isRoot || level === 1) {
@@ -175,71 +176,69 @@ export function CapacityCard({
     );
   };
 
-  const capitalizeFirstLetter = (text: string) => {
-    return text.charAt(0).toUpperCase() + text.slice(1);
-  };
 
-  // Função para determinar a cor do texto do nome da capacidade
+
+  // Function to determine the color of the capacity name text
   const getNameColor = (
     isRoot: boolean | undefined,
     parentCapacity?: Capacity,
     color?: string
   ): string => {
-    // Verificação explícita do nível primeiro
+    // Explicit level check first
     if (level === 3) {
-      return '#FFFFFF'; // Texto branco para nível 3
+      return '#FFFFFF'; // White text for level 3
     }
 
-    // Se for um item root, sempre usar branco
+    // If it's a root item, always use white
     if (isRoot) return '#FFFFFF';
 
-    // Para capacidades de terceiro nível, usar texto branco
+    // For third level capacities, use white text
     if (
       parentCapacity?.parentCapacity ||
       (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
     ) {
-      return '#FFFFFF'; // Texto branco para nível 3
+      return '#FFFFFF'; // White text for level 3
     }
 
-    // Se tiver um pai, usar a cor do pai
+    // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getCapacityColor(parentCapacity.color);
     }
 
-    // Se temos uma cor mas não um pai (ex: nos resultados de busca)
+    // If we have a color but no parent (e.g., in search results)
     if (color) {
       return getCapacityColor(color);
     }
 
-    // Padrão para capacidades filhas sem cor especificada
-    return '#4B5563'; // Cinza médio
+    // Default for child capacities without specified color
+    return '#4B5563'; // Medium gray
   };
 
-  // Função simplificada para determinar o filtro correto para ícones
+  // Simplified function to determine the correct filter for icons
   const getIconFilter = (isRoot: boolean | undefined, parentCapacity?: Capacity): string => {
-    // Verificação explícita do nível primeiro
+    // Explicit level check first
     if (level === 3) {
-      return 'brightness(0) invert(1)'; // Ícones brancos para nível 3
+      return 'brightness(0) invert(1)'; // White icons for level 3
     }
 
-    // Se for root, aplicar filtro que deixa ícone branco
+    // If it's root, apply filter to make icon white
     if (isRoot) return 'brightness(0) invert(1)';
 
-    // Para capacidades de terceiro nível, fazer ícones brancos também (mesmo que root)
+    // For third level capacities, make icons white as well (even if root)
     if (
       parentCapacity?.parentCapacity ||
       (parentCapacity && parentCapacity.skill_type !== parentCapacity.code)
     ) {
-      return 'brightness(0) invert(1)'; // Ícones brancos para nível 3
+      return 'brightness(0) invert(1)'; // White icons for level 3
     }
 
-    // Se tiver pai, usar cor do pai
+    // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getHueRotate(parentCapacity.color);
     }
 
-    // Caso contrário, usar a cor padrão do ícone
-    return 'brightness(0)'; // Isso fará o ícone ficar preto
+    // Otherwise, use the default icon color
+    return 'brightness(0)'; // This will make the icon black
   };
 
   type IconSource = string | StaticImageData;
@@ -262,7 +261,7 @@ export function CapacityCard({
   };
 
   const renderInfoButton = (size: number, icon: string) => {
-    // For grandchild capacities, use the grandparent's color
+    // For grandchild capacities, use the grandparent's color (if it has a parent)
     const filterStyle = getIconFilter(isRoot, parentCapacity);
 
     return (
@@ -395,6 +394,7 @@ export function CapacityCard({
               </div>
             </div>
           </div>
+
           {showInfo && (
             <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
               {renderExpandedContent()}
@@ -457,6 +457,7 @@ export function CapacityCard({
               </div>
             </div>
           </div>
+
           {showInfo && (
             <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
               {renderExpandedContent()}
@@ -531,6 +532,7 @@ export function CapacityCard({
           </div>
         </div>
       </div>
+
       {showInfo && (
         <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
           {renderExpandedContent()}
