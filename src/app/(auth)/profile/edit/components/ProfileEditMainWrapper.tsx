@@ -574,28 +574,33 @@ export default function EditProfilePage() {
     setShowCapacityModal(true);
   };
 
-  const handleCapacitySelect = (capacity: Capacity) => {
+  const handleCapacitySelect = (capacities: Capacity[]) => {
     setFormData(prev => {
       const newFormData = { ...prev };
-      const capacityId = Number(capacity.code);
-
-      switch (selectedCapacityType) {
-        case 'known':
-          newFormData.skills_known = addUniqueCapacity(ensureArray(prev.skills_known), capacityId);
-          break;
-        case 'available':
-          newFormData.skills_available = addUniqueCapacity(
-            ensureArray(prev.skills_available),
-            capacityId
-          );
-          break;
-        case 'wanted':
-          newFormData.skills_wanted = addUniqueCapacity(
-            ensureArray(prev.skills_wanted),
-            capacityId
-          );
-          break;
-      }
+      
+      // Process each selected capacity
+      capacities.forEach(capacity => {
+        const capacityId = Number(capacity.code);
+        
+        switch (selectedCapacityType) {
+          case 'known':
+            newFormData.skills_known = addUniqueCapacity(ensureArray(newFormData.skills_known), capacityId);
+            break;
+          case 'available':
+            newFormData.skills_available = addUniqueCapacity(
+              ensureArray(newFormData.skills_available),
+              capacityId
+            );
+            break;
+          case 'wanted':
+            newFormData.skills_wanted = addUniqueCapacity(
+              ensureArray(newFormData.skills_wanted),
+              capacityId
+            );
+            break;
+        }
+      });
+      
       return newFormData;
     });
     setShowCapacityModal(false);
