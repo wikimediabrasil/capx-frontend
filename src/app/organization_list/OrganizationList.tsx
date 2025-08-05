@@ -103,26 +103,28 @@ export default function OrganizationList() {
     setCurrentPage(1);
   }, [activeFilters]);
 
-  const handleCapacitySelect = (capacities: Capacity[]) => {
-    setActiveFilters(prev => {
-      const newCapacities = [...prev.capacities];
-      
-      capacities.forEach(capacity => {
-        const capacityExists = newCapacities.some(cap => cap.code == capacity.code);
-        
-        if (!capacityExists) {
-          newCapacities.push({
-            code: capacity.code,
-            name: capacity.name,
-          });
-        }
-      });
-      
-      return {
-        ...prev,
-        capacities: newCapacities,
-      };
+  // Helper function to add unique capacities
+  const addUniqueCapacities = (existingCapacities: Array<{code: number; name: string}>, newCapacities: Capacity[]) => {
+    const result = [...existingCapacities];
+    
+    newCapacities.forEach(capacity => {
+      const capacityExists = result.some(cap => cap.code == capacity.code);
+      if (!capacityExists) {
+        result.push({
+          code: capacity.code,
+          name: capacity.name,
+        });
+      }
     });
+    
+    return result;
+  };
+
+  const handleCapacitySelect = (capacities: Capacity[]) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      capacities: addUniqueCapacities(prev.capacities, capacities),
+    }));
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {

@@ -66,26 +66,28 @@ export function Filters({
   const [filters, setFilters] = useState(initialFilters);
   const [showSkillModal, setShowSkillModal] = useState(false);
 
-  const handleCapacitySelect = (capacities: Capacity[]) => {
-    setFilters(prev => {
-      const newCapacities = [...prev.capacities];
-      
-      capacities.forEach(capacity => {
-        const capacityExists = newCapacities.some(cap => cap.code == capacity.code);
-        
-        if (!capacityExists) {
-          newCapacities.push({
-            name: capacity.name,
-            code: capacity.code,
-          });
-        }
-      });
-      
-      return {
-        ...prev,
-        capacities: newCapacities,
-      };
+  // Helper function to add unique capacities
+  const addUniqueCapacities = (existingCapacities: Array<{name: string; code: number}>, newCapacities: Capacity[]) => {
+    const result = [...existingCapacities];
+    
+    newCapacities.forEach(capacity => {
+      const capacityExists = result.some(cap => cap.code == capacity.code);
+      if (!capacityExists) {
+        result.push({
+          name: capacity.name,
+          code: capacity.code,
+        });
+      }
     });
+    
+    return result;
+  };
+
+  const handleCapacitySelect = (capacities: Capacity[]) => {
+    setFilters(prev => ({
+      ...prev,
+      capacities: addUniqueCapacities(prev.capacities, capacities),
+    }));
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
