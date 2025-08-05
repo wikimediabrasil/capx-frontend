@@ -59,39 +59,39 @@ jest.mock('@/services/capacityService', () => ({
 const mockCapacities = [
   {
     code: 50,
-    name: 'Aprendizagem',
+    name: 'Learning',
     color: 'learning',
     icon: 'book',
     hasChildren: true,
     skill_type: 50,
     skill_wikidata_item: '',
     level: 1,
-    description: 'Capacidade de aprendizado',
+    description: 'Learning capability',
   },
   {
     code: 36,
-    name: 'Comunicação',
+    name: 'Communication',
     color: 'communication',
     icon: 'message',
     hasChildren: true,
     skill_type: 36,
     skill_wikidata_item: '',
     level: 1,
-    description: 'Capacidade de comunicação',
+    description: 'Communication capability',
   },
 ];
 
 const mockChildCapacities = [
   {
     code: 501,
-    name: 'Aprendizagem Ativa',
+    name: 'Active Learning',
     color: 'learning',
     icon: 'book',
     hasChildren: false,
     skill_type: 50,
     skill_wikidata_item: '',
     level: 2,
-    description: 'Capacidade de aprendizado ativo',
+    description: 'Active learning capability',
   },
 ];
 
@@ -101,7 +101,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
     defaultOptions: {
       queries: {
         retry: false,
-        cacheTime: 0,
+        gcTime: 0,
         staleTime: 0,
       },
     },
@@ -138,7 +138,20 @@ describe('CapacitySelectionModal', () => {
     });
 
     (useApp as jest.Mock).mockReturnValue({
-      pageContent: {},
+      pageContent: {
+        'capacity-selection-modal-select-capacity-button-multiple-capacities': 'capacities',
+        'capacity-selection-modal-select-capacity-button-multiple-selected': 'selected',
+        'capacity-selection-modal-select-capacity-button': 'Select',
+        'capacity-selection-modal-select-capacity-button-cancel': 'Cancel',
+        'capacity-selection-modal-root-capacities': 'Root capacities',
+        'capacity-selection-modal-back': 'Back',
+        'capacity-selection-modal-loading': 'Loading...',
+        'capacity-selection-modal-no-capacities-found': 'No capacities found',
+        'capacity-selection-modal-selected': 'Selected',
+        'capacity-selection-modal-select-capacity': 'Capacity',
+        'capacity-selection-modal-see-more-information': 'See more information',
+        'capacity-selection-modal-hover-view-capacity-feed': 'Click to view it in the Capacity Feed',
+      },
       isMobile: false,
     });
 
@@ -165,7 +178,7 @@ describe('CapacitySelectionModal', () => {
         return {
           data: {
             id: 50,
-            description: 'Capacidade de aprendizado',
+            description: 'Learning capability',
             wdCode: 'Q123',
           },
           isLoading: false,
@@ -204,7 +217,7 @@ describe('CapacitySelectionModal', () => {
       defaultOptions: {
         queries: {
           retry: false,
-          cacheTime: 0,
+          gcTime: 0,
           staleTime: 0,
           refetchOnWindowFocus: false,
           refetchOnMount: false,
@@ -228,39 +241,39 @@ describe('CapacitySelectionModal', () => {
     });
   };
 
-  it('deve renderizar o modal corretamente quando aberto', async () => {
+  it('should render the modal correctly when open', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     await waitFor(
       () => {
-        expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
+        expect(screen.getByText('Select a Capacity')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
-        expect(screen.getByText('Comunicação')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
+        expect(screen.getByText('Communication')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
   });
 
-  it('não deve renderizar o modal quando fechado', () => {
+  it('should not render the modal when closed', () => {
     const { container } = renderWithProviders(
       <CapacitySelectionModal
         isOpen={false}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
@@ -269,20 +282,20 @@ describe('CapacitySelectionModal', () => {
     expect(modal).toHaveClass('hidden');
   });
 
-  it('deve chamar onClose quando o botão de fechar for clicado', async () => {
+  it('should call onClose when the close button is clicked', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
+        expect(screen.getByText('Select a Capacity')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -294,20 +307,20 @@ describe('CapacitySelectionModal', () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it('deve expandir uma capacidade quando clicada', async () => {
+  it('should expand a capacity when clicked', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -319,26 +332,26 @@ describe('CapacitySelectionModal', () => {
     // Wait for the render of the child capacities
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem Ativa')).toBeInTheDocument();
+        expect(screen.getByText('Active Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
   });
 
-  it('deve selecionar uma capacidade e chamar onSelect', async () => {
+  it('should select a capacity and call onSelect', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -350,7 +363,7 @@ describe('CapacitySelectionModal', () => {
     // Wait for the render of the child capacity and click on it
     await waitFor(
       () => {
-        const childCapacity = screen.getByText('Aprendizagem Ativa');
+        const childCapacity = screen.getByText('Active Learning');
         expect(childCapacity).toBeInTheDocument();
         fireEvent.click(childCapacity);
       },
@@ -363,27 +376,29 @@ describe('CapacitySelectionModal', () => {
     fireEvent.click(confirmButton);
 
     expect(mockOnSelect).toHaveBeenCalledWith(
-      expect.objectContaining({
-        code: 501,
-        name: 'Aprendizagem Ativa',
-      })
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 501,
+          name: 'Active Learning',
+        })
+      ])
     );
   });
 
-  it('deve mostrar informações da capacidade quando o ícone de info for clicado', async () => {
+  it('should show capacity information when the info icon is clicked', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -395,26 +410,36 @@ describe('CapacitySelectionModal', () => {
     // Wait for the description to be displayed
     await waitFor(
       () => {
-        expect(screen.getByText('Capacidade de aprendizado')).toBeInTheDocument();
+        expect(screen.getByText('Learning capability')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
+    // Verify that the title is also displayed in the expanded content
+    await waitFor(
+      () => {
+        // The title should appear twice: once in the card header and once in the expanded content
+        const titleElements = screen.getAllByText('Learning');
+        expect(titleElements.length).toBeGreaterThanOrEqual(2);
       },
       { timeout: 3000 }
     );
   });
 
-  it('deve navegar corretamente entre os níveis de capacidade', async () => {
+  it('should navigate correctly between capacity levels', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -426,13 +451,13 @@ describe('CapacitySelectionModal', () => {
     // Wait for the render of the child capacities
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem Ativa')).toBeInTheDocument();
+        expect(screen.getByText('Active Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     // Click on the child capacity
-    const childCapacity = screen.getByText('Aprendizagem Ativa');
+    const childCapacity = screen.getByText('Active Learning');
     fireEvent.click(childCapacity);
 
     // Verify if the confirm button is enabled
@@ -441,20 +466,20 @@ describe('CapacitySelectionModal', () => {
     expect(confirmButton).not.toBeDisabled();
   });
 
-  it('deve atualizar o caminho selecionado ao navegar entre capacidades', async () => {
+  it('should update the selected path when navigating between capacities', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Aprendizagem')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -466,36 +491,253 @@ describe('CapacitySelectionModal', () => {
     // Wait for the path to be updated
     await waitFor(
       () => {
-        const pathElement = screen.getByText(content => content.includes('Aprendizagem'));
+        const pathElement = screen.getByText(content => content.includes('Learning'));
         expect(pathElement).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
   });
 
-  it('deve fechar o modal e limpar o estado ao clicar em cancelar', async () => {
+  it('should close the modal and clear state when clicking cancel', async () => {
     renderWithProviders(
       <CapacitySelectionModal
         isOpen={true}
         onClose={mockOnClose}
         onSelect={mockOnSelect}
-        title="Selecione uma Capacidade"
+        title="Select a Capacity"
       />
     );
 
     // Wait for the initial render
     await waitFor(
       () => {
-        expect(screen.getByText('Selecione uma Capacidade')).toBeInTheDocument();
+        expect(screen.getByText('Select a Capacity')).toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     // Click on the cancel button (the first button of the action buttons)
     const actionButtons = screen.getAllByRole('button');
-    const cancelButton = actionButtons[actionButtons.length - 2]; // Penúltimo botão
+    const cancelButton = actionButtons[actionButtons.length - 2]; // Second to last button
     fireEvent.click(cancelButton);
 
     expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  describe('Multiple Selection', () => {
+    it('should allow selecting multiple capacities when allowMultipleSelection is true', async () => {
+      renderWithProviders(
+        <CapacitySelectionModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSelect={mockOnSelect}
+          title="Select Capacities"
+          allowMultipleSelection={true}
+        />
+      );
+
+      // Wait for the initial render
+      await waitFor(
+        () => {
+          expect(screen.getByText('Learning')).toBeInTheDocument();
+          expect(screen.getByText('Communication')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
+      // Click on the first capacity to select it
+      const learningCard = screen.getByText('Learning').closest('div');
+      fireEvent.click(learningCard!);
+
+      // Click on the second capacity to select it
+      const communicationCard = screen.getByText('Communication').closest('div');
+      fireEvent.click(communicationCard!);
+
+      // Click on the confirm button
+      const buttons = screen.getAllByRole('button');
+      const confirmButton = buttons[buttons.length - 1];
+      fireEvent.click(confirmButton);
+
+      expect(mockOnSelect).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 50,
+            name: 'Learning',
+          }),
+          expect.objectContaining({
+            code: 36,
+            name: 'Communication',
+          })
+        ])
+      );
+    });
+
+    it('should show visual indicators for selected capacities', async () => {
+      renderWithProviders(
+        <CapacitySelectionModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSelect={mockOnSelect}
+          title="Select Capacities"
+          allowMultipleSelection={true}
+        />
+      );
+
+      // Wait for the initial render
+      await waitFor(
+        () => {
+          expect(screen.getByText('Learning')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
+      // Click on the first capacity to select it
+      const learningCard = screen.getByText('Learning').closest('div');
+      fireEvent.click(learningCard!);
+
+      // Verify that the checkmark appears
+      await waitFor(
+        () => {
+          expect(screen.getByText('✓')).toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+    });
+
+    it('should allow deselecting an already selected capacity', async () => {
+      renderWithProviders(
+        <CapacitySelectionModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSelect={mockOnSelect}
+          title="Select Capacities"
+          allowMultipleSelection={true}
+        />
+      );
+
+      // Wait for the initial render
+      await waitFor(
+        () => {
+          expect(screen.getByText('Learning')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
+      // Click on the capacity to select it
+      const learningCard = screen.getByText('Learning').closest('div');
+      fireEvent.click(learningCard!);
+
+      // Verify that the checkmark appears
+      await waitFor(
+        () => {
+          expect(screen.getByText('✓')).toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+
+      // Click again to deselect
+      fireEvent.click(learningCard!);
+
+      // Verify that the checkmark disappears
+      await waitFor(
+        () => {
+          expect(screen.queryByText('✓')).not.toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+    });
+
+    it('should update button text with the number of selected capacities', async () => {
+      renderWithProviders(
+        <CapacitySelectionModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSelect={mockOnSelect}
+          title="Select Capacities"
+          allowMultipleSelection={true}
+        />
+      );
+
+      // Wait for the initial render
+      await waitFor(
+        () => {
+          expect(screen.getByText('Learning')).toBeInTheDocument();
+          expect(screen.getByText('Communication')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
+      // Click on both capacities to select them
+      const learningCard = screen.getByText('Learning').closest('div');
+      const communicationCard = screen.getByText('Communication').closest('div');
+      
+      fireEvent.click(learningCard!);
+      fireEvent.click(communicationCard!);
+
+      // Verify that the button text shows the count
+      await waitFor(
+        () => {
+          const buttonText = screen.getByText('2 capacities selected');
+          expect(buttonText).toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
+    });
+  });
+
+  describe('Single Selection', () => {
+    it('should allow selecting only one capacity when allowMultipleSelection is false', async () => {
+      renderWithProviders(
+        <CapacitySelectionModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSelect={mockOnSelect}
+          title="Select a Capacity"
+          allowMultipleSelection={false}
+        />
+      );
+
+      // Wait for the initial render
+      await waitFor(
+        () => {
+          expect(screen.getByText('Learning')).toBeInTheDocument();
+          expect(screen.getByText('Communication')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
+      // Click on the first capacity
+      const learningCard = screen.getByText('Learning').closest('div');
+      fireEvent.click(learningCard!);
+
+      // Click on the second capacity (should replace the first)
+      const communicationCard = screen.getByText('Communication').closest('div');
+      fireEvent.click(communicationCard!);
+
+      // Click on the confirm button
+      const buttons = screen.getAllByRole('button');
+      const confirmButton = buttons[buttons.length - 1];
+      fireEvent.click(confirmButton);
+
+      // Should only have the last selected capacity
+      expect(mockOnSelect).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 36,
+            name: 'Communication',
+          })
+        ])
+      );
+
+      // Should not contain the first capacity
+      expect(mockOnSelect).not.toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: 50,
+            name: 'Learning',
+          })
+        ])
+      );
+    });
   });
 });
