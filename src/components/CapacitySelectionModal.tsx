@@ -413,6 +413,29 @@ export default function CapacitySelectionModal({
     }
   };
 
+  // Helper functions for breadcrumb styling
+  const getRootButtonClasses = (isActive: boolean, darkMode: boolean): string => {
+    if (isActive) {
+      return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900';
+    }
+    return darkMode
+      ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100';
+  };
+
+  const getBreadcrumbItemClasses = (isLast: boolean, darkMode: boolean): string => {
+    if (isLast) {
+      return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900';
+    }
+    return darkMode
+      ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100';
+  };
+
+  const getSeparatorClasses = (darkMode: boolean): string => {
+    return darkMode ? 'text-gray-500' : 'text-gray-400';
+  };
+
   // Function to render a custom capacity card for the modal
   const renderCapacityCard = (capacity: Capacity, isRoot: boolean) => {
     const isSelected = selectedCapacities.some(cap => cap.code === capacity.code);
@@ -828,15 +851,7 @@ export default function CapacitySelectionModal({
               {/* Home/Root */}
               <button
                 onClick={() => setSelectedPath([])}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 ${
-                  selectedPath.length === 0
-                    ? darkMode
-                      ? 'bg-gray-700 text-white'
-                      : 'bg-gray-100 text-gray-900'
-                    : darkMode
-                      ? 'text-gray-300 hover:text-white hover:bg-gray-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 ${getRootButtonClasses(selectedPath.length === 0, darkMode)}`}
               >
                 <svg
                   width="14"
@@ -875,7 +890,7 @@ export default function CapacitySelectionModal({
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
-                      className={`flex-shrink-0 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}
+                      className={`flex-shrink-0 ${getSeparatorClasses(darkMode)}`}
                     >
                       <polyline points="9,18 15,12 9,6" />
                     </svg>
@@ -883,15 +898,7 @@ export default function CapacitySelectionModal({
                     {/* Breadcrumb item */}
                     <button
                       onClick={() => setSelectedPath(prev => prev.slice(0, index + 1))}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 max-w-[150px] ${
-                        isLast
-                          ? darkMode
-                            ? 'bg-gray-700 text-white'
-                            : 'bg-gray-100 text-gray-900'
-                          : darkMode
-                            ? 'text-gray-300 hover:text-white hover:bg-gray-700'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      }`}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 max-w-[150px] ${getBreadcrumbItemClasses(isLast, darkMode)}`}
                       title={capacityName}
                     >
                       {/* Capacity icon */}
