@@ -574,5 +574,10 @@
   "date-picker-clear": "Clear",
   "date-picker-close": "Close",
   "date-picker-time": "Time",
-  "date-picker-date": "Date"
+  "date-picker-date": "Date",
+  "capacity-selection-modal-select-capacity-button-multiple-select": "Select",
+  "capacity-selection-modal-select-capacity-button-multiple-selected": "Selected",
+  "capacity-selection-modal-select-capacity-button-multiple-capacities": "Capacities",
+  "capacity-selection-modal-select-capacity-button-multiple-capacity": "Capacity",
+  "capacity-selection-modal-back": "Back"
 }
