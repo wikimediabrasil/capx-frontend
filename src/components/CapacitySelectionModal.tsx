@@ -1,23 +1,20 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Capacity, CapacityResponse } from '@/types/capacity';
-import React from 'react';
 import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
-import Image from 'next/image';
-import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
-import { getHueRotate, getCapacityIcon, getCapacityColor } from '@/lib/utils/capacitiesUtils';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { CAPACITY_CACHE_KEYS, useCapacities } from '@/hooks/useCapacities';
+import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
-import Link from 'next/link';
-import LinkIcon from '@/public/static/images/link_icon.svg';
+import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
 import LinkIconWhite from '@/public/static/images/link_icon_white.svg';
-import { useCapacities } from '@/hooks/useCapacities';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CAPACITY_CACHE_KEYS } from '@/hooks/useCapacities';
 import { capacityService } from '@/services/capacityService';
+import { Capacity } from '@/types/capacity';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface CapacitySelectionModalProps {
   isOpen: boolean;
