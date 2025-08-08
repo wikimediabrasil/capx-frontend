@@ -85,7 +85,7 @@ interface ProfileEditMobileViewProps {
   isWikidataSelected: boolean;
   showCapacityModal: boolean;
   setShowCapacityModal: (show: boolean) => void;
-  handleCapacitySelect: (capacity: Capacity) => void;
+  handleCapacitySelect: (capacities: Capacity[]) => void;
   selectedCapacityType: 'known' | 'available' | 'wanted';
   handleAddCapacity: (type: 'known' | 'available' | 'wanted') => void;
   handleRemoveCapacity: (type: 'known' | 'available' | 'wanted', index: number) => void;

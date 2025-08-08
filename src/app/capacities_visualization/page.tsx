@@ -6,5 +6,5 @@ export default async function CapacitiesVisualizationPage() {
     <BaseWrapper>
       <CapacitiesVisualizationWrapper />;
     </BaseWrapper>
-  )
+  );
 }
