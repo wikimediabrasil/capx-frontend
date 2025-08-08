@@ -38,6 +38,7 @@ import { useLetsConnect } from '@/hooks/useLetsConnect';
 import { useCapacityList } from '@/hooks/useCapacityList';
 import { useAllCapacities } from '@/hooks/useAllCapacities';
 import { LanguageProficiency } from '@/types/language';
+import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -373,6 +374,16 @@ export default function EditProfilePage() {
     fetchAvatar();
   }, [fetchAvatar]);
 
+  // Initialize capacity selection hook before any early returns
+  const { handleCapacitySelect } = useProfileFormCapacitySelection(
+    selectedCapacityType,
+    formData,
+    setFormData,
+    addUniqueCapacity,
+    ensureArray,
+    () => setShowCapacityModal(false)
+  );
+
   // Show loading state while session is loading
   if (sessionStatus === 'loading') {
     return <LoadingState />;
@@ -572,33 +583,6 @@ export default function EditProfilePage() {
   const handleAddCapacity = (type: 'known' | 'available' | 'wanted') => {
     setSelectedCapacityType(type);
     setShowCapacityModal(true);
-  };
-
-  const handleCapacitySelect = (capacity: Capacity) => {
-    setFormData(prev => {
-      const newFormData = { ...prev };
-      const capacityId = Number(capacity.code);
-
-      switch (selectedCapacityType) {
-        case 'known':
-          newFormData.skills_known = addUniqueCapacity(ensureArray(prev.skills_known), capacityId);
-          break;
-        case 'available':
-          newFormData.skills_available = addUniqueCapacity(
-            ensureArray(prev.skills_available),
-            capacityId
-          );
-          break;
-        case 'wanted':
-          newFormData.skills_wanted = addUniqueCapacity(
-            ensureArray(prev.skills_wanted),
-            capacityId
-          );
-          break;
-      }
-      return newFormData;
-    });
-    setShowCapacityModal(false);
   };
 
   const handleAddProject = () => {

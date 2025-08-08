@@ -23,7 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const savedTheme = localStorage.getItem('theme');
-      
+
       if (savedTheme) {
         const shouldBeDark = savedTheme === 'dark';
         setDarkMode(shouldBeDark);
@@ -43,7 +43,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted || typeof window === 'undefined') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
       // Only update if no theme is saved in localStorage
       const savedTheme = localStorage.getItem('theme');
@@ -53,7 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
-    
+
     return () => {
       mediaQuery.removeEventListener('change', handleSystemThemeChange);
     };
@@ -77,7 +77,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ darkMode, setDarkMode: setDarkModeWithLog }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ darkMode, setDarkMode: setDarkModeWithLog }}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 

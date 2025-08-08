@@ -28,6 +28,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import CapacityDebug from '../../profile/edit/components/CapacityDebug';
 import EventsForm from './EventsEditForm';
 import OrganizationProfileEditDesktopView from './OrganizationProfileEditDesktopView';
@@ -1174,7 +1175,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   // Helper function to sanitize capacity codes
-  const sanitizeCapacityCode = (code: any): number => {
+  const sanitizeCapacityCode = useCallback((code: any): number => {
     // If it's already a valid number, return it
     if (typeof code === 'number' && !isNaN(code)) {
       return code;
@@ -1202,29 +1203,32 @@ export default function EditOrganizationProfilePage() {
     // Return a fallback value if all else fails
     console.warn('Could not sanitize capacity code:', code);
     return typeof code === 'number' ? code : 0;
-  };
+  }, []);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    setFormData(prev => {
-      const capacityField = `${currentCapacityType}_capacities` as keyof typeof prev;
-      const currentCapacities = (prev[capacityField] as number[]) || [];
+  // Memoize the current capacities to avoid hook dependency changes
+  const currentCapacities = useMemo(() => {
+    const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
+    return (formData[capacityField] as number[]) || [];
+  }, [formData, currentCapacityType]);
 
-      // Sanitize the capacity code
-      const sanitizedCode = sanitizeCapacityCode(capacity.code);
+  // Memoize the update function to avoid recreating it on every render
+  const updateCapacities = useCallback(
+    (updatedCapacities: number[]) => {
+      const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
+      setFormData(prev => ({
+        ...prev,
+        [capacityField]: updatedCapacities,
+      }));
+    },
+    [currentCapacityType, setFormData]
+  );
 
-      // Only add if valid and not already in the list
-      if (sanitizedCode && !currentCapacities.includes(sanitizedCode)) {
-        return {
-          ...prev,
-          [capacityField]: [...currentCapacities, sanitizedCode],
-        };
-      }
-      return prev;
-    });
-
-    // Close modal after selection
-    setIsModalOpen(false);
-  };
+  const { handleCapacitySelect } = useFormCapacitySelection(
+    currentCapacities,
+    updateCapacities,
+    () => setIsModalOpen(false),
+    sanitizeCapacityCode
+  );
 
   const handleRemoveCapacity = (type: 'known' | 'available' | 'wanted', index: number) => {
     setFormData(prev => {

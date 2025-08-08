@@ -557,18 +557,22 @@ const EventsForm = memo(
 
     // handleCapacitySelect should use useCallback to avoid re-renders
     const handleCapacitySelect = useCallback(
-      (capacity: Capacity) => {
-        if (!selectedCapacities.find(cap => cap.code === capacity.code)) {
-          // Add the full capacity with its real name
-          // Make sure we preserve the full capacity object
-          const newCapacities = [...selectedCapacities, capacity];
+      (capacities: Capacity[]) => {
+        let newCapacities = [...selectedCapacities];
 
-          setSelectedCapacities(newCapacities);
+        capacities.forEach(capacity => {
+          if (!newCapacities.find(cap => cap.code === capacity.code)) {
+            // Add the full capacity with its real name
+            // Make sure we preserve the full capacity object
+            newCapacities.push(capacity);
+          }
+        });
 
-          // Update related_skills in event (only the IDs)
-          const skillIds = newCapacities.map(cap => cap.code);
-          onChange(index, 'related_skills', JSON.stringify(skillIds));
-        }
+        setSelectedCapacities(newCapacities);
+
+        // Update related_skills in event (only the IDs)
+        const skillIds = newCapacities.map(cap => cap.code);
+        onChange(index, 'related_skills', JSON.stringify(skillIds));
 
         setIsModalOpen(false);
       },
