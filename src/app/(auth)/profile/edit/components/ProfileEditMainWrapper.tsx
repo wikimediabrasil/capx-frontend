@@ -1,44 +1,47 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useApp } from '@/contexts/AppContext';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import LoadingState from '@/components/LoadingState';
+import { useProfileEdit } from '@/contexts/ProfileEditContext';
+import { useAffiliation } from '@/hooks/useAffiliation';
+import { useAvatars } from '@/hooks/useAvatars';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useProfile } from '@/hooks/useProfile';
 import { useTerritories } from '@/hooks/useTerritories';
-import { Profile } from '@/types/profile';
-import { Capacity } from '@/types/capacity';
-import { useLanguage } from '@/hooks/useLanguage';
-import { useAffiliation } from '@/hooks/useAffiliation';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
-import { useAvatars } from '@/hooks/useAvatars';
+import {
+  addUniqueAffiliations,
+  addUniqueCapacities,
+  addUniqueCapacity,
+  addUniqueItem,
+  addUniqueLanguages,
+  addUniqueTerritory,
+} from '@/lib/utils/formDataUtils';
+import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { Profile } from '@/types/profile';
+import CapacityDebug from './CapacityDebug';
+import DebugPanel from './DebugPanel';
 import ProfileEditDesktopView from './ProfileEditDesktopView';
 import ProfileEditMobileView from './ProfileEditMobileView';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { useProfileEdit } from '@/contexts/ProfileEditContext';
-import LoadingState from '@/components/LoadingState';
-import DebugPanel from './DebugPanel';
-import CapacityDebug from './CapacityDebug';
-import { ensureArray, safeAccess, createSafeFunction } from '@/lib/utils/safeDataAccess';
-import {
-  addUniqueCapacity,
-  addUniqueCapacities,
-  addUniqueLanguages,
-  addUniqueAffiliations,
-  addUniqueTerritory,
-  addUniqueItem,
-} from '@/lib/utils/formDataUtils';
 
 // Import the new capacity hooks
-import { useCapacities } from '@/hooks/useCapacities';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useLetsConnect } from '@/hooks/useLetsConnect';
-import { useCapacityList } from '@/hooks/useCapacityList';
 import { useAllCapacities } from '@/hooks/useAllCapacities';
-import { LanguageProficiency } from '@/types/language';
+import { useCapacities } from '@/hooks/useCapacities';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
+import { useLetsConnect } from '@/hooks/useLetsConnect';
+import {
+  getCapacityValidationErrorMessage,
+  isCapacityValidationError,
+  validateCapacitiesBeforeSave,
+} from '@/lib/utils/capacityValidation';
+import { LanguageProficiency } from '@/types/language';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -438,6 +441,19 @@ export default function EditProfilePage() {
       return;
     }
 
+    // Validate capacities before saving
+    const validationResult = validateCapacitiesBeforeSave(
+      ensureArray<number>(formData.skills_known),
+      ensureArray<number>(formData.skills_available),
+      pageContent
+    );
+
+    if (!validationResult.isValid) {
+      // Show validation error
+      showSnackbar(validationResult.errors[0], 'error');
+      return;
+    }
+
     try {
       formData.automated_lets_connect = hasAutomatedLetsConnect ? true : undefined;
       await updateProfile(formData);
@@ -454,7 +470,14 @@ export default function EditProfilePage() {
       }, 100);
     } catch (error) {
       console.error('Error updating profile:', error);
-      showSnackbar(pageContent['snackbar-edit-profile-failed'], 'error');
+
+      // Check if this is a capacity validation error from backend
+      if (isCapacityValidationError(error)) {
+        const errorMessage = getCapacityValidationErrorMessage(error, pageContent);
+        showSnackbar(errorMessage, 'error');
+      } else {
+        showSnackbar(pageContent['snackbar-edit-profile-failed'], 'error');
+      }
     } finally {
       setIsImageLoading(false);
     }

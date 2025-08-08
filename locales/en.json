@@ -340,6 +340,8 @@
   "snackbar-edit-profile-success": "Profile updated successfully!",
   "snackbar-edit-profile-failed-generic": "Error updating profile. Please check your data and try again.",
   "snackbar-edit-profile-failed-capacities": "You can only add Known capacities as Available capacities.",
+  "snackbar-capacity-validation-available-without-known": "Available capacities must be selected from your known capacities. Please add the capacity to your known skills first.",
+  "snackbar-capacity-validation-conflict": "There was a conflict with your capacity selections. Please ensure all available capacities are also marked as known capacities.",
   "snackbar-edit-profile-organization-success": "Saved successfully",
   "snackbar-edit-profile-organization-delete-event-failed": "Error deleting event. Please check and try again",
   "snackbar-edit-profile-organization-delete-event-success": "Event deleted successfully",
