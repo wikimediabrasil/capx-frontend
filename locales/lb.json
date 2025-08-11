@@ -252,5 +252,8 @@
 	"date-picker-clear": "Eidel maachen",
 	"date-picker-close": "Zoumaachen",
 	"date-picker-time": "Zäit",
-	"date-picker-date": "Datum"
+	"date-picker-date": "Datum",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "Eraussichen",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "Erausgesicht",
+	"capacity-selection-modal-back": "Zeréck"
 }

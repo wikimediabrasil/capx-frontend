@@ -107,6 +107,8 @@
 	"oh-no-message": "糟糕！",
 	"no-report-rights": "您没有权限更新此报告，或是此报告不存在！",
 	"body-profile-copy-link": "复制链接",
+	"snackbar-capacity-validation-available-without-known": "可用能力必须从已知能力中选择。请先将该能力添加到已知技能中。",
+	"snackbar-capacity-validation-conflict": "您选择的容量存在冲突。请确保所有可用容量也标记为已知容量。",
 	"saved-profiles-delete-success": "个人资料成功从已保存列表中删除。",
 	"saved-profiles-add-success": "个人资料已成功保存至您的列表。",
 	"saved-profiles-error": "存储配置文件时出错。",
@@ -114,5 +116,10 @@
 	"statistics-messages-title": "消息",
 	"statistics-loading-text": "正在加载统计数据……",
 	"statistics-error-text": "无法加载统计数据，请稍后再试。",
-	"statistics-text-link": "查看全部"
+	"statistics-text-link": "查看全部",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "选择",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "已选择",
+	"capacity-selection-modal-select-capacity-button-multiple-capacities": "容量",
+	"capacity-selection-modal-select-capacity-button-multiple-capacity": "容量",
+	"capacity-selection-modal-back": "返回"
 }
