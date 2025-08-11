@@ -332,14 +332,12 @@ OrganizationLoader.displayName = 'OrganizationLoader';
 
 // Memoize the EventsForm component to avoid unnecessary renders
 const EventsForm = memo(
-  ({ eventData, index, onDelete, onChange, eventType }: EventFormItemProps) => {
+  ({ eventData, index, onChange, eventType }: EventFormItemProps) => {
     const { darkMode } = useTheme();
-    const { isMobile, pageContent, language } = useApp();
-    const { data: session } = useSession();
+    const { isMobile, pageContent } = useApp();
     const { capacityNames } = useCapacityDetails();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
-    const [showMobile, setShowMobile] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [urlError, setUrlError] = useState<string | null>(null);
     const [urlInput, setUrlInput] = useState(eventData.url || '');
@@ -666,36 +664,6 @@ const EventsForm = memo(
       setLocalLocationType(eventData.type_of_location || 'virtual');
     }, [eventData.type_of_location]);
 
-    const handleStartDateChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setLocalStartDate(value);
-        if (value) {
-          // Convert datetime-local to ISO string for proper date handling
-          const date = dateTimeLocalToDate(value);
-          handleChange('time_begin', date.toISOString());
-        } else {
-          handleChange('time_begin', '');
-        }
-      },
-      [handleChange]
-    );
-
-    const handleEndDateChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setLocalEndDate(value);
-        if (value) {
-          // Convert datetime-local to ISO string for proper date handling
-          const date = dateTimeLocalToDate(value);
-          handleChange('time_end', date.toISOString());
-        } else {
-          handleChange('time_end', '');
-        }
-      },
-      [handleChange]
-    );
-
     const handleLocationTypeChange = useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
@@ -712,10 +680,6 @@ const EventsForm = memo(
         setUrlInput(eventData.url);
       }
     }, [eventData.url]); // Only depend on eventData.url to avoid loops
-
-    useEffect(() => {
-      setShowMobile(isMobile);
-    }, [isMobile]);
 
     // Memoized rendering of capacities
     const renderSelectedCapacities = useCallback(() => {

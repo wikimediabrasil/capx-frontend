@@ -7,7 +7,7 @@ import LoadingState from '@/components/LoadingState';
 
 export default function CapacitiesTreeVisualization() {
   const [capacities, setCapacities] = useState<Capacity[]>(staticCapacities);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
 
   if (isLoading) {
     return <LoadingState fullScreen />;

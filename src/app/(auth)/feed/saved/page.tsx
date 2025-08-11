@@ -32,7 +32,7 @@ export default function SavedProfilesPage() {
     try {
       await deleteSavedItem(savedItemId);
       showSnackbar(pageContent['saved-profiles-delete-success'], 'success');
-    } catch (error) {
+    } catch {
       showSnackbar(pageContent['saved-profiles-error'], 'error');
     }
   };

@@ -46,26 +46,21 @@ export default function D3TreeVisualization({
     if (typeof window === 'undefined') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      
       // Only update if no theme is saved in localStorage
       const savedTheme = localStorage.getItem('theme');
       if (!savedTheme) {
-        
         setDarkMode(e.matches);
       }
     };
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
-    
+
     return () => {
       mediaQuery.removeEventListener('change', handleSystemThemeChange);
     };
   }, [setDarkMode]);
-
-
-  
 
   // Define horizontal margins for global use
   const margin = {
@@ -99,7 +94,6 @@ export default function D3TreeVisualization({
 
   // Function to center the selected node
   const centerOnNode = (nodeX: number, nodeY: number) => {
-
     if (!svgRef.current || !zoomRef.current) {
       console.error('svgRef or zoomRef not available');
       return;
@@ -107,7 +101,6 @@ export default function D3TreeVisualization({
 
     const svg = d3.select(svgRef.current);
     const container = svg.select('g');
-
 
     // Get SVG container dimensions
     const svgRect = svgRef.current.getBoundingClientRect();
@@ -126,11 +119,8 @@ export default function D3TreeVisualization({
     const targetX = viewportCenterX - adjustedNodeX * currentTransform.k;
     const targetY = viewportCenterY - adjustedNodeY * currentTransform.k;
 
-
-
     // Apply transformation with smooth animation
     const newTransform = d3.zoomIdentity.translate(targetX, targetY).scale(currentTransform.k);
-
 
     svg
       .transition()
@@ -236,33 +226,28 @@ export default function D3TreeVisualization({
 
   // Force SVG re-render when dark mode changes
   useEffect(() => {
-    
-    
     // Force complete re-render by updating forceUpdate state
     setForceUpdate(prev => prev + 1);
-    
+
     // Force complete SVG re-render by clearing and re-creating
     if (svgRef.current) {
       const svg = d3.select(svgRef.current);
       const backgroundColor = darkMode ? '#053749' : '#fafafa';
       const textColor = darkMode ? '#f3f4f6' : '#222';
-      
-      
+
       // Clear all SVG content immediately
       svg.selectAll('*').remove();
-      
+
       // Re-apply background and text colors
       svg.style('backgroundColor', backgroundColor);
       svg.style('color', textColor);
-      
+
       // Force immediate re-render by triggering the main useEffect
       // This ensures the SVG is completely re-created with new theme colors
     }
   }, [darkMode]);
 
   useEffect(() => {
-    
-    
     if (!data || data.length === 0 || !svgRef.current) return;
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640; // Changed from 768 to 640
@@ -321,11 +306,11 @@ export default function D3TreeVisualization({
         nodes.push(currentNode);
 
         // Process children if expanded
-            if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
-            // Calculate spacing based on child names length
-            const childNames = node.children.map((c: any) => c.data.name);
-            const minChildSpacing = 50; // Reduced minimum spacing between children
-            const spacingPerChildChar = 2; // Reduced additional spacing per character
+        if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
+          // Calculate spacing based on child names length
+          const childNames = node.children.map((c: any) => c.data.name);
+          const minChildSpacing = 50; // Reduced minimum spacing between children
+          const spacingPerChildChar = 2; // Reduced additional spacing per character
 
           // Calculate Y positions of children based on name length
           let currentChildY = parentY;
@@ -765,12 +750,12 @@ export default function D3TreeVisualization({
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-        
+
         .dark-theme {
           background-color: #053749 !important;
           color: #f3f4f6 !important;
         }
-        
+
         .light-theme {
           background-color: #fafafa !important;
           color: #222 !important;
@@ -781,22 +766,23 @@ export default function D3TreeVisualization({
       <div className="mb-4 w-full mt-20">
         <h2
           className="text-xl font-semibold mb-2 break-words w-full"
-          style={{ 
+          style={{
             wordBreak: 'break-word',
-            color: darkMode ? '#f3f4f6' : '#111827' // text-white : text-gray-900
+            color: darkMode ? '#f3f4f6' : '#111827', // text-white : text-gray-900
           }}
         >
           Visualização Interativa das Capacidades
         </h2>
         <p
           className="text-sm mb-4 break-words w-full"
-          style={{ 
+          style={{
             wordBreak: 'break-word',
-            color: darkMode ? '#f3f4f6' : '#4b5563' // text-white : text-gray-600
+            color: darkMode ? '#f3f4f6' : '#4b5563', // text-white : text-gray-600
           }}
         >
-          Clique nas capacidades principais para expandir/colapsar e focar • Clique nos ícones para ver
-          detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
+          Clique nas capacidades principais para expandir/colapsar e focar • Clique nos ícones para
+          ver detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar •
+          Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
         </p>
 
         {/* Control buttons */}

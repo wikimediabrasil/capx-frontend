@@ -45,9 +45,7 @@ export default function LetsConnectPage() {
   const { data: session } = useSession();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
-  const {
-    profile,
-  } = useProfile(token, userId);
+  const { profile } = useProfile(token, userId);
   const hasLetsConnectData = profile?.automated_lets_connect;
 
   const { darkMode } = useTheme();
@@ -169,8 +167,8 @@ export default function LetsConnectPage() {
             } rounded-md py-3 font-bold mb-0`}
             imageUrl={darkMode ? UserCircleIconWhite : UserCircleIcon}
             imageAlt="Cancel icon"
-              imageWidth={isMobile ? 20 : 30 }
-              imageHeight={isMobile ? 20 : 30 }
+            imageWidth={isMobile ? 20 : 30}
+            imageHeight={isMobile ? 20 : 30}
           />
 
           {/*Informative text*/}
@@ -214,9 +212,7 @@ export default function LetsConnectPage() {
                   onClick={() => setShowFullNameInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-fit flex ${
-                    darkMode
-                      ? 'bg-capx-light-box-bg text-[#04222F]'
-                      : 'bg-[#053749] text-white'
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
                   imageAlt="Edit icon"
@@ -256,9 +252,7 @@ export default function LetsConnectPage() {
                   onClick={() => setShowEmailInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-fit flex ${
-                    darkMode
-                      ? 'bg-capx-light-box-bg text-[#04222F]'
-                      : 'bg-[#053749] text-white'
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
                   imageAlt="Edit icon"
@@ -287,8 +281,9 @@ export default function LetsConnectPage() {
           {/* Roles Input */}
           <div className="mt-6 mb-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className={`${showRoleInput || !hasLetsConnectData ? 'w-full' : 'w-[75%]'} md:w-[75%]`}>
-
+              <div
+                className={`${showRoleInput || !hasLetsConnectData ? 'w-full' : 'w-[75%]'} md:w-[75%]`}
+              >
                 <h4
                   className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
                     ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
@@ -302,9 +297,7 @@ export default function LetsConnectPage() {
                   onClick={() => setShowRoleInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
-                    darkMode
-                      ? 'bg-capx-light-box-bg text-[#04222F]'
-                      : 'bg-[#053749] text-white'
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
                   imageAlt="Edit icon"
@@ -389,9 +382,7 @@ export default function LetsConnectPage() {
                     onClick={() => setAreaInput(true)}
                     label={pageContent['lets-connect-form-edit-inputs']}
                     customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
-                      darkMode
-                        ? 'bg-capx-light-box-bg text-[#04222F]'
-                        : 'bg-[#053749] text-white'
+                      darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                     } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                     imageUrl={darkMode ? EditIcon : EditIconWhite}
                     imageAlt="Edit icon"
@@ -430,9 +421,7 @@ export default function LetsConnectPage() {
                   onClick={() => setGenderInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
-                    darkMode
-                      ? 'bg-capx-light-box-bg text-[#04222F]'
-                      : 'bg-[#053749] text-white'
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
                   imageAlt="Edit icon"
@@ -468,9 +457,7 @@ export default function LetsConnectPage() {
                   onClick={() => setAgeInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-[66px] h-[23px] md:w-fit md:h-auto flex ${
-                    darkMode
-                      ? 'bg-capx-light-box-bg text-[#04222F]'
-                      : 'bg-[#053749] text-white'
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
                   imageAlt="Edit icon"
