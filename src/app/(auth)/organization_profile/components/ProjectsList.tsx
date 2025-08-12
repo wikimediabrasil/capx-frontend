@@ -25,10 +25,6 @@ export default function ProjectsList({ title, itemIds = [], token }: ProjectsLis
     return null;
   }
 
-  // if (itemIds.length === 0) {
-  //   return null;
-  // }
-
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-row gap-4 items-center">

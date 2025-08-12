@@ -20,24 +20,10 @@ export const ProjectCard = ({ projectId, token, updateRenderedProjectsCount }: P
     return <CompactLoading />;
   }
 
-  // useEffect(() => {
-  // if (!isLoading && (error || !project || !project.url)) {
-  //   updateRenderedProjectsCount();
-  // }
-  // }, [isLoading, error, project, updateRenderedProjectsCount]);
-
-    // if (isLoading || !project || !project.url) {
-  //   return null;
-  // }
-
-
-  // if (error || project) {
-  //   return null;
-  // }
-
-  //   if (error || !project) {
-  //   return null;
-  // }
+  if (!isLoading && (error || !project || !project.url)) {
+    updateRenderedProjectsCount();
+    return null;
+  }
 
   // Convert Commons file page URL to direct image URL if needed
   const getImageUrl = (url: string | null | undefined) => {

@@ -10,7 +10,7 @@ import { ensureCommonsPageUrl } from '@/lib/utils/convertWikimediaUrl';
 export const useDocument = (token?: string, id?: number, limit?: number, offset?: number) => {
   const [documents, setDocuments] = useState<WikimediaDocument[]>([]);
   const [document, setDocument] = useState<WikimediaDocument | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAllDocuments = async () => {
