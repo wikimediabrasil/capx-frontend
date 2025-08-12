@@ -1,9 +1,9 @@
-import Image from "next/image";
-import WikimediaIcon from "@/public/static/images/wikimedia_logo_black.svg";
-import WikimediaIconWhite from "@/public/static/images/wikimedia_logo_white.svg";
-import { useApp } from "@/contexts/AppContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import { ProjectCard } from "./ProjectCard";
+import Image from 'next/image';
+import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { ProjectCard } from './ProjectCard';
 import { useState } from 'react';
 
 interface ProjectsListProps {
@@ -19,7 +19,7 @@ export default function ProjectsList({ title, itemIds = [], token }: ProjectsLis
 
   const updateRenderedProjectsCount = () => {
     setRenderedProjects(renderedProjects - 1);
-  }
+  };
 
   if (itemIds.length === 0 || renderedProjects === 0) {
     return null;
@@ -45,7 +45,12 @@ export default function ProjectsList({ title, itemIds = [], token }: ProjectsLis
       </div>
       <div className="flex flex-row gap-8 justify-start overflow-x-auto scrollbar-hide">
         {itemIds.map(id => (
-          <ProjectCard key={id} projectId={id} token={token} updateRenderedProjectsCount={updateRenderedProjectsCount} />
+          <ProjectCard
+            key={id}
+            projectId={id}
+            token={token}
+            updateRenderedProjectsCount={updateRenderedProjectsCount}
+          />
         ))}
       </div>
     </section>

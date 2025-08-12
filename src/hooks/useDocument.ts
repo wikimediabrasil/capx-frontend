@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { documentService } from '@/services/documentService';
-import { OrganizationDocument, WikimediaDocument } from '@/types/document';
+import { ensureCommonsPageUrl } from '@/lib/utils/convertWikimediaUrl';
 import { fetchWikimediaData } from '@/lib/utils/fetchWikimediaData';
 import { normalizeDocumentUrl, validateCapXDocumentUrl } from '@/lib/utils/validateDocumentUrl';
-import { ensureCommonsPageUrl } from '@/lib/utils/convertWikimediaUrl';
+import { documentService } from '@/services/documentService';
+import { OrganizationDocument, WikimediaDocument } from '@/types/document';
+import { useEffect, useState } from 'react';
 
 export const useDocument = (token?: string, id?: number, limit?: number, offset?: number) => {
   const [documents, setDocuments] = useState<WikimediaDocument[]>([]);
@@ -44,8 +44,15 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
       const basicDocument = await documentService.fetchSingleDocument(token, id);
       if (basicDocument) {
         const enrichedDocument = await fetchWikimediaData(basicDocument.url || '');
-        setDocument(enrichedDocument);
-        return enrichedDocument;
+        const mergedDocument: WikimediaDocument = {
+          // Preserve backend fields first, then enriched overwrite/adds display fields
+          ...(basicDocument as WikimediaDocument),
+          ...(enrichedDocument as WikimediaDocument),
+          id: (basicDocument.id ?? enrichedDocument.id ?? 0) as number,
+          url: basicDocument.url ?? enrichedDocument.fullUrl ?? basicDocument.url,
+        };
+        setDocument(mergedDocument);
+        return mergedDocument;
       }
     } catch (error) {
       console.error('Error fetching document:', error);
@@ -94,7 +101,13 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
 
       if (response && response.id) {
         const enrichedDocument = await fetchWikimediaData(response.url || '');
-        setDocument(enrichedDocument);
+        const mergedDocument: WikimediaDocument = {
+          ...(response as WikimediaDocument),
+          ...(enrichedDocument as WikimediaDocument),
+          id: (response.id ?? enrichedDocument.id ?? 0) as number,
+          url: response.url ?? enrichedDocument.fullUrl ?? response.url,
+        };
+        setDocument(mergedDocument);
       }
 
       return response;

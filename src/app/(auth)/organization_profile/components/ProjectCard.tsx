@@ -1,9 +1,9 @@
-import { useProject } from '@/hooks/useProjects';
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import { CompactLoading } from '@/components/LoadingStateWithFallback';
+import { useProject } from '@/hooks/useProjects';
 
 interface ProjectCardProps {
   projectId: number;
@@ -11,7 +11,11 @@ interface ProjectCardProps {
   updateRenderedProjectsCount: () => void;
 }
 
-export const ProjectCard = ({ projectId, token, updateRenderedProjectsCount }: ProjectCardProps) => {
+export const ProjectCard = ({
+  projectId,
+  token,
+  updateRenderedProjectsCount,
+}: ProjectCardProps) => {
   const { project, isLoading, error } = useProject(projectId, token);
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
