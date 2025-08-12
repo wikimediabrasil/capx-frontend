@@ -581,5 +581,7 @@
   "capacity-selection-modal-select-capacity-button-multiple-selected": "Selected",
   "capacity-selection-modal-select-capacity-button-multiple-capacities": "Capacities",
   "capacity-selection-modal-select-capacity-button-multiple-capacity": "Capacity",
-  "capacity-selection-modal-back": "Back"
+  "capacity-selection-modal-back": "Back",
+  "edit-profile-mini-bio-exceeded-chars": "characters exceeded",
+  "edit-profile-mini-bio-remaining-chars": "characters remaining"
 }
