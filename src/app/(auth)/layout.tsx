@@ -6,7 +6,6 @@ import { Providers } from '@/app/(auth)/providers';
 import { SafeBadgesProvider } from '@/contexts/SafeBadgesProvider';
 import { ProfileEditProvider } from '@/contexts/ProfileEditContext';
 
-
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 

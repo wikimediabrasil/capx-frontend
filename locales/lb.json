@@ -108,7 +108,7 @@
 	"edit-profile-update": "Aktualiséieren",
 	"edit-profile-welcome": "Wëllkomm!",
 	"edit-profile-image-title": "Profilbild",
-	"edit-profile-use-wikidata": "Wikidata-Element-Bild benotzen",
+	"edit-profile-use-wikidata-photograph": "Wikidata-Element-Bild benotzen",
 	"edit-profile-delete-profile": "Profil läschen",
 	"edit-profile-save": "Profil späicheren",
 	"edit-profile-choose-an-option": "Wielt eng Optioun",
@@ -215,6 +215,7 @@
 	"lets-connect-form-roles-info": "Wielt just eng Optioun eraus.",
 	"lets-connect-form-gender-identify": "Geschlechtsidentitéit (fakultativ)",
 	"lets-connect-form-age-range": "Altersgrupp (fakultativ)",
+	"lets-connect-form-edit-inputs": "Änneren",
 	"lets-connect-back-button": "Zréck op de Benotzerprofil",
 	"lets-connect-form-age-under-25": "Ënner 25",
 	"lets-connect-form-age-85-plus": "iwwer 85",
@@ -251,5 +252,8 @@
 	"date-picker-clear": "Eidel maachen",
 	"date-picker-close": "Zoumaachen",
 	"date-picker-time": "Zäit",
-	"date-picker-date": "Datum"
+	"date-picker-date": "Datum",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "Eraussichen",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "Erausgesicht",
+	"capacity-selection-modal-back": "Zeréck"
 }

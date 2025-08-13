@@ -80,9 +80,11 @@
 	"body-profile-wikimedia-projects-title": "وکیمیڈیا منصوبے",
 	"body-profile-contact-title": "رابطہ",
 	"edit-profile-update": "اپ ݙیٹ",
+	"edit-profile-consent-wikidata-after-link": ".",
 	"edit-profile-save": "فائل بچاؤ",
 	"edit-profile-add-language": "زبان شامل کرو",
 	"edit-profile-wikidata-item": "وکی ڈیٹا آئٹم",
+	"edit-profile-consent-wikidata-item-after-link": ".",
 	"privacy-policy-banner": "رازداری پالیسی",
 	"pagination-previous": "پچھلا",
 	"pagination-next": "اڳلا",
@@ -102,6 +104,7 @@
 	"message-form-message": "سنیہا",
 	"message-button-cancel-message": "منسوخ",
 	"lets-connect-form-topic-check-other": "ٻیا:",
+	"lets-connect-form-edit-inputs": "تبدیلی کرو",
 	"lets-connect-form-age-35-44": "٣٥ـ٤٤",
 	"lets-connect-form-gender-man": "بندہ",
 	"lets-connect-form-gender-woman": "تریمت",
@@ -119,5 +122,9 @@
 	"statistics-text-link": "سارے ݙیکھو",
 	"date-picker-today": "اڄ",
 	"date-picker-clear": "صاف",
-	"date-picker-time": "ویلا"
+	"date-picker-time": "ویلا",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "چݨو",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "چݨا ہویا",
+	"capacity-selection-modal-select-capacity-button-multiple-capacity": "گنجائش",
+	"capacity-selection-modal-back": "پچھوں"
 }

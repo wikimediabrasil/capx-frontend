@@ -9,8 +9,8 @@ import { CompactLoading } from '@/components/LoadingStateWithFallback';
 
 interface AvatarSelectionPopupProps {
   onClose: () => void;
-  onSelect: (avatarId: number) => void;
-  selectedAvatarId: number;
+  onSelect: (avatarId: number | null) => void;
+  selectedAvatarId: number | null;
   onUpdate?: () => void;
 }
 
@@ -22,8 +22,18 @@ export default function AvatarSelectionPopup({
 }: AvatarSelectionPopupProps) {
   const { avatars, isLoading } = useAvatars();
   const { pageContent, isMobile } = useApp();
-  const [tempSelectedId, setTempSelectedId] = useState(selectedAvatarId);
+  const [tempSelectedId, setTempSelectedId] = useState<number | null>(selectedAvatarId);
   const { darkMode } = useTheme();
+
+  // Create virtual avatar for the "no avatar" option
+  const noAvatarOption = {
+    id: null as number | null,
+    avatar_url: darkMode
+      ? 'https://upload.wikimedia.org/wikipedia/commons/7/7a/CapX_-_No_avatar_white.svg'
+      : 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg',
+  };
+
+  const allAvatars = [noAvatarOption, ...(avatars || [])];
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -41,6 +51,12 @@ export default function AvatarSelectionPopup({
     onClose();
   };
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (isLoading) {
     return <CompactLoading />;
   }
@@ -48,11 +64,16 @@ export default function AvatarSelectionPopup({
   if (isMobile) {
     return (
       <>
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={handleBackdropClick}
+          data-testid="backdrop"
+        />
         <div
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
             darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
-          } z-50 rounded-lg shadow-xl h-[477px] w-[273px] flex flex-col`}
+          } z-50 rounded-lg shadow-xl h-[477px] w-[273px] flex flex-col max-h-[90vh]`}
+          data-testid="mobile-popup"
         >
           <div className="flex justify-between items-center p-6 border-b border-gray-200">
             <h2 className={`font-[Montserrat] text-[16px] font-bold`}>
@@ -65,9 +86,9 @@ export default function AvatarSelectionPopup({
 
           <div className="overflow-y-auto flex-1 p-6">
             <div className="grid grid-cols-2 gap-4">
-              {avatars?.map(avatar => (
+              {allAvatars?.map(avatar => (
                 <button
-                  key={avatar.id}
+                  key={avatar.id ?? 'no-avatar'}
                   onClick={() => setTempSelectedId(avatar.id)}
                   className="flex justify-center"
                 >
@@ -81,7 +102,7 @@ export default function AvatarSelectionPopup({
                     <div className="relative w-full h-full">
                       <Image
                         src={avatar.avatar_url}
-                        alt={`Avatar ${avatar.id}`}
+                        alt={`Avatar ${avatar.id ?? 'no-avatar'}`}
                         fill
                         className="object-contain"
                       />
@@ -115,23 +136,28 @@ export default function AvatarSelectionPopup({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" />
       <div
-        className={`fixed w-[600px] h-[919px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-y-auto ${
+        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        onClick={handleBackdropClick}
+        data-testid="backdrop"
+      />
+      <div
+        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[90vw] max-h-[90vh] w-[600px] ${
           darkMode ? 'bg-[#005B3F] text-white' : 'bg-white text-[#053749]'
         } z-50 rounded-lg shadow-xl flex flex-col`}
+        data-testid="desktop-popup"
       >
-        <div className="flex justify-center items-center p-6 border-b border-gray-200">
-          <h2 className={`font-[Montserrat] text-[48px] font-bold`}>
+        <div className="flex justify-center items-center p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className={`font-[Montserrat] text-[48px] font-bold text-center`}>
             {pageContent['edit-profile-choose-an-option']}
           </h2>
         </div>
 
-        <div className="flex overflow-y-auto scrollbar-hide flex-1 p-6 justify-center">
+        <div className="flex overflow-y-auto scrollbar-hide flex-1 p-6 justify-center min-h-0">
           <div className="grid grid-cols-2 gap-4 w-fit">
-            {avatars?.map(avatar => (
+            {allAvatars?.map(avatar => (
               <button
-                key={avatar.id}
+                key={avatar.id ?? 'no-avatar'}
                 onClick={() => setTempSelectedId(avatar.id)}
                 className="flex justify-center"
               >
@@ -145,7 +171,7 @@ export default function AvatarSelectionPopup({
                   <div className="relative w-full h-full">
                     <Image
                       src={avatar.avatar_url}
-                      alt={`Avatar ${avatar.id}`}
+                      alt={`Avatar ${avatar.id ?? 'no-avatar'}`}
                       fill
                       className="object-contain"
                     />
@@ -156,7 +182,7 @@ export default function AvatarSelectionPopup({
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200">
+        <div className="p-6 border-t border-gray-200 flex-shrink-0">
           <div className="flex gap-4">
             <BaseButton
               onClick={onClose}

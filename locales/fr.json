@@ -8,6 +8,7 @@
 			"EmDashUser002",
 			"Gomoko",
 			"MacOS Weed",
+			"McDutchie",
 			"Méthodes Bulebe Hangi"
 		]
 	},
@@ -216,7 +217,8 @@
 	"edit-profile-image-title": "Image de profil",
 	"edit-profile-choose-avatar": "Choisir un avatar",
 	"edit-profile-choose-avatar-tooltip": "Choisissez un avatar à afficher sur votre profil CapX, à la place de l’image de votre élément Wikidata (si elle existe).",
-	"edit-profile-use-wikidata": "Afficher la photo de mon élément Wikidata sur mon profil",
+	"edit-profile-use-wikidata-photograph": "Afficher la photo de mon élément Wikidata sur mon profil",
+	"edit-profile-use-wikidata-item": "Display my Wikidata item on profile",
 	"edit-profile-consent-wikidata": "En cliquant ici, j’accepte que l’image de mon élément Wikidata soit affichée sur mon profil CapX. L’outil recherchera dans Wikidata un QID associé à votre nom d’utilisateur et l’affichera s’il le trouve.",
 	"edit-profile-delete-profile": "Supprimer le profil",
 	"edit-profile-save": "Enregistrer le profil",
@@ -345,6 +347,8 @@
 	"snackbar-edit-profile-success": "Profil mis à jour avec succès !",
 	"snackbar-edit-profile-failed-generic": "Erreur lors de la mise à jour du profil. Veuillez vérifier vos données puis réessayer.",
 	"snackbar-edit-profile-failed-capacities": "Vous ne pouvez ajouter que des compétences connues indiquées comme compétences disponibles.",
+	"snackbar-capacity-validation-available-without-known": "Available capacities must be selected from your known capacities. Please add the capacity to your known skills first.",
+	"snackbar-capacity-validation-conflict": "There was a conflict with your capacity selections. Please ensure all available capacities are also marked as known capacities.",
 	"snackbar-edit-profile-organization-success": "Enregistré avec succès",
 	"snackbar-edit-profile-organization-delete-event-failed": "Erreur lors de la suppression de l’événement. Veuillez vérifier puis réessayer",
 	"snackbar-edit-profile-organization-delete-event-success": "Événement supprimé avec succès",
@@ -576,5 +580,10 @@
 	"date-picker-clear": "Effacer",
 	"date-picker-close": "Fermer",
 	"date-picker-time": "Heure",
-	"date-picker-date": "Date"
+	"date-picker-date": "Date",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "Select",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "Selected",
+	"capacity-selection-modal-select-capacity-button-multiple-capacities": "Capacities",
+	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Capacity",
+	"capacity-selection-modal-back": "Back"
 }

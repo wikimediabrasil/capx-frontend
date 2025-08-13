@@ -213,7 +213,7 @@
 	"edit-profile-image-title": "Imagem de perfil",
 	"edit-profile-choose-avatar": "Escolher um avatar",
 	"edit-profile-choose-avatar-tooltip": "Escolha um avatar para exibir no seu perfil do CapX no lugar da imagem do seu item do Wikidata (se houver).",
-	"edit-profile-use-wikidata": "Exibir a fotografia do meu item Wikidata no perfil",
+	"edit-profile-use-wikidata-photograph": "Exibir a fotografia do meu item Wikidata no perfil",
 	"edit-profile-consent-wikidata": "Ao clicar aqui, concordo em ter a imagem do meu item Wikidata exibida no meu perfil do CapX. A ferramenta irá buscar no Wikidata por um QID relacionado ao seu nome de usuário(a) e o exibirá caso seja encontrado.",
 	"edit-profile-delete-profile": "Excluir Perfil",
 	"edit-profile-save": "Salvar perfil",
@@ -544,6 +544,11 @@
 	"lets-connect-info-popup-continue": "Confirmar/Enviar",
 	"lets-connect-success-popup-close-tab": "Fechar aba",
 	"lets-connect-success-popup-title": "Muito bem!",
+	"organization-profile-event-url-invalid": "URL inválida. Use URLs do Meta Wikimedia (por exemplo, meta.wikimedia.org/wiki/Event) ou do WikiLearn (app.learn.wiki/learning/course/...).",
+	"organization-profile-event-url-tooltip-updated": "Cole uma URL de uma página de evento do Meta Wikimedia ou de um curso do WikiLearn. A ferramenta preencherá automaticamente os detalhes do evento.",
+	"event-form-wikidata-loading": "Procurando dados do evento...",
+	"event-form-wikidata-not-found": "Não foi possível encontrar dados de evento para esta URL",
+	"event-form-wikidata-error": "Ocorreu um erro ao procurar dados do evento",
 	"lets-connect-success-popup-info": "Agora, para finalizar o processo, você deve clicar em \"Salvar perfil\". Isso salvará todas as alterações feitas no seu perfil CapX.",
 	"lets-connect-alt-banner": "Título Lets Connect",
 	"statistics-section-title": "Estatísticas da plataforma",
@@ -563,5 +568,10 @@
 	"body-profile-badges-no-badges": "Você ainda não tem nenhuma medalha ativa.",
 	"body-profile-badges-title": "Medalhas",
 	"body-profile-badges-see-all": "Ver todas medalhas",
-	"body-profile-badges-description": "Veja a coleção completa de medalhas que você ganhou (e aqueles que estão esperando por você!)"
+	"body-profile-badges-description": "Veja a coleção completa de medalhas que você ganhou (e aqueles que estão esperando por você!)",
+	"date-picker-today": "Hoje",
+	"date-picker-clear": "Limpar",
+	"date-picker-close": "Fechar",
+	"date-picker-time": "Horário",
+	"date-picker-date": "Data"
 }
