@@ -579,5 +579,7 @@
 	"capacity-selection-modal-select-capacity-button-multiple-selected": "Selessionà",
 	"capacity-selection-modal-select-capacity-button-multiple-capacities": "Competense",
 	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Competensa",
-	"capacity-selection-modal-back": "André"
+	"capacity-selection-modal-back": "André",
+	"edit-profile-mini-bio-exceeded-chars": "caràter ëd tròp",
+	"edit-profile-mini-bio-remaining-chars": "caràter restant"
 }
