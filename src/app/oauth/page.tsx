@@ -1,5 +1,4 @@
 'use client';
-import LoadingState from '@/components/LoadingState';
 import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
 import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -86,7 +85,7 @@ function OAuthContent() {
           }
 
           const stored_secret = localStorage.getItem('oauth_token_secret');
-          // Verifica o hostname e os tokens antes de prosseguir
+          // Check the hostname and tokens before proceeding
 
           if (result.extra === hostname) {
             if (!stored_secret) {
@@ -106,7 +105,6 @@ function OAuthContent() {
         console.error('Token check error:', error);
         router.push('/');
       } finally {
-        // Fim do processo de verificação
         isCheckingTokenRef.current = false;
       }
     }
@@ -131,10 +129,8 @@ function OAuthContent() {
   );
 }
 
-// Loading component for Suspense
+// Simple loading component that doesn't depend on theme context
 function OAuthLoading() {
-  const [pageContent] = useState({ loading: 'Loading...' });
-
   return (
     <section className="flex w-screen h-screen font-montserrat">
       <div className="flex flex-wrap w-1/2 mx-auto my-auto">
@@ -142,7 +138,7 @@ function OAuthLoading() {
           <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16" />
         </div>
         <div className="flex w-full text-center mb-4">
-          <h1 className="w-full">{pageContent['loading'] || 'Loading...'}</h1>
+          <h1 className="w-full">Loading...</h1>
         </div>
         <div className="flex w-fit mx-auto">
           <div className="mx-auto animate-spin ease-linear h-8 w-8 rounded-full border-8 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>
@@ -155,7 +151,7 @@ function OAuthLoading() {
 export default function OAuth() {
   return (
     <SessionProvider>
-      <Suspense fallback={<LoadingState fullScreen />}>
+      <Suspense fallback={<OAuthLoading />}>
         <OAuthContent />
       </Suspense>
     </SessionProvider>
