@@ -3,11 +3,11 @@
 import { Filters } from '@/app/(auth)/feed/components/Filters';
 import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 import {
-  createProfilesFromOrganizations,
-  FilterState,
-  ProfileCapacityType,
-  ProfileFilterType,
-  Skill,
+    createProfilesFromOrganizations,
+    FilterState,
+    ProfileCapacityType,
+    ProfileFilterType,
+    Skill,
 } from '@/app/(auth)/feed/types';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useApp } from '@/contexts/AppContext';
@@ -132,7 +132,7 @@ export default function OrganizationList() {
   };
 
   if (isOrganizationsLearnerLoading || isOrganizationsSharerLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   return (

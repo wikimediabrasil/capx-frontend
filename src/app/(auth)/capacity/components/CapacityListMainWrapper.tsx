@@ -56,7 +56,7 @@ const ChildCapacities = ({
   const capacityIds = children.map(child => child.code).filter(Boolean) as number[];
 
   if (isLoadingChildren) {
-    return <div className="mt-4">{pageContent['loading']}</div>;
+    return <LoadingState />;
   }
 
   // First, find the actual parent capacity from root capacities or existing children

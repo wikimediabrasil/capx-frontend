@@ -1,10 +1,10 @@
 'use client';
-import Image from 'next/image';
-import { signIn, useSession, SessionProvider } from 'next-auth/react';
-import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
 import LoadingState from '@/components/LoadingState';
+import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
+import { SessionProvider, signIn, useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 function OAuthContent() {
   const router = useRouter();
@@ -142,7 +142,7 @@ function OAuthLoading() {
           <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16" />
         </div>
         <div className="flex w-full text-center mb-4">
-          <h1 className="w-full">{pageContent['loading']}</h1>
+          <h1 className="w-full">{pageContent['loading'] || 'Loading...'}</h1>
         </div>
         <div className="flex w-fit mx-auto">
           <div className="mx-auto animate-spin ease-linear h-8 w-8 rounded-full border-8 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>

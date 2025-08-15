@@ -1,23 +1,22 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { Event } from '@/types/event';
-import { useApp } from '@/contexts/AppContext';
-import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import { Capacity } from '@/types/capacity';
+import CustomDatePicker from '@/components/CustomDatePicker';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { dateTimeLocalToDate, dateToDateTimeLocal } from '@/lib/utils/dateLocale';
 import {
-  fetchEventDataByURL,
-  fetchEventDataByQID,
   fetchEventDataByGenericURL,
+  fetchEventDataByQID,
+  fetchEventDataByURL,
   isValidEventURL,
 } from '@/services/metabaseService';
-import { useSession } from 'next-auth/react';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import React, { memo } from 'react';
 import { organizationProfileService } from '@/services/organizationProfileService';
-import { dateToDateTimeLocal, dateTimeLocalToDate } from '@/lib/utils/dateLocale';
-import CustomDatePicker from '@/components/CustomDatePicker';
+import { Capacity } from '@/types/capacity';
+import { Event } from '@/types/event';
+import { useSession } from 'next-auth/react';
+import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 interface EventFormItemProps {
   eventData: Event;
@@ -934,7 +933,7 @@ const EventsForm = memo(
                         handleChange('time_begin', '');
                       }
                     }}
-                    className={`w-full bg-transparent border rounded-md p-2 outline-none 
+                    className={`w-full bg-transparent border rounded-md p-2 outline-none
                     ${
                       darkMode
                         ? 'text-white placeholder-gray-400 border-white'
@@ -985,7 +984,7 @@ const EventsForm = memo(
                         handleChange('time_end', '');
                       }
                     }}
-                    className={`w-full bg-transparent rounded-md p-2 outline-none 
+                    className={`w-full bg-transparent rounded-md p-2 outline-none
                     ${
                       darkMode
                         ? 'text-white placeholder-gray-400 border-white'

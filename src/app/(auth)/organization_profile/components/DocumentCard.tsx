@@ -1,9 +1,9 @@
+import BaseButton from '@/components/BaseButton';
+import LoadingState from '@/components/LoadingState';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useDocument } from '@/hooks/useDocument';
 import Image from 'next/image';
-import BaseButton from '@/components/BaseButton';
-import { useTheme } from '@/contexts/ThemeContext';
-import { WikimediaDocument } from '@/types/document';
-import { useApp } from '@/contexts/AppContext';
 
 interface DocumentCardProps {
   documentId: number;
@@ -16,7 +16,7 @@ export const DocumentCard = ({ documentId, token }: DocumentCardProps) => {
   const { pageContent } = useApp();
 
   if (loading) {
-    return <div className="loading-skeleton">{pageContent['loading']}</div>;
+    return <LoadingState />;
   }
 
   if (error || !document) {

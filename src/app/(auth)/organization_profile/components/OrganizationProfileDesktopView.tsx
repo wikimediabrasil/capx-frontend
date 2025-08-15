@@ -44,7 +44,7 @@ export default function OrganizationProfileDesktopView({
   const { showSnackbar } = useSnackbar();
 
   if (isOrganizationLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   return (

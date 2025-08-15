@@ -1,48 +1,48 @@
 'use client';
 
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-import ProfileHeader from './ProfileHeader';
-import MiniBio from './MiniBio';
-import { ProfileItem } from '@/components/ProfileItem';
 import BaseButton from '@/components/BaseButton';
-import NeurologyIcon from '@/public/static/images/neurology.svg';
-import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import EmojiIcon from '@/public/static/images/emoji_objects.svg';
-import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
-import TargetIcon from '@/public/static/images/target.svg';
-import TargetIconWhite from '@/public/static/images/target_white.svg';
-import LanguageIcon from '@/public/static/images/language.svg';
-import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import TerritoryIcon from '@/public/static/images/territory.svg';
-import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import { ProfileItem } from '@/components/ProfileItem';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
 import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
-import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
-import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import ContactImage from '@/public/static/images/capx_contact_person.svg';
-import ContactImageDesktop from '@/public/static/images/capx_contact_person_desktop.svg';
 import CakeIcon from '@/public/static/images/cake.svg';
 import CakeIconWhite from '@/public/static/images/cake_white.svg';
+import ContactImage from '@/public/static/images/capx_contact_person.svg';
+import ContactImageDesktop from '@/public/static/images/capx_contact_person_desktop.svg';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import MiniBio from './MiniBio';
+import ProfileHeader from './ProfileHeader';
 
-import { useLanguage } from '@/hooks/useLanguage';
 import { useAffiliation } from '@/hooks/useAffiliation';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { getWikiBirthday } from '@/lib/utils/fetchWikimediaData';
-import { UserProfile } from '@/types/user';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import { useRouter } from 'next/navigation';
 import BadgesCarousel from '@/components/BadgesCarousel';
+import { useBadges } from '@/contexts/BadgesContext';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { getWikiBirthday } from '@/lib/utils/fetchWikimediaData';
 import BadgesIcon from '@/public/static/images/icons/badges_icon.svg';
 import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg';
-import { useBadges } from '@/contexts/BadgesContext';
+import { UserProfile } from '@/types/user';
+import { useRouter } from 'next/navigation';
 
 interface ProfilePageProps {
   isSameUser: boolean;
@@ -282,7 +282,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     darkMode ? 'text-white bg-capx-dark-bg' : 'text-capx-dark-box-bg bg-[#EFEFEF]'
                   }`}
                 >
-                  {wikiBirthday || pageContent['loading']}
+                  {wikiBirthday || pageContent['loading'] || 'Loading...'}
                 </p>
               </div>
             </div>
@@ -616,7 +616,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     darkMode ? 'text-white bg-capx-dark-bg' : 'text-capx-dark-box-bg bg-[#EFEFEF]'
                   }`}
                 >
-                  {wikiBirthday || pageContent['loading']}
+                  {wikiBirthday || pageContent['loading'] || 'Loading...'}
                 </p>
               </div>
             </div>

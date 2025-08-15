@@ -1,18 +1,18 @@
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
-import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
 import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
-import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import { useState, useEffect, useCallback } from 'react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ProfileHeaderProps {
   username: string;
@@ -188,7 +188,7 @@ export default function ProfileHeader({
               darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
             }`}
           >
-            {username || pageContent['loading']}
+            {username || 'Loading...'}
           </span>
         </div>
         <div className="flex flex-col gap-2">

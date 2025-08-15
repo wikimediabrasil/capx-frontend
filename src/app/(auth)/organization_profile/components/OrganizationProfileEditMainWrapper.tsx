@@ -1312,7 +1312,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   if (isMobile) {

@@ -15,12 +15,12 @@ import { useProfile } from '@/hooks/useProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
 import {
-  addUniqueAffiliations,
-  addUniqueCapacities,
-  addUniqueCapacity,
-  addUniqueItem,
-  addUniqueLanguages,
-  addUniqueTerritory,
+    addUniqueAffiliations,
+    addUniqueCapacities,
+    addUniqueCapacity,
+    addUniqueItem,
+    addUniqueLanguages,
+    addUniqueTerritory,
 } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
@@ -37,9 +37,9 @@ import { useCapacities } from '@/hooks/useCapacities';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useLetsConnect } from '@/hooks/useLetsConnect';
 import {
-  getCapacityValidationErrorMessage,
-  isCapacityValidationError,
-  validateCapacitiesBeforeSave,
+    getCapacityValidationErrorMessage,
+    isCapacityValidationError,
+    validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
 import { LanguageProficiency } from '@/types/language';
 
@@ -389,7 +389,7 @@ export default function EditProfilePage() {
 
   // Show loading state while session is loading
   if (sessionStatus === 'loading') {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   // If session is unauthenticated, don't render anything
@@ -399,7 +399,7 @@ export default function EditProfilePage() {
 
   // Show loading state while profile is loading
   if (profileLoading || isLoadingAllCapacities) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   // Handle error state
