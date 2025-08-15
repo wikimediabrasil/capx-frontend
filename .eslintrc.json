@@ -30,7 +30,7 @@
   //   "@next/next/no-img-element": "warn",
   //   "@typescript-eslint/ban-ts-comment": "warn",
   //   "prefer-const": "error",
-  //   "@typescript-eslint/explicit-function-return-type": "off", 
+  //   "@typescript-eslint/explicit-function-return-type": "off",
   //   "react/react-in-jsx-scope": "off",
   //   "react/prop-types": "off"
   // },
