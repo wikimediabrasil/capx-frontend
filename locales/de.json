@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Langusto",
+			"MoritzMT20",
 			"Simon04",
 			"TMg",
 			"TomatoCake"
@@ -52,6 +53,7 @@
 	"filters-location-online": "Online",
 	"filters-location-hybrid": "Hybrid",
 	"filters-onsite-event": "Online-Veranstaltung",
+	"snackbar-capacity-validation-available-without-known": "Verfügbare Kapazitäten müssen aus deinen bekannten Kapazitäten ausgewählt werden. Bitte füge die Kapazität zunächst deinen bekannten Fähigkeiten hinzu.",
 	"events-search-placeholder": "Nach Veranstaltungen suchen...",
 	"events-search-results-no-results": "Für Ihre Suche wurden keine Ergebnisse gefunden.",
 	"events-no-results-with-filters": "Keine Ereignisse entsprechen den ausgewählten Filtern. Versuchen Sie, einige Filter zu entfernen.",
@@ -74,5 +76,9 @@
 	"date-picker-clear": "Leeren",
 	"date-picker-close": "Schließen",
 	"date-picker-time": "Zeit",
-	"date-picker-date": "Datum"
+	"date-picker-date": "Datum",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "Auswählen",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "Ausgewählt",
+	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Kapazität",
+	"capacity-selection-modal-back": "Zurück"
 }

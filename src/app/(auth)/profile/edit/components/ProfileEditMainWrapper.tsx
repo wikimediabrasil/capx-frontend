@@ -160,6 +160,7 @@ export default function EditProfilePage() {
     'known' | 'available' | 'wanted'
   >('known');
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: '',
@@ -302,15 +303,6 @@ export default function EditProfilePage() {
   // Create a ref to track if unsaved data has been loaded
   const unsavedDataLoadedRef = useRef(false);
 
-  // When the component mounts, check if there are unsaved data
-  useEffect(() => {
-    if (unsavedData) {
-      setFormData(prevData => ({
-        ...prevData,
-        ...unsavedData,
-      }));
-    }
-  }, [unsavedData]);
 
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
@@ -388,7 +380,7 @@ export default function EditProfilePage() {
   );
 
   // Show loading state while session is loading
-  if (sessionStatus === 'loading') {
+  if (sessionStatus === 'loading' || loading) {
     return <LoadingState />;
   }
 
@@ -684,7 +676,7 @@ export default function EditProfilePage() {
       const newSkillsWanted = letsConnectWantedCapacities.map(capacity => capacity.id);
 
       setHasAutomatedLetsConnect(true);
-      setFormData({
+      const updatedFormData = {
         ...formData,
         affiliation: addUniqueAffiliations(currentAffiliations, newAffiliations),
         language: addUniqueLanguages(currentLanguages, newLanguages),
@@ -692,8 +684,14 @@ export default function EditProfilePage() {
         skills_known: addUniqueCapacities(currentSkillsKnown, newSkillsKnown),
         skills_available: addUniqueCapacities(currentSkillsAvailable, newSkillsAvailable),
         skills_wanted: addUniqueCapacities(currentSkillsWanted, newSkillsWanted),
-      });
+      };
+      setFormData(updatedFormData);
+      setUnsavedData(updatedFormData);
       showSnackbar(pageContent['snackbar-lets-connect-import-success'], 'success');
+      setLoading(true);
+      setTimeout(() => {
+        router.push('/profile/lets_connect');
+      }, 3500);
     }
     setShowLetsConnectPopup(false);
   };
