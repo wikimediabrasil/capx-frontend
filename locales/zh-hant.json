@@ -65,7 +65,7 @@
 	"body-profile-edit-button": "編輯簡介",
 	"body-profile-box-title-wikidata-item": "維基數據項目",
 	"body-profile-box-title-alt-wiki-acc": "替代的維基媒體帳號",
-	"body-profile-section-title-territory": "領域",
+	"body-profile-section-title-territory": "地區",
 	"body-profile-section-title-language": "語言",
 	"body-profile-section-title-affiliation": "隸屬",
 	"body-profile-section-title-events": "活動",
@@ -166,7 +166,7 @@
 	"form-profile-wikidata-item-placeholder": "例如：Q125816201",
 	"form-profile-alternative-wikimedia-account": "替代的維基媒體帳號",
 	"form-profile-alternative-wikimedia-account-placeholder": "例如：使用者名稱",
-	"form-profile-territory": "領域",
+	"form-profile-territory": "地區",
 	"form-profile-languages": "語言",
 	"form-profile-affiliation": "隸屬",
 	"form-profile-team": "團隊",
@@ -327,7 +327,7 @@
 	"filters-remove-item-alt-icon": "移除項目圖示",
 	"filters-select-alt-icon": "選擇圖示",
 	"filters-territory-title": "地區",
-	"filters-add-territory": "添加領域",
+	"filters-add-territory": "添加地區",
 	"filters-exchange-with": "交流與",
 	"filters-title": "篩選",
 	"filters-icon": "篩選圖示",
@@ -586,5 +586,7 @@
 	"capacity-selection-modal-select-capacity-button-multiple-selected": "已選",
 	"capacity-selection-modal-select-capacity-button-multiple-capacities": "能力",
 	"capacity-selection-modal-select-capacity-button-multiple-capacity": "能力",
-	"capacity-selection-modal-back": "返回"
+	"capacity-selection-modal-back": "返回",
+	"edit-profile-mini-bio-exceeded-chars": "字元超出",
+	"edit-profile-mini-bio-remaining-chars": "字元剩餘"
 }
