@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import AvatarSelectionPopup from '../../app/(auth)/profile/components/AvatarSelectionPopup';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import AvatarSelectionPopup from '../../app/(auth)/profile/components/AvatarSelectionPopup';
 
 // Next.js Image mock
 jest.mock('next/image', () => ({
@@ -261,7 +261,10 @@ describe('AvatarSelectionPopup', () => {
     it('shows loading state when avatars are loading', () => {
       renderWithProviders(<AvatarSelectionPopup {...defaultProps} />);
 
-      expect(screen.getByText('Loading avatars...')).toBeInTheDocument();
+      // CompactLoading renders a spinner without text
+      const spinner = screen.getByTestId('loading-spinner');
+      expect(spinner).toBeInTheDocument();
+      expect(spinner).toHaveClass('animate-spin');
     });
   });
 
