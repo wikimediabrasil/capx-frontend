@@ -499,7 +499,7 @@
 	"lets-connect-form-heading": "Formulaire d’inscription",
 	"lets-connect-form-full-name-optional": "Nom complet (facultatif)",
 	"lets-connect-form-full-name-placeholder": "Votre nom ici",
-	"lets-connect-form-email": "Adresse courriel (facultative)",
+	"lets-connect-form-email": "Adresse de courriel",
 	"lets-connect-form-email-placeholder": "votre.adresse@wmenfrance.com",
 	"lets-connect-form-roles": "Quel est votre rôle principal dans le groupe ou l’organisation ?",
 	"lets-connect-form-roles-info": "Choisissez une seule option.",
@@ -593,5 +593,7 @@
 	"capacity-selection-modal-select-capacity-button-multiple-selected": "Sélectionné",
 	"capacity-selection-modal-select-capacity-button-multiple-capacities": "Compétences",
 	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Compétence",
-	"capacity-selection-modal-back": "Retour"
+	"capacity-selection-modal-back": "Retour",
+	"edit-profile-mini-bio-exceeded-chars": "caractères excédentaires",
+	"edit-profile-mini-bio-remaining-chars": "caractères restants"
 }

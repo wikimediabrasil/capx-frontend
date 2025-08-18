@@ -484,7 +484,7 @@
 	"lets-connect-form-heading": "Formulário de Registo",
 	"lets-connect-form-full-name-optional": "Nome Completo (opcional)",
 	"lets-connect-form-full-name-placeholder": "O seu nome aqui",
-	"lets-connect-form-email": "Endereço de email (opcional)",
+	"lets-connect-form-email": "Endereço de correio eletrónico",
 	"lets-connect-form-email-placeholder": "seu.email@wmnobrasil.com",
 	"lets-connect-form-roles": "Qual é sua principal função no grupo ou organização?",
 	"lets-connect-form-roles-info": "Escolha apenas uma opção.",
@@ -571,5 +571,10 @@
 	"date-picker-clear": "Limpar",
 	"date-picker-close": "Fechar",
 	"date-picker-time": "Horário",
-	"date-picker-date": "Data"
+	"date-picker-date": "Data",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "Selecionar",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "Selecionado",
+	"capacity-selection-modal-select-capacity-button-multiple-capacities": "Capacidades",
+	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Capacidade",
+	"capacity-selection-modal-back": "Voltar"
 }
