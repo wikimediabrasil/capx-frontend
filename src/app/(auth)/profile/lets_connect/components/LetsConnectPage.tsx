@@ -9,8 +9,11 @@ import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useProfile } from '@/hooks/useProfile';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
+import EditIcon from '@/public/static/images/edit.svg';
+import EditIconWhite from '@/public/static/images/edit_white.svg';
 import LetsConectBanner from '@/public/static/images/lets_connect_desktop.svg';
 import LetsConnectPopup from '@/public/static/images/lets_connect_popup.svg';
 import LetsConectTextDesktop from '@/public/static/images/lets_connect_text_desktop.svg';
@@ -21,15 +24,12 @@ import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_w
 import UserCheckIcon from '@/public/static/images/user_check.svg';
 import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
 import { LetsConnect } from '@/types/lets_connect';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Checklist from './CheckList';
-import EditIcon from '@/public/static/images/edit.svg';
-import EditIconWhite from '@/public/static/images/edit_white.svg';
-import { useProfile } from '@/hooks/useProfile';
-import { useSession } from 'next-auth/react';
 
 export enum LetsConnectRole {
   A = 'A',
@@ -105,7 +105,7 @@ export default function LetsConnectPage() {
   }, [pageContent]);
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   const genderOptions = [
@@ -172,7 +172,7 @@ export default function LetsConnectPage() {
               imageWidth={isMobile ? 20 : 30 }
               imageHeight={isMobile ? 20 : 30 }
           />
-          
+
           {/*Informative text*/}
           {hasLetsConnectData && (
             <div className="mt-6 mb-2">
@@ -193,7 +193,7 @@ export default function LetsConnectPage() {
               className="w-4 h-5 md:w-[42px] md:h-[42px]"
             />
             <h1
-              className={`text-[14px] font-[Montserrat] font-bold md:text-[32px] 
+              className={`text-[14px] font-[Montserrat] font-bold md:text-[32px]
                   ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
             >
               {pageContent['lets-connect-form-heading']}
@@ -214,8 +214,8 @@ export default function LetsConnectPage() {
                   onClick={() => setShowFullNameInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-fit flex ${
-                    darkMode 
-                      ? 'bg-capx-light-box-bg text-[#04222F]' 
+                    darkMode
+                      ? 'bg-capx-light-box-bg text-[#04222F]'
                       : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
@@ -256,8 +256,8 @@ export default function LetsConnectPage() {
                   onClick={() => setShowEmailInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
                   customClass={`w-fit flex ${
-                    darkMode 
-                      ? 'bg-capx-light-box-bg text-[#04222F]' 
+                    darkMode
+                      ? 'bg-capx-light-box-bg text-[#04222F]'
                       : 'bg-[#053749] text-white'
                   } rounded-md font-[Montserrat] text-[10px] font-extrabold leading-normal px-[13px] py-[4px] pb-[4px] items-center gap-[4px] md:text-[24px] md:px-4 md:py-2`}
                   imageUrl={darkMode ? EditIcon : EditIconWhite}
@@ -377,7 +377,7 @@ export default function LetsConnectPage() {
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="w-[75%] md:w-[75%]">
                 <h4
-                  className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start break-words 
+                  className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start break-words
                     ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
                 >
                   {pageContent['lets-connect-form-topic-check']}
@@ -455,7 +455,7 @@ export default function LetsConnectPage() {
           {/* Age Input */}
           <div className="mt-6 mb-2">
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="w-[65%] md:w-[75%]">           
+              <div className="w-[65%] md:w-[75%]">
                 <h4
                   className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
                     ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
@@ -477,7 +477,7 @@ export default function LetsConnectPage() {
                   imageWidth={isMobile ? 15 : 30}
                   imageHeight={isMobile ? 15 : 30}
                 />
-              )}              
+              )}
             </div>
           </div>
 

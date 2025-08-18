@@ -1,10 +1,10 @@
 'use client';
 
-import ProfilePage from './components/ProfilePage';
 import LoadingState from '@/components/LoadingState';
+import ProfilePage from './components/ProfilePage';
 
-import { useSession } from 'next-auth/react';
 import { useProfile } from '@/hooks/useProfile';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function ProfileByUserName() {
@@ -23,7 +23,7 @@ export default function ProfileByUserName() {
 
   // Mostrar loading enquanto carrega o perfil ou a sessão
   if (isLoading || sessionStatus === 'loading' || !profile) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   // Handle error state

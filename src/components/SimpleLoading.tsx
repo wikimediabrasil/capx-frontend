@@ -1,13 +1,30 @@
-import Image from 'next/image';
+import { useApp } from '@/contexts/AppContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
+import Image from 'next/image';
 
 // Simple loading component without theme dependency
 export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
+  let isMobile = false;
+
+  // Try to get mobile status safely
+  try {
+    const app = useApp();
+    isMobile = app.isMobile;
+  } catch {
+    // Context not available, use default
+    isMobile = false;
+  }
+
+  // Calculate proper height considering mobile header
+  const heightClass = fullScreen
+    ? isMobile
+      ? 'min-h-screen pt-20' // Add padding-top for mobile header (80px height)
+      : 'min-h-screen'
+    : 'h-[150px]';
+
   return (
     <div
-      className={`flex items-center justify-center ${
-        fullScreen ? 'min-h-screen' : 'h-[150px]'
-      } bg-white`}
+      className={`flex items-center justify-center ${heightClass} bg-white`}
       role="status"
       data-testid="simple-loading"
       aria-label="Loading"

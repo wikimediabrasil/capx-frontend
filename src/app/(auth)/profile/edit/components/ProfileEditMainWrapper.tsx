@@ -380,8 +380,8 @@ export default function EditProfilePage() {
   );
 
   // Show loading state while session is loading
-  if (sessionStatus === 'loading' || loading) {
-    return <LoadingState />;
+  if (sessionStatus === 'loading') {
+    return <LoadingState fullScreen={true} />;
   }
 
   // If session is unauthenticated, don't render anything
@@ -391,7 +391,7 @@ export default function EditProfilePage() {
 
   // Show loading state while profile is loading
   if (profileLoading || isLoadingAllCapacities) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   // Handle error state

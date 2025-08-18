@@ -18,6 +18,7 @@ import { createProfilesFromOrganizations, createProfilesFromUsers } from './type
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { SearchBar } from './components/SearchBar';
+import LoadingState from '@/components/LoadingState';
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
@@ -319,9 +320,7 @@ export default function FeedPage() {
     isUsersLearnerLoading ||
     isUsersSharerLoading
   ) {
-    return (
-      <div className="flex justify-center items-center h-screen">{pageContent['loading']}</div>
-    );
+    return <LoadingState fullScreen={true} />;
   }
 
   const handleToggleSaved = (profile: any) => {
