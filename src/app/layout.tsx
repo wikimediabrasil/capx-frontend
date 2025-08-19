@@ -35,12 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <AuthMonitorSetup />
               <Providers>
                 <AppProvider>
-                    <SnackbarProvider>
-                      <CapacityCacheProvider>
-                          <CapacitiesPrefetcher />
-                          {children}
-                      </CapacityCacheProvider>
-                    </SnackbarProvider>
+                  <SnackbarProvider>
+                    <CapacityCacheProvider>
+                      <CapacitiesPrefetcher />
+                      {children}
+                    </CapacityCacheProvider>
+                  </SnackbarProvider>
                 </AppProvider>
               </Providers>
             </SessionWrapper>

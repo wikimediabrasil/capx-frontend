@@ -4,16 +4,15 @@ import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg'
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DocumentCard } from './DocumentCard';
-import { OrganizationDocument } from '@/types/document';
 
 interface DocumentsListProps {
   title: string;
-  type: 'documents';
   items?: number[];
+  type: 'documents';
   token?: string;
 }
 
-export const DocumentsList = ({ title, type, items = [], token }: DocumentsListProps) => {
+export const DocumentsList = ({ title, items = [], token }: DocumentsListProps) => {
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
 

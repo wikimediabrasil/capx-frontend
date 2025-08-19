@@ -12,18 +12,18 @@ interface MiniBioProps {
   maxLength?: number;
 }
 
-export default function MiniBio({ 
-  about, 
-  onAboutChange, 
+export default function MiniBio({
+  about,
+  onAboutChange,
   isEditing = false,
-  maxLength = 2000 
+  maxLength = 2000,
 }: MiniBioProps) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
 
   const renderText = (text: string) => {
     if (!text) return pageContent['edit-profile-mini-bio-placeholder'];
-    
+
     // Preserve line breaks and spaces
     return text.split('\n').map((line, index) => (
       <span key={index}>
@@ -55,7 +55,7 @@ export default function MiniBio({
             {pageContent['edit-profile-mini-bio']}
           </h2>
         </div>
-        
+
         {isEditing ? (
           <MiniBioTextarea
             value={about}
@@ -108,7 +108,7 @@ export default function MiniBio({
           {pageContent['edit-profile-mini-bio']}
         </h2>
       </div>
-      
+
       {isEditing ? (
         <MiniBioTextarea
           value={about}

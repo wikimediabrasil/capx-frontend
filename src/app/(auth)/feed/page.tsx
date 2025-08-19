@@ -11,7 +11,6 @@ import { useAllUsers } from '@/hooks/useUserProfile';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from '@/hooks/useCapacityDetails';
-import { Capacity } from '@/types/capacity';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 import { createProfilesFromOrganizations, createProfilesFromUsers } from './types';
@@ -48,7 +47,7 @@ export default function FeedPage() {
   const itemsPerPage = itemsPerList * 2; // Total of profiles per page
   const offset = (currentPage - 1) * itemsPerList;
 
-  const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityCode);
+  const { capacity } = useCapacity(capacityCode);
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
 
   // Get data from capacityById
@@ -340,7 +339,7 @@ export default function FeedPage() {
         createSavedItem(profile.isOrganization ? 'org' : 'user', profile.id, profile.type);
         showSnackbar(pageContent['saved-profiles-add-success'], 'success');
       }
-    } catch (error) {
+    } catch {
       showSnackbar(pageContent['saved-profiles-error'], 'error');
     }
   };

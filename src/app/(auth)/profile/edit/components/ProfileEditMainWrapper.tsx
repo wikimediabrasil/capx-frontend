@@ -303,7 +303,6 @@ export default function EditProfilePage() {
   // Create a ref to track if unsaved data has been loaded
   const unsavedDataLoadedRef = useRef(false);
 
-
   // When the component mounts, check if there are unsaved data
   useEffect(() => {
     if (unsavedData) {
