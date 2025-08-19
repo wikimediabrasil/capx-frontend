@@ -1,18 +1,80 @@
-import { WikimediaImage } from '@/types/wikidataImage';
-import { WikimediaDocument } from '@/types/document';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { WikimediaDocument } from '@/types/document';
+import { WikimediaImage } from '@/types/wikidataImage';
+
+/**
+ * Extracts the filename from various Wikimedia URL patterns so it can be used
+ * with the Commons API `titles=File:<filename>` parameter.
+ */
+
+const decodeUntilStable = (value: string, maxAttempts = 3): string => {
+  let result = value;
+  for (let i = 0; i < maxAttempts; i += 1) {
+    try {
+      const decoded = decodeURIComponent(result);
+      if (decoded === result) return result;
+      result = decoded;
+    } catch {
+      return result;
+    }
+  }
+  return result;
+};
+
+const extractWikimediaFilename = (url: string | undefined | null): string => {
+  if (!url) return '';
+
+  const trimmed = url.trim();
+
+  // Accept raw File:Name.ext input
+  if (trimmed.startsWith('File:')) {
+    return decodeUntilStable(trimmed.replace(/^File:/, ''));
+  }
+
+  // Standard Commons file page
+  if (trimmed.includes('commons.wikimedia.org/wiki/File:')) {
+    return decodeUntilStable(trimmed.split('File:')[1]);
+  }
+
+  // Special:FilePath (often used with width query params)
+  if (trimmed.includes('commons.wikimedia.org/wiki/Special:FilePath/')) {
+    const after = trimmed.split('commons.wikimedia.org/wiki/Special:FilePath/')[1];
+    // Drop any querystring like ?width=384
+    const noQuery = after.split('?')[0];
+    // API expects the canonical filename (not URL-encoded)
+    return decodeUntilStable(noQuery);
+  }
+
+  // Direct upload URL
+  if (trimmed.includes('upload.wikimedia.org/wikipedia/commons/')) {
+    const parts = trimmed.split('/');
+    const last = parts[parts.length - 1];
+    return decodeUntilStable(last);
+  }
+
+  // Unknown format – if it references Wikimedia, try best-effort last segment
+  if (trimmed.includes('wikimedia.org') || trimmed.includes('wikipedia.org')) {
+    const parts = trimmed.split('/');
+    const last = parts[parts.length - 1].split('?')[0];
+    return decodeUntilStable(last);
+  }
+
+  // Not a Wikimedia file URL
+  return '';
+};
 
 export const fetchWikimediaData = async (url: string): Promise<WikimediaDocument> => {
   try {
-    let fileName = '';
+    const fileName = extractWikimediaFilename(url);
 
-    if (url?.includes('commons.wikimedia.org/wiki/File:')) {
-      fileName = url?.split('File:')[1];
-    } else if (url?.includes('upload.wikimedia.org/wikipedia/commons/')) {
-      const parts = url?.split('/');
-      fileName = parts[parts.length - 1];
-    } else {
-      fileName = url || '';
+    if (!fileName) {
+      return {
+        id: 0,
+        title: '',
+        imageUrl: '',
+        fullUrl: '',
+        metadata: [],
+      };
     }
 
     const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&formatversion=2&format=json&iiprop=url%7Cmetadata&iiurlheight=200&titles=File:${encodeURIComponent(
@@ -28,9 +90,12 @@ export const fetchWikimediaData = async (url: string): Promise<WikimediaDocument
 
       return {
         id: 0,
-        title: page.title.replace('File:', ''),
+        title: page.title?.replace('File:', '') || fileName,
         imageUrl: imageInfo?.thumburl,
-        fullUrl: imageInfo?.url,
+        // Fallback to the canonical file page if direct url is missing
+        fullUrl:
+          imageInfo?.url ||
+          `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(fileName)}`,
         metadata: imageInfo?.metadata,
         thumburl: imageInfo?.thumburl,
       };
@@ -61,16 +126,28 @@ export const formatWikiImageUrl = (url: string | undefined): string => {
     return url;
   }
 
+  const requiresPageThumb = (fileName: string): boolean => {
+    const lower = fileName.toLowerCase();
+    return lower.endsWith('.pdf') || lower.endsWith('.djvu') || lower.endsWith('.tsl');
+  };
+
   if (url.includes('commons.wikimedia.org/wiki/File:')) {
-    const fileName = url.split('File:')[1];
-    return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=384`;
+    const raw = url.split('File:')[1];
+    const fileName = decodeUntilStable(raw);
+    // Non-image documents need a thumbnail
+    if (requiresPageThumb(fileName)) {
+      return `https://commons.wikimedia.org/w/thumb.php?f=${encodeURIComponent(fileName)}&page=1&w=384`;
+    }
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=384`;
   }
 
   if (url.startsWith('File:')) {
-    return `https://commons.wikimedia.org/wiki/Special:FilePath/${url.replace(
-      'File:',
-      ''
-    )}?width=384`;
+    const raw = url.replace('File:', '');
+    const fileName = decodeUntilStable(raw);
+    if (requiresPageThumb(fileName)) {
+      return `https://commons.wikimedia.org/w/thumb.php?f=${encodeURIComponent(fileName)}&page=1&w=384`;
+    }
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=384`;
   }
 
   return url;

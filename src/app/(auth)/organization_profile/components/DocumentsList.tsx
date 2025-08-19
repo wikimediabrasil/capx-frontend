@@ -1,9 +1,10 @@
-import Image from 'next/image';
-import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
-import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DocumentCard } from './DocumentCard';
+import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface DocumentsListProps {
   title: string;
@@ -15,10 +16,17 @@ interface DocumentsListProps {
 export const DocumentsList = ({ title, items = [], token }: DocumentsListProps) => {
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
+  const [renderedDocuments, setRenderedDocuments] = useState(items.length);
 
-  if (items.length === 0) {
+  const updateRenderedDocumentsCount = () => {
+    setRenderedDocuments(renderedDocuments - 1);
+  };
+
+  if (items.length === 0 || renderedDocuments === 0) {
     return null;
   }
+
+  const isSingle = renderedDocuments === 1;
 
   return (
     <section className="flex flex-col gap-4">
@@ -38,9 +46,21 @@ export const DocumentsList = ({ title, items = [], token }: DocumentsListProps) 
           {title}
         </h2>
       </div>
-      <div className="flex flex-row gap-8 justify-start overflow-x-auto scrollbar-hide">
+      <div
+        className={`flex flex-row gap-8 ${
+          isSingle
+            ? 'justify-center md:justify-start overflow-x-hidden md:overflow-visible'
+            : 'justify-start overflow-x-auto'
+        } scrollbar-hide`}
+      >
         {items.map(id => (
-          <DocumentCard key={id} documentId={id} token={token} />
+          <DocumentCard
+            key={id}
+            documentId={id}
+            token={token}
+            updateRenderedDocumentsCount={updateRenderedDocumentsCount}
+            isSingle={isSingle}
+          />
         ))}
       </div>
     </section>
