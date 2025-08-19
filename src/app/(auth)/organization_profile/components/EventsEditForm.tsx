@@ -16,7 +16,15 @@ import { organizationProfileService } from '@/services/organizationProfileServic
 import { Capacity } from '@/types/capacity';
 import { Event } from '@/types/event';
 import { useSession } from 'next-auth/react';
-import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 interface EventFormItemProps {
   eventData: Event;

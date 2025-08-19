@@ -92,7 +92,11 @@ export function ProfileItem({
         timeoutRefs.current[idStr] = setTimeout(() => {
           // After timeout, check if we have a real name now
           const currentName = getItemName(id);
-          if (currentName !== 'loading' && currentName !== pageContent['loading'] && currentName !== 'Loading...') {
+          if (
+            currentName !== 'loading' &&
+            currentName !== pageContent['loading'] &&
+            currentName !== 'Loading...'
+          ) {
             setLocalNames(prev => ({ ...prev, [idStr]: currentName }));
           } else {
             // Use fallback name if available, otherwise keep the generic one

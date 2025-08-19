@@ -77,20 +77,27 @@ export default function FeedPage() {
   }, [capacity, activeFilters.capacities]);
 
   const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
-  const { organizations: organizationsLearner, count: organizationsLearnerCount } =
-    useOrganizations(
-      shouldFetchOrgs ? itemsPerList : 0,
-      shouldFetchOrgs ? offset : 0,
-      shouldFetchOrgs
-        ? {
-            ...activeFilters,
-            profileCapacityTypes: [ProfileCapacityType.Learner],
-          }
-        : undefined
-    );
+  const {
+    organizations: organizationsLearner,
+    count: organizationsLearnerCount,
+    isLoading: isOrganizationsLearnerLoading,
+  } = useOrganizations(
+    shouldFetchOrgs ? itemsPerList : 0,
+    shouldFetchOrgs ? offset : 0,
+    shouldFetchOrgs
+      ? {
+          ...activeFilters,
+          profileCapacityTypes: [ProfileCapacityType.Learner],
+        }
+      : undefined
+  );
 
   const shouldFetchUsers = activeFilters.profileFilter !== ProfileFilterType.Organization;
-  const { allUsers: usersLearner, count: usersLearnerCount } = useAllUsers({
+  const {
+    allUsers: usersLearner,
+    count: usersLearnerCount,
+    isLoading: isUsersLearnerLoading,
+  } = useAllUsers({
     limit: shouldFetchUsers ? itemsPerList : 0,
     offset: shouldFetchUsers ? offset : 0,
     activeFilters: shouldFetchUsers
@@ -104,7 +111,11 @@ export default function FeedPage() {
   const shouldFetchSharerOrgs =
     activeFilters.profileFilter !== ProfileFilterType.User &&
     activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
-  const { organizations: organizationsSharer, count: organizationsSharerCount } = useOrganizations(
+  const {
+    organizations: organizationsSharer,
+    count: organizationsSharerCount,
+    isLoading: isOrganizationsSharerLoading,
+  } = useOrganizations(
     shouldFetchSharerOrgs ? itemsPerList : 0,
     shouldFetchSharerOrgs ? offset : 0,
     shouldFetchSharerOrgs
@@ -118,7 +129,11 @@ export default function FeedPage() {
   const shouldFetchSharerUsers =
     activeFilters.profileFilter !== ProfileFilterType.Organization &&
     activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
-  const { allUsers: usersSharer, count: usersSharerCount } = useAllUsers({
+  const {
+    allUsers: usersSharer,
+    count: usersSharerCount,
+    isLoading: isUsersSharerLoading,
+  } = useAllUsers({
     limit: shouldFetchSharerUsers ? itemsPerList : 0,
     offset: shouldFetchSharerUsers ? offset : 0,
     activeFilters: shouldFetchSharerUsers
