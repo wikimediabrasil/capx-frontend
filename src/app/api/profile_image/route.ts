@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
       const images = queryResponse.data.query.search.map((image: { title: string }) => image.title);
       return NextResponse.json(images);
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 });
     }
   }
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       );
       const image = queryResponse.request.res.responseUrl;
       return NextResponse.json({ image });
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Failed to fetch image' }, { status: 500 });
     }
   }

@@ -96,7 +96,6 @@ export default function OrganizationProfilePage() {
         token={token}
         isOrgManager={isOrgManager}
         getCapacityName={getCapacityName}
-        allCapacityIds={allCapacityIds}
       />
     );
   }
@@ -105,13 +104,11 @@ export default function OrganizationProfilePage() {
     <OrganizationProfileDesktopView
       pageContent={pageContent}
       darkMode={darkMode}
-      isMobile={isMobile}
       organization={organization}
       organizationId={organizationId}
       token={token}
       isOrgManager={isOrgManager}
       getCapacityName={getCapacityName}
-      allCapacityIds={allCapacityIds}
     />
   );
 }
