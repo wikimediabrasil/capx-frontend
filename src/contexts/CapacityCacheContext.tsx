@@ -4,7 +4,6 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { capacityService } from '@/services/capacityService';
 import { useSession } from 'next-auth/react';
 import { Capacity } from '@/types/capacity';
-import LoadingStateWithFallback, { CompactLoading } from '@/components/LoadingStateWithFallback';
 
 // Query keys for the React Query
 const QUERY_KEYS = {
@@ -21,11 +20,7 @@ let hasInitializedCache = false;
 let saveCacheTimer: NodeJS.Timeout | null = null;
 
 // Function to persist cache in localStorage
-const saveCache = (
-  capacities: Map<number, Capacity>,
-  children: Map<number, number[]>,
-  isFresh = false
-) => {
+const saveCache = (capacities: Map<number, Capacity>, children: Map<number, number[]>) => {
   if (typeof window === 'undefined') return;
 
   try {
@@ -413,7 +408,7 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], newChildrenCache);
 
     // Save cache in localStorage with a timestamp
-    saveCache(newCapacityCache, newChildrenCache, true);
+    saveCache(newCapacityCache, newChildrenCache);
 
     // Mark as manually loaded
     setIsManuallyLoaded(true);

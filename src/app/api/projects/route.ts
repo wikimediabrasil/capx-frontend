@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest) {
       },
     });
     return NextResponse.json(response.data.results);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
   }
 }

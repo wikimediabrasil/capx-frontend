@@ -27,6 +27,7 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
         url: doc.url || '',
       }));
 
+      console.log('response', response);
       setDocuments(formattedDocs);
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -42,17 +43,14 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
     setLoading(true);
     try {
       const basicDocument = await documentService.fetchSingleDocument(token, id);
+      console.log('basicDocument', basicDocument);
+
       if (basicDocument) {
         const enrichedDocument = await fetchWikimediaData(basicDocument.url || '');
-        const mergedDocument: WikimediaDocument = {
-          // Preserve backend fields first, then enriched overwrite/adds display fields
-          ...(basicDocument as WikimediaDocument),
-          ...(enrichedDocument as WikimediaDocument),
-          id: (basicDocument.id ?? enrichedDocument.id ?? 0) as number,
-          url: basicDocument.url ?? enrichedDocument.fullUrl ?? basicDocument.url,
-        };
-        setDocument(mergedDocument);
-        return mergedDocument;
+        setDocument(enrichedDocument);
+
+        console.log('enrichedDocument', enrichedDocument);
+        return enrichedDocument;
       }
     } catch (error) {
       console.error('Error fetching document:', error);

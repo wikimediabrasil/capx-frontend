@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
