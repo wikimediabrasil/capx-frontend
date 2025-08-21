@@ -1,10 +1,10 @@
+import { Providers } from '@/app/(auth)/providers';
+import BaseWrapper from '@/components/BaseWrapper';
+import { ProfileEditProvider } from '@/contexts/ProfileEditContext';
+import { SafeBadgesProvider } from '@/contexts/SafeBadgesProvider';
+import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
-import BaseWrapper from '@/components/BaseWrapper';
-import { authOptions } from '@/lib/auth';
-import { Providers } from '@/app/(auth)/providers';
-import { SafeBadgesProvider } from '@/contexts/SafeBadgesProvider';
-import { ProfileEditProvider } from '@/contexts/ProfileEditContext';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);

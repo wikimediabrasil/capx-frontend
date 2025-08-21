@@ -1,6 +1,20 @@
+import axios from 'axios';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import axios from 'axios';
+
+// Cache to prevent multiple simultaneous calls with the same tokens
+const tokenCache = new Map<string, { timestamp: number; result: any }>();
+const CACHE_TTL = 5000; // 5 seconds TTL
+
+// Clean up expired cache entries periodically
+setInterval(() => {
+  const now = Date.now();
+  tokenCache.forEach((value, key) => {
+    if (now - value.timestamp > CACHE_TTL) {
+      tokenCache.delete(key);
+    }
+  });
+}, CACHE_TTL);
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -23,54 +37,77 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+          // Create a cache key from the tokens
+          const cacheKey = `${credentials.oauth_token}:${credentials.oauth_verifier}:${credentials.stored_token_secret}`;
 
-          // Try the login callback with retry logic
-          let response;
-
-          for (let attempt = 1; attempt <= 3; attempt++) {
-            try {
-              response = await axios.post(`${baseUrl}/api/login/callback`, {
-                oauth_token: credentials.oauth_token,
-                oauth_verifier: credentials.oauth_verifier,
-                stored_token_secret: credentials.stored_token_secret,
-              });
-
-              if (response.data.success && response.data.user) {
-                return {
-                  id: response.data.user.id,
-                  name: response.data.user.username,
-                  token: response.data.user.token,
-                  first_login: response.data.user.first_login,
-                };
-              }
-
-              console.warn(`[${requestId}] Invalid response from server:`, response.data);
-            } catch (error: any) {
-              console.error(
-                `[${requestId}] Attempt ${attempt} failed:`,
-                error.response?.data || error.message
-              );
-
-              // If it's a 400 error, this might be because tokens were already used
-              // Return null silently to let NextAuth handle it gracefully
-              if (error.response?.status === 400) {
-                console.warn(
-                  `[${requestId}] 400 error - tokens may have been consumed by another request, returning null`
-                );
-                return null;
-              }
-
-              // Wait before retrying (except on last attempt)
-              if (attempt < 3) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-              }
-            }
+          // Check if we have a cached result for these exact tokens
+          const cached = tokenCache.get(cacheKey);
+          if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+            console.log(`[${requestId}] Using cached result for tokens`);
+            return cached.result;
           }
 
-          // If we get here, all attempts failed
-          console.warn(`[${requestId}] All authentication attempts failed, returning null`);
-          return null;
+          const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
+          // Try the login callback with single attempt (OAuth tokens are single-use)
+          try {
+            const response = await axios.post(`${baseUrl}/api/login/callback`, {
+              oauth_token: credentials.oauth_token,
+              oauth_verifier: credentials.oauth_verifier,
+              stored_token_secret: credentials.stored_token_secret,
+            });
+
+            if (response.data.success && response.data.user) {
+              console.log(`[${requestId}] Login successful`);
+              const userData = {
+                id: response.data.user.id,
+                name: response.data.user.username,
+                token: response.data.user.token,
+                first_login: response.data.user.first_login,
+              };
+
+              // Cache the successful result
+              tokenCache.set(cacheKey, {
+                timestamp: Date.now(),
+                result: userData,
+              });
+
+              return userData;
+            }
+
+            console.warn(`[${requestId}] Invalid response from server:`, response.data);
+            return null;
+          } catch (error: any) {
+            console.error(
+              `[${requestId}] Login attempt failed:`,
+              error.response?.data || error.message
+            );
+
+            // If it's a 400 error, this might be because tokens were already used
+            // Cache the failure to prevent multiple attempts with the same tokens
+            if (error.response?.status === 400) {
+              console.warn(
+                `[${requestId}] 400 error - tokens may have been consumed by another request, caching failure and returning null`
+              );
+
+              // Cache the failure with a shorter TTL
+              tokenCache.set(cacheKey, {
+                timestamp: Date.now(),
+                result: null,
+              });
+
+              return null;
+            }
+
+            // For other errors, also cache the failure to prevent multiple attempts
+            console.warn(`[${requestId}] Caching failure for other error types`);
+            tokenCache.set(cacheKey, {
+              timestamp: Date.now(),
+              result: null,
+            });
+
+            return null;
+          }
         } catch (error: any) {
           console.error(
             `[${requestId}] NextAuth authorize error:`,
