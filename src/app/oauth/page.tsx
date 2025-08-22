@@ -11,6 +11,7 @@ function OAuthContent() {
   const { data: session, status } = useSession();
   const [loginStatus, setLoginStatus] = useState<string | null>('Iniciando...');
   const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
+  const isHandlingLoginRef = useRef(false); // Ref to control the execution of handleLogin
   const oauth_verifier = searchParams.get('oauth_verifier');
   const oauth_token_request = searchParams.get('oauth_token');
 
@@ -23,6 +24,21 @@ function OAuthContent() {
 
   const handleLogin = useCallback(async () => {
     try {
+      // Don't proceed if already authenticated
+      if (status === 'authenticated') {
+        console.log('handleLogin skipped - already authenticated');
+        return;
+      }
+
+      // Don't proceed if already handling login
+      if (isHandlingLoginRef.current) {
+        console.log('handleLogin skipped - already in progress');
+        return;
+      }
+
+      // Set the flag to prevent concurrent execution
+      isHandlingLoginRef.current = true;
+
       const oauth_token = localStorage.getItem('oauth_token');
       const oauth_token_secret = localStorage.getItem('oauth_token_secret');
 
@@ -48,11 +64,21 @@ function OAuthContent() {
     } catch (error) {
       console.error('Login error:', error);
       return { error: error.message };
+    } finally {
+      // Always clear the flag when handleLogin completes
+      isHandlingLoginRef.current = false;
     }
-  }, [oauth_verifier, router]);
+  }, [oauth_verifier, router, status]);
 
   useEffect(() => {
     if (!oauth_token_request || !oauth_verifier || isCheckingTokenRef.current) {
+      return;
+    }
+
+    // Don't proceed if already authenticated
+    if (status === 'authenticated') {
+      console.log('Already authenticated, redirecting to home');
+      router.push('/home');
       return;
     }
 
@@ -93,7 +119,14 @@ function OAuthContent() {
               return;
             }
 
-            await handleLogin();
+            // Only call handleLogin if we're not already authenticated
+            if (status !== 'authenticated') {
+              await handleLogin();
+            } else {
+              // Already authenticated, redirect to home
+              setLoginStatus('Login já realizado! Redirecionando...');
+              router.push('/home');
+            }
           } else {
             let protocol = result.extra === 'capx-test.toolforge.org' ? 'https' : 'http';
             router.push(
@@ -111,6 +144,14 @@ function OAuthContent() {
 
     checkToken();
   }, [oauth_token_request, oauth_verifier, router, handleLogin]);
+
+  // Cleanup effect to clear flags when component unmounts
+  useEffect(() => {
+    return () => {
+      isHandlingLoginRef.current = false;
+      isCheckingTokenRef.current = false;
+    };
+  }, []);
 
   return (
     <section className="flex w-screen h-screen font-montserrat">

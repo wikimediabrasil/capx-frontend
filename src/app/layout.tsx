@@ -1,16 +1,16 @@
-import './globals.css';
-import SessionWrapper from '@/components/SessionWrapper';
-import { Metadata } from 'next';
-import Providers from './provider';
-import { AppProvider } from '@/contexts/AppContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { SnackbarProvider } from './providers/SnackbarProvider';
-import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
-import HydrationHandler from '@/components/HydrationHandler';
+import AuthMonitorSetup from '@/components/AuthMonitorSetup';
+import AxiosInterceptorSetup from '@/components/AxiosInterceptorSetup';
 import { CapacitiesPrefetcher } from '@/components/CapacitiesPrefetcher';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import AxiosInterceptorSetup from '@/components/AxiosInterceptorSetup';
-import AuthMonitorSetup from '@/components/AuthMonitorSetup';
+import HydrationHandler from '@/components/HydrationHandler';
+import SessionWrapper from '@/components/SessionWrapper';
+import { AppProvider } from '@/contexts/AppContext';
+import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { Metadata } from 'next';
+import './globals.css';
+import Providers from './provider';
+import { SnackbarProvider } from './providers/SnackbarProvider';
 
 export const metadata: Metadata = {
   title: 'CapX - Capacity Exchange',
