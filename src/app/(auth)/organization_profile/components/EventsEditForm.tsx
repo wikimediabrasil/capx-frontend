@@ -1,23 +1,30 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { Event } from '@/types/event';
-import { useApp } from '@/contexts/AppContext';
-import { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import { Capacity } from '@/types/capacity';
+import CustomDatePicker from '@/components/CustomDatePicker';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { dateTimeLocalToDate, dateToDateTimeLocal } from '@/lib/utils/dateLocale';
 import {
-  fetchEventDataByURL,
-  fetchEventDataByQID,
   fetchEventDataByGenericURL,
+  fetchEventDataByQID,
+  fetchEventDataByURL,
   isValidEventURL,
 } from '@/services/metabaseService';
-import { useSession } from 'next-auth/react';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import React, { memo } from 'react';
 import { organizationProfileService } from '@/services/organizationProfileService';
-import { dateToDateTimeLocal, dateTimeLocalToDate } from '@/lib/utils/dateLocale';
-import CustomDatePicker from '@/components/CustomDatePicker';
+import { Capacity } from '@/types/capacity';
+import { Event } from '@/types/event';
+import { useSession } from 'next-auth/react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 interface EventFormItemProps {
   eventData: Event;
@@ -333,14 +340,12 @@ OrganizationLoader.displayName = 'OrganizationLoader';
 
 // Memoize the EventsForm component to avoid unnecessary renders
 const EventsForm = memo(
-  ({ eventData, index, onDelete, onChange, eventType }: EventFormItemProps) => {
+  ({ eventData, index, onChange, eventType }: EventFormItemProps) => {
     const { darkMode } = useTheme();
-    const { isMobile, pageContent, language } = useApp();
-    const { data: session } = useSession();
+    const { isMobile, pageContent } = useApp();
     const { capacityNames } = useCapacityDetails();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
-    const [showMobile, setShowMobile] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [urlError, setUrlError] = useState<string | null>(null);
     const [urlInput, setUrlInput] = useState(eventData.url || '');
@@ -667,36 +672,6 @@ const EventsForm = memo(
       setLocalLocationType(eventData.type_of_location || 'virtual');
     }, [eventData.type_of_location]);
 
-    const handleStartDateChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setLocalStartDate(value);
-        if (value) {
-          // Convert datetime-local to ISO string for proper date handling
-          const date = dateTimeLocalToDate(value);
-          handleChange('time_begin', date.toISOString());
-        } else {
-          handleChange('time_begin', '');
-        }
-      },
-      [handleChange]
-    );
-
-    const handleEndDateChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setLocalEndDate(value);
-        if (value) {
-          // Convert datetime-local to ISO string for proper date handling
-          const date = dateTimeLocalToDate(value);
-          handleChange('time_end', date.toISOString());
-        } else {
-          handleChange('time_end', '');
-        }
-      },
-      [handleChange]
-    );
-
     const handleLocationTypeChange = useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
@@ -713,10 +688,6 @@ const EventsForm = memo(
         setUrlInput(eventData.url);
       }
     }, [eventData.url]); // Only depend on eventData.url to avoid loops
-
-    useEffect(() => {
-      setShowMobile(isMobile);
-    }, [isMobile]);
 
     // Memoized rendering of capacities
     const renderSelectedCapacities = useCallback(() => {
@@ -934,7 +905,7 @@ const EventsForm = memo(
                         handleChange('time_begin', '');
                       }
                     }}
-                    className={`w-full bg-transparent border rounded-md p-2 outline-none 
+                    className={`w-full bg-transparent border rounded-md p-2 outline-none
                     ${
                       darkMode
                         ? 'text-white placeholder-gray-400 border-white'
@@ -985,7 +956,7 @@ const EventsForm = memo(
                         handleChange('time_end', '');
                       }
                     }}
-                    className={`w-full bg-transparent rounded-md p-2 outline-none 
+                    className={`w-full bg-transparent rounded-md p-2 outline-none
                     ${
                       darkMode
                         ? 'text-white placeholder-gray-400 border-white'

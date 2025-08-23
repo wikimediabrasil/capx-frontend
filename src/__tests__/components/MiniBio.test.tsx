@@ -31,9 +31,7 @@ jest.mock('@/contexts/AppContext', () => ({
 const renderWithProviders = (component: React.ReactElement) => {
   return render(
     <ThemeProvider>
-      <AppProvider>
-        {component}
-      </AppProvider>
+      <AppProvider>{component}</AppProvider>
     </ThemeProvider>
   );
 };
@@ -42,9 +40,7 @@ const renderInNarrowContainer = (component: React.ReactElement, width: string = 
   return render(
     <ThemeProvider>
       <AppProvider>
-        <div style={{ width, padding: '10px', border: '1px solid #ccc' }}>
-          {component}
-        </div>
+        <div style={{ width, padding: '10px', border: '1px solid #ccc' }}>{component}</div>
       </AppProvider>
     </ThemeProvider>
   );
@@ -62,7 +58,7 @@ describe('MiniBio', () => {
   it('renders correctly in desktop mode', () => {
     mockAppContext.isMobile = false;
     renderWithProviders(<MiniBio {...defaultProps} />);
-    
+
     expect(screen.getByText('Mini Bio')).toBeInTheDocument();
     expect(screen.getByText('Minha minibio de teste')).toBeInTheDocument();
   });
@@ -70,27 +66,23 @@ describe('MiniBio', () => {
   it('renders correctly in mobile mode', () => {
     mockAppContext.isMobile = true;
     renderWithProviders(<MiniBio {...defaultProps} />);
-    
+
     expect(screen.getByText('Mini Bio')).toBeInTheDocument();
     expect(screen.getByText('Minha minibio de teste')).toBeInTheDocument();
   });
 
   it('displays placeholder when about is empty', () => {
     renderWithProviders(<MiniBio about="" />);
-    
+
     expect(screen.getByText('Digite sua minibio...')).toBeInTheDocument();
   });
 
   it('renders the textarea when isEditing is true', () => {
     const onAboutChange = jest.fn();
     renderWithProviders(
-      <MiniBio 
-        {...defaultProps} 
-        isEditing={true} 
-        onAboutChange={onAboutChange} 
-      />
+      <MiniBio {...defaultProps} isEditing={true} onAboutChange={onAboutChange} />
     );
-    
+
     const textarea = screen.getByPlaceholderText('Digite sua minibio...');
     expect(textarea).toBeInTheDocument();
     expect(textarea).toHaveValue('Minha minibio de teste');
@@ -99,37 +91,33 @@ describe('MiniBio', () => {
   it('calls onAboutChange when the user edits the textarea', () => {
     const onAboutChange = jest.fn();
     renderWithProviders(
-      <MiniBio 
-        {...defaultProps} 
-        isEditing={true} 
-        onAboutChange={onAboutChange} 
-      />
+      <MiniBio {...defaultProps} isEditing={true} onAboutChange={onAboutChange} />
     );
-    
+
     const textarea = screen.getByPlaceholderText('Digite sua minibio...');
     fireEvent.change(textarea, { target: { value: 'Novo texto' } });
-    
+
     expect(onAboutChange).toHaveBeenCalledWith('Novo texto');
   });
 
   it('works correctly with text in different languages', () => {
     const unicodeText = 'Texto com acentos: áéíóú çãõ ñ';
     renderWithProviders(<MiniBio about={unicodeText} />);
-    
+
     expect(screen.getByText(unicodeText)).toBeInTheDocument();
   });
 
   it('works correctly with emojis', () => {
     const emojiText = 'Texto com emojis 😀🎉🚀';
     renderWithProviders(<MiniBio about={emojiText} />);
-    
+
     expect(screen.getByText(emojiText)).toBeInTheDocument();
   });
 
   it('works correctly with line breaks', () => {
     const textWithNewlines = 'Linha 1\nLinha 2\nLinha 3';
     renderWithProviders(<MiniBio about={textWithNewlines} />);
-    
+
     expect(screen.getByText('Linha 1')).toBeInTheDocument();
     expect(screen.getByText('Linha 2')).toBeInTheDocument();
     expect(screen.getByText('Linha 3')).toBeInTheDocument();
@@ -138,111 +126,105 @@ describe('MiniBio', () => {
   it('applies custom character limit', () => {
     const onAboutChange = jest.fn();
     renderWithProviders(
-      <MiniBio 
-        {...defaultProps} 
-        isEditing={true} 
-        onAboutChange={onAboutChange}
-        maxLength={1000}
-      />
+      <MiniBio {...defaultProps} isEditing={true} onAboutChange={onAboutChange} maxLength={1000} />
     );
-    
+
     const textarea = screen.getByPlaceholderText('Digite sua minibio...');
     expect(textarea).toHaveAttribute('maxLength', '1000');
   });
 
-it('renders correctly in dark mode', () => {
+  it('renders correctly in dark mode', () => {
     mockThemeContext.darkMode = true;
     renderWithProviders(<MiniBio {...defaultProps} />);
-    
+
     expect(screen.getByText('Mini Bio')).toBeInTheDocument();
     expect(screen.getByText('Minha minibio de teste')).toBeInTheDocument();
   });
 
   it('works correctly without onAboutChange when isEditing is true', () => {
     renderWithProviders(<MiniBio {...defaultProps} isEditing={true} />);
-    
+
     const textarea = screen.getByPlaceholderText('Digite sua minibio...');
     expect(textarea).toBeInTheDocument();
-    
+
     fireEvent.change(textarea, { target: { value: 'Novo texto' } });
     expect(textarea).toBeInTheDocument();
   });
 
-
   it('works with Arabic text (RTL)', () => {
     const arabicText = 'نص عربي طويل للاختبار';
     renderWithProviders(<MiniBio about={arabicText} />);
-    
+
     expect(screen.getByText(arabicText)).toBeInTheDocument();
   });
 
   it('works with Chinese text', () => {
     const chineseText = '这是一段很长的中文文本用于测试';
     renderWithProviders(<MiniBio about={chineseText} />);
-    
+
     expect(screen.getByText(chineseText)).toBeInTheDocument();
   });
 
   it('works with Japanese text', () => {
     const japaneseText = 'これは長い日本語のテキストです';
     renderWithProviders(<MiniBio about={japaneseText} />);
-    
+
     expect(screen.getByText(japaneseText)).toBeInTheDocument();
   });
 
   it('works with Korean text', () => {
     const koreanText = '이것은 긴 한국어 텍스트입니다';
     renderWithProviders(<MiniBio about={koreanText} />);
-    
+
     expect(screen.getByText(koreanText)).toBeInTheDocument();
   });
 
   it('works with Thai text', () => {
     const thaiText = 'นี่คือข้อความภาษาไทยที่ยาว';
     renderWithProviders(<MiniBio about={thaiText} />);
-    
+
     expect(screen.getByText(thaiText)).toBeInTheDocument();
   });
 
   it('works with Hindi text', () => {
     const hindiText = 'यह एक लंबा हिंदी टेक्स्ट है';
     renderWithProviders(<MiniBio about={hindiText} />);
-    
+
     expect(screen.getByText(hindiText)).toBeInTheDocument();
   });
 
   it('works with Russian text', () => {
     const russianText = 'Это длинный русский текст для тестирования';
     renderWithProviders(<MiniBio about={russianText} />);
-    
+
     expect(screen.getByText(russianText)).toBeInTheDocument();
   });
 
   it('works with Greek text', () => {
     const greekText = 'Αυτό είναι ένα μακρύ ελληνικό κείμενο';
     renderWithProviders(<MiniBio about={greekText} />);
-    
+
     expect(screen.getByText(greekText)).toBeInTheDocument();
   });
 
   it('works with Hebrew text', () => {
     const hebrewText = 'זהו טקסט עברי ארוך לבדיקה';
     renderWithProviders(<MiniBio about={hebrewText} />);
-    
+
     expect(screen.getByText(hebrewText)).toBeInTheDocument();
   });
 
   it('works with mixed text in different languages', () => {
     const mixedText = 'English text, texto em português, 中文文本, نص عربي, русский текст';
     renderWithProviders(<MiniBio about={mixedText} />);
-    
+
     expect(screen.getByText(mixedText)).toBeInTheDocument();
   });
 
   it('preserves line breaks correctly', () => {
     const textWithNewlines = 'Primeira linha\nSegunda linha\nTerceira linha';
     renderWithProviders(<MiniBio about={textWithNewlines} />);
-    
+
     // Verifica se as linhas estão separadas
     const lines = textWithNewlines.split('\n');
     lines.forEach(line => {
@@ -253,7 +235,7 @@ it('renders correctly in dark mode', () => {
   it('has full width in mobile mode', () => {
     mockAppContext.isMobile = true;
     renderWithProviders(<MiniBio {...defaultProps} />);
-    
+
     const container = screen.getByText('Minha minibio de teste').closest('div');
     expect(container).toHaveClass('w-full');
   });
@@ -261,7 +243,7 @@ it('renders correctly in dark mode', () => {
   it('has full width in desktop mode', () => {
     mockAppContext.isMobile = false;
     renderWithProviders(<MiniBio {...defaultProps} />);
-    
+
     const container = screen.getByText('Minha minibio de teste').closest('div');
     expect(container).toHaveClass('w-full');
   });
@@ -269,28 +251,28 @@ it('renders correctly in dark mode', () => {
   it('works with Arabic text in narrow container', () => {
     const arabicText = 'نص عربي طويل للاختبار مع الكثير من المحتوى';
     renderInNarrowContainer(<MiniBio about={arabicText} />, '120px');
-    
+
     expect(screen.getByText(arabicText)).toBeInTheDocument();
   });
 
   it('works with Chinese text in narrow container', () => {
     const chineseText = '这是一段很长的中文文本用于测试';
     renderInNarrowContainer(<MiniBio about={chineseText} />, '100px');
-    
+
     expect(screen.getByText(chineseText)).toBeInTheDocument();
   });
 
   it('works with Japanese text in narrow container', () => {
     const japaneseText = 'これは長い日本語のテキストです';
     renderInNarrowContainer(<MiniBio about={japaneseText} />, '100px');
-    
+
     expect(screen.getByText(japaneseText)).toBeInTheDocument();
   });
 
   it('works with mixed text in narrow container', () => {
     const mixedText = 'English text, 中文文本, نص عربي';
     renderInNarrowContainer(<MiniBio about={mixedText} />, '80px');
-    
+
     expect(screen.getByText(mixedText)).toBeInTheDocument();
   });
 
@@ -298,7 +280,7 @@ it('renders correctly in dark mode', () => {
     mockAppContext.isMobile = true;
     const longText = 'a'.repeat(1000);
     renderInNarrowContainer(<MiniBio about={longText} />, '280px');
-    
+
     expect(screen.getByText(longText)).toBeInTheDocument();
   });
 
@@ -306,14 +288,14 @@ it('renders correctly in dark mode', () => {
     mockAppContext.isMobile = false;
     const longText = 'a'.repeat(1000);
     renderInNarrowContainer(<MiniBio about={longText} />, '400px');
-    
+
     expect(screen.getByText(longText)).toBeInTheDocument();
   });
 
   it('preserves line breaks in narrow container', () => {
     const textWithNewlines = 'Linha 1\nLinha 2\nLinha 3';
     renderInNarrowContainer(<MiniBio about={textWithNewlines} />, '100px');
-    
+
     expect(screen.getByText('Linha 1')).toBeInTheDocument();
     expect(screen.getByText('Linha 2')).toBeInTheDocument();
     expect(screen.getByText('Linha 3')).toBeInTheDocument();
@@ -322,13 +304,13 @@ it('renders correctly in dark mode', () => {
   it('works with emojis in narrow container', () => {
     const emojiText = 'Texto com emojis 😀🎉🚀 em container estreito';
     renderInNarrowContainer(<MiniBio about={emojiText} />, '120px');
-    
+
     expect(screen.getByText(emojiText)).toBeInTheDocument();
   });
 
   it('works with empty text in narrow container', () => {
     renderInNarrowContainer(<MiniBio about="" />, '100px');
-    
+
     expect(screen.getByText('Digite sua minibio...')).toBeInTheDocument();
   });
 });

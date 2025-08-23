@@ -132,7 +132,7 @@ export default function OrganizationList() {
   };
 
   if (isOrganizationsLearnerLoading || isOrganizationsSharerLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   return (

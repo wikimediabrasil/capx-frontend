@@ -1,7 +1,7 @@
-import Image from 'next/image';
-import { useState, useRef, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
@@ -83,7 +83,7 @@ export function ProfileItem({
         const name = getItemName(id);
 
         // If name is already available, use it immediately
-        if (name !== 'loading' && name !== pageContent['loading']) {
+        if (name !== 'loading' && name !== 'Loading...') {
           setLocalNames(prev => ({ ...prev, [idStr]: name }));
           return;
         }
@@ -92,7 +92,11 @@ export function ProfileItem({
         timeoutRefs.current[idStr] = setTimeout(() => {
           // After timeout, check if we have a real name now
           const currentName = getItemName(id);
-          if (currentName !== 'loading' && currentName !== pageContent['loading']) {
+          if (
+            currentName !== 'loading' &&
+            currentName !== pageContent['loading'] &&
+            currentName !== 'Loading...'
+          ) {
             setLocalNames(prev => ({ ...prev, [idStr]: currentName }));
           } else {
             // Use fallback name if available, otherwise keep the generic one
@@ -181,7 +185,7 @@ export function ProfileItem({
       return FALLBACK_NAMES[idStr] || `Capacity ${id}`;
     }
 
-    if (name !== 'loading' && name !== pageContent['loading']) {
+    if (name !== 'loading' && name !== pageContent['loading'] && name !== 'Loading...') {
       return name;
     }
 
@@ -252,7 +256,7 @@ export function ProfileItem({
             ${customClass}
             font-normal
             text-sm
-            md:text-[24px]            
+            md:text-[24px]
           `}
                 >
                   {noDataMessage}

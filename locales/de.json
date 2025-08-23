@@ -3,6 +3,7 @@
 		"authors": [
 			"Langusto",
 			"MoritzMT20",
+			"Russianbabe1978",
 			"Simon04",
 			"TMg",
 			"TomatoCake"
@@ -54,6 +55,7 @@
 	"filters-location-hybrid": "Hybrid",
 	"filters-onsite-event": "Online-Veranstaltung",
 	"snackbar-capacity-validation-available-without-known": "Verfügbare Kapazitäten müssen aus deinen bekannten Kapazitäten ausgewählt werden. Bitte füge die Kapazität zunächst deinen bekannten Fähigkeiten hinzu.",
+	"snackbar-capacity-validation-conflict": "Es gab einen Konflikt mit Ihrer Kapazitätsauswahl. Bitte stellen Sie sicher, dass alle verfügbaren Kapazitäten auch als bekannte Kapazitäten gekennzeichnet sind.",
 	"events-search-placeholder": "Nach Veranstaltungen suchen...",
 	"events-search-results-no-results": "Für Ihre Suche wurden keine Ergebnisse gefunden.",
 	"events-no-results-with-filters": "Keine Ereignisse entsprechen den ausgewählten Filtern. Versuchen Sie, einige Filter zu entfernen.",
@@ -79,6 +81,9 @@
 	"date-picker-date": "Datum",
 	"capacity-selection-modal-select-capacity-button-multiple-select": "Auswählen",
 	"capacity-selection-modal-select-capacity-button-multiple-selected": "Ausgewählt",
+	"capacity-selection-modal-select-capacity-button-multiple-capacities": "Kapazitäten",
 	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Kapazität",
-	"capacity-selection-modal-back": "Zurück"
+	"capacity-selection-modal-back": "Zurück",
+	"edit-profile-mini-bio-exceeded-chars": "Zeichen überschritten",
+	"edit-profile-mini-bio-remaining-chars": "verbleibende Zeichen"
 }

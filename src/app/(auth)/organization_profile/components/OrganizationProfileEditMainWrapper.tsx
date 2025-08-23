@@ -15,9 +15,9 @@ import { useProject, useProjects } from '@/hooks/useProjects';
 import { useTagDiff } from '@/hooks/useTagDiff';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import {
-    getCapacityValidationErrorMessage,
-    isCapacityValidationError,
-    validateCapacitiesBeforeSave,
+  getCapacityValidationErrorMessage,
+  isCapacityValidationError,
+  validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
@@ -1312,7 +1312,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   if (isMobile) {

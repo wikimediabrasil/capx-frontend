@@ -22,12 +22,7 @@ interface EventCardProps {
   onChoose?: (event: Event) => void;
 }
 
-export function EventCard({
-  event,
-  isHorizontalScroll = false,
-  isEditMode = false,
-  onChoose,
-}: EventCardProps) {
+export function EventCard({ event, isEditMode = false, onChoose }: EventCardProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const { data: session } = useSession();

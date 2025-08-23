@@ -2,9 +2,6 @@
 
 import CapacitiesTreeVisualization from './CapacitiesTreeVisualization';
 
-
 export default function CapacitiesVisualizationWrapper() {
-  return (
-        <CapacitiesTreeVisualization />
-  ); 
+  return <CapacitiesTreeVisualization />;
 }

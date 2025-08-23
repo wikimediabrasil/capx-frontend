@@ -69,48 +69,46 @@ export default function MiniBioTextarea({
           .minibio-textarea::-webkit-scrollbar {
             width: 8px;
           }
-          
+
           .minibio-textarea::-webkit-scrollbar-track {
             background: ${darkMode ? '#1F2937' : '#F3F4F6'};
             border-radius: 4px;
           }
-          
+
           .minibio-textarea::-webkit-scrollbar-thumb {
             background: ${darkMode ? '#4B5563' : '#9CA3AF'};
             border-radius: 4px;
             transition: background-color 0.2s ease;
           }
-          
+
           .minibio-textarea::-webkit-scrollbar-thumb:hover {
             background: ${darkMode ? '#6B7280' : '#6B7280'};
           }
-          
+
           .minibio-textarea::-webkit-scrollbar-corner {
             background: ${darkMode ? '#1F2937' : '#F3F4F6'};
           }
         `}</style>
       </div>
-      
+
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <span
-            className={`text-xs font-[Montserrat] ${
-              darkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}
+            className={`text-xs font-[Montserrat] ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
           >
             {charCount} / {maxLength}
           </span>
         </div>
-        
+
         <span
           className={`text-xs font-[Montserrat] font-medium ${
             isOverLimit
               ? 'text-red-500'
               : isNearLimit
-              ? 'text-yellow-600'
-              : darkMode
-              ? 'text-gray-300'
-              : 'text-gray-600'
+                ? 'text-yellow-600'
+                : darkMode
+                  ? 'text-gray-300'
+                  : 'text-gray-600'
           }`}
         >
           {isOverLimit

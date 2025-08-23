@@ -1,14 +1,15 @@
-import { Avatar } from '@/types/avatar';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { Avatar } from '@/types/avatar';
 
 export const getProfileImage = (
   profileImage: string | null | undefined,
   avatarId: number | null | undefined,
   avatars?: Avatar[]
 ): string => {
-  // If there is a profile image, use it
+  // If there is a profile image, normalize Wikimedia URLs to a direct/thumbnail URL
   if (profileImage && profileImage.trim()) {
-    return profileImage;
+    return formatWikiImageUrl(profileImage.trim());
   }
 
   // If there is an avatar and a list of avatars, search for the avatar

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
-import AuthenticatedHomeWrapper from './components/AuthenticatedHomeWrapper';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
+import AuthenticatedHomeWrapper from './components/AuthenticatedHomeWrapper';
 
 export const metadata: Metadata = {
   title: 'Home - CapX',
