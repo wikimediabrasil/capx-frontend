@@ -6,14 +6,13 @@ import ProfileCard from './components/ProfileCard';
 import { Filters } from './components/Filters';
 import { useApp } from '@/contexts/AppContext';
 import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from './types';
-import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { useAllUsers } from '@/hooks/useUserProfile';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from '@/hooks/useCapacityDetails';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
-import { createProfilesFromOrganizations, createProfilesFromUsers } from './types';
+import { createProfilesFromUsers } from './types';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { SearchBar } from './components/SearchBar';
@@ -43,8 +42,8 @@ export default function FeedPage() {
   const [showSkillModal, setShowSkillModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerList = 5; // For each type of profile (user or organization)
-  const itemsPerPage = itemsPerList * 2; // Total of profiles per page
+  const itemsPerList = 5;
+  const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerList;
 
   const { capacity } = useCapacity(capacityCode);
@@ -76,31 +75,15 @@ export default function FeedPage() {
     }
   }, [capacity, activeFilters.capacities]);
 
-  const shouldFetchOrgs = activeFilters.profileFilter !== ProfileFilterType.User;
-  const {
-    organizations: organizationsLearner,
-    count: organizationsLearnerCount,
-    isLoading: isOrganizationsLearnerLoading,
-  } = useOrganizations(
-    shouldFetchOrgs ? itemsPerList : 0,
-    shouldFetchOrgs ? offset : 0,
-    shouldFetchOrgs
-      ? {
-          ...activeFilters,
-          profileCapacityTypes: [ProfileCapacityType.Learner],
-        }
-      : undefined
-  );
-
-  const shouldFetchUsers = activeFilters.profileFilter !== ProfileFilterType.Organization;
+  const shouldFetchLearnerUsers = activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner);
   const {
     allUsers: usersLearner,
     count: usersLearnerCount,
     isLoading: isUsersLearnerLoading,
   } = useAllUsers({
-    limit: shouldFetchUsers ? itemsPerList : 0,
-    offset: shouldFetchUsers ? offset : 0,
-    activeFilters: shouldFetchUsers
+    limit: shouldFetchLearnerUsers ? itemsPerList : 0,
+    offset: shouldFetchLearnerUsers ? offset : 0,
+    activeFilters: shouldFetchLearnerUsers
       ? {
           ...activeFilters,
           profileCapacityTypes: [ProfileCapacityType.Learner],
@@ -108,26 +91,7 @@ export default function FeedPage() {
       : undefined,
   });
 
-  const shouldFetchSharerOrgs =
-    activeFilters.profileFilter !== ProfileFilterType.User &&
-    activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
-  const {
-    organizations: organizationsSharer,
-    count: organizationsSharerCount,
-    isLoading: isOrganizationsSharerLoading,
-  } = useOrganizations(
-    shouldFetchSharerOrgs ? itemsPerList : 0,
-    shouldFetchSharerOrgs ? offset : 0,
-    shouldFetchSharerOrgs
-      ? {
-          ...activeFilters,
-          profileCapacityTypes: [ProfileCapacityType.Sharer],
-        }
-      : undefined
-  );
-
   const shouldFetchSharerUsers =
-    activeFilters.profileFilter !== ProfileFilterType.Organization &&
     activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
   const {
     allUsers: usersSharer,
@@ -145,83 +109,31 @@ export default function FeedPage() {
   });
 
   // Total of records according to the profileFilter
-  let totalRecords = 0;
+  const totalRecords =
+  (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
+    ? usersLearnerCount
+    : 0) +
+  (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
+    ? usersSharerCount
+    : 0);
 
-  switch (activeFilters.profileFilter) {
-    case ProfileFilterType.User:
-      totalRecords =
-        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
-          ? usersLearnerCount
-          : 0) +
-        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
-          ? usersSharerCount
-          : 0);
-      break;
-    case ProfileFilterType.Organization:
-      totalRecords =
-        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
-          ? organizationsLearnerCount
-          : 0) +
-        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
-          ? organizationsSharerCount
-          : 0);
-      break;
-    case ProfileFilterType.Both:
-    default:
-      totalRecords =
-        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
-          ? usersLearnerCount + organizationsLearnerCount
-          : 0) +
-        (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
-          ? usersSharerCount + organizationsSharerCount
-          : 0);
-  }
 
-  const isProfileSaved = (profileId: number, isOrganization: boolean) => {
+  const isProfileSaved = (profileId: number) => {
     if (!savedItems) return false;
 
     return savedItems.some(
-      item => item.entity_id === profileId && item.entity === (isOrganization ? 'org' : 'user')
+      item => item.entity_id === profileId && item.entity === 'user'
     );
   };
 
-  // Create profiles (to create cards) from organizations and users
+  // Create profiles (to create cards) from users
   const filteredProfiles = useMemo(() => {
-    const learnerOrgProfiles = createProfilesFromOrganizations(
-      organizationsLearner || [],
-      ProfileCapacityType.Learner
-    ).map(profile => ({
-      ...profile,
-      isSaved: isProfileSaved(profile.id, true),
-    }));
-
-    const availableOrgProfiles = createProfilesFromOrganizations(
-      organizationsSharer || [],
-      ProfileCapacityType.Sharer
-    ).map(profile => ({
-      ...profile,
-      isSaved: isProfileSaved(profile.id, true),
-    }));
-
-    // Filter organizations based on activeFilters.profileCapacityTypes
-    const orgProfilesLearner = activeFilters.profileCapacityTypes.includes(
-      ProfileCapacityType.Learner
-    )
-      ? learnerOrgProfiles
-      : [];
-    const orgProfilesSharer = activeFilters.profileCapacityTypes.includes(
-      ProfileCapacityType.Sharer
-    )
-      ? availableOrgProfiles
-      : [];
-    const organizationProfiles = [...orgProfilesLearner, ...orgProfilesSharer];
-
     const wantedUserProfiles = createProfilesFromUsers(
       usersLearner || [],
       ProfileCapacityType.Learner
     ).map(profile => ({
       ...profile,
-      isSaved: isProfileSaved(profile.id, false),
+      isSaved: isProfileSaved(profile.id),
     }));
 
     const availableUserProfiles = createProfilesFromUsers(
@@ -229,7 +141,7 @@ export default function FeedPage() {
       ProfileCapacityType.Sharer
     ).map(profile => ({
       ...profile,
-      isSaved: isProfileSaved(profile.id, false),
+      isSaved: isProfileSaved(profile.id),
     }));
 
     // Filter users based on activeFilters.profileCapacityTypes
@@ -245,20 +157,9 @@ export default function FeedPage() {
       : [];
     const userProfiles = [...userProfilesWanted, ...userProfilesAvailable];
 
-    // Filter based on activeFilters.profileFilter
-    switch (activeFilters.profileFilter) {
-      case ProfileFilterType.User:
-        return userProfiles;
-      case ProfileFilterType.Organization:
-        return organizationProfiles;
-      case ProfileFilterType.Both:
-      default:
-        return [...organizationProfiles, ...userProfiles];
-    }
+    return userProfiles;
   }, [
     activeFilters,
-    organizationsLearner,
-    organizationsSharer,
     usersLearner,
     usersSharer,
     savedItems,
@@ -314,8 +215,6 @@ export default function FeedPage() {
   };
 
   if (
-    isOrganizationsLearnerLoading ||
-    isOrganizationsSharerLoading ||
     isUsersLearnerLoading ||
     isUsersSharerLoading
   ) {
@@ -328,7 +227,7 @@ export default function FeedPage() {
         const savedItem = savedItems?.find(
           item =>
             item.entity_id === profile.id &&
-            item.entity === (profile.isOrganization ? 'org' : 'user')
+            item.entity === 'user'
         );
 
         if (savedItem) {
@@ -336,7 +235,7 @@ export default function FeedPage() {
           showSnackbar(pageContent['saved-profiles-delete-success'], 'success');
         }
       } else {
-        createSavedItem(profile.isOrganization ? 'org' : 'user', profile.id, profile.type);
+        createSavedItem('user', profile.id, profile.type);
         showSnackbar(pageContent['saved-profiles-add-success'], 'success');
       }
     } catch {
@@ -380,7 +279,7 @@ export default function FeedPage() {
                   avatar={profile.avatar}
                   languages={profile.languages}
                   territory={profile.territory}
-                  isOrganization={profile.isOrganization}
+                  isOrganization={false}
                   isSaved={profile.isSaved}
                   onToggleSaved={() => handleToggleSaved(profile)}
                 />
