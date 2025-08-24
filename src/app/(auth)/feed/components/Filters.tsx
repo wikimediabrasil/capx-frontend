@@ -37,7 +37,7 @@ import UserIcon from '@/public/static/images/account_circle.svg';
 import UserIconWhite from '@/public/static/images/account_circle_white.svg';
 import { Capacity } from '@/types/capacity';
 import { useSession } from 'next-auth/react';
-import { ProfileCapacityType, ProfileFilterType } from '../types';
+import { ProfileCapacityType } from '../types';
 import { AffiliationSelector } from './AffiliationSelector';
 import { CheckboxButton } from './CheckboxButton';
 import { LanguageSelector } from './LanguageSelector';
@@ -92,12 +92,6 @@ export function Filters({
     setSearchCapacity('');
   };
 
-  const handleProfileFilterChange = (type: ProfileFilterType) => {
-    setFilters(prev => ({
-      ...prev,
-      profileFilter: type,
-    }));
-  };
 
   const handleProfileCapacityTypeToggle = (type: ProfileCapacityType) => {
     setFilters(prev => {
