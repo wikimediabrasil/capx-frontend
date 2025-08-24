@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import ProfileCard from './components/ProfileCard';
 import { Filters } from './components/Filters';
 import { useApp } from '@/contexts/AppContext';
-import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from './types';
+import { Skill, FilterState, ProfileCapacityType } from './types';
 import { useAllUsers } from '@/hooks/useUserProfile';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -35,7 +35,6 @@ export default function FeedPage() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    profileFilter: ProfileFilterType.Both,
     username: undefined,
     affiliations: [] as string[],
   });
