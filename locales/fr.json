@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"AJurno (WMB)",
 			"Alien333",
 			"Bananax47",
 			"Derugon",
@@ -205,7 +206,7 @@
 	"body-profile-wanted-capacities-title": "Compétences souhaitées",
 	"body-profile-wikimedia-projects-title": "Projets Wikimédia",
 	"body-profile-contact-title": "Contact",
-	"body-profile-contact-button": "Discussion",
+	"body-profile-contact-button": "Parlons-en",
 	"body-profile-copy-link": "Copier le lien",
 	"body-profile-copy-link-success": "Lien du profil copié dans le presse-papiers !",
 	"body-profile-copy-link-error": "Échec de la copie du lien du profil",
