@@ -1,14 +1,14 @@
 'use client';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-import { useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { useEffect, useMemo, useCallback } from 'react';
-import { useOrganization } from '@/hooks/useOrganizationProfile';
 import LoadingState from '@/components/LoadingState';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import OrganizationProfileMobileView from '../components/OrganizationProfileMobileView';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo } from 'react';
 import OrganizationProfileDesktopView from '../components/OrganizationProfileDesktopView';
+import OrganizationProfileMobileView from '../components/OrganizationProfileMobileView';
 
 // Hard-coded fallback names for known capacity IDs (same as in the API)
 const FALLBACK_CAPACITY_NAMES = {
@@ -90,7 +90,7 @@ export default function OrganizationProfilePage() {
   }, [error]);
 
   if (isOrganizationLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   if (isMobile) {

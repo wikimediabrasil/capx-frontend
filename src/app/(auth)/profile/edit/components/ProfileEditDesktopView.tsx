@@ -67,7 +67,7 @@ import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LetsConnectIconWhite from '@/public/static/images/account_circle_white.svg';
@@ -80,14 +80,14 @@ import {
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
-  handleAvatarSelect: (avatarId: number) => void;
+  handleAvatarSelect: (avatarId: number | null) => void;
   showAvatarPopup: boolean;
   setShowAvatarPopup: (show: boolean) => void;
   handleWikidataClick: (newWikidataSelected: boolean) => void;
   isWikidataSelected: boolean;
   showCapacityModal: boolean;
   setShowCapacityModal: (show: boolean) => void;
-  handleCapacitySelect: (capacity: Capacity) => void;
+  handleCapacitySelect: (capacities: Capacity[]) => void;
   selectedCapacityType: 'known' | 'available' | 'wanted';
   handleAddCapacity: (type: 'known' | 'available' | 'wanted') => void;
   handleRemoveCapacity: (type: 'known' | 'available' | 'wanted', index: number) => void;
@@ -164,6 +164,26 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
+
+  // Close project selector when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showProjectSelector && !target.closest('.project-selector')) {
+        setShowProjectSelector(false);
+        setFilteredProjects([]);
+      }
+    };
+
+    if (showProjectSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showProjectSelector]);
 
   return (
     <div
@@ -298,7 +318,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 )}
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata']}
+                  label={pageContent['edit-profile-use-wikidata-photograph']}
                   customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
                     darkMode
                       ? 'bg-transparent border-white text-capx-light-bg placeholder-white'
@@ -322,21 +342,24 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata']}
+                  {pageContent['edit-profile-consent-wikidata-before-link']}{' '}
+                  <a
+                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline ${
+                      darkMode ? 'text-blue-300' : 'text-blue-600'
+                    } hover:opacity-80`}
+                  >
+                    {pageContent['edit-profile-consent-wikidata-link']}
+                  </a>
+                  {pageContent['edit-profile-consent-wikidata-after-link']}
                 </span>
-                {hasLetsConnectData && (
+                {hasLetsConnectData && !formData?.automated_lets_connect && (
                   <BaseButton
                     onClick={() => setShowLetsConnectPopup(true)}
                     label={pageContent['edit-profile-use-letsconnect']}
-                    customClass={
-                      formData.automated_lets_connect
-                        ? `w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold mb-0 mt-4 text-left ${
-                            darkMode
-                              ? 'bg-transparent border-white text-capx-light-bg placeholder-white'
-                              : 'border-[#053749] text-capx-dark-box-bg'
-                          } border`
-                        : `w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`
-                    }
+                    customClass={`w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`}
                     imageUrl={LetsConnectIconWhite}
                     imageAlt={pageContent['alt-icon-generic'] || 'LetsConnect icon'}
                     imageWidth={30}
@@ -1099,7 +1122,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
               <div className="flex items-center gap-2 py-[6px] ">
                 <BaseButton
                   onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata']}
+                  label={pageContent['edit-profile-use-wikidata-item']}
                   customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[16px] font-[Montserrat] text-[24px] appearance-none mb-0 pb-[6px] ${
                     darkMode
                       ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
@@ -1124,7 +1147,18 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
-                {pageContent['edit-profile-consent-wikidata-item']}
+                {pageContent['edit-profile-consent-wikidata-item-before-link']}{' '}
+                <a
+                  href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`underline ${
+                    darkMode ? 'text-blue-300' : 'text-blue-600'
+                  } hover:opacity-80`}
+                >
+                  {pageContent['edit-profile-consent-wikidata-link']}
+                </a>
+                {pageContent['edit-profile-consent-wikidata-item-after-link']}
               </span>
             </div>
 
@@ -1176,53 +1210,95 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
 
               {/* Selector for adding new projects - only shown when button is clicked */}
               {showProjectSelector && (
-                <div className="relative">
-                  <select
-                    value=""
+                <div className="relative project-selector">
+                  <input
+                    type="text"
+                    placeholder={pageContent['edit-profile-insert-project']}
                     onChange={e => {
-                      if (e.target.value) {
-                        setFormData(addProjectToFormData(formData, e.target.value));
-                        setShowProjectSelector(false); // Hide selector after selection
+                      const searchTerm = e.target.value.toLowerCase();
+                      const filteredProjects = Object.entries(wikimediaProjectsData).filter(
+                        ([id, name]) => name.toLowerCase().includes(searchTerm)
+                      );
+                      setFilteredProjects(filteredProjects);
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Escape') {
+                        setShowProjectSelector(false);
+                        setFilteredProjects([]);
                       }
                     }}
-                    className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
+                    className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] ${
                       darkMode
-                        ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
-                        : 'border-[#053749] text-[#829BA4]'
+                        ? 'bg-transparent border-white text-white placeholder-gray-400'
+                        : 'border-[#053749] text-[#053749]'
                     } border`}
                     style={{
                       backgroundColor: darkMode ? '#053749' : 'white',
-                      color: darkMode ? 'white' : '#053749',
                     }}
+                    autoFocus
+                  />
+
+                  {/* Dropdown with filtered projects */}
+                  <div
+                    className={`absolute top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-[16px] border ${
+                      darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
+                    } z-50 shadow-lg`}
                   >
-                    <option value="">{pageContent['edit-profile-insert-project']}</option>
-                    {Object.entries(wikimediaProjectsData).map(([id, name]) => (
-                      <option
-                        key={id}
-                        value={id}
-                        style={{
-                          backgroundColor: darkMode ? '#053749' : 'white',
-                          color: darkMode ? 'white' : '#053749',
-                        }}
-                        className="font-[Montserrat] text-[24px]"
+                    {filteredProjects.length > 0 ? (
+                      filteredProjects.map(([id, name]) => (
+                        <button
+                          key={id}
+                          onClick={() => {
+                            setFormData(addProjectToFormData(formData, id));
+                            setShowProjectSelector(false);
+                            setFilteredProjects([]);
+                          }}
+                          className={`w-full px-4 py-3 text-left font-[Montserrat] text-[20px] hover:bg-opacity-80 transition-colors ${
+                            darkMode
+                              ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]'
+                              : 'text-[#053749] hover:bg-gray-100'
+                          }`}
+                        >
+                          {name}
+                        </button>
+                      ))
+                    ) : (
+                      <div
+                        className={`px-4 py-3 font-[Montserrat] text-[18px] ${
+                          darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}
                       >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Image
-                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                      alt="Select"
-                      width={24}
-                      height={24}
-                    />
+                        {pageContent['edit-profile-no-projects-found'] ||
+                          'Nenhum projeto encontrado'}
+                      </div>
+                    )}
                   </div>
+
+                  {/* Close button */}
+                  <button
+                    onClick={() => {
+                      setShowProjectSelector(false);
+                      setFilteredProjects([]);
+                    }}
+                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full ${
+                      darkMode ? 'hover:bg-white hover:bg-opacity-10' : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    <Image
+                      src={darkMode ? CloseIconWhite : CloseIcon}
+                      alt="Close"
+                      width={20}
+                      height={20}
+                    />
+                  </button>
                 </div>
               )}
 
               <BaseButton
-                onClick={() => setShowProjectSelector(true)}
+                onClick={() => {
+                  setShowProjectSelector(true);
+                  setFilteredProjects(Object.entries(wikimediaProjectsData));
+                }}
                 label={pageContent['edit-profile-add-projects']}
                 customClass={`w-1/4 flex ${
                   darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
@@ -1270,7 +1346,11 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
             />
             <BaseButton
               onClick={() => goTo('/profile/lets_connect')}
-              label={pageContent['lets-connect-form-user-edit']}
+              label={
+                formData?.automated_lets_connect
+                  ? pageContent['lets-connect-form-user-button-update-profile']
+                  : pageContent['lets-connect-form-user-edit']
+              }
               customClass={`w-1/2 flex ${
                 darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
               } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}

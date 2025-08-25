@@ -7,17 +7,22 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { CAPACITY_CACHE_KEYS, useCapacities } from '@/hooks/useCapacities';
 import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { useFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useDocument } from '@/hooks/useDocument';
 import { useOrganizationEvents } from '@/hooks/useOrganizationEvents';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useProject, useProjects } from '@/hooks/useProjects';
 import { useTagDiff } from '@/hooks/useTagDiff';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import {
+  getCapacityValidationErrorMessage,
+  isCapacityValidationError,
+  validateCapacitiesBeforeSave,
+} from '@/lib/utils/capacityValidation';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { createSafeFunction, ensureArray } from '@/lib/utils/safeDataAccess';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import { Capacity } from '@/types/capacity';
 import { Contacts } from '@/types/contacts';
 import { OrganizationDocument } from '@/types/document';
 import { Event } from '@/types/event';
@@ -544,6 +549,19 @@ export default function EditOrganizationProfilePage() {
         return;
       }
 
+      // Validate capacities before saving
+      const validationResult = validateCapacitiesBeforeSave(
+        ensureArray<number>(formData.known_capacities),
+        ensureArray<number>(formData.available_capacities),
+        pageContent
+      );
+
+      if (!validationResult.isValid) {
+        // Show validation error
+        showSnackbar(validationResult.errors[0], 'error');
+        return;
+      }
+
       // Create a copy of the form data for updating
       const updatedFormData = { ...formData };
 
@@ -703,6 +721,15 @@ export default function EditOrganizationProfilePage() {
       showSnackbar(pageContent['snackbar-edit-profile-organization-success'], 'success');
       router.back();
     } catch (error: any) {
+      console.error('Error updating organization profile:', error);
+
+      // Check if this is a capacity validation error from backend
+      if (isCapacityValidationError(error)) {
+        const errorMessage = getCapacityValidationErrorMessage(error, pageContent);
+        showSnackbar(errorMessage, 'error');
+        return;
+      }
+
       // Check if error is a validation error with a translation key
       const errorMessage = error?.message || '';
       const isTranslationKey = errorMessage && errorMessage.startsWith('snackbar-');
@@ -995,42 +1022,39 @@ export default function EditOrganizationProfilePage() {
   const editingEventRef = useRef<Event | null>(null);
 
   // Handler to listen to event changes on the modal
-  const handleModalEventChange = useCallback(
-    (index: number, field: keyof Event, value: string) => {
-      if (!editingEventRef.current) return;
+  const handleModalEventChange = useCallback((index: number, field: keyof Event, value: string) => {
+    if (!editingEventRef.current) return;
 
-      let updatedValue: any = value;
+    let updatedValue: any = value;
 
-      // Special treatment for specific fields
-      if (field === "time_begin" || field === "time_end") {
-        // Don't convert if it's already an ISO string
-        if (value && !value.includes('T')) {
-          updatedValue = new Date(value).toISOString();
-        } else {
-          updatedValue = value;
-        }
-      } else if (field === "related_skills") {
-        try {
-          // If the value is a JSON string, parse it
-          const parsedValue = JSON.parse(value);
-          updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
-        } catch (e) {
-          // If it's not a valid JSON, use empty array
-          updatedValue = [];
-        }
+    // Special treatment for specific fields
+    if (field === 'time_begin' || field === 'time_end') {
+      // Don't convert if it's already an ISO string
+      if (value && !value.includes('T')) {
+        updatedValue = new Date(value).toISOString();
+      } else {
+        updatedValue = value;
       }
+    } else if (field === 'related_skills') {
+      try {
+        // If the value is a JSON string, parse it
+        const parsedValue = JSON.parse(value);
+        updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
+      } catch (e) {
+        // If it's not a valid JSON, use empty array
+        updatedValue = [];
+      }
+    }
 
-      // Update the ref directly to avoid triggering re-renders
-      editingEventRef.current = {
-        ...editingEventRef.current,
-        [field]: updatedValue,
-      };
+    // Update the ref directly to avoid triggering re-renders
+    editingEventRef.current = {
+      ...editingEventRef.current,
+      [field]: updatedValue,
+    };
 
-      // DON'T update the state to prevent re-renders
-      // The ref maintains the current data and the form handles its own state
-    },
-    []
-  );
+    // DON'T update the state to prevent re-renders
+    // The ref maintains the current data and the form handles its own state
+  }, []);
 
   const handleSaveEventChanges = async () => {
     try {
@@ -1045,10 +1069,10 @@ export default function EditOrganizationProfilePage() {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           team: editingEventRef.current.team || [Number(session?.user?.id)],
-          type_of_location: editingEventRef.current.type_of_location || "virtual",
-          url: editingEventRef.current.url || "",
-          image_url: editingEventRef.current.image_url || "",
-          description: editingEventRef.current.description || "",
+          type_of_location: editingEventRef.current.type_of_location || 'virtual',
+          url: editingEventRef.current.url || '',
+          image_url: editingEventRef.current.image_url || '',
+          description: editingEventRef.current.description || '',
           related_skills: editingEventRef.current.related_skills || [],
           organization: Number(organizationId),
         };
@@ -1177,7 +1201,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   // Helper function to sanitize capacity codes
-  const sanitizeCapacityCode = (code: any): number => {
+  const sanitizeCapacityCode = useCallback((code: any): number => {
     // If it's already a valid number, return it
     if (typeof code === 'number' && !isNaN(code)) {
       return code;
@@ -1205,29 +1229,32 @@ export default function EditOrganizationProfilePage() {
     // Return a fallback value if all else fails
     console.warn('Could not sanitize capacity code:', code);
     return typeof code === 'number' ? code : 0;
-  };
+  }, []);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    setFormData(prev => {
-      const capacityField = `${currentCapacityType}_capacities` as keyof typeof prev;
-      const currentCapacities = (prev[capacityField] as number[]) || [];
+  // Memoize the current capacities to avoid hook dependency changes
+  const currentCapacities = useMemo(() => {
+    const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
+    return (formData[capacityField] as number[]) || [];
+  }, [formData, currentCapacityType]);
 
-      // Sanitize the capacity code
-      const sanitizedCode = sanitizeCapacityCode(capacity.code);
+  // Memoize the update function to avoid recreating it on every render
+  const updateCapacities = useCallback(
+    (updatedCapacities: number[]) => {
+      const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
+      setFormData(prev => ({
+        ...prev,
+        [capacityField]: updatedCapacities,
+      }));
+    },
+    [currentCapacityType, setFormData]
+  );
 
-      // Only add if valid and not already in the list
-      if (sanitizedCode && !currentCapacities.includes(sanitizedCode)) {
-        return {
-          ...prev,
-          [capacityField]: [...currentCapacities, sanitizedCode],
-        };
-      }
-      return prev;
-    });
-
-    // Close modal after selection
-    setIsModalOpen(false);
-  };
+  const { handleCapacitySelect } = useFormCapacitySelection(
+    currentCapacities,
+    updateCapacities,
+    () => setIsModalOpen(false),
+    sanitizeCapacityCode
+  );
 
   const handleRemoveCapacity = (type: 'known' | 'available' | 'wanted', index: number) => {
     setFormData(prev => {
@@ -1285,9 +1312,8 @@ export default function EditOrganizationProfilePage() {
   };
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
-
 
   if (isMobile) {
     return (
@@ -1340,7 +1366,7 @@ export default function EditOrganizationProfilePage() {
             />
             <div
               className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
-                darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+                darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
               }`}
             >
               <button
@@ -1351,12 +1377,7 @@ export default function EditOrganizationProfilePage() {
                 }}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1377,7 +1398,7 @@ export default function EditOrganizationProfilePage() {
                     editingEventRef.current = null;
                   }}
                   onChange={handleModalEventChange}
-                  eventType={editingEventRef.current?.id === 0 ? "new" : "edit"}
+                  eventType={editingEventRef.current?.id === 0 ? 'new' : 'edit'}
                 />
               </div>
 
@@ -1390,24 +1411,20 @@ export default function EditOrganizationProfilePage() {
                   }}
                   className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
                     darkMode
-                      ? "bg-capx-dark-box-bg text-white hover:text-black hover:bg-white"
-                      : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg"
+                      ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
+                      : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
                   }`}
                 >
-                  {pageContent["organization-profile-event-popup-cancel"] ||
-                    "Cancel"}
+                  {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
                 </button>
                 <button
                   onClick={handleSaveEventChanges}
                   className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
                 >
                   {editingEventRef.current?.id === 0
-                    ? pageContent[
-                        "organization-profile-event-popup-create-event"
-                      ] || "Create event"
-                    : pageContent[
-                        "organization-profile-event-popup-save-changes"
-                      ] || "Save changes"}
+                    ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
+                    : pageContent['organization-profile-event-popup-save-changes'] ||
+                      'Save changes'}
                 </button>
               </div>
             </div>
@@ -1466,7 +1483,7 @@ export default function EditOrganizationProfilePage() {
           />
           <div
             className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
-              darkMode ? "bg-capx-dark-box-bg" : "bg-white"
+              darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
             }`}
           >
             <button
@@ -1477,12 +1494,7 @@ export default function EditOrganizationProfilePage() {
               }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1503,7 +1515,7 @@ export default function EditOrganizationProfilePage() {
                   editingEventRef.current = null;
                 }}
                 onChange={handleModalEventChange}
-                eventType={editingEventRef.current?.id === 0 ? "new" : "edit"}
+                eventType={editingEventRef.current?.id === 0 ? 'new' : 'edit'}
               />
             </div>
 
@@ -1516,24 +1528,19 @@ export default function EditOrganizationProfilePage() {
                 }}
                 className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
                   darkMode
-                    ? "bg-capx-dark-box-bg text-white hover:text-black hover:bg-white"
-                    : "bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg"
+                    ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
+                    : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
                 }`}
               >
-                {pageContent["organization-profile-event-popup-cancel"] ||
-                  "Cancel"}
+                {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
               </button>
               <button
                 onClick={handleSaveEventChanges}
                 className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
               >
                 {editingEventRef.current?.id === 0
-                  ? pageContent[
-                      "organization-profile-event-popup-create-event"
-                    ] || "Create event"
-                  : pageContent[
-                      "organization-profile-event-popup-save-changes"
-                    ] || "Save changes"}
+                  ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
+                  : pageContent['organization-profile-event-popup-save-changes'] || 'Save changes'}
               </button>
             </div>
           </div>

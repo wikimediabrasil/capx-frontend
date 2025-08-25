@@ -9,9 +9,13 @@ export default function DarkModeButton() {
   const { darkMode, setDarkMode } = useTheme();
   const { pageContent } = useApp();
 
+  const handleThemeToggle = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
     <button
-      onClick={() => setDarkMode(!darkMode)}
+      onClick={handleThemeToggle}
       className="flex items-center cursor-pointer py-[8px]"
       aria-label={darkMode ? pageContent['alt-light-mode'] || 'Switch to light mode' : pageContent['alt-dark-mode'] || 'Switch to dark mode'}
     >

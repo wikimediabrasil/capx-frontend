@@ -23,5 +23,6 @@
 	"body-capacity-known-user-list-title": "Uporabniki, ki vedo za to možnost:",
 	"body-capacity-available-user-list-title": "Uporabniki, ki poznajo to možnost in so na voljo za zagotavljanje storitev z njo:",
 	"body-tag-user-list-title": "Uporabniki s to oznako na svojem profilu:",
-	"body-tag-user-list-fallback-message": "Ni uporabnikov s to oznako na svojem profilu."
+	"body-tag-user-list-fallback-message": "Ni uporabnikov s to oznako na svojem profilu.",
+	"lets-connect-form-area-public-policy": "Javna politika"
 }

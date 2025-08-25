@@ -2,10 +2,10 @@
 
 import ProfilePage from '../components/ProfilePage';
 
-import { useUserByUsername } from '@/hooks/useUserProfile';
-import { useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import LoadingState from '@/components/LoadingState';
+import { useUserByUsername } from '@/hooks/useUserProfile';
+import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation';
 
 export default function ProfileByUserName() {
   const params = useParams();
@@ -21,7 +21,7 @@ export default function ProfileByUserName() {
   const isSameUser = decodedUsernameToLower === loggedUserNameToLower;
 
   if (!userByUsername) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   return <ProfilePage isSameUser={isSameUser} profile={userByUsername}></ProfilePage>;

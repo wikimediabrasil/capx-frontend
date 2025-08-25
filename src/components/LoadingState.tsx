@@ -1,21 +1,29 @@
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
-import SimpleLoading from './SimpleLoading';
+import Image from 'next/image';
 import { ErrorBoundary } from 'react-error-boundary';
+import SimpleLoading from './SimpleLoading';
 
 // The core loading component that requires ThemeContext
 function ThemeAwareLoading({ fullScreen = false }) {
   const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+
+  const { isMobile, pageContent } = useApp();
+
+  // Calculate proper height considering mobile header
+  const heightClass = fullScreen
+    ? isMobile
+      ? 'min-h-screen pt-20' // Add padding-top for mobile header (80px height)
+      : 'min-h-screen'
+    : 'h-[150px]';
 
   return (
     <div
-      className={`flex items-center justify-center ${
-        fullScreen ? 'min-h-screen' : 'h-[150px]'
-      } ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
+      className={`flex items-center justify-center ${heightClass} ${
+        darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'
+      }`}
       role="status"
       data-testid="loading-state"
       aria-label={pageContent["aria-label-loading"] || "Content is loading"}

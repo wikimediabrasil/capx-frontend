@@ -1,11 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-import { useOrganizations } from '@/hooks/useOrganizationProfile';
-import { Capacity } from '@/types/capacity';
-import { PaginationButtons } from '@/components/PaginationButtons';
+import { Filters } from '@/app/(auth)/feed/components/Filters';
+import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 import {
   createProfilesFromOrganizations,
   FilterState,
@@ -13,14 +9,19 @@ import {
   ProfileFilterType,
   Skill,
 } from '@/app/(auth)/feed/types';
-import { Filters } from '@/app/(auth)/feed/components/Filters';
-import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
+import { PaginationButtons } from '@/components/PaginationButtons';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useOrganizations } from '@/hooks/useOrganizationProfile';
+import { Capacity } from '@/types/capacity';
+import { useEffect, useMemo, useState } from 'react';
 
+import ProfileCard from '@/app/(auth)/feed/components/ProfileCard';
 import Banner from '@/components/Banner';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import OrgListBanner from '@/public/static/images/organization_list.svg';
 import LoadingState from '@/components/LoadingState';
-import ProfileCard from '@/app/(auth)/feed/components/ProfileCard';
+import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
+import OrgListBanner from '@/public/static/images/organization_list.svg';
 
 export default function OrganizationList() {
   const { darkMode } = useTheme();
@@ -103,22 +104,10 @@ export default function OrganizationList() {
     setCurrentPage(1);
   }, [activeFilters]);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(cap => cap.code == capacity.code);
-
-    if (capacityExists) {
-      return;
-    }
-
+  const handleCapacitySelect = (capacities: Capacity[]) => {
     setActiveFilters(prev => ({
       ...prev,
-      capacities: [
-        ...prev.capacities,
-        {
-          code: capacity.code,
-          name: capacity.name,
-        },
-      ],
+      capacities: addUniqueCapacities(prev.capacities, capacities),
     }));
   };
 
@@ -143,7 +132,7 @@ export default function OrganizationList() {
   };
 
   if (isOrganizationsLearnerLoading || isOrganizationsSharerLoading) {
-    return <LoadingState />;
+    return <LoadingState fullScreen={true} />;
   }
 
   return (

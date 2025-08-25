@@ -2,6 +2,9 @@
 	"@metadata": {
 		"authors": [
 			"Langusto",
+			"MoritzMT20",
+			"Russianbabe1978",
+			"Simon04",
 			"TMg",
 			"TomatoCake"
 		]
@@ -51,6 +54,8 @@
 	"filters-location-online": "Online",
 	"filters-location-hybrid": "Hybrid",
 	"filters-onsite-event": "Online-Veranstaltung",
+	"snackbar-capacity-validation-available-without-known": "Verfügbare Kapazitäten müssen aus deinen bekannten Kapazitäten ausgewählt werden. Bitte füge die Kapazität zunächst deinen bekannten Fähigkeiten hinzu.",
+	"snackbar-capacity-validation-conflict": "Es gab einen Konflikt mit Ihrer Kapazitätsauswahl. Bitte stellen Sie sicher, dass alle verfügbaren Kapazitäten auch als bekannte Kapazitäten gekennzeichnet sind.",
 	"events-search-placeholder": "Nach Veranstaltungen suchen...",
 	"events-search-results-no-results": "Für Ihre Suche wurden keine Ergebnisse gefunden.",
 	"events-no-results-with-filters": "Keine Ereignisse entsprechen den ausgewählten Filtern. Versuchen Sie, einige Filter zu entfernen.",
@@ -65,5 +70,20 @@
 	"lets-connect-form-area-diversity": "Diversität",
 	"lets-connect-success-title": "Gut gemacht!",
 	"lets-connect-success-close": "Schließen",
-	"lets-connect-success-continue": "Fortfahren"
+	"lets-connect-success-continue": "Fortfahren",
+	"event-form-wikidata-loading": "Suche nach Ereignisdaten...",
+	"event-form-wikidata-not-found": "Für diese URL konnten keine Ereignisdaten gefunden werden",
+	"event-form-wikidata-error": "Beim Suchen nach Ereignisdaten ist ein Fehler aufgetreten",
+	"date-picker-today": "Heute",
+	"date-picker-clear": "Leeren",
+	"date-picker-close": "Schließen",
+	"date-picker-time": "Zeit",
+	"date-picker-date": "Datum",
+	"capacity-selection-modal-select-capacity-button-multiple-select": "Auswählen",
+	"capacity-selection-modal-select-capacity-button-multiple-selected": "Ausgewählt",
+	"capacity-selection-modal-select-capacity-button-multiple-capacities": "Kapazitäten",
+	"capacity-selection-modal-select-capacity-button-multiple-capacity": "Kapazität",
+	"capacity-selection-modal-back": "Zurück",
+	"edit-profile-mini-bio-exceeded-chars": "Zeichen überschritten",
+	"edit-profile-mini-bio-remaining-chars": "verbleibende Zeichen"
 }

@@ -1,11 +1,9 @@
-"use client";
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
-import { setDocumentLocale } from "@/lib/utils/dateLocale";
+'use client';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { setDocumentLocale } from '@/lib/utils/dateLocale';
 
 interface AppContextType {
   isMobile: boolean;
-  darkMode: boolean;
-  setDarkMode: (value: boolean) => void;
   mobileMenuStatus: boolean;
   setMobileMenuStatus: (value: boolean) => void;
   language: string;
@@ -23,7 +21,6 @@ const isClient = typeof window !== 'undefined';
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuStatus, setMobileMenuStatus] = useState(false);
 
   // Check language on localStorage. If not found, use "en" as default
@@ -82,7 +79,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (language) {
-        localStorage.setItem("language", language);
+        localStorage.setItem('language', language);
         // Set locale in the document to affect native calendars
         setDocumentLocale(language);
       }
@@ -97,8 +94,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       isMobile,
-      darkMode,
-      setDarkMode,
       mobileMenuStatus,
       setMobileMenuStatus,
       language,
@@ -108,7 +103,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       session,
       setSession,
     }),
-    [isMobile, darkMode, mobileMenuStatus, language, pageContent, session]
+    [isMobile, mobileMenuStatus, language, pageContent, session]
   );
 
   // Don't render anything before mount to avoid hydration mismatch

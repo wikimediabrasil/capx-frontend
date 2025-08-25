@@ -1,11 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
-import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 // Default version that can occupy the entire screen
 export default function LoadingStateWithFallback({ fullScreen = false }: { fullScreen?: boolean }) {
@@ -105,7 +105,10 @@ export function CompactLoading() {
 
   return (
     <div className="flex items-center justify-center py-4">
-      <div className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>
+      <div
+        className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"
+        data-testid="loading-spinner"
+      ></div>
     </div>
   );
 }

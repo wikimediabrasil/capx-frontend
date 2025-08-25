@@ -11,12 +11,13 @@ import { useAllUsers } from '@/hooks/useUserProfile';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCapacity } from '@/hooks/useCapacityDetails';
-import { Capacity } from '@/types/capacity';
 import { useSavedItems } from '@/hooks/useSavedItems';
+import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 import { createProfilesFromOrganizations, createProfilesFromUsers } from './types';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { SearchBar } from './components/SearchBar';
+import LoadingState from '@/components/LoadingState';
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
@@ -46,7 +47,7 @@ export default function FeedPage() {
   const itemsPerPage = itemsPerList * 2; // Total of profiles per page
   const offset = (currentPage - 1) * itemsPerList;
 
-  const { capacity, isLoading: isLoadingCapacity } = useCapacity(capacityCode);
+  const { capacity } = useCapacity(capacityCode);
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
 
   // Get data from capacityById
@@ -272,24 +273,15 @@ export default function FeedPage() {
     setCurrentPage(1);
   }, [activeFilters]);
 
-  const handleCapacitySelect = (capacity: Capacity) => {
-    const capacityExists = activeFilters.capacities.some(cap => cap.code == capacity.code);
-
-    if (capacityExists) {
-      return;
+  const { handleCapacitySelect } = useFilterCapacitySelection(
+    activeFilters.capacities,
+    newCapacities => {
+      setActiveFilters(prev => ({
+        ...prev,
+        capacities: newCapacities,
+      }));
     }
-
-    setActiveFilters(prev => ({
-      ...prev,
-      capacities: [
-        ...prev.capacities,
-        {
-          code: capacity.code,
-          name: capacity.name,
-        },
-      ],
-    }));
-  };
+  );
 
   const handleRemoveCapacity = (capacityCode: number) => {
     setActiveFilters(prev => ({
@@ -327,9 +319,7 @@ export default function FeedPage() {
     isUsersLearnerLoading ||
     isUsersSharerLoading
   ) {
-    return (
-      <div className="flex justify-center items-center h-screen">{pageContent['loading']}</div>
-    );
+    return <LoadingState fullScreen={true} />;
   }
 
   const handleToggleSaved = (profile: any) => {
@@ -349,7 +339,7 @@ export default function FeedPage() {
         createSavedItem(profile.isOrganization ? 'org' : 'user', profile.id, profile.type);
         showSnackbar(pageContent['saved-profiles-add-success'], 'success');
       }
-    } catch (error) {
+    } catch {
       showSnackbar(pageContent['saved-profiles-error'], 'error');
     }
   };

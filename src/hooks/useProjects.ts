@@ -4,7 +4,7 @@ import { projectsService } from '@/services/projectsService';
 
 export function useProject(projectId: number, token?: string) {
   const [project, setProject] = useState<Project | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
