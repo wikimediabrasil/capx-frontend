@@ -10,21 +10,11 @@ import { useEffect, useState } from 'react';
 // Default version that can occupy the entire screen
 export default function LoadingStateWithFallback({ fullScreen = false }: { fullScreen?: boolean }) {
   const [mounted, setMounted] = useState(false);
-  let darkMode = false;
-  let pageContent = {};
+  const theme = useTheme();
+  const app = useApp();
 
-  try {
-    // Only use the hook if we're in a client component
-    // This is safer than using it in useEffect
-    const theme = useTheme();
-    const app = useApp();
-    darkMode = theme?.darkMode || false;
-    pageContent = app?.pageContent || {};
-  } catch (error) {
-    // If ThemeContext is not available, use default theme
-    darkMode = false;
-    pageContent = {};
-  }
+  const darkMode = theme?.darkMode || false;
+  const pageContent = app?.pageContent || {};
 
   // Handle mounting to avoid hydration mismatch
   useEffect(() => {
