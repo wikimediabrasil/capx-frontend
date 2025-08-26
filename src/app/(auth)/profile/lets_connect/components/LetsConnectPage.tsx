@@ -403,7 +403,7 @@ export default function LetsConnectPage() {
               other={pageContent['lets-connect-form-topic-check-other']}
               showOther={true}
               multiple={true}
-            />            
+            />
           )}
 
           {/* Gender Input */}
@@ -475,7 +475,7 @@ export default function LetsConnectPage() {
               value={formData.age}
               onChange={(age: string) => setFormData({ ...formData, age })}
               itemsList={ageOptions}
-            />            
+            />
           )}
         </div>
       </div>
