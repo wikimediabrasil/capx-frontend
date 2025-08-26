@@ -1,9 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { LanguageProficiency } from '@/types/language';
+import { fireEvent, render, screen } from '@testing-library/react';
 
-// Mock the router
+// useRouter's mock
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
@@ -14,13 +14,13 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-// Mock the next/image component
+// next/image's mock
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => <img {...props} alt={props.alt || ''} />,
 }));
 
-// Mock next-auth
+// next-auth's mock
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
     data: {
@@ -32,7 +32,7 @@ jest.mock('next-auth/react', () => ({
   }),
 }));
 
-// Mock the hooks
+// useCapacityDetails hook's mock
 jest.mock('@/hooks/useCapacityDetails', () => ({
   useCapacityDetails: () => ({
     getCapacityName: (id: string) => id.toString(),
@@ -65,7 +65,7 @@ jest.mock('@/hooks/useAvatars', () => ({
   }),
 }));
 
-// Mock the contexts
+// ThemeContext's mock
 jest.mock('@/contexts/ThemeContext', () => ({
   useTheme: () => ({ darkMode: false }),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -82,7 +82,8 @@ const mockPageContent = {
   'filters-search-by-capacities': 'Search by capacities',
 };
 
-jest.mock('@/contexts/AppContext', () => ({
+// AppContext's mock
+  jest.mock('@/contexts/AppContext', () => ({
   useApp: () => ({ pageContent: mockPageContent }),
   AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
@@ -129,7 +130,8 @@ describe('ProfileCard', () => {
 
       expect(screen.getByText('Test User')).toBeInTheDocument();
       expect(screen.getByText('learner')).toBeInTheDocument();
-      expect(screen.getByAltText('Test User')).toBeInTheDocument();
+      // The component uses pageContent['alt-profile-picture'] or 'User profile picture' as alt text
+      expect(screen.getByAltText('User profile picture')).toBeInTheDocument();
     });
 
     it('should display wanted capacities for learner', () => {
@@ -176,7 +178,7 @@ describe('ProfileCard', () => {
       const onToggleSaved = jest.fn();
       render(<ProfileCard {...sharerProps} onToggleSaved={onToggleSaved} />);
 
-      const bookmarkButton = screen.getByLabelText('Salvar perfil');
+      const bookmarkButton = screen.getByLabelText('Save this profile to your saved list');
       fireEvent.click(bookmarkButton);
 
       expect(onToggleSaved).toHaveBeenCalled();
