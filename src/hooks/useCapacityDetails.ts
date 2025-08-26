@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
-import { capacityService } from '@/services/capacityService';
-import { useSession } from 'next-auth/react';
-import { Capacity, CapacityResponse } from '@/types/capacity';
 import { useApp } from '@/contexts/AppContext';
+import { capacityService } from '@/services/capacityService';
+import { CapacityResponse } from '@/types/capacity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CAPACITY_CACHE_KEYS } from './useCapacities';
 
 // Hard-coded fallback names to ensure we always have something to display
@@ -24,7 +24,7 @@ const FALLBACK_NAMES = {
  * Hook que traz detalhes de capacidades.
  * Completamente redesenhado para priorizar segurança e evitar erros.
  */
-export function useCapacityDetails(capacityIds: any = []) {
+export function useCapacityDetails(capacityIds: any = [], language: string = 'en') {
   // Declaração segura para evitar erros em qualquer contexto
   const safeSession = useSession();
   const session = safeSession?.data;
@@ -79,7 +79,7 @@ export function useCapacityDetails(capacityIds: any = []) {
 
   // Usar uma única consulta para buscar todos os IDs
   const { data: capacityData, isLoading } = useQuery({
-    queryKey: ['capacities', 'batch', capacityIdsKey],
+    queryKey: ['capacities', 'batch', capacityIdsKey, language],
     queryFn: async () => {
       if (!token || !uniqueCapacityIds.length) return {};
 
@@ -92,7 +92,7 @@ export function useCapacityDetails(capacityIds: any = []) {
             try {
               // Check if already in React Query cache
               const existing = queryClient.getQueryData<CapacityResponse>(
-                CAPACITY_CACHE_KEYS.byId(id)
+                CAPACITY_CACHE_KEYS.byId(id, language)
               );
 
               if (existing?.name) {
@@ -101,7 +101,7 @@ export function useCapacityDetails(capacityIds: any = []) {
               }
 
               // Fetch from API if not in cache
-              const response = await capacityService.fetchCapacityById(id.toString());
+              const response = await capacityService.fetchCapacityById(id.toString(), language);
 
               if (response && response.name) {
                 // Check if name is a URL and replace with fallback if needed
@@ -117,7 +117,7 @@ export function useCapacityDetails(capacityIds: any = []) {
                 }
 
                 // Update the React Query cache
-                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(id), response);
+                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(id, language), response);
               } else {
                 // Use fallback if available
                 results[id.toString()] =
@@ -267,11 +267,11 @@ export function useCapacityDetails(capacityIds: any = []) {
   };
 }
 
-export function useCapacity(capacityId?: string | null) {
+export function useCapacity(capacityId?: string | null, language: string = 'en') {
   const safeSession = useSession();
   const session = safeSession?.data;
   const safeAppContext = useApp();
-  const language = safeAppContext?.language || 'en';
+  const safeLanguage = safeAppContext?.language || language;
   const token = session?.user?.token;
 
   const enabled = Boolean(capacityId && token);
@@ -282,11 +282,11 @@ export function useCapacity(capacityId?: string | null) {
     isLoading,
     error,
   } = useQuery({
-    queryKey: capacityId ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId)), language] : [],
+    queryKey: capacityId ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId), safeLanguage), safeLanguage] : [],
     queryFn: async () => {
       if (!capacityId) return null;
       try {
-        const data = await capacityService.fetchCapacityById(capacityId);
+        const data = await capacityService.fetchCapacityById(capacityId, safeLanguage);
         return data;
       } catch (error) {
         console.error(`Error fetching capacity ${capacityId}:`, error);

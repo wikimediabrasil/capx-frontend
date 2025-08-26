@@ -1,10 +1,9 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { capacityService } from '@/services/capacityService';
-import { useSession } from 'next-auth/react';
 import { Capacity } from '@/types/capacity';
-import LoadingStateWithFallback, { CompactLoading } from '@/components/LoadingStateWithFallback';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 // Query keys for the React Query
 const QUERY_KEYS = {

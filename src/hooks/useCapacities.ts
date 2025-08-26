@@ -1,21 +1,21 @@
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import { capacityService } from '@/services/capacityService';
 import { Capacity, CapacityResponse } from '@/types/capacity';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 // Cache keys for React Query
 export const CAPACITY_CACHE_KEYS = {
   all: ['capacities'] as const,
-  root: ['capacities', 'root'] as const,
-  byId: (id: number) => ['capacities', id.toString()] as const,
-  byParent: (parentCode: string) => [...CAPACITY_CACHE_KEYS.all, 'byParent', parentCode] as const,
-  search: (query: string) => [...CAPACITY_CACHE_KEYS.all, 'search', query] as const,
-  description: (id: number) => [...CAPACITY_CACHE_KEYS.byId(id), 'description'] as const,
-  children: (id: number | string) =>
-    [...CAPACITY_CACHE_KEYS.all, 'children', id.toString()] as const,
-  allHierarchy: ['capacities', 'hierarchy'] as const,
+  root: (language: string) => ['capacities', 'root', language] as const,
+  byId: (id: number, language: string) => ['capacities', id.toString(), language] as const,
+  byParent: (parentCode: string, language: string) => [...CAPACITY_CACHE_KEYS.all, 'byParent', parentCode, language] as const,
+  search: (query: string, language: string) => [...CAPACITY_CACHE_KEYS.all, 'search', query, language] as const,
+  description: (id: number, language: string) => [...CAPACITY_CACHE_KEYS.byId(id, language), 'description'] as const,
+  children: (id: number | string, language: string) =>
+    [...CAPACITY_CACHE_KEYS.all, 'children', id.toString(), language] as const,
+  allHierarchy: (language: string) => ['capacities', 'hierarchy', language] as const,
 };
 
 // Helper function to convert CapacityResponse to Capacity
@@ -58,16 +58,16 @@ const convertToCapacity = (response: CapacityResponse, parentCode?: string): Cap
  * Prefetch and configure all capacity data when the app initializes
  * Called in the top-level provider to ensure data is available
  */
-export function prefetchAllCapacityData(token?: string, queryClient?: any) {
+export function prefetchAllCapacityData(token?: string, queryClient?: any, language: string = 'en') {
   if (!token || !queryClient) return Promise.resolve();
 
   // 1. Prefetch root capacities
   return queryClient.prefetchQuery({
-    queryKey: CAPACITY_CACHE_KEYS.root,
+    queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
       const rootCapacities = await capacityService.fetchCapacities({
         headers: { Authorization: `Token ${token}` },
-      });
+      }, language);
 
       // 2. For each root capacity, prefetch its children
       const childrenPromises = rootCapacities.map(async rootCapacity => {
@@ -77,16 +77,16 @@ export function prefetchAllCapacityData(token?: string, queryClient?: any) {
 
         // Prefetch children of this root
         return queryClient.prefetchQuery({
-          queryKey: CAPACITY_CACHE_KEYS.children(rootId),
+          queryKey: CAPACITY_CACHE_KEYS.children(rootId, language),
           queryFn: async () => {
             const children = await capacityService.fetchCapacitiesByType(rootId, {
               headers: { Authorization: `Token ${token}` },
-            });
+            }, language);
 
             // Store individual capacities in the cache as well
             Object.entries(children).forEach(([childId, childName]) => {
               if (childId) {
-                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId)), {
+                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId), language), {
                   code: childId,
                   name: childName,
                 });
@@ -110,7 +110,7 @@ export function prefetchAllCapacityData(token?: string, queryClient?: any) {
 /**
  * Hook for capacity search functionality
  */
-export function useCapacitySearch() {
+export function useCapacitySearch(language: string = 'en') {
   const { data: session } = useSession();
   const token = session?.user?.token;
   const queryClient = useQueryClient();
@@ -122,13 +122,13 @@ export function useCapacitySearch() {
       try {
         const results = await capacityService.searchCapacities(query, {
           headers: { Authorization: `Token ${token}` },
-        });
+        }, language);
 
         // Cache individual capacity results
         results.forEach(capacity => {
           const id = typeof capacity.code === 'string' ? parseInt(capacity.code) : capacity.code;
 
-          queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(id), capacity);
+          queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(id, language), capacity);
         });
 
         return results;
@@ -137,7 +137,7 @@ export function useCapacitySearch() {
         return [];
       }
     },
-    [token, queryClient]
+    [token, queryClient, language]
   );
 
   return { searchCapacities };
@@ -153,7 +153,7 @@ function fetchAndCacheCapacityById(id: number, token: string, queryClient: any) 
       // Prefetch description if we have the capacity
       if (response) {
         queryClient.prefetchQuery({
-          queryKey: CAPACITY_CACHE_KEYS.description(id),
+          queryKey: CAPACITY_CACHE_KEYS.description(id, 'en'), // Assuming default language for description
           queryFn: async () => {
             return capacityService.fetchCapacityDescription(id);
           },
@@ -190,7 +190,7 @@ function fetchAndCacheCapacitiesByParent(
       };
 
       // Cache each child individually
-      queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(code)), capacity);
+      queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(code), 'en'), capacity); // Assuming default language
 
       // Find parent for color/icon
       const parentCapacity = rootCapacities.find(cap => cap.code.toString() === parentCode);
@@ -221,7 +221,7 @@ function fetchCapacityDescription(capacityId: number, token: string) {
  * Main hook to access capacities.
  * With full support for cache of all operations.
  */
-export function useCapacities() {
+export function useCapacities(language: string = 'en') {
   const { data: session } = useSession();
   const token = session?.user?.token;
   const queryClient = useQueryClient();
@@ -232,12 +232,12 @@ export function useCapacities() {
     isLoading: isLoadingRoots,
     isSuccess: rootsSuccess,
   } = useQuery({
-    queryKey: CAPACITY_CACHE_KEYS.root,
+    queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
       if (!token) return [];
       return capacityService.fetchCapacities({
         headers: { Authorization: `Token ${token}` },
-      });
+      }, language);
     },
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
@@ -279,38 +279,38 @@ export function useCapacities() {
   // Instead of returning hooks, return query configs
   const getCapacityByIdQueryConfig = useCallback(
     (id: number) => ({
-      queryKey: CAPACITY_CACHE_KEYS.byId(id),
+      queryKey: CAPACITY_CACHE_KEYS.byId(id, language),
       queryFn: () => fetchCapacityById(id),
       enabled: !!id && !!token,
       staleTime: 1000 * 60 * 60, // 1 hour
     }),
-    [fetchCapacityById, token]
+    [fetchCapacityById, token, language]
   );
 
   const getCapacitiesByParentQueryConfig = useCallback(
     (parentCode: string) => ({
-      queryKey: CAPACITY_CACHE_KEYS.children(parentCode),
+      queryKey: CAPACITY_CACHE_KEYS.children(parentCode, language),
       queryFn: () => fetchCapacitiesByParent(parentCode),
       enabled: !!token && !!parentCode,
       staleTime: 1000 * 60 * 60, // 1 hour
     }),
-    [fetchCapacitiesByParent, token]
+    [fetchCapacitiesByParent, token, language]
   );
 
   const getCapacityDescriptionQueryConfig = useCallback(
     (capacityId: number) => ({
-      queryKey: CAPACITY_CACHE_KEYS.description(capacityId),
+      queryKey: CAPACITY_CACHE_KEYS.description(capacityId, language),
       queryFn: () => fetchCapacityDescriptionById(capacityId),
       enabled: !!capacityId && !!token,
       staleTime: 1000 * 60 * 60 * 24, // 24 hours - descriptions rarely change
     }),
-    [fetchCapacityDescriptionById, token]
+    [fetchCapacityDescriptionById, token, language]
   );
 
   // Utility function to get capacity by ID from cache
   const getCapacityById = useCallback(
     (id: number): Capacity | undefined => {
-      const cached = queryClient.getQueryData<CapacityResponse>(CAPACITY_CACHE_KEYS.byId(id));
+      const cached = queryClient.getQueryData<CapacityResponse>(CAPACITY_CACHE_KEYS.byId(id, language));
 
       if (cached) {
         return convertToCapacity(cached);
@@ -322,16 +322,16 @@ export function useCapacities() {
 
       return undefined;
     },
-    [queryClient, rootCapacities]
+    [queryClient, rootCapacities, language]
   );
 
   // Prefetch all capacity data when this hook is used
   useEffect(() => {
     if (token && rootsSuccess && rootCapacities.length > 0) {
       // Only trigger prefetch once root capacities are loaded
-      prefetchAllCapacityData(token, queryClient);
+      prefetchAllCapacityData(token, queryClient, language);
     }
-  }, [token, rootsSuccess, rootCapacities.length, queryClient]);
+  }, [token, rootsSuccess, rootCapacities.length, queryClient, language]);
 
   // Custom hooks for usage in components
   const useCapacityById = (id: number) => useQuery(getCapacityByIdQueryConfig(id));
@@ -357,7 +357,7 @@ export function useCapacityWithDetails(capacityId?: number) {
 
   // Fetch capacity data directly
   const { data: capacity, isLoading: isLoadingCapacity } = useQuery({
-    queryKey: CAPACITY_CACHE_KEYS.byId(capacityId || 0),
+    queryKey: CAPACITY_CACHE_KEYS.byId(capacityId || 0, 'en'), // Assuming default language for description
     queryFn: async () => {
       if (!token || !capacityId) return null;
       try {
@@ -374,7 +374,7 @@ export function useCapacityWithDetails(capacityId?: number) {
 
   // Fetch description data directly
   const { data: descriptionData, isLoading: isLoadingDescription } = useQuery({
-    queryKey: CAPACITY_CACHE_KEYS.description(capacityId || 0),
+    queryKey: CAPACITY_CACHE_KEYS.description(capacityId || 0, 'en'), // Assuming default language for description
     queryFn: async () => {
       if (!token || !capacityId) return { description: '', wdCode: '' };
       return capacityService.fetchCapacityDescription(capacityId);

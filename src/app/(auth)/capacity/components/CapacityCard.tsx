@@ -50,7 +50,7 @@ export function CapacityCard({
   level,
 }: CapacityCardProps) {
   const router = useRouter();
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const { hasChildren: useCapacityCacheHasChildren } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
@@ -164,7 +164,7 @@ export function CapacityCard({
           }}
         >
           <BaseButton
-            label={pageContent['capacity-card-explore-capacity']}
+            label={pageContent['capacity-card-explore-capacity'] || 'Explore capacity'}
             customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
               isMobile ? 'text-[16px]' : 'text-[24px]'
             }`}
@@ -265,7 +265,7 @@ export function CapacityCard({
       <button
         onClick={handleInfoClick}
         className={`p-1 flex-shrink-0 ${isSearch ? 'mr-12' : ''} opacity-100 z-10`}
-        aria-label={pageContent['capacity-card-info']}
+        aria-label={pageContent['capacity-card-info'] || 'Information'}
         style={{ visibility: 'visible' }}
       >
         <div className="relative" style={{ width: `${size}px`, height: `${size}px` }}>
@@ -302,7 +302,7 @@ export function CapacityCard({
         >
           <Image
             src={icon}
-            alt={pageContent['capacity-card-expand-capacity']}
+            alt={pageContent['capacity-card-expand-capacity'] || 'Expand capacity'}
             fill
             priority
             style={{

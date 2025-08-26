@@ -6,9 +6,9 @@ import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { CapacityDescriptionProvider, useCapacityDescriptions } from '@/contexts/CapacityContext';
 import {
-  useCapacitiesByParent,
-  useCapacitySearch,
-  useRootCapacities,
+    useCapacitiesByParent,
+    useCapacitySearch,
+    useRootCapacities,
 } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -40,18 +40,20 @@ const ChildCapacities = ({
   parentCode,
   expandedCapacities,
   onToggleExpand,
+  language,
 }: {
   parentCode: string;
   expandedCapacities: Record<string, boolean>;
   onToggleExpand: (code: string) => void;
+  language: string;
 }) => {
-  const { data: children = [], isLoading: isLoadingChildren } = useCapacitiesByParent(parentCode);
+  const { data: children = [], isLoading: isLoadingChildren } = useCapacitiesByParent(parentCode, language);
 
-  const { data: rootCapacities = [] } = useRootCapacities();
+  const { data: rootCapacities = [] } = useRootCapacities(language);
 
   const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
-
   const { pageContent, isMobile } = useApp();
+
   // Get IDs for loader component instead of loading in this component
   const capacityIds = children.map(child => child.code).filter(Boolean) as number[];
 
@@ -186,6 +188,7 @@ const ChildCapacities = ({
                   parentCode={child.code.toString()}
                   expandedCapacities={expandedCapacities}
                   onToggleExpand={onToggleExpand}
+                  language={language}
                 />
               )}
             </div>
@@ -207,7 +210,7 @@ function CapacityListContent() {
 
   // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
-  const { data: querySearchResults = [] } = useCapacitySearch(searchTerm);
+  const { data: querySearchResults = [] } = useCapacitySearch(searchTerm, language);
 
   // Descriptions context - only for display
   const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
@@ -333,6 +336,7 @@ function CapacityListContent() {
                   parentCode={capacity.code.toString()}
                   expandedCapacities={expandedCapacities}
                   onToggleExpand={handleToggleExpand}
+                  language={language}
                 />
               )}
             </div>

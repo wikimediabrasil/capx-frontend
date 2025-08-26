@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { Capacities, Capacity, CapacityResponse, QueryData } from '@/types/capacity';
+import { Capacities, Capacity, CapacityResponse, QueryData } from '../types/capacity';
 
 export const fetchAllCapacities = async (token: string): Promise<Capacities[]> => {
   const response = await axios.get<Capacities[]>(`/api/skill/`, {
@@ -30,7 +30,8 @@ export const capacityService = {
 
   async fetchCapacitiesByType(
     type: string,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
+    language: string = 'en'
   ): Promise<CapacityResponse[]> {
     try {
       const response = await axios.get(`/api/capacity/type/${type}`, config);

@@ -1,8 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { capacityService } from '@/services/capacityService';
-import { Capacity, CapacityResponse } from '@/types/capacity';
 import { useSession } from 'next-auth/react';
-import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
+import { getCapacityIcon } from '../lib/utils/capacitiesUtils';
+import { capacityService } from '../services/capacityService';
+import { Capacity, CapacityResponse } from '../types/capacity';
 
 // Cache keys for React Query
 export const CAPACITY_CACHE_KEYS = {
@@ -47,7 +47,7 @@ const formatCapacity = (item: CapacityResponse, parentCapacity?: Capacity): Capa
   // Extract numeric code for icon
   const iconCode = parseInt(baseCode, 10);
 
-  // Certifique-se de que o ícone será definido se parent tiver um ícone
+  // Ensure the icon will be defined if parent has an icon
   const icon = parentCapacity?.icon || getCapacityIcon(iconCode);
 
   return {
@@ -69,7 +69,7 @@ const formatCapacity = (item: CapacityResponse, parentCapacity?: Capacity): Capa
  */
 export function useRootCapacities(language: string = 'en') {
   const { data: session } = useSession();
-  const token = session?.user?.token;
+  const token = (session as any)?.user?.token;
   const queryClient = useQueryClient();
 
   return useQuery({
@@ -134,7 +134,7 @@ export function useRootCapacities(language: string = 'en') {
  */
 export function useCapacitiesByParent(parentCode: string, language: string = 'en') {
   const { data: session } = useSession();
-  const token = session?.user?.token;
+  const token = (session as any)?.user?.token;
   const queryClient = useQueryClient();
 
   // Get root capacities for parent lookup
@@ -306,7 +306,7 @@ export function useCapacitiesByParent(parentCode: string, language: string = 'en
  */
 export function useCapacityDescription(capacityCode: number | string) {
   const { data: session } = useSession();
-  const token = session?.user?.token;
+  const token = (session as any)?.user?.token;
 
   return useQuery({
     queryKey: CAPACITY_CACHE_KEYS.description(capacityCode),
@@ -327,9 +327,9 @@ export function useCapacityDescription(capacityCode: number | string) {
 /**
  * Hook for searching capacities
  */
-export function useCapacitySearch(query: string) {
+export function useCapacitySearch(query: string, language: string = 'en') {
   const { data: session } = useSession();
-  const token = session?.user?.token;
+  const token = (session as any)?.user?.token;
 
   return useQuery({
     queryKey: CAPACITY_CACHE_KEYS.search(query),
@@ -353,7 +353,7 @@ export function useCapacitySearch(query: string) {
  */
 export function usePrefetchCapacityData() {
   const { data: session } = useSession();
-  const token = session?.user?.token;
+  const token = (session as any)?.user?.token;
   const queryClient = useQueryClient();
 
   const prefetchData = async (language: string = 'en') => {

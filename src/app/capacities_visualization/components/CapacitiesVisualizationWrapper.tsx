@@ -1,7 +1,12 @@
 'use client';
 
+import { AppProvider } from '@/contexts/AppContext';
 import CapacitiesTreeVisualization from './CapacitiesTreeVisualization';
 
 export default function CapacitiesVisualizationWrapper() {
-  return <CapacitiesTreeVisualization />;
+  return (
+    <AppProvider>
+      <CapacitiesTreeVisualization />
+    </AppProvider>
+  );
 }

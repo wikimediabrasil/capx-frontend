@@ -1,6 +1,6 @@
+import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchMetabase, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,11 +15,15 @@ export async function GET(req: NextRequest) {
       wd_code: value,
     }));
 
-    // Fetch from Metabase first as the primary source
-    const metabaseResults = await fetchMetabase(codes, language);
+    // Use the new fallback strategy
+    const metabaseResults = await fetchCapacitiesWithFallback(codes, language);
 
-    // Use Wikidata as fallback
-    const wikidataResults = await fetchWikidata(codes, language);
+    // Use Wikidata as fallback if Metabase didn't provide enough data
+    let wikidataResults = [];
+    if (metabaseResults.length < codes.length * 0.5) { // Less than 50% success
+      console.log('📚 Metabase insuficiente, usando Wikidata como fallback');
+      wikidataResults = await fetchWikidata(codes, language);
+    }
 
     // Combine results, prioritizing Metabase over Wikidata
     const combinedResults = codes.map(codeItem => {
@@ -39,29 +43,33 @@ export async function GET(req: NextRequest) {
     );
 
     // fetch detailed information for each found capacity
-    const searchResults = await Promise.all(
-      organizedData.map(async item => {
-        // fetch details of the capacity, including skill_type
+    const detailedResults = await Promise.all(
+      organizedData.map(async (item) => {
         try {
-          const detailsResponse = await axios.get(`${process.env.BASE_URL}/skill/${item.code}/`);
+          const detailedResponse = await axios.get(
+            `${process.env.BASE_URL}/users_by_skill/${item.code}/`
+          );
 
           return {
             ...item,
-            skill_type: detailsResponse.data.skill_type || [],
+            users: detailedResponse.data,
           };
         } catch (error) {
-          console.error(`Failed to fetch details for skill ${item.code}:`, error);
-          return null;
+          console.error(`Error fetching detailed info for capacity ${item.code}:`, error);
+          return {
+            ...item,
+            users: [],
+          };
         }
       })
     );
 
-    // filter out null results
-    const filteredResults = searchResults.filter(Boolean);
-
-    return NextResponse.json(filteredResults);
+    return NextResponse.json(detailedResults);
   } catch (error) {
-    console.error('Search error:', error);
-    return NextResponse.json({ error: 'Failed to search capacities' }, { status: 500 });
+    console.error('Error in capacity search API:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

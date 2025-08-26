@@ -9,6 +9,8 @@ import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { Dispatch, SetStateAction } from 'react';
 
+
+
 /**
  * Consolidated utility functions for handling capacity operations
  * This file combines all capacity-related utilities to avoid duplication
