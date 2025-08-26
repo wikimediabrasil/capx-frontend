@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 
 type ChecklistProps = {
@@ -9,7 +9,8 @@ type ChecklistProps = {
   itemsList?: string[];
   showOther?: boolean;
   multiple?: boolean;
-  setFormData: (item: string | string[]) => void;
+  value?: string | string[];
+  onChange: (item: string | string[]) => void;
 };
 
 export default function Checklist({
@@ -20,11 +21,36 @@ export default function Checklist({
   itemsList = [],
   multiple = false,
   showOther = false,
-  setFormData,
+  value,
+  onChange,
 }: ChecklistProps) {
-  const [items, setItems] = useState(itemsList.map(item => ({ label: item, checked: false })));
-  const [otherText, setOtherText] = useState('');
   const { darkMode } = useTheme();
+
+  const [items, setItems] = useState(
+    itemsList.map(item => ({
+      label: item,
+      checked: Array.isArray(value) ? value.includes(item) : value === item,
+    }))
+  );
+  const [otherText, setOtherText] = useState(
+    typeof value === 'string' && value && !itemsList.includes(value) ? value : ''
+  );
+
+  // sincroniza quando value ou itemsList mudar
+  useEffect(() => {
+    setItems(
+      itemsList.map(item => ({
+        label: item,
+        checked: Array.isArray(value) ? value.includes(item) : value === item,
+      }))
+    );
+
+    if (typeof value === 'string' && value && !itemsList.includes(value)) {
+      setOtherText(value);
+    } else if (!value) {
+      setOtherText('');
+    }
+  }, [value, itemsList]);
 
   const toggleCheck = (index: number) => {
     let newItems;
@@ -35,31 +61,24 @@ export default function Checklist({
         checked: i === index ? !item.checked : false,
       }));
 
-      // If the checkbox is checked and there is text in the 'other' field, clear the text
-      const isChecked = newItems[index].checked;
+      const selected = newItems.find(item => item.checked);
+      setItems(newItems);
 
-      // If the checkbox is checked and there is text in the 'other' field, clear the text
-      if (isChecked && otherText.trim()) {
-        setOtherText(''); // Clear the text in the 'other' field
+      //if you check on checkbox, clean "Other"
+      if (selected) {
+        setOtherText('');
       }
 
-      // Update the formData correctly
-      const selected = newItems.find(item => item.checked);
-      setFormData(selected ? selected.label : '');
+      onChange(selected ? selected.label : '');
     } else {
       newItems = [...items];
       newItems[index].checked = !newItems[index].checked;
-    }
+      setItems(newItems);
 
-    setItems(newItems);
-
-    // In multiple mode, keep the existing logic for the selected items
-    if (multiple) {
       const selectedItems = newItems.filter(item => item.checked).map(item => item.label);
-
       const combined = otherText.trim() ? [...selectedItems, otherText.trim()] : selectedItems;
 
-      setFormData(combined);
+      onChange(combined);
     }
   };
 
@@ -69,17 +88,15 @@ export default function Checklist({
 
     if (multiple) {
       const selectedItems = items.filter(item => item.checked).map(item => item.label);
-
       const combined = value.trim() ? [...selectedItems, value.trim()] : selectedItems;
-
-      setFormData(combined);
+      onChange(combined);
     } else {
-      // If you are typing, unmark all checkboxes
+      //if you type something in 'Other', all checkboxes are unchecked
       if (value.trim()) {
         const clearedItems = items.map(item => ({ ...item, checked: false }));
         setItems(clearedItems);
       }
-      setFormData(value.trim());
+      onChange(value.trim());
     }
   };
 
@@ -89,13 +106,15 @@ export default function Checklist({
         darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
       }`}
     >
-      <h2
-        className={`text-[12px] font-[Montserrat] font-bold text-start text-[#04222F] md:text-[24px] ${
-          darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
-        }`}
-      >
-        {title}
-      </h2>
+      {title && (
+        <h2
+          className={`text-[12px] font-[Montserrat] font-bold text-start md:text-[24px] ${
+            darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+          }`}
+        >
+          {title}
+        </h2>
+      )}
 
       {description && (
         <p
@@ -115,7 +134,7 @@ export default function Checklist({
           >
             <label
               htmlFor={`check-${index}`}
-              className={` ${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
+              className={`${darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'}`}
             >
               {item.label}
             </label>

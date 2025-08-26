@@ -396,13 +396,14 @@ export default function LetsConnectPage() {
 
           {(showAreaInput || !hasLetsConnectData) && (
             <Checklist
-              other={pageContent['lets-connect-form-topic-check-other']}
+              value={formData.area}
               description={pageContent['lets-connect-form-topic-check-text']}
-              setFormData={(area: string) => setFormData({ ...formData, area })}
-              multiple={true}
+              onChange={(area: string) => setFormData({ ...formData, area })}
               itemsList={areaOptions}
+              other={pageContent['lets-connect-form-topic-check-other']}
               showOther={true}
-            />
+              multiple={true}
+            />            
           )}
 
           {/* Gender Input */}
@@ -434,9 +435,10 @@ export default function LetsConnectPage() {
 
           {(showGenderInput || !hasLetsConnectData) && (
             <Checklist
-              other={pageContent['lets-connect-form-gender-identify-not-listed']}
-              setFormData={(gender: string) => setFormData({ ...formData, gender })}
+              value={formData.gender}
+              onChange={(gender: string) => setFormData({ ...formData, gender })}
               itemsList={genderOptions}
+              other={pageContent['lets-connect-form-gender-identify-not-listed']}
               showOther={true}
             />
           )}
@@ -470,9 +472,10 @@ export default function LetsConnectPage() {
 
           {(showAgeInput || !hasLetsConnectData) && (
             <Checklist
-              setFormData={(age: string) => setFormData({ ...formData, age })}
+              value={formData.age}
+              onChange={(age: string) => setFormData({ ...formData, age })}
               itemsList={ageOptions}
-            />
+            />            
           )}
         </div>
       </div>
