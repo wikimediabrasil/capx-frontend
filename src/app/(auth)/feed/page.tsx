@@ -74,7 +74,9 @@ export default function FeedPage() {
     }
   }, [capacity, activeFilters.capacities]);
 
-  const shouldFetchLearnerUsers = activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner);
+  const shouldFetchLearnerUsers = activeFilters.profileCapacityTypes.includes(
+    ProfileCapacityType.Learner
+  );
   const {
     allUsers: usersLearner,
     count: usersLearnerCount,
@@ -90,8 +92,9 @@ export default function FeedPage() {
       : undefined,
   });
 
-  const shouldFetchSharerUsers =
-    activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
+  const shouldFetchSharerUsers = activeFilters.profileCapacityTypes.includes(
+    ProfileCapacityType.Sharer
+  );
   const {
     allUsers: usersSharer,
     count: usersSharerCount,
@@ -109,20 +112,17 @@ export default function FeedPage() {
 
   // Total of records according to the profileFilter
   const totalRecords =
-  (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
-    ? usersLearnerCount
-    : 0) +
-  (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
-    ? usersSharerCount
-    : 0);
-
+    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
+      ? usersLearnerCount
+      : 0) +
+    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
+      ? usersSharerCount
+      : 0);
 
   const isProfileSaved = (profileId: number) => {
     if (!savedItems) return false;
 
-    return savedItems.some(
-      item => item.entity_id === profileId && item.entity === 'user'
-    );
+    return savedItems.some(item => item.entity_id === profileId && item.entity === 'user');
   };
 
   // Create profiles (to create cards) from users
@@ -157,13 +157,7 @@ export default function FeedPage() {
     const userProfiles = [...userProfilesWanted, ...userProfilesAvailable];
 
     return userProfiles;
-  }, [
-    activeFilters,
-    usersLearner,
-    usersSharer,
-    savedItems,
-    isProfileSaved,
-  ]);
+  }, [activeFilters, usersLearner, usersSharer, savedItems, isProfileSaved]);
 
   // Calculate total of pages based on total profiles
   const numberOfPages = Math.ceil(totalRecords / itemsPerPage);
@@ -213,10 +207,7 @@ export default function FeedPage() {
     }
   };
 
-  if (
-    isUsersLearnerLoading ||
-    isUsersSharerLoading
-  ) {
+  if (isUsersLearnerLoading || isUsersSharerLoading) {
     return <LoadingState fullScreen={true} />;
   }
 
@@ -224,9 +215,7 @@ export default function FeedPage() {
     try {
       if (profile.isSaved) {
         const savedItem = savedItems?.find(
-          item =>
-            item.entity_id === profile.id &&
-            item.entity === 'user'
+          item => item.entity_id === profile.id && item.entity === 'user'
         );
 
         if (savedItem) {

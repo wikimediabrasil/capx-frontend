@@ -92,7 +92,6 @@ export function Filters({
     setSearchCapacity('');
   };
 
-
   const handleProfileCapacityTypeToggle = (type: ProfileCapacityType) => {
     setFilters(prev => {
       const types = prev.profileCapacityTypes.includes(type)
