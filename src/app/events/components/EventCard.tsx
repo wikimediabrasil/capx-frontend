@@ -355,7 +355,9 @@ export default function EventCard({
                       src={darkMode ? EmojiObjectsLightIcon : EmojiObjectsDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
-                      alt={pageContent["alt-capacity"] || "Capacity icon, view skills and abilities"}
+                      alt={
+                        pageContent['alt-capacity'] || 'Capacity icon, view skills and abilities'
+                      }
                     />
                     <p
                       className={`font-extrabold ${
@@ -418,7 +420,11 @@ export default function EventCard({
                       >
                         <Image
                           src={darkMode ? MoreHorizLightIcon : MoreHorizIcon}
-                          alt={showAllCapacities ? pageContent['alt-collapse-capacities'] || 'Show fewer capacities' : pageContent['alt-expand-capacities'] || 'Show more capacities'}
+                          alt={
+                            showAllCapacities
+                              ? pageContent['alt-collapse-capacities'] || 'Show fewer capacities'
+                              : pageContent['alt-expand-capacities'] || 'Show more capacities'
+                          }
                           className="cursor-pointer"
                         />
                       </button>
@@ -501,10 +507,12 @@ export default function EventCard({
                 } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center transition-opacity !pb-2 !mb-0 ${
                   isMobile ? 'text-xs' : 'text-md'
                 }`}
-                imageUrl={
-                  isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight
+                imageUrl={isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight}
+                imageAlt={
+                  isSelected
+                    ? pageContent['alt-checked'] || 'Option is selected'
+                    : pageContent['alt-unchecked'] || 'Option is not selected'
                 }
-                imageAlt={isSelected ? pageContent['alt-checked'] || 'Option is selected' : pageContent['alt-unchecked'] || 'Option is not selected'}
                 imageWidth={isMobile ? 16 : 24}
                 imageHeight={isMobile ? 16 : 24}
               />

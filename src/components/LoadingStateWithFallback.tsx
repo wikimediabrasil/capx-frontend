@@ -48,12 +48,12 @@ export default function LoadingStateWithFallback({ fullScreen = false }: { fullS
       } ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
       role="status"
       data-testid="loading-state"
-      aria-label={pageContent["aria-label-loading"] || "Content is loading"}
+      aria-label={pageContent['aria-label-loading'] || 'Content is loading'}
     >
       <div className="relative w-16 h-16">
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
-          alt={pageContent["alt-logo-loading"] || "CapX - Capacity Exchange logo, page is loading"}
+          alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
           className="animate-pulse-fade object-contain"
           style={{ width: 'auto', height: 'auto' }}
           priority

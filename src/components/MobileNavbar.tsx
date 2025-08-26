@@ -21,11 +21,7 @@ interface MobileNavbarProps {
   setLanguage: (language: string) => void;
 }
 
-export default function MobileNavbar({
-  session,
-  language,
-  setLanguage,
-}: MobileNavbarProps) {
+export default function MobileNavbar({ session, language, setLanguage }: MobileNavbarProps) {
   const { isMobile, mobileMenuStatus, setMobileMenuStatus, pageContent } = useApp();
   const { darkMode } = useTheme();
   const navbarClasses = `fixed top-0 left-0 right-0 z-50 mb-16 ${
@@ -43,7 +39,10 @@ export default function MobileNavbar({
                 <Image
                   priority
                   src={CapXLogo}
-                  alt={pageContent['alt-logo-main'] || 'CapX - Capacity Exchange logo, navigate to homepage'}
+                  alt={
+                    pageContent['alt-logo-main'] ||
+                    'CapX - Capacity Exchange logo, navigate to homepage'
+                  }
                   width={48}
                   height={48}
                   className="w-[48px] h-[48px] mb-2"
@@ -59,11 +58,7 @@ export default function MobileNavbar({
                 {mobileMenuStatus ? (
                   <button onClick={() => setMobileMenuStatus(false)}>
                     <Image
-                      src={
-                        darkMode
-                          ? IconCloseMobileMenuDarkMode
-                          : IconCloseMobileMenuLightMode
-                      }
+                      src={darkMode ? IconCloseMobileMenuDarkMode : IconCloseMobileMenuLightMode}
                       alt={pageContent['alt-menu-close'] || 'Close navigation menu'}
                       width={32}
                       height={32}
@@ -99,7 +94,10 @@ export default function MobileNavbar({
               <Image
                 priority
                 src={CapXLogo}
-                alt={pageContent['alt-logo-main'] || 'CapX - Capacity Exchange logo, navigate to homepage'}
+                alt={
+                  pageContent['alt-logo-main'] ||
+                  'CapX - Capacity Exchange logo, navigate to homepage'
+                }
                 width={32}
                 height={32}
                 className="w-[32px] h-[32px]"
@@ -119,11 +117,7 @@ export default function MobileNavbar({
                   className="p-2"
                 >
                   <Image
-                    src={
-                      darkMode
-                        ? IconCloseMobileMenuDarkMode
-                        : IconCloseMobileMenuLightMode
-                    }
+                    src={darkMode ? IconCloseMobileMenuDarkMode : IconCloseMobileMenuLightMode}
                     alt={pageContent['alt-menu-close'] || 'Close navigation menu'}
                     width={32}
                     height={32}

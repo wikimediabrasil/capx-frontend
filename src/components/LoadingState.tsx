@@ -26,12 +26,12 @@ function ThemeAwareLoading({ fullScreen = false }) {
       }`}
       role="status"
       data-testid="loading-state"
-      aria-label={pageContent["aria-label-loading"] || "Content is loading"}
+      aria-label={pageContent['aria-label-loading'] || 'Content is loading'}
     >
       <div className="relative w-16 h-16">
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
-          alt={pageContent["alt-logo-loading"] || "CapX - Capacity Exchange logo, page is loading"}
+          alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}

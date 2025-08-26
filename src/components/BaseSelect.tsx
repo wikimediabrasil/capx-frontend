@@ -27,7 +27,7 @@ interface BaseSelectProps {
 const DropdownIndicator = (isMobile: boolean, darkMode: boolean, pageContent: any) => (
   <Image
     src={darkMode ? ArrowDropDownCircleWhite : ArrowDropDownCircle}
-    alt={pageContent["alt-dropdown-arrow"] || "Dropdown menu arrow"}
+    alt={pageContent['alt-dropdown-arrow'] || 'Dropdown menu arrow'}
     width={isMobile ? 20 : 40}
     height={isMobile ? 20 : 40}
     className="object-contain"

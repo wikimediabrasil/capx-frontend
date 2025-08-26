@@ -61,18 +61,18 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
               } top-1/2 transform -translate-y-1/2`}
             >
               <div className="relative w-[32px] h-[32px]">
-                <Image 
-                  src={icon} 
-                  alt={pageContent['alt-icon-generic'] || 'Field icon'} 
-                  fill 
-                  priority 
+                <Image
+                  src={icon}
+                  alt={pageContent['alt-icon-generic'] || 'Field icon'}
+                  fill
+                  priority
                 />
               </div>
             </div>
           )}
         </div>
         {error && (
-          <span 
+          <span
             id={`${props.id}-error`}
             className="mt-1 text-sm text-red-500"
             role="alert"

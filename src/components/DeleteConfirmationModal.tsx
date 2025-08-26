@@ -124,11 +124,11 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
             className="flex-1 py-3 rounded-lg bg-capx-primary-orange text-white font-extrabold text-capx-font-size-mobile-lg sm:text-capx-font-size-mobile-lg md:text-capx-font-size-desktop-lg lg:text-capx-font-size-desktop-lg flex items-center justify-center gap-4 hover:bg-red-700 transition"
           >
             {pageContent['delete-confirmation-confirm'] || 'Delete'}
-            <Image 
-              src={DeleteIcon} 
-              alt={pageContent['alt-delete'] || 'Delete item'} 
-              width={24} 
-              height={24} 
+            <Image
+              src={DeleteIcon}
+              alt={pageContent['alt-delete'] || 'Delete item'}
+              width={24}
+              height={24}
             />
           </button>
         </div>

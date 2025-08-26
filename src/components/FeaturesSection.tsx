@@ -26,7 +26,11 @@ const Row = (illustration: StaticImageData, description: string, index: number, 
           <div className="relative w-full h-full">
             <Image
               src={illustration}
-              alt={pageContent['alt-illustration']?.replace('{description}', description) || description || 'Feature illustration'}
+              alt={
+                pageContent['alt-illustration']?.replace('{description}', description) ||
+                description ||
+                'Feature illustration'
+              }
               className="object-contain"
               fill
             />

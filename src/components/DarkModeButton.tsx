@@ -17,14 +17,22 @@ export default function DarkModeButton() {
     <button
       onClick={handleThemeToggle}
       className="flex items-center cursor-pointer py-[8px]"
-      aria-label={darkMode ? pageContent['alt-light-mode'] || 'Switch to light mode' : pageContent['alt-dark-mode'] || 'Switch to dark mode'}
+      aria-label={
+        darkMode
+          ? pageContent['alt-light-mode'] || 'Switch to light mode'
+          : pageContent['alt-dark-mode'] || 'Switch to dark mode'
+      }
     >
       <Image
         src={darkMode ? LightMode : DarkMode}
         width={32}
         height={32}
         className="w-[28px] h-[28px]"
-        alt={darkMode ? pageContent['alt-light-mode'] || 'Switch to light mode' : pageContent['alt-dark-mode'] || 'Switch to dark mode'}
+        alt={
+          darkMode
+            ? pageContent['alt-light-mode'] || 'Switch to light mode'
+            : pageContent['alt-dark-mode'] || 'Switch to dark mode'
+        }
       />
     </button>
   );

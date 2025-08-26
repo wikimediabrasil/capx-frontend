@@ -65,7 +65,9 @@ export default function MainSection() {
             <Image
               priority={true}
               src={MainImage}
-              alt={pageContent["alt-illustration"] || "Main illustration showing people collaborating"}
+              alt={
+                pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
+              }
               className="mx-auto px-10 w-full h-full"
             />
           </div>
@@ -143,7 +145,9 @@ export default function MainSection() {
             <Image
               priority={true}
               src={MainImage}
-              alt={pageContent['alt-illustration'] || 'Main illustration showing people collaborating'}
+              alt={
+                pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
+              }
               className="w-full h-full"
             />
           </div>

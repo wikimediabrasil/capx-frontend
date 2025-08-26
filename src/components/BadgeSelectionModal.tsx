@@ -90,7 +90,10 @@ export default function BadgeSelectionModal({
                   <div className="relative w-16 h-16 md:w-20 md:h-20 mb-2">
                     <Image
                       src={badge.picture}
-                      alt={pageContent['alt-badge']?.replace('{badgeName}', badge.name) || `Badge: ${badge.name}`}
+                      alt={
+                        pageContent['alt-badge']?.replace('{badgeName}', badge.name) ||
+                        `Badge: ${badge.name}`
+                      }
                       fill
                       className="object-contain"
                     />

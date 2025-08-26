@@ -76,9 +76,7 @@ const Popup = ({
             className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 
             w-[90%] md:w-[880px] xl:w-[1024px]
             min-h-[300px] md:min-h-[400px] max-h-[90vh]
-            rounded-3xl shadow-xl overflow-hidden ${
-              darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'
-            }`}
+            rounded-3xl shadow-xl overflow-hidden ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="popup-title"

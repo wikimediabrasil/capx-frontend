@@ -90,11 +90,11 @@ export default function CallToActionSection() {
             />
           </div>
         </div>
-        <Image 
-          src={Illustration} 
-          alt={pageContent['alt-illustration'] || 'Illustration showing people collaborating'} 
-          width={400} 
-          height={400} 
+        <Image
+          src={Illustration}
+          alt={pageContent['alt-illustration'] || 'Illustration showing people collaborating'}
+          width={400}
+          height={400}
         />
       </div>
     </section>

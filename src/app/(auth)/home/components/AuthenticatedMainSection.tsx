@@ -295,10 +295,10 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
           <div className="w-1/2 lg:w-1/3">
             <Image
               priority={true}
-              src={
-                darkMode ? MainSectionIllustrationDark : MainSectionIllustration
+              src={darkMode ? MainSectionIllustrationDark : MainSectionIllustration}
+              alt={
+                pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
               }
-              alt={pageContent['alt-illustration'] || 'Main illustration showing people collaborating'}
               height={520}
               width={520}
               className="w-full h-auto"

@@ -140,7 +140,10 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
               <Image
                 priority
                 src={CapXLogo}
-                alt={pageContent['alt-logo-main'] || 'CapX - Capacity Exchange logo, navigate to homepage'}
+                alt={
+                  pageContent['alt-logo-main'] ||
+                  'CapX - Capacity Exchange logo, navigate to homepage'
+                }
                 className="w-[100px] h-[100px] object-contain"
                 style={{ width: 'auto', height: 'auto' }}
               />
@@ -175,7 +178,11 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
                 ref={menuButtonRef}
                 onClick={() => setShowMenu(!showMenu)}
                 className="focus:outline-none"
-                aria-label={showMenu ? pageContent['alt-menu-close'] || 'Close navigation menu' : pageContent['alt-menu-open'] || 'Open navigation menu'}
+                aria-label={
+                  showMenu
+                    ? pageContent['alt-menu-close'] || 'Close navigation menu'
+                    : pageContent['alt-menu-open'] || 'Open navigation menu'
+                }
               >
                 <Image
                   src={
@@ -187,7 +194,11 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
                         ? BurgerMenuDarkMode
                         : BurgerMenu
                   }
-                  alt={showMenu ? pageContent['alt-menu-close'] || 'Close navigation menu' : pageContent['alt-burger-menu'] || 'Open main navigation menu'}
+                  alt={
+                    showMenu
+                      ? pageContent['alt-menu-close'] || 'Close navigation menu'
+                      : pageContent['alt-burger-menu'] || 'Open main navigation menu'
+                  }
                   width={32}
                   height={32}
                 />

@@ -1,5 +1,5 @@
 import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from "@/contexts/AppContext";
+import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import SearchIcon from '@/public/static/images/search_icon.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
@@ -38,7 +38,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
-  
+
   return (
     <div className="flex gap-2 mb-6">
       {/* Search Field Container */}
@@ -102,7 +102,9 @@ export function SearchBar({
                 <input
                   readOnly
                   type="text"
-                  aria-label={pageContent['aria-label-search-by-capacities'] || 'Search by capacities'}
+                  aria-label={
+                    pageContent['aria-label-search-by-capacities'] || 'Search by capacities'
+                  }
                   onFocus={onCapacityInputFocus}
                   placeholder={selectedCapacities.length === 0 ? capacitiesPlaceholder : ''}
                   className={`

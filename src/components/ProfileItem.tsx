@@ -273,16 +273,21 @@ export function ProfileItem({
         {needsToggle && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            aria-label={isExpanded 
-              ? pageContent["alt-collapse"]?.replace("{section}", title) || `Show less ${title}` 
-              : pageContent["alt-expand"]?.replace("{section}", title) || `Show more ${title}`
+            aria-label={
+              isExpanded
+                ? pageContent['alt-collapse']?.replace('{section}', title) || `Show less ${title}`
+                : pageContent['alt-expand']?.replace('{section}', title) || `Show more ${title}`
             }
             aria-expanded={isExpanded}
             className="ml-2 self-start"
           >
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-              alt={isExpanded ? pageContent['alt-collapse']?.replace('{section}', title) || `Show less ${title}` : pageContent['alt-expand']?.replace('{section}', title) || `Show more ${title}`}
+              alt={
+                isExpanded
+                  ? pageContent['alt-collapse']?.replace('{section}', title) || `Show less ${title}`
+                  : pageContent['alt-expand']?.replace('{section}', title) || `Show more ${title}`
+              }
               className={`object-contain ${isExpanded ? 'rotate-180' : ''}`}
               height={20}
               width={20}

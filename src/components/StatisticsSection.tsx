@@ -53,7 +53,12 @@ const AnimatedPieChart = ({
         className="w-[224px] h-[224px] transform -rotate-90"
         viewBox="0 0 224 224"
         role="img"
-        aria-label={pageContent['alt-pie-chart']?.replace('{total}', total.toString()).replace('{percentage}', Math.round(percentage).toString()) || `Pie chart showing ${Math.round(percentage)}% of ${total} total users`}
+        aria-label={
+          pageContent['alt-pie-chart']
+            ?.replace('{total}', total.toString())
+            .replace('{percentage}', Math.round(percentage).toString()) ||
+          `Pie chart showing ${Math.round(percentage)}% of ${total} total users`
+        }
       >
         {/* Background circle */}
         <circle
@@ -185,7 +190,11 @@ export default function StatisticsSection() {
               className="w-[200px] h-[200px] rounded-full flex items-center justify-center"
               style={{ backgroundColor: color }}
               role="img"
-              aria-label={pageContent['alt-statistic-circle']?.replace('{value}', value.toString()).replace('{type}', title) || `${title}: ${value} total`}
+              aria-label={
+                pageContent['alt-statistic-circle']
+                  ?.replace('{value}', value.toString())
+                  .replace('{type}', title) || `${title}: ${value} total`
+              }
             >
               <span className="text-white text-capx-text-5xl font-bold">{value}</span>
             </div>
@@ -213,7 +222,10 @@ export default function StatisticsSection() {
             className={`mt-2 text-capx-text-xl hover:underline text-center ${
               darkMode ? 'text-capx-dark-link' : 'text-capx-light-link'
             }`}
-            aria-label={pageContent["alt-view-more"]?.replace("{section}", linkDetails.text) || `View more ${linkDetails.text}`}
+            aria-label={
+              pageContent['alt-view-more']?.replace('{section}', linkDetails.text) ||
+              `View more ${linkDetails.text}`
+            }
           >
             {linkDetails.text}
           </a>

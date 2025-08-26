@@ -372,7 +372,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   label={pageContent['edit-profile-delete-profile']}
                   customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold text-capx-dark-box-bg mb-0 mt-4 bg-[#D43831] text-white`}
                   imageUrl={DeleteIcon}
-                  imageAlt={pageContent["alt-delete-profile"] || "Delete profile"}
+                  imageAlt={pageContent['alt-delete-profile'] || 'Delete profile'}
                   imageWidth={30}
                   imageHeight={30}
                 />
@@ -1374,7 +1374,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
               label={pageContent['edit-profile-save']}
               customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
               imageUrl={SaveIcon}
-              imageAlt={pageContent["alt-save"] || "Save changes"}
+              imageAlt={pageContent['alt-save'] || 'Save changes'}
               imageWidth={30}
               imageHeight={30}
             />
@@ -1385,7 +1385,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 darkMode ? 'border-white text-white' : 'border-[#053749] text-[#053749]'
               } rounded-md py-3 font-bold mb-0`}
               imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-              imageAlt={pageContent["alt-cancel"] || "Cancel operation"}
+              imageAlt={pageContent['alt-cancel'] || 'Cancel operation'}
               imageWidth={30}
               imageHeight={30}
             />

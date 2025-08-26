@@ -86,13 +86,17 @@ export function PaginationButtons({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           class_name={buttonStyle}
-          aria-label={pageContent?.["pagination-previous"] || "Go to previous page"}
+          aria-label={pageContent?.['pagination-previous'] || 'Go to previous page'}
         >
           &lsaquo;
         </SimpleButton>
 
         {/* Numbers of pages */}
-        <div className="flex items-center gap-1 mx-2" role="group" aria-label={pageContent?.["pagination-pages"] || "Page numbers"}>
+        <div
+          className="flex items-center gap-1 mx-2"
+          role="group"
+          aria-label={pageContent?.['pagination-pages'] || 'Page numbers'}
+        >
           {getPageNumbers().map((page, index) =>
             typeof page === 'number' ? (
               <SimpleButton
@@ -101,16 +105,21 @@ export function PaginationButtons({
                 onClick={() => onPageChange(page)}
                 class_name={page === currentPage ? activeButtonStyle : buttonStyle}
                 aria-current={page === currentPage ? 'page' : undefined}
-                aria-label={page === currentPage 
-                  ? pageContent?.['pagination-current-page']?.replace('{page}', page.toString()) || `Current page, page ${page}`
-                  : pageContent?.['pagination-go-to-page']?.replace('{page}', page.toString()) || `Go to page ${page}`
+                aria-label={
+                  page === currentPage
+                    ? pageContent?.['pagination-current-page']?.replace(
+                        '{page}',
+                        page.toString()
+                      ) || `Current page, page ${page}`
+                    : pageContent?.['pagination-go-to-page']?.replace('{page}', page.toString()) ||
+                      `Go to page ${page}`
                 }
               >
                 {page}
               </SimpleButton>
             ) : (
-              <span 
-                key={index} 
+              <span
+                key={index}
                 className={`px-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
                 aria-hidden="true"
               >

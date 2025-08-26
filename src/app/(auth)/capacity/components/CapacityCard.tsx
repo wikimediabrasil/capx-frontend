@@ -145,11 +145,11 @@ export function CapacityCard({
           >
             <div className="flex flex-row items-center gap-2">
               <div className="relative w-[36px] h-[36px]">
-                <Image 
-                  src={BarCodeIcon} 
-                  alt={pageContent["alt-external-link"] || "External link to Wikidata"} 
-                  fill 
-                  priority 
+                <Image
+                  src={BarCodeIcon}
+                  alt={pageContent['alt-external-link'] || 'External link to Wikidata'}
+                  fill
+                  priority
                 />
               </div>
               <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
