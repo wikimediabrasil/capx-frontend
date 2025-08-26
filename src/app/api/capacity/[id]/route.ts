@@ -98,10 +98,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     });
   } catch (error) {
     console.error(`❌ API: Error processing capacity ${params.id}:`, error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

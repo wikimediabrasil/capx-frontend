@@ -1,4 +1,5 @@
 import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
+import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -12,15 +13,16 @@ export async function GET(req: NextRequest) {
 
     const codes = Object.entries(codesResponse.data).map(([key, value]) => ({
       code: Number(key),
-      wd_code: value,
+      wd_code: value as string,
     }));
 
     // Use the new fallback strategy
     const metabaseResults = await fetchCapacitiesWithFallback(codes, language);
 
     // Use Wikidata as fallback if Metabase didn't provide enough data
-    let wikidataResults = [];
-    if (metabaseResults.length < codes.length * 0.5) { // Less than 50% success
+    let wikidataResults: Capacity[] = [];
+    if (metabaseResults.length < codes.length * 0.5) {
+      // Less than 50% success
       console.log('📚 Metabase insuficiente, usando Wikidata como fallback');
       wikidataResults = await fetchWikidata(codes, language);
     }
@@ -44,7 +46,7 @@ export async function GET(req: NextRequest) {
 
     // fetch detailed information for each found capacity
     const detailedResults = await Promise.all(
-      organizedData.map(async (item) => {
+      organizedData.map(async item => {
         try {
           const detailedResponse = await axios.get(
             `${process.env.BASE_URL}/users_by_skill/${item.code}/`
@@ -67,9 +69,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(detailedResults);
   } catch (error) {
     console.error('Error in capacity search API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

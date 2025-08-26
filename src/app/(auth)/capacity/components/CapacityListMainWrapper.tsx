@@ -6,9 +6,9 @@ import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { CapacityDescriptionProvider, useCapacityDescriptions } from '@/contexts/CapacityContext';
 import {
-    useCapacitiesByParent,
-    useCapacitySearch,
-    useRootCapacities,
+  useCapacitiesByParent,
+  useCapacitySearch,
+  useRootCapacities,
 } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -47,7 +47,10 @@ const ChildCapacities = ({
   onToggleExpand: (code: string) => void;
   language: string;
 }) => {
-  const { data: children = [], isLoading: isLoadingChildren } = useCapacitiesByParent(parentCode, language);
+  const { data: children = [], isLoading: isLoadingChildren } = useCapacitiesByParent(
+    parentCode,
+    language
+  );
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
 

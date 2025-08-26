@@ -9,8 +9,6 @@ import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { Dispatch, SetStateAction } from 'react';
 
-
-
 /**
  * Consolidated utility functions for handling capacity operations
  * This file combines all capacity-related utilities to avoid duplication
@@ -47,6 +45,32 @@ const filterMap: Record<string, string> = {
     'invert(50%) sepia(80%) saturate(850%) hue-rotate(187deg) brightness(95%) contrast(92%)', // strategic
   '#27AE60':
     'invert(56%) sepia(75%) saturate(436%) hue-rotate(93deg) brightness(132%) contrast(98%)', // technology
+};
+
+export const fetchCapacitiesWithFallback = async (
+  codes: Array<{ code: number | string; wd_code: string }>,
+  language: string
+) => {
+  try {
+    // First try to get data from Metabase
+    // Ensure codes are in the correct format for fetchMetabase
+    const formattedCodes = codes.map(code => ({
+      ...code,
+      code: typeof code.code === 'string' ? parseInt(code.code, 10) : code.code,
+    }));
+    const metabaseResults = await fetchMetabase(formattedCodes, language);
+    // If we got results from Metabase, return them
+    if (metabaseResults && metabaseResults.length > 0) {
+      return metabaseResults;
+    }
+    // If no results from Metabase, try Wikidata as fallback
+    console.log('No results from Metabase, falling back to Wikidata');
+    const wikidataResults = await fetchWikidata(codes, language);
+    return wikidataResults || [];
+  } catch (error) {
+    console.error('Error in fetchCapacitiesWithFallback:', error);
+    return [];
+  }
 };
 
 export const getHueRotate = (color: string | undefined): string => {

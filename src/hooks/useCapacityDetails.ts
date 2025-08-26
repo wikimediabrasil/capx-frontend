@@ -282,7 +282,9 @@ export function useCapacity(capacityId?: string | null, language: string = 'en')
     isLoading,
     error,
   } = useQuery({
-    queryKey: capacityId ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId), safeLanguage), safeLanguage] : [],
+    queryKey: capacityId
+      ? [...CAPACITY_CACHE_KEYS.byId(Number(capacityId), safeLanguage), safeLanguage]
+      : [],
     queryFn: async () => {
       if (!capacityId) return null;
       try {

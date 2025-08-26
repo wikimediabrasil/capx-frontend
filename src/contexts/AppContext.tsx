@@ -34,7 +34,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     'capacity-banner-title': 'Exchange Everything',
     'capacity-search-no-results': 'No results found',
     'capacity-visualization-title': 'Interactive Capacity Visualization',
-    'capacity-visualization-description': 'Click on main capacities to expand/collapse and focus • Click on icons to see details and automatically center • Use mouse to zoom and drag • Click "Return to initial view" to reset focus',
+    'capacity-visualization-description':
+      'Click on main capacities to expand/collapse and focus • Click on icons to see details and automatically center • Use mouse to zoom and drag • Click "Return to initial view" to reset focus',
     'capacity-visualization-reset-button': 'Return to initial view',
   });
   const [session, setSession] = useState(null);

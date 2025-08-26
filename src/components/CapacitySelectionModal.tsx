@@ -79,7 +79,7 @@ export default function CapacitySelectionModal({
 }: CapacitySelectionModalProps) {
   const { darkMode } = useTheme();
   const { data: session } = useSession();
-  const { pageContent, isMobile } = useApp();
+  const { pageContent, isMobile, language } = useApp();
   const [selectedPath, setSelectedPath] = useState<number[]>([]);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
   const [showInfoMap, setShowInfoMap] = useState<Record<number, boolean>>({});
@@ -105,7 +105,7 @@ export default function CapacitySelectionModal({
 
   // Use React Query directly for root capacities
   const { data: rootCapacitiesData, isLoading: isLoadingRoots } = useQuery({
-    queryKey: CAPACITY_CACHE_KEYS.root,
+    queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
       if (!session?.user?.token) return [] as Capacity[];
 
@@ -121,7 +121,7 @@ export default function CapacitySelectionModal({
 
   // Query for child capacities - it will only run when expandingCapacityId changes
   const { data: childCapacitiesData } = useQuery<Capacity[]>({
-    queryKey: CAPACITY_CACHE_KEYS.children(expandingCapacityId || ''),
+    queryKey: CAPACITY_CACHE_KEYS.children(expandingCapacityId || '', language),
     queryFn: async () => {
       if (!session?.user?.token || !expandingCapacityId) return [];
 
@@ -258,7 +258,7 @@ export default function CapacitySelectionModal({
   useEffect(() => {
     if (isOpen && session?.user?.token) {
       // Clear old cache data
-      queryClient.invalidateQueries({ queryKey: CAPACITY_CACHE_KEYS.root });
+      queryClient.invalidateQueries({ queryKey: CAPACITY_CACHE_KEYS.root(language) });
 
       // Ensure the cache is loaded
       preloadCapacities();

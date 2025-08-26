@@ -58,9 +58,10 @@ export default function CapacitiesTreeVisualization() {
               );
 
               transformedRoot.children = Object.entries(children).map(([code, nameOrResponse]) => {
-                const name = typeof nameOrResponse === 'string'
-                  ? nameOrResponse
-                  : nameOrResponse?.name || `Capacity ${code}`;
+                const name =
+                  typeof nameOrResponse === 'string'
+                    ? nameOrResponse
+                    : nameOrResponse?.name || `Capacity ${code}`;
 
                 return {
                   id: code,

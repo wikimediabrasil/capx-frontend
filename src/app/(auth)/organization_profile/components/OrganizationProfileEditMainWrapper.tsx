@@ -50,7 +50,7 @@ export default function EditOrganizationProfilePage() {
   const organizationId = params.id as string;
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const [isInitialized, setIsInitialized] = useState(false);
   const { darkMode } = useTheme();
   const { showSnackbar } = useSnackbar();
@@ -494,7 +494,7 @@ export default function EditOrganizationProfilePage() {
 
               // Try to get from React Query cache directly
               const cachedCapacity = queryClient.getQueryData(
-                CAPACITY_CACHE_KEYS.byId(Number(idStr))
+                CAPACITY_CACHE_KEYS.byId(Number(idStr), language)
               );
 
               // Only use cache data if it has a valid name that's not a URL

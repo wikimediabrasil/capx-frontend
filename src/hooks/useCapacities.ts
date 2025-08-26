@@ -10,9 +10,12 @@ export const CAPACITY_CACHE_KEYS = {
   all: ['capacities'] as const,
   root: (language: string) => ['capacities', 'root', language] as const,
   byId: (id: number, language: string) => ['capacities', id.toString(), language] as const,
-  byParent: (parentCode: string, language: string) => [...CAPACITY_CACHE_KEYS.all, 'byParent', parentCode, language] as const,
-  search: (query: string, language: string) => [...CAPACITY_CACHE_KEYS.all, 'search', query, language] as const,
-  description: (id: number, language: string) => [...CAPACITY_CACHE_KEYS.byId(id, language), 'description'] as const,
+  byParent: (parentCode: string, language: string) =>
+    [...CAPACITY_CACHE_KEYS.all, 'byParent', parentCode, language] as const,
+  search: (query: string, language: string) =>
+    [...CAPACITY_CACHE_KEYS.all, 'search', query, language] as const,
+  description: (id: number, language: string) =>
+    [...CAPACITY_CACHE_KEYS.byId(id, language), 'description'] as const,
   children: (id: number | string, language: string) =>
     [...CAPACITY_CACHE_KEYS.all, 'children', id.toString(), language] as const,
   allHierarchy: (language: string) => ['capacities', 'hierarchy', language] as const,
@@ -58,16 +61,23 @@ const convertToCapacity = (response: CapacityResponse, parentCode?: string): Cap
  * Prefetch and configure all capacity data when the app initializes
  * Called in the top-level provider to ensure data is available
  */
-export function prefetchAllCapacityData(token?: string, queryClient?: any, language: string = 'en') {
+export function prefetchAllCapacityData(
+  token?: string,
+  queryClient?: any,
+  language: string = 'en'
+) {
   if (!token || !queryClient) return Promise.resolve();
 
   // 1. Prefetch root capacities
   return queryClient.prefetchQuery({
     queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
-      const rootCapacities = await capacityService.fetchCapacities({
-        headers: { Authorization: `Token ${token}` },
-      }, language);
+      const rootCapacities = await capacityService.fetchCapacities(
+        {
+          headers: { Authorization: `Token ${token}` },
+        },
+        language
+      );
 
       // 2. For each root capacity, prefetch its children
       const childrenPromises = rootCapacities.map(async rootCapacity => {
@@ -79,9 +89,13 @@ export function prefetchAllCapacityData(token?: string, queryClient?: any, langu
         return queryClient.prefetchQuery({
           queryKey: CAPACITY_CACHE_KEYS.children(rootId, language),
           queryFn: async () => {
-            const children = await capacityService.fetchCapacitiesByType(rootId, {
-              headers: { Authorization: `Token ${token}` },
-            }, language);
+            const children = await capacityService.fetchCapacitiesByType(
+              rootId,
+              {
+                headers: { Authorization: `Token ${token}` },
+              },
+              language
+            );
 
             // Store individual capacities in the cache as well
             Object.entries(children).forEach(([childId, childName]) => {
@@ -120,9 +134,13 @@ export function useCapacitySearch(language: string = 'en') {
       if (!query || !token) return [];
 
       try {
-        const results = await capacityService.searchCapacities(query, {
-          headers: { Authorization: `Token ${token}` },
-        }, language);
+        const results = await capacityService.searchCapacities(
+          query,
+          {
+            headers: { Authorization: `Token ${token}` },
+          },
+          language
+        );
 
         // Cache individual capacity results
         results.forEach(capacity => {
@@ -235,9 +253,12 @@ export function useCapacities(language: string = 'en') {
     queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
       if (!token) return [];
-      return capacityService.fetchCapacities({
-        headers: { Authorization: `Token ${token}` },
-      }, language);
+      return capacityService.fetchCapacities(
+        {
+          headers: { Authorization: `Token ${token}` },
+        },
+        language
+      );
     },
     enabled: !!token,
     staleTime: 1000 * 60 * 60, // 1 hour
@@ -310,7 +331,9 @@ export function useCapacities(language: string = 'en') {
   // Utility function to get capacity by ID from cache
   const getCapacityById = useCallback(
     (id: number): Capacity | undefined => {
-      const cached = queryClient.getQueryData<CapacityResponse>(CAPACITY_CACHE_KEYS.byId(id, language));
+      const cached = queryClient.getQueryData<CapacityResponse>(
+        CAPACITY_CACHE_KEYS.byId(id, language)
+      );
 
       if (cached) {
         return convertToCapacity(cached);

@@ -47,7 +47,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     // Use Wikidata as fallback if Metabase didn't provide enough data
     let wikidataResults = [];
-    if (metabaseResults.length < codes.length * 0.5) { // Less than 50% success
+    if (metabaseResults.length < codes.length * 0.5) {
+      // Less than 50% success
       console.log('📚 Metabase insuficiente, usando Wikidata como fallback');
       wikidataResults = await fetchWikidata(codes, language);
     }
@@ -89,9 +90,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json(finalResponse);
   } catch (error) {
     console.error('Error in capacity type API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

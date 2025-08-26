@@ -1,4 +1,5 @@
 import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
+import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -39,23 +40,24 @@ export async function GET(req: NextRequest) {
       .filter(([key]) => rootSkillIds.includes(Number(key)))
       .map(([key, value]) => ({
         code: Number(key),
-        wd_code: value,
+        wd_code: value as string,
       }));
 
     // Use the new fallback strategy
     const metabaseResults = await fetchCapacitiesWithFallback(codes, language);
 
     // Use Wikidata as fallback if Metabase didn't provide enough data
-    let wikidataResults = [];
-    if (metabaseResults.length < codes.length * 0.5) { // Less than 50% success
+    let wikidataResults: Capacity[] = [];
+    if (metabaseResults.length < codes.length * 0.5) {
+      // Less than 50% success
       console.log('📚 Metabase insuficiente, usando Wikidata como fallback');
       wikidataResults = await fetchWikidata(codes, language);
     }
 
     // Combine results, prioritizing Metabase over Wikidata
     const codesWithNames = codes.map(codeItem => {
-      const metabaseMatch = metabaseResults.find(item => item.wd_code === codeItem.wd_code);
-      const wikidataMatch = wikidataResults.find(item => item.wd_code === codeItem.wd_code);
+      const metabaseMatch = metabaseResults.find(item => item?.wd_code === codeItem.wd_code);
+      const wikidataMatch = wikidataResults.find(item => item?.wd_code === codeItem.wd_code);
 
       return {
         code: codeItem.code,
@@ -68,9 +70,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(codesWithNames);
   } catch (error) {
     console.error('Error in capacity API:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
