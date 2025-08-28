@@ -1,20 +1,19 @@
 'use client';
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  ReactNode,
-  useMemo,
-  useEffect,
-} from 'react';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacityDescription } from '@/hooks/useCapacitiesQuery';
 import { capacityService } from '@/services/capacityService';
 import { useSession } from 'next-auth/react';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import LoadingStateWithFallback, { CompactLoading } from '@/components/LoadingStateWithFallback';
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 // Types for the context
 type DescriptionMap = Record<number, string>;
@@ -25,6 +24,7 @@ interface CapacityContextType {
   // Get descriptions
   getDescription: (code: number) => string;
   getWdCode: (code: number) => string;
+  getMetabaseCode: (code: number) => string;
 
   // Request description safely
   requestDescription: (code: number) => Promise<string>;
@@ -67,6 +67,7 @@ const saveDescriptionsCache = () => {
       JSON.stringify({
         descriptions: cachedDescriptions,
         wdCodes: cachedWdCodes,
+        metabaseCodes: cachedMetabaseCodes,
         timestamp: Date.now(),
       })
     );
@@ -113,37 +114,7 @@ const DescriptionFetcher = ({ code }: { code: number }) => {
     };
   }, [isSuccess, data, code, context]);
 
-  // If the hook fails, try to fetch directly from the API
-  useEffect(() => {
-    if (!processedRef.current && session?.user?.token) {
-      const fetchDirectly = async () => {
-        try {
-          const result = await capacityService.fetchCapacityDescription(code, {
-            headers: { Authorization: `Token ${session.user.token}` },
-          });
-
-          if (result && context?._addDescription) {
-            processedRef.current = true;
-            // Save in cache
-            cachedDescriptions[code] = result.description || '';
-            cachedWdCodes[code] = result.wdCode || '';
-
-            // Update context
-            context._addDescription(code, result.description || '', result.wdCode || '');
-
-            // Persist data
-            saveDescriptionsCache();
-          }
-        } catch (error) {
-          console.error(`Erro ao buscar descrição diretamente para ${code}:`, error);
-        }
-      };
-
-      // Small delay to get descriptions faster
-      const timer = setTimeout(fetchDirectly, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [code, context, session]);
+  // Descriptions are fetched via SPARQL queries, not HTTP API calls
 
   return null;
 };
@@ -163,18 +134,24 @@ const globalDescriptionStore = {
   pendingNotification: false,
 
   // Register description
-  addDescription(code: number, description: string, wdCode: string) {
+  addDescription(code: number, description: string, wdCode: string, metabaseCode?: string) {
     // Don't update if there are no changes
-    if (this.descriptions[code] === description && this.wdCodes[code] === wdCode) {
+    if (this.descriptions[code] === description && this.wdCodes[code] === wdCode && this.metabaseCodes[code] === metabaseCode) {
       return false;
     }
 
     this.descriptions[code] = description;
     this.wdCodes[code] = wdCode;
+    if (metabaseCode) {
+      this.metabaseCodes[code] = metabaseCode;
+    }
 
     // Also update the permanent caches
     cachedDescriptions[code] = description;
     cachedWdCodes[code] = wdCode;
+    if (metabaseCode) {
+      cachedMetabaseCodes[code] = metabaseCode;
+    }
 
     this.requestedCodes.delete(code); // Remove from requested list
     this.pendingCodes.delete(code); // Remove from pending list
@@ -290,8 +267,8 @@ export function CapacityDescriptionProvider({ children }: { children: ReactNode 
 
   // Add description to cache
   const addDescription = useCallback(
-    (code: number, description: string, wdCode: string) => {
-      globalDescriptionStore.addDescription(code, description, wdCode);
+    (code: number, description: string, wdCode: string, metabaseCode?: string) => {
+      globalDescriptionStore.addDescription(code, description, wdCode, metabaseCode);
 
       // If there are no more pending codes, disable loading state
       if (codesToFetch.length === 0 && globalDescriptionStore.pendingCodes.size === 0) {
@@ -311,6 +288,7 @@ export function CapacityDescriptionProvider({ children }: { children: ReactNode 
     return globalDescriptionStore.wdCodes[code] || cachedWdCodes[code] || '';
   }, []);
 
+  // Get metabase_code from cache
   const getMetabaseCode = useCallback((code: number): string => {
     return globalDescriptionStore.metabaseCodes[code] || cachedMetabaseCodes[code] || '';
   }, []);
@@ -325,49 +303,11 @@ export function CapacityDescriptionProvider({ children }: { children: ReactNode 
         return Promise.resolve(description);
       }
 
-      // If we already requested but don't have it, try to fetch directly
-      if (globalDescriptionStore.requestedCodes.has(code) && session?.user?.token) {
-        try {
-          const result = await capacityService.fetchCapacityDescription(code, {
-            headers: { Authorization: `Token ${session.user.token}` },
-          });
+      // Descriptions are handled via SPARQL queries, not HTTP API calls
 
-          if (result) {
-            globalDescriptionStore.addDescription(
-              code,
-              result.description || '',
-              result.wdCode || ''
-            );
-            return result.description || '';
-          }
-        } catch (error) {
-          console.error(`Error fetching description directly for ${code}:`, error);
-        }
-      }
-
-      // If we haven't requested it yet, start the process of searching
+      // If we haven't requested it yet, mark it as requested
       if (!globalDescriptionStore.requestedCodes.has(code)) {
         globalDescriptionStore.requestDescription(code);
-
-        // Try to get description directly
-        if (session?.user?.token) {
-          try {
-            const result = await capacityService.fetchCapacityDescription(code, {
-              headers: { Authorization: `Token ${session.user.token}` },
-            });
-
-            if (result) {
-              globalDescriptionStore.addDescription(
-                code,
-                result.description || '',
-                result.wdCode || ''
-              );
-              return result.description || '';
-            }
-          } catch (error) {
-            console.error(`Erro ao buscar descrição para ${code}:`, error);
-          }
-        }
       }
 
       // Return the current value (which may be empty)
@@ -386,11 +326,12 @@ export function CapacityDescriptionProvider({ children }: { children: ReactNode 
     return {
       getDescription,
       getWdCode,
+      getMetabaseCode,
       requestDescription,
       isRequested,
       _addDescription: addDescription,
     };
-  }, [getDescription, getWdCode, requestDescription, isRequested, addDescription]);
+  }, [getDescription, getWdCode, getMetabaseCode, requestDescription, isRequested, addDescription]);
 
   return (
     <CapacityContext.Provider value={contextValue}>

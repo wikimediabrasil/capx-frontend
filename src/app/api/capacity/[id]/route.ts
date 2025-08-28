@@ -51,6 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           name,
           description: metabaseResults[0].description || '',
           item: metabaseResults[0].item,
+          metabase_code: metabaseResults[0].metabase_code || '',
         });
       }
 

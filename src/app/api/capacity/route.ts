@@ -64,6 +64,7 @@ export async function GET(req: NextRequest) {
         wd_code: codeItem.wd_code,
         name: metabaseMatch?.name || wikidataMatch?.name || codeItem.wd_code,
         description: metabaseMatch?.description || wikidataMatch?.description || '',
+        metabase_code: metabaseMatch?.metabase_code || '',
       };
     });
 

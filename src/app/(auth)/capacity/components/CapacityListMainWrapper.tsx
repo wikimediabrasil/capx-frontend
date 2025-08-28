@@ -54,7 +54,7 @@ const ChildCapacities = ({
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
 
-  const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
+  const { getDescription, getWdCode, getMetabaseCode, requestDescription } = useCapacityDescriptions();
   const { pageContent, isMobile } = useApp();
 
   // Get IDs for loader component instead of loading in this component
@@ -93,6 +93,7 @@ const ChildCapacities = ({
       skill_wikidata_item: '',
       description: '',
       wd_code: '',
+      metabase_code: '',
     } as Capacity;
   };
 
@@ -177,7 +178,7 @@ const ChildCapacities = ({
                 parentCapacity={child.parentCapacity}
                 description={getDescription(child.code)}
                 wd_code={getWdCode(child.code)}
-                metabase_code={getMetabaseCode(child.code)}
+                metabase_code={child.metabase_code || getMetabaseCode(child.code)}
                 rootColor={rootColor}
                 onInfoClick={async code => {
                   // Ensure description is loaded for this capacity
@@ -217,7 +218,7 @@ function CapacityListContent() {
   const { data: querySearchResults = [] } = useCapacitySearch(searchTerm, language);
 
   // Descriptions context - only for display
-  const { getDescription, getWdCode, requestDescription } = useCapacityDescriptions();
+  const { getDescription, getWdCode, getMetabaseCode, requestDescription } = useCapacityDescriptions();
 
   // Collect all capacity IDs that need descriptions
   const rootCapacityIds = rootCapacities.map(c => c.code).filter(Boolean) as number[];
@@ -327,6 +328,7 @@ function CapacityListContent() {
                 icon={capacity.icon}
                 description={getDescription(capacity.code)}
                 wd_code={getWdCode(capacity.code)}
+                metabase_code={capacity.metabase_code || getMetabaseCode(capacity.code)}
                 onInfoClick={async code => {
                   // Ensure description is loaded for this capacity
                   if (!getDescription(code)) {

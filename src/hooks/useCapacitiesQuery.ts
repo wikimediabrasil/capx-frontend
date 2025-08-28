@@ -60,6 +60,7 @@ const formatCapacity = (item: CapacityResponse, parentCapacity?: Capacity): Capa
     skill_wikidata_item: '', // We don't use this from the response
     description: '',
     wd_code: item.wd_code || '',
+    metabase_code: item.metabase_code || '', // Add metabase_code to the formatted capacity
     parentCapacity,
   };
 };

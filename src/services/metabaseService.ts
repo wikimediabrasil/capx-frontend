@@ -17,26 +17,26 @@ export async function fetchEventDataByQID(qid: string): Promise<Partial<Event> |
     PREFIX wdt: <http://www.wikidata.org/prop/direct/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX schema: <http://schema.org/>
-    
+
     SELECT ?name ?description ?image_url ?start_date ?end_date ?location ?location_name ?url WHERE {
       wd:${qid} rdfs:label ?name .
       FILTER(LANG(?name) = "pt" || LANG(?name) = "en")
-      
-      OPTIONAL { wd:${qid} schema:description ?description . 
+
+      OPTIONAL { wd:${qid} schema:description ?description .
                 FILTER(LANG(?description) = "pt" || LANG(?description) = "en") }
-      
-      OPTIONAL { wd:${qid} wdt:P18 ?image . 
+
+      OPTIONAL { wd:${qid} wdt:P18 ?image .
                 BIND(CONCAT("https://commons.wikimedia.org/wiki/Special:FilePath/", ?image) AS ?image_url) }
-      
+
       OPTIONAL { wd:${qid} wdt:P580 ?start_date . }
       OPTIONAL { wd:${qid} wdt:P582 ?end_date . }
-      
-      OPTIONAL { 
-        wd:${qid} wdt:P276 ?location . 
+
+      OPTIONAL {
+        wd:${qid} wdt:P276 ?location .
         ?location rdfs:label ?location_name .
         FILTER(LANG(?location_name) = "pt" || LANG(?location_name) = "en")
       }
-      
+
       OPTIONAL { wd:${qid} wdt:P856 ?url . }
     }
     LIMIT 1
@@ -507,13 +507,13 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
     PREFIX osm: <https://www.openstreetmap.org/>
     PREFIX wdt: <http://www.wikidata.org/prop/direct/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    
+
     SELECT ?name ?lat ?lon ?address WHERE {
       osm:${osmId} rdfs:label ?name ;
                    wdt:P625 ?coordinates .
-      
+
       BIND(CONCAT(STR(?lat), ",", STR(?lon)) AS ?coordinates)
-      
+
       OPTIONAL { osm:${osmId} wdt:P969 ?address . }
     }
     LIMIT 1
@@ -579,7 +579,7 @@ async function fetchWikimediaPageData(url: string): Promise<{
     let content: string | undefined = undefined;
     let wikidata_qid: string | undefined = undefined;
     let infobox = null;
-    let categories = [];
+    let categories: string[] = [];
 
     // Process content
     if (contentData.status === 'fulfilled' && contentData.value.ok) {

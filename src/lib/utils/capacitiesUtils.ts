@@ -184,7 +184,7 @@ export const fetchMetabase = async (codes: any, language: string) => {
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
       SELECT ?item ?itemLabel ?itemDescription ?value WHERE {
       VALUES ?value {${codes.map((code: any) => `"${code.wd_code}"`).join(' ')}}
-      ?item wbt:P67/wbt:P1 ?value.
+      ?item wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
     const response = await axios.post(

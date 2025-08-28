@@ -137,9 +137,10 @@ export function CapacityCard({
         className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-3' : 'px-2'}`}
         onClick={e => e.stopPropagation()}
       >
-        {wd_code && (
+        <div className="flex flex-row items-center gap-6 w-full">
+        {metabase_code && metabase_code !== '' && (
           <a
-            href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code || wd_code}`}
+            href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}
             onClick={e => e.stopPropagation()}
             target="_blank"
             rel="noopener noreferrer"
@@ -148,10 +149,26 @@ export function CapacityCard({
               <div className="relative w-[36px] h-[36px]">
                 <Image src={BarCodeIcon} alt="BarCode" fill priority />
               </div>
-              <p className="text-[20px] text-capx-light-link underline">{metabase_code || wd_code}</p>
+              <p className="text-[20px] text-capx-light-link underline">{metabase_code}</p>
             </div>
           </a>
         )}
+        {wd_code && wd_code !== '' && (
+          <a
+            href={`https://www.wikidata.org/wiki/${wd_code}`}
+            onClick={e => e.stopPropagation()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div className="flex flex-row items-center gap-2">
+              <div className="relative w-[36px] h-[36px]">
+                <Image src={BarCodeIcon} alt="BarCode" fill priority />
+              </div>
+              <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
+            </div>
+          </a>
+        )}
+        </div>
         {description && (
           <p className={`text-capx-dark-box-bg ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}>
             {capitalizeFirstLetter(description)}
@@ -426,7 +443,7 @@ export function CapacityCard({
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
               <div
-                className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
+                className={`flex items-center pl-8 ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
               >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
