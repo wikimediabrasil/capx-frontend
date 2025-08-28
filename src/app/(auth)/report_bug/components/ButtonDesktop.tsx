@@ -1,6 +1,5 @@
 'use client';
 
-import { useBugReport, ReportType } from '@/hooks/useBugReport';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
@@ -26,7 +25,7 @@ export default function ButtonDesktopReportBugPage({ handleSubmit }: BaseButtonP
         label={pageContent['report-bug-submit-button']}
         customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
         imageUrl={Uploadicon}
-        imageAlt="Upload icon"
+        imageAlt={pageContent['alt-upload'] || 'Upload file'}
         imageWidth={30}
         imageHeight={30}
       />
@@ -39,7 +38,7 @@ export default function ButtonDesktopReportBugPage({ handleSubmit }: BaseButtonP
             : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
         }`}
         imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-        imageAlt="Cancel icon"
+        imageAlt={pageContent['alt-cancel'] || 'Cancel operation'}
         imageWidth={30}
         imageHeight={30}
       />

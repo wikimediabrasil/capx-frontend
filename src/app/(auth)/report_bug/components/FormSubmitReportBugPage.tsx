@@ -92,6 +92,7 @@ export default function FormSubmitReportBugPage() {
           type="text"
           id="title"
           value={formData.title}
+          aria-label={pageContent['aria-label-report-bug-title'] || 'Report bug title'}
           onChange={e => setFormData({ ...formData, title: e.target.value })}
           className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
             darkMode
@@ -112,6 +113,7 @@ export default function FormSubmitReportBugPage() {
         <textarea
           id="description"
           value={formData.description}
+          aria-label={pageContent['aria-label-report-bug-description'] || 'Report bug description'}
           onChange={e => setFormData({ ...formData, description: e.target.value })}
           rows={4}
           className={`w-full px-3 py-2 m-0 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
@@ -152,7 +154,7 @@ export default function FormSubmitReportBugPage() {
               : pageContent['report-bug-types-of-reports-placeholder']}
             <Image
               src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-              alt="Select"
+              alt={pageContent['alt-dropdown-arrow'] || 'Dropdown menu arrow'}
               width={20}
               height={20}
             />

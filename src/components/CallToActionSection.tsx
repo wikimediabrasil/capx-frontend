@@ -45,7 +45,11 @@ export default function CallToActionSection() {
             label={pageContent['body-home-section01-call-to-action-button02']}
             customClass="inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] rounded-[6px] border-[1px] border-[solid] border-[var(--Backgrounds-dark-box-bg,#053749)] bg-[#FFF] text-center font-[Montserrat] text-[14px] text-capx-dark-box-bg not-italic font-extrabold leading-[normal]"
           />
-          <Image src={Illustration} alt="Illustration" className="w-[273px] h-[273px]" />
+          <Image
+            src={Illustration}
+            alt={pageContent['alt-illustration'] || 'Illustration showing people collaborating'}
+            className="w-[273px] h-[273px]"
+          />
         </div>
       </section>
     );
@@ -86,7 +90,12 @@ export default function CallToActionSection() {
             />
           </div>
         </div>
-        <Image src={Illustration} alt="Illustration" width={400} height={400} />
+        <Image
+          src={Illustration}
+          alt={pageContent['alt-illustration'] || 'Illustration showing people collaborating'}
+          width={400}
+          height={400}
+        />
       </div>
     </section>
   );

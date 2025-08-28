@@ -1,25 +1,25 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import DesktopNavbar from '@/components/DesktopNavbar';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
-import { useSession } from 'next-auth/react';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { fireEvent, render, screen } from '@testing-library/react';
 import axios from 'axios';
 import { Session } from 'next-auth';
+import { useSession } from 'next-auth/react';
 
-// Mock next-auth
+// Mock next-auth's mock
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
   signOut: jest.fn(),
 }));
 
-// Mock useOrganization hook
+// useOrganization hook's mock
 jest.mock('@/hooks/useOrganizationProfile', () => ({
   useOrganization: jest.fn(),
 }));
 
-// Mock do Next.js Router
+// Next.js Router's mock
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -37,13 +37,13 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// Mock do useTheme
+// useTheme's mock
 jest.mock('@/contexts/ThemeContext', () => ({
   ...jest.requireActual('@/contexts/ThemeContext'),
   useTheme: jest.fn(),
 }));
 
-// Mock do axios
+// axios's mock
 jest.mock('axios');
 (axios.get as jest.Mock).mockImplementation((url: string) => {
   if (url.includes('/languages')) {
@@ -59,7 +59,7 @@ jest.mock('axios');
   });
 });
 
-// Mock do LanguageSelect
+// LanguageSelect's mock
 jest.mock('../../components/LanguageSelect', () => ({
   __esModule: true,
   default: () => <div data-testid="language-select-mock">Language Select</div>,
@@ -76,7 +76,7 @@ const mockPageContent = {
   'navbar-link-report-bug': 'Report Bug',
 };
 
-// Mocking AppContext
+//  Mocking AppContext
 jest.mock('@/contexts/AppContext', () => ({
   ...jest.requireActual('@/contexts/AppContext'),
   useApp: () => ({
@@ -109,13 +109,13 @@ jest.mock('@/contexts/AppContext', () => ({
 
 describe('DesktopNavbar', () => {
   beforeEach(() => {
-    // Mock do useSession
+    // useSession's mock
     (useSession as jest.Mock).mockReturnValue({
       data: { user: { token: 'mock-token' } },
       status: 'authenticated',
     });
 
-    // Mock do useOrganization
+    // useOrganization's mock
     (useOrganization as jest.Mock).mockReturnValue({
       organizations: [
         { id: 1, display_name: 'Org 1' },
@@ -124,7 +124,7 @@ describe('DesktopNavbar', () => {
       isOrgManager: true,
     });
 
-    // Mock do useTheme
+    // useTheme's mock
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
       setDarkMode: jest.fn(),
@@ -139,7 +139,7 @@ describe('DesktopNavbar', () => {
     );
   };
 
-  // Mock sessions
+  // Session Mocks
   const nullSession: Session | null = null;
   const validSession: Session = {
     user: {
@@ -159,7 +159,8 @@ describe('DesktopNavbar', () => {
       <DesktopNavbar session={nullSession} language="en" setLanguage={() => {}} />
     );
 
-    const logo = screen.getByAltText('Capacity Exchange logo');
+    // The component uses pageContent['alt-logo-main'] or 'CapX - Capacity Exchange logo, navigate to homepage' as alt text
+    const logo = screen.getByAltText('CapX - Capacity Exchange logo, navigate to homepage');
     expect(logo).toBeInTheDocument();
   });
 

@@ -30,6 +30,7 @@ const AnimatedPieChart = ({
   color: string;
 }) => {
   const { darkMode } = useTheme();
+  const { pageContent } = useApp();
   const [isVisible, setIsVisible] = useState(false);
   const percentage = (newValue / total) * 100;
   const radius = 100; // Increased from 80
@@ -48,7 +49,17 @@ const AnimatedPieChart = ({
 
   return (
     <div className="flex items-center justify-center h-[224px]">
-      <svg className="w-[224px] h-[224px] transform -rotate-90" viewBox="0 0 224 224">
+      <svg
+        className="w-[224px] h-[224px] transform -rotate-90"
+        viewBox="0 0 224 224"
+        role="img"
+        aria-label={
+          pageContent['alt-pie-chart']
+            ?.replace('{total}', total.toString())
+            .replace('{percentage}', Math.round(percentage).toString()) ||
+          `Pie chart showing ${Math.round(percentage)}% of ${total} total users`
+        }
+      >
         {/* Background circle */}
         <circle
           cx="112"
@@ -57,6 +68,7 @@ const AnimatedPieChart = ({
           fill="transparent"
           className="stroke-capx-primary-blue opacity-80"
           strokeWidth="16"
+          aria-hidden="true"
         />
         {/* Animated foreground circle */}
         <circle
@@ -72,6 +84,7 @@ const AnimatedPieChart = ({
           style={{
             transformOrigin: 'center',
           }}
+          aria-hidden="true"
         />
       </svg>
       {/* Center text */}
@@ -176,6 +189,12 @@ export default function StatisticsSection() {
             <div
               className="w-[200px] h-[200px] rounded-full flex items-center justify-center"
               style={{ backgroundColor: color }}
+              role="img"
+              aria-label={
+                pageContent['alt-statistic-circle']
+                  ?.replace('{value}', value.toString())
+                  .replace('{type}', title) || `${title}: ${value} total`
+              }
             >
               <span className="text-white text-capx-text-5xl font-bold">{value}</span>
             </div>
@@ -203,6 +222,10 @@ export default function StatisticsSection() {
             className={`mt-2 text-capx-text-xl hover:underline text-center ${
               darkMode ? 'text-capx-dark-link' : 'text-capx-light-link'
             }`}
+            aria-label={
+              pageContent['alt-view-more']?.replace('{section}', linkDetails.text) ||
+              `View more ${linkDetails.text}`
+            }
           >
             {linkDetails.text}
           </a>

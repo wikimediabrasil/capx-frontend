@@ -1,7 +1,5 @@
 'use client';
 
-import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
-import Footer from '@/components/Footer';
 import { useEffect, useState } from 'react';
 import SimpleLoading from '@/components/SimpleLoading';
 

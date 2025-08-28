@@ -270,16 +270,21 @@ describe('CapacitySelectionModal', () => {
   };
 
   const expandCapacity = async (capacityName: string) => {
-    const expandButtons = screen.getAllByLabelText('Expand');
+    // The component uses pageContent['alt-expand'] || 'Expand to show more details' as aria-label
+    const expandButtons = screen.getAllByLabelText('Expand to show more details');
     fireEvent.click(expandButtons[0]);
 
+    // Wait for the children to be loaded and displayed
     await waitFor(() => {
+      // Check if the child capacity is displayed after expanding
+      // This assumes that 'Active Learning' is a child capacity that should be shown after expanding
       expect(screen.getByText('Active Learning')).toBeInTheDocument();
-    }, TIMEOUT_CONFIG);
+    }, { timeout: 3000 });
   };
 
   const clickInfoButton = () => {
-    const infoButtons = screen.getAllByLabelText('Info');
+    // The component uses 'Information icon, view additional details' as aria-label
+    const infoButtons = screen.getAllByLabelText('Information icon, view additional details');
     fireEvent.click(infoButtons[0]);
   };
 
