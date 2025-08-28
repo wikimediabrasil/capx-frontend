@@ -143,7 +143,7 @@ export const fetchWikidata = async (codes: any, language: string) => {
     }
 
     // Continue with Wikidata query...
-    const wdCodeList = codes.map(code => 'wd:' + code.wd_code);
+    const wdCodeList = codes.map((code: any) => 'wd:' + code.wd_code);
     const queryText = `SELECT ?item ?itemLabel ?itemDescription WHERE {VALUES ?item {${wdCodeList.join(
       ' '
     )}} SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'.}}`;
@@ -154,9 +154,9 @@ export const fetchWikidata = async (codes: any, language: string) => {
 
     const results = (wikidataResponse.data.results.bindings || [])
       .filter(
-        wdItem => wdItem.item && wdItem.item.value && wdItem.itemLabel && wdItem.itemLabel.value
+        (wdItem: any) => wdItem.item && wdItem.item.value && wdItem.itemLabel && wdItem.itemLabel.value
       )
-      .map(wdItem => ({
+      .map((wdItem: any) => ({
         wd_code: wdItem.item.value.split('/').slice(-1)[0],
         name: wdItem.itemLabel.value,
         description: wdItem.itemDescription?.value || '',
@@ -183,7 +183,7 @@ export const fetchMetabase = async (codes: any, language: string) => {
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
       SELECT ?item ?itemLabel ?itemDescription ?value WHERE {
-      VALUES ?value {${codes.map(code => `"${code.wd_code}"`).join(' ')}}
+      VALUES ?value {${codes.map((code: any) => `"${code.wd_code}"`).join(' ')}}
       ?item wbt:P67/wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
@@ -202,24 +202,31 @@ export const fetchMetabase = async (codes: any, language: string) => {
     // Process the raw results to a consistent format
     const results = (response.data.results.bindings || [])
       .filter(
-        mbItem =>
+        (mbItem: any)  =>
           mbItem.item &&
           mbItem.item.value &&
           mbItem.itemLabel &&
           mbItem.itemLabel.value &&
           mbItem.value
       )
-      .map(mbItem => ({
-        wd_code: mbItem.value.value,
-        name: mbItem.itemLabel.value,
-        description: mbItem.itemDescription?.value || '',
-        item: mbItem.item.value,
-      }));
+      .map((mbItem: any) => {
+        // Extract the Metabase ID from the item URI
+        const itemUri = mbItem.item.value;
+        const metabaseCode = itemUri.split('/').slice(-1)[0];
+
+        return {
+          wd_code: mbItem.value.value,
+          name: mbItem.itemLabel.value,
+          description: mbItem.itemDescription?.value || '',
+          item: mbItem.item.value,
+          metabase_code: metabaseCode,
+        };
+      });
 
     return results;
   } catch (error) {
     console.error('❌ Error in fetchMetabase:', error);
-    console.error('Error stack:', error.stack);
+    console.error('Error stack:', (error as Error).stack);
     return [];
   }
 };

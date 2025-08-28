@@ -118,6 +118,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
+// Custom hook to use the app context
 export function useApp() {
   const context = useContext(AppContext);
   if (context === undefined) {

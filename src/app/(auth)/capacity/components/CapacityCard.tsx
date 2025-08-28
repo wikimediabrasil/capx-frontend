@@ -44,6 +44,7 @@ export function CapacityCard({
   hasChildren,
   description,
   wd_code,
+  metabase_code,
   isRoot,
   isSearch,
   onInfoClick,
@@ -138,7 +139,7 @@ export function CapacityCard({
       >
         {wd_code && (
           <a
-            href={`https://www.wikidata.org/wiki/${wd_code}`}
+            href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code || wd_code}`}
             onClick={e => e.stopPropagation()}
             target="_blank"
             rel="noopener noreferrer"
@@ -147,7 +148,7 @@ export function CapacityCard({
               <div className="relative w-[36px] h-[36px]">
                 <Image src={BarCodeIcon} alt="BarCode" fill priority />
               </div>
-              <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
+              <p className="text-[20px] text-capx-light-link underline">{metabase_code || wd_code}</p>
             </div>
           </a>
         )}

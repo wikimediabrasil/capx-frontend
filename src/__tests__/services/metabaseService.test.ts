@@ -1,15 +1,15 @@
 import {
   extractDatesFromPageContent,
-  extractWikimediaTitleFromURL,
   extractQIDFromURL,
-  isValidEventURL,
+  extractWikimediaTitleFromURL,
   extractYearFromText,
+  fetchEventDataByGenericURL,
+  fetchEventDataByLearnWikiURL,
   fetchEventDataByQID,
   fetchEventDataByURL,
-  fetchLocationByOSMId,
   fetchEventDataByWikimediaURL,
-  fetchEventDataByLearnWikiURL,
-  fetchEventDataByGenericURL,
+  fetchLocationByOSMId,
+  isValidEventURL,
 } from '@/services/metabaseService';
 
 // Mock fetch globally

@@ -1,23 +1,22 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import ProfileCard from './components/ProfileCard';
-import { Filters } from './components/Filters';
-import { useApp } from '@/contexts/AppContext';
-import { Skill, FilterState, ProfileCapacityType, ProfileFilterType } from './types';
-import { useOrganizations } from '@/hooks/useOrganizationProfile';
-import { useAllUsers } from '@/hooks/useUserProfile';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useCapacity } from '@/hooks/useCapacityDetails';
-import { useSavedItems } from '@/hooks/useSavedItems';
-import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
-import { createProfilesFromOrganizations, createProfilesFromUsers } from './types';
-import { PaginationButtons } from '@/components/PaginationButtons';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { SearchBar } from './components/SearchBar';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
+import { PaginationButtons } from '@/components/PaginationButtons';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useCapacity } from '@/hooks/useCapacityDetails';
+import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
+import { useOrganizations } from '@/hooks/useOrganizationProfile';
+import { useSavedItems } from '@/hooks/useSavedItems';
+import { useAllUsers } from '@/hooks/useUserProfile';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { Filters } from './components/Filters';
+import ProfileCard from './components/ProfileCard';
+import { SearchBar } from './components/SearchBar';
+import { createProfilesFromOrganizations, createProfilesFromUsers, FilterState, ProfileCapacityType, ProfileFilterType, Skill } from './types';
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
@@ -38,7 +37,7 @@ export default function FeedPage() {
     languages: [] as string[],
     profileFilter: ProfileFilterType.Both,
     username: undefined,
-    affiliations: [] as string[],
+    affiliations: [] as (string | number)[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 

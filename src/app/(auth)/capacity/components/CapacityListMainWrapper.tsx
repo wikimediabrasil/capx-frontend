@@ -177,6 +177,7 @@ const ChildCapacities = ({
                 parentCapacity={child.parentCapacity}
                 description={getDescription(child.code)}
                 wd_code={getWdCode(child.code)}
+                metabase_code={getMetabaseCode(child.code)}
                 rootColor={rootColor}
                 onInfoClick={async code => {
                   // Ensure description is loaded for this capacity

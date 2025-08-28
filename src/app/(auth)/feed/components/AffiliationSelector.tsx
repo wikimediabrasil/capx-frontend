@@ -1,12 +1,12 @@
-import { SelectList } from './Selector';
+import { useApp } from '@/contexts/AppContext';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
-import { useApp } from '@/contexts/AppContext';
+import { SelectList } from './Selector';
 
 interface AffiliationSelectorProps {
   affiliations: Record<string, string>;
-  selectedAffiliations: string[];
-  onSelectAffiliation: (affiliationId: string) => void;
+  selectedAffiliations: string[] | number[];
+  onSelectAffiliation: (affiliationId: string | number) => void;
   placeholder?: string;
 }
 

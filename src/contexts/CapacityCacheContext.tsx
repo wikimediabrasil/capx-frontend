@@ -4,6 +4,7 @@ import { Capacity } from '@/types/capacity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { fetchMetabase, fetchWikidata } from '../lib/utils/capacitiesUtils';
 
 // Query keys for the React Query
 const QUERY_KEYS = {
@@ -84,6 +85,7 @@ interface CapacityCacheContextType {
   preloadCapacities: () => Promise<void>;
   clearCache: () => void;
   clearCapacityCache: () => void;
+  refreshTranslations: (targetLanguage: string) => Promise<void>;
 }
 
 const CapacityCacheContext = createContext<CapacityCacheContextType>({
@@ -94,6 +96,7 @@ const CapacityCacheContext = createContext<CapacityCacheContextType>({
   preloadCapacities: async () => {},
   clearCache: () => {},
   clearCapacityCache: () => {},
+  refreshTranslations: async () => {},
 });
 
 export function CapacityCacheProvider({ children }: { children: React.ReactNode }) {
@@ -327,6 +330,7 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
               skill_wikidata_item: '',
               description: '',
               wd_code: '',
+              metabase_code: '',
               parentCapacity: newCapacityCache.get(code),
             });
           }
@@ -391,6 +395,7 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
                   skill_wikidata_item: '',
                   description: '',
                   wd_code: '',
+                  metabase_code: '',
                   parentCapacity: parentCapacity,
                 });
               }
@@ -431,6 +436,74 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ALL_CAPACITIES] });
   }, [queryClient]);
 
+  // Function to refresh translations for a specific language
+  const refreshTranslations = useCallback(
+    async (targetLanguage: string) => {
+      if (!session?.user?.token) return;
+
+      try {
+        setIsLoading(true);
+
+        // Get all capacity codes that have wd_code
+        const allCapacities = Array.from(capacityCache.values()).filter(cap => cap.wd_code);
+
+        if (allCapacities.length === 0) {
+          console.warn('No capacities with wd_code found for translation refresh');
+          return;
+        }
+
+        // Fetch translations from Metabase first, then Wikidata as fallback
+        const codesWithWdCode = allCapacities.map(cap => ({
+          code: cap.code,
+          wd_code: cap.wd_code!,
+        }));
+
+        // Try Metabase first
+        let translatedCapacities = await fetchMetabase(codesWithWdCode, targetLanguage);
+
+        // If no results from Metabase, try Wikidata
+        if (!translatedCapacities || translatedCapacities.length === 0) {
+          console.log('No results from Metabase, falling back to Wikidata for translations');
+          translatedCapacities = await fetchWikidata(codesWithWdCode, targetLanguage);
+        }
+
+        if (translatedCapacities && translatedCapacities.length > 0) {
+          // Update the cache with translated names and descriptions
+          const updatedCapacityCache = new Map(capacityCache);
+
+          translatedCapacities.forEach((translatedCap: any) => {
+            const existingCapacity = updatedCapacityCache.get(
+              Number(translatedCap.wd_code.replace('Q', ''))
+            );
+            if (existingCapacity) {
+              updatedCapacityCache.set(existingCapacity.code, {
+                ...existingCapacity,
+                name: translatedCap.name || existingCapacity.name,
+                description: translatedCap.description || existingCapacity.description,
+                metabase_code: translatedCap.metabase_code || existingCapacity.metabase_code,
+              });
+            }
+          });
+
+          // Update cache in React Query
+          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCapacityCache);
+
+          // Save to localStorage
+          saveCache(updatedCapacityCache, childrenCache, true);
+
+          console.log(
+            `Updated ${translatedCapacities.length} capacity translations for language: ${targetLanguage}`
+          );
+        }
+      } catch (error) {
+        console.error('Error refreshing translations:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [session?.user?.token, capacityCache, childrenCache, queryClient]
+  );
+
   // Check if a capacity has children
   const hasChildren = (code: number): boolean => {
     const children = childrenCache.get(code);
@@ -451,6 +524,7 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     preloadCapacities,
     clearCache,
     clearCapacityCache,
+    refreshTranslations,
   };
 
   return (

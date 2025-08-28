@@ -19,6 +19,7 @@ import LoadingStateWithFallback, { CompactLoading } from '@/components/LoadingSt
 // Types for the context
 type DescriptionMap = Record<number, string>;
 type WdCodeMap = Record<number, string>;
+type MetabaseCodeMap = Record<number, string>;
 
 interface CapacityContextType {
   // Get descriptions
@@ -38,6 +39,7 @@ interface CapacityContextType {
 // Persistent description between navigations
 let cachedDescriptions: DescriptionMap = {};
 let cachedWdCodes: WdCodeMap = {};
+let cachedMetabaseCodes: MetabaseCodeMap = {};
 const requestedDescriptions = new Set<number>();
 
 // Initialize localStorage cache
@@ -48,6 +50,7 @@ if (typeof window !== 'undefined') {
       const parsed = JSON.parse(savedDescriptions);
       cachedDescriptions = parsed.descriptions || {};
       cachedWdCodes = parsed.wdCodes || {};
+      cachedMetabaseCodes = parsed.metabaseCodes || {};
     }
   } catch (error) {
     console.error('Erro ao carregar descrições do cache:', error);
@@ -152,6 +155,7 @@ const CapacityContext = createContext<CapacityContextType | null>(null);
 const globalDescriptionStore = {
   descriptions: { ...cachedDescriptions } as DescriptionMap,
   wdCodes: { ...cachedWdCodes } as WdCodeMap,
+  metabaseCodes: { ...cachedMetabaseCodes } as MetabaseCodeMap,
   requestedCodes: new Set<number>(requestedDescriptions),
   pendingCodes: new Set<number>(),
   subscribers: new Set<() => void>(),
@@ -305,6 +309,10 @@ export function CapacityDescriptionProvider({ children }: { children: ReactNode 
   // Get WD code from cache
   const getWdCode = useCallback((code: number): string => {
     return globalDescriptionStore.wdCodes[code] || cachedWdCodes[code] || '';
+  }, []);
+
+  const getMetabaseCode = useCallback((code: number): string => {
+    return globalDescriptionStore.metabaseCodes[code] || cachedMetabaseCodes[code] || '';
   }, []);
 
   // Request description safely with direct API loading when needed

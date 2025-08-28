@@ -24,7 +24,7 @@ export interface FilterState {
   languages: string[];
   profileFilter: ProfileFilterType;
   username?: string;
-  affiliations?: string[];
+  affiliations?: (string | number)[];
 }
 
 export const createProfilesFromOrganizations = (
