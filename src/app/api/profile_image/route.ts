@@ -16,10 +16,21 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ message: 'No images found' }, { status: 404 });
       }
 
-      const images = queryResponse.data.query.search.map((image: { title: string }) => image.title);
+      const images = queryResponse.data.query.search.map(
+        (image: { title: string }) => image.title
+      );
+
       return NextResponse.json(images);
-    } catch {
-      return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 });
+    } catch (error: any) {
+      console.error("Error fetching images:", error?.message || error);
+
+      return NextResponse.json(
+        {
+          error: 'Failed to fetch images',
+          details: error?.response?.data || error?.message,
+        },
+        { status: 500 }
+      );
     }
   }
 
@@ -32,10 +43,19 @@ export async function GET(request: NextRequest) {
       const queryResponse = await axios.get(
         `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${title}${suffix}`
       );
-      const image = queryResponse.request.res.responseUrl;
+
+      const image = queryResponse.request?.res?.responseUrl;
       return NextResponse.json({ image });
-    } catch {
-      return NextResponse.json({ error: 'Failed to fetch image' }, { status: 500 });
+    } catch (error: any) {
+      console.error("Error fetching image:", error?.message || error);
+
+      return NextResponse.json(
+        {
+          error: 'Failed to fetch image',
+          details: error?.response?.data || error?.message,
+        },
+        { status: 500 }
+      );
     }
   }
 

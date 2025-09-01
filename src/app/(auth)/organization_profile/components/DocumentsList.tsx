@@ -22,7 +22,6 @@ export const DocumentsList = ({ title, items = [], token }: DocumentsListProps) 
     setRenderedDocuments(renderedDocuments - 1);
   };
 
-  console.log('DocumentsList items', items);
   if (items.length === 0 || renderedDocuments === 0) {
     return null;
   }
