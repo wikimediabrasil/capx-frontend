@@ -36,7 +36,7 @@ export default function Checklist({
     typeof value === 'string' && value && !itemsList.includes(value) ? value : ''
   );
 
-  // sincroniza quando value ou itemsList mudar
+  // syncs when value or itemsList changes
   useEffect(() => {
     setItems(
       itemsList.map(item => ({
