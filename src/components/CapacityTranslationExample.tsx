@@ -1,6 +1,7 @@
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacityTranslations } from '@/hooks/useCapacityTranslations';
+import { useTranslationSync } from '@/hooks/useTranslationSync';
 
 /**
  * Componente de exemplo para demonstrar o uso do sistema de traduções das capacidades
@@ -11,6 +12,9 @@ export function CapacityTranslationExample() {
   const { getCapacity, isLoaded } = useCapacityCache();
   const { isLoading, error, refreshTranslations, getTranslatedCapacity } =
     useCapacityTranslations();
+
+  // Ensure translations are applied when language changes
+  useTranslationSync();
 
   // Exemplo de códigos de capacidade para demonstrar as traduções
   const exampleCapacityCodes = [36, 50, 56, 65, 74, 106];

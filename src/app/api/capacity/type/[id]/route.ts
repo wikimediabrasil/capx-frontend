@@ -42,16 +42,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({});
     }
 
-    // Use the new fallback strategy
-    const metabaseResults = await fetchCapacitiesWithFallback(codes, language);
+    // Log what we're searching for
+    console.log(
+      '🔍 API type/[id] searching for codes:',
+      codes.map(c => ({ code: c.code, wd_code: c.wd_code }))
+    );
 
-    // Use Wikidata as fallback if Metabase didn't provide enough data
-    let wikidataResults = [];
-    if (metabaseResults.length < codes.length * 0.5) {
-      // Less than 50% success
-      console.log('📚 Metabase insuficiente, usando Wikidata como fallback');
-      wikidataResults = await fetchWikidata(codes, language);
-    }
+    // Try both Metabase and Wikidata in parallel
+    const [metabaseResults, wikidataResults] = await Promise.all([
+      fetchCapacitiesWithFallback(codes, language),
+      fetchWikidata(codes, language),
+    ]);
 
     // try to get names from Metabase first
     let capacityNames = {};
@@ -76,15 +77,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       // Continue with fallback
     }
 
-    // Create the final response
+    // Create the final response with metabase_code
     const finalResponse = {};
     codes.forEach(code => {
-      if (code.wd_code && capacityNames[code.wd_code]) {
-        finalResponse[code.code] = capacityNames[code.wd_code];
-      } else {
-        // Use the original name if no translation found
-        finalResponse[code.code] = code.name;
-      }
+      const metabaseMatch = metabaseResults.find(item => item?.wd_code === code.wd_code);
+      const wikidataMatch = wikidataResults.find(item => item?.wd_code === code.wd_code);
+
+      // Priority: Metabase name > Wikidata name > original name
+      const finalName = metabaseMatch?.name || wikidataMatch?.name || code.name;
+
+      finalResponse[code.code] = {
+        name: finalName,
+        wd_code: code.wd_code || '',
+        metabase_code: metabaseMatch?.metabase_code || '',
+      };
     });
 
     return NextResponse.json(finalResponse);

@@ -33,13 +33,23 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const userList = await axios.get(`${process.env.BASE_URL}/users_by_skill/${id}/`);
 
     const capacityCodes = {
-      code: id,
+      code: parseInt(id, 10), // Ensure code is a number
       wd_code: codeList.data[id],
       users: userList.data,
     };
 
     try {
+      // Validate that we have a proper wd_code before making the request
+      if (!capacityCodes.wd_code || typeof capacityCodes.wd_code !== 'string') {
+        console.log(`⚠️ API: No valid wd_code for capacity ${id}, skipping translation fetch`);
+        // Skip to hardcoded fallback
+        throw new Error('No wd_code available');
+      }
+
       // Use the new fallback strategy
+      console.log(
+        `🔍 API: Fetching translations for capacity ${id} with wd_code: ${capacityCodes.wd_code} in language: ${language}`
+      );
       const metabaseResults = await fetchCapacitiesWithFallback([capacityCodes], language);
 
       if (metabaseResults.length > 0 && metabaseResults[0].name) {

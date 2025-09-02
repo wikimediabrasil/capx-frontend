@@ -4,7 +4,6 @@ import { Capacity } from '@/types/capacity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { fetchMetabase, fetchWikidata } from '../lib/utils/capacitiesUtils';
 
 // Query keys for the React Query
 const QUERY_KEYS = {
@@ -20,10 +19,19 @@ let hasInitializedCache = false;
 // Variable to store the debounce timer
 let saveCacheTimer: NodeJS.Timeout | null = null;
 
+// Enhanced cache structure to include metadata
+interface EnhancedCapacity extends Capacity {
+  wd_code?: string;
+  metabase_code?: string;
+  names?: Record<string, string>;
+  descriptions?: Record<string, string>;
+}
+
 // Function to persist cache in localStorage
 const saveCache = (
-  capacities: Map<number, Capacity>,
+  capacities: Map<number, EnhancedCapacity>,
   children: Map<number, number[]>,
+  currentLanguage: string,
   isFresh = false
 ) => {
   if (typeof window === 'undefined') return;
@@ -45,6 +53,7 @@ const saveCache = (
     const cacheData = {
       capacities: capacitiesObj,
       children: childrenObj,
+      currentLanguage,
       timestamp: Date.now(), // Add timestamp to track cache age
     };
 
@@ -79,32 +88,57 @@ const objectToMap = (obj: Record<string, any> | any): Map<number, any> | any => 
 
 interface CapacityCacheContextType {
   isLoaded: boolean;
+  isLoadingTranslations: boolean;
+  isDescriptionsReady: boolean;
   hasChildren: (code: number) => boolean;
-  getCapacity: (code: number) => Capacity | undefined;
+  getCapacity: (code: number) => EnhancedCapacity | undefined;
+  getName: (code: number, language?: string) => string;
+  getDescription: (code: number, language?: string) => string;
+  getMetabaseCode: (code: number) => string;
+  getWdCode: (code: number) => string;
   prefetchCapacityData: () => Promise<void>;
   preloadCapacities: () => Promise<void>;
   clearCache: () => void;
   clearCapacityCache: () => void;
   refreshTranslations: (targetLanguage: string) => Promise<void>;
+  applyTranslationsToMainFields: (targetLanguage: string) => number;
 }
 
 const CapacityCacheContext = createContext<CapacityCacheContextType>({
   isLoaded: false,
+  isLoadingTranslations: false,
+  isDescriptionsReady: false,
   hasChildren: () => false,
   getCapacity: () => undefined,
+  getName: () => '',
+  getDescription: () => '',
+  getMetabaseCode: () => '',
+  getWdCode: () => '',
   prefetchCapacityData: async () => {},
   preloadCapacities: async () => {},
   clearCache: () => {},
   clearCapacityCache: () => {},
   refreshTranslations: async () => {},
+  applyTranslationsToMainFields: () => 0,
 });
 
-export function CapacityCacheProvider({ children }: { children: React.ReactNode }) {
+export function CapacityCacheProvider({
+  children,
+  language = 'en',
+}: {
+  children: React.ReactNode;
+  language?: string;
+}) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isManuallyLoaded, setIsManuallyLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingTranslations, setIsLoadingTranslations] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('en');
+  const [descriptionsLoadedFor, setDescriptionsLoadedFor] = useState<string>('');
+  const [isDescriptionsReady, setIsDescriptionsReady] = useState(false);
   const hasCalled = useRef(false);
+  const descriptionsInitialized = useRef(false);
 
   // Load cache from localStorage when starting (only once)
   useEffect(() => {
@@ -122,17 +156,94 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
 
         // Convert back to Map before using
         if (parsedCache.capacities) {
-          const capacitiesMap = objectToMap(parsedCache.capacities);
+          let capacitiesMap = objectToMap(parsedCache.capacities);
+
+          // Try to migrate data from the old translation cache if it exists
+          try {
+            const oldTranslationCache = localStorage.getItem('capx-translations-cache');
+            if (oldTranslationCache) {
+              const oldParsed = JSON.parse(oldTranslationCache);
+              const oldDescriptions = oldParsed.descriptions || {};
+              const oldNames = oldParsed.names || {};
+
+              console.log(
+                `🔄 Found old translation cache, migrating ${Object.keys(oldDescriptions).length} descriptions...`
+              );
+
+              // Migrate descriptions to the main cache
+              const updatedCapacitiesMap = new Map(capacitiesMap);
+              let migratedCount = 0;
+
+              for (const [codeStr, description] of Object.entries(oldDescriptions)) {
+                const code = parseInt(codeStr, 10);
+                const capacity = updatedCapacitiesMap.get(code);
+
+                if (
+                  capacity &&
+                  typeof capacity === 'object' &&
+                  'name' in capacity &&
+                  'code' in capacity &&
+                  description &&
+                  typeof description === 'string' &&
+                  description.trim() !== ''
+                ) {
+                  const name = oldNames[code] || (capacity as EnhancedCapacity).name;
+                  const updatedCapacity: EnhancedCapacity = {
+                    ...(capacity as EnhancedCapacity),
+                    description: description,
+                    name: name || (capacity as EnhancedCapacity).name,
+                    // If we have descriptions, assume they are in the current language
+                    descriptions: {
+                      ...(capacity as EnhancedCapacity).descriptions,
+                      [parsedCache.currentLanguage || 'en']: description,
+                    },
+                    names: {
+                      ...(capacity as EnhancedCapacity).names,
+                      [parsedCache.currentLanguage || 'en']: name || (capacity as EnhancedCapacity).name,
+                    },
+                  };
+                  updatedCapacitiesMap.set(code, updatedCapacity);
+                  migratedCount++;
+                }
+              }
+
+              if (migratedCount > 0) {
+                capacitiesMap = updatedCapacitiesMap;
+                console.log(`✅ Migrated ${migratedCount} descriptions from old translation cache`);
+
+                // Save the updated cache
+                saveCache(
+                  capacitiesMap,
+                  objectToMap(parsedCache.children || {}),
+                  parsedCache.currentLanguage || 'en',
+                  true
+                );
+              }
+            }
+          } catch (migrationError) {
+            console.warn('Error migrating old translation cache:', migrationError);
+          }
+
           queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], capacitiesMap);
 
           // Debug info - show only once
           const capacityCount = Object.keys(parsedCache.capacities).length;
           const childrenCount = parsedCache.children ? Object.keys(parsedCache.children).length : 0;
+          console.log(
+            `🔄 Restored cache: ${capacityCount} capacities, ${childrenCount} parent-child relationships`
+          );
         }
 
         if (parsedCache.children) {
           const childrenMap = objectToMap(parsedCache.children);
           queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], childrenMap);
+        }
+
+        // Restore language state
+        if (parsedCache.currentLanguage) {
+          setCurrentLanguage(parsedCache.currentLanguage);
+          setDescriptionsLoadedFor(parsedCache.currentLanguage);
+          setIsDescriptionsReady(true);
         }
 
         // Mark as loaded
@@ -146,18 +257,19 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
   }, [queryClient]);
 
   // Use React Query to maintain the persistent cache between navigations
-  const { data: capacityCache = new Map<number, Capacity>(), isSuccess: isCacheLoaded } = useQuery({
-    queryKey: [QUERY_KEYS.ALL_CAPACITIES],
-    queryFn: () => {
-      // Return the existing cache or a new Map
-      const existingCache = queryClient.getQueryData<Map<number, Capacity>>([
-        QUERY_KEYS.ALL_CAPACITIES,
-      ]);
-      return existingCache || new Map<number, Capacity>();
-    },
-    staleTime: Infinity, // Never consider obsolete
-    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
-  });
+  const { data: capacityCache = new Map<number, EnhancedCapacity>(), isSuccess: isCacheLoaded } =
+    useQuery({
+      queryKey: [QUERY_KEYS.ALL_CAPACITIES],
+      queryFn: () => {
+        // Return the existing cache or a new Map
+        const existingCache = queryClient.getQueryData<Map<number, EnhancedCapacity>>([
+          QUERY_KEYS.ALL_CAPACITIES,
+        ]);
+        return existingCache || new Map<number, EnhancedCapacity>();
+      },
+      staleTime: Infinity, // Never consider obsolete
+      gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
+    });
 
   const { data: childrenCache = new Map<number, number[]>(), isSuccess: isChildrenCacheLoaded } =
     useQuery({
@@ -173,6 +285,403 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     });
 
   const isLoaded = isCacheLoaded && isChildrenCacheLoaded && isManuallyLoaded;
+
+  // Function to apply existing translations to main fields
+  const applyTranslationsToMainFields = useCallback(
+    (targetLanguage: string) => {
+      if (capacityCache.size === 0) return 0;
+
+      const updatedCache = new Map(capacityCache);
+      let appliedCount = 0;
+
+      Array.from(capacityCache.values()).forEach(capacity => {
+        if (capacity.names && capacity.names[targetLanguage]) {
+          const updatedCapacity = {
+            ...capacity,
+            name: capacity.names[targetLanguage],
+            description:
+              capacity.descriptions && capacity.descriptions[targetLanguage]
+                ? capacity.descriptions[targetLanguage]
+                : capacity.description,
+          };
+          updatedCache.set(capacity.code, updatedCapacity);
+          appliedCount++;
+        }
+      });
+
+      if (appliedCount > 0) {
+        queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCache);
+        // Also save to localStorage to persist the main field updates
+        saveCache(updatedCache, childrenCache, targetLanguage, true);
+        console.log(
+          `🔄 Applied ${appliedCount} cached translations to main fields for ${targetLanguage}`
+        );
+      }
+
+      return appliedCount;
+    },
+    [capacityCache, childrenCache, queryClient]
+  );
+
+  // Function to integrate translations directly into main cache structure (define early to use in useEffects)
+  const integrateTranslationsIntoCache = useCallback(
+    async (targetLanguage: string) => {
+      if (!session?.user?.token || capacityCache.size === 0) return;
+
+      try {
+        setIsLoadingTranslations(true);
+        console.log(
+          `🌍 Integrating translations for ${targetLanguage} into main cache structure...`
+        );
+
+        // First, try to apply existing cached translations
+        const appliedCount = applyTranslationsToMainFields(targetLanguage);
+        if (appliedCount > 0) {
+          console.log(
+            `✅ Applied ${appliedCount} existing translations, checking if more needed...`
+          );
+        }
+
+        // Get all capacity codes that have wd_code but don't have translations for target language
+        const capacitiesNeedingTranslation = Array.from(capacityCache.values()).filter(cap => {
+          return cap.wd_code && (!cap.names || !cap.names[targetLanguage]);
+        });
+
+        if (capacitiesNeedingTranslation.length === 0) {
+          console.log(`✅ All capacities already have translations for ${targetLanguage}`);
+          return;
+        }
+
+        // Fetch translations from Metabase first, then Wikidata as fallback
+        const codesWithWdCode = capacitiesNeedingTranslation.map(cap => ({
+          code: cap.code,
+          wd_code: cap.wd_code!,
+        }));
+
+        console.log(`📡 Fetching translations for ${codesWithWdCode.length} capacities...`);
+
+        // Try Metabase first
+        let translatedCapacities = await capacityService.fetchMetabaseTranslations(
+          codesWithWdCode,
+          targetLanguage
+        );
+
+        // If no results from Metabase, try Wikidata as fallback
+        if (!translatedCapacities || translatedCapacities.length === 0) {
+          console.log('📡 No results from Metabase, falling back to Wikidata for translations');
+          translatedCapacities = await capacityService.fetchWikidataTranslations(
+            codesWithWdCode,
+            targetLanguage
+          );
+        }
+
+        if (translatedCapacities && translatedCapacities.length > 0) {
+          // Update the cache with translated names and descriptions integrated into main structure
+          const updatedCapacityCache = new Map(capacityCache);
+
+          translatedCapacities.forEach((translatedCap: any) => {
+            // Find the capacity by matching wd_code or code
+            let matchingCapacity: EnhancedCapacity | undefined;
+            let matchingCode: number | undefined;
+
+            // Try to find by exact code match first
+            if (translatedCap.code) {
+              matchingCapacity = updatedCapacityCache.get(Number(translatedCap.code));
+              matchingCode = Number(translatedCap.code);
+            }
+
+            // If not found and we have wd_code, try to find by wd_code
+            if (!matchingCapacity && translatedCap.wd_code) {
+              for (const [code, capacity] of updatedCapacityCache) {
+                if (capacity.wd_code === translatedCap.wd_code) {
+                  matchingCapacity = capacity;
+                  matchingCode = code;
+                  break;
+                }
+              }
+            }
+
+            if (matchingCapacity && matchingCode !== undefined) {
+              // Preserve existing translations structure while integrating new ones
+              const names = matchingCapacity.names || {};
+              const descriptions = matchingCapacity.descriptions || {};
+
+              // Add the new translation
+              names[targetLanguage] = translatedCap.name || matchingCapacity.name;
+              descriptions[targetLanguage] =
+                translatedCap.description || matchingCapacity.description;
+
+              // Update capacity with integrated translations, always update main fields for target language
+              const updatedCapacity = {
+                ...matchingCapacity,
+                names,
+                descriptions,
+                // Always update main fields to the target language
+                name: translatedCap.name || matchingCapacity.name,
+                description: translatedCap.description || matchingCapacity.description,
+                metabase_code: translatedCap.metabase_code || matchingCapacity.metabase_code,
+              };
+
+              updatedCapacityCache.set(matchingCode, updatedCapacity);
+            }
+          });
+
+          // Update cache in React Query
+          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCapacityCache);
+
+          // Save to localStorage with integrated translations
+          saveCache(updatedCapacityCache, childrenCache, targetLanguage, true);
+
+          console.log(
+            `✅ Integrated ${translatedCapacities.length} new translations for language: ${targetLanguage} into main cache structure`
+          );
+        } else {
+          console.log(`⚠️ No new translations found for language: ${targetLanguage}`);
+        }
+      } catch (error) {
+        console.error('Error integrating translations into cache:', error);
+      } finally {
+        setIsLoadingTranslations(false);
+      }
+    },
+    [
+      session?.user?.token,
+      capacityCache,
+      childrenCache,
+      queryClient,
+      currentLanguage,
+      applyTranslationsToMainFields,
+    ]
+  );
+
+  // Load all descriptions for a specific language (define early to use in useEffects)
+  const loadAllDescriptions = useCallback(
+    async (targetLanguage: string) => {
+      if (!session?.user?.token) return;
+
+      setIsDescriptionsReady(false);
+      setCurrentLanguage(targetLanguage);
+
+      try {
+        console.log(
+          `🔄 Loading descriptions for all ${capacityCache.size} capacities in ${targetLanguage}...`
+        );
+
+        // Get all capacity codes that need translations
+        const capacityCodes = Array.from(capacityCache.keys());
+        const codesNeedingTranslations = capacityCodes.filter(code => {
+          const capacity = capacityCache.get(code);
+          return !capacity?.names?.[targetLanguage] || !capacity?.descriptions?.[targetLanguage];
+        });
+
+        console.log(
+          `📝 Found ${codesNeedingTranslations.length} capacities needing translations in ${targetLanguage}`
+        );
+
+        // Load translations in batches to avoid overwhelming the API
+        const batchSize = 10;
+        const updatedCache = new Map(capacityCache);
+
+        for (let i = 0; i < codesNeedingTranslations.length; i += batchSize) {
+          const batch = codesNeedingTranslations.slice(i, i + batchSize);
+
+          await Promise.all(
+            batch.map(async code => {
+              try {
+                const response = await capacityService.fetchCapacityDescription(
+                  code,
+                  {
+                    headers: { Authorization: `Token ${session.user.token}` },
+                  },
+                  targetLanguage
+                );
+
+                const capacity = updatedCache.get(code);
+                if (capacity) {
+                  const updatedCapacity = {
+                    ...capacity,
+                    names: {
+                      ...capacity.names,
+                      [targetLanguage]: response.name || '',
+                    },
+                    descriptions: {
+                      ...capacity.descriptions,
+                      [targetLanguage]: response.description || '',
+                    },
+                    // Update main fields to target language
+                    name: response.name || capacity.name,
+                    description: response.description || capacity.description,
+                    wd_code: response.wdCode || capacity.wd_code || '',
+                    metabase_code: response.metabaseCode || capacity.metabase_code || '',
+                  };
+                  updatedCache.set(code, updatedCapacity);
+                }
+              } catch (error) {
+                console.error(`Error loading description for capacity ${code}:`, error);
+              }
+            })
+          );
+
+          // Update progress
+          console.log(
+            `✅ Loaded descriptions for batch ${Math.ceil((i + batchSize) / batchSize)} of ${Math.ceil(codesNeedingTranslations.length / batchSize)}`
+          );
+        }
+
+        // Update the cache
+        queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCache);
+
+        // Save cache with integrated translations
+        saveCache(updatedCache, childrenCache, targetLanguage, true);
+
+        // Mark descriptions as ready for this language
+        setDescriptionsLoadedFor(targetLanguage);
+        setIsDescriptionsReady(true);
+
+        console.log(`🎉 Finished loading all descriptions in ${targetLanguage}`);
+      } catch (error) {
+        console.error('Error loading all descriptions:', error);
+        setIsDescriptionsReady(false);
+      }
+    },
+    [capacityCache, session?.user?.token, queryClient]
+  );
+
+  // Sync with app language and integrate translations when cache is ready
+  useEffect(() => {
+    if (language !== currentLanguage && isLoaded && capacityCache.size > 0) {
+      console.log(
+        `🌍 Language changed from ${currentLanguage} to ${language}, checking for cached translations...`
+      );
+
+      // First check if we already have cached translations for this language
+      const hasTranslationsInCache = Array.from(capacityCache.values()).some(capacity => {
+        return (
+          capacity.names &&
+          capacity.names[language] &&
+          capacity.descriptions &&
+          capacity.descriptions[language]
+        );
+      });
+
+      if (hasTranslationsInCache) {
+        // Apply existing translations immediately
+        console.log(`✅ Found cached translations for ${language}, applying to main fields...`);
+        const appliedCount = applyTranslationsToMainFields(language);
+
+        setCurrentLanguage(language);
+        setIsDescriptionsReady(true);
+        setDescriptionsLoadedFor(language);
+
+        console.log(
+          `✅ Successfully switched to ${language} with ${appliedCount} translations applied`
+        );
+      } else {
+        // Need to fetch translations
+        console.log(`🔄 No cached translations found, integrating translations for ${language}...`);
+        setCurrentLanguage(language);
+        setIsDescriptionsReady(false);
+        setDescriptionsLoadedFor('');
+        descriptionsInitialized.current = false;
+
+        // Integrate translations for the new language
+        integrateTranslationsIntoCache(language)
+          .then(() => {
+            setIsDescriptionsReady(true);
+            setDescriptionsLoadedFor(language);
+            console.log(`✅ Translations integrated for ${language}`);
+          })
+          .catch(error => {
+            console.error(`❌ Failed to integrate translations for ${language}:`, error);
+            setIsDescriptionsReady(false);
+          });
+      }
+    } else if (language !== currentLanguage) {
+      // Just update the language if cache is not ready yet
+      setCurrentLanguage(language);
+    }
+  }, [
+    language,
+    currentLanguage,
+    isLoaded,
+    capacityCache.size,
+    applyTranslationsToMainFields,
+    integrateTranslationsIntoCache,
+  ]);
+
+  // Auto-initialize translations when cache is loaded and we have a session
+  useEffect(() => {
+    if (
+      isLoaded &&
+      session?.user?.token &&
+      capacityCache.size > 0 &&
+      !descriptionsInitialized.current &&
+      currentLanguage === language // Only initialize if current language matches app language
+    ) {
+      descriptionsInitialized.current = true;
+      console.log(`🚀 Auto-initializing translations for language: ${currentLanguage}`);
+
+      // First check if we already have cached translations for this language
+      const hasExistingTranslations = Array.from(capacityCache.values()).some(capacity => {
+        return (
+          capacity.names &&
+          capacity.names[currentLanguage] &&
+          capacity.descriptions &&
+          capacity.descriptions[currentLanguage]
+        );
+      });
+
+      if (hasExistingTranslations) {
+        console.log(
+          `✅ Found existing translations for ${currentLanguage}, applying to main fields`
+        );
+
+        // Apply existing translations to main fields immediately
+        const updatedCache = new Map(capacityCache);
+        let appliedCount = 0;
+
+        Array.from(capacityCache.values()).forEach(capacity => {
+          if (capacity.names && capacity.names[currentLanguage]) {
+            const updatedCapacity = {
+              ...capacity,
+              name: capacity.names[currentLanguage],
+              description:
+                capacity.descriptions && capacity.descriptions[currentLanguage]
+                  ? capacity.descriptions[currentLanguage]
+                  : capacity.description,
+            };
+            updatedCache.set(capacity.code, updatedCapacity);
+            appliedCount++;
+          }
+        });
+
+        if (appliedCount > 0) {
+          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCache);
+          console.log(
+            `🔄 Applied ${appliedCount} existing translations to main fields for ${currentLanguage}`
+          );
+        }
+
+        setIsDescriptionsReady(true);
+        setDescriptionsLoadedFor(currentLanguage);
+      } else {
+        // Use the new integration method to fetch translations
+        integrateTranslationsIntoCache(currentLanguage)
+          .then(() => {
+            setIsDescriptionsReady(true);
+            setDescriptionsLoadedFor(currentLanguage);
+            console.log(`✅ Initial translations integrated for ${currentLanguage}`);
+          })
+          .catch(error => {
+            console.error(
+              `❌ Failed to integrate initial translations for ${currentLanguage}:`,
+              error
+            );
+            setIsDescriptionsReady(false);
+          });
+      }
+    }
+  }, [isLoaded, session?.user?.token, capacityCache.size, currentLanguage, language, queryClient]);
 
   // Function to clear the entire cache
   const clearCache = useCallback(() => {
@@ -191,12 +700,14 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     if (isCacheLoaded && isChildrenCacheLoaded && capacityCache.size > 0) {
       // Use debounce to avoid multiple saves
       const timer = setTimeout(() => {
-        saveCache(capacityCache, childrenCache);
+        saveCache(capacityCache, childrenCache, currentLanguage);
       }, 1000);
 
       return () => clearTimeout(timer);
     }
   }, [isCacheLoaded, isChildrenCacheLoaded, capacityCache, childrenCache]);
+
+  // This useEffect was removed to prevent conflicts with the main language change handler above
 
   // Function to preload all capacity data in the background
   const prefetchCapacityData = async () => {
@@ -284,6 +795,7 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
         skill_wikidata_item: '',
         description: '',
         wd_code: rootCapacity.wd_code || '',
+        metabase_code: rootCapacity.metabase_code || '',
       });
     });
 
@@ -317,20 +829,21 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
         // Add children to cache
         childCodes.forEach(childCode => {
           if (!newCapacityCache.has(childCode)) {
+            const childData = children[childCode];
             newCapacityCache.set(childCode, {
               code: childCode,
               name:
-                typeof children[childCode] === 'string'
-                  ? children[childCode]
-                  : children[childCode]?.name || `Capacity ${childCode}`,
+                typeof childData === 'string'
+                  ? childData
+                  : childData?.name || `Capacity ${childCode}`,
               color: 'technology',
               icon: '',
               hasChildren: false,
               skill_type: code,
               skill_wikidata_item: '',
               description: '',
-              wd_code: '',
-              metabase_code: '',
+              wd_code: typeof childData === 'object' ? childData?.wd_code || '' : '',
+              metabase_code: typeof childData === 'object' ? childData?.metabase_code || '' : '',
               parentCapacity: newCapacityCache.get(code),
             });
           }
@@ -382,20 +895,22 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
             grandChildCodes.forEach(grandChildCode => {
               if (!newCapacityCache.has(grandChildCode)) {
                 const parentCapacity = newCapacityCache.get(childCode);
+                const grandChildData = grandChildren[grandChildCode];
                 newCapacityCache.set(grandChildCode, {
                   code: grandChildCode,
                   name:
-                    typeof grandChildren[grandChildCode] === 'string'
-                      ? grandChildren[grandChildCode]
-                      : grandChildren[grandChildCode]?.name || `Capacity ${grandChildCode}`,
+                    typeof grandChildData === 'string'
+                      ? grandChildData
+                      : grandChildData?.name || `Capacity ${grandChildCode}`,
                   color: 'technology',
                   icon: '',
                   hasChildren: false,
                   skill_type: childCode,
                   skill_wikidata_item: '',
                   description: '',
-                  wd_code: '',
-                  metabase_code: '',
+                  wd_code: typeof grandChildData === 'object' ? grandChildData?.wd_code || '' : '',
+                  metabase_code:
+                    typeof grandChildData === 'object' ? grandChildData?.metabase_code || '' : '',
                   parentCapacity: parentCapacity,
                 });
               }
@@ -417,7 +932,7 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], newChildrenCache);
 
     // Save cache in localStorage with a timestamp
-    saveCache(newCapacityCache, newChildrenCache, true);
+    saveCache(newCapacityCache, newChildrenCache, 'en', true);
 
     // Mark as manually loaded
     setIsManuallyLoaded(true);
@@ -436,72 +951,23 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ALL_CAPACITIES] });
   }, [queryClient]);
 
-  // Function to refresh translations for a specific language
+  // Function to refresh translations for a specific language (now uses integration)
   const refreshTranslations = useCallback(
     async (targetLanguage: string) => {
       if (!session?.user?.token) return;
 
       try {
         setIsLoading(true);
+        setCurrentLanguage(targetLanguage);
 
-        // Get all capacity codes that have wd_code
-        const allCapacities = Array.from(capacityCache.values()).filter(cap => cap.wd_code);
-
-        if (allCapacities.length === 0) {
-          console.warn('No capacities with wd_code found for translation refresh');
-          return;
-        }
-
-        // Fetch translations from Metabase first, then Wikidata as fallback
-        const codesWithWdCode = allCapacities.map(cap => ({
-          code: cap.code,
-          wd_code: cap.wd_code!,
-        }));
-
-        // Try Metabase first
-        let translatedCapacities = await fetchMetabase(codesWithWdCode, targetLanguage);
-
-        // If no results from Metabase, try Wikidata
-        if (!translatedCapacities || translatedCapacities.length === 0) {
-          console.log('No results from Metabase, falling back to Wikidata for translations');
-          translatedCapacities = await fetchWikidata(codesWithWdCode, targetLanguage);
-        }
-
-        if (translatedCapacities && translatedCapacities.length > 0) {
-          // Update the cache with translated names and descriptions
-          const updatedCapacityCache = new Map(capacityCache);
-
-          translatedCapacities.forEach((translatedCap: any) => {
-            const existingCapacity = updatedCapacityCache.get(
-              Number(translatedCap.wd_code.replace('Q', ''))
-            );
-            if (existingCapacity) {
-              updatedCapacityCache.set(existingCapacity.code, {
-                ...existingCapacity,
-                name: translatedCap.name || existingCapacity.name,
-                description: translatedCap.description || existingCapacity.description,
-                metabase_code: translatedCap.metabase_code || existingCapacity.metabase_code,
-              });
-            }
-          });
-
-          // Update cache in React Query
-          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCapacityCache);
-
-          // Save to localStorage
-          saveCache(updatedCapacityCache, childrenCache, true);
-
-          console.log(
-            `Updated ${translatedCapacities.length} capacity translations for language: ${targetLanguage}`
-          );
-        }
+        await integrateTranslationsIntoCache(targetLanguage);
       } catch (error) {
         console.error('Error refreshing translations:', error);
       } finally {
         setIsLoading(false);
       }
     },
-    [session?.user?.token, capacityCache, childrenCache, queryClient]
+    [session?.user?.token, integrateTranslationsIntoCache]
   );
 
   // Check if a capacity has children
@@ -511,20 +977,70 @@ export function CapacityCacheProvider({ children }: { children: React.ReactNode 
   };
 
   // Get a capacity from the cache
-  const getCapacity = (code: number): Capacity | undefined => {
+  const getCapacity = (code: number): EnhancedCapacity | undefined => {
     return capacityCache.get(code);
   };
+
+  // Get name for a capacity in specific language
+  const getName = (code: number, language: string = currentLanguage): string => {
+    const capacity = capacityCache.get(code);
+    if (!capacity) return '';
+
+    // Try to get name in the requested language
+    if (capacity.names && capacity.names[language]) {
+      return capacity.names[language];
+    }
+
+    // Fallback to default name
+    return capacity.name || '';
+  };
+
+  // Get description for a capacity in specific language
+  const getDescription = (code: number, language: string = currentLanguage): string => {
+    const capacity = capacityCache.get(code);
+    if (!capacity) return '';
+
+    // Try to get description in the requested language
+    if (capacity.descriptions && capacity.descriptions[language]) {
+      return capacity.descriptions[language];
+    }
+
+    // Fallback to default description
+    return capacity.description || '';
+  };
+
+  // Get metabase code for a capacity
+  const getMetabaseCode = (code: number): string => {
+    const capacity = capacityCache.get(code);
+    return capacity?.metabase_code || '';
+  };
+
+  // Get wd code for a capacity
+  const getWdCode = (code: number): string => {
+    const capacity = capacityCache.get(code);
+    return capacity?.wd_code || '';
+  };
+
+  // Check if descriptions are ready for current language
+  const descriptionsReady = isDescriptionsReady && descriptionsLoadedFor === currentLanguage;
 
   // Prepare context value
   const contextValue = {
     isLoaded,
+    isLoadingTranslations,
+    isDescriptionsReady,
     hasChildren,
     getCapacity,
+    getName,
+    getDescription,
+    getMetabaseCode,
+    getWdCode,
     prefetchCapacityData,
     preloadCapacities,
     clearCache,
     clearCapacityCache,
     refreshTranslations,
+    applyTranslationsToMainFields,
   };
 
   return (

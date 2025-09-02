@@ -8,29 +8,36 @@ import React, { useEffect, useState } from 'react';
  * as traduções das capacidades quando o idioma mudar
  */
 export function LanguageChangeHandler({ children }: { children: React.ReactNode }) {
-  const { language } = useApp();
-  const { refreshTranslations, isLoaded } = useCapacityCache();
-  const [lastLanguage, setLastLanguage] = useState(language);
+  const [mounted, setMounted] = useState(false);
 
-  // Handle language changes and update capacity translations
+  // Wait for hydration to complete before accessing contexts
   useEffect(() => {
-    if (language !== lastLanguage && isLoaded) {
-      console.log(
-        `Language changed from ${lastLanguage} to ${language}. Updating capacity translations...`
-      );
+    setMounted(true);
+  }, []);
 
-      // Update capacity translations for the new language
-      refreshTranslations(language)
-        .then(() => {
-          console.log(`Capacity translations updated for language: ${language}`);
-        })
-        .catch(error => {
-          console.error(`Error updating capacity translations for language ${language}:`, error);
-        });
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
-      setLastLanguage(language);
-    }
-  }, [language, lastLanguage, isLoaded, refreshTranslations]);
+  return <LanguageChangeHandlerInternal>{children}</LanguageChangeHandlerInternal>;
+}
+
+function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
+  const { language } = useApp();
+  const { isLoaded, isLoadingTranslations } = useCapacityCache();
+
+  // Show loading only if we're actively loading translations
+  // Don't block rendering if cache is loaded but descriptions aren't ready yet
+  if (isLoadingTranslations) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-pulse h-4 w-48 bg-gray-200 rounded mx-auto mb-4"></div>
+          <p>Loading translations for {language}...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

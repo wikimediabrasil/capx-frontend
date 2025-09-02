@@ -52,23 +52,25 @@ export const fetchCapacitiesWithFallback = async (
   language: string
 ) => {
   try {
-    // First try to get data from Metabase
-    // Ensure codes are in the correct format for fetchMetabase
+    // Always try Metabase first as it has metabase_code
     const formattedCodes = codes.map(code => ({
       ...code,
       code: typeof code.code === 'string' ? parseInt(code.code, 10) : code.code,
     }));
+
     const metabaseResults = await fetchMetabase(formattedCodes, language);
+
     // If we got results from Metabase, return them
     if (metabaseResults && metabaseResults.length > 0) {
       return metabaseResults;
     }
+
     // If no results from Metabase, try Wikidata as fallback
-    console.log('No results from Metabase, falling back to Wikidata');
     const wikidataResults = await fetchWikidata(codes, language);
+
     return wikidataResults || [];
   } catch (error) {
-    console.error('Error in fetchCapacitiesWithFallback:', error);
+    console.error('❌ Error in fetchCapacitiesWithFallback:', error);
     return [];
   }
 };
@@ -154,7 +156,8 @@ export const fetchWikidata = async (codes: any, language: string) => {
 
     const results = (wikidataResponse.data.results.bindings || [])
       .filter(
-        (wdItem: any) => wdItem.item && wdItem.item.value && wdItem.itemLabel && wdItem.itemLabel.value
+        (wdItem: any) =>
+          wdItem.item && wdItem.item.value && wdItem.itemLabel && wdItem.itemLabel.value
       )
       .map((wdItem: any) => ({
         wd_code: wdItem.item.value.split('/').slice(-1)[0],
@@ -169,16 +172,66 @@ export const fetchWikidata = async (codes: any, language: string) => {
   }
 };
 
-export const fetchMetabase = async (codes: any, language: string) => {
+export const fetchMetabase = async (codes: any, language: string): Promise<Capacity[]> => {
   try {
     if (!codes || codes.length === 0) {
       console.warn('⚠️ fetchMetabase: No codes provided');
       return [];
     }
 
-    if (!codes[0].wd_code) {
-      console.warn('⚠️ fetchMetabase: Missing wd_code in first code:', codes[0]);
-      return [];
+    // Validate all codes have wd_code
+    const invalidCodes = codes.filter(
+      (code: any) => !code.wd_code || typeof code.wd_code !== 'string'
+    );
+    if (invalidCodes.length > 0) {
+      console.warn('⚠️ fetchMetabase: Found codes without wd_code:', {
+        invalidCount: invalidCodes.length,
+        totalCount: codes.length,
+        invalidCodes: invalidCodes.slice(0, 3),
+        validCodes: codes.filter((code: any) => code.wd_code).slice(0, 3),
+      });
+
+      // Filter out invalid codes and continue with valid ones
+      const validCodes = codes.filter(
+        (code: any) => code.wd_code && typeof code.wd_code === 'string'
+      );
+      if (validCodes.length === 0) {
+        console.warn('⚠️ fetchMetabase: No valid codes with wd_code found');
+        return [];
+      }
+      codes = validCodes; // Update codes to only valid ones
+    }
+
+    // Handle large requests by batching to avoid URL length limits
+    const BATCH_SIZE = 20; // Limit batch size to prevent URL length issues
+
+    if (codes.length > BATCH_SIZE) {
+      console.log(
+        `🔄 fetchMetabase: Large request (${codes.length} codes), splitting into batches`
+      );
+
+      const results = [];
+      for (let i = 0; i < codes.length; i += BATCH_SIZE) {
+        const batch = codes.slice(i, i + BATCH_SIZE);
+        console.log(
+          `📦 Processing batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(codes.length / BATCH_SIZE)} (${batch.length} codes)`
+        );
+
+        try {
+          const batchResults = await fetchMetabase(batch, language);
+          if (batchResults && batchResults.length > 0) {
+            results.push(...batchResults);
+          }
+        } catch (error) {
+          console.error(`❌ Error in batch ${Math.floor(i / BATCH_SIZE) + 1}:`, error);
+          // Continue with next batch instead of failing completely
+        }
+      }
+
+      console.log(
+        `✅ fetchMetabase batching completed: ${results.length} total results from ${codes.length} codes`
+      );
+      return results;
     }
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
@@ -187,46 +240,110 @@ export const fetchMetabase = async (codes: any, language: string) => {
       ?item wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
-    const response = await axios.post(
-      'https://metabase.wikibase.cloud/query/sparql?format=json&query=' +
-        encodeURIComponent(mbQueryText),
-      {
-        headers: {
-          'Content-Type': 'application/sparql-query',
-          Accept: 'application/sparql-results+json',
-          'User-Agent': 'CapX/1.0',
+    console.log('🔍 fetchMetabase debug info:', {
+      language,
+      codesCount: codes.length,
+      sampleCodes: codes.slice(0, 3),
+      queryLength: mbQueryText.length,
+    });
+
+    try {
+      // Use absolute URL for server-side requests
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const response = await axios.get(`${baseUrl}/api/metabase-sparql`, {
+        params: {
+          format: 'json',
+          query: mbQueryText,
         },
-      }
-    );
-
-    // Process the raw results to a consistent format
-    const results = (response.data.results.bindings || [])
-      .filter(
-        (mbItem: any)  =>
-          mbItem.item &&
-          mbItem.item.value &&
-          mbItem.itemLabel &&
-          mbItem.itemLabel.value &&
-          mbItem.value
-      )
-      .map((mbItem: any) => {
-        // Extract the Metabase ID from the item URI
-        const itemUri = mbItem.item.value;
-        const metabaseCode = itemUri.split('/').slice(-1)[0];
-
-        return {
-          wd_code: mbItem.value.value,
-          name: mbItem.itemLabel.value,
-          description: mbItem.itemDescription?.value || '',
-          item: mbItem.item.value,
-          metabase_code: metabaseCode,
-        };
       });
 
-    return results;
+      console.log('✅ fetchMetabase request successful:', {
+        status: response.status,
+        language,
+        codesCount: codes.length,
+      });
+
+      // Log the response for debugging
+      console.log('🔍 Metabase response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        data: response.data,
+        data_type: typeof response.data,
+        has_results: !!response.data?.results,
+        has_bindings: !!response.data?.results?.bindings,
+      });
+
+      // Check if response has expected structure
+      if (!response.data || !response.data.results || !response.data.results.bindings) {
+        console.warn('⚠️ Unexpected Metabase response structure:', response.data);
+        return [];
+      }
+
+      // Process the raw results to a consistent format
+      const results = (response.data.results.bindings || [])
+        .filter(
+          (mbItem: any) =>
+            mbItem.item &&
+            mbItem.item.value &&
+            mbItem.itemLabel &&
+            mbItem.itemLabel.value &&
+            mbItem.value
+        )
+        .map((mbItem: any) => {
+          // Extract the Metabase ID from the item URI
+          const itemUri = mbItem.item.value;
+          const metabaseCode = itemUri.split('/').slice(-1)[0];
+
+          const result = {
+            wd_code: mbItem.value.value,
+            name: mbItem.itemLabel.value,
+            description: mbItem.itemDescription?.value || '',
+            item: mbItem.item.value,
+            metabase_code: metabaseCode,
+          };
+
+          // Log each result to debug description processing
+          console.log('🔍 Processing Metabase item:', {
+            wd_code: result.wd_code,
+            name: result.name,
+            hasDescription: !!result.description,
+            descriptionLength: result.description?.length || 0,
+            descriptionPreview: result.description?.substring(0, 50) || 'No description',
+          });
+
+          return result;
+        });
+
+      return results;
+    } catch (requestError) {
+      console.error('❌ Error making request to fetchMetabase:', requestError);
+      console.error('Request details:', {
+        language,
+        codesCount: codes.length,
+        sampleCodes: codes.slice(0, 3),
+        errorMessage: (requestError as Error).message,
+      });
+      throw requestError; // Re-throw to be caught by outer catch
+    }
   } catch (error) {
     console.error('❌ Error in fetchMetabase:', error);
-    console.error('Error stack:', (error as Error).stack);
+    console.error('Error details:', {
+      message: (error as Error).message,
+      stack: (error as Error).stack,
+      language,
+      codesCount: codes?.length || 0,
+    });
+
+    // Specific handling for "Invalid URL" error
+    if ((error as Error).message.includes('Invalid URL')) {
+      console.error('🔍 Invalid URL error details:', {
+        language,
+        codes: codes?.slice(0, 5), // Log first 5 codes for debugging
+        errorMessage: (error as Error).message,
+      });
+    }
+
     return [];
   }
 };

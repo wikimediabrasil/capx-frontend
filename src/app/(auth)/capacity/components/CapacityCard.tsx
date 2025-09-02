@@ -7,6 +7,7 @@ import BarCodeIcon from '@/public/static/images/barcode.svg';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
+import MetabaseIcon from '@/public/static/images/wikimedia_logo.svg';
 import { Capacity } from '@/types/capacity';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
@@ -51,7 +52,7 @@ export function CapacityCard({
   level,
 }: CapacityCardProps) {
   const router = useRouter();
-  const { isMobile, pageContent, language } = useApp();
+  const { isMobile, pageContent } = useApp();
   const { hasChildren: useCapacityCacheHasChildren } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
@@ -90,6 +91,17 @@ export function CapacityCard({
 
   const renderExpandedContent = () => {
     if (!showInfo) return null;
+
+    // Debug: log what we have for this card
+    console.log('🎯 CapacityCard renderExpandedContent:', {
+      code,
+      name,
+      wd_code,
+      metabase_code,
+      isRoot,
+      level,
+      parentCapacity: parentCapacity ? `${parentCapacity.code}-${parentCapacity.name}` : null,
+    });
 
     // Determine the background color of the button
     const getButtonBackgroundColor = () => {
@@ -138,36 +150,38 @@ export function CapacityCard({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex flex-row items-center gap-6 w-full">
-        {metabase_code && metabase_code !== '' && (
-          <a
-            href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}
-            onClick={e => e.stopPropagation()}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="flex flex-row items-center gap-2">
-              <div className="relative w-[36px] h-[36px]">
-                <Image src={BarCodeIcon} alt="BarCode" fill priority />
+          {metabase_code && metabase_code !== '' && (
+            <a
+              href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}
+              onClick={e => e.stopPropagation()}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit the capacity item page on Metabase"
+            >
+              <div className="flex flex-row items-center gap-2">
+                <div className="relative w-[36px] h-[36px]">
+                  <Image src={MetabaseIcon} alt="Metabase logo" fill priority />
+                </div>
+                <p className="text-[20px] text-capx-light-link underline">{metabase_code}</p>
               </div>
-              <p className="text-[20px] text-capx-light-link underline">{metabase_code}</p>
-            </div>
-          </a>
-        )}
-        {wd_code && wd_code !== '' && (
-          <a
-            href={`https://www.wikidata.org/wiki/${wd_code}`}
-            onClick={e => e.stopPropagation()}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="flex flex-row items-center gap-2">
-              <div className="relative w-[36px] h-[36px]">
-                <Image src={BarCodeIcon} alt="BarCode" fill priority />
+            </a>
+          )}
+          {wd_code && wd_code !== '' && (
+            <a
+              href={`https://www.wikidata.org/wiki/${wd_code}`}
+              onClick={e => e.stopPropagation()}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit the capacity item page on Wikidata"
+            >
+              <div className="flex flex-row items-center gap-2">
+                <div className="relative w-[36px] h-[36px]">
+                  <Image src={BarCodeIcon} alt="BarCode" fill priority />
+                </div>
+                <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
               </div>
-              <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
-            </div>
-          </a>
-        )}
+            </a>
+          )}
         </div>
         {description && (
           <p className={`text-capx-dark-box-bg ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}>

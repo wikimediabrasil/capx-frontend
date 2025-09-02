@@ -16,7 +16,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
 import ProfileCard from './components/ProfileCard';
 import { SearchBar } from './components/SearchBar';
-import { createProfilesFromOrganizations, createProfilesFromUsers, FilterState, ProfileCapacityType, ProfileFilterType, Skill } from './types';
+import {
+  createProfilesFromOrganizations,
+  createProfilesFromUsers,
+  FilterState,
+  ProfileCapacityType,
+  ProfileFilterType,
+  Skill,
+} from './types';
 
 export default function FeedPage() {
   const { darkMode } = useTheme();

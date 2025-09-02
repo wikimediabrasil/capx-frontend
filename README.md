@@ -214,16 +214,46 @@ yarn test --coverage
 
 The project includes tests for:
 
-- UI Components (16+ component tests)
+- UI Components (30+ component tests)
 - Navigation components
 - Form components
 - Authentication flows
 - Capacity management
 - Profile management
+- Organization management
+- Event management
+- Message management
+- Analytics
+- Let's Connect
+- Badges
+- Projects
+- Documents
+- Feed
+- Statistics
+- Capacity cache
+- Capacity selection modal
+- Loading state with fallback
+- Mobile navbar
+- Desktop navbar
+- Mobile menu
+- Profile form
+- Profile display
+- Badge management
+- Capacity list
+- Capacity details
+- Capacity search
+- Feed items
+- Organization profile
+- Organization events
+- Organization discovery
+- Event management
+- Event discovery
+- Wikidata integration
+
 
 ## Storybook
 
-Storybook is configured for component development and documentation.
+Storybook is configured for component development and documentation. It is used to create interactive stories for components and to test them in isolation. It is also used to document components and their props. We are outdated with the components implemented and the stories created.
 
 ### Running Storybook
 

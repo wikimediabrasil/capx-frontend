@@ -1,39 +1,20 @@
 'use client';
 
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';
+import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
 import LoadingState from '@/components/LoadingState';
 import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { AppProvider, useApp } from '@/contexts/AppContext';
-import { CapacityDescriptionProvider, useCapacityDescriptions } from '@/contexts/CapacityContext';
-import {
-  useCapacitiesByParent,
-  useCapacitySearch,
-  useRootCapacities,
-} from '@/hooks/useCapacitiesQuery';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useCapacityDescriptions } from '@/contexts/CapacityContext';
+import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
-// Component for descriptions - separated to avoid re-render cycles
-const DescriptionLoader = ({ capacityIds }: { capacityIds: number[] }) => {
-  const { requestDescription, isRequested } = useCapacityDescriptions();
-  const processedIdsRef = useRef<Set<number>>(new Set());
-
-  // Move processing to useEffect to avoid updates during render
-  useEffect(() => {
-    // Process any IDs we haven't seen yet
-    capacityIds.forEach(id => {
-      if (!processedIdsRef.current.has(id) && !isRequested(id)) {
-        processedIdsRef.current.add(id);
-        requestDescription(id);
-      }
-    });
-  }, [capacityIds, isRequested, requestDescription]);
-
-  return null;
-};
+// This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
 const ChildCapacities = ({
@@ -54,11 +35,9 @@ const ChildCapacities = ({
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
 
-  const { getDescription, getWdCode, getMetabaseCode, requestDescription } = useCapacityDescriptions();
-  const { pageContent, isMobile } = useApp();
-
-  // Get IDs for loader component instead of loading in this component
-  const capacityIds = children.map(child => child.code).filter(Boolean) as number[];
+  const { getDescription, getWdCode, getMetabaseCode } = useCapacityCache();
+  const { getName } = useCapacityDescriptions();
+  const { isMobile } = useApp();
 
   if (isLoadingChildren) {
     return <LoadingState />;
@@ -144,6 +123,8 @@ const ChildCapacities = ({
       color: child.color || parentCapacity.color || child.color,
       // Keep child's own icon if parent has no icon
       icon: child.icon || parentCapacity.icon || child.icon,
+      // Ensure metabase_code is available, using the context as fallback
+      metabase_code: child.metabase_code || getMetabaseCode(child.code),
       // Add explicit level property - if parentCapacity has a parentCapacity or is not a root, this is level 3
       level: parentCapacity?.parentCapacity
         ? 3
@@ -157,9 +138,6 @@ const ChildCapacities = ({
 
   return (
     <>
-      {/* Loader component handles description fetching */}
-      <DescriptionLoader capacityIds={capacityIds} />
-
       <div className={`mt-4 overflow-x-auto scrollbar-hide ${isMobile ? 'w-full' : 'w-full'}`}>
         <div
           className={`flex ${isMobile ? 'gap-2' : 'gap-4'} pb-4 ${isMobile ? 'w-full min-w-full' : 'w-fit'} ${isMobile ? 'w-full' : 'max-w-screen-xl'}`}
@@ -170,7 +148,10 @@ const ChildCapacities = ({
               className={`mt-4 ${isMobile ? 'w-[280px] flex-shrink-0' : 'max-w-[992px]'}`}
             >
               <CapacityCard
-                {...child}
+                code={child.code}
+                name={getName(child.code) || child.name}
+                icon={child.icon}
+                color={child.color}
                 isExpanded={!!expandedCapacities[child.code]}
                 onExpand={() => onToggleExpand(child.code.toString())}
                 hasChildren={child.hasChildren}
@@ -178,15 +159,24 @@ const ChildCapacities = ({
                 parentCapacity={child.parentCapacity}
                 description={getDescription(child.code)}
                 wd_code={getWdCode(child.code)}
-                metabase_code={child.metabase_code || getMetabaseCode(child.code)}
-                rootColor={rootColor}
-                onInfoClick={async code => {
-                  // Ensure description is loaded for this capacity
-                  if (!getDescription(code)) {
-                    await requestDescription(code);
+                metabase_code={(() => {
+                  const getMetabaseResult = getMetabaseCode(child.code);
+                  const metabaseCode = child.metabase_code || getMetabaseResult;
+
+                  // Debug for level 2 cards
+                  if (child.level === 2) {
+                    console.log(`🎯 Final metabase_code for level 2 card ${child.code}:`, {
+                      child_metabase_code: child.metabase_code,
+                      getMetabaseCode_result: getMetabaseResult,
+                      final_metabase_code: metabaseCode,
+                      child_name: child.name,
+                    });
                   }
-                  return getDescription(code);
-                }}
+
+                  return metabaseCode;
+                })()}
+                rootColor={rootColor}
+                level={child.level}
               />
               {expandedCapacities[child.code] && (
                 <ChildCapacities
@@ -211,18 +201,13 @@ function CapacityListContent() {
   // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<Capacity[]>([]);
 
   // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
-  const { data: querySearchResults = [] } = useCapacitySearch(searchTerm, language);
 
-  // Descriptions context - only for display
-  const { getDescription, getWdCode, getMetabaseCode, requestDescription } = useCapacityDescriptions();
-
-  // Collect all capacity IDs that need descriptions
-  const rootCapacityIds = rootCapacities.map(c => c.code).filter(Boolean) as number[];
-  const searchCapacityIds = searchResults.map(c => c.code).filter(Boolean) as number[];
+  // Use consolidated cache for all capacity data
+  const { getDescription, getWdCode, getMetabaseCode } = useCapacityCache();
+  const { getName } = useCapacityDescriptions();
 
   // Toggle expanded
   const handleToggleExpand = useCallback((code: string) => {
@@ -234,7 +219,6 @@ function CapacityListContent() {
 
   const handleSearchEnd = useCallback(() => {
     setSearchTerm('');
-    setSearchResults([]);
   }, []);
 
   const handleSearch = useCallback(
@@ -243,47 +227,8 @@ function CapacityListContent() {
       if (term === searchTerm) return;
 
       setSearchTerm(term);
-      if (term && querySearchResults.length > 0) {
-        // Process query results to ensure proper level assignments
-        const processedResults = querySearchResults.map(capacity => {
-          // Determine level based on parent structure
-          let level = 1;
-          if (capacity.parentCapacity) {
-            if (capacity.parentCapacity.parentCapacity) {
-              // Third level - has a grandparent
-              level = 3;
-            } else {
-              // Second level - has only a parent
-              level = 2;
-            }
-          } else {
-            // Root level - no parent
-          }
-
-          // Always override with explicit level if already set
-          if (capacity.level) {
-            level = capacity.level;
-          }
-
-          // Force third-level capacities to have black color
-          let color = capacity.color;
-          if (level === 3) {
-            color = '#507380';
-          }
-
-          return {
-            ...capacity,
-            level,
-            color,
-          };
-        });
-
-        setSearchResults(processedResults);
-      } else if (!term) {
-        setSearchResults([]);
-      }
     },
-    [querySearchResults, searchTerm]
+    [searchTerm]
   );
 
   if (isLoadingRoot) {
@@ -298,10 +243,6 @@ function CapacityListContent() {
     <section
       className={`flex flex-col ${isMobile ? 'w-full' : 'max-w-screen-xl mx-auto'} py-8 px-4 lg:px-12 gap-[40px]`}
     >
-      {/* Separate loader components for descriptions */}
-      <DescriptionLoader capacityIds={rootCapacityIds} />
-      <DescriptionLoader capacityIds={searchCapacityIds} />
-
       <CapacityBanner />
       <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
 
@@ -319,6 +260,7 @@ function CapacityListContent() {
             >
               <CapacityCard
                 {...capacity}
+                name={getName(capacity.code) || capacity.name}
                 isExpanded={!!expandedCapacities[capacity.code]}
                 onExpand={() => handleToggleExpand(capacity.code.toString())}
                 hasChildren={capacity.hasChildren}
@@ -329,13 +271,6 @@ function CapacityListContent() {
                 description={getDescription(capacity.code)}
                 wd_code={getWdCode(capacity.code)}
                 metabase_code={capacity.metabase_code || getMetabaseCode(capacity.code)}
-                onInfoClick={async code => {
-                  // Ensure description is loaded for this capacity
-                  if (!getDescription(code)) {
-                    await requestDescription(code);
-                  }
-                  return getDescription(code);
-                }}
               />
               {expandedCapacities[capacity.code] && (
                 <ChildCapacities
@@ -376,9 +311,9 @@ export default function CapacityListMainWrapper() {
   return (
     <CapacityErrorBoundary>
       <AppProvider>
-        <CapacityDescriptionProvider>
+        <LanguageChangeHandler>
           <CapacityListContent />
-        </CapacityDescriptionProvider>
+        </LanguageChangeHandler>
       </AppProvider>
     </CapacityErrorBoundary>
   );

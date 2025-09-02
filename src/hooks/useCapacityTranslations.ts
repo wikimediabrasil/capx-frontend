@@ -1,7 +1,6 @@
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { capacityService } from '@/services/capacityService';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 interface UseCapacityTranslationsReturn {
   isLoading: boolean;
@@ -12,110 +11,27 @@ interface UseCapacityTranslationsReturn {
 
 /**
  * Hook para gerenciar traduções das capacidades
- * Fornece funcionalidades para buscar, cachear e acessar traduções das capacidades
+ * Simplificado para usar apenas o cache principal do CapacityCacheContext
  */
 export function useCapacityTranslations(): UseCapacityTranslationsReturn {
   const { language } = useApp();
-  const { refreshTranslations, getCapacity, isLoaded } = useCapacityCache();
-  const [isLoading, setIsLoading] = useState(false);
+  const { refreshTranslations, getCapacity, isLoaded, isLoadingTranslations } = useCapacityCache();
   const [error, setError] = useState<string | null>(null);
 
-  // Cache local para traduções já buscadas
-  const [translationsCache, setTranslationsCache] = useState<
-    Record<number, { name: string; description: string }>
-  >({});
-
-  // Função para atualizar traduções quando o idioma mudar
-  const handleLanguageChange = useCallback(async () => {
-    if (!isLoaded) return;
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      await refreshTranslations(language);
-      console.log(`Traduções atualizadas para o idioma: ${language}`);
-    } catch (err) {
-      console.error('Erro ao atualizar traduções:', err);
-      setError('Erro ao atualizar traduções');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [refreshTranslations, language, isLoaded]);
-
-  // Atualizar traduções quando o idioma mudar
-  useEffect(() => {
-    handleLanguageChange();
-  }, [handleLanguageChange]);
-
-  // Função para buscar traduções específicas de capacidades
-  const fetchSpecificTranslations = useCallback(
-    async (capacityCodes: number[]) => {
-      if (!isLoaded) return {};
-
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // Filtrar apenas capacidades que têm wd_code
-        const capacitiesWithWdCode = capacityCodes
-          .map(code => {
-            const capacity = getCapacity(code);
-            return capacity?.wd_code ? { code, wd_code: capacity.wd_code } : null;
-          })
-          .filter(Boolean) as Array<{ code: number; wd_code: string }>;
-
-        if (capacitiesWithWdCode.length === 0) {
-          console.warn('Nenhuma capacidade com wd_code encontrada para tradução');
-          return {};
-        }
-
-        const results = await capacityService.fetchTranslationsWithFallback(
-          capacitiesWithWdCode,
-          language
-        );
-
-        // Processar resultados
-        const newTranslations: Record<number, { name: string; description: string }> = {};
-
-        results.forEach(result => {
-          if (result.wd_code && result.name) {
-            const code = Number(result.wd_code.replace('Q', ''));
-            newTranslations[code] = {
-              name: result.name,
-              description: result.description || '',
-            };
-          }
-        });
-
-        // Atualizar cache local
-        setTranslationsCache(prev => ({ ...prev, ...newTranslations }));
-
-        return newTranslations;
-      } catch (err) {
-        console.error('Erro ao buscar traduções específicas:', err);
-        setError('Erro ao buscar traduções específicas');
-        return {};
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [getCapacity, language, isLoaded]
-  );
-
-  // Função para obter uma capacidade traduzida
+  // Função para obter uma capacidade traduzida diretamente do cache principal
   const getTranslatedCapacity = useCallback(
     (code: number): { name: string; description: string } | null => {
-      // Verificar se já temos a tradução no cache local
-      if (translationsCache[code]) {
-        return translationsCache[code];
-      }
+      if (!isLoaded) return null;
 
-      // Se não temos, buscar a tradução
-      fetchSpecificTranslations([code]);
-      return null;
+      const capacity = getCapacity(code);
+      if (!capacity) return null;
+
+      return {
+        name: capacity.name || `Capacity ${code}`,
+        description: capacity.description || '',
+      };
     },
-    [translationsCache, fetchSpecificTranslations]
+    [isLoaded, getCapacity]
   );
 
   // Função para atualizar todas as traduções
@@ -123,21 +39,17 @@ export function useCapacityTranslations(): UseCapacityTranslationsReturn {
     if (!isLoaded) return;
 
     try {
-      setIsLoading(true);
       setError(null);
-
       await refreshTranslations(language);
       console.log('Todas as traduções foram atualizadas');
     } catch (err) {
       console.error('Erro ao atualizar todas as traduções:', err);
       setError('Erro ao atualizar todas as traduções');
-    } finally {
-      setIsLoading(false);
     }
   }, [refreshTranslations, language, isLoaded]);
 
   return {
-    isLoading,
+    isLoading: isLoadingTranslations,
     error,
     refreshTranslations: refreshAllTranslations,
     getTranslatedCapacity,

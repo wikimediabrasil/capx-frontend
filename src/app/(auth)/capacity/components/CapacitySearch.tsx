@@ -10,6 +10,7 @@ import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import { useCapacityList } from '@/hooks/useCapacityList';
 import LoadingState from '@/components/LoadingState';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCapacityDescriptions } from '@/contexts/CapacityContext';
 
 interface CapacitySearchProps {
   onSearchStart?: () => void;
@@ -59,6 +60,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
   const { data: session } = useSession();
   const { language, isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
+  const { getName } = useCapacityDescriptions();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
@@ -204,6 +206,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
               <div key={capacity.code} className="w-full">
                 <CapacityCard
                   {...capacity}
+                  name={getName(capacity.code) || capacity.name}
                   level={capacity.level}
                   isExpanded={!!expandedCapacities[capacity.code]}
                   onExpand={() => toggleCapacity(capacity.code.toString())}

@@ -38,7 +38,13 @@ export const capacityService = {
     language: string = 'en'
   ): Promise<Record<string, any>> {
     try {
-      const response = await axios.get(`/api/capacity/type/${type}`, config);
+      const response = await axios.get(`/api/capacity/type/${type}`, {
+        ...config,
+        params: {
+          ...config?.params,
+          language,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error(`Error fetching capacities by type ${type}:`, error);
@@ -125,8 +131,23 @@ export const capacityService = {
     }
   },
 
-  async fetchCapacityDescription(code: number, config?: AxiosRequestConfig) {
-    const response = await axios.get(`/api/capacity/${code}/description`, config);
-    return response.data;
+  async fetchCapacityDescription(
+    code: number,
+    config?: AxiosRequestConfig,
+    language: string = 'en'
+  ) {
+    const response = await axios.get(`/api/capacity/${code}`, {
+      ...config,
+      params: {
+        ...config?.params,
+        language,
+      },
+    });
+    return {
+      name: response.data.name || '',
+      description: response.data.description || '',
+      wdCode: response.data.wd_code || '',
+      metabaseCode: response.data.metabase_code || '',
+    };
   },
 };
