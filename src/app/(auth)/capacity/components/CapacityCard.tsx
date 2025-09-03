@@ -53,11 +53,26 @@ export function CapacityCard({
 }: CapacityCardProps) {
   const router = useRouter();
   const { isMobile, pageContent } = useApp();
-  const { hasChildren: useCapacityCacheHasChildren } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
+  
+  
+  // Debug log for child cards - simplified
+  if (!isRoot && level === 2) {
+    console.log(`👶 CHILD ${code} color: ${color} (from parent ${parentCapacity?.code})`);
+  }
 
-  const hasChildrenFromCache = useCapacityCacheHasChildren(code);
+  // Use the hasChildren prop directly since unified cache handles this logic
+  const hasChildrenFromCache = hasChildren;
+  
+  // Debug log for hasChildren
+  console.log(`🔍 Card ${code} hasChildren debug:`, {
+    code,
+    name,
+    hasChildren,
+    hasChildrenFromCache,
+    isRoot
+  });
 
   // Ensures that names that look like QIDs are replaced
   const displayName = useMemo(() => {
@@ -229,12 +244,17 @@ export function CapacityCard({
       return '#FFFFFF'; // White text for level 3
     }
 
+    // For second level with colored background, use white text for contrast
+    if (level === 2) {
+      return '#FFFFFF'; // White text on colored background
+    }
+    
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getCapacityColor(parentCapacity.color);
     }
-
-    // If we have a color but no parent (e.g., in search results)
+    
+    // Fallback to the passed color
     if (color) {
       return getCapacityColor(color);
     }
@@ -261,9 +281,19 @@ export function CapacityCard({
       return 'brightness(0) invert(1)'; // White icons for level 3
     }
 
+    // For second level with colored background, use white icons for contrast
+    if (level === 2) {
+      return 'brightness(0) invert(1)'; // White icons on colored background
+    }
+    
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getHueRotate(parentCapacity.color);
+    }
+    
+    // Fallback to the passed color
+    if (color) {
+      return getHueRotate(color);
     }
 
     // Otherwise, use the default icon color
@@ -434,7 +464,7 @@ export function CapacityCard({
     );
   }
 
-  if (isRoot && hasChildren) {
+  if (isRoot) {
     return (
       <div className="w-full">
         <div
@@ -475,12 +505,12 @@ export function CapacityCard({
                 {isMobile ? (
                   <>
                     {renderInfoButton(24, InfoIcon)}
-                    {renderArrowButton(24, ArrowDownIcon)}
+                    {hasChildrenFromCache && renderArrowButton(24, ArrowDownIcon)}
                   </>
                 ) : (
                   <>
                     {renderInfoButton(68, InfoIcon)}
-                    {renderArrowButton(68, ArrowDownIcon)}
+                    {hasChildrenFromCache && renderArrowButton(68, ArrowDownIcon)}
                   </>
                 )}
               </div>
@@ -514,7 +544,16 @@ export function CapacityCard({
     <div className="w-full">
       <div
         onClick={handleCardClick}
-        className={`flex flex-col w-full rounded-lg ${bgColorClass} cursor-pointer hover:shadow-md transition-shadow`}
+        className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow`}
+        style={{
+          backgroundColor: level === 3 
+            ? '#507380' // Dark background for level 3
+            : level === 2 && color
+              ? color // Exact same color as parent for level 2
+              : level === 2
+                ? '#F6F6F6' // Fallback light background
+                : 'white'
+        }}
       >
         <div
           className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 ${isMobile ? 'px-4' : 'px-12'}`}

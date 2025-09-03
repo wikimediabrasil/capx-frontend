@@ -24,10 +24,17 @@ export function LanguageChangeHandler({ children }: { children: React.ReactNode 
 
 function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
   const { language } = useApp();
-  const { isLoaded, isLoadingTranslations } = useCapacityCache();
+  const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
 
-  // Show loading only if we're actively loading translations
-  // Don't block rendering if cache is loaded but descriptions aren't ready yet
+  // Update language when app language changes
+  useEffect(() => {
+    if (language !== cacheLanguage) {
+      console.log(`🌍 Language changed from ${cacheLanguage} to ${language}`);
+      updateLanguage(language);
+    }
+  }, [language, cacheLanguage, updateLanguage]);
+
+  // Show loading when actively loading translations
   if (isLoadingTranslations) {
     return (
       <div className="flex items-center justify-center min-h-screen">

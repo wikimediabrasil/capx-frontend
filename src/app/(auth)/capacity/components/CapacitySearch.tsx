@@ -7,10 +7,10 @@ import BaseInput from '@/components/BaseInput';
 import { CapacityCard } from './CapacityCard';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
-import { useCapacityList } from '@/hooks/useCapacityList';
 import LoadingState from '@/components/LoadingState';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useCapacityDescriptions } from '@/contexts/CapacityContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { capacityService } from '@/services/capacityService';
 
 interface CapacitySearchProps {
   onSearchStart?: () => void;
@@ -60,20 +60,11 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
   const { data: session } = useSession();
   const { language, isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
-  const { getName } = useCapacityDescriptions();
+  const { getName, getDescription, getWdCode } = useCapacityCache();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
-  const {
-    searchResults,
-    descriptions,
-    setSearchResults,
-    fetchRootCapacities,
-    fetchCapacitiesByParent,
-    fetchCapacitySearch,
-    fetchCapacityDescription,
-    wdCodes,
-  } = useCapacityList(session?.user?.token, language);
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>('');
@@ -82,13 +73,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
   // Usar um ref para rastrear o último termo enviado
   const lastNotifiedTermRef = useRef<string>('');
 
-  useEffect(() => {
-    if (session?.user?.token) {
-      fetchRootCapacities();
-    }
-  }, [session?.user?.token, fetchRootCapacities]);
-
-  // Search function
+  // Search function using unified cache system
   const search = useCallback(
     async (term: string) => {
       // If the search term is the same as the last search, do nothing
@@ -99,7 +84,19 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
       if (term) {
         setIsLoading(true);
         onSearchStart?.();
-        await fetchCapacitySearch(term);
+        
+        try {
+          if (session?.user?.token) {
+            const results = await capacityService.searchCapacities(term, {
+              headers: { Authorization: `Token ${session.user.token}` },
+            });
+            setSearchResults(results || []);
+          }
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults([]);
+        }
+        
         // Store the current search term
         lastSearchRef.current = term;
         setIsLoading(false);
@@ -110,7 +107,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         lastSearchRef.current = '';
       }
     },
-    [fetchCapacitySearch, onSearchStart, onSearchEnd, setSearchResults]
+    [session?.user?.token, onSearchStart, onSearchEnd]
   );
 
   // Use the custom debounce hook
@@ -137,16 +134,19 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         return;
       }
 
-      const children = await fetchCapacitiesByParent(parentCode);
-      for (const child of children) {
-        if (child.code) {
-          fetchCapacityDescription(child.code);
+      try {
+        if (session?.user?.token) {
+          await capacityService.fetchCapacitiesByType(parentCode, {
+            headers: { Authorization: `Token ${session.user.token}` },
+          });
         }
+      } catch (error) {
+        console.error('Error fetching children:', error);
       }
 
       setExpandedCapacities(prev => ({ ...prev, [parentCode]: true }));
     },
-    [expandedCapacities, fetchCapacitiesByParent, fetchCapacityDescription]
+    [expandedCapacities, session?.user?.token]
   );
 
   // Processa os resultados para garantir níveis corretos e cores consistentes
@@ -214,9 +214,8 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
                   color={capacity.color}
                   icon={capacity.icon}
                   parentCapacity={capacity.parentCapacity}
-                  description={descriptions[capacity.code] || ''}
-                  wd_code={wdCodes[capacity.code] || ''}
-                  onInfoClick={fetchCapacityDescription}
+                  description={getDescription(capacity.code)}
+                  wd_code={getWdCode(capacity.code)}
                   isSearch={true}
                 />
               </div>

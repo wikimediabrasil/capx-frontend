@@ -99,6 +99,8 @@ export const getCapacityColor = (color: string): string => {
 };
 
 export const getCapacityIcon = (code: number): string => {
+  const codeStr = code.toString();
+  
   const iconMap: Record<string, string> = {
     '10': OrganizationalIcon,
     '36': CommunicationIcon,
@@ -109,7 +111,16 @@ export const getCapacityIcon = (code: number): string => {
     '106': TechnologyIcon,
   };
 
-  return iconMap[code] || '';
+  // Check for prefix matches
+  if (codeStr.startsWith('10')) return iconMap['10'];
+  if (codeStr.startsWith('36')) return iconMap['36'];
+  if (codeStr.startsWith('50')) return iconMap['50'];
+  if (codeStr.startsWith('56')) return iconMap['56'];
+  if (codeStr.startsWith('65')) return iconMap['65'];
+  if (codeStr.startsWith('74')) return iconMap['74'];
+  if (codeStr.startsWith('106')) return iconMap['106'];
+
+  return iconMap['10']; // Default fallback
 };
 
 export const toggleChildCapacities = async (
@@ -321,12 +332,22 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       if (language !== 'en' && results.length > 0) {
         const hasEnglishResults = results.some(result => {
           // Check if the name looks like it's in English (common English terms)
-          const englishTerms = ['communication', 'learning', 'technology', 'social', 'strategic', 'organizational', 'community'];
+          const englishTerms = [
+            'communication',
+            'learning',
+            'technology',
+            'social',
+            'strategic',
+            'organizational',
+            'community',
+          ];
           return englishTerms.some(term => result.name.toLowerCase().includes(term));
         });
 
         if (hasEnglishResults) {
-          console.log(`⚠️ Metabase returned English results for ${language} request, forcing Wikidata fallback`);
+          console.log(
+            `⚠️ Metabase returned English results for ${language} request, forcing Wikidata fallback`
+          );
           return []; // Return empty to trigger Wikidata fallback
         }
       }

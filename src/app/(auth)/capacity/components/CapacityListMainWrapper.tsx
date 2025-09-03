@@ -6,7 +6,6 @@ import LoadingState from '@/components/LoadingState';
 import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useCapacityDescriptions } from '@/contexts/CapacityContext';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
 import React, { useCallback, useState } from 'react';
@@ -35,8 +34,7 @@ const ChildCapacities = ({
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
 
-  const { getDescription, getWdCode, getMetabaseCode } = useCapacityCache();
-  const { getName } = useCapacityDescriptions();
+  const { getName, getDescription, getWdCode, getMetabaseCode, getColor, getIcon } = useCapacityCache();
   const { isMobile } = useApp();
 
   if (isLoadingChildren) {
@@ -80,23 +78,23 @@ const ChildCapacities = ({
 
   // Find the root color to pass down to grandchildren
   const findRootColor = () => {
-    // If this is a root capacity, use its color
+    // If this is a root capacity, get its color from cache
     const isRoot = rootCapacities.some(c => c.code.toString() === parentCode);
-    if (isRoot && parentCapacity.color) {
-      return parentCapacity.color;
+    if (isRoot) {
+      return getColor(parseInt(parentCode, 10)) || parentCapacity.color;
     }
 
-    // If this is a child capacity (has a parent that is root), use the parent's color
+    // If this is a child capacity (has a parent that is root), use the parent's color from cache
     if (
       parentCapacity.parentCapacity &&
       rootCapacities.some(c => c.code === parentCapacity.parentCapacity?.code)
     ) {
-      return parentCapacity.parentCapacity.color;
+      return getColor(parentCapacity.parentCapacity.code) || parentCapacity.parentCapacity.color;
     }
 
-    // If we have a parent capacity with color, use that
-    if (parentCapacity.color) {
-      return parentCapacity.color;
+    // If we have a parent capacity with color, get it from cache first
+    if (parentCapacity) {
+      return getColor(parentCapacity.code) || parentCapacity.color;
     }
 
     // Default fallback
@@ -105,36 +103,8 @@ const ChildCapacities = ({
 
   const rootColor = findRootColor();
 
-  // Ensure each child has correct parent reference
-  const childrenWithParents = children.map(child => {
-    // Explicitly check if child is expanded to determine hasChildren
-    const isExpanded = !!expandedCapacities[child.code];
-    // Force hasChildren to true if it has children based on expansion or original value
-    const childHasChildren = child.hasChildren === true || isExpanded;
-
-    // Create a complete child with proper parent reference
-    const enhancedChild = {
-      ...child,
-      // Ensure hasChildren is explicitly true when needed
-      hasChildren: childHasChildren,
-      // Always set the parent capacity to ensure proper inheritance
-      parentCapacity: parentCapacity,
-      // Keep child's own color if parent has no color
-      color: child.color || parentCapacity.color || child.color,
-      // Keep child's own icon if parent has no icon
-      icon: child.icon || parentCapacity.icon || child.icon,
-      // Ensure metabase_code is available, using the context as fallback
-      metabase_code: child.metabase_code || getMetabaseCode(child.code),
-      // Add explicit level property - if parentCapacity has a parentCapacity or is not a root, this is level 3
-      level: parentCapacity?.parentCapacity
-        ? 3
-        : rootCapacities.some(c => c.code.toString() === parentCode)
-          ? 2
-          : 3,
-    };
-
-    return enhancedChild;
-  });
+  // Children come from cache with all correct information
+  const childrenWithParents = children; // No need to process, cache has everything
 
   return (
     <>
@@ -149,7 +119,7 @@ const ChildCapacities = ({
             >
               <CapacityCard
                 code={child.code}
-                name={getName(child.code) || child.name}
+                name={child.name}
                 icon={child.icon}
                 color={child.color}
                 isExpanded={!!expandedCapacities[child.code]}
@@ -206,8 +176,7 @@ function CapacityListContent() {
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
 
   // Use consolidated cache for all capacity data
-  const { getDescription, getWdCode, getMetabaseCode } = useCapacityCache();
-  const { getName } = useCapacityDescriptions();
+  const { getName, getDescription, getWdCode, getMetabaseCode, getColor, getIcon } = useCapacityCache();
 
   // Toggle expanded
   const handleToggleExpand = useCallback((code: string) => {
@@ -249,7 +218,16 @@ function CapacityListContent() {
       {/* Quando não estiver em modo de busca, mostrar as capacidades raiz */}
       {!searchTerm && (
         <div className="grid gap-[40px] w-full">
-          {rootCapacities.map((capacity, index) => (
+          {rootCapacities.map((capacity, index) => {
+            // Debug log for root capacity
+            console.log(`🏠 Root capacity ${capacity.code}:`, {
+              code: capacity.code,
+              name: capacity.name,
+              hasChildren: capacity.hasChildren,
+              level: capacity.level
+            });
+            
+            return (
             <div
               key={`root-${capacity.code}-${index}`}
               className={
@@ -263,11 +241,11 @@ function CapacityListContent() {
                 name={getName(capacity.code) || capacity.name}
                 isExpanded={!!expandedCapacities[capacity.code]}
                 onExpand={() => handleToggleExpand(capacity.code.toString())}
-                hasChildren={capacity.hasChildren}
+                hasChildren={capacity.hasChildren !== false} // Force true for root cards unless explicitly false
                 isRoot={true}
                 level={capacity.level || 1}
-                color={capacity.color}
-                icon={capacity.icon}
+                color={getColor(capacity.code) || capacity.color}
+                icon={getIcon(capacity.code) || capacity.icon}
                 description={getDescription(capacity.code)}
                 wd_code={getWdCode(capacity.code)}
                 metabase_code={capacity.metabase_code || getMetabaseCode(capacity.code)}
@@ -281,7 +259,7 @@ function CapacityListContent() {
                 />
               )}
             </div>
-          ))}
+          );})}
         </div>
       )}
 
