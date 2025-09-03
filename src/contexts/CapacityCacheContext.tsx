@@ -317,6 +317,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
           console.log(
             `📡 Fetching translations for ${allCodesNeedingTranslations.length} capacities...`
           );
+          console.log(`🗓️ Codes needing translations:`, allCodesNeedingTranslations.slice(0, 3));
 
           // Try fetchCapacitiesWithFallback from capacitiesUtils
           const { fetchCapacitiesWithFallback } = await import('@/lib/utils/capacitiesUtils');
@@ -324,6 +325,11 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             allCodesNeedingTranslations,
             newLanguage
           );
+          
+          console.log(`📢 Received ${translations.length} translations:`);
+          translations.slice(0, 3).forEach(t => {
+            console.log(`  - ${t.wd_code}: metabase_code=${t.metabase_code || 'EMPTY'}`);
+          });
 
           // Apply translations to cache
           translations.forEach((translation: any) => {
@@ -331,6 +337,14 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
               cap => cap.wd_code === translation.wd_code
             );
             if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
+              // Debug log for metabase_code
+              console.log(`🔍 Translation for ${matchingCapacity.code}:`, {
+                wd_code: translation.wd_code,
+                name: translation.name,
+                metabase_code: translation.metabase_code,
+                hasMetabaseCode: !!translation.metabase_code
+              });
+              
               newCache.capacities[matchingCapacity.code] = {
                 ...newCache.capacities[matchingCapacity.code],
                 name: translation.name || newCache.capacities[matchingCapacity.code].name,

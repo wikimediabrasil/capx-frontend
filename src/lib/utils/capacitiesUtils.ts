@@ -58,17 +58,37 @@ export const fetchCapacitiesWithFallback = async (
       code: typeof code.code === 'string' ? parseInt(code.code, 10) : code.code,
     }));
 
-    const metabaseResults = await fetchMetabase(formattedCodes, language);
+    let metabaseResults: any[] = [];
+    let wikidataResults: any[] = [];
+    
+    // Try Metabase first
+    try {
+      metabaseResults = await fetchMetabase(formattedCodes, language) || [];
+      console.log(`📋 Metabase returned ${metabaseResults.length} results`);
+    } catch (metabaseError) {
+      console.warn('⚠️ Metabase failed, continuing with Wikidata only:', metabaseError);
+    }
 
-    // If we got results from Metabase, return them
-    if (metabaseResults && metabaseResults.length > 0) {
+    // If Metabase gave us results, return them (they have metabase_code)
+    if (metabaseResults.length > 0) {
       return metabaseResults;
     }
 
-    // If no results from Metabase, try Wikidata as fallback
-    const wikidataResults = await fetchWikidata(codes, language);
+    // If no results from Metabase, try Wikidata but add empty metabase_code
+    try {
+      wikidataResults = await fetchWikidata(codes, language) || [];
+      console.log(`📋 Wikidata returned ${wikidataResults.length} results`);
+      
+      // Add empty metabase_code to Wikidata results
+      wikidataResults = wikidataResults.map(result => ({
+        ...result,
+        metabase_code: '' // Wikidata doesn't have metabase_code
+      }));
+    } catch (wikidataError) {
+      console.warn('⚠️ Wikidata also failed:', wikidataError);
+    }
 
-    return wikidataResults || [];
+    return wikidataResults;
   } catch (error) {
     console.error('❌ Error in fetchCapacitiesWithFallback:', error);
     return [];
