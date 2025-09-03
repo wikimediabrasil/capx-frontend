@@ -28,11 +28,10 @@ function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode
 
   // Update language when app language changes
   useEffect(() => {
-    if (language !== cacheLanguage) {
-      console.log(`🌍 Language changed from ${cacheLanguage} to ${language}`);
+    if (language !== cacheLanguage && !isLoadingTranslations) {
       updateLanguage(language);
     }
-  }, [language, cacheLanguage, updateLanguage]);
+  }, [language, cacheLanguage, updateLanguage, isLoadingTranslations]);
 
   // Show loading when actively loading translations
   if (isLoadingTranslations) {

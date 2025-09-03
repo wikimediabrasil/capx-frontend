@@ -64,9 +64,8 @@ export const fetchCapacitiesWithFallback = async (
     // Try Metabase first
     try {
       metabaseResults = await fetchMetabase(formattedCodes, language) || [];
-      console.log(`📋 Metabase returned ${metabaseResults.length} results`);
     } catch (metabaseError) {
-      console.warn('⚠️ Metabase failed, continuing with Wikidata only:', metabaseError);
+      // Continue with Wikidata if Metabase fails
     }
 
     // If Metabase gave us results, check if we need better translations from Wikidata
@@ -76,7 +75,6 @@ export const fetchCapacitiesWithFallback = async (
       if (language !== 'en') {
         try {
           wikidataResults = await fetchWikidata(codes, language) || [];
-          console.log(`📋 Wikidata returned ${wikidataResults.length} results for translation enhancement`);
           
           // Merge Metabase (for metabase_code) with Wikidata (for better translations)
           const mergedResults = metabaseResults.map(metabaseResult => {
@@ -93,10 +91,9 @@ export const fetchCapacitiesWithFallback = async (
             return metabaseResult; // No Wikidata match, use Metabase result as-is
           });
           
-          console.log(`🤝 Merged ${mergedResults.length} results with Wikidata translations`);
           return mergedResults;
         } catch (wikidataError) {
-          console.warn('⚠️ Wikidata failed for translation enhancement, using Metabase results:', wikidataError);
+          // Use Metabase results if Wikidata fails
         }
       }
       
@@ -106,7 +103,6 @@ export const fetchCapacitiesWithFallback = async (
     // If no results from Metabase, try Wikidata but add empty metabase_code
     try {
       wikidataResults = await fetchWikidata(codes, language) || [];
-      console.log(`📋 Wikidata returned ${wikidataResults.length} results`);
       
       // Add empty metabase_code to Wikidata results
       wikidataResults = wikidataResults.map(result => ({
@@ -114,7 +110,7 @@ export const fetchCapacitiesWithFallback = async (
         metabase_code: '' // Wikidata doesn't have metabase_code
       }));
     } catch (wikidataError) {
-      console.warn('⚠️ Wikidata also failed:', wikidataError);
+      // Return empty array if both fail
     }
 
     return wikidataResults;
@@ -235,7 +231,6 @@ export const fetchWikidata = async (codes: any, language: string) => {
 export const fetchMetabase = async (codes: any, language: string): Promise<Capacity[]> => {
   try {
     if (!codes || codes.length === 0) {
-      console.warn('⚠️ fetchMetabase: No codes provided');
       return [];
     }
 
@@ -244,19 +239,11 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       (code: any) => !code.wd_code || typeof code.wd_code !== 'string'
     );
     if (invalidCodes.length > 0) {
-      console.warn('⚠️ fetchMetabase: Found codes without wd_code:', {
-        invalidCount: invalidCodes.length,
-        totalCount: codes.length,
-        invalidCodes: invalidCodes.slice(0, 3),
-        validCodes: codes.filter((code: any) => code.wd_code).slice(0, 3),
-      });
-
       // Filter out invalid codes and continue with valid ones
       const validCodes = codes.filter(
         (code: any) => code.wd_code && typeof code.wd_code === 'string'
       );
       if (validCodes.length === 0) {
-        console.warn('⚠️ fetchMetabase: No valid codes with wd_code found');
         return [];
       }
       codes = validCodes; // Update codes to only valid ones
@@ -266,16 +253,9 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
     const BATCH_SIZE = 20; // Limit batch size to prevent URL length issues
 
     if (codes.length > BATCH_SIZE) {
-      console.log(
-        `🔄 fetchMetabase: Large request (${codes.length} codes), splitting into batches`
-      );
-
       const batchedResults = [];
       for (let i = 0; i < codes.length; i += BATCH_SIZE) {
         const batch = codes.slice(i, i + BATCH_SIZE);
-        console.log(
-          `📦 Processing batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(codes.length / BATCH_SIZE)} (${batch.length} codes)`
-        );
 
         try {
           const batchResults = await fetchMetabase(batch, language);
@@ -283,30 +263,19 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
             batchedResults.push(...batchResults);
           }
         } catch (error) {
-          console.error(`❌ Error in batch ${Math.floor(i / BATCH_SIZE) + 1}:`, error);
           // Continue with next batch instead of failing completely
         }
       }
 
-      console.log(
-        `✅ fetchMetabase batching completed: ${batchedResults.length} total results from ${codes.length} codes`
-      );
       return batchedResults;
     }
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
       SELECT ?item ?itemLabel ?itemDescription ?value WHERE {
       VALUES ?value {${codes.map((code: any) => `"${code.wd_code}"`).join(' ')}}
-      ?item wbt:P1 ?value.
+      ?item wbt:P67/wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
-    console.log('🔍 fetchMetabase debug info:', {
-      language,
-      codesCount: codes.length,
-      sampleCodes: codes.slice(0, 3),
-      queryLength: mbQueryText.length,
-      queryLanguageParam: `'${language},en'`,
-    });
 
     try {
       // Use absolute URL for server-side requests
@@ -318,26 +287,9 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
         },
       });
 
-      console.log('✅ fetchMetabase request successful:', {
-        status: response.status,
-        language,
-        codesCount: codes.length,
-      });
-
-      // Log the response for debugging
-      console.log('🔍 Metabase response:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        data: response.data,
-        data_type: typeof response.data,
-        has_results: !!response.data?.results,
-        has_bindings: !!response.data?.results?.bindings,
-      });
 
       // Check if response has expected structure
       if (!response.data || !response.data.results || !response.data.results.bindings) {
-        console.warn('⚠️ Unexpected Metabase response structure:', response.data);
         return [];
       }
 
@@ -364,15 +316,6 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
             metabase_code: metabaseCode,
           };
 
-          // Log each result to debug description processing
-          console.log('🔍 Processing Metabase item:', {
-            wd_code: result.wd_code,
-            name: result.name,
-            hasDescription: !!result.description,
-            descriptionLength: result.description?.length || 0,
-            descriptionPreview: result.description?.substring(0, 50) || 'No description',
-            requestedLanguage: language,
-          });
 
           return result;
         });
@@ -395,41 +338,16 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
         });
 
         if (hasEnglishResults) {
-          console.log(
-            `⚠️ Metabase returned English results for ${language} request, but keeping them to preserve metabase_code`
-          );
-          // Don't return empty - keep the results to preserve metabase_code
+          // Keep the results to preserve metabase_code
         }
       }
 
       return results;
     } catch (requestError) {
-      console.error('❌ Error making request to fetchMetabase:', requestError);
-      console.error('Request details:', {
-        language,
-        codesCount: codes.length,
-        sampleCodes: codes.slice(0, 3),
-        errorMessage: (requestError as Error).message,
-      });
       throw requestError; // Re-throw to be caught by outer catch
     }
   } catch (error) {
-    console.error('❌ Error in fetchMetabase:', error);
-    console.error('Error details:', {
-      message: (error as Error).message,
-      stack: (error as Error).stack,
-      language,
-      codesCount: codes?.length || 0,
-    });
-
-    // Specific handling for "Invalid URL" error
-    if ((error as Error).message.includes('Invalid URL')) {
-      console.error('🔍 Invalid URL error details:', {
-        language,
-        codes: codes?.slice(0, 5), // Log first 5 codes for debugging
-        errorMessage: (error as Error).message,
-      });
-    }
+    // Silently handle errors
 
     return [];
   }

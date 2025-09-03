@@ -78,6 +78,7 @@ interface CapacityCacheContextType {
   // Hierarchy functions
   getChildren: (parentCode: number) => any[];
   getCapacity: (code: number) => any | null;
+  getRootCapacities: () => any[];
 
   // Actions
   updateLanguage: (newLanguage: string) => Promise<void>;
@@ -97,12 +98,20 @@ export const useCapacityCache = () => {
 export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const [currentLanguage, setCurrentLanguage] = useState<string>('en');
   const [isLoadingTranslations, setIsLoadingTranslations] = useState(false);
+  
+  // Get initial language from localStorage or default to 'en'
+  const getInitialLanguage = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('language') || 'en';
+    }
+    return 'en';
+  };
+  
   const [unifiedCache, setUnifiedCache] = useState<UnifiedCache>({
     capacities: {},
     children: {},
-    language: 'en',
+    language: getInitialLanguage(),
     timestamp: 0,
   });
 
@@ -117,18 +126,11 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.language === language) {
-          console.log(
-            `✅ Loaded unified cache for ${language} with ${Object.keys(parsed.capacities || {}).length} capacities`
-          );
           return parsed;
-        } else {
-          console.log(
-            `🔄 Cache language mismatch: cache=${parsed.language}, requested=${language}`
-          );
         }
       }
     } catch (error) {
-      console.error('Error loading unified cache:', error);
+      // Silently handle cache loading errors
     }
 
     return { capacities: {}, children: {}, language, timestamp: 0 };
@@ -140,39 +142,40 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       localStorage.setItem('capx-unified-cache', JSON.stringify(cache));
-      console.log(
-        `💾 Saved unified cache for ${cache.language} with ${Object.keys(cache.capacities).length} capacities`
-      );
     } catch (error) {
-      console.error('Error saving unified cache:', error);
+      // Silently handle cache saving errors
     }
   }, []);
 
   // Fetch and update translations for a language
   const updateLanguage = useCallback(
     async (newLanguage: string) => {
-      if (!session?.user?.token) return;
-      if (currentLanguage === newLanguage && Object.keys(unifiedCache.capacities).length > 0) {
-        console.log(`✅ Already have data for ${newLanguage}`);
+      if (!session?.user?.token) {
+        return;
+      }
+      
+      // Use the cache language from unifiedCache instead of currentLanguage state
+      if (unifiedCache.language === newLanguage && Object.keys(unifiedCache.capacities).length > 0) {
+        return;
+      }
+
+      // Prevent concurrent requests for different languages
+      if (isLoadingTranslations) {
         return;
       }
 
       setIsLoadingTranslations(true);
-      console.log(`🌍 Updating language to ${newLanguage}...`);
 
       try {
         // Try to load from cache first
         const cachedData = loadUnifiedCache(newLanguage);
         if (Object.keys(cachedData.capacities).length > 0) {
           setUnifiedCache(cachedData);
-          setCurrentLanguage(newLanguage);
           setIsLoadingTranslations(false);
-          console.log(`✅ Loaded ${newLanguage} from cache`);
           return;
         }
 
         // Fetch root capacities
-        console.log(`📡 Fetching root capacities for ${newLanguage}...`);
         const rootCapacities = await capacityService.fetchCapacities(
           {
             params: { language: newLanguage },
@@ -182,7 +185,6 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         );
 
         if (!rootCapacities || rootCapacities.length === 0) {
-          console.error(`❌ No root capacities found for ${newLanguage}`);
           setIsLoadingTranslations(false);
           return;
         }
@@ -217,7 +219,6 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
         // Now fetch all children and grandchildren for each root capacity
-        console.log(`📡 Fetching complete hierarchy for ${rootCapacities.length} root capacities...`);
         
         for (const rootCapacity of rootCapacities) {
           try {
@@ -299,12 +300,12 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
                     }
                   }
                 } catch (error) {
-                  console.warn(`⚠️ Could not fetch grandchildren for ${childCode}:`, error);
+                  // Silently continue if grandchildren fetch fails
                 }
               }
             }
           } catch (error) {
-            console.warn(`⚠️ Could not fetch children for root capacity ${rootCapacity.code}:`, error);
+            // Silently continue if children fetch fails
           }
         }
         
@@ -314,10 +315,6 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
           .map(cap => ({ code: cap.code, wd_code: cap.wd_code! }));
 
         if (allCodesNeedingTranslations.length > 0) {
-          console.log(
-            `📡 Fetching translations for ${allCodesNeedingTranslations.length} capacities...`
-          );
-          console.log(`🗓️ Codes needing translations:`, allCodesNeedingTranslations.slice(0, 3));
 
           // Try fetchCapacitiesWithFallback from capacitiesUtils
           const { fetchCapacitiesWithFallback } = await import('@/lib/utils/capacitiesUtils');
@@ -325,11 +322,6 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             allCodesNeedingTranslations,
             newLanguage
           );
-          
-          console.log(`📢 Received ${translations.length} translations:`);
-          translations.slice(0, 3).forEach(t => {
-            console.log(`  - ${t.wd_code}: metabase_code=${t.metabase_code || 'EMPTY'}`);
-          });
 
           // Apply translations to cache
           translations.forEach((translation: any) => {
@@ -337,13 +329,6 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
               cap => cap.wd_code === translation.wd_code
             );
             if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
-              // Debug log for metabase_code
-              console.log(`🔍 Translation for ${matchingCapacity.code}:`, {
-                wd_code: translation.wd_code,
-                name: translation.name,
-                metabase_code: translation.metabase_code,
-                hasMetabaseCode: !!translation.metabase_code
-              });
               
               newCache.capacities[matchingCapacity.code] = {
                 ...newCache.capacities[matchingCapacity.code],
@@ -357,19 +342,10 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             }
           });
 
-          console.log(`✅ Applied ${translations.length} translations`);
         }
-        
-        console.log(`✅ Cached complete hierarchy: ${Object.keys(newCache.capacities).length} capacities across all levels`);
-        console.log(`📊 Cache breakdown:`, {
-          level1: Object.values(newCache.capacities).filter(c => c.level === 1).length,
-          level2: Object.values(newCache.capacities).filter(c => c.level === 2).length,
-          level3: Object.values(newCache.capacities).filter(c => c.level === 3).length,
-        });
 
         // Update state and save cache
         setUnifiedCache(newCache);
-        setCurrentLanguage(newLanguage);
         saveUnifiedCache(newCache);
 
         // Clear React Query cache for other languages
@@ -380,17 +356,17 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
           },
         });
 
-        console.log(`✅ Successfully updated to ${newLanguage}`);
       } catch (error) {
-        console.error(`❌ Error updating language to ${newLanguage}:`, error);
+        console.error(`Error updating language to ${newLanguage}:`, error);
       } finally {
         setIsLoadingTranslations(false);
       }
     },
     [
       session?.user?.token,
-      currentLanguage,
-      unifiedCache,
+      unifiedCache.language,
+      unifiedCache.capacities,
+      isLoadingTranslations,
       loadUnifiedCache,
       saveUnifiedCache,
       queryClient,
@@ -433,20 +409,12 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   const getColor = useCallback(
     (code: number): string => {
       const capacity = unifiedCache.capacities[code];
-      const result = capacity?.color ? capacity.color : (() => {
-        const hierarchyInfo = getHierarchyInfo(code);
-        return hierarchyInfo.color;
-      })();
-      
-      // Debug log
-      console.log(`🎨 getColor(${code}):`, {
-        code,
-        cachedColor: capacity?.color,
-        fallbackColor: result,
-        capacityExists: !!capacity
-      });
-      
-      return result;
+      if (capacity?.color) {
+        return capacity.color;
+      }
+      // Fallback to determining color from code if not cached
+      const hierarchyInfo = getHierarchyInfo(code);
+      return hierarchyInfo.color;
     },
     [unifiedCache.capacities]
   );
@@ -481,6 +449,11 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     [unifiedCache.capacities]
   );
 
+  // Get root capacities from cache
+  const getRootCapacities = useCallback((): any[] => {
+    return Object.values(unifiedCache.capacities).filter(capacity => capacity.level === 1);
+  }, [unifiedCache.capacities]);
+
   // Clear all caches
   const clearCache = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -490,21 +463,21 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     queryClient.clear();
-    setUnifiedCache({ capacities: {}, children: {}, language: currentLanguage, timestamp: 0 });
-    console.log('🗑️ Cleared all caches including old cache formats');
-  }, [queryClient, currentLanguage]);
+    setUnifiedCache({ capacities: {}, children: {}, language: 'en', timestamp: 0 });
+  }, [queryClient]);
 
   // Initialize cache on mount
   useEffect(() => {
-    const initialCache = loadUnifiedCache(currentLanguage);
+    const initialLanguage = getInitialLanguage();
+    const initialCache = loadUnifiedCache(initialLanguage);
     setUnifiedCache(initialCache);
-  }, [loadUnifiedCache, currentLanguage]);
+  }, [loadUnifiedCache]);
 
   const contextValue: CapacityCacheContextType = {
     isLoaded: Object.keys(unifiedCache.capacities).length > 0,
     isLoadingTranslations,
     isDescriptionsReady: Object.keys(unifiedCache.capacities).length > 0 && !isLoadingTranslations,
-    language: currentLanguage,
+    language: unifiedCache.language,
     getName,
     getDescription,
     getWdCode,
@@ -513,6 +486,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     getIcon,
     getChildren,
     getCapacity,
+    getRootCapacities,
     updateLanguage,
     clearCache,
   };
