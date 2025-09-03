@@ -210,7 +210,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
         `🔄 fetchMetabase: Large request (${codes.length} codes), splitting into batches`
       );
 
-      const results = [];
+      const batchedResults = [];
       for (let i = 0; i < codes.length; i += BATCH_SIZE) {
         const batch = codes.slice(i, i + BATCH_SIZE);
         console.log(
@@ -220,7 +220,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
         try {
           const batchResults = await fetchMetabase(batch, language);
           if (batchResults && batchResults.length > 0) {
-            results.push(...batchResults);
+            batchedResults.push(...batchResults);
           }
         } catch (error) {
           console.error(`❌ Error in batch ${Math.floor(i / BATCH_SIZE) + 1}:`, error);
@@ -229,9 +229,9 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       }
 
       console.log(
-        `✅ fetchMetabase batching completed: ${results.length} total results from ${codes.length} codes`
+        `✅ fetchMetabase batching completed: ${batchedResults.length} total results from ${codes.length} codes`
       );
-      return results;
+      return batchedResults;
     }
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
@@ -245,6 +245,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       codesCount: codes.length,
       sampleCodes: codes.slice(0, 3),
       queryLength: mbQueryText.length,
+      queryLanguageParam: `'${language},en'`,
     });
 
     try {
@@ -310,10 +311,25 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
             hasDescription: !!result.description,
             descriptionLength: result.description?.length || 0,
             descriptionPreview: result.description?.substring(0, 50) || 'No description',
+            requestedLanguage: language,
           });
 
           return result;
         });
+
+      // If we requested a non-English language but got English results, return empty to trigger Wikidata fallback
+      if (language !== 'en' && results.length > 0) {
+        const hasEnglishResults = results.some(result => {
+          // Check if the name looks like it's in English (common English terms)
+          const englishTerms = ['communication', 'learning', 'technology', 'social', 'strategic', 'organizational', 'community'];
+          return englishTerms.some(term => result.name.toLowerCase().includes(term));
+        });
+
+        if (hasEnglishResults) {
+          console.log(`⚠️ Metabase returned English results for ${language} request, forcing Wikidata fallback`);
+          return []; // Return empty to trigger Wikidata fallback
+        }
+      }
 
       return results;
     } catch (requestError) {

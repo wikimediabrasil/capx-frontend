@@ -4,14 +4,14 @@ import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacityDescription } from '@/hooks/useCapacitiesQuery';
 import { useSession } from 'next-auth/react';
 import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from 'react';
 
 // Types for the context

@@ -158,71 +158,7 @@ export function CapacityCacheProvider({
         if (parsedCache.capacities) {
           let capacitiesMap = objectToMap(parsedCache.capacities);
 
-          // Try to migrate data from the old translation cache if it exists
-          try {
-            const oldTranslationCache = localStorage.getItem('capx-translations-cache');
-            if (oldTranslationCache) {
-              const oldParsed = JSON.parse(oldTranslationCache);
-              const oldDescriptions = oldParsed.descriptions || {};
-              const oldNames = oldParsed.names || {};
-
-              console.log(
-                `🔄 Found old translation cache, migrating ${Object.keys(oldDescriptions).length} descriptions...`
-              );
-
-              // Migrate descriptions to the main cache
-              const updatedCapacitiesMap = new Map(capacitiesMap);
-              let migratedCount = 0;
-
-              for (const [codeStr, description] of Object.entries(oldDescriptions)) {
-                const code = parseInt(codeStr, 10);
-                const capacity = updatedCapacitiesMap.get(code);
-
-                if (
-                  capacity &&
-                  typeof capacity === 'object' &&
-                  'name' in capacity &&
-                  'code' in capacity &&
-                  description &&
-                  typeof description === 'string' &&
-                  description.trim() !== ''
-                ) {
-                  const name = oldNames[code] || (capacity as EnhancedCapacity).name;
-                  const updatedCapacity: EnhancedCapacity = {
-                    ...(capacity as EnhancedCapacity),
-                    description: description,
-                    name: name || (capacity as EnhancedCapacity).name,
-                    // If we have descriptions, assume they are in the current language
-                    descriptions: {
-                      ...(capacity as EnhancedCapacity).descriptions,
-                      [parsedCache.currentLanguage || 'en']: description,
-                    },
-                    names: {
-                      ...(capacity as EnhancedCapacity).names,
-                      [parsedCache.currentLanguage || 'en']: name || (capacity as EnhancedCapacity).name,
-                    },
-                  };
-                  updatedCapacitiesMap.set(code, updatedCapacity);
-                  migratedCount++;
-                }
-              }
-
-              if (migratedCount > 0) {
-                capacitiesMap = updatedCapacitiesMap;
-                console.log(`✅ Migrated ${migratedCount} descriptions from old translation cache`);
-
-                // Save the updated cache
-                saveCache(
-                  capacitiesMap,
-                  objectToMap(parsedCache.children || {}),
-                  parsedCache.currentLanguage || 'en',
-                  true
-                );
-              }
-            }
-          } catch (migrationError) {
-            console.warn('Error migrating old translation cache:', migrationError);
-          }
+          // Keep the translation cache separate - no migration needed
 
           queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], capacitiesMap);
 
@@ -294,6 +230,42 @@ export function CapacityCacheProvider({
       const updatedCache = new Map(capacityCache);
       let appliedCount = 0;
 
+      // First try to get translations from the separate translation cache
+      try {
+        const translationCache = localStorage.getItem('capx-translations-cache');
+        if (translationCache) {
+          const parsedTranslations = JSON.parse(translationCache);
+          const translationNames = parsedTranslations.names || {};
+          const translationDescriptions = parsedTranslations.descriptions || {};
+
+          Array.from(capacityCache.values()).forEach(capacity => {
+            const code = capacity.code;
+            if (translationNames[code] || translationDescriptions[code]) {
+              const updatedCapacity = {
+                ...capacity,
+                name: translationNames[code] || capacity.name,
+                description: translationDescriptions[code] || capacity.description,
+              };
+              updatedCache.set(code, updatedCapacity);
+              appliedCount++;
+            }
+          });
+
+          if (appliedCount > 0) {
+            queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], updatedCache);
+            // Also save to localStorage to persist the main field updates
+            saveCache(updatedCache, childrenCache, targetLanguage, true);
+            console.log(
+              `🔄 Applied ${appliedCount} translations from translation cache for ${targetLanguage}`
+            );
+            return appliedCount;
+          }
+        }
+      } catch (error) {
+        console.warn('Error reading translation cache:', error);
+      }
+
+      // Fallback to internal cache structure
       Array.from(capacityCache.values()).forEach(capacity => {
         if (capacity.names && capacity.names[targetLanguage]) {
           const updatedCapacity = {
@@ -322,6 +294,44 @@ export function CapacityCacheProvider({
     },
     [capacityCache, childrenCache, queryClient]
   );
+
+  // Function to clear cache if language mismatch is detected
+  const clearCacheIfLanguageMismatch = useCallback((targetLanguage: string) => {
+    if (typeof window === 'undefined') return false;
+    
+    try {
+      // Check main cache language
+      const savedCache = localStorage.getItem('capx-capacity-cache');
+      if (savedCache) {
+        const parsedCache = JSON.parse(savedCache);
+        if (parsedCache.currentLanguage && parsedCache.currentLanguage !== targetLanguage) {
+          console.log(`🔄 Language mismatch detected: cached=${parsedCache.currentLanguage}, target=${targetLanguage}`);
+          // We need to defer this to avoid circular dependency
+          setTimeout(() => clearCache(), 0);
+          return true;
+        }
+      }
+
+      // Check translation cache for stale data
+      const translationCache = localStorage.getItem('capx-translations-cache');
+      if (translationCache) {
+        const parsedTranslations = JSON.parse(translationCache);
+        if (parsedTranslations.language && parsedTranslations.language !== targetLanguage) {
+          console.log(`🔄 Translation cache language mismatch: cached=${parsedTranslations.language}, target=${targetLanguage}`);
+          // We need to defer this to avoid circular dependency
+          setTimeout(() => clearCache(), 0);
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking cache language mismatch:', error);
+      // We need to defer this to avoid circular dependency
+      setTimeout(() => clearCache(), 0);
+      return true;
+    }
+    
+    return false;
+  }, []); // Remove clearCache from dependencies to avoid circular dependency
 
   // Function to integrate translations directly into main cache structure (define early to use in useEffects)
   const integrateTranslationsIntoCache = useCallback(
@@ -554,6 +564,17 @@ export function CapacityCacheProvider({
         `🌍 Language changed from ${currentLanguage} to ${language}, checking for cached translations...`
       );
 
+      // First check if there's a language mismatch in localStorage and clear if needed
+      const hadMismatch = clearCacheIfLanguageMismatch(language);
+      if (hadMismatch) {
+        console.log(`🔄 Cache was cleared due to language mismatch, will reload translations for ${language}`);
+        setCurrentLanguage(language);
+        setIsDescriptionsReady(false);
+        setDescriptionsLoadedFor('');
+        descriptionsInitialized.current = false;
+        return; // Let the auto-initialization useEffect handle the reload
+      }
+
       // First check if we already have cached translations for this language
       const hasTranslationsInCache = Array.from(capacityCache.values()).some(capacity => {
         return (
@@ -607,6 +628,7 @@ export function CapacityCacheProvider({
     capacityCache.size,
     applyTranslationsToMainFields,
     integrateTranslationsIntoCache,
+    clearCacheIfLanguageMismatch,
   ]);
 
   // Auto-initialize translations when cache is loaded and we have a session
@@ -692,8 +714,11 @@ export function CapacityCacheProvider({
     // Also clear from localStorage if being used
     if (typeof window !== 'undefined') {
       localStorage.removeItem('capx-capacity-cache');
+      localStorage.removeItem('capx-translations-cache');
+      console.log('🗑️ Cleared localStorage caches: capx-capacity-cache, capx-translations-cache');
     }
   }, [queryClient]);
+
 
   // Persist cache in localStorage when changing (only if there are data)
   useEffect(() => {
