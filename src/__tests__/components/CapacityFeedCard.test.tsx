@@ -83,7 +83,7 @@ const mockPageContent = {
 };
 
 // AppContext's mock
-  jest.mock('@/contexts/AppContext', () => ({
+jest.mock('@/contexts/AppContext', () => ({
   useApp: () => ({ pageContent: mockPageContent }),
   AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
