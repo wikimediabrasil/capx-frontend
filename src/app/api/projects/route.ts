@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response.data.results);
   } catch (error: any) {
-    console.error("Error fetching projects:", error?.message || error);
+    console.error('Error fetching projects:', error?.message || error);
 
     return NextResponse.json(
       {
-        error: "Failed to fetch projects",
+        error: 'Failed to fetch projects',
         details: error?.response?.data || error?.message,
       },
       { status: 500 }

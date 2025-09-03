@@ -16,13 +16,11 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ message: 'No images found' }, { status: 404 });
       }
 
-      const images = queryResponse.data.query.search.map(
-        (image: { title: string }) => image.title
-      );
+      const images = queryResponse.data.query.search.map((image: { title: string }) => image.title);
 
       return NextResponse.json(images);
     } catch (error: any) {
-      console.error("Error fetching images:", error?.message || error);
+      console.error('Error fetching images:', error?.message || error);
 
       return NextResponse.json(
         {
@@ -47,7 +45,7 @@ export async function GET(request: NextRequest) {
       const image = queryResponse.request?.res?.responseUrl;
       return NextResponse.json({ image });
     } catch (error: any) {
-      console.error("Error fetching image:", error?.message || error);
+      console.error('Error fetching image:', error?.message || error);
 
       return NextResponse.json(
         {
