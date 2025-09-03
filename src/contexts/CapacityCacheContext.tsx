@@ -150,26 +150,20 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   // Fetch and update translations for a language
   const updateLanguage = useCallback(
     async (newLanguage: string) => {
-      console.log(`🔄 updateLanguage called for ${newLanguage}, current cache: ${unifiedCache.language}, has capacities: ${Object.keys(unifiedCache.capacities).length > 0}`);
-      
       if (!session?.user?.token) {
-        console.log(`❌ No session token, skipping updateLanguage`);
         return;
       }
       
       // Use the cache language from unifiedCache instead of currentLanguage state
       if (unifiedCache.language === newLanguage && Object.keys(unifiedCache.capacities).length > 0) {
-        console.log(`✅ Cache already has ${newLanguage}, skipping updateLanguage`);
         return;
       }
 
       // Prevent concurrent requests for different languages
       if (isLoadingTranslations) {
-        console.log(`⏳ Already loading translations, skipping updateLanguage`);
         return;
       }
 
-      console.log(`🚀 Starting updateLanguage for ${newLanguage}`);
       setIsLoadingTranslations(true);
 
       try {

@@ -190,11 +190,16 @@ function CapacityListContent() {
 
   if (isLoadingRoot || !isCacheReady) {
     return (
-      <div className="flex justify-center items-center h-[200px]">
+      <div className="flex flex-col justify-center items-center h-[400px]">
         <LoadingState fullScreen={false} />
         {!isCacheReady && (
-          <div className="mt-4 text-center text-gray-600">
-            {isLoadingTranslations ? 'Loading translations...' : `Loading cache for ${language}...`}
+          <div className="mt-8 text-center">
+            <p className={`text-lg font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>
+              {isLoadingTranslations ? 'Loading translations...' : `Loading capacity data for ${language}...`}
+            </p>
+            <p className={`text-sm mt-2 ${isMobile ? 'text-xs' : 'text-sm'} opacity-70`}>
+              Please wait while we prepare the content
+            </p>
           </div>
         )}
       </div>

@@ -1,6 +1,8 @@
 'use client';
+import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import React, { useEffect, useState } from 'react';
 
 /**
@@ -25,29 +27,27 @@ export function LanguageChangeHandler({ children }: { children: React.ReactNode 
 function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
   const { language } = useApp();
   const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
-  
-  console.log(`🎯 LanguageChangeHandlerInternal rendered with: appLanguage=${language}, cacheLanguage=${cacheLanguage}`);
+  const { darkMode } = useTheme();
 
   // Update language when app language changes
   useEffect(() => {
-    console.log(`🌍 LanguageChangeHandler: appLanguage=${language}, cacheLanguage=${cacheLanguage}, isLoadingTranslations=${isLoadingTranslations}`);
-    console.log(`🔍 Condition check: language !== cacheLanguage = ${language !== cacheLanguage}, !isLoadingTranslations = ${!isLoadingTranslations}`);
-    
     if (language !== cacheLanguage && !isLoadingTranslations) {
-      console.log(`🔄 LanguageChangeHandler: Calling updateLanguage(${language})`);
       updateLanguage(language);
-    } else {
-      console.log(`❌ LanguageChangeHandler: Skipping updateLanguage because conditions not met`);
     }
   }, [language, cacheLanguage, updateLanguage, isLoadingTranslations]);
 
   // Show loading when actively loading translations
   if (isLoadingTranslations) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-pulse h-4 w-48 bg-gray-200 rounded mx-auto mb-4"></div>
-          <p>Loading translations for {language}...</p>
+      <div className={`flex flex-col items-center justify-center min-h-screen ${darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-capx-light-bg text-gray-900'}`}>
+        <LoadingState fullScreen={false} />
+        <div className="mt-8 text-center">
+          <p className={`text-lg font-medium ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}>
+            Loading translations for {language}...
+          </p>
+          <p className={`text-sm mt-2 ${darkMode ? 'text-capx-dark-box-bg' : 'text-capx-light-bg'}`}>
+            Please wait while we prepare the capacity data
+          </p>
         </div>
       </div>
     );
