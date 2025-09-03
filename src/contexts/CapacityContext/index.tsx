@@ -222,11 +222,6 @@ const globalDescriptionStore = {
 // Make globalDescriptionStore accessible globally for hook integration
 if (typeof window !== 'undefined') {
   (window as any).__capacityDescriptionStore = globalDescriptionStore;
-  console.log('🌐 globalDescriptionStore attached to window with initial state:', {
-    descriptions_count: Object.keys(globalDescriptionStore.descriptions).length,
-    wdCodes_count: Object.keys(globalDescriptionStore.wdCodes).length,
-    metabaseCodes_count: Object.keys(globalDescriptionStore.metabaseCodes).length,
-  });
 }
 
 // Provider of the context
@@ -274,12 +269,8 @@ export function CapacityDescriptionProvider({
             });
 
             if (descriptionsToFetch > 0) {
-              console.log(
-                `🔍 Prefetching descriptions for ${descriptionsToFetch} of ${allCodes.size} capacities`
-              );
               setIsDescriptionsLoading(true);
             } else {
-              console.log(`✅ All ${allCodes.size} capacity descriptions already cached`);
               setIsDescriptionsLoading(false);
             }
           }
@@ -336,13 +327,6 @@ export function CapacityDescriptionProvider({
 
     // Debug for any level 2 capacity (codes 11-49 typically)
     if (code >= 11 && code <= 49) {
-      console.log(`🔍 getMetabaseCode for code ${code}:`, {
-        result,
-        in_globalStore: globalDescriptionStore.metabaseCodes[code],
-        in_cache: cachedMetabaseCodes[code],
-        globalStore_keys: Object.keys(globalDescriptionStore.metabaseCodes).length,
-        cache_keys: Object.keys(cachedMetabaseCodes).length,
-      });
     }
 
     return result;

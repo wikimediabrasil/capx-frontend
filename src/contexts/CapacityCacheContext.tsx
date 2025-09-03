@@ -150,20 +150,26 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   // Fetch and update translations for a language
   const updateLanguage = useCallback(
     async (newLanguage: string) => {
+      console.log(`🔄 updateLanguage called for ${newLanguage}, current cache: ${unifiedCache.language}, has capacities: ${Object.keys(unifiedCache.capacities).length > 0}`);
+      
       if (!session?.user?.token) {
+        console.log(`❌ No session token, skipping updateLanguage`);
         return;
       }
       
       // Use the cache language from unifiedCache instead of currentLanguage state
       if (unifiedCache.language === newLanguage && Object.keys(unifiedCache.capacities).length > 0) {
+        console.log(`✅ Cache already has ${newLanguage}, skipping updateLanguage`);
         return;
       }
 
       // Prevent concurrent requests for different languages
       if (isLoadingTranslations) {
+        console.log(`⏳ Already loading translations, skipping updateLanguage`);
         return;
       }
 
+      console.log(`🚀 Starting updateLanguage for ${newLanguage}`);
       setIsLoadingTranslations(true);
 
       try {
@@ -348,11 +354,19 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         setUnifiedCache(newCache);
         saveUnifiedCache(newCache);
 
-        // Clear React Query cache for other languages
+        // Clear React Query cache for other languages and invalidate current language queries
         queryClient.removeQueries({
           predicate: query => {
             const key = query.queryKey[0] as string;
-            return key?.includes('root-capacities') && !key.includes(newLanguage);
+            return key?.includes('capacities') && !key.includes(newLanguage);
+          },
+        });
+        
+        // Invalidate queries for the new language to trigger re-fetch
+        queryClient.invalidateQueries({
+          predicate: query => {
+            const key = query.queryKey as string[];
+            return key[0] === 'capacities' && key.includes(newLanguage);
           },
         });
 

@@ -1,6 +1,6 @@
 'use client';
 import { setDocumentLocale } from '@/lib/utils/dateLocale';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AppContextType {
   isMobile: boolean;
@@ -83,6 +83,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (language) {
+        console.log(`📝 AppContext: Saving language ${language} to localStorage`);
         localStorage.setItem('language', language);
         // Set locale in the document to affect native calendars
         setDocumentLocale(language);
@@ -94,20 +95,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // To avoid hydration errors, we render the children directly
   // before mounting
+  // Custom setLanguage to log changes
+  const customSetLanguage = useCallback((newLanguage: string) => {
+    console.log(`🔄 AppContext: setLanguage called with ${newLanguage}, current language: ${language}`);
+    setLanguage(newLanguage);
+  }, [language]);
+
   // Memoize value object
   const value = useMemo(
-    () => ({
-      isMobile,
-      mobileMenuStatus,
-      setMobileMenuStatus,
-      language,
-      setLanguage,
-      pageContent,
-      setPageContent,
-      session,
-      setSession,
-    }),
-    [isMobile, mobileMenuStatus, language, pageContent, session]
+    () => {
+      console.log(`🏭 AppContext: Creating context value with language=${language}`);
+      return {
+        isMobile,
+        mobileMenuStatus,
+        setMobileMenuStatus,
+        language,
+        setLanguage: customSetLanguage,
+        pageContent,
+        setPageContent,
+        session,
+        setSession,
+      };
+    },
+    [isMobile, mobileMenuStatus, language, customSetLanguage, pageContent, session]
   );
 
   // Don't render anything before mount to avoid hydration mismatch

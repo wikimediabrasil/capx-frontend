@@ -4,7 +4,7 @@ import CapacityCacheDebug from '@/components/CapacityCacheDebug';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
 import LoadingState from '@/components/LoadingState';
 import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
-import { AppProvider, useApp } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
@@ -129,22 +129,7 @@ const ChildCapacities = ({
                 parentCapacity={child.parentCapacity}
                 description={getDescription(child.code)}
                 wd_code={getWdCode(child.code)}
-                metabase_code={(() => {
-                  const getMetabaseResult = getMetabaseCode(child.code);
-                  const metabaseCode = child.metabase_code || getMetabaseResult;
-
-                  // Debug for level 2 cards
-                  if (child.level === 2) {
-                    console.log(`🎯 Final metabase_code for level 2 card ${child.code}:`, {
-                      child_metabase_code: child.metabase_code,
-                      getMetabaseCode_result: getMetabaseResult,
-                      final_metabase_code: metabaseCode,
-                      child_name: child.name,
-                    });
-                  }
-
-                  return metabaseCode;
-                })()}
+                metabase_code={child.metabase_code || getMetabaseCode(child.code)}
                 rootColor={rootColor}
                 level={child.level}
               />
@@ -227,13 +212,6 @@ function CapacityListContent() {
       {!searchTerm && (
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => {
-            // Debug log for root capacity
-            console.log(`🏠 Root capacity ${capacity.code}:`, {
-              code: capacity.code,
-              name: capacity.name,
-              hasChildren: capacity.hasChildren,
-              level: capacity.level
-            });
             
             return (
             <div
@@ -296,11 +274,9 @@ export default function CapacityListMainWrapper() {
 
   return (
     <CapacityErrorBoundary>
-      <AppProvider>
-        <LanguageChangeHandler>
-          <CapacityListContent />
-        </LanguageChangeHandler>
-      </AppProvider>
+      <LanguageChangeHandler>
+        <CapacityListContent />
+      </LanguageChangeHandler>
     </CapacityErrorBoundary>
   );
 }

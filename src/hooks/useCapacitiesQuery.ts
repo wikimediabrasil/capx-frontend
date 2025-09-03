@@ -20,13 +20,17 @@ export function useRootCapacities(language: string = 'en') {
   return useQuery({
     queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
+      console.log(`🏠 useRootCapacities queryFn: language=${language}, cacheLanguage=${cacheLanguage}, isLoaded=${isLoaded}`);
+      
       // If cache language doesn't match, return empty and let LanguageChangeHandler handle it
       if (language !== cacheLanguage) {
+        console.log(`⚠️ useRootCapacities: Language mismatch, returning empty`);
         return [];
       }
 
       // Get root capacities directly from unified cache
       const rootCapacities = getRootCapacities();
+      console.log(`✅ useRootCapacities: Returning ${rootCapacities.length} root capacities from cache`);
       return rootCapacities;
     },
     enabled: isLoaded && language === cacheLanguage, // Only run when cache is ready and language matches

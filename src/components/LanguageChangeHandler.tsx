@@ -25,11 +25,19 @@ export function LanguageChangeHandler({ children }: { children: React.ReactNode 
 function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
   const { language } = useApp();
   const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
+  
+  console.log(`🎯 LanguageChangeHandlerInternal rendered with: appLanguage=${language}, cacheLanguage=${cacheLanguage}`);
 
   // Update language when app language changes
   useEffect(() => {
+    console.log(`🌍 LanguageChangeHandler: appLanguage=${language}, cacheLanguage=${cacheLanguage}, isLoadingTranslations=${isLoadingTranslations}`);
+    console.log(`🔍 Condition check: language !== cacheLanguage = ${language !== cacheLanguage}, !isLoadingTranslations = ${!isLoadingTranslations}`);
+    
     if (language !== cacheLanguage && !isLoadingTranslations) {
+      console.log(`🔄 LanguageChangeHandler: Calling updateLanguage(${language})`);
       updateLanguage(language);
+    } else {
+      console.log(`❌ LanguageChangeHandler: Skipping updateLanguage because conditions not met`);
     }
   }, [language, cacheLanguage, updateLanguage, isLoadingTranslations]);
 

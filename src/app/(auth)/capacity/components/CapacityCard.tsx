@@ -65,14 +65,6 @@ export function CapacityCard({
   // Use the hasChildren prop directly since unified cache handles this logic
   const hasChildrenFromCache = hasChildren;
   
-  // Debug log for hasChildren
-  console.log(`🔍 Card ${code} hasChildren debug:`, {
-    code,
-    name,
-    hasChildren,
-    hasChildrenFromCache,
-    isRoot
-  });
 
   // Ensures that names that look like QIDs are replaced
   const displayName = useMemo(() => {
