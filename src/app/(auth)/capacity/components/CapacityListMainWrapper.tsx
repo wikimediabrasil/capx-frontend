@@ -176,7 +176,10 @@ function CapacityListContent() {
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
 
   // Use consolidated cache for all capacity data
-  const { getName, getDescription, getWdCode, getMetabaseCode, getColor, getIcon } = useCapacityCache();
+  const { getName, getDescription, getWdCode, getMetabaseCode, getColor, getIcon, isLoaded, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
+  
+  // Check if cache is ready for the current language
+  const isCacheReady = isLoaded && !isLoadingTranslations && cacheLanguage === language;
 
   // Toggle expanded
   const handleToggleExpand = useCallback((code: string) => {
@@ -200,10 +203,15 @@ function CapacityListContent() {
     [searchTerm]
   );
 
-  if (isLoadingRoot) {
+  if (isLoadingRoot || !isCacheReady) {
     return (
       <div className="flex justify-center items-center h-[200px]">
         <LoadingState fullScreen={false} />
+        {!isCacheReady && (
+          <div className="mt-4 text-center text-gray-600">
+            {isLoadingTranslations ? 'Loading translations...' : `Loading cache for ${language}...`}
+          </div>
+        )}
       </div>
     );
   }

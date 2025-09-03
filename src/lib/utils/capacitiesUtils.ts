@@ -69,8 +69,37 @@ export const fetchCapacitiesWithFallback = async (
       console.warn('⚠️ Metabase failed, continuing with Wikidata only:', metabaseError);
     }
 
-    // If Metabase gave us results, return them (they have metabase_code)
+    // If Metabase gave us results, check if we need better translations from Wikidata
     if (metabaseResults.length > 0) {
+      // For non-English languages, try to get better translations from Wikidata
+      // while preserving metabase_code from Metabase
+      if (language !== 'en') {
+        try {
+          wikidataResults = await fetchWikidata(codes, language) || [];
+          console.log(`📋 Wikidata returned ${wikidataResults.length} results for translation enhancement`);
+          
+          // Merge Metabase (for metabase_code) with Wikidata (for better translations)
+          const mergedResults = metabaseResults.map(metabaseResult => {
+            const wikidataMatch = wikidataResults.find(wd => wd.wd_code === metabaseResult.wd_code);
+            
+            if (wikidataMatch) {
+              return {
+                ...metabaseResult, // Keep metabase_code from Metabase
+                name: wikidataMatch.name || metabaseResult.name, // Use Wikidata name if available
+                description: wikidataMatch.description || metabaseResult.description, // Use Wikidata description if available
+              };
+            }
+            
+            return metabaseResult; // No Wikidata match, use Metabase result as-is
+          });
+          
+          console.log(`🤝 Merged ${mergedResults.length} results with Wikidata translations`);
+          return mergedResults;
+        } catch (wikidataError) {
+          console.warn('⚠️ Wikidata failed for translation enhancement, using Metabase results:', wikidataError);
+        }
+      }
+      
       return metabaseResults;
     }
 
@@ -348,13 +377,14 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           return result;
         });
 
-      // If we requested a non-English language but got English results, return empty to trigger Wikidata fallback
+      // Note: We used to force Wikidata fallback for English results in non-English requests,
+      // but this caused us to lose metabase_code. Now we keep Metabase results even if they're 
+      // in English, because metabase_code is more important than having perfect translations.
       if (language !== 'en' && results.length > 0) {
         const hasEnglishResults = results.some(result => {
-          // Check if the name looks like it's in English (common English terms)
           const englishTerms = [
             'communication',
-            'learning',
+            'learning', 
             'technology',
             'social',
             'strategic',
@@ -366,9 +396,9 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
 
         if (hasEnglishResults) {
           console.log(
-            `⚠️ Metabase returned English results for ${language} request, forcing Wikidata fallback`
+            `⚠️ Metabase returned English results for ${language} request, but keeping them to preserve metabase_code`
           );
-          return []; // Return empty to trigger Wikidata fallback
+          // Don't return empty - keep the results to preserve metabase_code
         }
       }
 
