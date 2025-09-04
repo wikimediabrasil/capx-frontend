@@ -1,12 +1,15 @@
 import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
+import BarCodeLightIcon from '@/public/static/images/barcode_white.svg';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
-import MetabaseIcon from '@/public/static/images/metabase-black.svg';
+import MetabaseIcon from '@/public/static/images/metabase_black.svg';
+import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { Capacity } from '@/types/capacity';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
@@ -57,8 +60,9 @@ export function CapacityCard({
 }: CapacityCardProps) {
   const router = useRouter();
   const { isMobile, pageContent, language } = useApp();
+  const { darkMode } = useTheme();
   const [showInfo, setShowInfo] = useState(false);
-  
+
   // Use external control when available (main capacity view), internal for search
   const isInfoVisible = isInfoExpanded !== undefined ? isInfoExpanded : showInfo;
   const handleInfoToggle = onToggleInfo || (() => setShowInfo(!showInfo));
@@ -152,9 +156,18 @@ export function CapacityCard({
             >
               <div className="flex flex-row items-center gap-2 flex-shrink-0">
                 <div className="relative w-[36px] h-[36px]">
-                  <Image src={MetabaseIcon} alt="Metabase logo" fill priority />
+                  <Image
+                    src={darkMode ? MetabaseLightIcon : MetabaseIcon}
+                    alt="Metabase logo"
+                    fill
+                    priority
+                  />
                 </div>
-                <p className="text-[14px] sm:text-[20px] text-capx-light-link underline break-all">{metabase_code}</p>
+                <p
+                  className={`text-[14px] sm:text-[20px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
+                >
+                  {metabase_code}
+                </p>
               </div>
             </a>
           )}
@@ -168,15 +181,26 @@ export function CapacityCard({
             >
               <div className="flex flex-row items-center gap-2 flex-shrink-0">
                 <div className="relative w-[36px] h-[36px]">
-                  <Image src={BarCodeIcon} alt="BarCode" fill priority />
+                  <Image
+                    src={darkMode ? BarCodeLightIcon : BarCodeIcon}
+                    alt="BarCode"
+                    fill
+                    priority
+                  />
                 </div>
-                <p className="text-[14px] sm:text-[20px] text-capx-light-link underline break-all">{wd_code}</p>
+                <p
+                  className={`text-[14px] sm:text-[20px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
+                >
+                  {wd_code}
+                </p>
               </div>
             </a>
           )}
         </div>
         {description && (
-          <p className={`text-capx-dark-box-bg break-words ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}>
+          <p
+            className={`${darkMode ? 'text-gray-200' : 'text-capx-dark-box-bg'} break-words ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}
+          >
             {capitalizeFirstLetter(description)}
           </p>
         )}
@@ -459,7 +483,10 @@ export function CapacityCard({
           </div>
 
           {isInfoVisible && (
-            <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
+            <div
+              className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+              onClick={e => e.stopPropagation()}
+            >
               {renderExpandedContent()}
             </div>
           )}
@@ -526,7 +553,10 @@ export function CapacityCard({
           </div>
 
           {isInfoVisible && (
-            <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
+            <div
+              className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+              onClick={e => e.stopPropagation()}
+            >
               {renderExpandedContent()}
             </div>
           )}
@@ -562,7 +592,9 @@ export function CapacityCard({
         >
           <div className={`flex items-center ${isRoot ? 'gap-12' : 'gap-4'} min-w-0`}>
             {icon && isRoot
-              ? isMobile ? renderIcon(32, icon) : renderIcon(48, icon)
+              ? isMobile
+                ? renderIcon(32, icon)
+                : renderIcon(48, icon)
               : isMobile
                 ? renderIcon(32, icon)
                 : renderIcon(68, icon)}
@@ -628,7 +660,10 @@ export function CapacityCard({
       </div>
 
       {isInfoVisible && (
-        <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
+        <div
+          className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+          onClick={e => e.stopPropagation()}
+        >
           {renderExpandedContent()}
         </div>
       )}
