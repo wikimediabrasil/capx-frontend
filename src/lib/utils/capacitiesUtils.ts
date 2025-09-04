@@ -52,7 +52,7 @@ export const fetchCapacitiesWithFallback = async (
   language: string
 ) => {
   try {
-    // Always try Metabase first as it has metabase_code
+    // Always try Metabase first as it has metabase_code and already handles current language + English fallback
     const formattedCodes = codes.map(code => ({
       ...code,
       code: typeof code.code === 'string' ? parseInt(code.code, 10) : code.code,
@@ -61,50 +61,68 @@ export const fetchCapacitiesWithFallback = async (
     let metabaseResults: any[] = [];
     let wikidataResults: any[] = [];
 
-    // Try Metabase first
+    // Step 1: Try Metabase first (it already handles language fallback to English)
     try {
       metabaseResults = (await fetchMetabase(formattedCodes, language)) || [];
     } catch (metabaseError) {
-      // Continue with Wikidata if Metabase fails
+      // Continue with Wikidata if Metabase fails completely
     }
 
-    // If Metabase gave us results, check if we need better translations from Wikidata
+    // Step 2: If Metabase gave us results, check if any are missing descriptions
     if (metabaseResults.length > 0) {
-      // For non-English languages, try to get better translations from Wikidata
-      // while preserving metabase_code from Metabase
-      if (language !== 'en') {
-        try {
-          wikidataResults = (await fetchWikidata(codes, language)) || [];
+      // Find results that have empty or missing descriptions
+      const resultsMissingDescriptions = metabaseResults.filter(
+        result => !result.description || result.description.trim() === ''
+      );
 
-          // Merge Metabase (for metabase_code) with Wikidata (for better translations)
+      // If some results are missing descriptions, try to get them from Wikidata
+      if (resultsMissingDescriptions.length > 0) {
+        try {
+          const codesForWikidata = resultsMissingDescriptions.map(result => ({
+            code: result.code || 0,
+            wd_code: result.wd_code,
+          }));
+
+          wikidataResults = (await fetchWikidata(codesForWikidata, language)) || [];
+
+          // Merge results: Use Metabase as base, fill missing descriptions from Wikidata
           const mergedResults = metabaseResults.map(metabaseResult => {
+            // If this result already has a description, keep it as-is
+            if (metabaseResult.description && metabaseResult.description.trim() !== '') {
+              return metabaseResult;
+            }
+
+            // Try to find matching Wikidata result for missing description
             const wikidataMatch = wikidataResults.find(wd => wd.wd_code === metabaseResult.wd_code);
 
-            if (wikidataMatch) {
+            if (wikidataMatch && wikidataMatch.description) {
               return {
-                ...metabaseResult, // Keep metabase_code from Metabase
-                name: wikidataMatch.name || metabaseResult.name, // Use Wikidata name if available
-                description: wikidataMatch.description || metabaseResult.description, // Use Wikidata description if available
+                ...metabaseResult, // Keep metabase_code and other Metabase data
+                // Only use Wikidata description if Metabase description is empty
+                description: wikidataMatch.description,
+                // Keep Metabase name unless it's empty
+                name: metabaseResult.name || wikidataMatch.name,
               };
             }
 
-            return metabaseResult; // No Wikidata match, use Metabase result as-is
+            return metabaseResult; // No Wikidata match or description, use Metabase as-is
           });
 
           return mergedResults;
         } catch (wikidataError) {
-          // Use Metabase results if Wikidata fails
+          // If Wikidata fails, just use Metabase results as-is
         }
       }
 
+      // All descriptions are present in Metabase results, return them
       return metabaseResults;
     }
 
-    // If no results from Metabase, try Wikidata but add empty metabase_code
+    // Step 3: If no results from Metabase, try Wikidata as final fallback
     try {
       wikidataResults = (await fetchWikidata(codes, language)) || [];
 
-      // Add empty metabase_code to Wikidata results
+      // Add empty metabase_code to Wikidata results since they don't have it
       wikidataResults = wikidataResults.map(result => ({
         ...result,
         metabase_code: '', // Wikidata doesn't have metabase_code
