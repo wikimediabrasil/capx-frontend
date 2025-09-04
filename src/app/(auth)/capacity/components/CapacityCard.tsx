@@ -6,7 +6,7 @@ import BarCodeIcon from '@/public/static/images/barcode.svg';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
-import MetabaseIcon from '@/public/static/images/wikimedia_logo.svg';
+import MetabaseIcon from '@/public/static/images/metabase-black.svg';
 import { Capacity } from '@/types/capacity';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
@@ -129,10 +129,10 @@ export function CapacityCard({
 
     return (
       <div
-        className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-3' : 'px-2'}`}
+        className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-1 sm:px-3' : 'px-1 sm:px-2'} w-full`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex flex-row items-center gap-6 w-full">
+        <div className="flex flex-row items-center gap-2 sm:gap-6 w-full overflow-hidden">
           {metabase_code && metabase_code !== '' && (
             <a
               href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}
@@ -141,11 +141,11 @@ export function CapacityCard({
               rel="noopener noreferrer"
               title="Visit the capacity item page on Metabase"
             >
-              <div className="flex flex-row items-center gap-2">
+              <div className="flex flex-row items-center gap-2 flex-shrink-0">
                 <div className="relative w-[36px] h-[36px]">
                   <Image src={MetabaseIcon} alt="Metabase logo" fill priority />
                 </div>
-                <p className="text-[20px] text-capx-light-link underline">{metabase_code}</p>
+                <p className="text-[14px] sm:text-[20px] text-capx-light-link underline break-all">{metabase_code}</p>
               </div>
             </a>
           )}
@@ -157,17 +157,17 @@ export function CapacityCard({
               rel="noopener noreferrer"
               title="Visit the capacity item page on Wikidata"
             >
-              <div className="flex flex-row items-center gap-2">
+              <div className="flex flex-row items-center gap-2 flex-shrink-0">
                 <div className="relative w-[36px] h-[36px]">
                   <Image src={BarCodeIcon} alt="BarCode" fill priority />
                 </div>
-                <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
+                <p className="text-[14px] sm:text-[20px] text-capx-light-link underline break-all">{wd_code}</p>
               </div>
             </a>
           )}
         </div>
         {description && (
-          <p className={`text-capx-dark-box-bg ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}>
+          <p className={`text-capx-dark-box-bg break-words ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}>
             {capitalizeFirstLetter(description)}
           </p>
         )}
@@ -450,7 +450,7 @@ export function CapacityCard({
           </div>
 
           {showInfo && (
-            <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
+            <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
               {renderExpandedContent()}
             </div>
           )}
@@ -517,7 +517,7 @@ export function CapacityCard({
           </div>
 
           {showInfo && (
-            <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
+            <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
               {renderExpandedContent()}
             </div>
           )}
@@ -543,7 +543,7 @@ export function CapacityCard({
     <div className="w-full">
       <div
         onClick={handleCardClick}
-        className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow`}
+        className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
         style={{
           backgroundColor: backgroundColor,
         }}
@@ -619,7 +619,7 @@ export function CapacityCard({
       </div>
 
       {showInfo && (
-        <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
+        <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
           {renderExpandedContent()}
         </div>
       )}
