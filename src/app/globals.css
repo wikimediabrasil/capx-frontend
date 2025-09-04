@@ -82,3 +82,74 @@ textarea::placeholder,
 input::placeholder {
   color: #757575;
 }
+
+/* Enhanced word breaking for long capacity names */
+.hyphens-auto {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+.break-words {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Specific hyphenation for different languages */
+.capacity-name {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Language-specific hyphenation patterns */
+:lang(de) .capacity-name,
+:lang(de) .hyphens-auto {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+:lang(pt) .capacity-name,
+:lang(pt-br) .capacity-name,
+:lang(pt) .hyphens-auto,
+:lang(pt-br) .hyphens-auto {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+:lang(es) .capacity-name,
+:lang(es) .hyphens-auto {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+/* Specific class for child cards on mobile (8+ characters) */
+.capacity-name-mobile {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Language-specific hyphenation for mobile child cards */
+:lang(de) .capacity-name-mobile {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+:lang(pt) .capacity-name-mobile,
+:lang(pt-br) .capacity-name-mobile {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+:lang(es) .capacity-name-mobile {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}

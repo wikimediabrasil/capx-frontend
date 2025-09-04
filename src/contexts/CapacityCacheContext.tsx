@@ -1,15 +1,15 @@
 'use client';
+import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import { capacityService } from '@/services/capacityService';
 import { Capacity } from '@/types/capacity';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { getCapacityIcon, getCapacityColor } from '@/lib/utils/capacitiesUtils';
 
 // Function to determine hierarchy info based on capacity code
 const getHierarchyInfo = (code: number) => {
   const codeStr = code.toString();
-  
+
   // Determine category and color based on code prefix
   let category = '';
   if (codeStr.startsWith('10')) category = 'organizational';
@@ -20,7 +20,7 @@ const getHierarchyInfo = (code: number) => {
   else if (codeStr.startsWith('74')) category = 'strategic';
   else if (codeStr.startsWith('106')) category = 'technology';
   else category = 'organizational'; // Default fallback
-  
+
   return {
     color: getCapacityColor(category),
     icon: getCapacityIcon(code),
@@ -74,7 +74,7 @@ interface CapacityCacheContextType {
   getMetabaseCode: (code: number) => string;
   getColor: (code: number) => string;
   getIcon: (code: number) => string;
-  
+
   // Hierarchy functions
   getChildren: (parentCode: number) => any[];
   getCapacity: (code: number) => any | null;
@@ -99,7 +99,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [isLoadingTranslations, setIsLoadingTranslations] = useState(false);
-  
+
   // Get initial language from localStorage or default to 'en'
   const getInitialLanguage = () => {
     if (typeof window !== 'undefined') {
@@ -107,7 +107,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     return 'en';
   };
-  
+
   const [unifiedCache, setUnifiedCache] = useState<UnifiedCache>({
     capacities: {},
     children: {},
@@ -153,7 +153,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!session?.user?.token) {
         return;
       }
-      
+
       // Use the cache language from unifiedCache instead of currentLanguage state
       if (unifiedCache.language === newLanguage && Object.keys(unifiedCache.capacities).length > 0) {
         return;
@@ -200,7 +200,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         // Add root capacities to cache
         rootCapacities.forEach((capacity: Capacity) => {
           const hierarchyInfo = getHierarchyInfo(capacity.code);
-          
+
           newCache.capacities[capacity.code] = {
             code: capacity.code,
             name: capacity.name,
@@ -219,7 +219,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         });
 
         // Now fetch all children and grandchildren for each root capacity
-        
+
         for (const rootCapacity of rootCapacities) {
           try {
             // Fetch children for this root capacity
@@ -232,14 +232,14 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             if (childrenResponse && typeof childrenResponse === 'object') {
               // Process children
               const childrenEntries = Object.entries(childrenResponse as Record<string, any>);
-              
+
               // Store children codes in the cache structure
               newCache.children[rootCapacity.code] = childrenEntries.map(([code]) => parseInt(code, 10));
-              
+
               for (const [childCode, childData] of childrenEntries) {
                 const childCodeNum = parseInt(childCode, 10);
                 const hierarchyInfo = getHierarchyInfo(rootCapacity.code); // Use parent's hierarchy info
-                
+
                 // Store child in cache
                 const childName = typeof childData === 'string' ? childData : (childData as any)?.name || `Capacity ${childCode}`;
                 newCache.capacities[childCodeNum] = {
@@ -268,19 +268,19 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
 
                   if (grandchildrenResponse && typeof grandchildrenResponse === 'object') {
                     const grandchildrenEntries = Object.entries(grandchildrenResponse as Record<string, any>);
-                    
+
                     if (grandchildrenEntries.length > 0) {
                       // Update parent to indicate it has children
                       newCache.capacities[childCodeNum].hasChildren = true;
-                      
+
                       // Store grandchildren codes
                       newCache.children[childCodeNum] = grandchildrenEntries.map(([code]) => parseInt(code, 10));
-                      
+
                       // Store each grandchild
                       for (const [grandchildCode, grandchildData] of grandchildrenEntries) {
                         const grandchildCodeNum = parseInt(grandchildCode, 10);
                         const grandchildName = typeof grandchildData === 'string' ? grandchildData : (grandchildData as any)?.name || `Capacity ${grandchildCode}`;
-                        
+
                         newCache.capacities[grandchildCodeNum] = {
                           code: grandchildCodeNum,
                           name: grandchildName,
@@ -308,7 +308,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             // Silently continue if children fetch fails
           }
         }
-        
+
         // Get all capacity codes that need translations
         const allCodesNeedingTranslations = Object.values(newCache.capacities)
           .filter(cap => cap.wd_code && cap.level <= 2) // Only translate root and level 2
@@ -329,7 +329,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
               cap => cap.wd_code === translation.wd_code
             );
             if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
-              
+
               newCache.capacities[matchingCapacity.code] = {
                 ...newCache.capacities[matchingCapacity.code],
                 name: translation.name || newCache.capacities[matchingCapacity.code].name,
@@ -355,7 +355,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             return key?.includes('capacities') && !key.includes(newLanguage);
           },
         });
-        
+
         // Invalidate queries for the new language to trigger re-fetch
         queryClient.invalidateQueries({
           predicate: query => {
@@ -439,7 +439,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [unifiedCache.capacities]
   );
-  
+
   // Get children from cache
   const getChildren = useCallback(
     (parentCode: number): any[] => {
@@ -448,7 +448,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [unifiedCache.capacities, unifiedCache.children]
   );
-  
+
   // Get single capacity from cache
   const getCapacity = useCallback(
     (code: number): any | null => {

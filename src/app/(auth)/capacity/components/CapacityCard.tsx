@@ -1,6 +1,5 @@
 import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
@@ -52,11 +51,11 @@ export function CapacityCard({
   level,
 }: CapacityCardProps) {
   const router = useRouter();
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const [showInfo, setShowInfo] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
-  
-  
+
+
   // Debug log for child cards - simplified
   if (!isRoot && level === 2) {
     console.log(`👶 CHILD ${code} color: ${color} (from parent ${parentCapacity?.code})`);
@@ -64,7 +63,7 @@ export function CapacityCard({
 
   // Use the hasChildren prop directly since unified cache handles this logic
   const hasChildrenFromCache = hasChildren;
-  
+
 
   // Ensures that names that look like QIDs are replaced
   const displayName = useMemo(() => {
@@ -240,12 +239,12 @@ export function CapacityCard({
     if (level === 2) {
       return '#FFFFFF'; // White text on colored background
     }
-    
+
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getCapacityColor(parentCapacity.color);
     }
-    
+
     // Fallback to the passed color
     if (color) {
       return getCapacityColor(color);
@@ -277,12 +276,12 @@ export function CapacityCard({
     if (level === 2) {
       return 'brightness(0) invert(1)'; // White icons on colored background
     }
-    
+
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getHueRotate(parentCapacity.color);
     }
-    
+
     // Fallback to the passed color
     if (color) {
       return getHueRotate(color);
@@ -431,7 +430,7 @@ export function CapacityCard({
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
-                    className={`font-extrabold text-white hover:underline ${
+                    className={`font-extrabold text-white hover:underline truncate ${
                       isMobile ? 'text-[20px]' : 'text-[48px]'
                     }`}
                   >
@@ -471,33 +470,35 @@ export function CapacityCard({
           <div
             className={`flex p-4 ${
               isMobile
-                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
+                ? 'h-[191px] flex-row items-center mx-0 gap-3 md:mx-6'
                 : 'flex-row h-[326px] justify-around items-center'
             }`}
           >
-            {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
+            {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
 
-            <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
+            <div className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}>
               <div
-                className={`flex items-center pl-8 ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
+                className={`flex items-center ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[378px] pl-8'} h-full`}
               >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
                     onClick={handleTitleClick}
-                    className={`font-extrabold text-white hover:underline ${
+                    className={`font-extrabold text-white hover:underline break-words hyphens-auto capacity-name ${
                       isMobile ? 'text-[20px]' : 'text-[48px]'
                     }`}
+                    style={{ wordBreak: 'break-word', hyphens: 'auto' }}
+                    lang={language || 'en'}
                   >
                     {capitalizeFirstLetter(name)}
                   </h3>
                 </Link>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-4'}`}>
                 {isMobile ? (
                   <>
-                    {renderInfoButton(24, InfoIcon)}
-                    {hasChildrenFromCache && renderArrowButton(24, ArrowDownIcon)}
+                    {renderInfoButton(20, InfoIcon)}
+                    {hasChildrenFromCache && renderArrowButton(20, ArrowDownIcon)}
                   </>
                 ) : (
                   <>
@@ -538,7 +539,7 @@ export function CapacityCard({
         onClick={handleCardClick}
         className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow`}
         style={{
-          backgroundColor: level === 3 
+          backgroundColor: level === 3
             ? '#507380' // Dark background for level 3
             : level === 2 && color
               ? color // Exact same color as parent for level 2
@@ -564,14 +565,25 @@ export function CapacityCard({
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
                 <h3
                   onClick={handleTitleClick}
-                  className={`font-extrabold hover:underline truncate ${
+                  className={`font-extrabold hover:underline ${
+                    isRoot
+                      ? 'break-words hyphens-auto capacity-name'
+                      : isMobile
+                        ? 'break-words hyphens-auto capacity-name-mobile'
+                        : 'truncate'
+                  } ${
                     isMobile ? 'text-[20px]' : 'text-[36px]'
-                  }
-                  `}
+                  }`}
                   style={{
                     color: getNameColor(isRoot, parentCapacity, color),
+                    ...(isRoot
+                      ? { wordBreak: 'break-word', hyphens: 'auto' }
+                      : (isMobile && displayName && displayName.length >= 8
+                        ? { wordBreak: 'break-word', hyphens: 'auto' }
+                        : {}))
                   }}
                   title={capitalizeFirstLetter(displayName)}
+                  lang={(isRoot || (isMobile && displayName && displayName.length >= 8)) ? (language || 'en') : undefined}
                 >
                   {capitalizeFirstLetter(displayName)}
                 </h3>
