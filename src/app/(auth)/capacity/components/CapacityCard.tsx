@@ -425,7 +425,7 @@ export function CapacityCard({
                 : 'flex-row h-[326px] justify-around items-center'
             }`}
           >
-            {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
+            {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
               <div
@@ -553,9 +553,9 @@ export function CapacityCard({
         >
           <div className={`flex items-center ${isRoot ? 'gap-12' : 'gap-4'} min-w-0`}>
             {icon && isRoot
-              ? renderIcon(48, icon)
+              ? isMobile ? renderIcon(32, icon) : renderIcon(48, icon)
               : isMobile
-                ? renderIcon(48, icon)
+                ? renderIcon(32, icon)
                 : renderIcon(68, icon)}
             <div
               className={`flex flex-row items-center justify-between ${
