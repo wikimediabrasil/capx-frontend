@@ -23,11 +23,15 @@ const ChildCapacities = ({
   expandedCapacities,
   onToggleExpand,
   language,
+  expandedInfoCard,
+  onToggleInfo,
 }: {
   parentCode: string;
   expandedCapacities: Record<string, boolean>;
   onToggleExpand: (code: string) => void;
   language: string;
+  expandedInfoCard: string | null;
+  onToggleInfo: (code: string) => void;
 }) => {
   const { data: children = [], isLoading: isLoadingChildren } = useCapacitiesByParent(
     parentCode,
@@ -190,6 +194,8 @@ const ChildCapacities = ({
                   metabase_code={child.metabase_code || getMetabaseCode(child.code)}
                   rootColor={rootColor}
                   level={child.level}
+                  isInfoExpanded={expandedInfoCard === child.code.toString()}
+                  onToggleInfo={() => onToggleInfo(child.code.toString())}
                 />
                 {expandedCapacities[child.code] && (
                   <ChildCapacities
@@ -197,6 +203,8 @@ const ChildCapacities = ({
                     expandedCapacities={expandedCapacities}
                     onToggleExpand={onToggleExpand}
                     language={language}
+                    expandedInfoCard={expandedInfoCard}
+                    onToggleInfo={onToggleInfo}
                   />
                 )}
               </div>
@@ -206,11 +214,11 @@ const ChildCapacities = ({
       ) : (
         /* Desktop - com setas de navegação */
         <div className="relative mt-4">
-          {/* Seta esquerda */}
+          {/* Seta esquerda - positioned outside the scroll container */}
           {canScrollLeft && (
             <button
               onClick={scrollLeft}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
+              className="absolute -left-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
               aria-label="Scroll left"
             >
               <Image
@@ -223,11 +231,11 @@ const ChildCapacities = ({
             </button>
           )}
 
-          {/* Seta direita */}
+          {/* Seta direita - positioned outside the scroll container */}
           {canScrollRight && (
             <button
               onClick={scrollRight}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
+              className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
               aria-label="Scroll right"
             >
               <Image
@@ -240,12 +248,8 @@ const ChildCapacities = ({
             </button>
           )}
 
-          {/* Container de scroll */}
-          <div
-            ref={scrollContainerRef}
-            className="overflow-x-auto scrollbar-hide w-full"
-            style={{ paddingLeft: '48px', paddingRight: '48px' }}
-          >
+          {/* Container de scroll - without padding since arrows are outside */}
+          <div ref={scrollContainerRef} className="overflow-x-auto scrollbar-hide w-full">
             <div className="flex gap-4 pb-4 w-fit">
               {childrenWithParents.map((child, index) => (
                 <div
@@ -267,6 +271,8 @@ const ChildCapacities = ({
                     metabase_code={child.metabase_code || getMetabaseCode(child.code)}
                     rootColor={rootColor}
                     level={child.level}
+                    isInfoExpanded={expandedInfoCard === child.code.toString()}
+                    onToggleInfo={() => onToggleInfo(child.code.toString())}
                   />
                   {expandedCapacities[child.code] && (
                     <ChildCapacities
@@ -274,6 +280,8 @@ const ChildCapacities = ({
                       expandedCapacities={expandedCapacities}
                       onToggleExpand={onToggleExpand}
                       language={language}
+                      expandedInfoCard={expandedInfoCard}
+                      onToggleInfo={onToggleInfo}
                     />
                   )}
                 </div>
@@ -294,6 +302,10 @@ function CapacityListContent() {
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Exclusive expansion state
+  const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
+  const [expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
+
   // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
 
@@ -305,6 +317,7 @@ function CapacityListContent() {
     getMetabaseCode,
     getColor,
     getIcon,
+    getCapacity,
     isLoaded,
     isLoadingTranslations,
     language: cacheLanguage,
@@ -313,12 +326,71 @@ function CapacityListContent() {
   // Check if cache is ready for the current language
   const isCacheReady = isLoaded && !isLoadingTranslations && cacheLanguage === language;
 
-  // Toggle expanded
-  const handleToggleExpand = useCallback((code: string) => {
-    setExpandedCapacities(prev => ({
-      ...prev,
-      [code]: !prev[code],
-    }));
+  // Helper function to get root family code
+  const getRootFamilyCode = useCallback(
+    (capacityCode: string) => {
+      const capacity = getCapacity ? getCapacity(parseInt(capacityCode)) : null;
+      if (!capacity) return capacityCode;
+
+      // If it's already root (level 1), return its code
+      if (capacity.level === 1) return capacityCode;
+
+      // If it's level 2, get parent (root)
+      if (capacity.level === 2 && capacity.parentCapacity) {
+        return capacity.parentCapacity.code.toString();
+      }
+
+      // If it's level 3, get grandparent (root)
+      if (capacity.level === 3 && capacity.parentCapacity?.parentCapacity) {
+        return capacity.parentCapacity.parentCapacity.code.toString();
+      }
+
+      return capacityCode;
+    },
+    [getCapacity]
+  );
+
+  // Toggle expanded children (exclusive per family)
+  const handleToggleExpand = useCallback(
+    (code: string) => {
+      const clickedRootFamily = getRootFamilyCode(code);
+
+      setExpandedChildrenCard(prev => {
+        // If clicking on the same card, close it
+        if (prev === code) {
+          setExpandedCapacities({});
+          return null;
+        }
+
+        const prevRootFamily = prev ? getRootFamilyCode(prev) : null;
+
+        // If expanding within the same family, keep existing expansions and add new one
+        if (prev && prevRootFamily === clickedRootFamily) {
+          setExpandedCapacities(prevExpanded => ({
+            ...prevExpanded,
+            [code]: true,
+          }));
+        } else {
+          // Different family, close all others and open this one
+          setExpandedCapacities({ [code]: true });
+        }
+
+        return code;
+      });
+    },
+    [getRootFamilyCode]
+  );
+
+  // Toggle info panel (exclusive)
+  const handleToggleInfo = useCallback((code: string) => {
+    setExpandedInfoCard(prev => {
+      // If clicking on the same card, close it
+      if (prev === code) {
+        return null;
+      }
+      // Otherwise, close others and open this one
+      return code;
+    });
   }, []);
 
   const handleSearchEnd = useCallback(() => {
@@ -388,6 +460,8 @@ function CapacityListContent() {
                   description={getDescription(capacity.code)}
                   wd_code={getWdCode(capacity.code)}
                   metabase_code={capacity.metabase_code || getMetabaseCode(capacity.code)}
+                  isInfoExpanded={expandedInfoCard === capacity.code.toString()}
+                  onToggleInfo={() => handleToggleInfo(capacity.code.toString())}
                 />
                 {expandedCapacities[capacity.code] && (
                   <ChildCapacities
@@ -395,6 +469,8 @@ function CapacityListContent() {
                     expandedCapacities={expandedCapacities}
                     onToggleExpand={handleToggleExpand}
                     language={language}
+                    expandedInfoCard={expandedInfoCard}
+                    onToggleInfo={handleToggleInfo}
                   />
                 )}
               </div>

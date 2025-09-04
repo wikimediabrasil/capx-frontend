@@ -31,6 +31,9 @@ interface CapacityCardProps {
   isMobile?: boolean;
   rootColor?: string;
   level?: number;
+  // Exclusive expansion props
+  isInfoExpanded?: boolean;
+  onToggleInfo?: () => void;
 }
 
 export function CapacityCard({
@@ -49,10 +52,16 @@ export function CapacityCard({
   isSearch,
   onInfoClick,
   level,
+  isInfoExpanded,
+  onToggleInfo,
 }: CapacityCardProps) {
   const router = useRouter();
   const { isMobile, pageContent, language } = useApp();
   const [showInfo, setShowInfo] = useState(false);
+  
+  // Use external control when available (main capacity view), internal for search
+  const isInfoVisible = isInfoExpanded !== undefined ? isInfoExpanded : showInfo;
+  const handleInfoToggle = onToggleInfo || (() => setShowInfo(!showInfo));
   const childrenContainerRef = useRef<HTMLDivElement>(null);
 
   // Use the hasChildren prop directly since unified cache handles this logic
@@ -69,10 +78,10 @@ export function CapacityCard({
 
   const handleInfoClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the click event from propagating to the card
-    if (!showInfo && onInfoClick) {
+    if (!isInfoVisible && onInfoClick) {
       await onInfoClick(code);
     }
-    setShowInfo(!showInfo);
+    handleInfoToggle();
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -89,7 +98,7 @@ export function CapacityCard({
   };
 
   const renderExpandedContent = () => {
-    if (!showInfo) return null;
+    if (!isInfoVisible) return null;
 
     // Determine the background color of the button
     const getButtonBackgroundColor = () => {
@@ -310,7 +319,7 @@ export function CapacityCard({
       >
         <div className="relative" style={{ width: `${size}px`, height: `${size}px` }}>
           <Image
-            src={showInfo ? InfoFilledIcon : icon}
+            src={isInfoVisible ? InfoFilledIcon : icon}
             alt={name}
             fill
             priority
@@ -449,7 +458,7 @@ export function CapacityCard({
             </div>
           </div>
 
-          {showInfo && (
+          {isInfoVisible && (
             <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
               {renderExpandedContent()}
             </div>
@@ -516,7 +525,7 @@ export function CapacityCard({
             </div>
           </div>
 
-          {showInfo && (
+          {isInfoVisible && (
             <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
               {renderExpandedContent()}
             </div>
@@ -618,7 +627,7 @@ export function CapacityCard({
         </div>
       </div>
 
-      {showInfo && (
+      {isInfoVisible && (
         <div className={`bg-white rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`} onClick={e => e.stopPropagation()}>
           {renderExpandedContent()}
         </div>
