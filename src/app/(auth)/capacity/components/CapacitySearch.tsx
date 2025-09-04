@@ -58,7 +58,7 @@ function useDebounce<Args extends unknown[], Return>(
 
 export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: CapacitySearchProps) {
   const { data: session } = useSession();
-  const { language, isMobile, pageContent } = useApp();
+  const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const { getName, getDescription, getWdCode } = useCapacityCache();
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,7 +84,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
       if (term) {
         setIsLoading(true);
         onSearchStart?.();
-        
+
         try {
           if (session?.user?.token) {
             const results = await capacityService.searchCapacities(term, {
@@ -96,7 +96,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
           console.error('Search error:', error);
           setSearchResults([]);
         }
-        
+
         // Store the current search term
         lastSearchRef.current = term;
         setIsLoading(false);

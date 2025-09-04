@@ -60,10 +60,10 @@ export const fetchCapacitiesWithFallback = async (
 
     let metabaseResults: any[] = [];
     let wikidataResults: any[] = [];
-    
+
     // Try Metabase first
     try {
-      metabaseResults = await fetchMetabase(formattedCodes, language) || [];
+      metabaseResults = (await fetchMetabase(formattedCodes, language)) || [];
     } catch (metabaseError) {
       // Continue with Wikidata if Metabase fails
     }
@@ -74,12 +74,12 @@ export const fetchCapacitiesWithFallback = async (
       // while preserving metabase_code from Metabase
       if (language !== 'en') {
         try {
-          wikidataResults = await fetchWikidata(codes, language) || [];
-          
+          wikidataResults = (await fetchWikidata(codes, language)) || [];
+
           // Merge Metabase (for metabase_code) with Wikidata (for better translations)
           const mergedResults = metabaseResults.map(metabaseResult => {
             const wikidataMatch = wikidataResults.find(wd => wd.wd_code === metabaseResult.wd_code);
-            
+
             if (wikidataMatch) {
               return {
                 ...metabaseResult, // Keep metabase_code from Metabase
@@ -87,27 +87,27 @@ export const fetchCapacitiesWithFallback = async (
                 description: wikidataMatch.description || metabaseResult.description, // Use Wikidata description if available
               };
             }
-            
+
             return metabaseResult; // No Wikidata match, use Metabase result as-is
           });
-          
+
           return mergedResults;
         } catch (wikidataError) {
           // Use Metabase results if Wikidata fails
         }
       }
-      
+
       return metabaseResults;
     }
 
     // If no results from Metabase, try Wikidata but add empty metabase_code
     try {
-      wikidataResults = await fetchWikidata(codes, language) || [];
-      
+      wikidataResults = (await fetchWikidata(codes, language)) || [];
+
       // Add empty metabase_code to Wikidata results
       wikidataResults = wikidataResults.map(result => ({
         ...result,
-        metabase_code: '' // Wikidata doesn't have metabase_code
+        metabase_code: '', // Wikidata doesn't have metabase_code
       }));
     } catch (wikidataError) {
       // Return empty array if both fail
@@ -145,7 +145,7 @@ export const getCapacityColor = (color: string): string => {
 
 export const getCapacityIcon = (code: number): string => {
   const codeStr = code.toString();
-  
+
   const iconMap: Record<string, string> = {
     '10': OrganizationalIcon,
     '36': CommunicationIcon,
@@ -276,7 +276,6 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       ?item wbt:P67/wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
-
     try {
       // Use absolute URL for server-side requests
       const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
@@ -286,7 +285,6 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           query: mbQueryText,
         },
       });
-
 
       // Check if response has expected structure
       if (!response.data || !response.data.results || !response.data.results.bindings) {
@@ -316,18 +314,17 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
             metabase_code: metabaseCode,
           };
 
-
           return result;
         });
 
       // Note: We used to force Wikidata fallback for English results in non-English requests,
-      // but this caused us to lose metabase_code. Now we keep Metabase results even if they're 
+      // but this caused us to lose metabase_code. Now we keep Metabase results even if they're
       // in English, because metabase_code is more important than having perfect translations.
       if (language !== 'en' && results.length > 0) {
-        const hasEnglishResults = results.some(result => {
+        const hasEnglishResults = results.some((result: any) => {
           const englishTerms = [
             'communication',
-            'learning', 
+            'learning',
             'technology',
             'social',
             'strategic',

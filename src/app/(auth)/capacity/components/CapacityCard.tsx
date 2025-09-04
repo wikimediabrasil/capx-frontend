@@ -55,15 +55,8 @@ export function CapacityCard({
   const [showInfo, setShowInfo] = useState(false);
   const childrenContainerRef = useRef<HTMLDivElement>(null);
 
-
-  // Debug log for child cards - simplified
-  if (!isRoot && level === 2) {
-    console.log(`👶 CHILD ${code} color: ${color} (from parent ${parentCapacity?.code})`);
-  }
-
   // Use the hasChildren prop directly since unified cache handles this logic
   const hasChildrenFromCache = hasChildren;
-
 
   // Ensures that names that look like QIDs are replaced
   const displayName = useMemo(() => {
@@ -98,17 +91,6 @@ export function CapacityCard({
   const renderExpandedContent = () => {
     if (!showInfo) return null;
 
-    // Debug: log what we have for this card
-    console.log('🎯 CapacityCard renderExpandedContent:', {
-      code,
-      name,
-      wd_code,
-      metabase_code,
-      isRoot,
-      level,
-      parentCapacity: parentCapacity ? `${parentCapacity.code}-${parentCapacity.name}` : null,
-    });
-
     // Determine the background color of the button
     const getButtonBackgroundColor = () => {
       // For root capacities (level 1), don't try to access bgColorClass
@@ -118,20 +100,15 @@ export function CapacityCard({
 
       // For non-root capacities, we can safely check level and other properties
 
-      // For third level (level 3) capacities, use fixed black color
+      // For third level (level 3) capacities, try to get root color from parent hierarchy
       if (level === 3) {
-        return '#507380'; // Black color for third level
-      }
-
-      // If level isn't explicitly set, try to determine from bgColorClass
-      // This is safe to use for non-root capacities
-      try {
-        if (bgColorClass === 'bg-[#507380]') {
-          return '#507380'; // Black color for third level
+        if (parentCapacity?.parentCapacity?.color) {
+          return parentCapacity.parentCapacity.color; // Get root color from grandparent
         }
-      } catch (e) {
-        // If bgColorClass is not accessible, log error but continue
-        console.error('Error accessing bgColorClass:', e);
+        if (parentCapacity?.color) {
+          return parentCapacity.color; // Get color from parent
+        }
+        return '#507380'; // Fallback dark color
       }
 
       // For second level capacities (direct children of root)
@@ -368,28 +345,26 @@ export function CapacityCard({
     );
   };
 
-  const getBgColorClass = (): string => {
-    // Use explicit level check first if available
+  // Calculate background color inline to avoid scope issues
+  const backgroundColor = (() => {
     if (level === 3) {
-      return 'bg-[#507380]'; // Black background for level 3
+      // For level 3, try to get root color from parent hierarchy or use fallback
+      if (parentCapacity?.parentCapacity?.color) {
+        return parentCapacity.parentCapacity.color; // Get root color from grandparent
+      }
+      if (parentCapacity?.color) {
+        return parentCapacity.color; // Get color from parent
+      }
+      return '#507380'; // Fallback dark color
     }
-
-    // Continue using existing checks as fallbacks
-    // Direct check for third level capacities
-    if (parentCapacity?.parentCapacity) {
-      return 'bg-[#507380]'; // Black background for third level
+    if (level === 2 && color) {
+      return color; // Exact same color as parent for level 2
     }
-
-    // Alternative check for third level (if parent is not a root capacity itself)
-    if (parentCapacity && parentCapacity.skill_type !== parentCapacity.code) {
-      return 'bg-[#507380]'; // Black background for third level
+    if (level === 2) {
+      return '#F6F6F6'; // Fallback light background
     }
-
-    // Second level (direct child of root) - Use light background
-    return 'bg-capx-light-box-bg';
-  };
-
-  const bgColorClass = getBgColorClass();
+    return 'white';
+  })();
 
   if (isSearch) {
     // Search card - sempre renderiza como um card de busca
@@ -476,7 +451,9 @@ export function CapacityCard({
           >
             {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
 
-            <div className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}>
+            <div
+              className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}
+            >
               <div
                 className={`flex items-center ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[378px] pl-8'} h-full`}
               >
@@ -539,13 +516,7 @@ export function CapacityCard({
         onClick={handleCardClick}
         className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow`}
         style={{
-          backgroundColor: level === 3
-            ? '#507380' // Dark background for level 3
-            : level === 2 && color
-              ? color // Exact same color as parent for level 2
-              : level === 2
-                ? '#F6F6F6' // Fallback light background
-                : 'white'
+          backgroundColor: backgroundColor,
         }}
       >
         <div
@@ -571,19 +542,21 @@ export function CapacityCard({
                       : isMobile
                         ? 'break-words hyphens-auto capacity-name-mobile'
                         : 'truncate'
-                  } ${
-                    isMobile ? 'text-[20px]' : 'text-[36px]'
-                  }`}
+                  } ${isMobile ? 'text-[20px]' : 'text-[36px]'}`}
                   style={{
                     color: getNameColor(isRoot, parentCapacity, color),
                     ...(isRoot
                       ? { wordBreak: 'break-word', hyphens: 'auto' }
-                      : (isMobile && displayName && displayName.length >= 8
+                      : isMobile && displayName && displayName.length >= 8
                         ? { wordBreak: 'break-word', hyphens: 'auto' }
-                        : {}))
+                        : {}),
                   }}
                   title={capitalizeFirstLetter(displayName)}
-                  lang={(isRoot || (isMobile && displayName && displayName.length >= 8)) ? (language || 'en') : undefined}
+                  lang={
+                    isRoot || (isMobile && displayName && displayName.length >= 8)
+                      ? language || 'en'
+                      : undefined
+                  }
                 >
                   {capitalizeFirstLetter(displayName)}
                 </h3>

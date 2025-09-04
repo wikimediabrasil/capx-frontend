@@ -36,7 +36,7 @@ const ChildCapacities = ({
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
 
-  const { getName, getDescription, getWdCode, getMetabaseCode, getColor, getIcon } = useCapacityCache();
+  const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityCache();
   const { isMobile } = useApp();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -61,7 +61,7 @@ const ChildCapacities = ({
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       const canLeft = scrollLeft > 0;
       const canRight = scrollLeft < scrollWidth - clientWidth - 1;
-      
+
       setCanScrollLeft(canLeft);
       setCanScrollRight(canRight);
     }
@@ -164,7 +164,6 @@ const ChildCapacities = ({
   // Children come from cache with all correct information
   const childrenWithParents = children; // No need to process, cache has everything
 
-
   return (
     <>
       {/* Mobile - sem setas de navegação */}
@@ -214,10 +213,10 @@ const ChildCapacities = ({
               className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
               aria-label="Scroll left"
             >
-              <Image 
-                src={ArrowBackIcon} 
-                alt="Previous" 
-                width={24} 
+              <Image
+                src={ArrowBackIcon}
+                alt="Previous"
+                width={24}
                 height={24}
                 className="text-gray-700"
               />
@@ -231,10 +230,10 @@ const ChildCapacities = ({
               className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
               aria-label="Scroll right"
             >
-              <Image 
-                src={ArrowBackIcon} 
-                alt="Next" 
-                width={24} 
+              <Image
+                src={ArrowBackIcon}
+                alt="Next"
+                width={24}
                 height={24}
                 className="text-gray-700 rotate-180"
               />
@@ -299,8 +298,18 @@ function CapacityListContent() {
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
 
   // Use consolidated cache for all capacity data
-  const { getName, getDescription, getWdCode, getMetabaseCode, getColor, getIcon, isLoaded, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
-  
+  const {
+    getName,
+    getDescription,
+    getWdCode,
+    getMetabaseCode,
+    getColor,
+    getIcon,
+    isLoaded,
+    isLoadingTranslations,
+    language: cacheLanguage,
+  } = useCapacityCache();
+
   // Check if cache is ready for the current language
   const isCacheReady = isLoaded && !isLoadingTranslations && cacheLanguage === language;
 
@@ -333,7 +342,9 @@ function CapacityListContent() {
         {!isCacheReady && (
           <div className="mt-8 text-center">
             <p className={`text-lg font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>
-              {isLoadingTranslations ? 'Loading translations...' : `Loading capacity data for ${language}...`}
+              {isLoadingTranslations
+                ? 'Loading translations...'
+                : `Loading capacity data for ${language}...`}
             </p>
             <p className={`text-sm mt-2 ${isMobile ? 'text-xs' : 'text-sm'} opacity-70`}>
               Please wait while we prepare the content
@@ -355,40 +366,40 @@ function CapacityListContent() {
       {!searchTerm && (
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => {
-            
             return (
-            <div
-              key={`root-${capacity.code}-${index}`}
-              className={
-                isMobile
-                  ? 'w-full overflow-hidden'
-                  : `xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`
-              }
-            >
-              <CapacityCard
-                {...capacity}
-                name={getName(capacity.code) || capacity.name}
-                isExpanded={!!expandedCapacities[capacity.code]}
-                onExpand={() => handleToggleExpand(capacity.code.toString())}
-                hasChildren={capacity.hasChildren !== false} // Force true for root cards unless explicitly false
-                isRoot={true}
-                level={capacity.level || 1}
-                color={getColor(capacity.code) || capacity.color}
-                icon={getIcon(capacity.code) || capacity.icon}
-                description={getDescription(capacity.code)}
-                wd_code={getWdCode(capacity.code)}
-                metabase_code={capacity.metabase_code || getMetabaseCode(capacity.code)}
-              />
-              {expandedCapacities[capacity.code] && (
-                <ChildCapacities
-                  parentCode={capacity.code.toString()}
-                  expandedCapacities={expandedCapacities}
-                  onToggleExpand={handleToggleExpand}
-                  language={language}
+              <div
+                key={`root-${capacity.code}-${index}`}
+                className={
+                  isMobile
+                    ? 'w-full overflow-hidden'
+                    : `xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]`
+                }
+              >
+                <CapacityCard
+                  {...capacity}
+                  name={getName(capacity.code) || capacity.name}
+                  isExpanded={!!expandedCapacities[capacity.code]}
+                  onExpand={() => handleToggleExpand(capacity.code.toString())}
+                  hasChildren={capacity.hasChildren !== false} // Force true for root cards unless explicitly false
+                  isRoot={true}
+                  level={capacity.level || 1}
+                  color={getColor(capacity.code) || capacity.color}
+                  icon={getIcon(capacity.code) || capacity.icon}
+                  description={getDescription(capacity.code)}
+                  wd_code={getWdCode(capacity.code)}
+                  metabase_code={capacity.metabase_code || getMetabaseCode(capacity.code)}
                 />
-              )}
-            </div>
-          );})}
+                {expandedCapacities[capacity.code] && (
+                  <ChildCapacities
+                    parentCode={capacity.code.toString()}
+                    expandedCapacities={expandedCapacities}
+                    onToggleExpand={handleToggleExpand}
+                    language={language}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

@@ -287,14 +287,14 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
                           description: typeof grandchildData === 'object' ? (grandchildData as any)?.description || '' : '',
                           wd_code: typeof grandchildData === 'object' ? (grandchildData as any)?.wd_code || '' : '',
                           metabase_code: typeof grandchildData === 'object' ? (grandchildData as any)?.metabase_code || '' : '',
-                          color: '#507380', // Dark color for level 3
+                          color: hierarchyInfo.color, // Inherit root family color for level 3
                           icon: hierarchyInfo.icon, // Inherit from root
                           hasChildren: false,
                           level: 3,
                           skill_type: grandchildCodeNum,
                           skill_wikidata_item: '',
                           parentCapacity: newCache.capacities[childCodeNum],
-                          category: 'level3',
+                          category: hierarchyInfo.category,
                         };
                       }
                     }
