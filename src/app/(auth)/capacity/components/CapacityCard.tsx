@@ -217,6 +217,11 @@ export function CapacityCard({
       return '#FFFFFF'; // White text on colored background
     }
 
+    // For level 1 with colored background (root cards in search), use white text
+    if (level === 1 && color) {
+      return '#FFFFFF'; // White text on colored background
+    }
+
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getCapacityColor(parentCapacity.color);
@@ -251,6 +256,11 @@ export function CapacityCard({
 
     // For second level with colored background, use white icons for contrast
     if (level === 2) {
+      return 'brightness(0) invert(1)'; // White icons on colored background
+    }
+
+    // For level 1 with colored background (root cards in search), use white icons
+    if (level === 1 && color) {
       return 'brightness(0) invert(1)'; // White icons on colored background
     }
 
@@ -360,8 +370,15 @@ export function CapacityCard({
     if (level === 2 && color) {
       return color; // Exact same color as parent for level 2
     }
+    if (level === 2 && parentCapacity?.color) {
+      return parentCapacity.color; // Use parent color for level 2
+    }
     if (level === 2) {
-      return '#F6F6F6'; // Fallback light background
+      return '#F6F6F6'; // Fallback light background for level 2
+    }
+    // For level 1 (root cards that are forced to non-root), use the color
+    if (color) {
+      return getCapacityColor(color);
     }
     return 'white';
   })();
@@ -369,14 +386,26 @@ export function CapacityCard({
   if (isSearch) {
     // Search card - sempre renderiza como um card de busca
 
-    // Check if this is a third-level capacity for proper styling
-    // Always prioritize the explicit level prop first
-    const isThirdLevel = level === 3 || parentCapacity?.parentCapacity !== undefined;
-
-    // Use appropriate background color based on level
-    const backgroundColor = isThirdLevel
-      ? '#507380' // Black for third level
-      : getCapacityColor(parentCapacity?.color || color);
+    // Use appropriate background color - always use the capacity's family color for search cards
+    const backgroundColor = (() => {
+      // For level 3, inherit from family root
+      if (level === 3 && parentCapacity?.parentCapacity?.color) {
+        return parentCapacity.parentCapacity.color;
+      }
+      if (level === 3 && parentCapacity?.color) {
+        return parentCapacity.color;
+      }
+      // For level 2, use parent color or own color
+      if (level === 2 && parentCapacity?.color) {
+        return parentCapacity.color;
+      }
+      // For level 1 (root), use own color
+      if (color) {
+        return getCapacityColor(color);
+      }
+      // Fallback
+      return '#507380';
+    })();
 
     return (
       <div className="w-full">
@@ -520,7 +549,7 @@ export function CapacityCard({
         }}
       >
         <div
-          className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 ${isMobile ? 'px-4' : 'px-12'}`}
+          className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-4`}
         >
           <div className={`flex items-center ${isRoot ? 'gap-12' : 'gap-4'} min-w-0`}>
             {icon && isRoot
@@ -542,7 +571,15 @@ export function CapacityCard({
                       : isMobile
                         ? 'break-words hyphens-auto capacity-name-mobile'
                         : 'truncate'
-                  } ${isMobile ? 'text-[20px]' : 'text-[36px]'}`}
+                  } ${
+                    isMobile
+                      ? displayName.length > 40
+                        ? 'text-[14px]'
+                        : displayName.length > 25
+                          ? 'text-[16px]'
+                          : 'text-[20px]'
+                      : 'text-[36px]'
+                  }`}
                   style={{
                     color: getNameColor(isRoot, parentCapacity, color),
                     ...(isRoot

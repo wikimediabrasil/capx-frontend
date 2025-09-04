@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
 import BaseInput from '@/components/BaseInput';
-import { CapacityCard } from './CapacityCard';
+import LoadingState from '@/components/LoadingState';
+import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
-import LoadingState from '@/components/LoadingState';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { capacityService } from '@/services/capacityService';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { CapacityCard } from './CapacityCard';
 
 interface CapacitySearchProps {
   onSearchStart?: () => void;
@@ -57,14 +55,12 @@ function useDebounce<Args extends unknown[], Return>(
 }
 
 export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: CapacitySearchProps) {
-  const { data: session } = useSession();
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
-  const { getName, getDescription, getWdCode } = useCapacityCache();
+  const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityCache();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>('');
@@ -86,12 +82,31 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         onSearchStart?.();
 
         try {
-          if (session?.user?.token) {
-            const results = await capacityService.searchCapacities(term, {
-              headers: { Authorization: `Token ${session.user.token}` },
+          // Search through cached data instead of making API calls
+          const allCapacities: any[] = [];
+
+          // Get all root capacities
+          const rootCapacities = getRootCapacities();
+          allCapacities.push(...rootCapacities);
+
+          // Get all children and grandchildren from cache
+          rootCapacities.forEach(root => {
+            const children = getChildren(root.code);
+            allCapacities.push(...children);
+
+            children.forEach(child => {
+              const grandchildren = getChildren(child.code);
+              allCapacities.push(...grandchildren);
             });
-            setSearchResults(results || []);
-          }
+          });
+
+          // Filter capacities based on search term
+          const searchTerm = term.toLowerCase();
+          const results = allCapacities.filter(
+            capacity => capacity.name && capacity.name.toLowerCase().includes(searchTerm)
+          );
+
+          setSearchResults(results);
         } catch (error) {
           console.error('Search error:', error);
           setSearchResults([]);
@@ -107,7 +122,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         lastSearchRef.current = '';
       }
     },
-    [session?.user?.token, onSearchStart, onSearchEnd]
+    [getRootCapacities, getChildren, onSearchStart, onSearchEnd]
   );
 
   // Use the custom debounce hook
@@ -127,51 +142,17 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
     }
   }, [searchTerm, onSearch]);
 
-  const toggleCapacity = useCallback(
-    async (parentCode: string) => {
-      if (expandedCapacities[parentCode]) {
-        setExpandedCapacities(prev => ({ ...prev, [parentCode]: false }));
-        return;
-      }
-
-      try {
-        if (session?.user?.token) {
-          await capacityService.fetchCapacitiesByType(parentCode, {
-            headers: { Authorization: `Token ${session.user.token}` },
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching children:', error);
-      }
-
-      setExpandedCapacities(prev => ({ ...prev, [parentCode]: true }));
-    },
-    [expandedCapacities, session?.user?.token]
-  );
-
   // Processa os resultados para garantir níveis corretos e cores consistentes
   const processedResults = searchResults.map(capacity => {
-    // Determina o nível com base na estrutura de pais
-    let level = 1;
-    if (capacity.parentCapacity) {
-      if (capacity.parentCapacity.parentCapacity) {
-        // Terceiro nível - tem um avô
-        level = 3;
-      } else {
-        // Segundo nível - tem apenas um pai
-        level = 2;
-      }
-    }
+    // Usa o nível já definido pelo cache, pois o cache unificado já tem essa informação
+    const level = capacity.level || 1;
 
-    // Sempre prioriza o nível explícito se já estiver definido
-    if (capacity.level) {
-      level = capacity.level;
-    }
-
-    // Força capacidades de terceiro nível a terem cor preta
+    // Para level 3, herda cor da família root em vez de usar cor fixa
     let color = capacity.color;
-    if (level === 3) {
-      color = '#507380';
+    if (level === 3 && capacity.parentCapacity?.parentCapacity?.color) {
+      color = capacity.parentCapacity.parentCapacity.color; // Cor da família root
+    } else if (level === 3 && capacity.parentCapacity?.color) {
+      color = capacity.parentCapacity.color; // Cor do pai se não houver avô
     }
 
     return {
@@ -203,20 +184,23 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         ) : (
           processedResults.map(capacity => {
             return (
-              <div key={capacity.code} className="w-full">
+              <div
+                key={capacity.code}
+                className={`${isMobile ? 'w-full' : 'xs:min-w-[453px] xs:max-w-[592px] sm:max-w-[720px] md:min-w-[690px] md:max-w-[944px] lg:min-w-[913px] lg:max-w-[1168px] xl:max-w-[1184px]'}`}
+              >
                 <CapacityCard
                   {...capacity}
                   name={getName(capacity.code) || capacity.name}
                   level={capacity.level}
-                  isExpanded={!!expandedCapacities[capacity.code]}
-                  onExpand={() => toggleCapacity(capacity.code.toString())}
-                  isRoot={!capacity.parentCapacity}
+                  isExpanded={false}
+                  onExpand={() => {}}
+                  isRoot={false}
+                  hasChildren={false}
                   color={capacity.color}
                   icon={capacity.icon}
                   parentCapacity={capacity.parentCapacity}
                   description={getDescription(capacity.code)}
                   wd_code={getWdCode(capacity.code)}
-                  isSearch={true}
                 />
               </div>
             );
