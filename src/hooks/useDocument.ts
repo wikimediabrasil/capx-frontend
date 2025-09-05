@@ -27,7 +27,6 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
         url: doc.url || '',
       }));
 
-      console.log('response', response);
       setDocuments(formattedDocs);
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -43,13 +42,11 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
     setLoading(true);
     try {
       const basicDocument = await documentService.fetchSingleDocument(token, id);
-      console.log('basicDocument', basicDocument);
 
       if (basicDocument) {
         const enrichedDocument = await fetchWikimediaData(basicDocument.url || '');
         setDocument(enrichedDocument);
 
-        console.log('enrichedDocument', enrichedDocument);
         return enrichedDocument;
       }
     } catch (error) {
