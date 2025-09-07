@@ -95,18 +95,16 @@ export const ProfileCard = ({
       ? BookmarkWhite
       : Bookmark;
 
-    const toggleSaved = () => {
+  const toggleSaved = () => {
     onToggleSaved && onToggleSaved();
   };
 
   return (
     <div
       className={`w-full rounded-lg border-[2px] ${
-        
-        darkMode 
-
-                          ? 'text-capx-light-bg border-capx-light-bg'
-                      : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+        darkMode
+          ? 'text-capx-light-bg border-capx-light-bg'
+          : 'text-capx-dark-box-bg border-capx-dark-box-bg'
       }`}
     >
       <div className="p-5">
@@ -120,7 +118,9 @@ export const ProfileCard = ({
                 {hasIncompleteProfile ? (
                   <span
                     className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-                      darkMode ? 'text-orange-200 border-orange-200' : 'text-orange-600 border-orange-600'
+                      darkMode
+                        ? 'text-orange-200 border-orange-200'
+                        : 'text-orange-600 border-orange-600'
                     }`}
                   >
                     {pageContent['profile-incomplete']}
@@ -187,10 +187,10 @@ export const ProfileCard = ({
               {/* Profile Button */}
               <BaseButton
                 customClass={`w-full font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                darkMode
-                  ? 'text-capx-light-bg border-capx-light-bg'
-                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-              }`}
+                  darkMode
+                    ? 'text-capx-light-bg border-capx-light-bg'
+                    : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+                }`}
                 onClick={() => {
                   const routePath = isOrganization
                     ? `/organization_profile/${id}`
@@ -206,7 +206,7 @@ export const ProfileCard = ({
 
               {/* Bookmark Button */}
               {onToggleSaved && (
-                <BaseButton 
+                <BaseButton
                   customClass={`w-full font-[Montserrat] text-[20px] mt-[6px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
                     darkMode
                       ? 'text-capx-light-bg border-capx-light-bg'
@@ -239,9 +239,11 @@ export const ProfileCard = ({
             {hasIncompleteProfile ? (
               <div className="flex items-center justify-center h-full min-h-[120px] md:min-h-[300px]">
                 <div className="text-center max-w-md">
-                  <p className={`font-[Montserrat] md:text-[18px] text-[14px] leading-relaxed ${
-                    darkMode ? 'text-orange-200' : 'text-orange-600'
-                  }`}>
+                  <p
+                    className={`font-[Montserrat] md:text-[18px] text-[14px] leading-relaxed ${
+                      darkMode ? 'text-orange-200' : 'text-orange-600'
+                    }`}
+                  >
                     {pageContent['profile-incomplete-description']}
                     <br />
                     {pageContent['profile-incomplete-description-2']}

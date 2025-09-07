@@ -64,8 +64,8 @@ export function PaginationButtons({
   const activeButtonStyle = `
     ${buttonStyle}
     ${
-      darkMode 
-        ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700' 
+      darkMode
+        ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
         : 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
     }
   `;

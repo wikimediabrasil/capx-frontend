@@ -47,7 +47,8 @@ export default function OrganizationList() {
     organizations: allOrganizations,
     count: allOrganizationsCount,
     isLoading: isAllOrganizationsLoading,
-  } = useOrganizations(1000, 0, { // Fetch more data for proper sorting
+  } = useOrganizations(1000, 0, {
+    // Fetch more data for proper sorting
     ...activeFilters,
     profileCapacityTypes: [],
   });
@@ -62,9 +63,15 @@ export default function OrganizationList() {
 
     allOrganizations.forEach(org => {
       // Check if the organization has wanted capacities (learner)
-      const hasWantedCapacities = org.wanted_capacities && Array.isArray(org.wanted_capacities) && org.wanted_capacities.length > 0;
+      const hasWantedCapacities =
+        org.wanted_capacities &&
+        Array.isArray(org.wanted_capacities) &&
+        org.wanted_capacities.length > 0;
       // Check if the organization has available capacities (sharer)
-      const hasAvailableCapacities = org.available_capacities && Array.isArray(org.available_capacities) && org.available_capacities.length > 0;
+      const hasAvailableCapacities =
+        org.available_capacities &&
+        Array.isArray(org.available_capacities) &&
+        org.available_capacities.length > 0;
 
       // If the organization has wanted capacities, create a learner profile
       if (hasWantedCapacities) {
