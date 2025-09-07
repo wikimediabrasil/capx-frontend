@@ -15,7 +15,7 @@ import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { Capacity } from '@/types/capacity';
 import { useEffect, useMemo, useState } from 'react';
 
-import ProfileCard from '@/app/(auth)/feed/components/ProfileCard';
+import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import Banner from '@/components/Banner';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
@@ -42,57 +42,78 @@ export default function OrganizationList() {
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
+  // Get all organizations
   const {
-    organizations: organizationsLearner,
-    count: organizationsLearnerCount,
-    isLoading: isOrganizationsLearnerLoading,
+    organizations: allOrganizations,
+    count: allOrganizationsCount,
+    isLoading: isAllOrganizationsLoading,
   } = useOrganizations(itemsPerPage, offset, {
     ...activeFilters,
-    profileCapacityTypes: [ProfileCapacityType.Learner],
+    profileCapacityTypes: [],
   });
 
-  const {
-    organizations: organizationsSharer,
-    count: organizationsSharerCount,
-    isLoading: isOrganizationsSharerLoading,
-  } = useOrganizations(itemsPerPage, offset, {
-    ...activeFilters,
-    profileCapacityTypes: [ProfileCapacityType.Sharer],
-  });
-
-  const totalRecords =
-    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
-      ? organizationsLearnerCount
-      : 0) +
-    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
-      ? organizationsSharerCount
-      : 0);
+  const totalRecords = allOrganizationsCount;
 
   // Create profiles (to create cards) from organizations
   const filteredProfiles = useMemo(() => {
-    const learnerOrgProfiles = createProfilesFromOrganizations(
-      organizationsLearner || [],
-      ProfileCapacityType.Learner
-    );
-    const availableOrgProfiles = createProfilesFromOrganizations(
-      organizationsSharer || [],
-      ProfileCapacityType.Sharer
-    );
+    if (!allOrganizations) return [];
 
-    // Filter organizations based on activeFilters.profileCapacityTypes
-    const orgProfilesLearner = activeFilters.profileCapacityTypes.includes(
-      ProfileCapacityType.Learner
-    )
-      ? learnerOrgProfiles
-      : [];
-    const orgProfilesSharer = activeFilters.profileCapacityTypes.includes(
-      ProfileCapacityType.Sharer
-    )
-      ? availableOrgProfiles
-      : [];
-    const organizationProfiles = [...orgProfilesLearner, ...orgProfilesSharer];
+    const organizationProfiles: any[] = [];
+
+    allOrganizations.forEach(org => {
+      // Check if the organization has wanted capacities (learner)
+      const hasWantedCapacities = org.wanted_capacities && org.wanted_capacities.length > 0;
+      // Check if the organization has available capacities (sharer)
+      const hasAvailableCapacities = org.available_capacities && org.available_capacities.length > 0;
+
+      // If the organization has wanted capacities, create a learner profile
+      if (hasWantedCapacities) {
+        organizationProfiles.push({
+          id: org.id,
+          username: org.display_name,
+          capacities: org.wanted_capacities,
+          type: ProfileCapacityType.Learner,
+          profile_image: org.profile_image,
+          territory: org.territory?.[0],
+          avatar: org.profile_image || undefined,
+          isOrganization: true,
+          hasIncompleteProfile: false,
+        });
+      }
+
+      // If the organization has available capacities, create a sharer profile
+      if (hasAvailableCapacities) {
+        organizationProfiles.push({
+          id: org.id,
+          username: org.display_name,
+          capacities: org.available_capacities,
+          type: ProfileCapacityType.Sharer,
+          profile_image: org.profile_image,
+          territory: org.territory?.[0],
+          avatar: org.profile_image || undefined,
+          isOrganization: true,
+          hasIncompleteProfile: false,
+        });
+      }
+
+      // If the organization has no capacities, create an incomplete profile
+      if (!hasWantedCapacities && !hasAvailableCapacities) {
+        organizationProfiles.push({
+          id: org.id,
+          username: org.display_name,
+          capacities: [],
+          type: ProfileCapacityType.Incomplete, // Special type for incomplete profile
+          profile_image: org.profile_image,
+          territory: org.territory?.[0],
+          avatar: org.profile_image || undefined,
+          isOrganization: true,
+          hasIncompleteProfile: true,
+        });
+      }
+    });
+
     return organizationProfiles;
-  }, [activeFilters, organizationsLearner, organizationsSharer, itemsPerPage]);
+  }, [allOrganizations]);
 
   // Calculate total of pages based on total profiles
   const numberOfPages = Math.ceil(totalRecords / itemsPerPage);
@@ -129,7 +150,7 @@ export default function OrganizationList() {
     }
   };
 
-  if (isOrganizationsLearnerLoading || isOrganizationsSharerLoading) {
+  if (isAllOrganizationsLoading) {
     return <LoadingState fullScreen={true} />;
   }
 
@@ -175,6 +196,7 @@ export default function OrganizationList() {
                   languages={profile.languages}
                   territory={profile.territory}
                   isOrganization={profile.isOrganization}
+                  hasIncompleteProfile={profile.hasIncompleteProfile}
                 />
               ))}
             </div>

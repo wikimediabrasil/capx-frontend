@@ -53,17 +53,21 @@ export function PaginationButtons({
   };
 
   const buttonStyle = `
-    px-3 py-2 rounded-lg transition-colors text-sm
+    px-3 py-2 rounded-lg transition-colors text-sm font-medium
     ${
       darkMode
-        ? 'hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-600'
-        : 'hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400'
+        ? 'text-gray-200 hover:bg-gray-600 hover:text-white disabled:bg-gray-800 disabled:text-gray-500 border border-gray-600'
+        : 'text-gray-700 hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400 border border-gray-300'
     }
   `;
 
   const activeButtonStyle = `
     ${buttonStyle}
-    ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'}
+    ${
+      darkMode 
+        ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700' 
+        : 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
+    }
   `;
 
   return (
@@ -120,7 +124,7 @@ export function PaginationButtons({
             ) : (
               <span
                 key={index}
-                className={`px-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`px-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
                 aria-hidden="true"
               >
                 {page}
@@ -153,7 +157,7 @@ export function PaginationButtons({
       </div>
 
       {/* Current page information */}
-      <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+      <div className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
         {pageContent?.['pagination-page']} {currentPage} {pageContent?.['pagination-of']}{' '}
         {totalPages}
       </div>
