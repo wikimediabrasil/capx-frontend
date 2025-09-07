@@ -48,8 +48,8 @@ describe('DarkModeButton', () => {
     (AppContext.useApp as jest.Mock).mockReturnValue({
       pageContent: {
         'alt-light-mode': 'Switch to light mode',
-        'alt-dark-mode': 'Switch to dark mode'
-      }
+        'alt-dark-mode': 'Switch to dark mode',
+      },
     });
   });
 
@@ -57,9 +57,7 @@ describe('DarkModeButton', () => {
     return render(
       <ThemeProvider>
         <AppProvider>
-          <div data-testid="test-container">
-            {component}
-          </div>
+          <div data-testid="test-container">{component}</div>
         </AppProvider>
       </ThemeProvider>
     );
@@ -110,8 +108,8 @@ describe('DarkModeButton', () => {
     (AppContext.useApp as jest.Mock).mockReturnValue({
       pageContent: {
         'alt-light-mode': 'Mudar para modo claro',
-        'alt-dark-mode': 'Mudar para modo escuro'
-      }
+        'alt-dark-mode': 'Mudar para modo escuro',
+      },
     });
 
     renderWithProviders(<DarkModeButton />);
