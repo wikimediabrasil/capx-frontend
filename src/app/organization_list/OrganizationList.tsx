@@ -42,12 +42,12 @@ export default function OrganizationList() {
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerPage;
 
-  // Get all organizations
+  // Get all organizations (fetch more data for frontend pagination)
   const {
     organizations: allOrganizations,
     count: allOrganizationsCount,
     isLoading: isAllOrganizationsLoading,
-  } = useOrganizations(itemsPerPage, offset, {
+  } = useOrganizations(1000, 0, { // Fetch more data for proper sorting
     ...activeFilters,
     profileCapacityTypes: [],
   });
@@ -55,16 +55,16 @@ export default function OrganizationList() {
   const totalRecords = allOrganizationsCount;
 
   // Create profiles (to create cards) from organizations
-  const filteredProfiles = useMemo(() => {
+  const allProfiles = useMemo(() => {
     if (!allOrganizations) return [];
 
     const organizationProfiles: any[] = [];
 
     allOrganizations.forEach(org => {
       // Check if the organization has wanted capacities (learner)
-      const hasWantedCapacities = org.wanted_capacities && org.wanted_capacities.length > 0;
+      const hasWantedCapacities = org.wanted_capacities && Array.isArray(org.wanted_capacities) && org.wanted_capacities.length > 0;
       // Check if the organization has available capacities (sharer)
-      const hasAvailableCapacities = org.available_capacities && org.available_capacities.length > 0;
+      const hasAvailableCapacities = org.available_capacities && Array.isArray(org.available_capacities) && org.available_capacities.length > 0;
 
       // If the organization has wanted capacities, create a learner profile
       if (hasWantedCapacities) {
@@ -78,6 +78,7 @@ export default function OrganizationList() {
           avatar: org.profile_image || undefined,
           isOrganization: true,
           hasIncompleteProfile: false,
+          priority: 1, // High priority for organizations with capacities
         });
       }
 
@@ -93,6 +94,7 @@ export default function OrganizationList() {
           avatar: org.profile_image || undefined,
           isOrganization: true,
           hasIncompleteProfile: false,
+          priority: 1, // High priority for organizations with capacities
         });
       }
 
@@ -102,21 +104,37 @@ export default function OrganizationList() {
           id: org.id,
           username: org.display_name,
           capacities: [],
-          type: ProfileCapacityType.Incomplete, // Special type for incomplete profile
+          type: 'incomplete' as any, // Special type for incomplete profile
           profile_image: org.profile_image,
           territory: org.territory?.[0],
           avatar: org.profile_image || undefined,
           isOrganization: true,
           hasIncompleteProfile: true,
+          priority: 2, // Lower priority for incomplete profiles
         });
       }
     });
 
-    return organizationProfiles;
+    // Sort profiles by priority (organizations with capacities first, then incomplete ones)
+    return organizationProfiles.sort((a, b) => {
+      // First sort by priority
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      // Then sort by username alphabetically within the same priority
+      return a.username.localeCompare(b.username);
+    });
   }, [allOrganizations]);
 
-  // Calculate total of pages based on total profiles
-  const numberOfPages = Math.ceil(totalRecords / itemsPerPage);
+  // Apply pagination to sorted profiles
+  const filteredProfiles = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return allProfiles.slice(startIndex, endIndex);
+  }, [allProfiles, currentPage, itemsPerPage]);
+
+  // Calculate total of pages based on sorted profiles
+  const numberOfPages = Math.ceil(allProfiles.length / itemsPerPage);
 
   // Reset to first page when filters change
   useEffect(() => {
