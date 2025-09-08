@@ -14,6 +14,7 @@ import { Capacity } from '@/types/capacity';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useMemo, useRef, useState } from 'react';
 
 interface CapacityCardProps {

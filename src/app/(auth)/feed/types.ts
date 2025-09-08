@@ -6,12 +6,6 @@ export enum ProfileCapacityType {
   Sharer = 'sharer',
 }
 
-export enum ProfileFilterType {
-  Both = 'both',
-  User = 'user',
-  Organization = 'organization',
-}
-
 export interface Skill {
   name: string;
   code: number;
@@ -22,7 +16,6 @@ export interface FilterState {
   profileCapacityTypes: ProfileCapacityType[];
   territories: string[];
   languages: string[];
-  profileFilter: ProfileFilterType;
   username?: string;
   affiliations?: (string | number)[];
 }

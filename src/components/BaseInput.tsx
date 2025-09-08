@@ -1,6 +1,7 @@
 'use client';
 
 import { InputHTMLAttributes, forwardRef } from 'react';
+import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 
 interface BaseInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -16,9 +17,15 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
     { label, error, className = '', customClass = '', icon, iconPosition = 'right', ...props },
     ref
   ) => {
+    const { pageContent } = useApp();
     return (
       <div className="flex flex-col w-full">
-        {label && <label className="mb-2 text-sm font-medium text-capx-dark-box-bg">{label}</label>}
+        {label && (
+          <label className="mb-2 text-sm font-medium text-capx-dark-box-bg">
+            {label}
+            {props.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+        )}
         <div className="relative items-center">
           <input
             ref={ref}
@@ -41,6 +48,10 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
               ${className}
               ${customClass}
             `}
+            aria-label={label}
+            aria-required={props.required}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${props.id}-error` : undefined}
             {...props}
           />
           {icon && (
@@ -50,12 +61,26 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
               } top-1/2 transform -translate-y-1/2`}
             >
               <div className="relative w-[32px] h-[32px]">
-                <Image src={icon} alt={label || ''} fill priority />
+                <Image
+                  src={icon}
+                  alt={pageContent['alt-icon-generic'] || 'Field icon'}
+                  fill
+                  priority
+                />
               </div>
             </div>
           )}
         </div>
-        {error && <span className="mt-1 text-sm text-red-500">{error}</span>}
+        {error && (
+          <span
+            id={`${props.id}-error`}
+            className="mt-1 text-sm text-red-500"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </span>
+        )}
       </div>
     );
   }

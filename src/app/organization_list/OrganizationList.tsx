@@ -6,7 +6,6 @@ import {
   createProfilesFromOrganizations,
   FilterState,
   ProfileCapacityType,
-  ProfileFilterType,
   Skill,
 } from '@/app/(auth)/feed/types';
 import { PaginationButtons } from '@/components/PaginationButtons';
@@ -36,7 +35,6 @@ export default function OrganizationList() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    profileFilter: ProfileFilterType.Organization,
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 

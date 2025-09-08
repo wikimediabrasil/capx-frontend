@@ -14,7 +14,7 @@ interface AppContextType {
   setSession: (value: any) => void;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const isClient = typeof window !== 'undefined';
 

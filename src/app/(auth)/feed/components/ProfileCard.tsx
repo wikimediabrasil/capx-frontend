@@ -130,7 +130,7 @@ export const ProfileCard = ({
                           ? formatWikiImageUrl(profile_image || '')
                           : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
                       }
-                      alt={username || 'User profile'}
+                      alt={pageContent['alt-profile-picture'] || 'User profile picture'}
                       fill
                       className="object-contain rounded-[4px]"
                       unoptimized
@@ -140,7 +140,10 @@ export const ProfileCard = ({
                     <div className="w-full h-full flex items-center justify-center">
                       <Image
                         src={defaultAvatar}
-                        alt="User profile"
+                        alt={
+                          pageContent['alt-profile-picture-default'] ||
+                          'Default user profile picture'
+                        }
                         fill
                         className="object-contain rounded-[4px]"
                         unoptimized
@@ -211,7 +214,7 @@ export const ProfileCard = ({
               >
                 <Image
                   src={darkMode ? AccountCircleWhite : AccountCircle}
-                  alt={pageContent['body-profile-languages-title']}
+                  alt={pageContent['alt-view-profile-user'] || 'View user profile'}
                   width={32}
                   height={32}
                   className="w-[32px] h-[32px] md:w-[42px] md:h-[42px]"
@@ -225,11 +228,20 @@ export const ProfileCard = ({
                     darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                   onClick={toggleSaved}
-                  aria-label={isSaved ? 'Remove dos salvos' : 'Salvar perfil'}
+                  aria-label={
+                    isSaved
+                      ? pageContent['alt-bookmark-remove'] ||
+                        'Remove this profile from your saved list'
+                      : pageContent['alt-bookmark-add'] || 'Save this profile to your saved list'
+                  }
                 >
                   <Image
                     src={bookmarkIcon}
-                    alt={isSaved ? 'Perfil salvo' : 'Salvar perfil'}
+                    alt={
+                      isSaved
+                        ? pageContent['alt-bookmark-saved'] || 'Profile saved to your list'
+                        : pageContent['alt-bookmark-add'] || 'Save this profile to your saved list'
+                    }
                     width={32}
                     height={32}
                     className="w-[32px] h-[32px]"

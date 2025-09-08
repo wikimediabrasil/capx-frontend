@@ -296,7 +296,9 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             <Image
               priority={true}
               src={darkMode ? MainSectionIllustrationDark : MainSectionIllustration}
-              alt="Main illustration"
+              alt={
+                pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
+              }
               height={520}
               width={520}
               className="w-full h-auto"

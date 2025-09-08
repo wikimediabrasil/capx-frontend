@@ -51,6 +51,7 @@ export default function ProfileSelect() {
       onChange={handleProfileChange}
       options={profileOptions}
       name={pageContent['navbar-link-profiles']}
+      ariaLabel={pageContent['aria-label-profile-selector'] || 'Select profile to view'}
       className="w-[200px] text-[20px] w-max"
       darkMode={darkMode}
       isMobile={isMobile}

@@ -30,6 +30,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Checklist from './CheckList';
+import en from 'locales/en.json';
 
 export enum LetsConnectRole {
   A = 'A',
@@ -75,6 +76,50 @@ export default function LetsConnectPage() {
 
   const infoPopupText = pageContent['lets-connect-info-popup-message']?.split(/\$\d/);
 
+  // Function to translate values to english using the en.json file
+  const translateToEnglish = (value: string, type: 'role' | 'gender' | 'area'): string => {
+    // Map the keys of pageContent to the keys of en.json
+    const keyMapping: Record<string, string> = {
+      // Role mappings
+      [pageContent['lets-connect-form-role-a']]: 'lets-connect-form-role-a',
+      [pageContent['lets-connect-form-role-b']]: 'lets-connect-form-role-b',
+      [pageContent['lets-connect-form-role-c']]: 'lets-connect-form-role-c',
+      [pageContent['lets-connect-form-role-d']]: 'lets-connect-form-role-d',
+      [pageContent['lets-connect-form-role-e']]: 'lets-connect-form-role-e',
+      [pageContent['lets-connect-form-role-f']]: 'lets-connect-form-role-f',
+
+      // Gender mappings
+      [pageContent['lets-connect-form-gender-prefer-not-say']]:
+        'lets-connect-form-gender-prefer-not-say',
+      [pageContent['lets-connect-form-gender-man']]: 'lets-connect-form-gender-man',
+      [pageContent['lets-connect-form-gender-woman']]: 'lets-connect-form-gender-woman',
+      [pageContent['lets-connect-form-gender-agender']]: 'lets-connect-form-gender-agender',
+      [pageContent['lets-connect-form-gender-non-binary']]: 'lets-connect-form-gender-non-binary',
+
+      // Area mappings
+      [pageContent['lets-connect-form-area-climate-change']]:
+        'lets-connect-form-area-climate-change',
+      [pageContent['lets-connect-form-area-public-policy']]: 'lets-connect-form-area-public-policy',
+      [pageContent['lets-connect-form-area-education']]: 'lets-connect-form-area-education',
+      [pageContent['lets-connect-form-area-open-technology']]:
+        'lets-connect-form-area-open-technology',
+      [pageContent['lets-connect-form-area-diversity']]: 'lets-connect-form-area-diversity',
+      [pageContent['lets-connect-form-area-culture-heritage-glam']]:
+        'lets-connect-form-area-culture-heritage-glam',
+      [pageContent['lets-connect-form-area-governance']]: 'lets-connect-form-area-governance',
+      [pageContent['lets-connect-form-area-human-rights']]: 'lets-connect-form-area-human-rights',
+      [pageContent['lets-connect-form-area-advocacy']]: 'lets-connect-form-area-advocacy',
+    };
+
+    const englishKey = keyMapping[value];
+    if (englishKey && en[englishKey]) {
+      return en[englishKey];
+    }
+
+    // Fallback: return the original value if no translation is found
+    return value;
+  };
+
   const handleContinueInfoPopup = () => {
     setShowInfoPopup(true);
   };
@@ -85,7 +130,15 @@ export default function LetsConnectPage() {
 
   const handleSubmit = async () => {
     try {
-      await submitLetsConnectForm(formData);
+      // Translate the form data to english before submitting
+      const translatedFormData = {
+        ...formData,
+        role: formData.role ? translateToEnglish(formData.role, 'role') : undefined,
+        gender: formData.gender ? translateToEnglish(formData.gender, 'gender') : undefined,
+        area: formData.area ? translateToEnglish(formData.area, 'area') : undefined,
+      };
+
+      await submitLetsConnectForm(translatedFormData);
       setShowInfoPopup(false);
       setShowSuccessPopup(true);
     } catch (error) {
@@ -396,12 +449,13 @@ export default function LetsConnectPage() {
 
           {(showAreaInput || !hasLetsConnectData) && (
             <Checklist
-              other={pageContent['lets-connect-form-topic-check-other']}
+              value={formData.area}
               description={pageContent['lets-connect-form-topic-check-text']}
-              setFormData={(area: string) => setFormData({ ...formData, area })}
-              multiple={true}
+              onChange={(area: string) => setFormData({ ...formData, area })}
               itemsList={areaOptions}
+              other={pageContent['lets-connect-form-topic-check-other']}
               showOther={true}
+              multiple={true}
             />
           )}
 
@@ -434,9 +488,10 @@ export default function LetsConnectPage() {
 
           {(showGenderInput || !hasLetsConnectData) && (
             <Checklist
-              other={pageContent['lets-connect-form-gender-identify-not-listed']}
-              setFormData={(gender: string) => setFormData({ ...formData, gender })}
+              value={formData.gender}
+              onChange={(gender: string) => setFormData({ ...formData, gender })}
               itemsList={genderOptions}
+              other={pageContent['lets-connect-form-gender-identify-not-listed']}
               showOther={true}
             />
           )}
@@ -470,7 +525,8 @@ export default function LetsConnectPage() {
 
           {(showAgeInput || !hasLetsConnectData) && (
             <Checklist
-              setFormData={(age: string) => setFormData({ ...formData, age })}
+              value={formData.age}
+              onChange={(age: string) => setFormData({ ...formData, age })}
               itemsList={ageOptions}
             />
           )}

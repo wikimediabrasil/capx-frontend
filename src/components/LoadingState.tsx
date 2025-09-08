@@ -9,7 +9,8 @@ import SimpleLoading from './SimpleLoading';
 // The core loading component that requires ThemeContext
 function ThemeAwareLoading({ fullScreen = false }) {
   const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+
+  const { isMobile, pageContent } = useApp();
 
   // Calculate proper height considering mobile header
   const heightClass = fullScreen
@@ -25,12 +26,12 @@ function ThemeAwareLoading({ fullScreen = false }) {
       }`}
       role="status"
       data-testid="loading-state"
-      aria-label="Loading"
+      aria-label={pageContent['aria-label-loading'] || 'Content is loading'}
     >
       <div className="relative w-16 h-16">
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
-          alt="CAPX Logo"
+          alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
           className="animate-pulse-fade object-contain"
           width={64}
           height={64}
