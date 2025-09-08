@@ -27,7 +27,7 @@ jest.mock('@/contexts/AppContext', () => ({
 jest.mock('@/hooks/useCapacities', () => ({
   useCapacities: jest.fn(),
   CAPACITY_CACHE_KEYS: {
-    root: ['rootCapacities'],
+    root: (language: string) => ['rootCapacities', language],
     children: (id: string) => ['childrenCapacities', id],
   },
 }));

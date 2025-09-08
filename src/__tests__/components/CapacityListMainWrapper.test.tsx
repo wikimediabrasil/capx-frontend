@@ -1,7 +1,10 @@
 import CapacityListMainWrapper from '@/app/(auth)/capacity/components/CapacityListMainWrapper';
+import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
+import React from 'react';
 
 // Next.js App Router's mock
 jest.mock('next/navigation', () => ({
@@ -135,7 +138,21 @@ describe('CapacityListMainWrapper', () => {
   });
 
   const renderWithProviders = (ui: React.ReactElement) => {
-    return render(<ThemeProvider>{ui}</ThemeProvider>);
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0 },
+      },
+    });
+    
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <CapacityCacheProvider>
+            {ui}
+          </CapacityCacheProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
   };
 
   it('renders root capacities correctly', async () => {
