@@ -1,14 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
-import { capacityService } from '../services/capacityService';
-import { Capacity } from '../types/capacity';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useQuery } from '@tanstack/react-query';
 
 // Simplified cache keys
 export const CAPACITY_CACHE_KEYS = {
   root: (language: string) => ['capacities', 'root', language] as const,
   byParent: (parentCode: string, language: string) =>
     ['capacities', 'byParent', parentCode, language] as const,
+  byId: (id: number, language: string) => ['capacities', 'byId', id, language] as const,
 };
 
 /**
@@ -45,7 +43,7 @@ export function useCapacitiesByParent(parentCode: string, language: string = 'en
     queryKey: CAPACITY_CACHE_KEYS.byParent(parentCode, language),
     queryFn: async () => {
       if (!parentCode) return [];
-      
+
       // Get children directly from unified cache
       const children = getChildren(parseInt(parentCode, 10));
       return children;

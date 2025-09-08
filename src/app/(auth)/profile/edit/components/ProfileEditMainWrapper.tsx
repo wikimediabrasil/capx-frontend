@@ -42,7 +42,7 @@ import {
   validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
 import { LanguageProficiency } from '@/types/language';
-
+import React from 'react';
 // Helper function declarations moved to safeDataAccess.ts utility file
 
 const fetchWikidataQid = async (name: string) => {

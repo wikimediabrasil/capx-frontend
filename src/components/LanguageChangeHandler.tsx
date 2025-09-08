@@ -39,13 +39,19 @@ function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode
   // Show loading when actively loading translations
   if (isLoadingTranslations) {
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen ${darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-capx-light-bg text-gray-900'}`}>
+      <div
+        className={`flex flex-col items-center justify-center min-h-screen ${darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-capx-light-bg text-gray-900'}`}
+      >
         <LoadingState fullScreen={false} />
         <div className="mt-8 text-center">
-          <p className={`text-lg font-medium ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}>
+          <p
+            className={`text-lg font-medium ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
+          >
             Loading translations for {language}...
           </p>
-          <p className={`text-sm mt-2 ${darkMode ? 'text-capx-dark-box-bg' : 'text-capx-light-bg'}`}>
+          <p
+            className={`text-sm mt-2 ${darkMode ? 'text-capx-dark-box-bg' : 'text-capx-light-bg'}`}
+          >
             Please wait while we prepare the capacity data
           </p>
         </div>

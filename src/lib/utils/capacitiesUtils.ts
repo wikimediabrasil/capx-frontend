@@ -271,7 +271,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
     const BATCH_SIZE = 20; // Limit batch size to prevent URL length issues
 
     if (codes.length > BATCH_SIZE) {
-      const batchedResults = [];
+      const batchedResults: Capacity[] = [];
       for (let i = 0; i < codes.length; i += BATCH_SIZE) {
         const batch = codes.slice(i, i + BATCH_SIZE);
 

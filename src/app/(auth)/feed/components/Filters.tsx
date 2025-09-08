@@ -7,10 +7,7 @@ import { useEffect, useState } from 'react';
 import { FilterState } from '../types';
 
 import BaseButton from '@/components/BaseButton';
-import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
-import AllProfilesIcon from '@/public/static/images/all_profiles_icon.svg';
-import AllProfilesIconWhite from '@/public/static/images/all_profiles_icon_white.svg';
+
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
@@ -19,14 +16,11 @@ import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_m
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import LearnerIcon from '@/public/static/images/learner_icon.svg';
 import LearnerIconWhite from '@/public/static/images/learner_icon_white.svg';
-import ProfilesIcon from '@/public/static/images/profiles_icon.svg';
-import ProfilesIconWhite from '@/public/static/images/profiles_icon_white.svg';
+
 import SearchIcon from '@/public/static/images/search_icon.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import SharerIcon from '@/public/static/images/sharer_icon.svg';
 import SharerIconWhite from '@/public/static/images/sharer_icon_white.svg';
-import OrganizationIcon from '@/public/static/images/supervised_user_circle.svg';
-import OrganizationIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useAffiliation } from '@/hooks/useAffiliation';
@@ -37,6 +31,7 @@ import UserIcon from '@/public/static/images/account_circle.svg';
 import UserIconWhite from '@/public/static/images/account_circle_white.svg';
 import { Capacity } from '@/types/capacity';
 import { useSession } from 'next-auth/react';
+import React from 'react';
 import { ProfileCapacityType } from '../types';
 import { AffiliationSelector } from './AffiliationSelector';
 import { CheckboxButton } from './CheckboxButton';

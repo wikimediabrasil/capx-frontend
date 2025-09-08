@@ -1,4 +1,3 @@
-
 // Mock simples dos hooks para evitar dependências externas
 jest.mock('@/hooks/useCapacityTranslations', () => ({
   useCapacityTranslations: () => ({

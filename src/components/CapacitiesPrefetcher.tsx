@@ -15,7 +15,7 @@ const EXCLUDED_PATHS = [
 // Component to load capacities in the background using unified cache
 export const CapacitiesPrefetcher = () => {
   const [mounted, setMounted] = useState(false);
-  
+
   // Wait for hydration before accessing contexts
   useEffect(() => {
     setMounted(true);
@@ -45,13 +45,20 @@ const CapacitiesPrefetcherInternal = () => {
 
     // Use the app language (from localStorage/context) instead of cache language
     const languageToLoad = appLanguage || 'en';
-    
+
     const timer = setTimeout(() => {
       updateLanguage(languageToLoad);
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [session?.user?.token, shouldSkipPrefetch, isLoaded, isLoadingTranslations, updateLanguage, appLanguage]);
+  }, [
+    session?.user?.token,
+    shouldSkipPrefetch,
+    isLoaded,
+    isLoadingTranslations,
+    updateLanguage,
+    appLanguage,
+  ]);
 
   return null;
 };

@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react';
  */
 export function useTranslationSync() {
   const { language } = useApp();
-  const { applyTranslationsToMainFields, isLoaded } = useCapacityCache();
+  const { updateLanguage, isLoaded } = useCapacityCache();
   const lastLanguage = useRef<string>('');
 
   useEffect(() => {
@@ -22,12 +22,12 @@ export function useTranslationSync() {
       console.log(
         `🔄 Language changed from ${lastLanguage.current} to ${language}, applying translations`
       );
-      const appliedCount = applyTranslationsToMainFields(language);
+      const appliedCount = updateLanguage(language);
       console.log(`✅ Applied ${appliedCount} translations for ${language}`);
     }
 
     lastLanguage.current = language;
-  }, [language, isLoaded, applyTranslationsToMainFields]);
+  }, [language, isLoaded, updateLanguage]);
 
   return {
     currentLanguage: language,

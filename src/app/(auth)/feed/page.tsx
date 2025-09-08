@@ -15,12 +15,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
 import ProfileCard from './components/ProfileCard';
 import { SearchBar } from './components/SearchBar';
-import {
-  createProfilesFromUsers,
-  FilterState,
-  ProfileCapacityType,
-  Skill,
-} from './types';
+import { createProfilesFromUsers, FilterState, ProfileCapacityType, Skill } from './types';
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
@@ -40,7 +35,7 @@ export default function FeedPage() {
     territories: [] as string[],
     languages: [] as string[],
     username: undefined,
-    affiliations: [] as (string | number)[],
+    affiliations: [] as string[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
 

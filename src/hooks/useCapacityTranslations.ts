@@ -15,7 +15,7 @@ interface UseCapacityTranslationsReturn {
  */
 export function useCapacityTranslations(): UseCapacityTranslationsReturn {
   const { language } = useApp();
-  const { refreshTranslations, getCapacity, isLoaded, isLoadingTranslations } = useCapacityCache();
+  const { updateLanguage, getCapacity, isLoaded, isLoadingTranslations } = useCapacityCache();
   const [error, setError] = useState<string | null>(null);
 
   // Função para obter uma capacidade traduzida diretamente do cache principal
@@ -40,13 +40,13 @@ export function useCapacityTranslations(): UseCapacityTranslationsReturn {
 
     try {
       setError(null);
-      await refreshTranslations(language);
+      await updateLanguage(language);
       console.log('Todas as traduções foram atualizadas');
     } catch (err) {
       console.error('Erro ao atualizar todas as traduções:', err);
       setError('Erro ao atualizar todas as traduções');
     }
-  }, [refreshTranslations, language, isLoaded]);
+  }, [updateLanguage, language, isLoaded]);
 
   return {
     isLoading: isLoadingTranslations,

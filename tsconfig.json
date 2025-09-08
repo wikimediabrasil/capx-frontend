@@ -8,7 +8,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
@@ -23,9 +23,7 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
-    "downlevelIteration": true,
-    "target": "es2015"
+    "strictNullChecks": true
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

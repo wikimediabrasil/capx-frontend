@@ -101,7 +101,7 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
               }
 
               // Fetch from API if not in cache
-              const response = await capacityService.fetchCapacityById(id.toString(), language);
+              const response = await capacityService.fetchCapacityById(id.toString(), {}, language);
 
               if (response && response.name) {
                 // Check if name is a URL and replace with fallback if needed
@@ -288,7 +288,7 @@ export function useCapacity(capacityId?: string | null, language: string = 'en')
     queryFn: async () => {
       if (!capacityId) return null;
       try {
-        const data = await capacityService.fetchCapacityById(capacityId, safeLanguage);
+        const data = await capacityService.fetchCapacityById(capacityId, {}, safeLanguage);
         return data;
       } catch (error) {
         console.error(`Error fetching capacity ${capacityId}:`, error);

@@ -17,7 +17,7 @@ export interface FilterState {
   territories: string[];
   languages: string[];
   username?: string;
-  affiliations?: (string | number)[];
+  affiliations?: string[];
 }
 
 export const createProfilesFromOrganizations = (

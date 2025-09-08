@@ -1,7 +1,6 @@
 'use client';
 
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useCapacityDescription } from '@/hooks/useCapacitiesQuery';
 import { useSession } from 'next-auth/react';
 import React, {
   createContext,
@@ -88,9 +87,21 @@ const saveTranslationsCache = () => {
 // Component that fetches descriptions in the background
 const DescriptionFetcher = ({ code, language }: { code: number; language: string }) => {
   const context = useContext(CapacityContext);
-  const { data, isSuccess } = useCapacityDescription(code, language);
+  const { getCapacity, getDescription, getWdCode, getMetabaseCode } = useCapacityCache();
   const processedRef = useRef(false);
   const { data: session } = useSession();
+
+  // Get data directly from unified cache
+  const capacity = getCapacity(code);
+  const data = capacity
+    ? {
+        name: capacity.name,
+        description: getDescription(code),
+        wd_code: getWdCode(code),
+        metabase_code: getMetabaseCode(code),
+      }
+    : null;
+  const isSuccess = !!data;
 
   React.useEffect(() => {
     // Check if we already have descriptions in cache
@@ -115,15 +126,15 @@ const DescriptionFetcher = ({ code, language }: { code: number; language: string
       // Save in cache (now includes name)
       cachedNames[code] = data.name || '';
       cachedDescriptions[code] = data.description || '';
-      cachedWdCodes[code] = data.wdCode || '';
-      cachedMetabaseCodes[code] = data.metabaseCode || '';
+      cachedWdCodes[code] = data.wd_code || '';
+      cachedMetabaseCodes[code] = data.metabase_code || '';
 
       // Update context
       context._addDescription(
         code,
         data.description || '',
-        data.wdCode || '',
-        data.metabaseCode || ''
+        data.wd_code || '',
+        data.metabase_code || ''
       );
 
       // Persist data

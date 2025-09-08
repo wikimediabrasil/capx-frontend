@@ -1,12 +1,13 @@
 import { useApp } from '@/contexts/AppContext';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
+import React from 'react';
 import { SelectList } from './Selector';
 
 interface AffiliationSelectorProps {
   affiliations: Record<string, string>;
-  selectedAffiliations: string[] | number[];
-  onSelectAffiliation: (affiliationId: string | number) => void;
+  selectedAffiliations: string[];
+  onSelectAffiliation: (affiliationId: string) => void;
   placeholder?: string;
 }
 
