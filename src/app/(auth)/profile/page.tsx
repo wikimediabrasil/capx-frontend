@@ -3,9 +3,12 @@
 import LoadingState from '@/components/LoadingState';
 import ProfilePage from './components/ProfilePage';
 
+import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 export default function ProfileByUserName() {
   const { data: session, status: sessionStatus } = useSession();
@@ -14,6 +17,24 @@ export default function ProfileByUserName() {
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
 
   const { profile, isLoading, error } = useProfile(token, userId as number);
+  const capacityCache = useCapacityCache();
+  const { isLoadingTranslations } = capacityCache;
+  const { language } = useApp();
+
+  // Monitor language changes and update capacity cache
+  useEffect(() => {
+    const updateCacheLanguage = async () => {
+      if (language && token) {
+        try {
+          await capacityCache?.updateLanguage?.(language);
+        } catch (error) {
+          console.error('Error updating capacity cache language:', error);
+        }
+      }
+    };
+
+    updateCacheLanguage();
+  }, [language, token]);
 
   // Redirect if not authenticated
   if (sessionStatus === 'unauthenticated') {
@@ -21,8 +42,8 @@ export default function ProfileByUserName() {
     return null;
   }
 
-  // Mostrar loading enquanto carrega o perfil ou a sessão
-  if (isLoading || sessionStatus === 'loading' || !profile) {
+  // Show loading while loading the profile, session or capacity translations
+  if (isLoading || sessionStatus === 'loading' || !profile || isLoadingTranslations) {
     return <LoadingState fullScreen={true} />;
   }
 

@@ -37,12 +37,13 @@ import { useEffect, useMemo, useState } from 'react';
 
 import BadgesCarousel from '@/components/BadgesCarousel';
 import { useBadges } from '@/contexts/BadgesContext';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { getWikiBirthday } from '@/lib/utils/fetchWikimediaData';
 import BadgesIcon from '@/public/static/images/icons/badges_icon.svg';
 import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg';
 import { UserProfile } from '@/types/user';
 import { useRouter } from 'next/navigation';
+import React from 'react';
 
 interface ProfilePageProps {
   isSameUser: boolean;
@@ -143,21 +144,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   );
   const [wikiBirthday, setWikiBirthday] = useState<string | null>(null);
 
-  const capacityIds = useMemo(() => {
-    // Garantir que as arrays existam
-    const knownSkills = Array.isArray(profile?.skills_known) ? profile?.skills_known : [];
-    const availableSkills = Array.isArray(profile?.skills_available)
-      ? profile?.skills_available
-      : [];
-    const wantedSkills = Array.isArray(profile?.skills_wanted) ? profile?.skills_wanted : [];
-
-    // Filtrar valores nulos ou undefined
-    return [...knownSkills, ...availableSkills, ...wantedSkills]
-      .filter(id => id !== null && id !== undefined)
-      .map(id => Number(id));
-  }, [profile]);
-
-  const { getCapacityName } = useCapacityDetails(capacityIds);
+  const { getName, isLoadingTranslations } = useCapacityCache();
 
   useEffect(() => {
     const fetchWikiBirthday = async () => {
@@ -291,7 +278,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? NeurologyIconWhite : NeurologyIcon}
                 title={pageContent['body-profile-known-capacities-title']}
                 items={profile?.skills_known || []}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
               />
             )}
@@ -300,7 +287,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? EmojiIconWhite : EmojiIcon}
                 title={pageContent['body-profile-available-capacities-title']}
                 items={profile?.skills_available || []}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal] `}
               />
             )}
@@ -309,7 +296,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? TargetIconWhite : TargetIcon}
                 title={pageContent['body-profile-wanted-capacities-title']}
                 items={profile?.skills_wanted || []}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal] `}
               />
             )}
@@ -625,7 +612,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? NeurologyIconWhite : NeurologyIcon}
                 title={pageContent['body-profile-known-capacities-title']}
                 items={profile?.skills_known || []}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] not-italic leading-[normal]`}
               />
             )}
@@ -634,7 +621,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? EmojiIconWhite : EmojiIcon}
                 title={pageContent['body-profile-available-capacities-title']}
                 items={profile?.skills_available || []}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] not-italic leading-[normal] `}
               />
             )}
@@ -643,7 +630,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? TargetIconWhite : TargetIcon}
                 title={pageContent['body-profile-wanted-capacities-title']}
                 items={profile?.skills_wanted || []}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] not-italic leading-[normal] `}
               />
             )}

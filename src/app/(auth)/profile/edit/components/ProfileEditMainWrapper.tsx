@@ -32,8 +32,6 @@ import ProfileEditMobileView from './ProfileEditMobileView';
 
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useAllCapacities } from '@/hooks/useAllCapacities';
-import { useCapacities } from '@/hooks/useCapacities';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useLetsConnect } from '@/hooks/useLetsConnect';
 import {
@@ -117,6 +115,21 @@ export default function EditProfilePage() {
     }
   }, [token, preloadCapacities]);
 
+  // Monitor language changes and update capacity cache
+  useEffect(() => {
+    const updateCacheLanguage = async () => {
+      if (language && token) {
+        try {
+          await capacityCache?.updateLanguage?.(language);
+        } catch (error) {
+          console.error('Error updating capacity cache language:', error);
+        }
+      }
+    };
+
+    updateCacheLanguage();
+  }, [language, token]);
+
   // Initialize all hooks at the top of the component
   const {
     profile,
@@ -142,9 +155,15 @@ export default function EditProfilePage() {
     }
   }, [wikimediaProjectsError]);
 
-  // Get the capacity system with React Query
-  const { getCapacityById, isLoadingRootCapacities } = useCapacities();
-  const { allCapacities: capacities, loading: isLoadingAllCapacities } = useAllCapacities(token);
+  // Get the capacity system from cache
+  const capacityCache = useCapacityCache();
+  const {
+    getName,
+    getRootCapacities,
+    isLoaded: isCapacityCacheLoaded,
+    isLoadingTranslations,
+    updateLanguage,
+  } = capacityCache;
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<{
@@ -181,6 +200,7 @@ export default function EditProfilePage() {
     wikimedia_project: [],
   });
   const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
+
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -207,7 +227,7 @@ export default function EditProfilePage() {
     [formData]
   );
 
-  // Create a function to get capacity names using the optimized system
+  // Create a function to get capacity names using the cache system
   const getCapacityName = useCallback(
     (capacityId: any) => {
       try {
@@ -226,14 +246,13 @@ export default function EditProfilePage() {
           return 'Unknown Capacity';
         }
 
-        const capacity = getCapacityById(id);
-        return capacity?.name || `Capacity ${id}`;
+        return getName(id);
       } catch (error) {
         console.error('Error getting capacity name:', error);
         return 'Unknown Capacity';
       }
     },
-    [getCapacityById]
+    [getName]
   );
 
   // Redirect to home if not authenticated
@@ -388,8 +407,8 @@ export default function EditProfilePage() {
     return null;
   }
 
-  // Show loading state while profile is loading
-  if (profileLoading || isLoadingAllCapacities) {
+  // Show loading state while profile is loading or capacity translations are loading
+  if (profileLoading || !isCapacityCacheLoaded || isLoadingTranslations) {
     return <LoadingState fullScreen={true} />;
   }
 
@@ -484,7 +503,7 @@ export default function EditProfilePage() {
 
     setIsWikidataSelected(false);
 
-    // Se avatarId for null, usar a imagem NoAvatar
+    // If avatarId is null, use the NoAvatar image
     const selectedAvatarUrl =
       avatarId === null
         ? 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
@@ -625,8 +644,10 @@ export default function EditProfilePage() {
       letsConnectData?.reconciled_languages.includes(language.name || '')
     );
 
-    const allCapacities = capacities.map(capacity => ({
-      id: capacity.id,
+    // Get all root capacities from cache and their children
+    const rootCapacities = getRootCapacities();
+    const allCapacities = rootCapacities.map(capacity => ({
+      id: capacity.code,
       code: capacity.skill_wikidata_item,
     }));
 
@@ -744,7 +765,7 @@ export default function EditProfilePage() {
             <DebugPanel
               data={{
                 capacityIds,
-                capacitiesLoading: isLoadingRootCapacities,
+                capacitiesLoading: !isCapacityCacheLoaded,
               }}
               title="Debug: Capacity IDs"
             />
@@ -768,7 +789,7 @@ export default function EditProfilePage() {
           <DebugPanel
             data={{
               capacityIds,
-              capacitiesLoading: isLoadingRootCapacities,
+              capacitiesLoading: !isCapacityCacheLoaded,
             }}
             title="Debug: Capacity IDs"
           />
