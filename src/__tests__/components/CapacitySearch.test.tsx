@@ -1,8 +1,11 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import { useSession } from 'next-auth/react';
 import { useCapacityList } from '@/hooks/useCapacityList';
+import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 
 // Next.js App Router's mock
 jest.mock('next/navigation', () => ({
@@ -19,7 +22,23 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('next-auth/react');
-jest.mock('@/hooks/useCapacityList');
+
+const mockGetRootCapacities = jest.fn().mockReturnValue([
+  { code: 1, name: 'Test Capacity', color: 'blue' },
+]);
+const mockGetChildren = jest.fn().mockReturnValue([]);
+
+jest.mock('@/contexts/CapacityCacheContext', () => ({
+  useCapacityCache: () => ({
+    getName: jest.fn((id: number) => `Capacity ${id}`),
+    getDescription: jest.fn(),
+    getWdCode: jest.fn(),
+    getRootCapacities: mockGetRootCapacities,
+    getChildren: mockGetChildren,
+  }),
+  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 jest.mock('@/contexts/AppContext', () => ({
   useApp: () => ({
     isMobile: false,
@@ -55,26 +74,35 @@ describe('CapacitySearch', () => {
     },
   };
 
-  const mockCapacityList = {
-    searchResults: [],
-    setSearchResults: jest.fn(),
-    descriptions: {},
-    wdCodes: {},
-    findParentCapacity: jest.fn(),
-    fetchCapacityDescription: jest.fn(),
-    fetchCapacitySearch: jest.fn(),
-    fetchRootCapacities: jest.fn(),
-    fetchCapacitiesByParent: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
     (useSession as jest.Mock).mockReturnValue(mockSession);
-    (useCapacityList as jest.Mock).mockReturnValue(mockCapacityList);
+    mockGetRootCapacities.mockClear();
+    mockGetChildren.mockClear();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   const renderWithProviders = (ui: React.ReactElement) => {
-    return render(<ThemeProvider>{ui}</ThemeProvider>);
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0 },
+      },
+    });
+    
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <CapacityCacheProvider>
+            {ui}
+          </CapacityCacheProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
   };
 
   it('renders search input correctly', () => {
@@ -89,9 +117,14 @@ describe('CapacitySearch', () => {
     const searchInput = screen.getByPlaceholderText('Search capacities');
     fireEvent.change(searchInput, { target: { value: 'test' } });
 
-    // Use waitFor to wait for the debounced call
+    // Fast forward the debounce timer within act
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+
+    // Wait for the search functions to be called
     await waitFor(() => {
-      expect(mockCapacityList.fetchCapacitySearch).toHaveBeenCalledWith('test');
+      expect(mockGetRootCapacities).toHaveBeenCalled();
     });
   });
 
@@ -102,15 +135,21 @@ describe('CapacitySearch', () => {
     const searchInput = screen.getByPlaceholderText('Search capacities');
     fireEvent.change(searchInput, { target: { value: 'test' } });
 
+    // Fast forward the debounce timer within act
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+    });
+
     // Use waitFor to wait for the debounced call
     await waitFor(() => {
       expect(onSearchStart).toHaveBeenCalled();
     });
   });
 
-  it('fetches root capacities on mount', () => {
+  it('does not fetch root capacities on mount with empty search', async () => {
     renderWithProviders(<CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />);
 
-    expect(mockCapacityList.fetchRootCapacities).toHaveBeenCalled();
+    // Component should not call getRootCapacities when search term is empty
+    expect(mockGetRootCapacities).not.toHaveBeenCalled();
   });
 });
