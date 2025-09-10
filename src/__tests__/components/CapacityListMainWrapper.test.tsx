@@ -187,13 +187,11 @@ describe('CapacityListMainWrapper', () => {
         queries: { retry: false, gcTime: 0 },
       },
     });
-    
+
     return render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <CapacityCacheProvider>
-            {ui}
-          </CapacityCacheProvider>
+          <CapacityCacheProvider>{ui}</CapacityCacheProvider>
         </ThemeProvider>
       </QueryClientProvider>
     );

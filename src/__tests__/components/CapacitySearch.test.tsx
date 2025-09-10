@@ -23,9 +23,9 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next-auth/react');
 
-const mockGetRootCapacities = jest.fn().mockReturnValue([
-  { code: 1, name: 'Test Capacity', color: 'blue' },
-]);
+const mockGetRootCapacities = jest
+  .fn()
+  .mockReturnValue([{ code: 1, name: 'Test Capacity', color: 'blue' }]);
 const mockGetChildren = jest.fn().mockReturnValue([]);
 
 jest.mock('@/contexts/CapacityCacheContext', () => ({
@@ -93,13 +93,11 @@ describe('CapacitySearch', () => {
         queries: { retry: false, gcTime: 0 },
       },
     });
-    
+
     return render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <CapacityCacheProvider>
-            {ui}
-          </CapacityCacheProvider>
+          <CapacityCacheProvider>{ui}</CapacityCacheProvider>
         </ThemeProvider>
       </QueryClientProvider>
     );
