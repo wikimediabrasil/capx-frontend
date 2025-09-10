@@ -172,7 +172,7 @@ export const ProfileCard = ({
             </div>
 
             {/* Username */}
-            <div className="mt-4 mb-6 flex items-center justify-between">
+            <div className="mt-4 mb-6 flex items-center justify-center md:justify-between">
               <h5
                 className={`md:text-[32px] text-xl font-bold font-[Montserrat] ${
                   darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
