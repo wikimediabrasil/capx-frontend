@@ -2,15 +2,12 @@ import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { CAPACITY_CACHE_KEYS, useCapacities } from '@/hooks/useCapacities';
-import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
+import { getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
 import LinkIconWhite from '@/public/static/images/link_icon_white.svg';
-import { capacityService } from '@/services/capacityService';
 import { Capacity } from '@/types/capacity';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -24,50 +21,21 @@ interface CapacitySelectionModalProps {
   allowMultipleSelection?: boolean;
 }
 
-// Helper function to get a color based on capacity code
-// Maps numeric codes to color names (e.g., "50" -> "learning")
-const getColorForCapacity = (code: number | string): string => {
-  const codeStr = String(code);
-  if (codeStr.startsWith('10')) return 'organizational';
-  if (codeStr.startsWith('36')) return 'communication';
-  if (codeStr.startsWith('50')) return 'learning';
-  if (codeStr.startsWith('56')) return 'community';
-  if (codeStr.startsWith('65')) return 'social';
-  if (codeStr.startsWith('74')) return 'strategic';
-  if (codeStr.startsWith('106')) return 'technology';
-  return 'gray-200';
-};
-
-// Helper function to convert API response to Capacity object
-const convertToCapacity = (item: any): Capacity => {
-  // We need to handle any type here since the API response doesn't match our type definition exactly
-  const code = typeof item.code === 'string' ? parseInt(item.code, 10) : item.code;
-  const baseCode = parseInt(String(code).split('.')[0], 10); // Get the integer part for icon lookup
-  const codeStr = String(code); // Convert to string for color determination
-
-  // Get the proper color name based on the capacity code
-  const color = getColorForCapacity(codeStr);
-
+// Helper function to convert cached capacity to Capacity object
+const convertCachedToCapacity = (cachedCapacity: any): Capacity => {
   return {
-    code,
-    name: item.name,
-    color: color, // Use the color name, not the code
-    icon: getCapacityIcon(baseCode),
-    hasChildren: true,
-    skill_type: code,
-    skill_wikidata_item: '',
-    // Add other fields with defaults
-    level: 1,
-    parentCapacity: undefined,
-    description: '',
+    code: cachedCapacity.code,
+    name: cachedCapacity.name,
+    color: cachedCapacity.color,
+    icon: cachedCapacity.icon,
+    hasChildren: cachedCapacity.hasChildren,
+    skill_type: cachedCapacity.code,
+    skill_wikidata_item: cachedCapacity.wd_code || '',
+    level: cachedCapacity.level || 1,
+    parentCapacity: cachedCapacity.parentCapacity,
+    description: cachedCapacity.description || '',
+    metabase_code: cachedCapacity.metabase_code || '',
   };
-};
-
-// Direct helper to get hex color from capacity code
-// Maps numeric codes directly to hex colors (e.g., "50" -> "#00965A")
-const getHexColorFromCode = (code: number | string): string => {
-  const colorName = getColorForCapacity(code);
-  return getCapacityColor(colorName);
 };
 
 export default function CapacitySelectionModal({
@@ -83,196 +51,35 @@ export default function CapacitySelectionModal({
   const [selectedPath, setSelectedPath] = useState<number[]>([]);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
   const [showInfoMap, setShowInfoMap] = useState<Record<number, boolean>>({});
-  const [capacityDescriptions, setCapacityDescriptions] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({
-    root: false,
-  });
-  const [rootCapacities, setRootCapacities] = useState<Capacity[]>([]);
-  const [childrenCapacities, setChildrenCapacities] = useState<Record<string, Capacity[]>>({});
-
-  // For tracking which capacity descriptions have been requested
-  const [requestedDescriptions, setRequestedDescriptions] = useState<Set<number>>(new Set());
-
-  // For tracking which capacity we're currently trying to expand
-  const [expandingCapacityId, setExpandingCapacityId] = useState<string | null>(null);
-
-  // Get the query client for manual data operations
-  const queryClient = useQueryClient();
 
   // Get capacity data from the global cache system
-  const { getCapacity, hasChildren, preloadCapacities } = useCapacityCache();
-  const { getCapacityById } = useCapacities();
-
-  // Use React Query directly for root capacities
-  const { data: rootCapacitiesData, isLoading: isLoadingRoots } = useQuery({
-    queryKey: CAPACITY_CACHE_KEYS.root(language),
-    queryFn: async () => {
-      if (!session?.user?.token) return [] as Capacity[];
-
-      const response = await capacityService.fetchCapacities({
-        headers: { Authorization: `Token ${session.user.token}` },
-      });
-
-      // Transform the response using our helper function
-      return response.map(convertToCapacity);
-    },
-    enabled: isOpen && !!session?.user?.token,
-  });
-
-  // Query for child capacities - it will only run when expandingCapacityId changes
-  const { data: childCapacitiesData } = useQuery<Capacity[]>({
-    queryKey: CAPACITY_CACHE_KEYS.children(expandingCapacityId || '', language),
-    queryFn: async () => {
-      if (!session?.user?.token || !expandingCapacityId) return [];
-
-      try {
-        setIsLoading(prev => ({ ...prev, [expandingCapacityId]: true }));
-
-        // Get data from API
-        const response = await capacityService.fetchCapacitiesByType(expandingCapacityId, {
-          headers: { Authorization: `Token ${session.user.token}` },
-        });
-
-        // Format the response
-        const capacityData = Object.entries(response).map(([code, name]) => {
-          // Find the parent capacity for proper color/icon inheritance
-          const parentCapacity = findCapacityByCode(Number(expandingCapacityId));
-
-          // Determine the level
-          const level = selectedPath.length + 1;
-
-          // Get the appropriate color name based on the code
-          const colorName = getColorForCapacity(code);
-
-          return {
-            code: Number(code),
-            name: typeof name === 'string' ? name : String(name),
-            color: colorName,
-            icon: parentCapacity?.icon || '',
-            hasChildren: true, // Assume may have children until proven otherwise
-            skill_type: Number(expandingCapacityId),
-            skill_wikidata_item: '',
-            parentCapacity: parentCapacity,
-            level: level,
-          } as Capacity;
-        });
-
-        return capacityData;
-      } catch (error) {
-        console.error(`Error fetching children for ${expandingCapacityId}:`, error);
-        return [];
-      } finally {
-        setIsLoading(prev => ({ ...prev, [expandingCapacityId]: false }));
-      }
-    },
-    enabled: !!expandingCapacityId && !!session?.user?.token,
-  });
-
-  // Query for capacity descriptions
-  const { data: descriptionData } = useQuery<{
-    id: number;
-    description: string;
-    wdCode: string;
-  } | null>({
-    queryKey: ['capacityDescription', ...Array.from(requestedDescriptions)],
-    queryFn: async () => {
-      // If no descriptions requested, don't fetch
-      if (requestedDescriptions.size === 0 || !session?.user?.token) return null;
-
-      // Get the last requested description ID
-      const capacityId = Array.from(requestedDescriptions).pop();
-      if (!capacityId) return null;
-
-      try {
-        const response = await capacityService.fetchCapacityDescription(capacityId);
-        return {
-          id: capacityId,
-          description: response?.description || '',
-          wdCode: response?.wdCode || '',
-        };
-      } catch (error) {
-        console.error(`Error fetching description for capacity ${capacityId}:`, error);
-        return null;
-      }
-    },
-    enabled: requestedDescriptions.size > 0 && !!session?.user?.token,
-  });
-
-  // Process description data when it changes
-  useEffect(() => {
-    if (descriptionData?.id && descriptionData?.description) {
-      // Only update if the value is different from the current one
-      setCapacityDescriptions(prev => {
-        if (prev[descriptionData.id] === descriptionData.description) {
-          return prev;
-        }
-        return {
-          ...prev,
-          [descriptionData.id]: descriptionData.description,
-        };
-      });
-    }
-  }, [descriptionData?.id, descriptionData?.description]);
-
-  // Load root capacities when data is available
-  useEffect(() => {
-    if (rootCapacitiesData && Array.isArray(rootCapacitiesData) && rootCapacitiesData.length > 0) {
-      // Make sure each capacity has the right color name before setting in state
-      const processedCapacities = rootCapacitiesData.map(capacity => {
-        // Ensure color is a valid color name, not a numeric code
-        const colorName = getColorForCapacity(capacity.code);
-        return {
-          ...capacity,
-          color: colorName,
-        };
-      });
-      setRootCapacities(processedCapacities);
-    }
-  }, [rootCapacitiesData]);
-
-  // Process child capacities data when it changes
-  useEffect(() => {
-    if (
-      childCapacitiesData &&
-      Array.isArray(childCapacitiesData) &&
-      childCapacitiesData.length > 0 &&
-      expandingCapacityId
-    ) {
-      // Update the child capacities
-      setChildrenCapacities(prev => ({
-        ...prev,
-        [expandingCapacityId]: childCapacitiesData,
-      }));
-
-      // Update the selected path if necessary
-      if (!selectedPath.includes(Number(expandingCapacityId))) {
-        setSelectedPath(prev => [...prev, Number(expandingCapacityId)]);
-      }
-
-      // Reset the expanding capacity ID
-      setExpandingCapacityId(null);
-    }
-  }, [childCapacitiesData, expandingCapacityId, selectedPath]);
+  const capacityCache = useCapacityCache();
+  const {
+    getRootCapacities,
+    getChildren,
+    getCapacity,
+    hasChildren,
+    getName,
+    getDescription,
+    getColor,
+    getIcon,
+    getMetabaseCode,
+    isLoadingTranslations,
+    updateLanguage,
+  } = capacityCache;
 
   // Initialize data when modal opens
   useEffect(() => {
     if (isOpen && session?.user?.token) {
-      // Clear old cache data
-      queryClient.invalidateQueries({ queryKey: CAPACITY_CACHE_KEYS.root(language) });
-
-      // Ensure the cache is loaded
-      preloadCapacities();
+      // Ensure the cache is loaded for the current language
+      updateLanguage(language);
 
       // Reset the state when the modal opens
       setSelectedPath([]);
       setSelectedCapacities([]);
       setShowInfoMap({});
-      setCapacityDescriptions({});
-      setRequestedDescriptions(new Set());
-      setExpandingCapacityId(null);
-      setIsLoading({ root: false });
     }
-  }, [isOpen, session?.user?.token, preloadCapacities, queryClient]);
+  }, [isOpen, session?.user?.token, language, updateLanguage]);
 
   // Handler for selecting a capacity
   const handleCategorySelect = async (category: Capacity) => {
@@ -321,15 +128,8 @@ export default function CapacitySelectionModal({
         return;
       }
 
-      // Check if we need to fetch the children
-      if (!childrenCapacities[categoryId.toString()]) {
-        // Set the expanding capacity ID to trigger the query
-        setExpandingCapacityId(categoryId.toString());
-        return;
-      }
-
-      // If there are already children loaded, expand
-      if (childrenCapacities[categoryId.toString()]?.length > 0) {
+      // Check if the capacity has children using the cache
+      if (hasChildren(categoryId)) {
         setSelectedPath(prev => [...prev, categoryId]);
       }
     } catch (err) {
@@ -350,25 +150,22 @@ export default function CapacitySelectionModal({
 
   const getCurrentCapacities = useCallback(() => {
     if (selectedPath.length === 0) {
-      return rootCapacities;
+      // Return root capacities from cache, converted to Capacity objects
+      return getRootCapacities().map(convertCachedToCapacity);
     }
 
     const currentParentId = selectedPath[selectedPath.length - 1];
-    const currentCapacities = childrenCapacities[currentParentId.toString()];
-
-    if (!currentCapacities) {
-      return [];
-    }
-
-    return currentCapacities;
-  }, [selectedPath, childrenCapacities, rootCapacities]);
+    // Get children from cache, converted to Capacity objects
+    return getChildren(currentParentId).map(convertCachedToCapacity);
+  }, [selectedPath, getRootCapacities, getChildren]);
 
   // Function to find the capacity by code using the global cache
   const findCapacityByCode = useCallback(
     (code: number): Capacity | undefined => {
-      return getCapacity(code) || getCapacityById(code);
+      const cachedCapacity = getCapacity(code);
+      return cachedCapacity ? convertCachedToCapacity(cachedCapacity) : undefined;
     },
-    [getCapacity, getCapacityById]
+    [getCapacity]
   );
 
   // Function to capitalize the first letter of a text
@@ -384,23 +181,7 @@ export default function CapacitySelectionModal({
     try {
       const capacityCode = capacity.code;
 
-      // If we already have the description in local cache, just toggle visibility
-      if (capacityDescriptions[capacityCode]) {
-        setShowInfoMap(prev => ({
-          ...prev,
-          [capacityCode]: !prev[capacityCode],
-        }));
-        return;
-      }
-
-      // If we don't have the description, request it
-      setRequestedDescriptions(prev => {
-        const newSet = new Set(prev);
-        newSet.add(capacityCode);
-        return newSet;
-      });
-
-      // Toggle the display of the description regardless of fetch success
+      // Toggle the display of the description
       setShowInfoMap(prev => ({
         ...prev,
         [capacityCode]: !prev[capacityCode],
@@ -437,8 +218,11 @@ export default function CapacitySelectionModal({
   const renderCapacityCard = (capacity: Capacity, isRoot: boolean) => {
     const isSelected = selectedCapacities.some(cap => cap.code === capacity.code);
     const showInfo = showInfoMap[capacity.code] || false;
-    const description = capacityDescriptions[capacity.code] || capacity.description || '';
-    const wd_code = capacity.skill_wikidata_item || '';
+    const description = getDescription(capacity.code) || capacity.description || '';
+    const metabaseCode = getMetabaseCode(capacity.code);
+    const metabase_url = metabaseCode
+      ? `https://metabase.wikibase.cloud/wiki/Item:${metabaseCode}`
+      : '';
 
     // Get the parent capacity to color the icons of the child cards
     const parentCapacity = isRoot
@@ -474,25 +258,8 @@ export default function CapacitySelectionModal({
         ? 3
         : 2;
 
-    // Get background color for capacity
-    const getBackgroundColor = () => {
-      if (isRoot) {
-        // For root capacities, get hex color directly
-        const hexColor = getHexColorFromCode(capacity.code);
-        return hexColor;
-      } else {
-        // For child capacities, use the exact same color as root
-        const rootHexColor = rootCapacity
-          ? getHexColorFromCode(rootCapacity.code)
-          : getHexColorFromCode(capacity.code);
-
-        // Use exact same color for all levels
-        return rootHexColor;
-      }
-    };
-
-    // Calculate the background color once
-    const backgroundColor = getBackgroundColor();
+    // Get background color from cache
+    const backgroundColor = getColor(capacity.code);
 
     // Function to determine if a color is light or dark
     const isLightColor = (hexColor: string): boolean => {
@@ -539,12 +306,9 @@ export default function CapacitySelectionModal({
 
     // Style for root cards
     if (isRoot) {
-      // Get the hex color directly based on capacity code
-      const bgHexColor = getHexColorFromCode(capacity.code);
-
       // Create an object with explicit styles we need to enforce
       const cardStyle = {
-        backgroundColor: bgHexColor,
+        backgroundColor: backgroundColor,
         color: '#FFFFFF', // White text for root
         borderRadius: '0.5rem', // Ensure rounded corners (same as rounded-lg)
         overflow: 'hidden', // Clip content to rounded corners
@@ -648,9 +412,9 @@ export default function CapacitySelectionModal({
               <p className="text-gray-700 text-xs leading-relaxed">
                 {capitalizeFirstLetter(description)}
               </p>
-              {wd_code && (
+              {metabase_url && (
                 <a
-                  href={wd_code}
+                  href={metabase_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline hover:text-blue-700 mt-2 inline-block text-xs transition-colors"
@@ -767,9 +531,9 @@ export default function CapacitySelectionModal({
             <p className="text-gray-700 text-xs leading-relaxed">
               {capitalizeFirstLetter(description)}
             </p>
-            {wd_code && (
+            {metabase_url && (
               <a
-                href={wd_code}
+                href={metabase_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:underline mt-2 inline-block text-xs"
@@ -922,7 +686,7 @@ export default function CapacitySelectionModal({
 
           {/* Capacity list */}
           <div className="space-y-4 max-h-[60vh] md:max-h-[65vh] overflow-y-auto scrollbar-hide p-2 pb-4">
-            {isLoading?.root ? (
+            {isLoadingTranslations ? (
               <div className={`text-center py-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {pageContent['capacity-selection-modal-loading']}
               </div>
@@ -932,11 +696,10 @@ export default function CapacitySelectionModal({
                   const isRoot = selectedPath.length === 0;
                   const uniqueKey = `${capacity.code}-${selectedPath.join('-')}-${index}`;
 
-                  // For root capacities, get the hex color directly
+                  // For root capacities, use the cached color
                   let rootStyle;
                   if (isRoot) {
-                    const hexColor = getHexColorFromCode(capacity.code);
-                    rootStyle = { backgroundColor: hexColor };
+                    rootStyle = { backgroundColor: getColor(capacity.code) };
                   }
 
                   return (

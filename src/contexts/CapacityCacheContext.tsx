@@ -329,9 +329,9 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
           }
         }
 
-        // Get all capacity codes that need translations
+        // Get all capacity codes that need descriptions/translations
         const allCodesNeedingTranslations = Object.values(newCache.capacities)
-          .filter(cap => cap.wd_code && cap.level && cap.level <= 2) // Only translate root and level 2
+          .filter(cap => cap.wd_code && cap.level && cap.level <= 3 && cap.wd_code.trim() !== '')
           .map(cap => ({ code: cap.code, wd_code: cap.wd_code! }));
 
         if (allCodesNeedingTranslations.length > 0) {
@@ -348,14 +348,18 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
               cap => cap.wd_code === translation.wd_code
             );
             if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
+              const currentCapacity = newCache.capacities[matchingCapacity.code];
               newCache.capacities[matchingCapacity.code] = {
-                ...newCache.capacities[matchingCapacity.code],
-                name: translation.name || newCache.capacities[matchingCapacity.code].name,
-                description:
-                  translation.description || newCache.capacities[matchingCapacity.code].description,
-                metabase_code:
-                  translation.metabase_code ||
-                  newCache.capacities[matchingCapacity.code].metabase_code,
+                ...currentCapacity,
+                // For children/grandchildren, prefer API translation over Metabase/Wikidata, but allow fallback if API didn't provide translation
+                name:
+                  currentCapacity.level === 1
+                    ? translation.name || currentCapacity.name // Root: always prefer Metabase/Wikidata
+                    : translation.name && translation.name !== currentCapacity.name
+                      ? translation.name // Children/Grand: only if different (better translation)
+                      : currentCapacity.name, // Otherwise keep API translation
+                description: translation.description || currentCapacity.description, // Always try to get better description
+                metabase_code: translation.metabase_code || currentCapacity.metabase_code,
               };
             }
           });
