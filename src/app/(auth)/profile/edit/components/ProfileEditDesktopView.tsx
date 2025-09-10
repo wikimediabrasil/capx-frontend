@@ -5,6 +5,7 @@ import BadgeSelectionModal from '@/components/BadgeSelectionModal';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
@@ -12,10 +13,16 @@ import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
+import {
+  addAffiliationToFormData,
+  addLanguageToFormData,
+  addProjectToFormData,
+  addTerritoryToFormData,
+} from '@/lib/utils/formDataUtils';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
+import { default as AccountCircleIconWhite, default as LetsConnectIconWhite } from '@/public/static/images/account_circle_white.svg';
 import AddIcon from '@/public/static/images/add.svg';
 import AddIconDark from '@/public/static/images/add_dark.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
@@ -67,16 +74,8 @@ import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
-import LetsConnectPopup from '@/components/LetsConnectPopup';
-import LetsConnectIconWhite from '@/public/static/images/account_circle_white.svg';
-import {
-  addLanguageToFormData,
-  addAffiliationToFormData,
-  addTerritoryToFormData,
-  addProjectToFormData,
-} from '@/lib/utils/formDataUtils';
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;

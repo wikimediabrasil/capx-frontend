@@ -405,7 +405,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   const getName = useCallback(
     (code: number): string => {
       const capacity = unifiedCache.capacities[code];
-      return capacity?.name || `Capacity ${code}`;
+      return (capacity?.name).charAt(0).toUpperCase() + (capacity?.name).slice(1).toLowerCase() || `Capacity ${code}`;
     },
     [unifiedCache.capacities]
   );
