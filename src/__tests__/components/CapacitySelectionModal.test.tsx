@@ -175,6 +175,26 @@ describe('CapacitySelectionModal', () => {
       getCapacity: jest.fn(),
       hasChildren: jest.fn().mockReturnValue(true),
       preloadCapacities: jest.fn(),
+      getRootCapacities: jest.fn().mockReturnValue(mockCapacities),
+      getChildren: jest.fn().mockReturnValue(mockChildCapacities),
+      getName: jest.fn((code) => {
+        if (code === 50) return 'Learning';
+        if (code === 36) return 'Communication';
+        if (code === 501) return 'Active Learning';
+        return `Capacity ${code}`;
+      }),
+      getDescription: jest.fn((code) => {
+        if (code === 50) return 'Learning capability';
+        if (code === 36) return 'Communication capability';
+        if (code === 501) return 'Active learning capability';
+        return `Description for capacity ${code}`;
+      }),
+      getColor: jest.fn(() => '#FF0000'),
+      getIcon: jest.fn(() => 'icon-path'),
+      getMetabaseCode: jest.fn((code) => `M${code}`),
+      getWdCode: jest.fn((code) => `Q${code}`),
+      isLoadingTranslations: false,
+      updateLanguage: jest.fn(),
     });
 
     // Mock useQuery with stable data and no side effects
