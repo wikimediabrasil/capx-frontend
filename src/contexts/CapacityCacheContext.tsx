@@ -377,10 +377,13 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         // This is just a backup for capacities that weren't processed through that function
         if (newLanguage !== 'en') {
           Object.values(newCache.capacities).forEach(capacity => {
-            // If capacity doesn't have isFallbackTranslation set and has no wd_code, 
+            // If capacity doesn't have isFallbackTranslation set and has no wd_code,
             // it likely means it came from API without translation data
-            if ((capacity.isFallbackTranslation === undefined || capacity.isFallbackTranslation === false) 
-                && (!capacity.wd_code || capacity.wd_code.trim() === '')) {
+            if (
+              (capacity.isFallbackTranslation === undefined ||
+                capacity.isFallbackTranslation === false) &&
+              (!capacity.wd_code || capacity.wd_code.trim() === '')
+            ) {
               // For capacities without wd_code, we can't get translations, so they're effectively fallbacks
               newCache.capacities[capacity.code].isFallbackTranslation = true;
             }
@@ -427,7 +430,14 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   const getName = useCallback(
     (code: number): string => {
       const capacity = unifiedCache.capacities[code];
-      return (capacity?.name).charAt(0).toUpperCase() + (capacity?.name).slice(1).toLowerCase() || `Capacity ${code}`;
+
+      // If we have a name, format and return it
+      if (capacity?.name) {
+        return capacity.name.charAt(0).toUpperCase() + capacity.name.slice(1).toLowerCase();
+      }
+
+      // Fallback to capacity ID when no name is available
+      return `Capacity ${code}`;
     },
     [unifiedCache.capacities]
   );

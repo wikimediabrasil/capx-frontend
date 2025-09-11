@@ -5,6 +5,7 @@ import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useCapacity } from '@/hooks/useCapacityDetails';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
@@ -19,11 +20,41 @@ import { createProfilesFromUsers, FilterState, ProfileCapacityType, Skill } from
 
 export default function FeedPage() {
   const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const { pageContent, language: appLanguage } = useApp();
+  const {
+    isLoaded: isCacheLoaded,
+    isLoadingTranslations,
+    language: cacheLanguage,
+    updateLanguage,
+  } = useCapacityCache();
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
   const capacityCode = searchParams.get('capacityId');
+
+  // Track language changes from AppContext and trigger cache updates
+  const [isLanguageChanging, setIsLanguageChanging] = useState(false);
+
+  // Detect when app language changes and update capacity cache
+  useEffect(() => {
+    // Only proceed if we have both languages and they're different
+    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage) {
+      setIsLanguageChanging(true);
+      updateLanguage(appLanguage);
+    }
+  }, [appLanguage, cacheLanguage, updateLanguage]);
+
+  // Reset language changing state when translations are loaded
+  useEffect(() => {
+    if (
+      isLanguageChanging &&
+      !isLoadingTranslations &&
+      isCacheLoaded &&
+      appLanguage === cacheLanguage
+    ) {
+      setIsLanguageChanging(false);
+    }
+  }, [isLanguageChanging, isLoadingTranslations, isCacheLoaded, appLanguage, cacheLanguage]);
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState>({
@@ -206,7 +237,12 @@ export default function FeedPage() {
     }
   };
 
-  if (isUsersLearnerLoading || isUsersSharerLoading) {
+  if (
+    isUsersLearnerLoading ||
+    isUsersSharerLoading ||
+    isLoadingTranslations ||
+    isLanguageChanging
+  ) {
     return <LoadingState fullScreen={true} />;
   }
 

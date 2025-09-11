@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
@@ -21,7 +21,7 @@ import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import { ProfileItem } from '@/components/ProfileItem';
 import { useRouter } from 'next/navigation';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSession } from 'next-auth/react';
@@ -64,12 +64,19 @@ export const ProfileCard = ({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const router = useRouter();
-  const { getCapacityName } = useCapacityDetails(capacities);
+  const { getName, preloadCapacities } = useCapacityCache();
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
   const { avatars } = useAvatars();
+
+  // Preload capacities to ensure they're available in the cache
+  useEffect(() => {
+    if (capacities.length > 0) {
+      preloadCapacities();
+    }
+  }, [capacities, preloadCapacities]);
 
   const capacitiesTitle =
     type === 'learner'
@@ -256,7 +263,7 @@ export const ProfileCard = ({
                 title={capacitiesTitle}
                 items={capacities}
                 showEmptyDataText={false}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
               />
             )}

@@ -326,12 +326,13 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
 
           // Check the language of the returned label
           const labelLanguage = mbItem.itemLabel?.['xml:lang'] || mbItem.itemLabel?.lang || 'en';
-          const descriptionLanguage = mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
-          
+          const descriptionLanguage =
+            mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
+
           // If we requested a specific language but got English back, it's a fallback
           const isLabelFallback = language !== 'en' && labelLanguage === 'en';
           const isDescriptionFallback = language !== 'en' && descriptionLanguage === 'en';
-          
+
           const result = {
             wd_code: mbItem.value.value,
             name: mbItem.itemLabel.value,
@@ -341,10 +342,6 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
             // Track if this result is using English fallback
             isFallbackTranslation: isLabelFallback || isDescriptionFallback,
           };
-
-          if (result.isFallbackTranslation) {
-            console.log(`🔍 Detected language fallback for: "${result.name}" (requested: ${language}, got: ${labelLanguage})`);
-          }
 
           return result;
         });

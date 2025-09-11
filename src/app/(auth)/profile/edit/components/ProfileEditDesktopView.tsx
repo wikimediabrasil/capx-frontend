@@ -22,7 +22,10 @@ import {
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import { default as AccountCircleIconWhite, default as LetsConnectIconWhite } from '@/public/static/images/account_circle_white.svg';
+import {
+  default as AccountCircleIconWhite,
+  default as LetsConnectIconWhite,
+} from '@/public/static/images/account_circle_white.svg';
 import AddIcon from '@/public/static/images/add.svg';
 import AddIconDark from '@/public/static/images/add_dark.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';

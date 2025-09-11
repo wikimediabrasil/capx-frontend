@@ -225,7 +225,7 @@ export default function CapacitySelectionModal({
     const metabase_url = metabaseCode
       ? `https://metabase.wikibase.cloud/wiki/Item:${metabaseCode}`
       : '';
-    
+
     // Check if this capacity is using fallback translation
     const isUsingFallback = isFallbackTranslation(capacity.code);
 
@@ -417,7 +417,7 @@ export default function CapacitySelectionModal({
               <p className="text-gray-700 text-xs leading-relaxed">
                 {capitalizeFirstLetter(description)}
               </p>
-              
+
               {/* Translation Contribution CTA */}
               {isUsingFallback && (
                 <div onClick={e => e.stopPropagation()}>
@@ -429,7 +429,7 @@ export default function CapacitySelectionModal({
                   />
                 </div>
               )}
-              
+
               {metabase_url && (
                 <a
                   href={metabase_url}
@@ -549,7 +549,7 @@ export default function CapacitySelectionModal({
             <p className="text-gray-700 text-xs leading-relaxed">
               {capitalizeFirstLetter(description)}
             </p>
-            
+
             {/* Translation Contribution CTA */}
             {isUsingFallback && (
               <div onClick={e => e.stopPropagation()}>
@@ -561,7 +561,7 @@ export default function CapacitySelectionModal({
                 />
               </div>
             )}
-            
+
             {metabase_url && (
               <a
                 href={metabase_url}

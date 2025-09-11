@@ -211,7 +211,7 @@ export function CapacityCard({
             {capitalizeFirstLetter(description)}
           </p>
         )}
-        
+
         {/* Translation Contribution CTA */}
         {isUsingFallback && (
           <TranslationContributeCTA
@@ -221,7 +221,7 @@ export function CapacityCard({
             compact={isMobile}
           />
         )}
-        
+
         <div
           className="rounded-lg w-fit"
           style={{

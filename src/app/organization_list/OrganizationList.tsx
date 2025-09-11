@@ -3,17 +3,17 @@
 import { Filters } from '@/app/(auth)/feed/components/Filters';
 import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 import {
-  createProfilesFromOrganizations,
   FilterState,
   ProfileCapacityType,
   Skill,
 } from '@/app/(auth)/feed/types';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { Capacity } from '@/types/capacity';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import Banner from '@/components/Banner';
@@ -24,7 +24,37 @@ import OrgListBanner from '@/public/static/images/organization_list.svg';
 
 export default function OrganizationList() {
   const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const { pageContent, language: appLanguage } = useApp();
+  const {
+    isLoaded: isCacheLoaded,
+    isLoadingTranslations,
+    language: cacheLanguage,
+    updateLanguage,
+  } = useCapacityCache();
+
+  // Track language changes from AppContext and trigger cache updates
+  const [isLanguageChanging, setIsLanguageChanging] = useState(false);
+
+  // Detect when app language changes and update capacity cache
+  useEffect(() => {
+    // Only proceed if we have both languages and they're different
+    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage) {
+      setIsLanguageChanging(true);
+      updateLanguage(appLanguage);
+    }
+  }, [appLanguage, cacheLanguage, updateLanguage]);
+
+  // Reset language changing state when translations are loaded
+  useEffect(() => {
+    if (
+      isLanguageChanging &&
+      !isLoadingTranslations &&
+      isCacheLoaded &&
+      appLanguage === cacheLanguage
+    ) {
+      setIsLanguageChanging(false);
+    }
+  }, [isLanguageChanging, isLoadingTranslations, isCacheLoaded, appLanguage, cacheLanguage]);
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
@@ -175,7 +205,7 @@ export default function OrganizationList() {
     }
   };
 
-  if (isAllOrganizationsLoading) {
+  if (isAllOrganizationsLoading || isLoadingTranslations || isLanguageChanging) {
     return <LoadingState fullScreen={true} />;
   }
 
