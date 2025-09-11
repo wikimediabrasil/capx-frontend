@@ -275,11 +275,14 @@ describe('CapacitySelectionModal', () => {
     fireEvent.click(expandButtons[0]);
 
     // Wait for the children to be loaded and displayed
-    await waitFor(() => {
-      // Check if the child capacity is displayed after expanding
-      // This assumes that 'Active Learning' is a child capacity that should be shown after expanding
-      expect(screen.getByText('Active Learning')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // Check if the child capacity is displayed after expanding
+        // This assumes that 'Active Learning' is a child capacity that should be shown after expanding
+        expect(screen.getByText('Active Learning')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   };
 
   const clickInfoButton = () => {

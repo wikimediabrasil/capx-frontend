@@ -4,6 +4,7 @@ import { UserProfile } from '@/types/user';
 export enum ProfileCapacityType {
   Learner = 'learner',
   Sharer = 'sharer',
+  Incomplete = 'incomplete',
 }
 
 export interface Skill {
