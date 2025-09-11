@@ -57,7 +57,8 @@ describe('TranslationContributeCTA', () => {
   const mockPageContent = {
     'translation-contribute-compact': 'Help translate this capacity',
     'translation-contribute-link': 'Contribute',
-    'translation-contribute-message': "Don't see this capacity in your selected language? Help us translate it on Metabase!",
+    'translation-contribute-message':
+      "Don't see this capacity in your selected language? Help us translate it on Metabase!",
     'translation-contribute-action': 'Contribute translation',
   };
 
@@ -136,14 +137,16 @@ describe('TranslationContributeCTA', () => {
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 
-      const container = screen.getByText('Help translate this capacity').closest('div')?.parentElement?.parentElement;
+      const container = screen.getByText('Help translate this capacity').closest('div')
+        ?.parentElement?.parentElement;
       expect(container).toHaveClass('bg-blue-950/30', 'border-blue-800/50');
     });
 
     it('applies light mode styles when darkMode is false', () => {
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 
-      const container = screen.getByText('Help translate this capacity').closest('div')?.parentElement?.parentElement;
+      const container = screen.getByText('Help translate this capacity').closest('div')
+        ?.parentElement?.parentElement;
       expect(container).toHaveClass('bg-blue-50', 'border-blue-200');
     });
   });
@@ -243,7 +246,11 @@ describe('TranslationContributeCTA', () => {
     it('uses pageContent translations when available', () => {
       renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
 
-      expect(screen.getByText("Don't see this capacity in your selected language? Help us translate it on Metabase!")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Don't see this capacity in your selected language? Help us translate it on Metabase!"
+        )
+      ).toBeInTheDocument();
       expect(screen.getByText('Contribute')).toBeInTheDocument();
     });
 
@@ -256,7 +263,11 @@ describe('TranslationContributeCTA', () => {
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
 
-      expect(screen.getByText("Don't see this capacity in your selected language? Help us translate it on Metabase!")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Don't see this capacity in your selected language? Help us translate it on Metabase!"
+        )
+      ).toBeInTheDocument();
       expect(screen.getByText('Contribute')).toBeInTheDocument();
     });
   });
@@ -268,7 +279,8 @@ describe('TranslationContributeCTA', () => {
         <TranslationContributeCTA {...defaultProps} className={customClass} compact={true} />
       );
 
-      const container = screen.getByText('Help translate this capacity').closest('div')?.parentElement?.parentElement;
+      const container = screen.getByText('Help translate this capacity').closest('div')
+        ?.parentElement?.parentElement;
       expect(container).toHaveClass(customClass);
     });
   });
@@ -299,7 +311,8 @@ describe('TranslationContributeCTA', () => {
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 
-      const container = screen.getByText('Help translate this capacity').closest('div')?.parentElement?.parentElement;
+      const container = screen.getByText('Help translate this capacity').closest('div')
+        ?.parentElement?.parentElement;
       expect(container).toHaveClass('flex-col', 'sm:flex-row', 'sm:items-center');
     });
   });

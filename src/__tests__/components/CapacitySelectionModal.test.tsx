@@ -177,13 +177,13 @@ describe('CapacitySelectionModal', () => {
       preloadCapacities: jest.fn(),
       getRootCapacities: jest.fn().mockReturnValue(mockCapacities),
       getChildren: jest.fn().mockReturnValue(mockChildCapacities),
-      getName: jest.fn((code) => {
+      getName: jest.fn(code => {
         if (code === 50) return 'Learning';
         if (code === 36) return 'Communication';
         if (code === 501) return 'Active Learning';
         return `Capacity ${code}`;
       }),
-      getDescription: jest.fn((code) => {
+      getDescription: jest.fn(code => {
         if (code === 50) return 'Learning capability';
         if (code === 36) return 'Communication capability';
         if (code === 501) return 'Active learning capability';
@@ -191,8 +191,8 @@ describe('CapacitySelectionModal', () => {
       }),
       getColor: jest.fn(() => '#FF0000'),
       getIcon: jest.fn(() => 'icon-path'),
-      getMetabaseCode: jest.fn((code) => `M${code}`),
-      getWdCode: jest.fn((code) => `Q${code}`),
+      getMetabaseCode: jest.fn(code => `M${code}`),
+      getWdCode: jest.fn(code => `Q${code}`),
       isLoadingTranslations: false,
       updateLanguage: jest.fn(),
       isFallbackTranslation: jest.fn(() => false),
