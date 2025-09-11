@@ -1,5 +1,7 @@
 import BaseButton from '@/components/BaseButton';
+import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
 import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
@@ -62,7 +64,11 @@ export function CapacityCard({
   const router = useRouter();
   const { isMobile, pageContent, language } = useApp();
   const { darkMode } = useTheme();
+  const { isFallbackTranslation } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
+
+  // Check if this capacity is using fallback translation
+  const isUsingFallback = isFallbackTranslation(code);
 
   // Use external control when available (main capacity view), internal for search
   const isInfoVisible = isInfoExpanded !== undefined ? isInfoExpanded : showInfo;
@@ -205,6 +211,17 @@ export function CapacityCard({
             {capitalizeFirstLetter(description)}
           </p>
         )}
+        
+        {/* Translation Contribution CTA */}
+        {isUsingFallback && (
+          <TranslationContributeCTA
+            capacityCode={code}
+            capacityName={name}
+            metabaseCode={metabase_code}
+            compact={isMobile}
+          />
+        )}
+        
         <div
           className="rounded-lg w-fit"
           style={{

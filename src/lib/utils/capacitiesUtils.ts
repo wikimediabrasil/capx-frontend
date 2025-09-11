@@ -324,38 +324,32 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           const itemUri = mbItem.item.value;
           const metabaseCode = itemUri.split('/').slice(-1)[0];
 
+          // Check the language of the returned label
+          const labelLanguage = mbItem.itemLabel?.['xml:lang'] || mbItem.itemLabel?.lang || 'en';
+          const descriptionLanguage = mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
+          
+          // If we requested a specific language but got English back, it's a fallback
+          const isLabelFallback = language !== 'en' && labelLanguage === 'en';
+          const isDescriptionFallback = language !== 'en' && descriptionLanguage === 'en';
+          
           const result = {
             wd_code: mbItem.value.value,
             name: mbItem.itemLabel.value,
             description: mbItem.itemDescription?.value || '',
             item: mbItem.item.value,
             metabase_code: metabaseCode,
+            // Track if this result is using English fallback
+            isFallbackTranslation: isLabelFallback || isDescriptionFallback,
           };
+
+          if (result.isFallbackTranslation) {
+            console.log(`🔍 Detected language fallback for: "${result.name}" (requested: ${language}, got: ${labelLanguage})`);
+          }
 
           return result;
         });
 
-      // Note: We used to force Wikidata fallback for English results in non-English requests,
-      // but this caused us to lose metabase_code. Now we keep Metabase results even if they're
-      // in English, because metabase_code is more important than having perfect translations.
-      if (language !== 'en' && results.length > 0) {
-        const hasEnglishResults = results.some((result: any) => {
-          const englishTerms = [
-            'communication',
-            'learning',
-            'technology',
-            'social',
-            'strategic',
-            'organizational',
-            'community',
-          ];
-          return englishTerms.some(term => result.name.toLowerCase().includes(term));
-        });
-
-        if (hasEnglishResults) {
-          // Keep the results to preserve metabase_code
-        }
-      }
+      // Language fallback detection is now handled above using SPARQL response metadata
 
       return results;
     } catch (requestError) {

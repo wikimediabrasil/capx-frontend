@@ -1,4 +1,5 @@
 import BaseButton from '@/components/BaseButton';
+import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -64,6 +65,7 @@ export default function CapacitySelectionModal({
     getColor,
     getIcon,
     getMetabaseCode,
+    isFallbackTranslation,
     isLoadingTranslations,
     updateLanguage,
   } = capacityCache;
@@ -223,6 +225,9 @@ export default function CapacitySelectionModal({
     const metabase_url = metabaseCode
       ? `https://metabase.wikibase.cloud/wiki/Item:${metabaseCode}`
       : '';
+    
+    // Check if this capacity is using fallback translation
+    const isUsingFallback = isFallbackTranslation(capacity.code);
 
     // Get the parent capacity to color the icons of the child cards
     const parentCapacity = isRoot
@@ -412,6 +417,19 @@ export default function CapacitySelectionModal({
               <p className="text-gray-700 text-xs leading-relaxed">
                 {capitalizeFirstLetter(description)}
               </p>
+              
+              {/* Translation Contribution CTA */}
+              {isUsingFallback && (
+                <div onClick={e => e.stopPropagation()}>
+                  <TranslationContributeCTA
+                    capacityCode={capacity.code}
+                    capacityName={capacity.name}
+                    metabaseCode={metabaseCode}
+                    compact={true}
+                  />
+                </div>
+              )}
+              
               {metabase_url && (
                 <a
                   href={metabase_url}
@@ -531,6 +549,19 @@ export default function CapacitySelectionModal({
             <p className="text-gray-700 text-xs leading-relaxed">
               {capitalizeFirstLetter(description)}
             </p>
+            
+            {/* Translation Contribution CTA */}
+            {isUsingFallback && (
+              <div onClick={e => e.stopPropagation()}>
+                <TranslationContributeCTA
+                  capacityCode={capacity.code}
+                  capacityName={capacity.name}
+                  metabaseCode={metabaseCode}
+                  compact={true}
+                />
+              </div>
+            )}
+            
             {metabase_url && (
               <a
                 href={metabase_url}

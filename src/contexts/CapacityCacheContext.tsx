@@ -45,6 +45,7 @@ interface UnifiedCache {
       skill_wikidata_item: string;
       parentCapacity?: any;
       category?: string;
+      isFallbackTranslation?: boolean;
     }
   >;
   children: Record<number, number[]>;
@@ -72,6 +73,7 @@ interface CapacityCacheContextType {
   getCapacity: (code: number) => any | null;
   getRootCapacities: () => any[];
   hasChildren: (code: number) => boolean;
+  isFallbackTranslation: (code: number) => boolean;
 
   // Actions
   updateLanguage: (newLanguage: string) => Promise<void>;
@@ -212,6 +214,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
             skill_wikidata_item: capacity.skill_wikidata_item,
             parentCapacity: capacity.parentCapacity,
             category: hierarchyInfo.category,
+            isFallbackTranslation: false, // Will be updated later if needed
           };
         });
 
@@ -260,6 +263,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
                   skill_wikidata_item: '',
                   parentCapacity: rootCapacity,
                   category: hierarchyInfo.category,
+                  isFallbackTranslation: false, // Will be updated later if needed
                 };
 
                 // Try to fetch grandchildren for each child
@@ -315,6 +319,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
                           skill_wikidata_item: '',
                           parentCapacity: newCache.capacities[childCodeNum],
                           category: hierarchyInfo.category,
+                          isFallbackTranslation: false, // Will be updated later if needed
                         };
                       }
                     }
@@ -358,9 +363,26 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
                     : translation.name && translation.name !== currentCapacity.name
                       ? translation.name // Children/Grand: only if different (better translation)
                       : currentCapacity.name, // Otherwise keep API translation
+                // Propagate fallback translation information
+                isFallbackTranslation: translation.isFallbackTranslation || false,
                 description: translation.description || currentCapacity.description, // Always try to get better description
                 metabase_code: translation.metabase_code || currentCapacity.metabase_code,
               };
+            }
+          });
+        }
+
+        // Mark capacities that don't have translation information as potential fallbacks
+        // Note: The main fallback detection now happens in fetchCapacitiesWithFallback using SPARQL metadata
+        // This is just a backup for capacities that weren't processed through that function
+        if (newLanguage !== 'en') {
+          Object.values(newCache.capacities).forEach(capacity => {
+            // If capacity doesn't have isFallbackTranslation set and has no wd_code, 
+            // it likely means it came from API without translation data
+            if ((capacity.isFallbackTranslation === undefined || capacity.isFallbackTranslation === false) 
+                && (!capacity.wd_code || capacity.wd_code.trim() === '')) {
+              // For capacities without wd_code, we can't get translations, so they're effectively fallbacks
+              newCache.capacities[capacity.code].isFallbackTranslation = true;
             }
           });
         }
@@ -491,6 +513,15 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     [unifiedCache.capacities]
   );
 
+  // Check if a capacity is using fallback translation
+  const isFallbackTranslation = useCallback(
+    (code: number): boolean => {
+      const capacity = unifiedCache.capacities[code];
+      return capacity?.isFallbackTranslation || false;
+    },
+    [unifiedCache.capacities]
+  );
+
   // Preload capacities for the current language
   const preloadCapacities = useCallback(async () => {
     const currentLanguage = unifiedCache.language;
@@ -531,6 +562,7 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     getCapacity,
     getRootCapacities,
     hasChildren,
+    isFallbackTranslation,
     updateLanguage,
     preloadCapacities,
     clearCache,
