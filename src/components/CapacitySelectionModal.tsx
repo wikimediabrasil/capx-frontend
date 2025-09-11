@@ -216,6 +216,13 @@ export default function CapacitySelectionModal({
     return darkMode ? 'text-gray-500' : 'text-gray-400';
   };
 
+  const activateOnEnterSpace = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
+
   // Function to render a custom capacity card for the modal
   const renderCapacityCard = (capacity: Capacity, isRoot: boolean) => {
     const isSelected = selectedCapacities.some(cap => cap.code === capacity.code);
@@ -320,13 +327,16 @@ export default function CapacitySelectionModal({
       };
 
       return (
-        <div
+        <button
           className={`flex flex-col w-full rounded-lg transition-all overflow-hidden h-full relative
             ${
               isSelected ? 'ring-2 ring-capx-primary-green' : ''
             } hover:brightness-90 transform hover:scale-[1.01] transition-all`}
           onClick={() => handleCategorySelect(capacity)}
           style={cardStyle}
+          tabIndex={0}
+          onKeyDown={e => activateOnEnterSpace(e, () => handleCategorySelect(capacity))}
+          aria-pressed={isSelected}
         >
           <div className="flex p-3 h-[80px] items-center justify-between">
             {capacity.icon && (
@@ -410,6 +420,9 @@ export default function CapacitySelectionModal({
             <div
               className="bg-white p-3 text-sm rounded-b-lg flex-grow"
               onClick={e => e.stopPropagation()}
+              onKeyDown={e => e.stopPropagation()}
+              role="presentation"
+              tabIndex={-1}
             >
               <h3 className="text-capx-dark-box-bg text-[16px] font-bold mb-3">
                 {capitalizeFirstLetter(capacity.name)}
@@ -420,7 +433,7 @@ export default function CapacitySelectionModal({
 
               {/* Translation Contribution CTA */}
               {isUsingFallback && (
-                <div onClick={e => e.stopPropagation()}>
+                <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} role="presentation" tabIndex={-1}>
                   <TranslationContributeCTA
                     capacityCode={capacity.code}
                     capacityName={capacity.name}
@@ -443,13 +456,13 @@ export default function CapacitySelectionModal({
               )}
             </div>
           )}
-        </div>
+        </button>
       );
     }
 
     // Style for child cards - with level-based styling
     return (
-      <div
+      <button
         className={`flex flex-col w-full rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full relative
           ${
             isSelected ? 'ring-2 ring-capx-primary-green' : ''
@@ -458,6 +471,9 @@ export default function CapacitySelectionModal({
         style={{
           backgroundColor: backgroundColor,
         }}
+        tabIndex={0}
+        onKeyDown={e => activateOnEnterSpace(e, () => handleCategorySelect(capacity))}
+        aria-pressed={isSelected}
       >
         <div className="flex p-3 h-[80px] items-center justify-between">
           {capacity.icon && (
@@ -542,6 +558,9 @@ export default function CapacitySelectionModal({
           <div
             className="bg-white p-3 text-sm rounded-b-lg flex-grow"
             onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}
+            role="presentation"
+            tabIndex={-1}
           >
             <h3 className="text-capx-dark-box-bg text-base font-bold mb-3">
               {capitalizeFirstLetter(capacity.name)}
@@ -552,7 +571,7 @@ export default function CapacitySelectionModal({
 
             {/* Translation Contribution CTA */}
             {isUsingFallback && (
-              <div onClick={e => e.stopPropagation()}>
+              <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} role="presentation" tabIndex={-1}>
                 <TranslationContributeCTA
                   capacityCode={capacity.code}
                   capacityName={capacity.name}
@@ -575,14 +594,14 @@ export default function CapacitySelectionModal({
             )}
           </div>
         )}
-      </div>
+      </button>
     );
   };
 
   return (
     <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
       {/* Overlay */}
-      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <button className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
 
       {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center p-4">

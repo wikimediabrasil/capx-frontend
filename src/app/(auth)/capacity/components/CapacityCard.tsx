@@ -16,8 +16,7 @@ import { Capacity } from '@/types/capacity';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React from 'react';
-import { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 
 interface CapacityCardProps {
   code: number;
@@ -89,6 +88,7 @@ export function CapacityCard({
 
   const handleInfoClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the click event from propagating to the card
+
     if (!isInfoVisible && onInfoClick) {
       await onInfoClick(code);
     }
@@ -102,10 +102,11 @@ export function CapacityCard({
     onExpand();
   };
 
-  const handleTitleClick = (e: React.MouseEvent) => {
-    // Allow navigation when clicking on the title
-    e.stopPropagation();
-    router.push(`/feed?capacityId=${code}`);
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onExpand();
+    }
   };
 
   const renderExpandedContent = () => {
@@ -148,9 +149,11 @@ export function CapacityCard({
     const buttonBgColor = getButtonBackgroundColor();
 
     return (
-      <div
+      <button
         className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-1 sm:px-3' : 'px-1 sm:px-2'} w-full`}
         onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
+        tabIndex={-1}
       >
         <div className="flex flex-row items-center gap-2 sm:gap-6 w-full overflow-hidden">
           {metabase_code && metabase_code !== '' && (
@@ -237,7 +240,7 @@ export function CapacityCard({
             onClick={() => router.push(`/feed?capacityId=${code}`)}
           />
         </div>
-      </div>
+      </button>
     );
   };
 
@@ -460,7 +463,7 @@ export function CapacityCard({
 
     return (
       <div className="w-full">
-        <div
+        <button
           onClick={handleCardClick}
           className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
           ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
@@ -468,6 +471,8 @@ export function CapacityCard({
           style={{
             backgroundColor: backgroundColor,
           }}
+          tabIndex={0}
+          onKeyDown={handleCardKeyDown}
         >
           <div
             className={`flex p-4 ${
@@ -484,7 +489,6 @@ export function CapacityCard({
               >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
-                    onClick={handleTitleClick}
                     className={`font-extrabold text-white hover:underline truncate ${
                       isMobile ? 'text-[20px]' : 'text-[48px]'
                     }`}
@@ -504,11 +508,14 @@ export function CapacityCard({
             <div
               className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
               onClick={e => e.stopPropagation()}
+              onKeyDown={e => e.stopPropagation()}
+              role="presentation"
+              tabIndex={-1}
             >
               {renderExpandedContent()}
             </div>
           )}
-        </div>
+        </button>
       </div>
     );
   }
@@ -516,7 +523,7 @@ export function CapacityCard({
   if (isRoot) {
     return (
       <div className="w-full">
-        <div
+        <button
           onClick={handleCardClick}
           className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
           ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
@@ -524,6 +531,8 @@ export function CapacityCard({
           style={{
             backgroundColor: getCapacityColor(color),
           }}
+          tabIndex={0}
+          onKeyDown={handleCardKeyDown}
         >
           <div
             className={`flex p-4 ${
@@ -542,7 +551,6 @@ export function CapacityCard({
               >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
-                    onClick={handleTitleClick}
                     className={`font-extrabold text-white hover:underline break-words hyphens-auto capacity-name ${
                       isMobile ? 'text-[20px]' : 'text-[48px]'
                     }`}
@@ -578,7 +586,7 @@ export function CapacityCard({
               {renderExpandedContent()}
             </div>
           )}
-        </div>
+        </button>
         {isExpanded && (
           <div
             ref={childrenContainerRef}
@@ -598,12 +606,14 @@ export function CapacityCard({
   // Child capacity card (non-root)
   return (
     <div className="w-full">
-      <div
+      <button
         onClick={handleCardClick}
         className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
         style={{
           backgroundColor: backgroundColor,
         }}
+        tabIndex={0}
+        onKeyDown={handleCardKeyDown}
       >
         <div
           className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-4`}
@@ -623,7 +633,6 @@ export function CapacityCard({
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
                 <h3
-                  onClick={handleTitleClick}
                   className={`font-extrabold hover:underline ${
                     isRoot
                       ? 'break-words hyphens-auto capacity-name'
@@ -675,15 +684,17 @@ export function CapacityCard({
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       {isInfoVisible && (
-        <div
+        <button
           className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
           onClick={e => e.stopPropagation()}
+          onKeyDown={e => e.stopPropagation()}
+          tabIndex={-1}
         >
           {renderExpandedContent()}
-        </div>
+        </button>
       )}
     </div>
   );
