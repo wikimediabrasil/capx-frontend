@@ -348,7 +348,7 @@
 	"pagination-previous": "上一頁",
 	"pagination-next": "下一頁",
 	"pagination-page": "頁面",
-	"pagination-of": "之",
+	"pagination-of": "/",
 	"feed-no-data-message": "找不到資料",
 	"feed-no-data-description": "嘗試調整篩選或稍後再來",
 	"snackbar-edit-profile-success": "更新簡介成功！",

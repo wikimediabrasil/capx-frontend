@@ -79,6 +79,8 @@ const mockPageContent = {
   'body-profile-languages-title': 'Languages',
   'body-profile-section-title-territory': 'Territory',
   'body-profile-languages-alt-icon': 'Languages icon',
+  'profile-learner': 'learner',
+  'profile-sharer': 'sharer',
   'filters-search-by-capacities': 'Search by capacities',
 };
 
