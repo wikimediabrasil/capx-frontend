@@ -41,7 +41,6 @@ export function useCapacityTranslations(): UseCapacityTranslationsReturn {
     try {
       setError(null);
       await updateLanguage(language);
-      console.log('Todas as traduções foram atualizadas');
     } catch (err) {
       console.error('Erro ao atualizar todas as traduções:', err);
       setError('Erro ao atualizar todas as traduções');

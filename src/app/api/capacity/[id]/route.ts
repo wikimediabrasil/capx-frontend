@@ -13,7 +13,6 @@ export interface CapacityById {
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    console.log(`⏳ API: Processing request for capacity ID: ${params.id}`);
     const id = params.id;
     const language = req.nextUrl.searchParams.get('language') || 'en';
 
@@ -41,15 +40,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     try {
       // Validate that we have a proper wd_code before making the request
       if (!capacityCodes.wd_code || typeof capacityCodes.wd_code !== 'string') {
-        console.log(`⚠️ API: No valid wd_code for capacity ${id}, skipping translation fetch`);
         // Skip to hardcoded fallback
         throw new Error('No wd_code available');
       }
 
-      // Use the new fallback strategy
-      console.log(
-        `🔍 API: Fetching translations for capacity ${id} with wd_code: ${capacityCodes.wd_code} in language: ${language}`
-      );
       const metabaseResults = await fetchCapacitiesWithFallback([capacityCodes], language);
 
       if (metabaseResults.length > 0 && metabaseResults[0].name) {

@@ -34,23 +34,14 @@ async function executeLoginWithTokens(
     oauth_token_secret: token_secret,
   };
 
-  console.log('🦊 Request payload:', requestPayload);
 
   try {
-    console.log('🦊 About to make axios request...');
     const response = await axios.post(process.env.LOGIN_STEP03_URL as string, requestPayload, {
       timeout: 10000, // 10 second timeout
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'CapX-Frontend/1.0',
       },
-    });
-    console.log('🦊 Axios request completed successfully');
-
-    console.log('🦊 External API response:', {
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data,
     });
 
     if (response.data && response.data.token) {
@@ -70,7 +61,6 @@ async function executeLoginWithTokens(
         result: userData,
       });
 
-      console.log('🦊 Returning success response and caching result:', userData);
       return userData;
     }
 
@@ -113,10 +103,8 @@ async function executeLoginWithTokens(
 
 export async function POST(request: Request) {
   try {
-    console.log('🦊 Login callback API called');
 
     const body = await request.json();
-    console.log('🦊 Request body received:', body);
 
     const { oauth_token, oauth_verifier, stored_token_secret, oauth_token_secret } = body;
 
@@ -126,20 +114,16 @@ export async function POST(request: Request) {
     // Check if we have a cached result for these exact tokens
     const cached = tokenCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      console.log('🦊 Using cached result for tokens, avoiding duplicate API call');
       return NextResponse.json(cached.result);
     }
 
     // Check if there's already an execution in progress for these tokens
     const existingLock = executionLocks.get(cacheKey);
     if (existingLock) {
-      console.log('🦊 Execution already in progress for these tokens, waiting for result...');
       try {
         const result = await existingLock;
-        console.log('🦊 Got result from existing execution');
         return NextResponse.json(result);
       } catch (error) {
-        console.log('🦊 Existing execution failed, proceeding with new execution');
         executionLocks.delete(cacheKey);
       }
     }
@@ -147,12 +131,7 @@ export async function POST(request: Request) {
     // Use oauth_token_secret if available, otherwise fallback to stored_token_secret
     const token_secret = oauth_token_secret || stored_token_secret;
 
-    console.log('🦊 Parsed parameters:', {
-      oauth_token: oauth_token ? 'present' : 'missing',
-      oauth_verifier: oauth_verifier ? 'present' : 'missing',
-      token_secret: token_secret ? 'present' : 'missing',
-      LOGIN_STEP03_URL: process.env.LOGIN_STEP03_URL ? 'defined' : 'undefined',
-    });
+
 
     if (!oauth_token || !oauth_verifier || !token_secret) {
       console.error('Missing required parameters:', {

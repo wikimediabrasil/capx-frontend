@@ -120,7 +120,6 @@ export const capacityService = {
 
       // If no results from Metabase, try Wikidata as fallback
       if (!translations || translations.length === 0) {
-        console.log('No results from Metabase, falling back to Wikidata for translations');
         translations = await this.fetchWikidataTranslations(codes, language);
       }
 

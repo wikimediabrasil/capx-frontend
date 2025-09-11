@@ -3,7 +3,7 @@ import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
 import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 function OAuthContent() {
   const router = useRouter();
@@ -26,13 +26,11 @@ function OAuthContent() {
     try {
       // Don't proceed if already authenticated
       if (status === 'authenticated') {
-        console.log('handleLogin skipped - already authenticated');
         return;
       }
 
       // Don't proceed if already handling login
       if (isHandlingLoginRef.current) {
-        console.log('handleLogin skipped - already in progress');
         return;
       }
 
@@ -77,7 +75,6 @@ function OAuthContent() {
 
     // Don't proceed if already authenticated
     if (status === 'authenticated') {
-      console.log('Already authenticated, redirecting to home');
       router.push('/home');
       return;
     }

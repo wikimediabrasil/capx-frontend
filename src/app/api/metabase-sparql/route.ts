@@ -6,13 +6,6 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('query');
     const format = searchParams.get('format') || 'json';
 
-    console.log('📥 Received request with params:', {
-      hasQuery: !!query,
-      queryLength: query?.length || 0,
-      format,
-      queryPreview: query?.substring(0, 100) + '...',
-    });
-
     if (!query) {
       return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
     }
@@ -27,11 +20,6 @@ export async function GET(request: NextRequest) {
     let metabaseUrl;
     try {
       metabaseUrl = `https://metabase.wikibase.cloud/query/sparql?format=${format}&query=${encodeURIComponent(query)}`;
-
-      console.log('🔄 Server-side request to Metabase:', {
-        url: metabaseUrl.substring(0, 150) + '...',
-        fullUrlLength: metabaseUrl.length,
-      });
 
       // Validate URL length (some servers have limits)
       if (metabaseUrl.length > 8192) {
@@ -54,8 +42,6 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log('📡 Metabase response status:', response.status, response.statusText);
-
     if (!response.ok) {
       console.error('❌ Metabase request failed:', response.status, response.statusText);
       return NextResponse.json(
@@ -65,17 +51,14 @@ export async function GET(request: NextRequest) {
     }
 
     const contentType = response.headers.get('content-type');
-    console.log('📦 Content-Type:', contentType);
 
     if (contentType?.includes('application/json') || contentType?.includes('sparql-results+json')) {
       const data = await response.json();
-      console.log('✅ Successfully got JSON response from Metabase');
       return NextResponse.json(data);
     } else {
       // If we get HTML, it's likely the Anubis protection page
       const text = await response.text();
       console.warn('⚠️ Got HTML response instead of JSON (likely Anubis protection)');
-      console.log('📝 Response preview:', text.substring(0, 200) + '...');
 
       return NextResponse.json(
         {

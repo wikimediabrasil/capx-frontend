@@ -50,7 +50,6 @@ export async function GET(req: NextRequest) {
     let wikidataResults: Capacity[] = [];
     if (metabaseResults.length < codes.length * 0.5) {
       // Less than 50% success
-      console.log('📚 Metabase insuficiente, usando Wikidata como fallback');
       wikidataResults = await fetchWikidata(codes, language);
     }
 

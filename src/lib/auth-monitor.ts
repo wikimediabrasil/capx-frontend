@@ -99,10 +99,6 @@ const clearApplicationState = (preserveOAuthTokens = false) => {
       sessionStorage.clear();
     }
 
-    console.log(
-      'Application state cleared',
-      preserveOAuthTokens ? '(OAuth tokens preserved)' : '(complete)'
-    );
   } catch (error) {
     console.error('Error clearing application state:', error);
   }
@@ -170,8 +166,6 @@ export const startAuthMonitoring = (authState: AuthState) => {
     return;
   }
 
-  console.log('Starting authentication monitoring...');
-
   // Initialize the state of the OAuth tokens
   initializeOAuthTokensState();
 
@@ -213,24 +207,20 @@ export const stopAuthMonitoring = () => {
     localStorageWatcher = null;
   }
 
-  console.log('Authentication monitoring stopped');
 };
 
 // Function to test forced logout (useful for development)
 export const testTokenExpiration = async () => {
-  console.log('🧪 Testing token expiration...');
   await forceLogout('Testing token expiration');
 };
 
 // Function to manually clear the state (useful for development)
 export const clearAuthState = () => {
-  console.log('🧹 Clearing authentication state...');
   clearApplicationState(false); // Remove everything, including OAuth tokens
 };
 
 // Function to simulate OAuth token removal (for testing)
 export const simulateTokenRemoval = () => {
-  console.log('🗑️ Simulating OAuth token removal...');
   if (typeof window !== 'undefined') {
     localStorage.removeItem('oauth_token');
     localStorage.removeItem('oauth_token_secret');

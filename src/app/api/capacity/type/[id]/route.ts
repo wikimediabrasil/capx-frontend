@@ -42,12 +42,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({});
     }
 
-    // Log what we're searching for
-    console.log(
-      '🔍 API type/[id] searching for codes:',
-      codes.map(c => ({ code: c.code, wd_code: c.wd_code }))
-    );
-
     // Try both Metabase and Wikidata in parallel
     const [metabaseResults, wikidataResults] = await Promise.all([
       fetchCapacitiesWithFallback(codes, language),
