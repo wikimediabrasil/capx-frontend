@@ -35,6 +35,7 @@ jest.mock('@/contexts/CapacityCacheContext', () => ({
     getWdCode: jest.fn(),
     getRootCapacities: mockGetRootCapacities,
     getChildren: mockGetChildren,
+    isFallbackTranslation: jest.fn(() => false),
   }),
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => children,
 }));

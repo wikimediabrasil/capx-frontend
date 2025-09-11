@@ -25,6 +25,7 @@ jest.mock('@/contexts/AppContext', () => ({
 jest.mock('@/contexts/CapacityCacheContext', () => ({
   useCapacityCache: () => ({
     hasChildren: jest.fn(),
+    isFallbackTranslation: jest.fn(() => false),
   }),
 }));
 

@@ -153,6 +153,7 @@ jest.mock('@/contexts/CapacityCacheContext', () => ({
     language: 'en',
     updateLanguage: jest.fn(),
     preloadCapacities: jest.fn(),
+    isFallbackTranslation: jest.fn(() => false),
   }),
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => children,
 }));

@@ -195,6 +195,7 @@ describe('CapacitySelectionModal', () => {
       getWdCode: jest.fn((code) => `Q${code}`),
       isLoadingTranslations: false,
       updateLanguage: jest.fn(),
+      isFallbackTranslation: jest.fn(() => false),
     });
 
     // Mock useQuery with stable data and no side effects
