@@ -2,11 +2,7 @@
 
 import { Filters } from '@/app/(auth)/feed/components/Filters';
 import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
-import {
-  FilterState,
-  ProfileCapacityType,
-  Skill,
-} from '@/app/(auth)/feed/types';
+import { FilterState, ProfileCapacityType, Skill } from '@/app/(auth)/feed/types';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
