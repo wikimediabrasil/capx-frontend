@@ -57,13 +57,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(data);
     } else {
       // If we get HTML, it's likely the Anubis protection page
-      const text = await response.text();
-      console.warn('⚠️ Got HTML response instead of JSON (likely Anubis protection)');
+      // Don't try to read the response body again, just return the error
+      console.warn('⚠️ Got non-JSON response (likely Anubis protection), content-type:', contentType);
 
       return NextResponse.json(
         {
-          error: 'Metabase returned HTML instead of JSON (anti-bot protection active)',
+          error: 'Metabase returned non-JSON response (anti-bot protection active)',
           isAnubisProtection: true,
+          contentType,
         },
         { status: 503 }
       );
