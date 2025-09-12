@@ -436,7 +436,6 @@ export default function CapacitySelectionModal({
                 <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} role="presentation" tabIndex={-1}>
                   <TranslationContributeCTA
                     capacityCode={capacity.code}
-                    capacityName={capacity.name}
                     metabaseCode={metabaseCode}
                     compact={true}
                   />
@@ -574,7 +573,6 @@ export default function CapacitySelectionModal({
               <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} role="presentation" tabIndex={-1}>
                 <TranslationContributeCTA
                   capacityCode={capacity.code}
-                  capacityName={capacity.name}
                   metabaseCode={metabaseCode}
                   compact={true}
                 />

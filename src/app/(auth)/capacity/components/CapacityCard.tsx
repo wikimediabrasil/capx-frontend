@@ -150,12 +150,12 @@ export function CapacityCard({
 
     return (
       <button
-        className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-1 sm:px-3' : 'px-1 sm:px-2'} w-full`}
+        className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-1 sm:px-3' : 'px-1 sm:px-2'} ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}
         onClick={e => e.stopPropagation()}
         onKeyDown={e => e.stopPropagation()}
         tabIndex={-1}
       >
-        <div className="flex flex-row items-center gap-2 sm:gap-6 w-full overflow-hidden">
+        <div className={`flex flex-row text-start gap-2 sm:gap-6 overflow-hidden ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}>
           {metabase_code && metabase_code !== '' && (
             <a
               href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}
@@ -174,7 +174,7 @@ export function CapacityCard({
                   />
                 </div>
                 <p
-                  className={`text-[14px] sm:text-[20px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
+                  className={`text-[14px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
                 >
                   {metabase_code}
                 </p>
@@ -199,7 +199,7 @@ export function CapacityCard({
                   />
                 </div>
                 <p
-                  className={`text-[14px] sm:text-[20px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
+                  className={`text-[14px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
                 >
                   {wd_code}
                 </p>
@@ -209,7 +209,7 @@ export function CapacityCard({
         </div>
         {description && (
           <p
-            className={`${darkMode ? 'text-gray-200' : 'text-capx-dark-box-bg'} break-words ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}
+            className={`${darkMode ? 'text-gray-200' : 'text-capx-dark-box-bg'} break-words text-left ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}
           >
             {capitalizeFirstLetter(description)}
           </p>
@@ -219,7 +219,6 @@ export function CapacityCard({
         {isUsingFallback && (
           <TranslationContributeCTA
             capacityCode={code}
-            capacityName={name}
             metabaseCode={metabase_code}
             compact={isMobile}
           />
@@ -485,11 +484,11 @@ export function CapacityCard({
 
             <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
               <div
-                className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
+                className={`flex items-start ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
               >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
-                    className={`font-extrabold text-white hover:underline truncate ${
+                    className={`font-extrabold text-white hover:underline truncate text-left ${
                       isMobile ? 'text-[20px]' : 'text-[48px]'
                     }`}
                   >
@@ -547,11 +546,11 @@ export function CapacityCard({
               className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}
             >
               <div
-                className={`flex items-center ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[378px] pl-8'} h-full`}
+                className={`flex items-start ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[378px] pl-8'} h-full`}
               >
                 <Link href={`/feed?capacityId=${code}`}>
                   <h3
-                    className={`font-extrabold text-white hover:underline break-words hyphens-auto capacity-name ${
+                    className={`font-extrabold text-white hover:underline break-words hyphens-auto capacity-name text-left ${
                       isMobile ? 'text-[20px]' : 'text-[48px]'
                     }`}
                     style={{ wordBreak: 'break-word', hyphens: 'auto' }}
@@ -627,13 +626,13 @@ export function CapacityCard({
                 ? renderIcon(32, icon)
                 : renderIcon(68, icon)}
             <div
-              className={`flex flex-row items-center justify-between ${
+              className={`flex flex-row items-start justify-between ${
                 isRoot && !isMobile ? 'w-max' : ''
               } min-w-0 flex-1`}
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
                 <h3
-                  className={`font-extrabold hover:underline ${
+                  className={`font-extrabold hover:underline text-left ${
                     isRoot
                       ? 'break-words hyphens-auto capacity-name'
                       : isMobile

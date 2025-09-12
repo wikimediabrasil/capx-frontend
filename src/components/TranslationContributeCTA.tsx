@@ -4,11 +4,10 @@ import InfoIcon from '@/public/static/images/info.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface TranslationContributeCTAProps {
   capacityCode: number;
-  capacityName: string;
   metabaseCode?: string;
   className?: string;
   compact?: boolean;
@@ -20,7 +19,6 @@ interface TranslationContributeCTAProps {
  */
 export function TranslationContributeCTA({
   capacityCode,
-  capacityName,
   metabaseCode,
   className = '',
   compact = false,
@@ -93,7 +91,7 @@ export function TranslationContributeCTA({
 
   // Help icon component
   const HelpIcon = () => (
-    <div className="relative inline-block ml-1">
+    <div className="relative inline-block">
       {isMobile ? (
         // Mobile: Click to show popup
         <>
@@ -185,35 +183,61 @@ export function TranslationContributeCTA({
   if (compact) {
     return (
       <div
-        className={`flex flex-col sm:flex-row sm:items-center gap-2 mt-3 p-2 rounded-md ${
+        className={`flex flex-col gap-2 mt-3 p-2 rounded-md ${
           darkMode
             ? 'bg-blue-950/30 border border-blue-800/50'
             : 'bg-blue-50 border border-blue-200'
         } ${className}`}
       >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <Image
-            src={LanguageIcon}
-            alt="Translate"
-            width={20}
-            height={20}
-            className={darkMode ? 'filter invert brightness-75' : 'opacity-75'}
-          />
-          {isMobile ? (
-            // Mobile: Text and help icon side by side
-            <div className="flex items-start gap-1">
-              <span
-                className={`text-capx-text-xs flex-1 ${
-                  darkMode ? 'text-blue-200' : 'text-capx-dark-box-bg'
+        {isMobile ? (
+          // Mobile: Vertical layout
+          <>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src={LanguageIcon}
+                alt="Translate"
+                width={20}
+                height={20}
+                className={darkMode ? 'filter invert brightness-75' : 'opacity-75'}
+              />
+              <div className="flex items-center gap-1 flex-1">
+                <span
+                  className={`text-capx-text-xs text-left ${
+                    darkMode ? 'text-blue-200' : 'text-capx-dark-box-bg'
+                  }`}
+                >
+                  {pageContent['translation-contribute-compact'] ||
+                    "Don't see this capacity in your selected language? Help us translate it on Metabase!"}
+                </span>
+                <HelpIcon />
+              </div>
+            </div>
+            <div className="flex justify-start pl-7">
+              <Link
+                href={contributionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-1 text-xs transition-all duration-200 hover:gap-2 ${
+                  darkMode ? 'text-blue-300 hover:text-blue-200' : 'text-blue-600 hover:text-blue-800'
                 }`}
               >
-                {pageContent['translation-contribute-compact'] ||
-                  "Don't see this capacity in your selected language? Help us translate it on Metabase!"}
-              </span>
-              <HelpIcon />
+                <span className={`capx-text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+                  {pageContent['translation-contribute-link'] || 'Contribute'}
+                </span>
+                <span className={`text-[10px] opacity-75`}>↗</span>
+              </Link>
             </div>
-          ) : (
-            // Desktop: Text with inline help icon
+          </>
+        ) : (
+          // Desktop: Horizontal layout
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Image
+              src={LanguageIcon}
+              alt="Translate"
+              width={20}
+              height={20}
+              className={darkMode ? 'filter invert brightness-75' : 'opacity-75'}
+            />
             <div
               className={`text-capx-text-xs ${
                 darkMode ? 'text-blue-200' : 'text-capx-dark-box-bg'
@@ -223,21 +247,21 @@ export function TranslationContributeCTA({
                 "Don't see this capacity in your selected language? Help us translate it on Metabase!"}
               <HelpIcon />
             </div>
-          )}
-          <Link
-            href={contributionUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex items-center gap-1 text-xs transition-all duration-200 hover:gap-2 ${
-              darkMode ? 'text-blue-300 hover:text-blue-200' : 'text-blue-600 hover:text-blue-800'
-            }`}
-          >
-            <span className={`capx-text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
-              {pageContent['translation-contribute-link'] || 'Contribute'}
-            </span>
-            <span className={`text-[10px] opacity-75`}>↗</span>
-          </Link>
-        </div>
+            <Link
+              href={contributionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-1 text-xs transition-all duration-200 hover:gap-2 ${
+                darkMode ? 'text-blue-300 hover:text-blue-200' : 'text-blue-600 hover:text-blue-800'
+              }`}
+            >
+              <span className={`capx-text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+                {pageContent['translation-contribute-link'] || 'Contribute'}
+              </span>
+              <span className={`text-[10px] opacity-75`}>↗</span>
+            </Link>
+          </div>
+        )}
       </div>
     );
   }
@@ -246,13 +270,13 @@ export function TranslationContributeCTA({
     <div
       className={`rounded-lg p-4 mt-4 border-l-4 ${
         darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-box-bg'
-      } ${className}`}
+      } ${className} ${!isMobile ? 'max-w-md' : ''}`}
     >
       <Link
         href={contributionUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 hover:gap-3 ${
+        className={`inline-flex items-start gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 hover:gap-3 ${
           darkMode ? 'text-blue-200' : 'text-white'
         }`}
       >
@@ -271,9 +295,9 @@ export function TranslationContributeCTA({
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-start gap-2 mb-2">
               <h4
-                className={`text-sm font-semibold ${darkMode ? 'text-blue-100' : 'text-blue-900'}`}
+                className={`text-sm font-semibold text-left ${darkMode ? 'text-blue-100' : 'text-blue-900'}`}
               >
                 Translation Needed
               </h4>
@@ -286,7 +310,7 @@ export function TranslationContributeCTA({
               </div>
             </div>
             <div
-              className={`text-sm leading-relaxed mb-3 ${
+              className={`text-sm leading-relaxed mb-3 text-left ${
                 darkMode ? 'text-blue-200/90' : 'text-capx-dark-box-bg/90'
               }`}
             >
@@ -294,10 +318,12 @@ export function TranslationContributeCTA({
                 "Don't see this capacity in your selected language? Help us translate it on Metabase!"}
               <HelpIcon />
             </div>
-            <span className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
-              {pageContent['translation-contribute-link'] || 'Contribute'}
-            </span>
-            <span className="text-[10px] opacity-75">↗</span>
+            <div className="text-left">
+              <span className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+                {pageContent['translation-contribute-link'] || 'Contribute'}
+              </span>
+              <span className="text-[10px] opacity-75">↗</span>
+            </div>
           </div>
         </div>
       </Link>
