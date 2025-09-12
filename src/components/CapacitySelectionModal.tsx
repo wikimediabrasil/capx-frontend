@@ -424,10 +424,8 @@ export default function CapacitySelectionModal({
               role="presentation"
               tabIndex={-1}
             >
-              <h3 className="text-capx-dark-box-bg text-[16px] font-bold mb-3">
-                {capitalizeFirstLetter(capacity.name)}
-              </h3>
-              <p className="text-gray-700 text-xs leading-relaxed">
+
+              <p className="text-gray-700 text-xs leading-relaxed text-left">
                 {capitalizeFirstLetter(description)}
               </p>
 
@@ -441,7 +439,7 @@ export default function CapacitySelectionModal({
                   />
                 </div>
               )}
-
+              <div className="text-start" >
               {metabase_url && (
                 <a
                   href={metabase_url}
@@ -453,6 +451,7 @@ export default function CapacitySelectionModal({
                   {pageContent['capacity-selection-modal-see-more-information']}
                 </a>
               )}
+            </div>
             </div>
           )}
         </button>
@@ -561,10 +560,7 @@ export default function CapacitySelectionModal({
             role="presentation"
             tabIndex={-1}
           >
-            <h3 className="text-capx-dark-box-bg text-base font-bold mb-3">
-              {capitalizeFirstLetter(capacity.name)}
-            </h3>
-            <p className="text-gray-700 text-xs leading-relaxed">
+            <p className="text-gray-700 text-xs leading-relaxed text-left">
               {capitalizeFirstLetter(description)}
             </p>
 
@@ -579,6 +575,7 @@ export default function CapacitySelectionModal({
               </div>
             )}
 
+            <div className="text-start" >
             {metabase_url && (
               <a
                 href={metabase_url}
@@ -590,6 +587,7 @@ export default function CapacitySelectionModal({
                 {pageContent['capacity-selection-modal-see-more-information']}
               </a>
             )}
+            </div>
           </div>
         )}
       </button>
