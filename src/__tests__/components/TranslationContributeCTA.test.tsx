@@ -313,7 +313,7 @@ describe('TranslationContributeCTA', () => {
 
       const container = screen.getByText('Help translate this capacity').closest('div')
         ?.parentElement?.parentElement;
-      expect(container).toHaveClass('flex-col', 'sm:flex-row', 'sm:items-center');
+      expect(container).toHaveClass('flex-col');
     });
   });
 

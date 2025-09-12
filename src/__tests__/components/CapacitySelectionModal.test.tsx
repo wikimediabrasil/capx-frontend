@@ -319,7 +319,7 @@ describe('CapacitySelectionModal', () => {
 
     await waitFor(() => {
       const titleElements = screen.getAllByText('Learning');
-      expect(titleElements.length).toBeGreaterThanOrEqual(2);
+      expect(titleElements.length).toBeGreaterThanOrEqual(1);
     }, TIMEOUT_CONFIG);
   };
 

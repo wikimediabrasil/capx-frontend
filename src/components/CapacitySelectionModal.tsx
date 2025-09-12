@@ -381,10 +381,13 @@ export default function CapacitySelectionModal({
                 </div>
               )}
 
-              <button
+              <div
                 onClick={e => toggleCapacityInfo(e, capacity)}
-                className="p-1 flex-shrink-0 mr-1"
+                className="p-1 flex-shrink-0 mr-1 cursor-pointer"
                 aria-label={pageContent['alt-info'] || 'Information icon, view additional details'}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => activateOnEnterSpace(e, () => toggleCapacityInfo(e, capacity))}
               >
                 <div className="relative w-[20px] h-[20px]">
                   <Image
@@ -395,12 +398,15 @@ export default function CapacitySelectionModal({
                     style={{ filter: getIconFilter() }}
                   />
                 </div>
-              </button>
+              </div>
               {capacityHasChildren && (
-                <button
+                <div
                   onClick={e => handleCategoryExpand(e, capacity)}
-                  className="pt-2 px-1 flex-shrink-0"
+                  className="pt-2 px-1 flex-shrink-0 cursor-pointer"
                   aria-label={pageContent['alt-expand'] || 'Expand to show more details'}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => activateOnEnterSpace(e, () => handleCategoryExpand(e, capacity))}
                 >
                   <div className="relative w-[20px] h-[20px]">
                     <Image
@@ -411,7 +417,7 @@ export default function CapacitySelectionModal({
                       style={{ filter: getIconFilter() }}
                     />
                   </div>
-                </button>
+                </div>
               )}
             </div>
           </div>
@@ -521,10 +527,13 @@ export default function CapacitySelectionModal({
               </div>
             )}
 
-            <button
+            <div
               onClick={e => toggleCapacityInfo(e, capacity)}
-              className="p-1 flex-shrink-0 mr-1"
+              className="p-1 flex-shrink-0 mr-1 cursor-pointer"
               aria-label={pageContent['alt-info'] || 'Information icon, view additional details'}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => activateOnEnterSpace(e, () => toggleCapacityInfo(e, capacity))}
             >
               <div className="relative w-[20px] h-[20px]">
                 <Image
@@ -535,12 +544,15 @@ export default function CapacitySelectionModal({
                   style={{ filter: getIconFilter() }}
                 />
               </div>
-            </button>
+            </div>
             {capacityHasChildren && (
-              <button
+              <div
                 onClick={e => handleCategoryExpand(e, capacity)}
-                className="p-1 flex-shrink-0"
+                className="p-1 flex-shrink-0 cursor-pointer"
                 aria-label={pageContent['alt-expand'] || 'Expand to show more details'}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => activateOnEnterSpace(e, () => handleCategoryExpand(e, capacity))}
               >
                 <div className="relative w-[20px] h-[20px]">
                   <Image
@@ -551,7 +563,7 @@ export default function CapacitySelectionModal({
                     style={{ filter: getIconFilter() }}
                   />
                 </div>
-              </button>
+              </div>
             )}
           </div>
         </div>
