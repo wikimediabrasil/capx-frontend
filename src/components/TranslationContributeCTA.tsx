@@ -218,7 +218,9 @@ export function TranslationContributeCTA({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex items-center gap-1 text-xs transition-all duration-200 hover:gap-2 ${
-                  darkMode ? 'text-blue-300 hover:text-blue-200' : 'text-blue-600 hover:text-blue-800'
+                  darkMode
+                    ? 'text-blue-300 hover:text-blue-200'
+                    : 'text-blue-600 hover:text-blue-800'
                 }`}
               >
                 <span className={`capx-text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>

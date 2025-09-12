@@ -155,7 +155,9 @@ export function CapacityCard({
         onKeyDown={e => e.stopPropagation()}
         tabIndex={-1}
       >
-        <div className={`flex flex-row text-start gap-2 sm:gap-6 overflow-hidden ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}>
+        <div
+          className={`flex flex-row text-start gap-2 sm:gap-6 overflow-hidden ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}
+        >
           {metabase_code && metabase_code !== '' && (
             <a
               href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}

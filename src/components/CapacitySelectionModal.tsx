@@ -424,14 +424,18 @@ export default function CapacitySelectionModal({
               role="presentation"
               tabIndex={-1}
             >
-
               <p className="text-gray-700 text-xs leading-relaxed text-left">
                 {capitalizeFirstLetter(description)}
               </p>
 
               {/* Translation Contribution CTA */}
               {isUsingFallback && (
-                <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} role="presentation" tabIndex={-1}>
+                <div
+                  onClick={e => e.stopPropagation()}
+                  onKeyDown={e => e.stopPropagation()}
+                  role="presentation"
+                  tabIndex={-1}
+                >
                   <TranslationContributeCTA
                     capacityCode={capacity.code}
                     metabaseCode={metabaseCode}
@@ -439,19 +443,19 @@ export default function CapacitySelectionModal({
                   />
                 </div>
               )}
-              <div className="text-start" >
-              {metabase_url && (
-                <a
-                  href={metabase_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline hover:text-blue-700 mt-2 inline-block text-xs transition-colors"
-                  onClick={e => e.stopPropagation()}
-                >
-                  {pageContent['capacity-selection-modal-see-more-information']}
-                </a>
-              )}
-            </div>
+              <div className="text-start">
+                {metabase_url && (
+                  <a
+                    href={metabase_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline hover:text-blue-700 mt-2 inline-block text-xs transition-colors"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {pageContent['capacity-selection-modal-see-more-information']}
+                  </a>
+                )}
+              </div>
             </div>
           )}
         </button>
@@ -566,7 +570,12 @@ export default function CapacitySelectionModal({
 
             {/* Translation Contribution CTA */}
             {isUsingFallback && (
-              <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} role="presentation" tabIndex={-1}>
+              <div
+                onClick={e => e.stopPropagation()}
+                onKeyDown={e => e.stopPropagation()}
+                role="presentation"
+                tabIndex={-1}
+              >
                 <TranslationContributeCTA
                   capacityCode={capacity.code}
                   metabaseCode={metabaseCode}
@@ -575,18 +584,18 @@ export default function CapacitySelectionModal({
               </div>
             )}
 
-            <div className="text-start" >
-            {metabase_url && (
-              <a
-                href={metabase_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline mt-2 inline-block text-xs"
-                onClick={e => e.stopPropagation()}
-              >
-                {pageContent['capacity-selection-modal-see-more-information']}
-              </a>
-            )}
+            <div className="text-start">
+              {metabase_url && (
+                <a
+                  href={metabase_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline mt-2 inline-block text-xs"
+                  onClick={e => e.stopPropagation()}
+                >
+                  {pageContent['capacity-selection-modal-see-more-information']}
+                </a>
+              )}
             </div>
           </div>
         )}

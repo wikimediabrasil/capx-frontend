@@ -34,7 +34,6 @@ async function executeLoginWithTokens(
     oauth_token_secret: token_secret,
   };
 
-
   try {
     const response = await axios.post(process.env.LOGIN_STEP03_URL as string, requestPayload, {
       timeout: 10000, // 10 second timeout
@@ -103,7 +102,6 @@ async function executeLoginWithTokens(
 
 export async function POST(request: Request) {
   try {
-
     const body = await request.json();
 
     const { oauth_token, oauth_verifier, stored_token_secret, oauth_token_secret } = body;
@@ -130,8 +128,6 @@ export async function POST(request: Request) {
 
     // Use oauth_token_secret if available, otherwise fallback to stored_token_secret
     const token_secret = oauth_token_secret || stored_token_secret;
-
-
 
     if (!oauth_token || !oauth_verifier || !token_secret) {
       console.error('Missing required parameters:', {

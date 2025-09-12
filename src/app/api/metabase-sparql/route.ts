@@ -58,7 +58,10 @@ export async function GET(request: NextRequest) {
     } else {
       // If we get HTML, it's likely the Anubis protection page
       // Don't try to read the response body again, just return the error
-      console.warn('⚠️ Got non-JSON response (likely Anubis protection), content-type:', contentType);
+      console.warn(
+        '⚠️ Got non-JSON response (likely Anubis protection), content-type:',
+        contentType
+      );
 
       return NextResponse.json(
         {

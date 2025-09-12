@@ -98,7 +98,6 @@ const clearApplicationState = (preserveOAuthTokens = false) => {
     if (!isInLoginProcess) {
       sessionStorage.clear();
     }
-
   } catch (error) {
     console.error('Error clearing application state:', error);
   }
@@ -206,7 +205,6 @@ export const stopAuthMonitoring = () => {
     clearInterval(localStorageWatcher);
     localStorageWatcher = null;
   }
-
 };
 
 // Function to test forced logout (useful for development)
