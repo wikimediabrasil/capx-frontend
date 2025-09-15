@@ -40,6 +40,212 @@ const convertCachedToCapacity = (cachedCapacity: any): Capacity => {
 };
 
 // Extracted CapacityCard component to reduce cognitive complexity
+// Shared UI components to reduce duplication
+interface CapacityIconProps {
+  capacity: Capacity;
+  getIconFilter: () => string;
+}
+
+const CapacityIcon: React.FC<CapacityIconProps> = ({ capacity, getIconFilter }) => {
+  if (!capacity.icon) return null;
+
+  return (
+    <div className="relative w-[24px] h-[24px] flex-shrink-0 mr-2">
+      <Image
+        src={capacity.icon}
+        alt={capacity.name}
+        width={24}
+        height={24}
+        style={{ filter: getIconFilter() }}
+      />
+    </div>
+  );
+};
+
+interface CapacityNameAndLinkProps {
+  capacity: Capacity;
+  pageContent: any;
+  capitalizeFirstLetter: (text?: string) => string;
+  isRoot?: boolean;
+  getTextColor?: () => string;
+}
+
+const CapacityNameAndLink: React.FC<CapacityNameAndLinkProps> = ({
+  capacity,
+  pageContent,
+  capitalizeFirstLetter,
+  isRoot = false,
+  getTextColor,
+}) => {
+  const textColorStyle = isRoot ? {} : { color: getTextColor?.() };
+  const textClassName = isRoot
+    ? 'text-white font-bold text-base truncate overflow-hidden text-ellipsis whitespace-nowrap mr-1 max-w-[calc(100%-24px)]'
+    : 'font-bold text-base truncate overflow-hidden text-ellipsis whitespace-nowrap mr-1 max-w-[calc(100%-24px)]';
+
+  return (
+    <div className="flex items-center w-full">
+      <span className={textClassName} style={textColorStyle}>
+        {capitalizeFirstLetter(capacity.name)}
+      </span>
+      <Link
+        href={`/feed?capacityId=${capacity.code}`}
+        onClick={e => e.stopPropagation()}
+        title={pageContent['capacity-selection-modal-hover-view-capacity-feed']}
+        className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
+      >
+        <Image
+          src={LinkIconWhite}
+          alt={pageContent['alt-external-link'] || 'External link, opens in new tab'}
+          width={16}
+          height={16}
+          className="inline-block"
+        />
+      </Link>
+    </div>
+  );
+};
+
+interface CapacityActionsProps {
+  capacity: Capacity;
+  allowMultipleSelection: boolean;
+  isSelected: boolean;
+  showInfo: boolean;
+  capacityHasChildren: boolean;
+  getCheckmarkColor: () => string;
+  getIconFilter: () => string;
+  toggleCapacityInfo: (e: React.MouseEvent | React.KeyboardEvent, capacity: Capacity) => void;
+  handleCategoryExpand: (e: React.MouseEvent | React.KeyboardEvent, capacity: Capacity) => void;
+  activateOnEnterSpace: (e: React.KeyboardEvent, action: () => void) => void;
+  pageContent: any;
+  isRoot?: boolean;
+}
+
+const CapacityActions: React.FC<CapacityActionsProps> = ({
+  capacity,
+  allowMultipleSelection,
+  isSelected,
+  showInfo,
+  capacityHasChildren,
+  getCheckmarkColor,
+  getIconFilter,
+  toggleCapacityInfo,
+  handleCategoryExpand,
+  activateOnEnterSpace,
+  pageContent,
+  isRoot = false,
+}) => {
+  const expandButtonClassName = isRoot
+    ? 'pt-2 px-1 flex-shrink-0 cursor-pointer bg-transparent border-none'
+    : 'p-1 flex-shrink-0 cursor-pointer bg-transparent border-none';
+
+  return (
+    <div className="flex items-center">
+      {allowMultipleSelection && isSelected && (
+        <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2">
+          <span className={`${getCheckmarkColor()} text-xs font-bold drop-shadow-lg`}>✓</span>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={e => toggleCapacityInfo(e, capacity)}
+        className="p-1 flex-shrink-0 mr-1 cursor-pointer bg-transparent border-none"
+        aria-label={pageContent['alt-info'] || 'Information icon, view additional details'}
+        onKeyDown={e => activateOnEnterSpace(e, () => toggleCapacityInfo(e, capacity))}
+        tabIndex={0}
+      >
+        <div className="relative w-[20px] h-[20px]">
+          <Image
+            src={showInfo ? InfoFilledIcon : InfoIcon}
+            alt={pageContent['alt-info'] || 'Information icon, view additional details'}
+            width={20}
+            height={20}
+            style={{ filter: getIconFilter() }}
+          />
+        </div>
+      </button>
+
+      {capacityHasChildren && (
+        <button
+          type="button"
+          onClick={e => handleCategoryExpand(e, capacity)}
+          className={expandButtonClassName}
+          aria-label={pageContent['alt-expand'] || 'Expand to show more details'}
+          onKeyDown={e => activateOnEnterSpace(e, () => handleCategoryExpand(e, capacity))}
+        >
+          <div className="relative w-[20px] h-[20px]">
+            <Image
+              src={ArrowDownIcon}
+              alt={pageContent['alt-expand'] || 'Expand to show more details'}
+              width={20}
+              height={20}
+              style={{ filter: getIconFilter() }}
+            />
+          </div>
+        </button>
+      )}
+    </div>
+  );
+};
+
+interface CapacityInfoSectionProps {
+  showInfo: boolean;
+  description: string;
+  isUsingFallback: boolean;
+  capacity: Capacity;
+  metabaseCode: string;
+  metabase_url: string;
+  capitalizeFirstLetter: (text?: string) => string;
+  pageContent: any;
+}
+
+const CapacityInfoSection: React.FC<CapacityInfoSectionProps> = ({
+  showInfo,
+  description,
+  isUsingFallback,
+  capacity,
+  metabaseCode,
+  metabase_url,
+  capitalizeFirstLetter,
+  pageContent,
+}) => {
+  if (!showInfo || !description) return null;
+
+  return (
+    <div
+      className="bg-white p-3 text-sm rounded-b-lg flex-grow"
+      onClick={e => e.stopPropagation()}
+      onKeyDown={e => e.stopPropagation()}
+    >
+      <p className="text-gray-700 text-xs leading-relaxed text-left">
+        {capitalizeFirstLetter(description)}
+      </p>
+      {isUsingFallback && (
+        <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+          <TranslationContributeCTA
+            capacityCode={capacity.code}
+            metabaseCode={metabaseCode}
+            compact={true}
+          />
+        </div>
+      )}
+      <div className="text-start">
+        {metabase_url && (
+          <a
+            href={metabase_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline mt-2 inline-block text-xs"
+            onClick={e => e.stopPropagation()}
+          >
+            {pageContent['capacity-selection-modal-see-more-information']}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+};
+
 interface CapacityCardProps {
   capacity: Capacity;
   isRoot: boolean;
@@ -87,283 +293,73 @@ const CapacityCard: React.FC<CapacityCardProps> = ({
   capitalizeFirstLetter,
   pageContent,
 }) => {
-  // Style for root cards
-  if (isRoot) {
-    const cardStyle = {
-      backgroundColor: capacity.color,
-      color: '#FFFFFF',
-      borderRadius: '0.5rem',
-      overflow: 'hidden',
-    };
+  const cardStyle = isRoot
+    ? {
+        backgroundColor: capacity.color,
+        color: '#FFFFFF',
+        borderRadius: '0.5rem',
+        overflow: 'hidden',
+      }
+    : {
+        backgroundColor: capacity.color,
+      };
 
-    return (
-      <button
-        className={`flex flex-col w-full rounded-lg transition-all overflow-hidden h-full relative
-          ${isSelected ? 'ring-2 ring-capx-primary-green' : ''}
-          hover:brightness-90 transform hover:scale-[1.01] transition-all`}
-        onClick={() => handleCategorySelect(capacity)}
-        style={cardStyle}
-        tabIndex={0}
-        onKeyDown={e => activateOnEnterSpace(e, () => handleCategorySelect(capacity))}
-        aria-pressed={isSelected}
-      >
-        <div className="flex p-3 h-[80px] items-center justify-between">
-          {capacity.icon && (
-            <div className="relative w-[24px] h-[24px] flex-shrink-0 mr-2">
-              <Image
-                src={capacity.icon}
-                alt={capacity.name}
-                width={24}
-                height={24}
-                style={{ filter: getIconFilter() }}
-              />
-            </div>
-          )}
-          <div className="flex-1 mx-2 overflow-hidden">
-            <div className="flex items-center w-full">
-              <span className="text-white font-bold text-base truncate overflow-hidden text-ellipsis whitespace-nowrap mr-1 max-w-[calc(100%-24px)]">
-                {capitalizeFirstLetter(capacity.name)}
-              </span>
-              <Link
-                href={`/feed?capacityId=${capacity.code}`}
-                onClick={e => e.stopPropagation()}
-                title={pageContent['capacity-selection-modal-hover-view-capacity-feed']}
-                className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
-              >
-                <Image
-                  src={LinkIconWhite}
-                  alt="External link icon"
-                  width={16}
-                  height={16}
-                  className="inline-block"
-                />
-              </Link>
-            </div>
-          </div>
-          <div className="flex items-center">
-            {allowMultipleSelection && isSelected && (
-              <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2">
-                <span className={`${getCheckmarkColor()} text-xs font-bold drop-shadow-lg`}>✓</span>
-              </div>
-            )}
+  const cardClassName = isRoot
+    ? `flex flex-col w-full rounded-lg transition-all overflow-hidden h-full relative
+       ${isSelected ? 'ring-2 ring-capx-primary-green' : ''}
+       hover:brightness-90 transform hover:scale-[1.01] transition-all`
+    : `flex flex-col w-full rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full relative
+       ${isSelected ? 'ring-2 ring-capx-primary-green' : ''}
+       hover:bg-opacity-90 transform hover:scale-[1.01] transition-all`;
 
-            <button
-              type="button"
-              onClick={e => toggleCapacityInfo(e, capacity)}
-              className="p-1 flex-shrink-0 mr-1 cursor-pointer bg-transparent border-none"
-              aria-label={pageContent['alt-info'] || 'Information icon, view additional details'}
-              onKeyDown={e => activateOnEnterSpace(e, () => toggleCapacityInfo(e, capacity))}
-              tabIndex={0}
-            >
-              <div className="relative w-[20px] h-[20px]">
-                <Image
-                  src={showInfo ? InfoFilledIcon : InfoIcon}
-                  alt={pageContent['alt-info'] || 'Information icon, view additional details'}
-                  width={20}
-                  height={20}
-                  style={{ filter: getIconFilter() }}
-                />
-              </div>
-            </button>
-            {capacityHasChildren && (
-              <button
-                type="button"
-                onClick={e => handleCategoryExpand(e, capacity)}
-                className="pt-2 px-1 flex-shrink-0 cursor-pointer bg-transparent border-none"
-                aria-label={pageContent['alt-expand'] || 'Expand to show more details'}
-                onKeyDown={e => activateOnEnterSpace(e, () => handleCategoryExpand(e, capacity))}
-              >
-                <div className="relative w-[20px] h-[20px]">
-                  <Image
-                    src={ArrowDownIcon}
-                    alt={pageContent['alt-expand'] || 'Expand to show more details'}
-                    width={20}
-                    height={20}
-                    style={{ filter: getIconFilter() }}
-                  />
-                </div>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {showInfo && description && (
-          <div
-            className="bg-white p-3 text-sm rounded-b-lg flex-grow"
-            onClick={e => e.stopPropagation()}
-            onKeyDown={e => e.stopPropagation()}
-          >
-            <p className="text-gray-700 text-xs leading-relaxed text-left">
-              {capitalizeFirstLetter(description)}
-            </p>
-            {isUsingFallback && (
-              <div
-                onClick={e => e.stopPropagation()}
-                onKeyDown={e => e.stopPropagation()}
-                role="presentation"
-                tabIndex={-1}
-              >
-                <TranslationContributeCTA
-                  capacityCode={capacity.code}
-                  metabaseCode={metabaseCode}
-                  compact={true}
-                />
-              </div>
-            )}
-            <div className="text-start">
-              {metabase_url && (
-                <a
-                  href={metabase_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline hover:text-blue-700 mt-2 inline-block text-xs transition-colors"
-                  onClick={e => e.stopPropagation()}
-                >
-                  {pageContent['capacity-selection-modal-see-more-information']}
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-      </button>
-    );
-  }
-
-  // Style for child cards
   return (
     <button
-      className={`flex flex-col w-full rounded-lg shadow-sm hover:shadow-lg transition-all overflow-hidden h-full relative
-          ${isSelected ? 'ring-2 ring-capx-primary-green' : ''}
-          hover:bg-opacity-90 transform hover:scale-[1.01] transition-all`}
+      className={cardClassName}
       onClick={() => handleCategorySelect(capacity)}
-      style={{
-        backgroundColor: capacity.color,
-      }}
+      style={cardStyle}
       tabIndex={0}
       onKeyDown={e => activateOnEnterSpace(e, () => handleCategorySelect(capacity))}
       aria-pressed={isSelected}
     >
       <div className="flex p-3 h-[80px] items-center justify-between">
-        {capacity.icon && (
-          <div className="relative w-[24px] h-[24px] flex-shrink-0 mr-2">
-            <Image
-              src={capacity.icon}
-              alt={capacity.name}
-              width={24}
-              height={24}
-              style={{ filter: getIconFilter() }}
-            />
-          </div>
-        )}
-        <div className="flex-1 mx-2 overflow-hidden">
-          <div className="flex items-center w-full">
-            <span
-              className={`font-bold text-base truncate overflow-hidden text-ellipsis whitespace-nowrap mr-1 max-w-[calc(100%-24px)]`}
-              style={{ color: getTextColor() }}
-            >
-              {capitalizeFirstLetter(capacity.name)}
-            </span>
-            <Link
-              href={`/feed?capacityId=${capacity.code}`}
-              onClick={e => e.stopPropagation()}
-              title={pageContent['capacity-selection-modal-hover-view-capacity-feed']}
-              className="inline-flex items-center hover:underline hover:text-blue-700 transition-colors cursor-pointer flex-shrink-0 min-w-[16px]"
-            >
-              <Image
-                src={LinkIconWhite}
-                alt={pageContent['alt-external-link'] || 'External link, opens in new tab'}
-                width={16}
-                height={16}
-                className="inline-block"
-              />
-            </Link>
-          </div>
-        </div>
-        <div className="flex items-center">
-          {allowMultipleSelection && isSelected && (
-            <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2">
-              <span className={`${getCheckmarkColor()} text-xs font-bold drop-shadow-lg`}>✓</span>
-            </div>
-          )}
+        <CapacityIcon capacity={capacity} getIconFilter={getIconFilter} />
 
-          <button
-            type="button"
-            onClick={e => toggleCapacityInfo(e, capacity)}
-            className="p-1 flex-shrink-0 mr-1 cursor-pointer bg-transparent border-none"
-            aria-label={pageContent['alt-info'] || 'Information icon, view additional details'}
-            onKeyDown={e => activateOnEnterSpace(e, () => toggleCapacityInfo(e, capacity))}
-            tabIndex={0}
-          >
-            <div className="relative w-[20px] h-[20px]">
-              <Image
-                src={showInfo ? InfoFilledIcon : InfoIcon}
-                alt={pageContent['alt-info'] || 'Information icon, view additional details'}
-                width={20}
-                height={20}
-                style={{ filter: getIconFilter() }}
-              />
-            </div>
-          </button>
-          {capacityHasChildren && (
-            <button
-              type="button"
-              onClick={e => handleCategoryExpand(e, capacity)}
-              className="p-1 flex-shrink-0 cursor-pointer bg-transparent border-none"
-              aria-label={pageContent['alt-expand'] || 'Expand to show more details'}
-              onKeyDown={e => activateOnEnterSpace(e, () => handleCategoryExpand(e, capacity))}
-            >
-              <div className="relative w-[20px] h-[20px]">
-                <Image
-                  src={ArrowDownIcon}
-                  alt={pageContent['alt-expand'] || 'Expand to show more details'}
-                  width={20}
-                  height={20}
-                  style={{ filter: getIconFilter() }}
-                />
-              </div>
-            </button>
-          )}
+        <div className="flex-1 mx-2 overflow-hidden">
+          <CapacityNameAndLink
+            capacity={capacity}
+            pageContent={pageContent}
+            capitalizeFirstLetter={capitalizeFirstLetter}
+            isRoot={isRoot}
+            getTextColor={getTextColor}
+          />
         </div>
+
+        <CapacityActions
+          capacity={capacity}
+          allowMultipleSelection={allowMultipleSelection}
+          isSelected={isSelected}
+          showInfo={showInfo}
+          capacityHasChildren={capacityHasChildren}
+          getCheckmarkColor={getCheckmarkColor}
+          getIconFilter={getIconFilter}
+          toggleCapacityInfo={toggleCapacityInfo}
+          handleCategoryExpand={handleCategoryExpand}
+          activateOnEnterSpace={activateOnEnterSpace}
+          pageContent={pageContent}
+          isRoot={isRoot}
+        />
       </div>
 
-      {showInfo && description && (
-        <div
-          className="bg-white p-3 text-sm rounded-b-lg flex-grow"
-          onClick={e => e.stopPropagation()}
-          onKeyDown={e => e.stopPropagation()}
-        >
-          <p className="text-gray-700 text-xs leading-relaxed text-left">
-            {capitalizeFirstLetter(description)}
-          </p>
-          {isUsingFallback && (
-            <div
-              onClick={e => e.stopPropagation()}
-              onKeyDown={e => e.stopPropagation()}
-              role="presentation"
-              tabIndex={-1}
-            >
-              <TranslationContributeCTA
-                capacityCode={capacity.code}
-                metabaseCode={metabaseCode}
-                compact={true}
-              />
-            </div>
-          )}
-          <div className="text-start">
-            {metabase_url && (
-              <a
-                href={metabase_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline mt-2 inline-block text-xs"
-                onClick={e => e.stopPropagation()}
-              >
-                {pageContent['capacity-selection-modal-see-more-information']}
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      <CapacityInfoSection
+        showInfo={showInfo}
+        description={description}
+        isUsingFallback={isUsingFallback}
+        capacity={capacity}
+        metabaseCode={metabaseCode}
+        metabase_url={metabase_url}
+        capitalizeFirstLetter={capitalizeFirstLetter}
+        pageContent={pageContent}
+      />
     </button>
   );
 };

@@ -183,7 +183,7 @@ export function CapacityCard({
   const displayName = useMemo(() => {
     // Checks if the name looks like a QID (common format with Q followed by numbers)
     if (!name || (name.startsWith('Q') && /^Q\d+$/.test(name))) {
-      return `Capacity ${code}`;
+      return `${pageContent['capacity-card-capacity-prefix'] || 'Capacity'} ${code}`;
     }
     return name;
   }, [name, code]);
@@ -266,13 +266,16 @@ export function CapacityCard({
               onClick={e => e.stopPropagation()}
               target="_blank"
               rel="noopener noreferrer"
-              title="Visit the capacity item page on Metabase"
+              title={
+                pageContent['capacity-card-visit-metabase'] ||
+                'Visit the capacity item page on Metabase'
+              }
             >
               <div className="flex flex-row items-center gap-2 flex-shrink-0">
                 <div className="relative w-[36px] h-[36px]">
                   <Image
                     src={darkMode ? MetabaseLightIcon : MetabaseIcon}
-                    alt="Metabase logo"
+                    alt={pageContent['capacity-card-metabase-logo'] || 'Metabase logo'}
                     fill
                     priority
                   />
@@ -291,13 +294,16 @@ export function CapacityCard({
               onClick={e => e.stopPropagation()}
               target="_blank"
               rel="noopener noreferrer"
-              title="Visit the capacity item page on Wikidata"
+              title={
+                pageContent['capacity-card-visit-wikidata'] ||
+                'Visit the capacity item page on Wikidata'
+              }
             >
               <div className="flex flex-row items-center gap-2 flex-shrink-0">
                 <div className="relative w-[36px] h-[36px]">
                   <Image
                     src={darkMode ? BarCodeLightIcon : BarCodeIcon}
-                    alt="BarCode"
+                    alt={pageContent['capacity-card-barcode'] || 'BarCode'}
                     fill
                     priority
                   />

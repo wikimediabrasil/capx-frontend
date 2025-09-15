@@ -7,8 +7,8 @@ import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
-import { Capacity } from '@/types/capacity';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
+import { Capacity } from '@/types/capacity';
 import Image from 'next/image';
 import React, { useCallback, useRef, useState } from 'react';
 import { CapacityBanner } from './CapacityBanner';
@@ -39,6 +39,7 @@ const ChildCapacities = ({
   );
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
+  const { pageContent } = useApp();
 
   const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityCache();
   const { isMobile } = useApp();
@@ -219,11 +220,11 @@ const ChildCapacities = ({
             <button
               onClick={scrollLeft}
               className="absolute -left-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
-              aria-label="Scroll left"
+              aria-label={pageContent['capacity-list-scroll-left'] || 'Scroll left'}
             >
               <Image
                 src={ArrowBackIcon}
-                alt="Previous"
+                alt={pageContent['capacity-list-scroll-previous'] || 'Previous'}
                 width={24}
                 height={24}
                 className="text-gray-700"
@@ -236,11 +237,11 @@ const ChildCapacities = ({
             <button
               onClick={scrollRight}
               className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
-              aria-label="Scroll right"
+              aria-label={pageContent['capacity-list-scroll-right'] || 'Scroll right'}
             >
               <Image
                 src={ArrowBackIcon}
-                alt="Next"
+                alt={pageContent['capacity-list-scroll-next'] || 'Next'}
                 width={24}
                 height={24}
                 className="text-gray-700 rotate-180"
@@ -304,7 +305,9 @@ function CapacityListContent() {
 
   // Exclusive expansion state
   const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
+
   const [expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
+  const { pageContent } = useApp();
 
   // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
@@ -415,8 +418,8 @@ function CapacityListContent() {
           <div className="mt-8 text-center">
             <p className={`text-lg font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>
               {isLoadingTranslations
-                ? 'Loading translations...'
-                : `Loading capacity data for ${language}...`}
+                ? pageContent['capacity-list-loading-translations'] || 'Loading translations...'
+                : `${pageContent['capacity-list-loading-capacity-data'] || 'Loading capacity data for'} ${language}...`}
             </p>
             <p className={`text-sm mt-2 ${isMobile ? 'text-xs' : 'text-sm'} opacity-70`}>
               Please wait while we prepare the content
@@ -503,17 +506,21 @@ export default function CapacityListMainWrapper() {
   }
 
   return (
-    <CapacityErrorBoundary>
+    <CapacityErrorBoundaryWrapper>
       <LanguageChangeHandler>
         <CapacityListContent />
       </LanguageChangeHandler>
-    </CapacityErrorBoundary>
+    </CapacityErrorBoundaryWrapper>
   );
 }
 
+function CapacityErrorBoundaryWrapper({ children }: { children: React.ReactNode }) {
+  const { pageContent } = useApp();
+  return <CapacityErrorBoundary pageContent={pageContent}>{children}</CapacityErrorBoundary>;
+}
 // Simple error boundary component to catch context errors
 class CapacityErrorBoundary extends React.Component<
-  { children: React.ReactNode },
+  { children: React.ReactNode; pageContent?: Record<string, string> },
   { hasError: boolean; error: Error | null }
 > {
   constructor(props: { children: React.ReactNode }) {
@@ -533,10 +540,14 @@ class CapacityErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center p-8 mx-auto my-12 max-w-md border border-gray-300 rounded-md bg-white">
-          <h2 className="text-xl font-bold mb-4 text-red-600">Something went wrong</h2>
-          <p className="mb-4">An error occurred while loading the capacities.</p>
+          <h2 className="text-xl font-bold mb-4 text-red-600">
+            {this.props.pageContent?.['capacity-list-something-went-wrong']}
+          </h2>
+          <p className="mb-4">{this.props.pageContent?.['capacity-list-an-error']}</p>
           <p className="text-gray-700 text-sm mb-4">
-            {this.state.error?.message || 'Context error'}
+            {this.state.error?.message ||
+              this.props.pageContent?.['capacity-list-context-error'] ||
+              'Context error'}
           </p>
           <button
             onClick={() => window.location.reload()}

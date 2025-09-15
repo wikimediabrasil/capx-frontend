@@ -107,7 +107,7 @@ export function TranslationContributeCTA({
           >
             <Image
               src={InfoIcon}
-              alt="Help"
+              alt={pageContent['translation-alt-help'] || 'Help'}
               width={12}
               height={12}
               className={darkMode ? 'opacity-80' : 'filter invert opacity-80'}
@@ -131,7 +131,7 @@ export function TranslationContributeCTA({
                   darkMode ? 'text-blue-300' : 'text-blue-600'
                 }`}
               >
-                Got it
+                {pageContent['translation-mobile-got-it'] || 'Got it'}
               </button>
               {/* Arrow */}
               <div
@@ -152,7 +152,7 @@ export function TranslationContributeCTA({
           >
             <Image
               src={InfoIcon}
-              alt="Help"
+              alt={pageContent['translation-alt-help'] || 'Help'}
               width={12}
               height={12}
               className={darkMode ? 'opacity-80' : 'filter invert opacity-80'}
@@ -195,7 +195,7 @@ export function TranslationContributeCTA({
             <div className="flex items-center gap-2.5">
               <Image
                 src={LanguageIcon}
-                alt="Translate"
+                alt={pageContent['translation-alt-translate'] || 'Translate'}
                 width={20}
                 height={20}
                 className={darkMode ? 'filter invert brightness-75' : 'opacity-75'}
@@ -289,7 +289,7 @@ export function TranslationContributeCTA({
             >
               <Image
                 src={LanguageIcon}
-                alt="Translation needed"
+                alt={pageContent['translation-alt-translation-needed'] || 'Translation needed'}
                 width={16}
                 height={16}
                 className={darkMode ? 'filter invert brightness-90' : 'opacity-80'}
@@ -301,14 +301,14 @@ export function TranslationContributeCTA({
               <h4
                 className={`text-sm font-semibold text-left ${darkMode ? 'text-blue-100' : 'text-blue-900'}`}
               >
-                Translation Needed
+                {pageContent['translation-needed'] || 'Translation Needed'}
               </h4>
               <div
                 className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                   darkMode ? 'bg-capx-dark-box-bg text-blue-200' : 'bg-blue-200 text-blue-800'
                 }`}
               >
-                Help wanted
+                {pageContent['translation-help-wanted'] || 'Help wanted'}
               </div>
             </div>
             <div
