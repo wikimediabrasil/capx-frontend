@@ -6,9 +6,7 @@ export function useLetsConnectExists() {
   const { data: session } = useSession();
   const username = session?.user?.name;
   const token = session?.user?.token;
-  // todo apagar
-  console.log('username', username);
-
+  
   const {
     data: existsData,
     isLoading,
@@ -21,9 +19,6 @@ export function useLetsConnectExists() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 2,
   });
-
-   // todo apagar
-  console.log('existsData', existsData);
 
   return {
     hasLetsConnectAccount: existsData?.exists || false,
