@@ -8,7 +8,7 @@ import LoadingState from '@/components/LoadingState';
 import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import { useProfile } from '@/hooks/useProfile';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';

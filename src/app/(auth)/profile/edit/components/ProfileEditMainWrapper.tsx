@@ -35,7 +35,7 @@ import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useAllCapacities } from '@/hooks/useAllCapacities';
 import { useCapacities } from '@/hooks/useCapacities';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
-import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,

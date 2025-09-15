@@ -11,7 +11,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
