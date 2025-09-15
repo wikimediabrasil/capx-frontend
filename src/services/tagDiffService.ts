@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { tagDiff } from '@/types/tagDiff';
+import axios from 'axios';
 
 export const tagDiffService = {
   async fetchSingleNews(token: string, id: number): Promise<tagDiff> {
@@ -16,20 +16,16 @@ export const tagDiffService = {
     return response.data;
   },
   async createTag(tag: Partial<tagDiff>, token: string): Promise<tagDiff> {
-    try {
-      const response = await axios.post('/api/tag_diff/', tag, {
-        headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.data) {
-        throw new Error('Empty response from server');
-      }
-      return response.data;
-    } catch (error) {
-      throw error;
+    const response = await axios.post('/api/tag_diff/', tag, {
+      headers: {
+        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.data) {
+      throw new Error('Empty response from server');
     }
+    return response.data;
   },
   async deleteNews(token: string, id: number): Promise<void> {
     await axios.delete(`/api/tag_diff/${id}/`, {
