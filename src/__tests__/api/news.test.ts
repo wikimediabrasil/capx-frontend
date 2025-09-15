@@ -101,17 +101,20 @@ describe('News API Tag Validation', () => {
       ]
     };
 
+    // Helper function to validate a tag
+    function validateTagFormat(tag: string) {
+      // Validate that each tag follows expected format
+      expect(tag).toMatch(/^[a-z0-9-/+.]+$/);
+      // Validate that tags don't start or end with hyphens
+      expect(tag).not.toMatch(/(^-)|(-$)/);
+      // Validate reasonable length
+      expect(tag.length).toBeLessThanOrEqual(50);
+      expect(tag.length).toBeGreaterThan(0);
+    }
+
     Object.entries(tagCategories).forEach(([category, tags]) => {
       it(`should validate ${category} category tags`, () => {
-        tags.forEach(tag => {
-          // Validate that each tag follows expected format
-          expect(tag).toMatch(/^[a-z0-9-/+.]+$/);
-          // Validate that tags don't start or end with hyphens
-          expect(tag).not.toMatch(/^-|-$/);
-          // Validate reasonable length
-          expect(tag.length).toBeLessThanOrEqual(50);
-          expect(tag.length).toBeGreaterThan(0);
-        });
+        tags.forEach(validateTagFormat);
       });
     });
   });
@@ -134,7 +137,7 @@ describe('News API Tag Validation', () => {
 
       testTags.forEach(tag => {
         const url = createTagUrl(tag);
-        expect(url).toMatch(/^https:\/\/diffapi\.toolforge\.org\/tags\/[a-z0-9-/+.]+\/$/);
+        expect(url).toMatch(/^https:\/\/diffapi\.toolforge\.org\/tags\/[a-z0-9\-/.+]+\/$/);
       });
     });
   });
@@ -213,7 +216,7 @@ describe('News API Tag Validation', () => {
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-./+]/g, '') // Remove invalid characters
         .replace(/-+/g, '-') // Replace multiple hyphens with single
-        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+        .replace(/(^-)|(-$)/g, ''); // Remove leading/trailing hyphens
     };
 
     it('should normalize various tag formats', () => {
