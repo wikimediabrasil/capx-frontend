@@ -11,6 +11,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
@@ -108,6 +109,7 @@ interface ProfileEditDesktopViewProps {
   goTo: (path: string) => void;
   isImageLoading: boolean;
   hasLetsConnectData: boolean;
+  hasLetsConnectAccount: boolean;
   showLetsConnectPopup: boolean;
   setShowLetsConnectPopup: (show: boolean) => void;
   handleLetsConnectImport: () => void;
@@ -143,6 +145,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
     goTo,
     isImageLoading,
     hasLetsConnectData,
+    hasLetsConnectAccount,
     showLetsConnectPopup,
     setShowLetsConnectPopup,
     handleLetsConnectImport,
@@ -1347,7 +1350,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
             <BaseButton
               onClick={() => goTo('/profile/lets_connect')}
               label={
-                formData?.automated_lets_connect
+                hasLetsConnectAccount
                   ? pageContent['lets-connect-form-user-button-update-profile']
                   : pageContent['lets-connect-form-user-edit']
               }
