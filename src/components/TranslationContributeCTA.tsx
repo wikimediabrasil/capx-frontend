@@ -22,7 +22,7 @@ export function TranslationContributeCTA({
   metabaseCode,
   className = '',
   compact = false,
-}: TranslationContributeCTAProps) {
+}: Readonly<TranslationContributeCTAProps>) {
   const { pageContent, language, isMobile } = useApp();
   const { darkMode } = useTheme();
   const [showHelpPopup, setShowHelpPopup] = useState(false);
@@ -185,7 +185,7 @@ export function TranslationContributeCTA({
       <div
         className={`flex flex-col gap-2 mt-3 p-2 rounded-md ${
           darkMode
-            ? 'bg-blue-950/30 border border-blue-800/50'
+            ? 'bg-capx-dark-box-bg border border-blue-800/50'
             : 'bg-blue-50 border border-blue-200'
         } ${className}`}
       >

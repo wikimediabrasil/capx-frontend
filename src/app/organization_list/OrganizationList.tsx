@@ -10,6 +10,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { Capacity } from '@/types/capacity';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLanguageSync } from '@/components/shared/LanguageSync';
+import { SearchFilterSection } from '@/components/shared/SearchFilterSection';
+import { ProfileListWithEmpty } from '@/components/shared/ProfileListWithEmpty';
 
 import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import Banner from '@/components/Banner';
@@ -18,120 +21,14 @@ import LoadingState from '@/components/LoadingState';
 import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import OrgListBanner from '@/public/static/images/organization_list.svg';
 
-// Component for rendering the list of profiles
-const ProfileList: React.FC<{ profiles: any[] }> = ({ profiles }) => (
-  <div className="w-full mx-auto space-y-6">
-    {profiles.map((profile, index) => (
-      <ProfileCard
-        id={profile.id}
-        key={index}
-        profile_image={profile.profile_image}
-        username={profile.username}
-        type={profile.type}
-        capacities={profile.capacities}
-        avatar={profile.avatar}
-        languages={profile.languages}
-        territory={profile.territory}
-        isOrganization={profile.isOrganization}
-        hasIncompleteProfile={profile.hasIncompleteProfile}
-      />
-    ))}
-  </div>
-);
-
-// Component for empty state when no profiles are found
-const EmptyState: React.FC = () => {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
-
-  return (
-    <div className="flex flex-col items-center justify-center py-12">
-      <p className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
-        {pageContent['feed-no-data-message']}
-      </p>
-      <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-        {pageContent['feed-no-data-description']}
-      </p>
-    </div>
-  );
-};
-
-// Component for search bar and capacity selection
-interface SearchAndFilterSectionProps {
-  activeFilters: any;
-  showSkillModal: boolean;
-  onRemoveCapacity: (capacityCode: number) => void;
-  onShowSkillModal: (show: boolean) => void;
-  onShowFilters: (show: boolean) => void;
-  onCapacitySelect: (capacities: Capacity[]) => void;
-}
-
-const SearchAndFilterSection: React.FC<SearchAndFilterSectionProps> = ({
-  activeFilters,
-  showSkillModal,
-  onRemoveCapacity,
-  onShowSkillModal,
-  onShowFilters,
-  onCapacitySelect,
-}) => {
-  const { pageContent } = useApp();
-
-  return (
-    <>
-      <SearchBar
-        showCapacitiesSearch={true}
-        selectedCapacities={activeFilters.capacities}
-        onRemoveCapacity={onRemoveCapacity}
-        onCapacityInputFocus={() => onShowSkillModal(true)}
-        capacitiesPlaceholder={pageContent['filters-search-by-capacities']}
-        removeItemAltText={pageContent['filters-remove-item-alt-icon']}
-        onFilterClick={() => onShowFilters(true)}
-        filterAriaLabel={pageContent['saved-profiles-filters-button']}
-      />
-
-      <CapacitySelectionModal
-        isOpen={showSkillModal}
-        onClose={() => onShowSkillModal(false)}
-        onSelect={onCapacitySelect}
-        title={pageContent['select-capacity']}
-      />
-    </>
-  );
-};
+// Removed duplicated components - now using shared components
 
 export default function OrganizationList() {
   const { darkMode } = useTheme();
-  const { pageContent, language: appLanguage } = useApp();
-  const {
-    isLoaded: isCacheLoaded,
-    isLoadingTranslations,
-    language: cacheLanguage,
-    updateLanguage,
-  } = useCapacityCache();
+  const { pageContent } = useApp();
 
-  // Track language changes from AppContext and trigger cache updates
-  const [isLanguageChanging, setIsLanguageChanging] = useState(false);
-
-  // Detect when app language changes and update capacity cache
-  useEffect(() => {
-    // Only proceed if we have both languages and they're different
-    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage) {
-      setIsLanguageChanging(true);
-      updateLanguage(appLanguage);
-    }
-  }, [appLanguage, cacheLanguage, updateLanguage]);
-
-  // Reset language changing state when translations are loaded
-  useEffect(() => {
-    if (
-      isLanguageChanging &&
-      !isLoadingTranslations &&
-      isCacheLoaded &&
-      appLanguage === cacheLanguage
-    ) {
-      setIsLanguageChanging(false);
-    }
-  }, [isLanguageChanging, isLoadingTranslations, isCacheLoaded, appLanguage, cacheLanguage]);
+  // Use shared language sync logic
+  const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
@@ -307,7 +204,7 @@ export default function OrganizationList() {
       />
       <div className="container mx-auto px-4 mt-6">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
-          <SearchAndFilterSection
+          <SearchFilterSection
             activeFilters={activeFilters}
             showSkillModal={showSkillModal}
             onRemoveCapacity={handleRemoveCapacity}
@@ -316,11 +213,7 @@ export default function OrganizationList() {
             onCapacitySelect={handleCapacitySelect}
           />
 
-          {filteredProfiles.length > 0 ? (
-            <ProfileList profiles={filteredProfiles} />
-          ) : (
-            <EmptyState />
-          )}
+          <ProfileListWithEmpty profiles={filteredProfiles} />
         </div>
       </div>
 

@@ -7,10 +7,9 @@ import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
-import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import { Capacity } from '@/types/capacity';
-import Image from 'next/image';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { ScrollNavigation } from '@/components/shared/ScrollNavigation';
 import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
@@ -39,66 +38,9 @@ const ChildCapacities = ({
   );
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
-  const { pageContent } = useApp();
+  const { isMobile } = useApp();
 
   const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityCache();
-  const { isMobile } = useApp();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  // Scroll functions for desktop navigation
-  const scrollLeft = useCallback(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
-    }
-  }, []);
-
-  const scrollRight = useCallback(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
-    }
-  }, []);
-
-  // Update scroll button states
-  const updateScrollButtonStates = useCallback(() => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      const canLeft = scrollLeft > 0;
-      const canRight = scrollLeft < scrollWidth - clientWidth - 1;
-
-      setCanScrollLeft(canLeft);
-      setCanScrollRight(canRight);
-    }
-  }, []);
-
-  // Effect to update scroll states when children change
-  React.useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      updateScrollButtonStates();
-      container.addEventListener('scroll', updateScrollButtonStates);
-      return () => container.removeEventListener('scroll', updateScrollButtonStates);
-    }
-  }, [updateScrollButtonStates]);
-
-  // Effect to update scroll states on container resize
-  React.useEffect(() => {
-    if (scrollContainerRef.current) {
-      const resizeObserver = new ResizeObserver(updateScrollButtonStates);
-      resizeObserver.observe(scrollContainerRef.current);
-      return () => resizeObserver.disconnect();
-    }
-  }, [updateScrollButtonStates]);
-
-  // Effect to initialize scroll states after content loads
-  React.useEffect(() => {
-    if (children.length > 0) {
-      // Small delay to ensure DOM is fully rendered
-      const timer = setTimeout(updateScrollButtonStates, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [children.length, updateScrollButtonStates]);
 
   if (isLoadingChildren) {
     return <LoadingState />;
@@ -170,128 +112,43 @@ const ChildCapacities = ({
   const childrenWithParents = children; // No need to process, cache has everything
 
   return (
-    <>
-      {/* Mobile - sem setas de navegação */}
-      {isMobile ? (
-        <div className="mt-4 overflow-x-auto scrollbar-hide w-full">
-          <div className="flex gap-2 pb-4 w-full min-w-full">
-            {childrenWithParents.map((child, index) => (
-              <div
-                key={`${parentCode}-${child.code}-${index}`}
-                className="mt-4 w-[280px] flex-shrink-0"
-              >
-                <CapacityCard
-                  code={child.code}
-                  name={child.name}
-                  icon={child.icon}
-                  color={child.color}
-                  isExpanded={!!expandedCapacities[child.code]}
-                  onExpand={() => onToggleExpand(child.code.toString())}
-                  hasChildren={child.hasChildren}
-                  isRoot={false}
-                  parentCapacity={child.parentCapacity}
-                  description={getDescription(child.code)}
-                  wd_code={getWdCode(child.code)}
-                  metabase_code={child.metabase_code || getMetabaseCode(child.code)}
-                  rootColor={rootColor}
-                  level={child.level}
-                  isInfoExpanded={expandedInfoCard === child.code.toString()}
-                  onToggleInfo={() => onToggleInfo(child.code.toString())}
-                />
-                {expandedCapacities[child.code] && (
-                  <ChildCapacities
-                    parentCode={child.code.toString()}
-                    expandedCapacities={expandedCapacities}
-                    onToggleExpand={onToggleExpand}
-                    language={language}
-                    expandedInfoCard={expandedInfoCard}
-                    onToggleInfo={onToggleInfo}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        /* Desktop - com setas de navegação */
-        <div className="relative mt-4">
-          {/* Seta esquerda - positioned outside the scroll container */}
-          {canScrollLeft && (
-            <button
-              onClick={scrollLeft}
-              className="absolute -left-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
-              aria-label={pageContent['capacity-list-scroll-left'] || 'Scroll left'}
-            >
-              <Image
-                src={ArrowBackIcon}
-                alt={pageContent['capacity-list-scroll-previous'] || 'Previous'}
-                width={24}
-                height={24}
-                className="text-gray-700"
-              />
-            </button>
+    <ScrollNavigation className="mt-4" itemWidth={320}>
+      {childrenWithParents.map((child, index) => (
+        <div
+          key={`${parentCode}-${child.code}-${index}`}
+          className={`mt-4 flex-shrink-0 ${isMobile ? 'w-[280px]' : 'max-w-[992px]'}`}
+        >
+          <CapacityCard
+            code={child.code}
+            name={child.name}
+            icon={child.icon}
+            color={child.color}
+            isExpanded={!!expandedCapacities[child.code]}
+            onExpand={() => onToggleExpand(child.code.toString())}
+            hasChildren={child.hasChildren}
+            isRoot={false}
+            parentCapacity={child.parentCapacity}
+            description={getDescription(child.code)}
+            wd_code={getWdCode(child.code)}
+            metabase_code={child.metabase_code || getMetabaseCode(child.code)}
+            rootColor={rootColor}
+            level={child.level}
+            isInfoExpanded={expandedInfoCard === child.code.toString()}
+            onToggleInfo={() => onToggleInfo(child.code.toString())}
+          />
+          {expandedCapacities[child.code] && (
+            <ChildCapacities
+              parentCode={child.code.toString()}
+              expandedCapacities={expandedCapacities}
+              onToggleExpand={onToggleExpand}
+              language={language}
+              expandedInfoCard={expandedInfoCard}
+              onToggleInfo={onToggleInfo}
+            />
           )}
-
-          {/* Seta direita - positioned outside the scroll container */}
-          {canScrollRight && (
-            <button
-              onClick={scrollRight}
-              className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all duration-200"
-              aria-label={pageContent['capacity-list-scroll-right'] || 'Scroll right'}
-            >
-              <Image
-                src={ArrowBackIcon}
-                alt={pageContent['capacity-list-scroll-next'] || 'Next'}
-                width={24}
-                height={24}
-                className="text-gray-700 rotate-180"
-              />
-            </button>
-          )}
-
-          {/* Container de scroll - without padding since arrows are outside */}
-          <div ref={scrollContainerRef} className="overflow-x-auto scrollbar-hide w-full">
-            <div className="flex gap-4 pb-4 w-fit">
-              {childrenWithParents.map((child, index) => (
-                <div
-                  key={`${parentCode}-${child.code}-${index}`}
-                  className="mt-4 max-w-[992px] flex-shrink-0"
-                >
-                  <CapacityCard
-                    code={child.code}
-                    name={child.name}
-                    icon={child.icon}
-                    color={child.color}
-                    isExpanded={!!expandedCapacities[child.code]}
-                    onExpand={() => onToggleExpand(child.code.toString())}
-                    hasChildren={child.hasChildren}
-                    isRoot={false}
-                    parentCapacity={child.parentCapacity}
-                    description={getDescription(child.code)}
-                    wd_code={getWdCode(child.code)}
-                    metabase_code={child.metabase_code || getMetabaseCode(child.code)}
-                    rootColor={rootColor}
-                    level={child.level}
-                    isInfoExpanded={expandedInfoCard === child.code.toString()}
-                    onToggleInfo={() => onToggleInfo(child.code.toString())}
-                  />
-                  {expandedCapacities[child.code] && (
-                    <ChildCapacities
-                      parentCode={child.code.toString()}
-                      expandedCapacities={expandedCapacities}
-                      onToggleExpand={onToggleExpand}
-                      language={language}
-                      expandedInfoCard={expandedInfoCard}
-                      onToggleInfo={onToggleInfo}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
-      )}
-    </>
+      ))}
+    </ScrollNavigation>
   );
 };
 

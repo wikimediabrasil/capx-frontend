@@ -1,12 +1,9 @@
 'use client';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useCapacity } from '@/hooks/useCapacityDetails';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useSavedItems } from '@/hooks/useSavedItems';
@@ -14,47 +11,20 @@ import { useAllUsers } from '@/hooks/useUserProfile';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
-import ProfileCard from './components/ProfileCard';
-import { SearchBar } from './components/SearchBar';
 import { createProfilesFromUsers, FilterState, ProfileCapacityType, Skill } from './types';
+import { useLanguageSync } from '@/components/shared/LanguageSync';
+import { SearchFilterSection } from '@/components/shared/SearchFilterSection';
+import { ProfileListWithEmpty } from '@/components/shared/ProfileListWithEmpty';
 
 export default function FeedPage() {
-  const { darkMode } = useTheme();
-  const { pageContent, language: appLanguage } = useApp();
-  const {
-    isLoaded: isCacheLoaded,
-    isLoadingTranslations,
-    language: cacheLanguage,
-    updateLanguage,
-  } = useCapacityCache();
+  const { pageContent } = useApp();
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
   const capacityCode = searchParams.get('capacityId');
 
-  // Track language changes from AppContext and trigger cache updates
-  const [isLanguageChanging, setIsLanguageChanging] = useState(false);
-
-  // Detect when app language changes and update capacity cache
-  useEffect(() => {
-    // Only proceed if we have both languages and they're different
-    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage) {
-      setIsLanguageChanging(true);
-      updateLanguage(appLanguage);
-    }
-  }, [appLanguage, cacheLanguage, updateLanguage]);
-
-  // Reset language changing state when translations are loaded
-  useEffect(() => {
-    if (
-      isLanguageChanging &&
-      !isLoadingTranslations &&
-      isCacheLoaded &&
-      appLanguage === cacheLanguage
-    ) {
-      setIsLanguageChanging(false);
-    }
-  }, [isLanguageChanging, isLoadingTranslations, isCacheLoaded, appLanguage, cacheLanguage]);
+  // Use shared language sync logic
+  const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState>({
@@ -270,54 +240,16 @@ export default function FeedPage() {
     <div className="w-full flex flex-col items-center pt-24 md:pt-8">
       <div className="container mx-auto px-4">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
-          {/* SearchBar and Filters Button */}
-          <SearchBar
-            showCapacitiesSearch={true}
-            selectedCapacities={activeFilters.capacities}
+          <SearchFilterSection
+            activeFilters={activeFilters}
+            showSkillModal={showSkillModal}
             onRemoveCapacity={handleRemoveCapacity}
-            onCapacityInputFocus={() => setShowSkillModal(true)}
-            capacitiesPlaceholder={pageContent['filters-search-by-capacities']}
-            removeItemAltText={pageContent['filters-remove-item-alt-icon']}
-            onFilterClick={() => setShowFilters(true)}
-            filterAriaLabel={pageContent['saved-profiles-filters-button']}
+            onShowSkillModal={setShowSkillModal}
+            onShowFilters={setShowFilters}
+            onCapacitySelect={handleCapacitySelect}
           />
 
-          <CapacitySelectionModal
-            isOpen={showSkillModal}
-            onClose={() => setShowSkillModal(false)}
-            onSelect={handleCapacitySelect}
-            title={pageContent['select-capacity']}
-          />
-
-          {filteredProfiles.length > 0 ? (
-            <div className="w-full mx-auto space-y-6">
-              {filteredProfiles.map((profile, index) => (
-                <ProfileCard
-                  id={profile.id}
-                  key={index}
-                  profile_image={profile.profile_image}
-                  username={profile.username}
-                  type={profile.type}
-                  capacities={profile.capacities}
-                  avatar={profile.avatar}
-                  languages={profile.languages}
-                  territory={profile.territory}
-                  isOrganization={false}
-                  isSaved={profile.isSaved}
-                  onToggleSaved={() => handleToggleSaved(profile)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <p className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
-                {pageContent['feed-no-data-message']}
-              </p>
-              <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {pageContent['feed-no-data-description']}
-              </p>
-            </div>
-          )}
+          <ProfileListWithEmpty profiles={filteredProfiles} onToggleSaved={handleToggleSaved} />
         </div>
       </div>
 
