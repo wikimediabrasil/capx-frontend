@@ -52,3 +52,47 @@ Object.defineProperty(window, 'location', {
     reload: jest.fn(),
   },
 });
+
+// Mock Web APIs for Next.js API routes
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+// Mock Request and Response for Next.js API routes
+global.Request = jest.fn().mockImplementation((url, options) => ({
+  url,
+  method: options?.method || 'GET',
+  headers: new Map(Object.entries(options?.headers || {})),
+  json: jest.fn().mockResolvedValue({}),
+}));
+
+global.Response = Object.assign(
+  jest.fn().mockImplementation((body, options) => ({
+    ok: options?.status ? options.status >= 200 && options.status < 300 : true,
+    status: options?.status || 200,
+    headers: new Map(Object.entries(options?.headers || {})),
+    json: jest.fn().mockResolvedValue(JSON.parse(body || '{}')),
+  })),
+  {
+    error: jest.fn(),
+    json: jest.fn(),
+    redirect: jest.fn(),
+    prototype: {},
+  }
+);
+
+// Mock NextResponse specifically
+jest.mock('next/server', () => ({
+  NextRequest: jest.fn().mockImplementation((url) => ({
+    url,
+    method: 'GET',
+    headers: new Map(),
+  })),
+  NextResponse: {
+    json: jest.fn().mockImplementation((data, options) => ({
+      status: options?.status || 200,
+      headers: new Map(Object.entries(options?.headers || {})),
+      json: jest.fn().mockResolvedValue(data),
+    })),
+  },
+}));
