@@ -1,30 +1,17 @@
 export interface Post {
-  ID: number;
+  external_id: string;
+  language: string;
+  description: string;
   title: string;
-  URL: string;
-  excerpt: string;
-  date: string;
-  author: {
-    ID: number;
-    name: string;
-    first_name: string;
-    last_name: string;
-    email: string | boolean;
-    login: string;
-  };
-  featured_image: string;
-  content: string;
-  tags: {
+  image_url: string;
+  link: string;
+  pub_date: string;
+  categories: {
     [key: string]: {
-      ID: number;
       name: string;
       slug: string;
     };
   };
-  status: string;
-  like_count: number;
-  comment_count: number;
-  slug: string;
 }
 
 export interface NewsProps {

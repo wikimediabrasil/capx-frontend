@@ -1,18 +1,12 @@
-import Image from 'next/image';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useTagDiff } from '@/hooks/useTagDiff';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
 import { NewsProps, Post } from '@/types/news';
-import { useEffect, useState } from 'react';
-import { useTagDiff } from '@/hooks/useTagDiff';
 import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
-
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 export const NewsSection = ({ ids }: NewsProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -41,7 +35,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
         const allPosts = await Promise.all(
           validTags.map(async tag => {
             const formattedTag = tag.toLowerCase().replace(/\s+/g, '-');
-            const url = `https://public-api.wordpress.com/rest/v1.1/sites/175527200/posts/?tag=${formattedTag}`;
+            const url = `/api/news/${formattedTag}`;
             const response = await fetch(url);
             const data = await response.json();
 
@@ -51,17 +45,17 @@ export const NewsSection = ({ ids }: NewsProps) => {
 
         const combinedPosts = allPosts.flat();
         const uniquePosts = Array.from(
-          new Map(combinedPosts.map(post => [post.ID, post])).values()
+          new Map(combinedPosts.map(post => [post.external_id, post])).values()
         );
 
         // Sort posts by date, from newest to oldest
         const sortedPosts = uniquePosts.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a, b) => new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime()
         );
 
         setPosts(sortedPosts);
       } catch (error) {
-        console.error('Erro ao buscar notícias:', error);
+        console.error('Error while searching for news:', error);
       } finally {
         setIsLoading(false);
       }
@@ -110,7 +104,6 @@ export const NewsSection = ({ ids }: NewsProps) => {
                 if (container) container.scrollBy({ left: -370, behavior: 'smooth' });
               }}
             >
-              {/* TODO: Add arrow left icon */}
               &#10094;
             </button>
             <button
@@ -122,7 +115,6 @@ export const NewsSection = ({ ids }: NewsProps) => {
                 if (container) container.scrollBy({ left: 370, behavior: 'smooth' });
               }}
             >
-              {/* TODO: Add arrow right icon */}
               &#10095;
             </button>
           </>
@@ -137,17 +129,17 @@ export const NewsSection = ({ ids }: NewsProps) => {
             msOverflowStyle: 'none',
           }}
         >
-          {posts.map((post, index) => (
+          {posts.map(post => (
             <div
-              key={index}
+              key={post.external_id}
               className={`flex-shrink-0 snap-start flex flex-col w-[300px] md:w-[350px] px-[12px] py-[24px] items-center gap-[12px] rounded-[16px] ${
                 darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
               }`}
             >
               <div className="relative w-full h-[200px] rounded-[16px] overflow-hidden">
-                {post.featured_image ? (
+                {post.image_url ? (
                   <Image
-                    src={post.featured_image}
+                    src={post.image_url}
                     alt={post.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -161,7 +153,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
                 )}
               </div>
               <a
-                href={post.URL}
+                href={post.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`text-center font-[Montserrat] text-[20px] font-bold not-italic leading-[normal] text-start ${
@@ -176,10 +168,10 @@ export const NewsSection = ({ ids }: NewsProps) => {
                     darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
                 >
-                  {dateFormatter.format(new Date(post.date))}
+                  {/* {dateFormatter.format(new Date(post.pub_date))}
                   &nbsp;{pageContent['organization-profile-news-section-by']}
                   &nbsp;
-                  {post.author.name}
+                  {post.author.name} */}
                 </p>
               </div>
             </div>
