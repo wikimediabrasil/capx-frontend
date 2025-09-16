@@ -3,18 +3,18 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
+import { useLanguageSync } from '@/components/shared/LanguageSync';
+import { ProfileListWithEmpty } from '@/components/shared/ProfileListWithEmpty';
+import { SearchFilterSection } from '@/components/shared/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacity } from '@/hooks/useCapacityDetails';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAllUsers } from '@/hooks/useUserProfile';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
 import { createProfilesFromUsers, FilterState, ProfileCapacityType, Skill } from './types';
-import { useLanguageSync } from '@/components/shared/LanguageSync';
-import { SearchFilterSection } from '@/components/shared/SearchFilterSection';
-import { ProfileListWithEmpty } from '@/components/shared/ProfileListWithEmpty';
 
 export default function FeedPage() {
   const { pageContent } = useApp();
@@ -241,7 +241,7 @@ export default function FeedPage() {
       <div className="container mx-auto px-4">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           <SearchFilterSection
-            activeFilters={activeFilters}
+            activeFilters={activeFilters.capacities ? activeFilters : { capacities: [] }}
             showSkillModal={showSkillModal}
             onRemoveCapacity={handleRemoveCapacity}
             onShowSkillModal={setShowSkillModal}

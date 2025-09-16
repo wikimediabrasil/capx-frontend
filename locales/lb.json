@@ -152,6 +152,7 @@
 	"pagination-next": "Nächst",
 	"pagination-page": "Säit",
 	"feed-no-data-message": "Keng Donnéeë fonnt",
+	"profile-incomplete": "Onvollstännegt Profil",
 	"snackbar-edit-profile-failed-generic": "Feeler beim Aktualiséiere vum Profil. Iwwerpréift wgl. Är Donnéeën a probéiert nach eng Kéier.",
 	"snackbar-edit-profile-organization-invalid-document-url": "Ongülteg Dokument-URL. Benotzt wgl. eng Wikimedia-Commons-URL (common.wikimedia.org) mat manner wéi 200 Zeechen.",
 	"snackbar-edit-profile-organization-document-url-too-long": "D'Dokument-URL ass ze laang. Benotzt wgl. eng URL mat manner wéi 200 Zeechen.",

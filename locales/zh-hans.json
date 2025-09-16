@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"22593",
+			"Aaron Liu",
 			"GuoPC",
 			"HellojoeAoPS",
 			"Huajing",
@@ -36,7 +37,7 @@
 	"body-loggedin-home-third-section-button-success": "电子邮件地址已复制到剪贴板！",
 	"body-profile-gender-hehim": "他 (He/Him)",
 	"body-profile-gender-sheher": "她 (She/Her)",
-	"body-profile-gender-theythem": "他们 (They/Them)",
+	"body-profile-gender-theythem": "TA",
 	"body-profile-gender-notespecified": "未指定",
 	"body-profile-gender-other": "其他",
 	"body-profile-edit-button": "编辑个人资料",
