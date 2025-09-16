@@ -10,15 +10,14 @@ interface UseCapacityTranslationsReturn {
 }
 
 /**
- * Hook para gerenciar traduções das capacidades
- * Simplificado para usar apenas o cache principal do CapacityCacheContext
+ * Hook for managing translations of capacities
  */
 export function useCapacityTranslations(): UseCapacityTranslationsReturn {
   const { language } = useApp();
   const { updateLanguage, getCapacity, isLoaded, isLoadingTranslations } = useCapacityCache();
   const [error, setError] = useState<string | null>(null);
 
-  // Função para obter uma capacidade traduzida diretamente do cache principal
+  // Function to get a translated capacity directly from the main cache
   const getTranslatedCapacity = useCallback(
     (code: number): { name: string; description: string } | null => {
       if (!isLoaded) return null;
@@ -34,7 +33,7 @@ export function useCapacityTranslations(): UseCapacityTranslationsReturn {
     [isLoaded, getCapacity]
   );
 
-  // Função para atualizar todas as traduções
+  // Function to update all translations
   const refreshAllTranslations = useCallback(async () => {
     if (!isLoaded) return;
 
@@ -42,8 +41,8 @@ export function useCapacityTranslations(): UseCapacityTranslationsReturn {
       setError(null);
       await updateLanguage(language);
     } catch (err) {
-      console.error('Erro ao atualizar todas as traduções:', err);
-      setError('Erro ao atualizar todas as traduções');
+      console.error('Error updating all translations:', err);
+      setError('Error updating all translations');
     }
   }, [updateLanguage, language, isLoaded]);
 

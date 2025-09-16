@@ -1,22 +1,18 @@
 'use client';
 
 import { Filters } from '@/app/(auth)/feed/components/Filters';
-import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 import { FilterState, ProfileCapacityType, Skill } from '@/app/(auth)/feed/types';
+import { useLanguageSync } from '@/components/LanguageSync';
 import { PaginationButtons } from '@/components/PaginationButtons';
+import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
+import { SearchFilterSection } from '@/components/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { Capacity } from '@/types/capacity';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useLanguageSync } from '@/components/shared/LanguageSync';
-import { SearchFilterSection } from '@/components/shared/SearchFilterSection';
-import { ProfileListWithEmpty } from '@/components/shared/ProfileListWithEmpty';
+import { useEffect, useMemo, useState } from 'react';
 
-import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import Banner from '@/components/Banner';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
 import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import OrgListBanner from '@/public/static/images/organization_list.svg';

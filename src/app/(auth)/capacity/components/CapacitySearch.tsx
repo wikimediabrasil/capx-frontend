@@ -133,8 +133,8 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
 
-  // Notificar o componente pai sobre o termo de busca
-  // Apenas notifica se o termo mudou e onSearch existir
+  // Notify the parant component with search term
+  // Only notify if the term changed and onSearch exists
   useEffect(() => {
     if (onSearch && searchTerm !== lastNotifiedTermRef.current) {
       lastNotifiedTermRef.current = searchTerm;
@@ -142,17 +142,17 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
     }
   }, [searchTerm, onSearch]);
 
-  // Processa os resultados para garantir níveis corretos e cores consistentes
+  // Process the results to ensure correct levels and consistent colors
   const processedResults = searchResults.map(capacity => {
-    // Usa o nível já definido pelo cache, pois o cache unificado já tem essa informação
+    // Use the level already defined by the cache, because the unified cache already has this information
     const level = capacity.level || 1;
 
-    // Para level 3, herda cor da família root em vez de usar cor fixa
+    // For level 3, inherit root family color instead of using fixed color
     let color = capacity.color;
     if (level === 3 && capacity.parentCapacity?.parentCapacity?.color) {
-      color = capacity.parentCapacity.parentCapacity.color; // Cor da família root
+      color = capacity.parentCapacity.parentCapacity.color; // Root family color
     } else if (level === 3 && capacity.parentCapacity?.color) {
-      color = capacity.parentCapacity.color; // Cor do pai se não houver avô
+      color = capacity.parentCapacity.color; // Parent color if there is no grandparent
     }
 
     return {

@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import D3TreeVisualization from './D3TreeVisualization';
 
-// Interface específica para a visualização D3
+// Specific interface for D3 visualization
 interface D3Capacity {
   id: string;
   name: string;

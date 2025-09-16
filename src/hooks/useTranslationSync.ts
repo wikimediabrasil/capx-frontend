@@ -3,8 +3,8 @@ import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useEffect, useRef } from 'react';
 
 /**
- * Hook para sincronizar as traduções com mudanças de idioma
- * Aplica traduções cacheadas aos campos principais quando o idioma muda
+ * Hook for synchronizing translations with language changes
+ * Applies cached translations to main fields when the language changes
  */
 export function useTranslationSync() {
   const { language } = useApp();

@@ -1,11 +1,11 @@
 'use client';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useLanguageSync } from '@/components/LanguageSync';
 import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
-import { useLanguageSync } from '@/components/shared/LanguageSync';
-import { ProfileListWithEmpty } from '@/components/shared/ProfileListWithEmpty';
-import { SearchFilterSection } from '@/components/shared/SearchFilterSection';
+import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
+import { SearchFilterSection } from '@/components/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacity } from '@/hooks/useCapacityDetails';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
