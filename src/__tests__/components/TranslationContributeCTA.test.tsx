@@ -139,7 +139,7 @@ describe('TranslationContributeCTA', () => {
 
       const container = screen.getByText('Help translate this capacity').closest('div')
         ?.parentElement?.parentElement;
-      expect(container).toHaveClass('bg-blue-950/30', 'border-blue-800/50');
+      expect(container).toHaveClass('bg-capx-dark-box-bg', 'border-blue-800/50');
     });
 
     it('applies light mode styles when darkMode is false', () => {

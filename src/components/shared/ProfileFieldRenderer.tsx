@@ -38,13 +38,7 @@ export const ProfileField: React.FC<ProfileFieldProps> = ({
   return (
     <div className={`flex flex-col ${isMobile ? 'gap-2' : 'gap-4'}`}>
       <div className="flex items-center gap-2">
-        <Image
-          src={icon}
-          alt={title}
-          width={iconSize}
-          height={iconSize}
-          className="object-cover"
-        />
+        <Image src={icon} alt={title} width={iconSize} height={iconSize} className="object-cover" />
         <h2
           className={`font-[Montserrat] ${titleSize} font-bold ${
             darkMode ? 'text-white' : 'text-capx-dark-box-bg'

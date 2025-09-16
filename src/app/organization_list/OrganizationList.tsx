@@ -121,15 +121,7 @@ export default function OrganizationList() {
 
       // Create incomplete profile if organization has no capacities
       if (!hasWantedCapacities && !hasAvailableCapacities) {
-        organizationProfiles.push(
-          createOrganizationProfile(
-            org,
-            [],
-            'incomplete' as any,
-            true,
-            2
-          )
-        );
+        organizationProfiles.push(createOrganizationProfile(org, [], 'incomplete' as any, true, 2));
       }
     });
 
