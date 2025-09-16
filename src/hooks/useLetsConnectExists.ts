@@ -6,7 +6,7 @@ export function useLetsConnectExists() {
   const { data: session } = useSession();
   const username = session?.user?.name;
   const token = session?.user?.token;
-  
+
   const {
     data: existsData,
     isLoading,

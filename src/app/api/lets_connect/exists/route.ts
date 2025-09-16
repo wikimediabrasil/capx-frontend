@@ -1,12 +1,12 @@
-import axios from "axios";
-import { NextRequest, NextResponse } from "next/server";
+import axios from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  const username = request.nextUrl.searchParams.get("username");
+  const authHeader = request.headers.get('authorization');
+  const username = request.nextUrl.searchParams.get('username');
 
   if (!username) {
-    return NextResponse.json({ error: "Username is required" }, { status: 400 });
+    return NextResponse.json({ error: 'Username is required' }, { status: 400 });
   }
 
   try {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       `https://letsconn.toolforge.org/exists/?username=${encodeURIComponent(username)}`,
       {
         headers: {
-          Authorization: authHeader || "",
+          Authorization: authHeader || '',
         },
       }
     );
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Failed to get LetsConnect exists data" },
+      { error: 'Failed to get LetsConnect exists data' },
       { status: error.response?.status || 500 }
     );
   }

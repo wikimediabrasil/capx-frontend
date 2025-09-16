@@ -100,9 +100,7 @@ describe('MobileNavbar', () => {
     return render(
       <ThemeProvider>
         <AppProvider>
-          <div data-testid="test-container">
-            {component}
-          </div>
+          <div data-testid="test-container">{component}</div>
         </AppProvider>
       </ThemeProvider>
     );
