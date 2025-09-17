@@ -84,6 +84,11 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
       to: '/organization_list',
       active: true,
     },
+        {
+      title: pageContent['analytics-dashboard'],
+      to: '/data_analytics_dashboard',
+      active: true,
+    },
   ];
 
   const unauthenticatedMenuItems = [

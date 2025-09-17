@@ -7,4 +7,5 @@ export interface Statistics {
   new_messages: number;
   total_organizations: number;
   new_organizations: number;
+  active_users: number;
 }

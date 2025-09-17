@@ -758,5 +758,15 @@
   "capacity-selection-modal-select-capacity-button-multiple-capacity": "Capacity",
   "capacity-selection-modal-back": "Back",
   "edit-profile-mini-bio-exceeded-chars": "characters exceeded",
-  "edit-profile-mini-bio-remaining-chars": "characters remaining"
+  "edit-profile-mini-bio-remaining-chars": "characters remaining",
+  "analytics-dashboard": "Data Analytics",
+  "analytics-bashboard-banner": "Data Analytics",
+  "analytics-bashboard-alt-banner": "Banner image data analytics page",
+  "analytics-bashboard-total-users": "Total users",
+  "analytics-dashboard-total-users-text": "Active users last month",
+  "analytics-bashboard-total-messages": "Total messages",
+  "analytics-bashboard-total-messages-text": "Messages sent last month",
+  "analytics-bashboard-languages-title": "Languages",
+  "analytics-bashboard-territory-title": "Territory",
+  "analytics-bashboard-capacities-title": "Capacities"
 }
