@@ -26,7 +26,7 @@ export default function Banner({ image, title, alt, customClass = {} }: BannerPr
 
   return (
     <div
-      className={`md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6 md:mb-6 ${customClass.wrapper ?? ''}`}
+      className={`md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6 md:mb-6 px-4 md:px-4 ${customClass.wrapper ?? ''}`}
     >
       <div
         className={`w-full md:h-[350px] ${customClass.background ?? 'bg-[#04222F]'} rounded-lg overflow-hidden`}
