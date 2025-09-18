@@ -5,7 +5,6 @@ import axios from 'axios';
 import BaseButton from './BaseButton';
 import Popup from './Popup';
 import capxPersonIcon from '../../public/static/images/capx_person_icon.svg';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 
 interface AuthButtonProps {
@@ -31,7 +30,6 @@ export default function AuthButton({
 }: AuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const handleAuth = async () => {
     setIsLoading(true);

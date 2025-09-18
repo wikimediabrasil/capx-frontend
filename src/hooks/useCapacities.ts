@@ -1,9 +1,9 @@
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { capacityService } from '@/services/capacityService';
 import { Capacity, CapacityResponse } from '@/types/capacity';
 import { useSession } from 'next-auth/react';
-import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { getCapacityIcon } from '@/lib/utils/capacitiesUtils';
+import { useEffect, useCallback, useMemo } from 'react';
 
 // Cache keys for React Query
 export const CAPACITY_CACHE_KEYS = {

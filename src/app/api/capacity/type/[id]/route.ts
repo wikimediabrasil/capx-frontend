@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchMetabase, fetchWikidata } from '@/lib/utils/capacitiesUtils';
