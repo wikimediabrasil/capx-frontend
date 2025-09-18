@@ -35,13 +35,14 @@ import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useAllCapacities } from '@/hooks/useAllCapacities';
 import { useCapacities } from '@/hooks/useCapacities';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
-import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
   validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
 import { LanguageProficiency } from '@/types/language';
+import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
 
@@ -162,6 +163,7 @@ export default function EditProfilePage() {
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
+  const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: '',
     affiliation: [],
@@ -702,6 +704,7 @@ export default function EditProfilePage() {
     },
     handleAvatarSelect,
     hasLetsConnectData: letsConnectData !== null,
+    hasLetsConnectAccount,
     showAvatarPopup,
     setShowAvatarPopup,
     handleWikidataClick,
