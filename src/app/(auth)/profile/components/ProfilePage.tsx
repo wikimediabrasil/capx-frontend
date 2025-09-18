@@ -53,10 +53,12 @@ const ProfileItemsComponent = ({
   icon,
   title,
   value,
+  emptyText,
 }: {
   icon: string;
   title: string;
   value: string | string[];
+  emptyText?: string;
 }) => {
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
@@ -86,7 +88,7 @@ const ProfileItemsComponent = ({
               darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
             }`}
           >
-            {value}
+            {typeof value === 'string' ? value || emptyText : value}
           </p>
         </div>
       </>
@@ -116,7 +118,7 @@ const ProfileItemsComponent = ({
             darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
           }`}
         >
-          {value}
+          {typeof value === 'string' ? value || emptyText : value}
         </p>
       </div>
     </>
@@ -331,24 +333,34 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-languages-title']}
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.language?.map((lang, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[14px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
+                {profile?.language && profile.language.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.language.map((lang, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-[4px] px-[4px] py-[6px] ${
+                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                         }`}
                       >
-                        {languages[lang.id]} - {getProficiencyLabel(lang.proficiency)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                        <span
+                          className={`font-[Montserrat] text-[14px] ${
+                            darkMode ? 'text-white' : 'text-[#053749]'
+                          }`}
+                        >
+                          {languages[lang.id]} - {getProficiencyLabel(lang.proficiency)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[14px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             {shouldRenderEmptyField(profile?.wiki_alt) && (
@@ -356,6 +368,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? WikiIconWhite : WikiIcon}
                 title={pageContent['body-profile-box-title-alt-wiki-acc']}
                 value={profile?.wiki_alt || ''}
+                emptyText={pageContent['empty-field']}
               />
             )}
 
@@ -377,24 +390,34 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-section-title-affiliation']}
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.affiliation?.map((territoryId, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[14px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
+                {profile?.affiliation && profile.affiliation.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.affiliation.map((territoryId, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-[4px] px-[4px] py-[6px] ${
+                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                         }`}
                       >
-                        {affiliations[territoryId] || territoryId}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                        <span
+                          className={`font-[Montserrat] text-[14px] ${
+                            darkMode ? 'text-white' : 'text-[#053749]'
+                          }`}
+                        >
+                          {affiliations[territoryId] || territoryId}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[14px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             {shouldRenderEmptyField(profile?.territory) && (
@@ -415,24 +438,34 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-section-title-territory']}
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.territory?.map((territoryId, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[14px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
+                {profile?.territory && profile.territory.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.territory.map((territoryId, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-[4px] px-[4px] py-[6px] ${
+                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                         }`}
                       >
-                        {territories[territoryId] || territoryId}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                        <span
+                          className={`font-[Montserrat] text-[14px] ${
+                            darkMode ? 'text-white' : 'text-[#053749]'
+                          }`}
+                        >
+                          {territories[territoryId] || territoryId}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[14px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             {shouldRenderEmptyField(profile?.wikidata_qid) && (
@@ -440,6 +473,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? BarCodeIconWhite : BarCodeIcon}
                 title={pageContent['body-profile-box-title-wikidata-item']}
                 value={profile?.wikidata_qid || ''}
+                emptyText={pageContent['empty-field']}
               />
             )}
             {shouldRenderEmptyField(profile?.wikimedia_project) && (
@@ -461,28 +495,38 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-wikimedia-projects-title']}
                   </p>
                 </div>
-                <div className="flex flex-row gap-2">
-                  {profile?.wikimedia_project?.map(projectId =>
-                    projectId ? (
-                      <div
-                        key={projectId}
-                        className={`relative h-[123px] w-[98px] rounded-[16px] flex items-center justify-center ${
-                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                        }`}
-                      >
-                        <Image
-                          src={
-                            wikimediaProjectImages[projectId] ||
-                            (darkMode ? WikiIconWhite : WikiIcon)
-                          }
-                          className="object-contain p-[12px] object-cover"
-                          alt={wikimediaProjects[projectId] || 'Project icon'}
-                          fill
-                        />
-                      </div>
-                    ) : null
-                  )}
-                </div>
+                {profile?.wikimedia_project && profile.wikimedia_project.length > 0 ? (
+                  <div className="flex flex-row gap-2">
+                    {profile.wikimedia_project.map(projectId =>
+                      projectId ? (
+                        <div
+                          key={projectId}
+                          className={`relative h-[123px] w-[98px] rounded-[16px] flex items-center justify-center ${
+                            darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
+                          }`}
+                        >
+                          <Image
+                            src={
+                              wikimediaProjectImages[projectId] ||
+                              (darkMode ? WikiIconWhite : WikiIcon)
+                            }
+                            className="object-contain p-[12px] object-cover"
+                            alt={wikimediaProjects[projectId] || 'Project icon'}
+                            fill
+                          />
+                        </div>
+                      ) : null
+                    )}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[14px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             <div className="flex flex-row gap-2">
@@ -665,24 +709,34 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-languages-title']}
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.language?.map((lang, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[24px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
+                {profile?.language && profile.language.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.language.map((lang, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-[4px] px-[4px] py-[6px] ${
+                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                         }`}
                       >
-                        {languages[lang.id]} - {getProficiencyLabel(lang.proficiency)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                        <span
+                          className={`font-[Montserrat] text-[24px] ${
+                            darkMode ? 'text-white' : 'text-[#053749]'
+                          }`}
+                        >
+                          {languages[lang.id]} - {getProficiencyLabel(lang.proficiency)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[24px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             {shouldRenderEmptyField(profile?.wiki_alt) && (
@@ -690,6 +744,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? WikiIconWhite : WikiIcon}
                 title={pageContent['body-profile-box-title-alt-wiki-acc']}
                 value={profile?.wiki_alt || ''}
+                emptyText={pageContent['empty-field']}
               />
             )}
             {shouldRenderEmptyField(profile?.affiliation) && (
@@ -710,24 +765,34 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-section-title-affiliation']}
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.affiliation?.map((aff, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[24px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
+                {profile?.affiliation && profile.affiliation.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.affiliation.map((aff, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-[4px] px-[4px] py-[6px] ${
+                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                         }`}
                       >
-                        {affiliations[aff] || ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                        <span
+                          className={`font-[Montserrat] text-[24px] ${
+                            darkMode ? 'text-white' : 'text-[#053749]'
+                          }`}
+                        >
+                          {affiliations[aff] || ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[24px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             {shouldRenderEmptyField(profile?.territory) && (
@@ -748,24 +813,34 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-section-title-territory']}
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.territory?.map((terr, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[24px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
+                {profile?.territory && profile.territory.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.territory.map((terr, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-[4px] px-[4px] py-[6px] ${
+                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                         }`}
                       >
-                        {territories[terr] || ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                        <span
+                          className={`font-[Montserrat] text-[24px] ${
+                            darkMode ? 'text-white' : 'text-[#053749]'
+                          }`}
+                        >
+                          {territories[terr] || ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[24px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </div>
             )}
             {shouldRenderEmptyField(profile?.wikidata_qid) && (
@@ -773,6 +848,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 icon={darkMode ? BarCodeIconWhite : BarCodeIcon}
                 title={pageContent['body-profile-box-title-wikidata-item']}
                 value={profile?.wikidata_qid || ''}
+                emptyText={pageContent['empty-field']}
               />
             )}
             {shouldRenderEmptyField(profile?.wikimedia_project) && (
@@ -794,28 +870,38 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                     {pageContent['body-profile-wikimedia-projects-title']}
                   </p>
                 </div>
-                <div className="flex flex-row gap-5 items-center">
-                  {profile?.wikimedia_project?.map(projectId =>
-                    projectId ? (
-                      <div
-                        key={projectId}
-                        className={`relative h-[250px] w-[180px] bg-[#EFEFEF] rounded-[16px] flex items-center justify-center ${
-                          darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                        }`}
-                      >
-                        <Image
-                          src={
-                            wikimediaProjectImages[projectId] ||
-                            (darkMode ? WikiIconWhite : WikiIcon)
-                          }
-                          alt={wikimediaProjects[projectId] || 'Project icon'}
-                          className="object-contain p-[24px]"
-                          fill
-                        />
-                      </div>
-                    ) : null
-                  )}
-                </div>
+                {profile?.wikimedia_project && profile.wikimedia_project.length > 0 ? (
+                  <div className="flex flex-row gap-5 items-center">
+                    {profile.wikimedia_project.map(projectId =>
+                      projectId ? (
+                        <div
+                          key={projectId}
+                          className={`relative h-[250px] w-[180px] bg-[#EFEFEF] rounded-[16px] flex items-center justify-center ${
+                            darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
+                          }`}
+                        >
+                          <Image
+                            src={
+                              wikimediaProjectImages[projectId] ||
+                              (darkMode ? WikiIconWhite : WikiIcon)
+                            }
+                            alt={wikimediaProjects[projectId] || 'Project icon'}
+                            className="object-contain p-[24px]"
+                            fill
+                          />
+                        </div>
+                      ) : null
+                    )}
+                  </div>
+                ) : (
+                  <span
+                    className={`font-[Montserrat] text-[24px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['empty-field']}
+                  </span>
+                )}
               </>
             )}
             <div className="flex flex-row gap-2 items-center mb-[16px]">
