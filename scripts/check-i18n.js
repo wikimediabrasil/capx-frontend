@@ -60,7 +60,28 @@ function collectUsedKeys() {
   return used;
 }
 
+function removeUnusedKeys(filePath, unusedKeys) {
+  const content = readJson(filePath);
+  let removed = 0;
+
+  for (const key of unusedKeys) {
+    if (key in content) {
+      delete content[key];
+      removed++;
+    }
+  }
+
+  if (removed > 0) {
+    fs.writeFileSync(filePath, JSON.stringify(content, null, 2) + '\n', 'utf8');
+    console.log(`✓ Removed ${removed} unused translation keys from ${path.basename(filePath)}`);
+  }
+
+  return removed;
+}
+
 function main() {
+  const isFixMode = process.argv.includes('--fix');
+
   if (!fs.existsSync(EN_JSON_PATH)) {
     console.error(`en.json not found at ${EN_JSON_PATH}`);
     process.exit(2);
@@ -88,20 +109,43 @@ function main() {
     missing.sort().forEach(k => console.error(`  - ${k}`));
   }
 
-  const failOnUnused = (process.env.I18N_FAIL_ON_UNUSED || 'true').toLowerCase() !== 'false';
   if (unused.length) {
-    if (failOnUnused) hasErrors = true;
-    // Show a capped list to keep logs concise, but include total count
-    const preview = unused.sort().slice(0, 200);
-    const heading = `\nUnused i18n keys present in en.json (${unused.length} total, showing up to 200):`;
-    if (failOnUnused) {
-      console.error(heading);
+    if (isFixMode) {
+      console.log(`\nFound ${unused.length} unused i18n keys. Removing them...`);
+      removeUnusedKeys(EN_JSON_PATH, unused);
+
+      // Check for other locale files and remove from them too
+      const localesDir = path.dirname(EN_JSON_PATH);
+      const localeFiles = fs.readdirSync(localesDir)
+        .filter(file => file.endsWith('.json') && file !== 'en.json')
+        .map(file => path.join(localesDir, file));
+
+      for (const localeFile of localeFiles) {
+        if (fs.existsSync(localeFile)) {
+          removeUnusedKeys(localeFile, unused);
+        }
+      }
+
     } else {
-      console.warn(heading);
-    }
-    preview.forEach(k => (failOnUnused ? console.error(`  - ${k}`) : console.warn(`  - ${k}`)));
-    if (unused.length > preview.length) {
-      (failOnUnused ? console.error : console.warn)(`  ...and ${unused.length - preview.length} more`);
+      const failOnUnused = (process.env.I18N_FAIL_ON_UNUSED || 'true').toLowerCase() !== 'false';
+      if (failOnUnused) hasErrors = true;
+
+      // Show a capped list to keep logs concise, but include total count
+      const preview = unused.sort().slice(0, 200);
+      const heading = `\nUnused i18n keys present in en.json (${unused.length} total, showing up to 200):`;
+      if (failOnUnused) {
+        console.error(heading);
+      } else {
+        console.warn(heading);
+      }
+      preview.forEach(k => (failOnUnused ? console.error(`  - ${k}`) : console.warn(`  - ${k}`)));
+      if (unused.length > preview.length) {
+        (failOnUnused ? console.error : console.warn)(`  ...and ${unused.length - preview.length} more`);
+      }
+
+      if (failOnUnused) {
+        console.error('\nTo automatically remove unused keys, run: yarn lint:i18n:fix');
+      }
     }
   }
 
@@ -109,7 +153,11 @@ function main() {
     console.error('\n✖ i18n check failed. Please update locales/en.json or usage.');
     process.exit(1);
   } else {
-    console.log('✓ i18n check passed: all used keys exist and en.json has no unused keys.');
+    if (isFixMode && unused.length > 0) {
+      console.log('\n✓ i18n check completed: unused keys removed successfully.');
+    } else {
+      console.log('✓ i18n check passed: all used keys exist and en.json has no unused keys.');
+    }
   }
 }
 
