@@ -415,6 +415,7 @@ yarn dev              # Start development server
 yarn build            # Build for production
 yarn start            # Start production server
 yarn lint             # Run ESLint
+yarn format           # Run formatter
 
 # Testing
 yarn test             # Run tests
