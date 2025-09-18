@@ -131,7 +131,11 @@ export const ProfileCard = ({
                       darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
                     }`}
                   >
-                    {pageContent[`profile-${type}`]}
+                    {type === 'learner'
+                      ? pageContent['profile-learner']
+                      : type === 'sharer'
+                        ? pageContent['profile-sharer']
+                        : ''}
                   </span>
                 )}
               </div>
