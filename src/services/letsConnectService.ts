@@ -14,7 +14,7 @@ export class LetsConnectService {
   }: LetsConnectServiceParams): Promise<any> {
     try {
       const response = await axios.post(
-        '/api/lets_connect',
+        '/api/lets_connect/profile',
         {
           full_name: letsConnect.full_name,
           email: letsConnect.email,
@@ -38,19 +38,20 @@ export class LetsConnectService {
     }
   }
 
-  static async getLetsConnect(username?: string): Promise<LetsConnectProfile | null> {
+  static async getLetsConnectProfile(username?: string): Promise<LetsConnectProfile | null> {
+    if (!username) return null;
+
     try {
-      const response = await axios.get('/api/lets_connect', {
-        params: {
-          username: username,
-        },
+      const response = await axios.get('/api/lets_connect/profile', {
+        params: { username },
         headers: {
           'Content-Type': 'application/json',
         },
       });
+
       return response.data;
     } catch (error) {
-      console.error('Failed to get lets connect data:', error);
+      console.error('Failed to get LetsConnect profile data:', error);
       throw error;
     }
   }

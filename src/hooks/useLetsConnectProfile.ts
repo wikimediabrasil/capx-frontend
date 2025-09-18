@@ -36,7 +36,7 @@ export function useLetsConnect() {
     setError(null);
 
     try {
-      const response = await LetsConnectService.getLetsConnect(username);
+      const response = await LetsConnectService.getLetsConnectProfile(username);
       if (!response) {
         throw new Error('Invalid lets connect data from server');
       }
