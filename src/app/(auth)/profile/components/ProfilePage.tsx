@@ -88,7 +88,7 @@ const ProfileItemsComponent = ({
               darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
             }`}
           >
-            {typeof value === 'string' ? (value || emptyText) : value}
+            {typeof value === 'string' ? value || emptyText : value}
           </p>
         </div>
       </>
@@ -118,7 +118,7 @@ const ProfileItemsComponent = ({
             darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
           }`}
         >
-          {typeof value === 'string' ? (value || emptyText) : value}
+          {typeof value === 'string' ? value || emptyText : value}
         </p>
       </div>
     </>
