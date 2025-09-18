@@ -4,12 +4,7 @@ import { UserProfile } from '@/types/user';
 export enum ProfileCapacityType {
   Learner = 'learner',
   Sharer = 'sharer',
-}
-
-export enum ProfileFilterType {
-  Both = 'both',
-  User = 'user',
-  Organization = 'organization',
+  Incomplete = 'incomplete',
 }
 
 export interface Skill {
@@ -22,7 +17,6 @@ export interface FilterState {
   profileCapacityTypes: ProfileCapacityType[];
   territories: string[];
   languages: string[];
-  profileFilter: ProfileFilterType;
   username?: string;
   affiliations?: string[];
 }

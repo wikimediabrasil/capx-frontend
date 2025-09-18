@@ -29,6 +29,7 @@ import { useAvatars } from '@/hooks/useAvatars';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { LanguageProficiency } from '@/types/language';
+import BaseButton from '@/components/BaseButton';
 
 interface ProfileCardProps {
   id: string;
@@ -43,6 +44,7 @@ interface ProfileCardProps {
   isOrganization?: boolean;
   isSaved?: boolean;
   onToggleSaved?: () => void;
+  hasIncompleteProfile?: boolean;
 }
 
 export const ProfileCard = ({
@@ -57,6 +59,7 @@ export const ProfileCard = ({
   isOrganization = false,
   isSaved = false,
   onToggleSaved,
+  hasIncompleteProfile = false,
 }: ProfileCardProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -92,15 +95,16 @@ export const ProfileCard = ({
       ? BookmarkWhite
       : Bookmark;
 
-  const toggleSaved = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleSaved = () => {
     onToggleSaved && onToggleSaved();
   };
 
   return (
     <div
-      className={`w-full rounded-lg border ${
-        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      className={`w-full rounded-lg border-[2px] ${
+        darkMode
+          ? 'text-capx-light-bg border-capx-light-bg'
+          : 'text-capx-dark-box-bg border-capx-dark-box-bg'
       }`}
     >
       <div className="p-5">
@@ -111,13 +115,25 @@ export const ProfileCard = ({
             <div className={`rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#EFEFEF]'}`}>
               {/* Type Badge */}
               <div className="flex justify-start mb-4">
-                <span
-                  className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-                    darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
-                  }`}
-                >
-                  {type}
-                </span>
+                {hasIncompleteProfile ? (
+                  <span
+                    className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+                      darkMode
+                        ? 'text-orange-200 border-orange-200'
+                        : 'text-orange-600 border-orange-600'
+                    }`}
+                  >
+                    {pageContent['profile-incomplete']}
+                  </span>
+                ) : (
+                  <span
+                    className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+                      darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
+                    }`}
+                  >
+                    {pageContent[`profile-${type}`]}
+                  </span>
+                )}
               </div>
 
               {/* Profile Image */}
@@ -130,7 +146,7 @@ export const ProfileCard = ({
                           ? formatWikiImageUrl(profile_image || '')
                           : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
                       }
-                      alt={username || 'User profile'}
+                      alt={pageContent['alt-profile-picture'] || 'User profile picture'}
                       fill
                       className="object-contain rounded-[4px]"
                       unoptimized
@@ -140,7 +156,10 @@ export const ProfileCard = ({
                     <div className="w-full h-full flex items-center justify-center">
                       <Image
                         src={defaultAvatar}
-                        alt="User profile"
+                        alt={
+                          pageContent['alt-profile-picture-default'] ||
+                          'Default user profile picture'
+                        }
                         fill
                         className="object-contain rounded-[4px]"
                         unoptimized
@@ -153,7 +172,7 @@ export const ProfileCard = ({
             </div>
 
             {/* Username */}
-            <div className="mt-4 mb-6 flex items-center justify-between">
+            <div className="mt-4 mb-6 flex items-center justify-center md:justify-between">
               <h5
                 className={`md:text-[32px] text-xl font-bold font-[Montserrat] ${
                   darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
@@ -162,19 +181,85 @@ export const ProfileCard = ({
                 {username}
               </h5>
             </div>
+
+            {/* Desktop Buttons - Below profile image */}
+            <div className="hidden md:flex flex-col gap-2">
+              {/* Profile Button */}
+              <BaseButton
+                customClass={`w-full font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
+                  darkMode
+                    ? 'text-capx-light-bg border-capx-light-bg'
+                    : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+                }`}
+                onClick={() => {
+                  const routePath = isOrganization
+                    ? `/organization_profile/${id}`
+                    : `/profile/${encodeURIComponent(username)}`;
+                  router.push(routePath);
+                }}
+                imageUrl={darkMode ? AccountCircleWhite : AccountCircle}
+                imageAlt={pageContent['alt-view-profile-user'] || 'View user profile'}
+                imageWidth={40}
+                imageHeight={40}
+                label={pageContent['saved-profiles-view-profile'] || 'View user profile'}
+              />
+
+              {/* Bookmark Button */}
+              {onToggleSaved && (
+                <BaseButton
+                  customClass={`w-full font-[Montserrat] text-[20px] mt-[6px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
+                    darkMode
+                      ? 'text-capx-light-bg border-capx-light-bg'
+                      : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+                  }`}
+                  label={isSaved ? 'Saved' : 'Save profile'}
+                  onClick={toggleSaved}
+                  aria-label={
+                    isSaved
+                      ? pageContent['alt-bookmark-remove'] ||
+                        'Remove this profile from your saved list'
+                      : pageContent['alt-bookmark-add'] || 'Save this profile to your saved list'
+                  }
+                  imageUrl={bookmarkIcon}
+                  imageAlt={
+                    isSaved
+                      ? pageContent['alt-bookmark-saved'] || 'Profile saved to your list'
+                      : pageContent['alt-bookmark-add'] || 'Save this profile to your saved list'
+                  }
+                  imageWidth={40}
+                  imageHeight={40}
+                />
+              )}
+            </div>
           </div>
 
           {/* Right Column - Info */}
           <div className="mt-4 md:mt-0 flex flex-col gap-4">
             {/* Available or Wanted Capacities */}
-            <ProfileItem
-              icon={capacitiesIcon}
-              title={capacitiesTitle}
-              items={capacities}
-              showEmptyDataText={false}
-              getItemName={id => getCapacityName(id)}
-              customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
-            />
+            {hasIncompleteProfile ? (
+              <div className="flex items-center justify-center h-full min-h-[120px] md:min-h-[300px]">
+                <div className="text-center max-w-md">
+                  <p
+                    className={`font-[Montserrat] md:text-[18px] text-[14px] leading-relaxed ${
+                      darkMode ? 'text-orange-200' : 'text-orange-600'
+                    }`}
+                  >
+                    {pageContent['profile-incomplete-description']}
+                    <br />
+                    {pageContent['profile-incomplete-description-2']}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <ProfileItem
+                icon={capacitiesIcon}
+                title={capacitiesTitle}
+                items={capacities}
+                showEmptyDataText={false}
+                getItemName={id => getCapacityName(id)}
+                customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
+              />
+            )}
 
             {/* Languages */}
             <ProfileItem
@@ -196,7 +281,8 @@ export const ProfileCard = ({
               showEmptyDataText={false}
             />
 
-            <div className="flex flex-row gap-1 mt-2">
+            {/* Mobile Buttons - Only visible on mobile */}
+            <div className="flex md:hidden flex-row gap-1 mt-2">
               {/* Profile Button */}
               <button
                 className={`inline-flex items-center justify-center p-1.5 rounded-full ${
@@ -211,10 +297,10 @@ export const ProfileCard = ({
               >
                 <Image
                   src={darkMode ? AccountCircleWhite : AccountCircle}
-                  alt={pageContent['body-profile-languages-title']}
+                  alt={pageContent['alt-view-profile-user'] || 'View user profile'}
                   width={32}
                   height={32}
-                  className="w-[32px] h-[32px] md:w-[42px] md:h-[42px]"
+                  className="w-[32px] h-[32px]"
                 />
               </button>
 
@@ -225,11 +311,20 @@ export const ProfileCard = ({
                     darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                   }`}
                   onClick={toggleSaved}
-                  aria-label={isSaved ? 'Remove dos salvos' : 'Salvar perfil'}
+                  aria-label={
+                    isSaved
+                      ? pageContent['alt-bookmark-remove'] ||
+                        'Remove this profile from your saved list'
+                      : pageContent['alt-bookmark-add'] || 'Save this profile to your saved list'
+                  }
                 >
                   <Image
                     src={bookmarkIcon}
-                    alt={isSaved ? 'Perfil salvo' : 'Salvar perfil'}
+                    alt={
+                      isSaved
+                        ? pageContent['alt-bookmark-saved'] || 'Profile saved to your list'
+                        : pageContent['alt-bookmark-add'] || 'Save this profile to your saved list'
+                    }
                     width={32}
                     height={32}
                     className="w-[32px] h-[32px]"

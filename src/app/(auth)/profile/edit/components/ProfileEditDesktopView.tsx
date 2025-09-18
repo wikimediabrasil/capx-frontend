@@ -108,6 +108,7 @@ interface ProfileEditDesktopViewProps {
   goTo: (path: string) => void;
   isImageLoading: boolean;
   hasLetsConnectData: boolean;
+  hasLetsConnectAccount: boolean;
   showLetsConnectPopup: boolean;
   setShowLetsConnectPopup: (show: boolean) => void;
   handleLetsConnectImport: () => void;
@@ -143,6 +144,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
     goTo,
     isImageLoading,
     hasLetsConnectData,
+    hasLetsConnectAccount,
     showLetsConnectPopup,
     setShowLetsConnectPopup,
     handleLetsConnectImport,
@@ -361,7 +363,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     label={pageContent['edit-profile-use-letsconnect']}
                     customClass={`w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0`}
                     imageUrl={LetsConnectIconWhite}
-                    imageAlt="LetsConnect icon"
+                    imageAlt={pageContent['alt-icon-generic'] || 'LetsConnect icon'}
                     imageWidth={30}
                     imageHeight={30}
                     disabled={isLetsConnectLoading}
@@ -372,7 +374,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   label={pageContent['edit-profile-delete-profile']}
                   customClass={`w-full flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold text-capx-dark-box-bg mb-0 mt-4 bg-[#D43831] text-white`}
                   imageUrl={DeleteIcon}
-                  imageAlt="Delete icon"
+                  imageAlt={pageContent['alt-delete-profile'] || 'Delete profile'}
                   imageWidth={30}
                   imageHeight={30}
                 />
@@ -1347,7 +1349,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
             <BaseButton
               onClick={() => goTo('/profile/lets_connect')}
               label={
-                formData?.automated_lets_connect
+                hasLetsConnectAccount
                   ? pageContent['lets-connect-form-user-button-update-profile']
                   : pageContent['lets-connect-form-user-edit']
               }
@@ -1374,7 +1376,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
               label={pageContent['edit-profile-save']}
               customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
               imageUrl={SaveIcon}
-              imageAlt="Save icon"
+              imageAlt={pageContent['alt-save'] || 'Save changes'}
               imageWidth={30}
               imageHeight={30}
             />
@@ -1385,7 +1387,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 darkMode ? 'border-white text-white' : 'border-[#053749] text-[#053749]'
               } rounded-md py-3 font-bold mb-0`}
               imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-              imageAlt="Cancel icon"
+              imageAlt={pageContent['alt-cancel'] || 'Cancel operation'}
               imageWidth={30}
               imageHeight={30}
             />

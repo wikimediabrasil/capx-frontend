@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { SavedItem } from '@/types/saved_item';
 import { userService } from '@/services/userService';
 import { organizationProfileService } from '@/services/organizationProfileService';
-import { ProfileCapacityType, ProfileFilterType } from '@/app/(auth)/feed/types';
+import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { LanguageProficiency } from '@/types/language';
 
 export interface SavedProfile {

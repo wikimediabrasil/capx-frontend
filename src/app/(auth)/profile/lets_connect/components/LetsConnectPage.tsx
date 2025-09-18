@@ -8,7 +8,7 @@ import LoadingState from '@/components/LoadingState';
 import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import { useProfile } from '@/hooks/useProfile';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
@@ -30,6 +30,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Checklist from './CheckList';
+import en from 'locales/en.json';
+import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 
 export enum LetsConnectRole {
   A = 'A',
@@ -42,11 +44,7 @@ export enum LetsConnectRole {
 
 export default function LetsConnectPage() {
   const { pageContent, isMobile } = useApp();
-  const { data: session } = useSession();
-  const token = session?.user?.token;
-  const userId = session?.user?.id ? Number(session.user.id) : undefined;
-  const { profile } = useProfile(token, userId);
-  const hasLetsConnectData = profile?.automated_lets_connect;
+  const { hasLetsConnectAccount } = useLetsConnectExists();
 
   const { darkMode } = useTheme();
   const router = useRouter();
@@ -75,6 +73,50 @@ export default function LetsConnectPage() {
 
   const infoPopupText = pageContent['lets-connect-info-popup-message']?.split(/\$\d/);
 
+  // Function to translate values to english using the en.json file
+  const translateToEnglish = (value: string, type: 'role' | 'gender' | 'area'): string => {
+    // Map the keys of pageContent to the keys of en.json
+    const keyMapping: Record<string, string> = {
+      // Role mappings
+      [pageContent['lets-connect-form-role-a']]: 'lets-connect-form-role-a',
+      [pageContent['lets-connect-form-role-b']]: 'lets-connect-form-role-b',
+      [pageContent['lets-connect-form-role-c']]: 'lets-connect-form-role-c',
+      [pageContent['lets-connect-form-role-d']]: 'lets-connect-form-role-d',
+      [pageContent['lets-connect-form-role-e']]: 'lets-connect-form-role-e',
+      [pageContent['lets-connect-form-role-f']]: 'lets-connect-form-role-f',
+
+      // Gender mappings
+      [pageContent['lets-connect-form-gender-prefer-not-say']]:
+        'lets-connect-form-gender-prefer-not-say',
+      [pageContent['lets-connect-form-gender-man']]: 'lets-connect-form-gender-man',
+      [pageContent['lets-connect-form-gender-woman']]: 'lets-connect-form-gender-woman',
+      [pageContent['lets-connect-form-gender-agender']]: 'lets-connect-form-gender-agender',
+      [pageContent['lets-connect-form-gender-non-binary']]: 'lets-connect-form-gender-non-binary',
+
+      // Area mappings
+      [pageContent['lets-connect-form-area-climate-change']]:
+        'lets-connect-form-area-climate-change',
+      [pageContent['lets-connect-form-area-public-policy']]: 'lets-connect-form-area-public-policy',
+      [pageContent['lets-connect-form-area-education']]: 'lets-connect-form-area-education',
+      [pageContent['lets-connect-form-area-open-technology']]:
+        'lets-connect-form-area-open-technology',
+      [pageContent['lets-connect-form-area-diversity']]: 'lets-connect-form-area-diversity',
+      [pageContent['lets-connect-form-area-culture-heritage-glam']]:
+        'lets-connect-form-area-culture-heritage-glam',
+      [pageContent['lets-connect-form-area-governance']]: 'lets-connect-form-area-governance',
+      [pageContent['lets-connect-form-area-human-rights']]: 'lets-connect-form-area-human-rights',
+      [pageContent['lets-connect-form-area-advocacy']]: 'lets-connect-form-area-advocacy',
+    };
+
+    const englishKey = keyMapping[value];
+    if (englishKey && en[englishKey]) {
+      return en[englishKey];
+    }
+
+    // Fallback: return the original value if no translation is found
+    return value;
+  };
+
   const handleContinueInfoPopup = () => {
     setShowInfoPopup(true);
   };
@@ -85,7 +127,15 @@ export default function LetsConnectPage() {
 
   const handleSubmit = async () => {
     try {
-      await submitLetsConnectForm(formData);
+      // Translate the form data to english before submitting
+      const translatedFormData = {
+        ...formData,
+        role: formData.role ? translateToEnglish(formData.role, 'role') : undefined,
+        gender: formData.gender ? translateToEnglish(formData.gender, 'gender') : undefined,
+        area: formData.area ? translateToEnglish(formData.area, 'area') : undefined,
+      };
+
+      await submitLetsConnectForm(translatedFormData);
       setShowInfoPopup(false);
       setShowSuccessPopup(true);
     } catch (error) {
@@ -172,7 +222,7 @@ export default function LetsConnectPage() {
           />
 
           {/*Informative text*/}
-          {hasLetsConnectData && (
+          {hasLetsConnectAccount && (
             <div className="mt-6 mb-2">
               <p
                 className={`mt-1 text-[10px] md:text-[20px] text-left ${
@@ -207,7 +257,7 @@ export default function LetsConnectPage() {
               >
                 {pageContent['lets-connect-form-full-name-optional']}
               </h4>
-              {hasLetsConnectData && !showFullNameInput && (
+              {hasLetsConnectAccount && !showFullNameInput && (
                 <BaseButton
                   onClick={() => setShowFullNameInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -223,7 +273,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {(showFullNameInput || !hasLetsConnectData) && (
+          {(showFullNameInput || !hasLetsConnectAccount) && (
             <input
               type="text"
               id="full_name"
@@ -247,7 +297,7 @@ export default function LetsConnectPage() {
               >
                 {pageContent['lets-connect-form-email']}
               </h4>
-              {hasLetsConnectData && !showEmailInput && (
+              {hasLetsConnectAccount && !showEmailInput && (
                 <BaseButton
                   onClick={() => setShowEmailInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -263,7 +313,7 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {(showEmailInput || !hasLetsConnectData) && (
+          {(showEmailInput || !hasLetsConnectAccount) && (
             <input
               type="text"
               id="email"
@@ -282,7 +332,7 @@ export default function LetsConnectPage() {
           <div className="mt-6 mb-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div
-                className={`${showRoleInput || !hasLetsConnectData ? 'w-full' : 'w-[75%]'} md:w-[75%]`}
+                className={`${showRoleInput || !hasLetsConnectAccount ? 'w-full' : 'w-[75%]'} md:w-[75%]`}
               >
                 <h4
                   className={`text-[12px] font-[Montserrat] font-bold md:text-[24px] text-start
@@ -292,7 +342,7 @@ export default function LetsConnectPage() {
                 </h4>
               </div>
 
-              {hasLetsConnectData && !showRoleInput && (
+              {hasLetsConnectAccount && !showRoleInput && (
                 <BaseButton
                   onClick={() => setShowRoleInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -307,7 +357,7 @@ export default function LetsConnectPage() {
               )}
             </div>
 
-            {(showRoleInput || !hasLetsConnectData) && (
+            {(showRoleInput || !hasLetsConnectAccount) && (
               <>
                 <p
                   className={`text-[10px] mt-2 mb-2 md:text-[18px] text-start font-[Montserrat] ${
@@ -376,7 +426,7 @@ export default function LetsConnectPage() {
                   {pageContent['lets-connect-form-topic-check']}
                 </h4>
               </div>
-              {hasLetsConnectData && !showAreaInput && (
+              {hasLetsConnectAccount && !showAreaInput && (
                 <div className="flex-shrink-0">
                   <BaseButton
                     onClick={() => setAreaInput(true)}
@@ -394,14 +444,15 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {(showAreaInput || !hasLetsConnectData) && (
+          {(showAreaInput || !hasLetsConnectAccount) && (
             <Checklist
-              other={pageContent['lets-connect-form-topic-check-other']}
+              value={formData.area}
               description={pageContent['lets-connect-form-topic-check-text']}
-              setFormData={(area: string) => setFormData({ ...formData, area })}
-              multiple={true}
+              onChange={(area: string) => setFormData({ ...formData, area })}
               itemsList={areaOptions}
+              other={pageContent['lets-connect-form-topic-check-other']}
               showOther={true}
+              multiple={true}
             />
           )}
 
@@ -416,7 +467,7 @@ export default function LetsConnectPage() {
                   {pageContent['lets-connect-form-gender-identify']}
                 </h4>
               </div>
-              {hasLetsConnectData && !showGenderInput && (
+              {hasLetsConnectAccount && !showGenderInput && (
                 <BaseButton
                   onClick={() => setGenderInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -432,11 +483,12 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {(showGenderInput || !hasLetsConnectData) && (
+          {(showGenderInput || !hasLetsConnectAccount) && (
             <Checklist
-              other={pageContent['lets-connect-form-gender-identify-not-listed']}
-              setFormData={(gender: string) => setFormData({ ...formData, gender })}
+              value={formData.gender}
+              onChange={(gender: string) => setFormData({ ...formData, gender })}
               itemsList={genderOptions}
+              other={pageContent['lets-connect-form-gender-identify-not-listed']}
               showOther={true}
             />
           )}
@@ -452,7 +504,7 @@ export default function LetsConnectPage() {
                   {pageContent['lets-connect-form-age-range']}
                 </h4>
               </div>
-              {hasLetsConnectData && !showAgeInput && (
+              {hasLetsConnectAccount && !showAgeInput && (
                 <BaseButton
                   onClick={() => setAgeInput(true)}
                   label={pageContent['lets-connect-form-edit-inputs']}
@@ -468,9 +520,10 @@ export default function LetsConnectPage() {
             </div>
           </div>
 
-          {(showAgeInput || !hasLetsConnectData) && (
+          {(showAgeInput || !hasLetsConnectAccount) && (
             <Checklist
-              setFormData={(age: string) => setFormData({ ...formData, age })}
+              value={formData.age}
+              onChange={(age: string) => setFormData({ ...formData, age })}
               itemsList={ageOptions}
             />
           )}
@@ -479,7 +532,11 @@ export default function LetsConnectPage() {
 
       <ActionButtons
         handleAhead={handleContinueInfoPopup}
-        labelButtonAhead={pageContent['lets-connect-register-button']}
+        labelButtonAhead={
+          hasLetsConnectAccount
+            ? pageContent['edit-profile-update']
+            : pageContent['lets-connect-sign-in']
+        }
         iconAhead={SendIcon}
         iconAltAhead={pageContent['lets-connect-register-alt-icon']}
         labelButtonBack={pageContent['lets-connect-back-button']}

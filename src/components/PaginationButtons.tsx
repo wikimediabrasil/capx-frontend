@@ -53,17 +53,21 @@ export function PaginationButtons({
   };
 
   const buttonStyle = `
-    px-3 py-2 rounded-lg transition-colors text-sm
+    px-3 py-2 rounded-lg transition-colors text-sm font-medium
     ${
       darkMode
-        ? 'hover:bg-gray-700 disabled:bg-gray-800 disabled:text-gray-600'
-        : 'hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400'
+        ? 'text-gray-200 hover:bg-gray-600 hover:text-white disabled:bg-gray-800 disabled:text-gray-500 border border-gray-600'
+        : 'text-gray-700 hover:bg-gray-100 disabled:bg-gray-100 disabled:text-gray-400 border border-gray-300'
     }
   `;
 
   const activeButtonStyle = `
     ${buttonStyle}
-    ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'}
+    ${
+      darkMode
+        ? 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
+        : 'bg-blue-600 text-white border-blue-500 hover:bg-blue-700'
+    }
   `;
 
   return (
@@ -75,7 +79,7 @@ export function PaginationButtons({
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
           class_name={buttonStyle}
-          aria-label={pageContent?.['pagination-first'] || 'First page'}
+          aria-label={pageContent?.['pagination-first'] || 'Go to first page'}
         >
           &laquo;
         </SimpleButton>
@@ -86,13 +90,17 @@ export function PaginationButtons({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           class_name={buttonStyle}
-          aria-label={pageContent?.['pagination-previous'] || 'Previous page'}
+          aria-label={pageContent?.['pagination-previous'] || 'Go to previous page'}
         >
           &lsaquo;
         </SimpleButton>
 
         {/* Numbers of pages */}
-        <div className="flex items-center gap-1 mx-2">
+        <div
+          className="flex items-center gap-1 mx-2"
+          role="group"
+          aria-label={pageContent?.['pagination-pages'] || 'Page numbers'}
+        >
           {getPageNumbers().map((page, index) =>
             typeof page === 'number' ? (
               <SimpleButton
@@ -101,11 +109,24 @@ export function PaginationButtons({
                 onClick={() => onPageChange(page)}
                 class_name={page === currentPage ? activeButtonStyle : buttonStyle}
                 aria-current={page === currentPage ? 'page' : undefined}
+                aria-label={
+                  page === currentPage
+                    ? pageContent?.['pagination-current-page']?.replace(
+                        '{page}',
+                        page.toString()
+                      ) || `Current page, page ${page}`
+                    : pageContent?.['pagination-go-to-page']?.replace('{page}', page.toString()) ||
+                      `Go to page ${page}`
+                }
               >
                 {page}
               </SimpleButton>
             ) : (
-              <span key={index} className={`px-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <span
+                key={index}
+                className={`px-2 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
+                aria-hidden="true"
+              >
                 {page}
               </span>
             )
@@ -118,7 +139,7 @@ export function PaginationButtons({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           class_name={buttonStyle}
-          aria-label={pageContent?.['pagination-next'] || 'Next page'}
+          aria-label={pageContent?.['pagination-next'] || 'Go to next page'}
         >
           &rsaquo;
         </SimpleButton>
@@ -129,14 +150,14 @@ export function PaginationButtons({
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
           class_name={buttonStyle}
-          aria-label={pageContent?.['pagination-last'] || 'Last page'}
+          aria-label={pageContent?.['pagination-last'] || 'Go to last page'}
         >
           &raquo;
         </SimpleButton>
       </div>
 
       {/* Current page information */}
-      <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+      <div className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
         {pageContent?.['pagination-page']} {currentPage} {pageContent?.['pagination-of']}{' '}
         {totalPages}
       </div>

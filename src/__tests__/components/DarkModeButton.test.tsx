@@ -1,10 +1,12 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import DarkModeButton from '../../components/DarkModeButton';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import * as AppContext from '@/contexts/AppContext';
 import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import '@testing-library/jest-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
+import DarkModeButton from '../../components/DarkModeButton';
 
-// Mock do Next.js Router
+// Next.js Router's mock
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -22,10 +24,16 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// Mock do useTheme
+// useTheme's mock
 jest.mock('@/contexts/ThemeContext', () => ({
   ...jest.requireActual('@/contexts/ThemeContext'),
   useTheme: jest.fn(),
+}));
+
+// useApp's mock
+jest.mock('@/contexts/AppContext', () => ({
+  ...jest.requireActual('@/contexts/AppContext'),
+  useApp: jest.fn(),
 }));
 
 describe('DarkModeButton', () => {
@@ -36,12 +44,21 @@ describe('DarkModeButton', () => {
       darkMode: false,
       setDarkMode: mockSetDarkMode,
     });
+
+    (AppContext.useApp as jest.Mock).mockReturnValue({
+      pageContent: {
+        'alt-light-mode': 'Switch to light mode',
+        'alt-dark-mode': 'Switch to dark mode',
+      },
+    });
   });
 
-  const renderWithProviders = (component: React.ReactNode) => {
+  const renderWithProviders = (component: React.ReactNode, darkMode = false) => {
     return render(
       <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
+        <AppProvider>
+          <div data-testid="test-container">{component}</div>
+        </AppProvider>
       </ThemeProvider>
     );
   };
@@ -67,7 +84,7 @@ describe('DarkModeButton', () => {
     });
 
     renderWithProviders(<DarkModeButton />);
-    const darkModeIcon = screen.getByAltText('Dark Mode');
+    const darkModeIcon = screen.getByAltText('Switch to dark mode');
     expect(darkModeIcon).toBeInTheDocument();
   });
 
@@ -78,8 +95,26 @@ describe('DarkModeButton', () => {
     });
 
     renderWithProviders(<DarkModeButton />);
-    const lightModeIcon = screen.getByAltText('Light Mode');
+    const lightModeIcon = screen.getByAltText('Switch to light mode');
     expect(lightModeIcon).toBeInTheDocument();
+  });
+
+  it('uses pageContent for alt text when available', () => {
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
+      darkMode: false,
+      setDarkMode: mockSetDarkMode,
+    });
+
+    (AppContext.useApp as jest.Mock).mockReturnValue({
+      pageContent: {
+        'alt-light-mode': 'Mudar para modo claro',
+        'alt-dark-mode': 'Mudar para modo escuro',
+      },
+    });
+
+    renderWithProviders(<DarkModeButton />);
+    const darkModeIcon = screen.getByAltText('Mudar para modo escuro');
+    expect(darkModeIcon).toBeInTheDocument();
   });
 
   afterEach(() => {

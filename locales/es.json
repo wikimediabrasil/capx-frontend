@@ -3,6 +3,7 @@
 		"authors": [
 			"Adamw",
 			"HylianAngel",
+			"Jemily1",
 			"Vlasta x",
 			"Yucavalla",
 			"Yupik"
@@ -161,8 +162,6 @@
 	"body-profile-contact-title": "Contacto",
 	"body-profile-contact-button": "Hablemos",
 	"body-profile-choose-skills": "Elige las capacidades que sabes y puedes enseñar.",
-	"body-profile-birthday-title": "Cumpleaños Wiki",
-	"edit-profile-confirm": "Confirmar",
 	"edit-profile-update": "Actualizar",
 	"edit-profile-welcome": "¡Bienvenido!",
 	"edit-profile-image-title": "Imagen del perfil",
@@ -254,7 +253,7 @@
 	"filters-all-profiles": "Todos los perfiles",
 	"filters-all-profiles-alt-icon": "Icono de todos los perfiles",
 	"filters-organization-profile": "Perfil de organización",
-	"filters-organization-profile-alt-icon": "Icon de perfil de organización",
+	"filters-organization-profile-alt-icon": "Icono de perfil de organización",
 	"filters-user-profile": "Perfil de usuario",
 	"filters-user-profile-alt-icon": "Icono de perfil de usuario",
 	"filters-show-results": "Mostrar resultados",

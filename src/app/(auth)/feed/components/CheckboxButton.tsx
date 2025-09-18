@@ -1,4 +1,5 @@
 import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 
 interface CheckboxButtonProps {
@@ -11,6 +12,7 @@ interface CheckboxButtonProps {
 
 export function CheckboxButton({ icon, iconDark, label, checked, onClick }: CheckboxButtonProps) {
   const { darkMode } = useTheme();
+  const { pageContent } = useApp();
 
   return (
     <button
@@ -26,7 +28,12 @@ export function CheckboxButton({ icon, iconDark, label, checked, onClick }: Chec
       }`}
     >
       <div className="flex items-center gap-2">
-        <Image src={darkMode ? iconDark : icon} alt={label} width={20} height={20} />
+        <Image
+          src={darkMode ? iconDark : icon}
+          alt={pageContent['alt-icon-generic'] || 'Option icon'}
+          width={20}
+          height={20}
+        />
         <span className={darkMode ? 'text-white' : 'text-black'}>{label}</span>
       </div>
       <div className="ml-auto">

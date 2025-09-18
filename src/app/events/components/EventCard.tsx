@@ -296,7 +296,7 @@ export default function EventCard({
                       src={darkMode ? AlarmLightIcon : AlarmDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
-                      alt="Alarm"
+                      alt={pageContent['alt-alarm'] || 'Time icon, view time information'}
                     />
                     <p
                       className={`font-extrabold ${
@@ -314,7 +314,7 @@ export default function EventCard({
                       src={darkMode ? CalendarLightIcon : CalendarDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
-                      alt="Calendar"
+                      alt={pageContent['alt-calendar'] || 'Calendar icon, view date information'}
                     />
                     <p
                       className={`font-extrabold ${
@@ -331,7 +331,7 @@ export default function EventCard({
                       src={darkMode ? LocationLightIcon : LocationDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
-                      alt="Location"
+                      alt={pageContent['alt-location'] || 'Location icon, view location details'}
                     />
                     <p
                       className={`font-extrabold ${
@@ -355,7 +355,9 @@ export default function EventCard({
                       src={darkMode ? EmojiObjectsLightIcon : EmojiObjectsDarkIcon}
                       width={isMobile ? 16 : 24}
                       height={isMobile ? 16 : 24}
-                      alt="Emoji"
+                      alt={
+                        pageContent['alt-capacity'] || 'Capacity icon, view skills and abilities'
+                      }
                     />
                     <p
                       className={`font-extrabold ${
@@ -418,7 +420,11 @@ export default function EventCard({
                       >
                         <Image
                           src={darkMode ? MoreHorizLightIcon : MoreHorizIcon}
-                          alt={showAllCapacities ? 'Show less' : 'Show more'}
+                          alt={
+                            showAllCapacities
+                              ? pageContent['alt-collapse-capacities'] || 'Show fewer capacities'
+                              : pageContent['alt-expand-capacities'] || 'Show more capacities'
+                          }
                           className="cursor-pointer"
                         />
                       </button>
@@ -439,7 +445,7 @@ export default function EventCard({
                     </p>
                     <Image
                       src={ArrowDropDownIcon}
-                      alt="Expand"
+                      alt={pageContent['alt-expand'] || 'Expand to show more details'}
                       style={{
                         transform: showEventDetails ? 'rotate(180deg)' : 'rotate(0deg)',
                         transition: 'transform 0.3s ease',
@@ -478,7 +484,7 @@ export default function EventCard({
                   isMobile ? 'text-xs' : 'text-md'
                 }`}
                 imageUrl={darkMode ? EditIconLight : EditIcon}
-                imageAlt="Edit icon"
+                imageAlt={pageContent['alt-edit-event'] || 'Edit event'}
                 imageWidth={isMobile ? 16 : 24}
                 imageHeight={isMobile ? 16 : 24}
               />
@@ -502,7 +508,11 @@ export default function EventCard({
                   isMobile ? 'text-xs' : 'text-md'
                 }`}
                 imageUrl={isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight}
-                imageAlt="Checkbox icon"
+                imageAlt={
+                  isSelected
+                    ? pageContent['alt-checked'] || 'Option is selected'
+                    : pageContent['alt-unchecked'] || 'Option is not selected'
+                }
                 imageWidth={isMobile ? 16 : 24}
                 imageHeight={isMobile ? 16 : 24}
               />
@@ -514,7 +524,7 @@ export default function EventCard({
                   isMobile ? 'text-xs' : 'text-md'
                 }`}
                 imageUrl={DeleteIcon}
-                imageAlt="Delete icon"
+                imageAlt={pageContent['alt-delete-event'] || 'Delete event'}
                 imageWidth={isMobile ? 16 : 24}
                 imageHeight={isMobile ? 16 : 24}
               />

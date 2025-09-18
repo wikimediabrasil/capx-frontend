@@ -1,13 +1,13 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import MobileNavbar from '../../components/MobileNavbar';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
-import * as AppContext from '@/contexts/AppContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import '@testing-library/jest-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
 import axios from 'axios';
 import { Session } from 'next-auth';
+import MobileNavbar from '../../components/MobileNavbar';
 
-// Mock do Next.js Router
+// Next.js Router's mock
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -25,16 +25,18 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// Mock do useTheme
+// useTheme's mock
 jest.mock('@/contexts/ThemeContext', () => ({
   ...jest.requireActual('@/contexts/ThemeContext'),
   useTheme: jest.fn(),
 }));
 
 // useApp's mock
+const mockUseApp = jest.fn();
+
 jest.mock('@/contexts/AppContext', () => ({
   ...jest.requireActual('@/contexts/AppContext'),
-  useApp: jest.fn(),
+  useApp: () => mockUseApp(),
 }));
 
 // Axios's mock
@@ -62,40 +64,52 @@ jest.mock('../../components/LanguageSelect', () => ({
 const mockPageContent = {
   'sign-in-button': 'Sign in',
   'sign-out-button': 'Sign out',
+  'alt-logo-main': 'CapX - Capacity Exchange logo, navigate to homepage',
+  'alt-menu-close': 'Close navigation menu',
+  'alt-burger-menu': 'Open main navigation menu',
 };
 
 describe('MobileNavbar', () => {
+  const mockSetMobileMenuStatus = jest.fn();
+
   beforeEach(() => {
-    // Standard configuration for useTheme
+    // Reset all mocks
+    jest.clearAllMocks();
+
+    // useTheme's mock
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
       setDarkMode: jest.fn(),
     });
 
-    // Standard configuration for useApp
-    (AppContext.useApp as jest.Mock).mockReturnValue({
+    // useApp's mock
+    mockUseApp.mockReturnValue({
       isMobile: true,
       mobileMenuStatus: false,
-      setMobileMenuStatus: jest.fn(),
+      setMobileMenuStatus: mockSetMobileMenuStatus,
       pageContent: mockPageContent,
+      language: 'en',
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      session: null,
+      setSession: jest.fn(),
     });
-
-    // Clear axios's mocks after each test
-    jest.clearAllMocks();
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
       <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
+        <AppProvider>
+          <div data-testid="test-container">{component}</div>
+        </AppProvider>
       </ThemeProvider>
     );
   };
 
   it('renders logo correctly', () => {
-    renderWithProviders(<MobileNavbar session={null} language="en" setLanguage={() => {}} />);
+    renderWithProviders(<MobileNavbar session={null} language="en" setLanguage={jest.fn()} />);
 
-    const logo = screen.getByAltText('Capacity Exchange logo');
+    const logo = screen.getByAltText('CapX - Capacity Exchange logo, navigate to homepage');
     expect(logo).toBeInTheDocument();
   });
 
@@ -112,50 +126,48 @@ describe('MobileNavbar', () => {
       },
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     };
-    const setMobileMenuStatus = jest.fn();
-
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      isMobile: true,
-      mobileMenuStatus: false,
-      setMobileMenuStatus,
-    });
 
     renderWithProviders(
-      <MobileNavbar session={validSession} language="en" setLanguage={() => {}} />
+      <MobileNavbar session={validSession} language="en" setLanguage={jest.fn()} />
     );
 
-    const burgerMenu = screen.getByAltText('Burger Menu');
+    const burgerMenu = screen.getByAltText('Open main navigation menu');
     fireEvent.click(burgerMenu);
 
-    expect(setMobileMenuStatus).toHaveBeenCalledWith(true);
+    // Verify if the function setMobileMenuStatus was called
+    expect(mockSetMobileMenuStatus).toHaveBeenCalledWith(true);
   });
 
   it('applies dark mode styles', () => {
+    // Mock useTheme to return darkMode as true
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: true,
       setDarkMode: jest.fn(),
     });
 
     const { container } = renderWithProviders(
-      <MobileNavbar session={null} language="en" setLanguage={() => {}} />
+      <MobileNavbar session={null} language="en" setLanguage={jest.fn()} />
     );
 
-    const navbar = container.firstChild as HTMLElement;
-    expect(navbar?.className).toContain('bg-capx-dark-box-bg');
+    // Find the navbar by the data-testid we added to the container
+    const navbar = container.querySelector('div[class*="bg-capx-dark-box-bg"]');
+    expect(navbar).toBeInTheDocument();
   });
 
   it('applies light mode styles', () => {
+    // Mock useTheme to return darkMode as false
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
       setDarkMode: jest.fn(),
     });
 
     const { container } = renderWithProviders(
-      <MobileNavbar session={null} language="en" setLanguage={() => {}} />
+      <MobileNavbar session={null} language="en" setLanguage={jest.fn()} />
     );
 
-    const navbar = container.firstChild;
-    expect(navbar).toHaveClass('bg-capx-light-bg');
+    // Find the navbar by the data-testid we added to the container
+    const navbar = container.querySelector('div[class*="bg-capx-light-bg"]');
+    expect(navbar).toBeInTheDocument();
   });
 
   // Clear all mocks after each test

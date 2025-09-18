@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BaseButton from './BaseButton';
 import Image, { StaticImageData } from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useApp } from '@/contexts/AppContext';
 
 interface PopupProps {
   onContinue?: () => void;
@@ -27,6 +28,7 @@ const Popup = ({
   imageSize = 'w-full max-w-[200px] md:max-w-[300px]',
 }: PopupProps) => {
   const { darkMode } = useTheme();
+  const { pageContent } = useApp();
   const [isOpen, setIsOpen] = useState(true);
   const noop = () => {};
 
@@ -41,16 +43,44 @@ const Popup = ({
     }
   };
 
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCloseTab();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Focus trap - focus the modal when it opens
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
     <div className={customClass}>
       {isOpen && (
         <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onOverlayClick} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={onOverlayClick}
+            aria-hidden="true"
+          />
           <div
             className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 
             w-[90%] md:w-[880px] xl:w-[1024px]
             min-h-[300px] md:min-h-[400px] max-h-[90vh]
             rounded-3xl shadow-xl overflow-hidden ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="popup-title"
+            aria-describedby="popup-content"
           >
             <div className="flex flex-col h-full p-4 md:p-8">
               {/* Header */}
@@ -60,7 +90,7 @@ const Popup = ({
                     <div className="md:w-1/2 flex justify-center items-center">
                       <Image
                         src={image}
-                        alt="Popup Illustration"
+                        alt={pageContent['alt-illustration'] || 'Popup illustration'}
                         className={`${imageSize} h-auto`}
                         priority
                       />
@@ -70,6 +100,7 @@ const Popup = ({
                     className={`${image ? 'md:w-1/2' : 'w-full'} flex items-center justify-center`}
                   >
                     <h2
+                      id="popup-title"
                       className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-normal text-center ${
                         darkMode ? 'text-white' : 'text-[#053749]'
                       }`}
@@ -87,6 +118,7 @@ const Popup = ({
                 }`}
               >
                 <div
+                  id="popup-content"
                   className={`w-full text-center text-base md:text-lg ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
