@@ -108,6 +108,7 @@ interface ProfileEditMobileViewProps {
   refetch: () => Promise<any>;
   goTo: (path: string) => void;
   isImageLoading: boolean;
+  hasLetsConnectAccount: boolean;
   hasLetsConnectData: boolean;
   setIsImageLoading: (loading: boolean) => void;
   showLetsConnectPopup: boolean;
@@ -149,6 +150,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
     goTo,
     isImageLoading,
     hasLetsConnectData,
+    hasLetsConnectAccount,
     setIsImageLoading,
     showLetsConnectPopup,
     setShowLetsConnectPopup,
@@ -1369,7 +1371,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
               <BaseButton
                 onClick={() => goTo('/profile/lets_connect')}
                 label={
-                  formData?.automated_lets_connect
+                  hasLetsConnectAccount
                     ? pageContent['lets-connect-form-user-button-update-profile']
                     : pageContent['lets-connect-form-user-edit']
                 }

@@ -33,7 +33,8 @@ import ProfileEditMobileView from './ProfileEditMobileView';
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
-import { useLetsConnect } from '@/hooks/useLetsConnect';
+import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
+import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
@@ -41,6 +42,7 @@ import {
 } from '@/lib/utils/capacityValidation';
 import { LanguageProficiency } from '@/types/language';
 import React from 'react';
+
 // Helper function declarations moved to safeDataAccess.ts utility file
 
 const fetchWikidataQid = async (name: string) => {
@@ -181,6 +183,7 @@ export default function EditProfilePage() {
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
+  const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: '',
     affiliation: [],
@@ -723,6 +726,7 @@ export default function EditProfilePage() {
     },
     handleAvatarSelect,
     hasLetsConnectData: letsConnectData !== null,
+    hasLetsConnectAccount,
     showAvatarPopup,
     setShowAvatarPopup,
     handleWikidataClick,
