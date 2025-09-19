@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Check i18n keys (en.json)
+        run: yarn lint:i18n
+
       - name: Build the project
         run: yarn build
 
