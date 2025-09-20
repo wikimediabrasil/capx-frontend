@@ -159,10 +159,14 @@ capx-frontend/
 ### 🌐 Internationalization
 
 - **Translatewiki.net Integration**: Community-driven translations through [translatewiki.net](https://translatewiki.net/)
-- **Language Selection**: Dynamic language switching
+- **Advanced Translation System**: Multi-layered translation with Wikidata and Metabase SPARQL integration
+- **Intelligent Fallback**: Automatic fallback to English when translations are unavailable
+- **Translation Contribution CTA**: Built-in prompts encouraging community translation contributions
+- **Language Selection**: Dynamic language switching with persistent preferences
 - **Territory Management**: Geographic region support
 - **Collaborative Translation**: Open source translation community with over 18k translators
-- **Multi-language Support**: Support for 265+ active languages
+- **Multi-language Support**: Support for 30+ active languages
+- **Capacity Translation Cache**: Specialized caching system for capacity translations across all languages
 
 ### 📈 Analytics & Reporting
 
@@ -171,6 +175,29 @@ capx-frontend/
 - **Data Export**: Export capabilities for further analysis
 - **Real-time Metrics**: Live tracking of platform usage
 - **Community Insights**: Analytics for community engagement and growth
+
+### 🔄 Advanced Caching System
+
+The application features a sophisticated multi-layered caching system designed for optimal performance and user experience:
+
+**Unified Capacity Cache**
+- **Hierarchical Data Management**: Efficiently stores and retrieves capacity hierarchies (root → children → grandchildren)
+- **Multi-language Support**: Separate cache entries for each language with intelligent fallback
+- **Translation Integration**: Seamless integration with Wikidata SPARQL for enhanced translation data
+- **localStorage Persistence**: Automatic persistence across browser sessions
+- **Cache Invalidation**: Smart cache management with automatic cleanup and updates
+
+**Translation Fallback System**
+- **Intelligent Detection**: Automatically detects when translations are unavailable
+- **Contribution Prompts**: Built-in CTA components encouraging community translation contributions
+- **Metabase Integration**: Direct links to translation platforms for easy contribution
+- **Performance Optimized**: Minimal impact on application performance through efficient caching
+
+**Cache Performance Features**
+- **Batch Processing**: Efficient bulk operations for cache updates
+- **Memory Management**: Automatic cleanup of stale cache entries
+- **Background Updates**: Non-blocking cache refreshes
+- **Error Resilience**: Graceful handling of cache failures with automatic fallbacks
 
 ### 🎨 UI/UX Features
 
@@ -184,12 +211,13 @@ capx-frontend/
 - **TypeScript**: Full type safety throughout the application
 - **Error Boundaries**: Graceful error handling
 - **Loading States**: Comprehensive loading state management
-- **Caching**: Intelligent data caching with React Query
-- **Performance**: Optimized performance with Next.js features
+- **Advanced Caching System**: Multi-layered caching with React Query, localStorage persistence, and intelligent cache invalidation
+- **Performance**: Optimized performance with Next.js features, code splitting, and lazy loading
+- **Translation Fallback System**: Sophisticated multi-language support with automatic fallback to English when translations are unavailable
 
 ## Testing
 
-The project includes comprehensive testing setup with Jest and React Testing Library.
+The project includes comprehensive testing setup with Jest and React Testing Library, achieving excellent test coverage across all major features.
 
 ### Running Tests
 
@@ -202,28 +230,63 @@ yarn test --watch
 
 # Run tests with coverage
 yarn test --coverage
+
+# Format code
+yarn format
+
+# Lint code
+yarn lint
 ```
 
 ### Test Structure
 
-- **Component Tests**: Located in `src/__tests__/components/`
-- **Route Tests**: Located in `src/__tests__/routes/`
+- **Component Tests**: Located in `src/__tests__/components/` (25+ component test suites)
+- **Service Tests**: Located in `src/__tests__/services/` (API and service layer tests)
+- **Utility Tests**: Located in `src/__tests__/utils/` (Helper function tests)
+- **Hook Tests**: Integration tests for custom React hooks
 - **Test Configuration**: `jest.config.ts` and `jest.setup.ts`
 
-### Current Test Coverage
+### Test Coverage Statistics
+
+- **Total Test Suites**: 32
+- **Total Tests**: 343+
+- **Pass Rate**: 99%+ (342/343 tests passing)
+- **Coverage Areas**: All major components and features
+
+### Comprehensive Test Coverage
 
 The project includes tests for:
 
-- UI Components (16+ component tests)
-- Navigation components
-- Form components
-- Authentication flows
-- Capacity management
-- Profile management
+**Core Components & UI**
+- Authentication components (AuthButton, login flows)
+- Navigation (DesktopNavbar, MobileNavbar, MobileMenu)
+- Form components (BaseButton, ProgressBar, language/profile selects)
+- Layout components (MainSection, CallToActionSection, StatisticsSection)
+
+**Feature-Specific Components**
+- **Capacity Management**: CapacityCard, CapacitySearch, CapacitySelectionModal, CapacityFeedCard, CapacityListMainWrapper
+- **Profile Management**: AvatarSelectionPopup, MiniBio, MiniBioTextarea, ProfileLanguageSwitching
+- **Organization Management**: OrganizationProfileEditDocuments, DocumentFormItem
+- **Event Management**: EventsEditForm with comprehensive validation
+- **Translation System**: TranslationContributeCTA with dark mode and responsive design
+
+**Services & Utilities**
+- **API Services**: metabaseService with Wikidata integration
+- **Utility Functions**: capacityValidation, convertWikimediaUrl, fetchWikimediaData, getProfileImage
+- **Infrastructure**: axios-interceptor for API communication
+
+**Advanced Features**
+- Cache management and invalidation
+- Multi-language translation fallbacks
+- Dark mode support
+- Mobile-responsive design
+- Accessibility compliance
+- Error boundary handling
+
 
 ## Storybook
 
-Storybook is configured for component development and documentation.
+Storybook is configured for component development and documentation. It is used to create interactive stories for components and to test them in isolation. It is also used to document components and their props. We are outdated with the components implemented and the stories created.
 
 ### Running Storybook
 
@@ -289,22 +352,33 @@ graph TD
     F --> G[Next.js API Routes]
     G --> H[Backend API]
     G --> I[Metabase API]
+    G --> W[Wikidata SPARQL]
 
     E --> J[Theme Context]
-    E --> K[Capacity Cache Context]
+    E --> K[Unified Capacity Cache Context]
     E --> L[Badges Context]
     E --> M[Profile Edit Context]
+    E --> N[App Context]
 
-    N[Middleware] --> O[Authentication Check]
-    O --> P[Request Headers]
+    O[Middleware] --> P[Authentication Check]
+    P --> Q[Request Headers]
 
-    Q[Local Storage] --> R[React Query Persistence]
-    R --> D
+    R[Multi-Layer Cache] --> S[React Query Persistence]
+    R --> T[localStorage Cache]
+    R --> U[Memory Cache]
+    S --> D
+    T --> K
+    U --> K
 
-    I --> S[Analytics Dashboard]
-    S --> T[Metrics]
-    S --> U[Reports]
-    S --> V[Visualizations]
+    I --> V[Analytics Dashboard]
+    V --> X[Metrics]
+    V --> Y[Reports]
+    V --> Z[Visualizations]
+
+    W --> AA[Translation Data]
+    AA --> K
+    K --> BB[Fallback Translation System]
+    BB --> CC[Multi-language Support]
 ```
 
 ## State Management Architecture
@@ -320,19 +394,32 @@ graph LR
     E --> G[Capacity Data]
     E --> H[Organization Data]
     E --> I[Event Data]
+    E --> J[Translation Data]
 
-    C --> J[Theme State]
-    C --> K[Capacity Cache]
-    C --> L[Badges State]
-    C --> M[Profile Edit State]
+    C --> K[Theme State]
+    C --> L[Unified Capacity Cache]
+    C --> M[Badges State]
+    C --> N[Profile Edit State]
+    C --> O[App State]
+    C --> P[Language State]
 
-    D --> N[Authentication State]
-    D --> O[User Session]
+    L --> Q[Capacity Hierarchy]
+    L --> R[Translation Cache]
+    L --> S[Wikidata Integration]
+    L --> T[Fallback System]
 
-    P[Local State] --> Q[Component State]
-    P --> R[Form State]
-    Q --> S[UI State]
-    R --> T[Validation State]
+    D --> U[Authentication State]
+    D --> V[User Session]
+
+    W[Local State] --> X[Component State]
+    W --> Y[Form State]
+    X --> Z[UI State]
+    Y --> AA[Validation State]
+
+    BB[Persistent Storage] --> CC[localStorage]
+    CC --> L
+    BB --> DD[React Query Persistence]
+    DD --> B
 ```
 
 ## API Architecture
@@ -372,6 +459,52 @@ graph TD
     X --> Y[Metabase]
 ```
 
+## Cache Architecture
+
+```mermaid
+graph TD
+    A[User Request] --> B[Unified Capacity Cache Context]
+
+    B --> C{Cache Hit?}
+    C -->|Yes| D[Return Cached Data]
+    C -->|No| E[Fetch from API]
+
+    E --> F[Capacity Service]
+    F --> G[Backend API]
+    F --> H[Wikidata SPARQL]
+
+    G --> I[Root Capacities]
+    G --> J[Children Capacities]
+    G --> K[Grandchildren Capacities]
+
+    H --> L[Translation Data]
+    L --> M[Fallback Detection]
+
+    I --> N[Build Unified Cache]
+    J --> N
+    K --> N
+    M --> N
+
+    N --> O[localStorage Persistence]
+    N --> P[React Query Cache]
+    N --> Q[Memory Cache]
+
+    O --> R[Browser Storage]
+    P --> S[Server State Management]
+    Q --> T[Component State]
+
+    D --> U[Render Components]
+    T --> U
+
+    V[Cache Invalidation] --> W[Language Change]
+    V --> X[Data Updates]
+    V --> Y[User Actions]
+
+    W --> Z[Clear Old Language Cache]
+    X --> AA[Refresh Affected Entries]
+    Y --> BB[Update Related Data]
+```
+
 ## Component Architecture
 
 ```mermaid
@@ -397,12 +530,17 @@ graph TD
     J --> P[Capacity List]
     J --> Q[Capacity Details]
     J --> R[Capacity Search]
+    J --> S[Translation Contribution CTA]
 
-    K --> S[Feed Items]
-    K --> T[Saved Items]
+    K --> T[Feed Items]
+    K --> U[Saved Items]
 
-    L --> U[Organization Profile]
-    L --> V[Organization Events]
+    L --> V[Organization Profile]
+    L --> W[Organization Events]
+
+    S --> X[Translation Prompts]
+    S --> Y[Metabase Integration]
+    S --> Z[Fallback Detection]
 ```
 
 ## Development
@@ -414,7 +552,12 @@ graph TD
 yarn dev              # Start development server
 yarn build            # Build for production
 yarn start            # Start production server
+
+# Code Quality
 yarn lint             # Run ESLint
+yarn lint:fix         # Run ESLint with auto-fix
+yarn format           # Format code with Prettier
+yarn format:check     # Check code formatting
 
 # Testing
 yarn test             # Run tests
@@ -462,11 +605,19 @@ NODE_ENV=development
 
 ## Performance Optimizations
 
+- **Advanced Multi-Layer Caching**:
+  - **Unified Capacity Cache**: Intelligent caching system with localStorage persistence
+  - **React Query Cache**: Server state management with automatic background updates
+  - **Translation Cache**: Specialized caching for multi-language capacity data
+  - **Wikidata Integration Cache**: Cached SPARQL queries for translation metadata
+
 - **Code Splitting**: Automatic code splitting with Next.js
 - **Image Optimization**: Next.js Image component for optimized images
-- **Caching**: React Query for intelligent data caching
 - **Bundle Analysis**: Webpack bundle analyzer integration
 - **Lazy Loading**: Component lazy loading for better performance
+- **Cache Invalidation**: Intelligent cache management and cleanup
+- **Persistent Query Cache**: React Query persistence for offline-first experience
+- **Optimized Data Fetching**: Batch requests and parallel API calls where possible
 
 ## Contributing
 

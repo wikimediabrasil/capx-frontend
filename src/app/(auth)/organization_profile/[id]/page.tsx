@@ -1,8 +1,8 @@
 'use client';
 import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
@@ -10,25 +10,13 @@ import { useCallback, useEffect, useMemo } from 'react';
 import OrganizationProfileDesktopView from '../components/OrganizationProfileDesktopView';
 import OrganizationProfileMobileView from '../components/OrganizationProfileMobileView';
 
-// Hard-coded fallback names for known capacity IDs (same as in the API)
-const FALLBACK_CAPACITY_NAMES = {
-  '69': 'Strategic Thinking',
-  '71': 'Team Leadership',
-  '97': 'Project Management',
-  '10': 'Organizational Skills',
-  '36': 'Communication',
-  '50': 'Learning',
-  '56': 'Community Building',
-  '65': 'Social Skills',
-  '74': 'Strategic Planning',
-  '106': 'Technology',
-};
-
 export default function OrganizationProfilePage() {
   const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const { data: session } = useSession();
   const token = session?.user?.token;
+  const capacityCache = useCapacityCache();
+  const { isLoadingTranslations } = capacityCache;
 
   const params = useParams();
   const organizationId = Number(params.id);
@@ -53,24 +41,28 @@ export default function OrganizationProfilePage() {
     ];
   }, [organization]);
 
-  const { getCapacityName: originalGetCapacityName, capacityNames } =
-    useCapacityDetails(allCapacityIds);
-
-  // Wrapper function to sanitize Wikibase URLs
+  // Use cached capacity names
   const getCapacityName = useCallback(
     (id: any) => {
-      const name = originalGetCapacityName(id);
-
-      // Filter out URLs and replace with fallback
-      if (typeof name === 'string' && (name.startsWith('https://') || name.includes('entity/Q'))) {
-        const idStr = id.toString();
-        return FALLBACK_CAPACITY_NAMES[idStr] || `Capacity ${id}`;
-      }
-
-      return name;
+      return capacityCache.getName(Number(id));
     },
-    [originalGetCapacityName]
+    [capacityCache]
   );
+
+  // Monitor language changes and update capacity cache
+  useEffect(() => {
+    const updateCacheLanguage = async () => {
+      if (language && token) {
+        try {
+          await capacityCache?.updateLanguage?.(language);
+        } catch (error) {
+          console.error('Error updating capacity cache language:', error);
+        }
+      }
+    };
+
+    updateCacheLanguage();
+  }, [language, token, capacityCache]);
 
   // Only refetch when the organization ID changes, use useCallback to avoid recreation on every render
   const handleRefetch = useCallback(() => {
@@ -89,7 +81,7 @@ export default function OrganizationProfilePage() {
     }
   }, [error]);
 
-  if (isOrganizationLoading) {
+  if (isOrganizationLoading || isLoadingTranslations) {
     return <LoadingState fullScreen={true} />;
   }
 

@@ -6,7 +6,17 @@ import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 
 // Image Mock
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, width, height, ...props }: any) {
+  return function MockedImage({
+    src,
+    alt,
+    width,
+    height,
+    fill,
+    unoptimized,
+    loading,
+    ...props
+  }: any) {
+    // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} width={width} height={height} {...props} />;
   };
 });

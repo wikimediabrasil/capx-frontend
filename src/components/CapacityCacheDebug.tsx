@@ -13,7 +13,7 @@ import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 export default function CapacityCacheDebug() {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { preloadCapacities, clearCapacityCache } = useCapacityCache();
+  const { preloadCapacities, clearCache } = useCapacityCache();
   const { data: rootCapacities = [] } = useRootCapacities();
 
   // Get current cache status
@@ -55,7 +55,7 @@ export default function CapacityCacheDebug() {
                   Preload Capacity Data
                 </button>
                 <button
-                  onClick={() => clearCapacityCache()}
+                  onClick={() => clearCache()}
                   className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Clear Cache

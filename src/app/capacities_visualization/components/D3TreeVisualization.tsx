@@ -1,10 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
-import { Capacity } from '../data/staticCapacities';
-import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
+import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
+import * as d3 from 'd3';
+import { useEffect, useRef, useState } from 'react';
+
+// Interface para as capacidades da visualização D3
+interface D3Capacity {
+  id: string;
+  name: string;
+  color: string;
+  description: string;
+  children: D3Capacity[];
+}
 
 // Function to determine color based on capacity id
 const getColorForCapacity = (id: number | string): string => {
@@ -20,7 +29,7 @@ const getColorForCapacity = (id: number | string): string => {
 };
 
 interface D3TreeVisualizationProps {
-  data: Capacity[];
+  data: D3Capacity[];
   width?: number;
   height?: number;
 }
@@ -39,6 +48,7 @@ export default function D3TreeVisualization({
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
   const { darkMode, setDarkMode } = useTheme();
+  const { language, pageContent } = useApp();
   const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when theme changes
 
   // Listen for system theme changes
@@ -174,9 +184,9 @@ export default function D3TreeVisualization({
   };
 
   // Function to transform flat data into hierarchical with expansion control
-  const createHierarchy = (capacities: Capacity[]) => {
+  const createHierarchy = (capacities: D3Capacity[]) => {
     // Recursive function to process capacities with expansion control
-    const processCapacity = (capacity: Capacity, level: number): any => {
+    const processCapacity = (capacity: D3Capacity, level: number): any => {
       const isExpanded = expandedNodes.has(capacity.id);
 
       return {
@@ -771,7 +781,7 @@ export default function D3TreeVisualization({
             color: darkMode ? '#f3f4f6' : '#111827', // text-white : text-gray-900
           }}
         >
-          Visualização Interativa das Capacidades
+          {pageContent['capacity-visualization-title'] || 'Visualização Interativa das Capacidades'}
         </h2>
         <p
           className="text-sm mb-4 break-words w-full"
@@ -780,9 +790,8 @@ export default function D3TreeVisualization({
             color: darkMode ? '#f3f4f6' : '#4b5563', // text-white : text-gray-600
           }}
         >
-          Clique nas capacidades principais para expandir/colapsar e focar • Clique nos ícones para
-          ver detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar •
-          Clique em &ldquo;Retornar a visualização inicial&rdquo; para resetar o foco
+          {pageContent['capacity-visualization-description'] ||
+            'Clique nas capacidades principais para expandir/colapsar e focar • Clique nos ícones para ver detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em "Retornar a visualização inicial" para resetar o foco'}
         </p>
 
         {/* Control buttons */}
@@ -799,7 +808,8 @@ export default function D3TreeVisualization({
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            Retornar à visualização inicial
+            {pageContent['capacity-visualization-reset-button'] ||
+              'Retornar à visualização inicial'}
           </button>
         </div>
       </div>

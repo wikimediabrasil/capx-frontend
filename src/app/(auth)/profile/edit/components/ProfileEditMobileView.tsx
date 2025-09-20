@@ -75,6 +75,7 @@ import {
   addTerritoryToFormData,
   addProjectToFormData,
 } from '@/lib/utils/formDataUtils';
+import React from 'react';
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;

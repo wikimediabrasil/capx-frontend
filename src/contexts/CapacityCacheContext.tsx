@@ -1,469 +1,584 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import { capacityService } from '@/services/capacityService';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { Capacity } from '@/types/capacity';
-import LoadingStateWithFallback, { CompactLoading } from '@/components/LoadingStateWithFallback';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
-// Query keys for the React Query
-const QUERY_KEYS = {
-  ROOT_CAPACITIES: 'root-capacities',
-  CHILD_CAPACITIES: (parentCode: number) => `child-capacities-${parentCode}`,
-  ALL_CAPACITIES: 'all-capacities-map',
-  CHILDREN_MAP: 'children-map',
+// Function to determine hierarchy info based on capacity code
+const getHierarchyInfo = (code: number) => {
+  const codeStr = code.toString();
+
+  // Determine category and color based on code prefix
+  let category = '';
+  if (codeStr.startsWith('10')) category = 'organizational';
+  else if (codeStr.startsWith('36')) category = 'communication';
+  else if (codeStr.startsWith('50')) category = 'learning';
+  else if (codeStr.startsWith('56')) category = 'community';
+  else if (codeStr.startsWith('65')) category = 'social';
+  else if (codeStr.startsWith('74')) category = 'strategic';
+  else if (codeStr.startsWith('106')) category = 'technology';
+  else category = 'organizational'; // Default fallback
+
+  return {
+    color: getCapacityColor(category),
+    icon: getCapacityIcon(code),
+    category,
+  };
 };
 
-// Global flag to avoid multiple initializations
-let hasInitializedCache = false;
-
-// Variable to store the debounce timer
-let saveCacheTimer: NodeJS.Timeout | null = null;
-
-// Function to persist cache in localStorage
-const saveCache = (
-  capacities: Map<number, Capacity>,
-  children: Map<number, number[]>,
-  isFresh = false
-) => {
-  if (typeof window === 'undefined') return;
-
-  try {
-    // Convert Maps to plain objects for serialization
-    const capacitiesObj = mapToObject(capacities);
-    const childrenObj = mapToObject(children);
-
-    // Don't save empty data
-    if (
-      !capacitiesObj ||
-      !childrenObj ||
-      Object.keys(capacitiesObj).length === 0 ||
-      Object.keys(childrenObj).length === 0
-    )
-      return;
-
-    const cacheData = {
-      capacities: capacitiesObj,
-      children: childrenObj,
-      timestamp: Date.now(), // Add timestamp to track cache age
-    };
-
-    localStorage.setItem('capx-capacity-cache', JSON.stringify(cacheData));
-
-    // Use type assertion to help TypeScript understand this is safe
-    const capacityCount = Object.keys(capacitiesObj as Record<string, any>).length;
-    localStorage.setItem('capx-capacity-cache-size', String(capacityCount));
-  } catch (error) {
-    console.error('Error saving capacity cache:', error);
-  }
-};
-
-// Helper functions for serialization
-const mapToObject = (map: Map<number, any> | any): Record<string, any> => {
-  if (!(map instanceof Map)) return map;
-  const obj: Record<string, any> = {};
-  map.forEach((value, key) => {
-    obj[key] = value;
-  });
-  return obj;
-};
-
-const objectToMap = (obj: Record<string, any> | any): Map<number, any> | any => {
-  if (!obj || typeof obj !== 'object') return obj;
-  const map = new Map<number, any>();
-  Object.entries(obj).forEach(([key, value]) => {
-    map.set(Number(key), value);
-  });
-  return map;
-};
+// Unified cache structure
+interface UnifiedCache {
+  capacities: Record<
+    number,
+    {
+      code: number;
+      name: string;
+      description: string;
+      wd_code: string;
+      metabase_code: string;
+      color: string;
+      icon: string;
+      hasChildren: boolean;
+      level?: number;
+      skill_type: number;
+      skill_wikidata_item: string;
+      parentCapacity?: any;
+      category?: string;
+      isFallbackTranslation?: boolean;
+    }
+  >;
+  children: Record<number, number[]>;
+  language: string;
+  timestamp: number;
+}
 
 interface CapacityCacheContextType {
+  // Cache state
   isLoaded: boolean;
+  isLoadingTranslations: boolean;
+  isDescriptionsReady: boolean;
+  language: string;
+
+  // Getter functions
+  getName: (code: number) => string;
+  getDescription: (code: number) => string;
+  getWdCode: (code: number) => string;
+  getMetabaseCode: (code: number) => string;
+  getColor: (code: number) => string;
+  getIcon: (code: number) => string;
+
+  // Hierarchy functions
+  getChildren: (parentCode: number) => any[];
+  getCapacity: (code: number) => any | null;
+  getRootCapacities: () => any[];
   hasChildren: (code: number) => boolean;
-  getCapacity: (code: number) => Capacity | undefined;
-  prefetchCapacityData: () => Promise<void>;
+  isFallbackTranslation: (code: number) => boolean;
+
+  // Actions
+  updateLanguage: (newLanguage: string) => Promise<void>;
   preloadCapacities: () => Promise<void>;
   clearCache: () => void;
-  clearCapacityCache: () => void;
 }
 
-const CapacityCacheContext = createContext<CapacityCacheContextType>({
-  isLoaded: false,
-  hasChildren: () => false,
-  getCapacity: () => undefined,
-  prefetchCapacityData: async () => {},
-  preloadCapacities: async () => {},
-  clearCache: () => {},
-  clearCapacityCache: () => {},
-});
+const CapacityCacheContext = createContext<CapacityCacheContextType | undefined>(undefined);
 
-export function CapacityCacheProvider({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession();
-  const queryClient = useQueryClient();
-  const [isManuallyLoaded, setIsManuallyLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const hasCalled = useRef(false);
-
-  // Load cache from localStorage when starting (only once)
-  useEffect(() => {
-    if (typeof window === 'undefined' || hasCalled.current || hasInitializedCache) {
-      return;
-    }
-
-    hasCalled.current = true;
-    hasInitializedCache = true;
-
-    try {
-      const savedCache = localStorage.getItem('capx-capacity-cache');
-      if (savedCache) {
-        const parsedCache = JSON.parse(savedCache);
-
-        // Convert back to Map before using
-        if (parsedCache.capacities) {
-          const capacitiesMap = objectToMap(parsedCache.capacities);
-          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], capacitiesMap);
-
-          // Debug info - show only once
-          const capacityCount = Object.keys(parsedCache.capacities).length;
-          const childrenCount = parsedCache.children ? Object.keys(parsedCache.children).length : 0;
-        }
-
-        if (parsedCache.children) {
-          const childrenMap = objectToMap(parsedCache.children);
-          queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], childrenMap);
-        }
-
-        // Mark as loaded
-        setIsManuallyLoaded(true);
-      }
-    } catch (e) {
-      console.error('Error recovering cache:', e);
-      // In case of error, clear the cache to ensure a clean state
-      localStorage.removeItem('capx-capacity-cache');
-    }
-  }, [queryClient]);
-
-  // Use React Query to maintain the persistent cache between navigations
-  const { data: capacityCache = new Map<number, Capacity>(), isSuccess: isCacheLoaded } = useQuery({
-    queryKey: [QUERY_KEYS.ALL_CAPACITIES],
-    queryFn: () => {
-      // Return the existing cache or a new Map
-      const existingCache = queryClient.getQueryData<Map<number, Capacity>>([
-        QUERY_KEYS.ALL_CAPACITIES,
-      ]);
-      return existingCache || new Map<number, Capacity>();
-    },
-    staleTime: Infinity, // Never consider obsolete
-    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
-  });
-
-  const { data: childrenCache = new Map<number, number[]>(), isSuccess: isChildrenCacheLoaded } =
-    useQuery({
-      queryKey: [QUERY_KEYS.CHILDREN_MAP],
-      queryFn: () => {
-        const existingCache = queryClient.getQueryData<Map<number, number[]>>([
-          QUERY_KEYS.CHILDREN_MAP,
-        ]);
-        return existingCache || new Map<number, number[]>();
-      },
-      staleTime: Infinity,
-      gcTime: 24 * 60 * 60 * 1000,
-    });
-
-  const isLoaded = isCacheLoaded && isChildrenCacheLoaded && isManuallyLoaded;
-
-  // Function to clear the entire cache
-  const clearCache = useCallback(() => {
-    queryClient.removeQueries({ queryKey: [QUERY_KEYS.ALL_CAPACITIES] });
-    queryClient.removeQueries({ queryKey: [QUERY_KEYS.CHILDREN_MAP] });
-    setIsManuallyLoaded(false);
-    hasInitializedCache = false;
-    // Also clear from localStorage if being used
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('capx-capacity-cache');
-    }
-  }, [queryClient]);
-
-  // Persist cache in localStorage when changing (only if there are data)
-  useEffect(() => {
-    if (isCacheLoaded && isChildrenCacheLoaded && capacityCache.size > 0) {
-      // Use debounce to avoid multiple saves
-      const timer = setTimeout(() => {
-        saveCache(capacityCache, childrenCache);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isCacheLoaded, isChildrenCacheLoaded, capacityCache, childrenCache]);
-
-  // Function to preload all capacity data in the background
-  const prefetchCapacityData = async () => {
-    if (!session?.user?.token) return;
-
-    // Check if we already have data in cache before loading
-    if (capacityCache.size > 0 && childrenCache.size > 0) {
-      setIsManuallyLoaded(true);
-      return;
-    }
-
-    // Try to load from localStorage first before making API requests
-    try {
-      const savedCache = localStorage.getItem('capx-capacity-cache');
-      if (savedCache) {
-        const parsedCache = JSON.parse(savedCache);
-        const hasCapacities =
-          parsedCache.capacities && Object.keys(parsedCache.capacities).length > 0;
-        const hasChildren = parsedCache.children && Object.keys(parsedCache.children).length > 0;
-
-        if (hasCapacities && hasChildren) {
-          // Convert back to Map before using
-          const capacitiesMap = objectToMap(parsedCache.capacities);
-          queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], capacitiesMap);
-
-          const childrenMap = objectToMap(parsedCache.children);
-          queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], childrenMap);
-
-          setIsManuallyLoaded(true);
-
-          // Check age of cached data - if older than a day, trigger a background refresh
-          const cacheTimestamp = parsedCache.timestamp || 0;
-          const oneDayMs = 24 * 60 * 60 * 1000;
-          const isCacheStale = Date.now() - cacheTimestamp > oneDayMs;
-
-          if (isCacheStale) {
-            // Continue with API requests for fresh data, but don't await them
-            fetchFreshData(session.user.token, capacitiesMap, childrenMap);
-          }
-
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Error recovering cache:', error);
-      // Continue with normal loading in case of error
-    }
-
-    // Regular API fetching if no localStorage cache exists
-    try {
-      setIsLoading(true);
-      await fetchFreshData(session.user.token);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error prefetching capacity data:', error);
-      setIsLoading(false);
-    }
-  };
-
-  // Helper function to fetch fresh data from API
-  const fetchFreshData = async (
-    token: string,
-    existingCapacityCache?: Map<number, Capacity>,
-    existingChildrenCache?: Map<number, number[]>
-  ) => {
-    // 1. Load root capacities
-    const rootCapacities = await capacityService.fetchCapacities({
-      headers: { Authorization: `Token ${token}` },
-    });
-
-    // Store root capacities in persistent cache
-    const newCapacityCache = existingCapacityCache || new Map<number, Capacity>();
-    const newChildrenCache = existingChildrenCache || new Map<number, number[]>();
-
-    // Initialize cache with root capacities
-    rootCapacities.forEach(rootCapacity => {
-      const code = Number(rootCapacity.code);
-      newCapacityCache.set(code, {
-        code,
-        name: rootCapacity.name,
-        color: 'technology',
-        icon: '',
-        hasChildren: false,
-        skill_type: code,
-        skill_wikidata_item: '',
-        description: '',
-        wd_code: rootCapacity.wd_code || '',
-      });
-    });
-
-    // 2. Load all children in a single request grouped
-    const childPromises = rootCapacities.map(async rootCapacity => {
-      const code = Number(rootCapacity.code);
-      try {
-        // Skip if we already have this capacity's children in cache
-        if (newChildrenCache.has(code) && (newChildrenCache.get(code)?.length ?? 0) > 0) {
-          const cachedChildren = newChildrenCache.get(code);
-          return Array.isArray(cachedChildren) ? cachedChildren : [];
-        }
-
-        const children = await capacityService.fetchCapacitiesByType(code.toString(), {
-          headers: { Authorization: `Token ${token}` },
-        });
-
-        // Process children
-        const childCodes = Object.keys(children).map(Number);
-        newChildrenCache.set(code, childCodes);
-
-        // Update hasChildren of the root capacity
-        const rootCapacity = newCapacityCache.get(code);
-        if (rootCapacity) {
-          newCapacityCache.set(code, {
-            ...rootCapacity,
-            hasChildren: childCodes.length > 0,
-          });
-        }
-
-        // Add children to cache
-        childCodes.forEach(childCode => {
-          if (!newCapacityCache.has(childCode)) {
-            newCapacityCache.set(childCode, {
-              code: childCode,
-              name:
-                typeof children[childCode] === 'string'
-                  ? children[childCode]
-                  : children[childCode]?.name || `Capacity ${childCode}`,
-              color: 'technology',
-              icon: '',
-              hasChildren: false,
-              skill_type: code,
-              skill_wikidata_item: '',
-              description: '',
-              wd_code: '',
-              parentCapacity: newCapacityCache.get(code),
-            });
-          }
-        });
-
-        return childCodes;
-      } catch (error) {
-        console.error(`Error fetching children for capacity ${code}:`, error);
-        return [];
-      }
-    });
-
-    // Process the child promises in parallel
-    const allChildCodes = await Promise.all(childPromises);
-    const flatChildCodes = allChildCodes.flat();
-
-    // Only fetch grandchildren for capacities we don't already have
-    const missingGrandchildren = flatChildCodes.filter(
-      code => !newChildrenCache.has(code) || newChildrenCache.get(code)?.length === 0
-    );
-
-    if (missingGrandchildren.length > 0) {
-      // 3. Load grandchildren in batches to reduce the number of requests
-      const BATCH_SIZE = 5;
-      for (let i = 0; i < missingGrandchildren.length; i += BATCH_SIZE) {
-        const batch = missingGrandchildren.slice(i, i + BATCH_SIZE);
-        const batchPromises = batch.map(async childCode => {
-          try {
-            const grandChildren = await capacityService.fetchCapacitiesByType(
-              childCode.toString(),
-              {
-                headers: { Authorization: `Token ${token}` },
-              }
-            );
-
-            const grandChildCodes = Object.keys(grandChildren).map(Number);
-            newChildrenCache.set(childCode, grandChildCodes);
-
-            // Update hasChildren of the child
-            const childCapacity = newCapacityCache.get(childCode);
-            if (childCapacity) {
-              newCapacityCache.set(childCode, {
-                ...childCapacity,
-                hasChildren: grandChildCodes.length > 0,
-              });
-            }
-
-            // Add grandchildren to cache
-            grandChildCodes.forEach(grandChildCode => {
-              if (!newCapacityCache.has(grandChildCode)) {
-                const parentCapacity = newCapacityCache.get(childCode);
-                newCapacityCache.set(grandChildCode, {
-                  code: grandChildCode,
-                  name:
-                    typeof grandChildren[grandChildCode] === 'string'
-                      ? grandChildren[grandChildCode]
-                      : grandChildren[grandChildCode]?.name || `Capacity ${grandChildCode}`,
-                  color: 'technology',
-                  icon: '',
-                  hasChildren: false,
-                  skill_type: childCode,
-                  skill_wikidata_item: '',
-                  description: '',
-                  wd_code: '',
-                  parentCapacity: parentCapacity,
-                });
-              }
-            });
-
-            return { childCode, grandChildCodes };
-          } catch (error) {
-            console.error(`Error fetching grandchildren for capacity ${childCode}:`, error);
-            return { childCode, grandChildCodes: [] };
-          }
-        });
-
-        await Promise.all(batchPromises);
-      }
-    }
-
-    // Update cache in React Query
-    queryClient.setQueryData([QUERY_KEYS.ALL_CAPACITIES], newCapacityCache);
-    queryClient.setQueryData([QUERY_KEYS.CHILDREN_MAP], newChildrenCache);
-
-    // Save cache in localStorage with a timestamp
-    saveCache(newCapacityCache, newChildrenCache, true);
-
-    // Mark as manually loaded
-    setIsManuallyLoaded(true);
-  };
-
-  // Helper function to preload capacities
-  const preloadCapacities = async () => {
-    if (isLoaded) {
-      return;
-    }
-    return await prefetchCapacityData();
-  };
-
-  // Helper function to clear only the capacity cache
-  const clearCapacityCache = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ALL_CAPACITIES] });
-  }, [queryClient]);
-
-  // Check if a capacity has children
-  const hasChildren = (code: number): boolean => {
-    const children = childrenCache.get(code);
-    return Array.isArray(children) && children.length > 0;
-  };
-
-  // Get a capacity from the cache
-  const getCapacity = (code: number): Capacity | undefined => {
-    return capacityCache.get(code);
-  };
-
-  // Prepare context value
-  const contextValue = {
-    isLoaded,
-    hasChildren,
-    getCapacity,
-    prefetchCapacityData,
-    preloadCapacities,
-    clearCache,
-    clearCapacityCache,
-  };
-
-  return (
-    <CapacityCacheContext.Provider value={contextValue}>{children}</CapacityCacheContext.Provider>
-  );
-}
-
-// Custom hook to use the capacity cache context
-export function useCapacityCache() {
+export const useCapacityCache = () => {
   const context = useContext(CapacityCacheContext);
   if (!context) {
     throw new Error('useCapacityCache must be used within a CapacityCacheProvider');
   }
   return context;
-}
+};
+
+export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const [isLoadingTranslations, setIsLoadingTranslations] = useState(false);
+
+  // Get initial language from localStorage or default to 'en'
+  const getInitialLanguage = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('language') || 'en';
+    }
+    return 'en';
+  };
+
+  const [unifiedCache, setUnifiedCache] = useState<UnifiedCache>({
+    capacities: {},
+    children: {},
+    language: getInitialLanguage(),
+    timestamp: 0,
+  });
+
+  // Load unified cache from localStorage
+  const loadUnifiedCache = useCallback((language: string): UnifiedCache => {
+    if (typeof window === 'undefined') {
+      return { capacities: {}, children: {}, language, timestamp: 0 };
+    }
+
+    try {
+      const cached = localStorage.getItem('capx-unified-cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.language === language) {
+          return parsed;
+        }
+      }
+    } catch (error) {
+      // Silently handle cache loading errors
+    }
+
+    return { capacities: {}, children: {}, language, timestamp: 0 };
+  }, []);
+
+  // Save unified cache to localStorage
+  const saveUnifiedCache = useCallback((cache: UnifiedCache) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      localStorage.setItem('capx-unified-cache', JSON.stringify(cache));
+    } catch (error) {
+      // Silently handle cache saving errors
+    }
+  }, []);
+
+  // Fetch and update translations for a language
+  const updateLanguage = useCallback(
+    async (newLanguage: string) => {
+      if (!session?.user?.token) {
+        return;
+      }
+
+      // Use the cache language from unifiedCache instead of currentLanguage state
+      if (
+        unifiedCache.language === newLanguage &&
+        Object.keys(unifiedCache.capacities).length > 0
+      ) {
+        return;
+      }
+
+      // Prevent concurrent requests for different languages
+      if (isLoadingTranslations) {
+        return;
+      }
+
+      setIsLoadingTranslations(true);
+
+      try {
+        // Try to load from cache first
+        const cachedData = loadUnifiedCache(newLanguage);
+        if (Object.keys(cachedData.capacities).length > 0) {
+          setUnifiedCache(cachedData);
+          setIsLoadingTranslations(false);
+          return;
+        }
+
+        // Fetch root capacities
+        const rootCapacities = await capacityService.fetchCapacities(
+          {
+            params: { language: newLanguage },
+            headers: { Authorization: `Token ${session.user.token}` },
+          },
+          newLanguage
+        );
+
+        if (!rootCapacities || rootCapacities.length === 0) {
+          setIsLoadingTranslations(false);
+          return;
+        }
+
+        // Build unified cache
+        const newCache: UnifiedCache = {
+          capacities: {},
+          children: {},
+          language: newLanguage,
+          timestamp: Date.now(),
+        };
+
+        // Add root capacities to cache
+        rootCapacities.forEach((capacity: any) => {
+          const hierarchyInfo = getHierarchyInfo(capacity.code);
+
+          newCache.capacities[capacity.code] = {
+            code: capacity.code,
+            name: capacity.name,
+            description: capacity.description || '',
+            wd_code: capacity.wd_code || '',
+            metabase_code: capacity.metabase_code || '',
+            color: hierarchyInfo.color,
+            icon: hierarchyInfo.icon,
+            hasChildren: capacity.hasChildren !== false, // Assume true unless explicitly false
+            level: capacity.level || 1,
+            skill_type: capacity.skill_type,
+            skill_wikidata_item: capacity.skill_wikidata_item,
+            parentCapacity: capacity.parentCapacity,
+            category: hierarchyInfo.category,
+            isFallbackTranslation: false, // Will be updated later if needed
+          };
+        });
+
+        // Now fetch all children and grandchildren for each root capacity
+
+        for (const rootCapacity of rootCapacities) {
+          try {
+            // Fetch children for this root capacity
+            const childrenResponse = await capacityService.fetchCapacitiesByType(
+              rootCapacity.code.toString(),
+              { headers: { Authorization: `Token ${session.user.token}` } },
+              newLanguage
+            );
+
+            if (childrenResponse && typeof childrenResponse === 'object') {
+              // Process children
+              const childrenEntries = Object.entries(childrenResponse as Record<string, any>);
+
+              // Store children codes in the cache structure
+              newCache.children[rootCapacity.code] = childrenEntries.map(([code]) =>
+                parseInt(code, 10)
+              );
+
+              for (const [childCode, childData] of childrenEntries) {
+                const childCodeNum = parseInt(childCode, 10);
+                const hierarchyInfo = getHierarchyInfo(Number(rootCapacity.code)); // Use parent's hierarchy info
+
+                // Store child in cache
+                const childName =
+                  typeof childData === 'string'
+                    ? childData
+                    : (childData as any)?.name || `Capacity ${childCode}`;
+                newCache.capacities[childCodeNum] = {
+                  code: childCodeNum,
+                  name: childName,
+                  description:
+                    typeof childData === 'object' ? (childData as any)?.description || '' : '',
+                  wd_code: typeof childData === 'object' ? (childData as any)?.wd_code || '' : '',
+                  metabase_code:
+                    typeof childData === 'object' ? (childData as any)?.metabase_code || '' : '',
+                  color: hierarchyInfo.color, // Inherit from parent
+                  icon: hierarchyInfo.icon, // Inherit from parent
+                  hasChildren: false, // Will be updated if we find grandchildren
+                  level: 2,
+                  skill_type: childCodeNum,
+                  skill_wikidata_item: '',
+                  parentCapacity: rootCapacity,
+                  category: hierarchyInfo.category,
+                  isFallbackTranslation: false, // Will be updated later if needed
+                };
+
+                // Try to fetch grandchildren for each child
+                try {
+                  const grandchildrenResponse = await capacityService.fetchCapacitiesByType(
+                    childCode,
+                    { headers: { Authorization: `Token ${session.user.token}` } },
+                    newLanguage
+                  );
+
+                  if (grandchildrenResponse && typeof grandchildrenResponse === 'object') {
+                    const grandchildrenEntries = Object.entries(
+                      grandchildrenResponse as Record<string, any>
+                    );
+
+                    if (grandchildrenEntries.length > 0) {
+                      // Update parent to indicate it has children
+                      newCache.capacities[childCodeNum].hasChildren = true;
+
+                      // Store grandchildren codes
+                      newCache.children[childCodeNum] = grandchildrenEntries.map(([code]) =>
+                        parseInt(code, 10)
+                      );
+
+                      // Store each grandchild
+                      for (const [grandchildCode, grandchildData] of grandchildrenEntries) {
+                        const grandchildCodeNum = parseInt(grandchildCode, 10);
+                        const grandchildName =
+                          typeof grandchildData === 'string'
+                            ? grandchildData
+                            : (grandchildData as any)?.name || `Capacity ${grandchildCode}`;
+
+                        newCache.capacities[grandchildCodeNum] = {
+                          code: grandchildCodeNum,
+                          name: grandchildName,
+                          description:
+                            typeof grandchildData === 'object'
+                              ? (grandchildData as any)?.description || ''
+                              : '',
+                          wd_code:
+                            typeof grandchildData === 'object'
+                              ? (grandchildData as any)?.wd_code || ''
+                              : '',
+                          metabase_code:
+                            typeof grandchildData === 'object'
+                              ? (grandchildData as any)?.metabase_code || ''
+                              : '',
+                          color: hierarchyInfo.color, // Inherit root family color for level 3
+                          icon: hierarchyInfo.icon, // Inherit from root
+                          hasChildren: false,
+                          level: 3,
+                          skill_type: grandchildCodeNum,
+                          skill_wikidata_item: '',
+                          parentCapacity: newCache.capacities[childCodeNum],
+                          category: hierarchyInfo.category,
+                          isFallbackTranslation: false, // Will be updated later if needed
+                        };
+                      }
+                    }
+                  }
+                } catch (error) {
+                  // Silently continue if grandchildren fetch fails
+                }
+              }
+            }
+          } catch (error) {
+            // Silently continue if children fetch fails
+          }
+        }
+
+        // Get all capacity codes that need descriptions/translations
+        const allCodesNeedingTranslations = Object.values(newCache.capacities)
+          .filter(cap => cap.wd_code && cap.level && cap.level <= 3 && cap.wd_code.trim() !== '')
+          .map(cap => ({ code: cap.code, wd_code: cap.wd_code! }));
+
+        if (allCodesNeedingTranslations.length > 0) {
+          // Try fetchCapacitiesWithFallback from capacitiesUtils
+          const { fetchCapacitiesWithFallback } = await import('@/lib/utils/capacitiesUtils');
+          const translations = await fetchCapacitiesWithFallback(
+            allCodesNeedingTranslations,
+            newLanguage
+          );
+
+          // Apply translations to cache
+          translations.forEach((translation: any) => {
+            const matchingCapacity = Object.values(newCache.capacities).find(
+              cap => cap.wd_code === translation.wd_code
+            );
+            if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
+              const currentCapacity = newCache.capacities[matchingCapacity.code];
+              newCache.capacities[matchingCapacity.code] = {
+                ...currentCapacity,
+                // For children/grandchildren, prefer API translation over Metabase/Wikidata, but allow fallback if API didn't provide translation
+                name:
+                  currentCapacity.level === 1
+                    ? translation.name || currentCapacity.name // Root: always prefer Metabase/Wikidata
+                    : translation.name && translation.name !== currentCapacity.name
+                      ? translation.name // Children/Grand: only if different (better translation)
+                      : currentCapacity.name, // Otherwise keep API translation
+                // Propagate fallback translation information
+                isFallbackTranslation: translation.isFallbackTranslation || false,
+                description: translation.description || currentCapacity.description, // Always try to get better description
+                metabase_code: translation.metabase_code || currentCapacity.metabase_code,
+              };
+            }
+          });
+        }
+
+        // Mark capacities that don't have translation information as potential fallbacks
+        // Note: The main fallback detection now happens in fetchCapacitiesWithFallback using SPARQL metadata
+        // This is just a backup for capacities that weren't processed through that function
+        if (newLanguage !== 'en') {
+          Object.values(newCache.capacities).forEach(capacity => {
+            // If capacity doesn't have isFallbackTranslation set and has no wd_code,
+            // it likely means it came from API without translation data
+            if (
+              (capacity.isFallbackTranslation === undefined ||
+                capacity.isFallbackTranslation === false) &&
+              (!capacity.wd_code || capacity.wd_code.trim() === '')
+            ) {
+              // For capacities without wd_code, we can't get translations, so they're effectively fallbacks
+              newCache.capacities[capacity.code].isFallbackTranslation = true;
+            }
+          });
+        }
+
+        // Update state and save cache
+        setUnifiedCache(newCache);
+        saveUnifiedCache(newCache);
+
+        // Clear React Query cache for other languages and invalidate current language queries
+        queryClient.removeQueries({
+          predicate: query => {
+            const key = query.queryKey[0] as string;
+            return key?.includes('capacities') && !key.includes(newLanguage);
+          },
+        });
+
+        // Invalidate queries for the new language to trigger re-fetch
+        queryClient.invalidateQueries({
+          predicate: query => {
+            const key = query.queryKey as string[];
+            return key[0] === 'capacities' && key.includes(newLanguage);
+          },
+        });
+      } catch (error) {
+        console.error(`Error updating language to ${newLanguage}:`, error);
+      } finally {
+        setIsLoadingTranslations(false);
+      }
+    },
+    [
+      session?.user?.token,
+      unifiedCache.language,
+      unifiedCache.capacities,
+      isLoadingTranslations,
+      loadUnifiedCache,
+      saveUnifiedCache,
+      queryClient,
+    ]
+  );
+
+  // Getter functions
+  const getName = useCallback(
+    (code: number): string => {
+      const capacity = unifiedCache.capacities[code];
+
+      // If we have a name, format and return it
+      if (capacity?.name) {
+        return capacity.name.charAt(0).toUpperCase() + capacity.name.slice(1).toLowerCase();
+      }
+
+      // Fallback to capacity ID when no name is available
+      return `Capacity ${code}`;
+    },
+    [unifiedCache.capacities]
+  );
+
+  const getDescription = useCallback(
+    (code: number): string => {
+      const capacity = unifiedCache.capacities[code];
+      return capacity?.description || '';
+    },
+    [unifiedCache.capacities]
+  );
+
+  const getWdCode = useCallback(
+    (code: number): string => {
+      const capacity = unifiedCache.capacities[code];
+      return capacity?.wd_code || '';
+    },
+    [unifiedCache.capacities]
+  );
+
+  const getMetabaseCode = useCallback(
+    (code: number): string => {
+      const capacity = unifiedCache.capacities[code];
+      return capacity?.metabase_code || '';
+    },
+    [unifiedCache.capacities]
+  );
+
+  const getColor = useCallback(
+    (code: number): string => {
+      const capacity = unifiedCache.capacities[code];
+      if (capacity?.color) {
+        return capacity.color;
+      }
+      // Fallback to determining color from code if not cached
+      const hierarchyInfo = getHierarchyInfo(code);
+      return hierarchyInfo.color;
+    },
+    [unifiedCache.capacities]
+  );
+
+  const getIcon = useCallback(
+    (code: number): string => {
+      const capacity = unifiedCache.capacities[code];
+      if (capacity?.icon) {
+        return capacity.icon;
+      }
+      // Fallback to determining icon from code if not cached
+      const hierarchyInfo = getHierarchyInfo(code);
+      return hierarchyInfo.icon;
+    },
+    [unifiedCache.capacities]
+  );
+
+  // Get children from cache
+  const getChildren = useCallback(
+    (parentCode: number): any[] => {
+      const childCodes = unifiedCache.children[parentCode] || [];
+      return childCodes.map(code => unifiedCache.capacities[code]).filter(Boolean);
+    },
+    [unifiedCache.capacities, unifiedCache.children]
+  );
+
+  // Get single capacity from cache
+  const getCapacity = useCallback(
+    (code: number): any | null => {
+      return unifiedCache.capacities[code] || null;
+    },
+    [unifiedCache.capacities]
+  );
+
+  // Get root capacities from cache
+  const getRootCapacities = useCallback((): any[] => {
+    return Object.values(unifiedCache.capacities).filter(capacity => capacity.level === 1);
+  }, [unifiedCache.capacities]);
+
+  // Check if a capacity has children
+  const hasChildren = useCallback(
+    (code: number): boolean => {
+      const capacity = unifiedCache.capacities[code];
+      return capacity?.hasChildren || false;
+    },
+    [unifiedCache.capacities]
+  );
+
+  // Check if a capacity is using fallback translation
+  const isFallbackTranslation = useCallback(
+    (code: number): boolean => {
+      const capacity = unifiedCache.capacities[code];
+      return capacity?.isFallbackTranslation || false;
+    },
+    [unifiedCache.capacities]
+  );
+
+  // Preload capacities for the current language
+  const preloadCapacities = useCallback(async () => {
+    const currentLanguage = unifiedCache.language;
+    await updateLanguage(currentLanguage);
+  }, [unifiedCache.language, updateLanguage]);
+
+  // Clear all caches
+  const clearCache = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('capx-unified-cache');
+      localStorage.removeItem('capx-capacity-cache');
+      localStorage.removeItem('capx-translations-cache');
+    }
+
+    queryClient.clear();
+    setUnifiedCache({ capacities: {}, children: {}, language: 'en', timestamp: 0 });
+  }, [queryClient]);
+
+  // Initialize cache on mount
+  useEffect(() => {
+    const initialLanguage = getInitialLanguage();
+    const initialCache = loadUnifiedCache(initialLanguage);
+    setUnifiedCache(initialCache);
+  }, [loadUnifiedCache]);
+
+  const contextValue: CapacityCacheContextType = {
+    isLoaded: Object.keys(unifiedCache.capacities).length > 0,
+    isLoadingTranslations,
+    isDescriptionsReady: Object.keys(unifiedCache.capacities).length > 0 && !isLoadingTranslations,
+    language: unifiedCache.language,
+    getName,
+    getDescription,
+    getWdCode,
+    getMetabaseCode,
+    getColor,
+    getIcon,
+    getChildren,
+    getCapacity,
+    getRootCapacities,
+    hasChildren,
+    isFallbackTranslation,
+    updateLanguage,
+    preloadCapacities,
+    clearCache,
+  };
+
+  return (
+    <CapacityCacheContext.Provider value={contextValue}>{children}</CapacityCacheContext.Provider>
+  );
+};

@@ -17,26 +17,26 @@ export async function fetchEventDataByQID(qid: string): Promise<Partial<Event> |
     PREFIX wdt: <http://www.wikidata.org/prop/direct/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX schema: <http://schema.org/>
-    
+
     SELECT ?name ?description ?image_url ?start_date ?end_date ?location ?location_name ?url WHERE {
       wd:${qid} rdfs:label ?name .
       FILTER(LANG(?name) = "pt" || LANG(?name) = "en")
-      
-      OPTIONAL { wd:${qid} schema:description ?description . 
+
+      OPTIONAL { wd:${qid} schema:description ?description .
                 FILTER(LANG(?description) = "pt" || LANG(?description) = "en") }
-      
-      OPTIONAL { wd:${qid} wdt:P18 ?image . 
+
+      OPTIONAL { wd:${qid} wdt:P18 ?image .
                 BIND(CONCAT("https://commons.wikimedia.org/wiki/Special:FilePath/", ?image) AS ?image_url) }
-      
+
       OPTIONAL { wd:${qid} wdt:P580 ?start_date . }
       OPTIONAL { wd:${qid} wdt:P582 ?end_date . }
-      
-      OPTIONAL { 
-        wd:${qid} wdt:P276 ?location . 
+
+      OPTIONAL {
+        wd:${qid} wdt:P276 ?location .
         ?location rdfs:label ?location_name .
         FILTER(LANG(?location_name) = "pt" || LANG(?location_name) = "en")
       }
-      
+
       OPTIONAL { wd:${qid} wdt:P856 ?url . }
     }
     LIMIT 1
@@ -134,19 +134,19 @@ export function extractDatesFromPageContent(
   // Enhanced patterns for different date formats, including Portuguese
   const patterns = [
     // Portuguese formats: "19 e 20 de julho de 2025", "19 a 20 de julho de 2025"
-    /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/gi,
-    /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w+)/gi,
+    /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
+    /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w{3,12})/gi,
 
     // Portuguese with month names: "julho de 2025"
-    /(\w+)\s+de\s+(\d{4})/gi,
+    /(\w{3,12})\s+de\s+(\d{4})/gi,
 
     // Month names with ranges: "July 19-20, 2025", "19-20 July 2025", "July 19 to July 20, 2025"
-    /(\w+)\s+(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2}),?\s*(\d{4})/gi,
-    /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\w+)\s+(\d{4})/gi,
-    /(\w+)\s+(\d{1,2})\s+to\s+(\w+)\s+(\d{1,2}),?\s*(\d{4})/gi,
+    /(\w{3,12})\s+(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2}),?\s*(\d{4})/gi,
+    /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\w{3,12})\s+(\d{4})/gi,
+    /(\w{3,12})\s+(\d{1,2})\s+to\s+(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
 
     // Full month names: "July 19, 2025 to July 20, 2025"
-    /(\w+)\s+(\d{1,2}),?\s*(\d{4})\s*(?:to|até|a|-|–)\s*(\w+)\s+(\d{1,2}),?\s*(\d{4})/gi,
+    /(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})\s*(?:to|até|a|-|–)\s*(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
 
     // ISO format: "2025-07-19" to "2025-07-20", "2025-07-19 - 2025-07-20"
     /(\d{4})-(\d{1,2})-(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{4})-(\d{1,2})-(\d{1,2})/gi,
@@ -164,8 +164,8 @@ export function extractDatesFromPageContent(
     /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\d{4})/gi,
 
     // Single month name: "July 19, 2025", "19 July 2025"
-    /(\w+)\s+(\d{1,2}),?\s*(\d{4})/gi,
-    /(\d{1,2})\s+(\w+)\s+(\d{4})/gi,
+    /(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
+    /(\d{1,2})\s+(\w{3,12})\s+(\d{4})/gi,
 
     // Single ISO date: "2025-07-19"
     /(\d{4})-(\d{1,2})-(\d{1,2})/gi,
@@ -449,9 +449,9 @@ export function extractWikimediaTitleFromURL(url: string): string | undefined {
   try {
     // URL patterns for Wikimedia
     const patterns = [
-      /wikimedia\.org\/wiki\/([^/#?]+)/i,
-      /wikipedia\.org\/wiki\/([^/#?]+)/i,
-      /meta\.wikimedia\.org\/wiki\/([^/#?]+)/i,
+      /wikimedia\.org\/wiki\/([^/#?]{1,200})/i,
+      /wikipedia\.org\/wiki\/([^/#?]{1,200})/i,
+      /meta\.wikimedia\.org\/wiki\/([^/#?]{1,200})/i,
     ];
 
     for (const pattern of patterns) {
@@ -474,7 +474,11 @@ export function extractQIDFromURL(url: string): string | undefined {
 
   try {
     // URL patterns for Wikidata
-    const patterns = [/wikidata\.org\/wiki\/(Q\d+)/i, /wikidata\.org\/entity\/(Q\d+)/i, /(Q\d+)$/i];
+    const patterns = [
+      /wikidata\.org\/wiki\/(Q\d{1,10})/i,
+      /wikidata\.org\/entity\/(Q\d{1,10})/i,
+      /(Q\d{1,10})$/i,
+    ];
 
     for (const pattern of patterns) {
       const match = url.match(pattern);
@@ -507,13 +511,13 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
     PREFIX osm: <https://www.openstreetmap.org/>
     PREFIX wdt: <http://www.wikidata.org/prop/direct/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    
+
     SELECT ?name ?lat ?lon ?address WHERE {
       osm:${osmId} rdfs:label ?name ;
                    wdt:P625 ?coordinates .
-      
+
       BIND(CONCAT(STR(?lat), ",", STR(?lon)) AS ?coordinates)
-      
+
       OPTIONAL { osm:${osmId} wdt:P969 ?address . }
     }
     LIMIT 1
@@ -552,7 +556,7 @@ async function fetchWikimediaPageData(url: string): Promise<{
 } | null> {
   try {
     // Extract domain and page title from URL
-    const urlMatch = url.match(/https?:\/\/([^\/]+)\/wiki\/(.+)/i);
+    const urlMatch = url.match(/https?:\/\/([^\/]{1,100})\/wiki\/(.{1,200})/i);
     if (!urlMatch) return null;
 
     const [, domain, pageTitle] = urlMatch;
@@ -579,7 +583,7 @@ async function fetchWikimediaPageData(url: string): Promise<{
     let content: string | undefined = undefined;
     let wikidata_qid: string | undefined = undefined;
     let infobox = null;
-    let categories = [];
+    let categories: string[] = [];
 
     // Process content
     if (contentData.status === 'fulfilled' && contentData.value.ok) {
@@ -636,8 +640,8 @@ function extractInfoboxFromWikitext(wikitext: string): any {
   try {
     const data: any = {};
 
-    // First try to find infobox
-    const infoboxMatch = wikitext.match(/\{\{[Ii]nfobox[\s\S]*?\}\}/g);
+    // First try to find infobox - limit to prevent ReDoS
+    const infoboxMatch = wikitext.match(/\{\{[Ii]nfobox[\s\S]{1,5000}?\}\}/g);
     if (infoboxMatch) {
       const infoboxText = infoboxMatch[0];
 
@@ -676,15 +680,15 @@ function extractInfoboxFromWikitext(wikitext: string): any {
       // Look for date patterns in the main content
       const datePatterns = [
         // "19 e 20 de julho de 2025"
-        /(\d{1,2})\s+e\s+(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/gi,
+        /(\d{1,2})\s+e\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
         // "19 e 20 de julho"
-        /(\d{1,2})\s+e\s+(\d{1,2})\s+de\s+(\w+)/gi,
+        /(\d{1,2})\s+e\s+(\d{1,2})\s+de\s+(\w{3,12})/gi,
         // "19-20 de julho de 2025"
-        /(\d{1,2})-(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/gi,
+        /(\d{1,2})-(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
         // "19 a 20 de julho de 2025"
-        /(\d{1,2})\s+a\s+(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/gi,
+        /(\d{1,2})\s+a\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
         // "julho de 2025"
-        /(\w+)\s+de\s+(\d{4})/gi,
+        /(\w{3,12})\s+de\s+(\d{4})/gi,
       ];
 
       for (const pattern of datePatterns) {
@@ -699,9 +703,9 @@ function extractInfoboxFromWikitext(wikitext: string): any {
     // Extract location from content if not found in infobox
     if (!data.location) {
       const locationPatterns = [
-        /\*\*Local\*\*:\s*([^|\n]+)/i,
-        /Local:\s*([^|\n]+)/i,
-        /em\s+([^,]+),\s+([^|\n]+)/i,
+        /\*\*Local\*\*:\s*([^|\n]{1,200})/i,
+        /Local:\s*([^|\n]{1,200})/i,
+        /em\s+([^,]{1,100}),\s+([^|\n]{1,200})/i,
       ];
 
       for (const pattern of locationPatterns) {
@@ -911,7 +915,7 @@ async function fetchLearnWikiPageContent(
 ): Promise<{ title?: string; description?: string; dates?: string } | null> {
   try {
     // Extract course code from URL
-    const courseMatch = url.match(/course-v1:([^/]+)/i);
+    const courseMatch = url.match(/course-v1:([^/]{1,100})/i);
     if (!courseMatch || !courseMatch[1]) {
       return null;
     }

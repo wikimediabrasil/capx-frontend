@@ -27,6 +27,7 @@ export interface CapacityResponse {
   wd_code: string;
   name: string;
   description?: string;
+  metabase_code?: string;
 }
 
 export interface QueryData {

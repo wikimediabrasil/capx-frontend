@@ -1,5 +1,6 @@
+import { fetchMetabase, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 import axios, { AxiosRequestConfig } from 'axios';
-import { Capacities, Capacity, CapacityResponse, QueryData } from '@/types/capacity';
+import { Capacities, CapacityResponse, QueryData } from '../types/capacity';
 
 export const fetchAllCapacities = async (token: string): Promise<Capacities[]> => {
   const response = await axios.get<Capacities[]>(`/api/skill/`, {
@@ -15,7 +16,10 @@ export const fetchAllCapacities = async (token: string): Promise<Capacities[]> =
 };
 
 export const capacityService = {
-  async fetchCapacities(queryData: QueryData): Promise<CapacityResponse[]> {
+  async fetchCapacities(
+    queryData: QueryData,
+    language: string = 'en'
+  ): Promise<CapacityResponse[]> {
     try {
       const response = await axios.get('/api/capacity', {
         params: queryData.params,
@@ -23,78 +27,126 @@ export const capacityService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch capacities:', error);
+      console.error('Error fetching capacities:', error);
       throw error;
     }
   },
 
   async fetchCapacitiesByType(
     type: string,
-    config?: AxiosRequestConfig
-  ): Promise<CapacityResponse[]> {
+    config?: AxiosRequestConfig,
+    language: string = 'en'
+  ): Promise<Record<string, any>> {
     try {
-      const response = await axios.get(`/api/capacity/type/${type}`, config);
+      const response = await axios.get(`/api/capacity/type/${type}`, {
+        ...config,
+        params: {
+          ...config?.params,
+          language,
+        },
+      });
       return response.data;
     } catch (error) {
-      console.error('Service - Error:', error);
+      console.error(`Error fetching capacities by type ${type}:`, error);
       throw error;
+    }
+  },
+
+  async fetchCapacityById(
+    id: string,
+    config?: AxiosRequestConfig,
+    language: string = 'en'
+  ): Promise<CapacityResponse> {
+    try {
+      const response = await axios.get(`/api/capacity/${id}`, config);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching capacity by id ${id}:`, error);
+      throw error;
+    }
+  },
+
+  async searchCapacities(
+    search: string,
+    config?: AxiosRequestConfig,
+    language: string = 'en'
+  ): Promise<CapacityResponse[]> {
+    try {
+      const response = await axios.get('/api/capacity/search', {
+        ...config,
+        params: { ...config?.params, q: search },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error searching capacities with query "${search}":`, error);
+      throw error;
+    }
+  },
+
+  // Função para buscar traduções do Metabase
+  async fetchMetabaseTranslations(
+    codes: Array<{ code: number; wd_code: string }>,
+    language: string
+  ) {
+    try {
+      return await fetchMetabase(codes, language);
+    } catch (error) {
+      console.error('Error fetching Metabase translations:', error);
+      return [];
+    }
+  },
+
+  // Função para buscar traduções do Wikidata
+  async fetchWikidataTranslations(
+    codes: Array<{ code: number; wd_code: string }>,
+    language: string
+  ) {
+    try {
+      return await fetchWikidata(codes, language);
+    } catch (error) {
+      console.error('Error fetching Wikidata translations:', error);
+      return [];
+    }
+  },
+
+  // Função para buscar traduções com fallback (Metabase primeiro, Wikidata depois)
+  async fetchTranslationsWithFallback(
+    codes: Array<{ code: number; wd_code: string }>,
+    language: string
+  ) {
+    try {
+      // Try Metabase first
+      let translations = await this.fetchMetabaseTranslations(codes, language);
+
+      // If no results from Metabase, try Wikidata as fallback
+      if (!translations || translations.length === 0) {
+        translations = await this.fetchWikidataTranslations(codes, language);
+      }
+
+      return translations || [];
+    } catch (error) {
+      console.error('Error in fetchTranslationsWithFallback:', error);
+      return [];
     }
   },
 
   async fetchCapacityDescription(
     code: number,
-    config?: AxiosRequestConfig
-  ): Promise<{ description: string; wdCode: string }> {
-    try {
-      const response = await axios.get(`/api/capacity/${code}`, config);
-      return {
-        description: response.data.description || '',
-        wdCode: response.data.wd_code || '',
-      };
-    } catch (error) {
-      console.error('Failed to fetch capacity description:', error);
-      throw error;
-    }
-  },
-
-  async fetchCapacityById(id: string): Promise<CapacityResponse> {
-    try {
-      const response = await axios.get(`/api/capacity/${id}`);
-
-      // Ensure the response has a valid name field
-      if (!response.data.name || response.data.name === `Capacity ${id}`) {
-        console.warn(`⚠️ Capacity ${id} returned generic name or no name:`, response.data.name);
-      }
-
-      return response.data;
-    } catch (error) {
-      console.error(`💥 Failed to fetch capacity ${id}:`, error);
-      throw error;
-    }
-  },
-
-  async updateCapacities(data: Partial<Capacity>, queryData: QueryData): Promise<void> {
-    try {
-      await axios.put(`/api/capacity`, data, {
-        headers: queryData.headers,
-        params: queryData.params,
-      });
-    } catch (error) {
-      console.error('Failed to update capacities:', error);
-      throw error;
-    }
-  },
-
-  async searchCapacities(search: string, config?: AxiosRequestConfig): Promise<CapacityResponse[]> {
-    try {
-      const response = await axios.get(`/api/capacity/search`, {
-        params: { q: search },
-        headers: config?.headers,
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Failed to search capacities:', error);
-      throw error;
-    }
+    config?: AxiosRequestConfig,
+    language: string = 'en'
+  ) {
+    const response = await axios.get(`/api/capacity/${code}`, {
+      ...config,
+      params: {
+        ...config?.params,
+        language,
+      },
+    });
+    return {
+      name: response.data.name || '',
+      description: response.data.description || '',
+      wdCode: response.data.wd_code || '',
+      metabaseCode: response.data.metabase_code || '',
+    };
   },
 };

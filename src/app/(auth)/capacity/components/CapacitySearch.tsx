@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
 import BaseInput from '@/components/BaseInput';
-import { CapacityCard } from './CapacityCard';
+import LoadingState from '@/components/LoadingState';
+import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
-import { useCapacityList } from '@/hooks/useCapacityList';
-import LoadingState from '@/components/LoadingState';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { CapacityCard } from './CapacityCard';
 
 interface CapacitySearchProps {
   onSearchStart?: () => void;
@@ -56,22 +55,12 @@ function useDebounce<Args extends unknown[], Return>(
 }
 
 export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: CapacitySearchProps) {
-  const { data: session } = useSession();
-  const { language, isMobile, pageContent } = useApp();
+  const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
+  const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityCache();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
-  const {
-    searchResults,
-    descriptions,
-    setSearchResults,
-    fetchRootCapacities,
-    fetchCapacitiesByParent,
-    fetchCapacitySearch,
-    fetchCapacityDescription,
-    wdCodes,
-  } = useCapacityList(session?.user?.token, language);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>('');
@@ -80,13 +69,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
   // Usar um ref para rastrear o último termo enviado
   const lastNotifiedTermRef = useRef<string>('');
 
-  useEffect(() => {
-    if (session?.user?.token) {
-      fetchRootCapacities();
-    }
-  }, [session?.user?.token, fetchRootCapacities]);
-
-  // Search function
+  // Search function using unified cache system
   const search = useCallback(
     async (term: string) => {
       // If the search term is the same as the last search, do nothing
@@ -97,7 +80,38 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
       if (term) {
         setIsLoading(true);
         onSearchStart?.();
-        await fetchCapacitySearch(term);
+
+        try {
+          // Search through cached data instead of making API calls
+          const allCapacities: any[] = [];
+
+          // Get all root capacities
+          const rootCapacities = getRootCapacities();
+          allCapacities.push(...rootCapacities);
+
+          // Get all children and grandchildren from cache
+          rootCapacities.forEach(root => {
+            const children = getChildren(root.code);
+            allCapacities.push(...children);
+
+            children.forEach(child => {
+              const grandchildren = getChildren(child.code);
+              allCapacities.push(...grandchildren);
+            });
+          });
+
+          // Filter capacities based on search term
+          const searchTerm = term.toLowerCase();
+          const results = allCapacities.filter(
+            capacity => capacity.name && capacity.name.toLowerCase().includes(searchTerm)
+          );
+
+          setSearchResults(results);
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults([]);
+        }
+
         // Store the current search term
         lastSearchRef.current = term;
         setIsLoading(false);
@@ -108,7 +122,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         lastSearchRef.current = '';
       }
     },
-    [fetchCapacitySearch, onSearchStart, onSearchEnd, setSearchResults]
+    [getRootCapacities, getChildren, onSearchStart, onSearchEnd]
   );
 
   // Use the custom debounce hook
@@ -119,8 +133,8 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
 
-  // Notificar o componente pai sobre o termo de busca
-  // Apenas notifica se o termo mudou e onSearch existir
+  // Notify the parant component with search term
+  // Only notify if the term changed and onSearch exists
   useEffect(() => {
     if (onSearch && searchTerm !== lastNotifiedTermRef.current) {
       lastNotifiedTermRef.current = searchTerm;
@@ -128,48 +142,17 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
     }
   }, [searchTerm, onSearch]);
 
-  const toggleCapacity = useCallback(
-    async (parentCode: string) => {
-      if (expandedCapacities[parentCode]) {
-        setExpandedCapacities(prev => ({ ...prev, [parentCode]: false }));
-        return;
-      }
-
-      const children = await fetchCapacitiesByParent(parentCode);
-      for (const child of children) {
-        if (child.code) {
-          fetchCapacityDescription(child.code);
-        }
-      }
-
-      setExpandedCapacities(prev => ({ ...prev, [parentCode]: true }));
-    },
-    [expandedCapacities, fetchCapacitiesByParent, fetchCapacityDescription]
-  );
-
-  // Processa os resultados para garantir níveis corretos e cores consistentes
+  // Process the results to ensure correct levels and consistent colors
   const processedResults = searchResults.map(capacity => {
-    // Determina o nível com base na estrutura de pais
-    let level = 1;
-    if (capacity.parentCapacity) {
-      if (capacity.parentCapacity.parentCapacity) {
-        // Terceiro nível - tem um avô
-        level = 3;
-      } else {
-        // Segundo nível - tem apenas um pai
-        level = 2;
-      }
-    }
+    // Use the level already defined by the cache, because the unified cache already has this information
+    const level = capacity.level || 1;
 
-    // Sempre prioriza o nível explícito se já estiver definido
-    if (capacity.level) {
-      level = capacity.level;
-    }
-
-    // Força capacidades de terceiro nível a terem cor preta
+    // For level 3, inherit root family color instead of using fixed color
     let color = capacity.color;
-    if (level === 3) {
-      color = '#507380';
+    if (level === 3 && capacity.parentCapacity?.parentCapacity?.color) {
+      color = capacity.parentCapacity.parentCapacity.color; // Root family color
+    } else if (level === 3 && capacity.parentCapacity?.color) {
+      color = capacity.parentCapacity.color; // Parent color if there is no grandparent
     }
 
     return {
@@ -195,7 +178,7 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
         iconPosition="right"
       />
 
-      <div className="grid gap-4 mt-4">
+      <div className="grid gap-4 mt-4 w-full">
         {isLoading ? (
           <LoadingState />
         ) : (
@@ -204,17 +187,17 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
               <div key={capacity.code} className="w-full">
                 <CapacityCard
                   {...capacity}
+                  name={getName(capacity.code) || capacity.name}
                   level={capacity.level}
-                  isExpanded={!!expandedCapacities[capacity.code]}
-                  onExpand={() => toggleCapacity(capacity.code.toString())}
-                  isRoot={!capacity.parentCapacity}
+                  isExpanded={false}
+                  onExpand={() => {}}
+                  isRoot={false}
+                  hasChildren={false}
                   color={capacity.color}
                   icon={capacity.icon}
                   parentCapacity={capacity.parentCapacity}
-                  description={descriptions[capacity.code] || ''}
-                  wd_code={wdCodes[capacity.code] || ''}
-                  onInfoClick={fetchCapacityDescription}
-                  isSearch={true}
+                  description={getDescription(capacity.code)}
+                  wd_code={getWdCode(capacity.code)}
                 />
               </div>
             );

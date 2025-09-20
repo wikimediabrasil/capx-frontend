@@ -5,7 +5,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import HydrationHandler from '@/components/HydrationHandler';
 import SessionWrapper from '@/components/SessionWrapper';
 import { AppProvider } from '@/contexts/AppContext';
-import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
+import { CapacityCacheWrapper } from '@/contexts/CapacityCacheWrapper';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Metadata } from 'next';
 import './globals.css';
@@ -35,12 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <AuthMonitorSetup />
               <Providers>
                 <AppProvider>
-                  <SnackbarProvider>
-                    <CapacityCacheProvider>
+                  <CapacityCacheWrapper>
+                    <SnackbarProvider>
                       <CapacitiesPrefetcher />
                       {children}
-                    </CapacityCacheProvider>
-                  </SnackbarProvider>
+                    </SnackbarProvider>
+                  </CapacityCacheWrapper>
                 </AppProvider>
               </Providers>
             </SessionWrapper>

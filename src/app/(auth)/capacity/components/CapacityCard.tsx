@@ -1,17 +1,22 @@
 import BaseButton from '@/components/BaseButton';
+import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
+import BarCodeLightIcon from '@/public/static/images/barcode_white.svg';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
+import MetabaseIcon from '@/public/static/images/metabase_black.svg';
+import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { Capacity } from '@/types/capacity';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 
 interface CapacityCardProps {
   code: number;
@@ -28,10 +33,114 @@ interface CapacityCardProps {
   isRoot?: boolean;
   isSearch?: boolean;
   onInfoClick?: (code: number) => Promise<string | undefined>;
-  isMobile?: boolean;
-  rootColor?: string;
   level?: number;
+  rootColor?: string;
+  isInfoExpanded?: boolean;
+  onToggleInfo?: () => void;
 }
+
+// Helper function to calculate background color
+const getBackgroundColor = (level?: number, color?: string, parentCapacity?: Capacity): string => {
+  if (level === 3) {
+    if (parentCapacity?.parentCapacity?.color) {
+      return parentCapacity.parentCapacity.color;
+    }
+    if (parentCapacity?.color) {
+      return parentCapacity.color;
+    }
+    return '#507380';
+  }
+  if (level === 2 && color) {
+    return color;
+  }
+  if (level === 2 && parentCapacity?.color) {
+    return parentCapacity.color;
+  }
+  if (level === 2) {
+    return '#F6F6F6';
+  }
+  if (color) {
+    return getCapacityColor(color);
+  }
+  return 'white';
+};
+
+// Helper function to calculate search card background color
+const getSearchCardBackgroundColor = (
+  level?: number,
+  color?: string,
+  parentCapacity?: Capacity
+): string => {
+  if (level === 3 && parentCapacity?.parentCapacity?.color) {
+    return parentCapacity.parentCapacity.color;
+  }
+  if (level === 3 && parentCapacity?.color) {
+    return parentCapacity.color;
+  }
+  if (level === 2 && parentCapacity?.color) {
+    return parentCapacity.color;
+  }
+  if (color) {
+    return getCapacityColor(color);
+  }
+  return '#507380';
+};
+
+// Helper function to get text styling classes
+const getTextClasses = (isRoot?: boolean, isMobile?: boolean, displayNameLength?: number) => {
+  let textBreakClass;
+  if (isRoot) {
+    textBreakClass = 'break-words hyphens-auto capacity-name';
+  } else if (isMobile) {
+    textBreakClass = 'break-words hyphens-auto capacity-name-mobile';
+  } else {
+    textBreakClass = 'truncate';
+  }
+
+  let textSizeClass;
+  if (isMobile) {
+    if (displayNameLength && displayNameLength > 40) {
+      textSizeClass = 'text-[14px]';
+    } else if (displayNameLength && displayNameLength > 25) {
+      textSizeClass = 'text-[16px]';
+    } else {
+      textSizeClass = 'text-[20px]';
+    }
+  } else {
+    textSizeClass = 'text-[36px]';
+  }
+
+  return `font-extrabold hover:underline text-left ${textBreakClass} ${textSizeClass}`;
+};
+
+// Helper function to get text styles
+const getTextStyles = (
+  isRoot?: boolean,
+  isMobile?: boolean,
+  displayName?: string
+): React.CSSProperties => {
+  if (isRoot) {
+    return { wordBreak: 'break-word', hyphens: 'auto' as const };
+  }
+  if (isMobile && displayName && displayName.length >= 8) {
+    return { wordBreak: 'break-word', hyphens: 'auto' as const };
+  }
+  return {};
+};
+
+// Helper function to render icon with appropriate size
+const renderIconByType = (
+  icon: string,
+  renderIcon: (size: number, iconSrc: string) => React.ReactNode,
+  isRoot?: boolean,
+  isMobile?: boolean,
+  parentCapacity?: Capacity
+) => {
+  if (icon && isRoot) {
+    return isMobile ? renderIcon(32, icon) : renderIcon(48, icon);
+  }
+  return isMobile ? renderIcon(32, icon) : renderIcon(68, icon);
+};
 
 export function CapacityCard({
   code,
@@ -44,34 +153,48 @@ export function CapacityCard({
   hasChildren,
   description,
   wd_code,
+  metabase_code,
   isRoot,
   isSearch,
   onInfoClick,
   level,
+  rootColor,
+  isInfoExpanded,
+  onToggleInfo,
 }: CapacityCardProps) {
   const router = useRouter();
-  const { isMobile, pageContent } = useApp();
-  const { hasChildren: useCapacityCacheHasChildren } = useCapacityCache();
+  const { isMobile, pageContent, language } = useApp();
+  const { darkMode } = useTheme();
+  const { isFallbackTranslation } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
+
+  // Check if this capacity is using fallback translation
+  const isUsingFallback = isFallbackTranslation(code);
+
+  // Use external control when available (main capacity view), internal for search
+  const isInfoVisible = isInfoExpanded !== undefined ? isInfoExpanded : showInfo;
+  const handleInfoToggle = onToggleInfo || (() => setShowInfo(!showInfo));
   const childrenContainerRef = useRef<HTMLDivElement>(null);
 
-  const hasChildrenFromCache = useCapacityCacheHasChildren(code);
+  // Use the hasChildren prop directly since unified cache handles this logic
+  const hasChildrenFromCache = hasChildren;
 
   // Ensures that names that look like QIDs are replaced
   const displayName = useMemo(() => {
     // Checks if the name looks like a QID (common format with Q followed by numbers)
     if (!name || (name.startsWith('Q') && /^Q\d+$/.test(name))) {
-      return `Capacity ${code}`;
+      return `${pageContent['capacity-card-capacity-prefix'] || 'Capacity'} ${code}`;
     }
     return name;
   }, [name, code]);
 
   const handleInfoClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the click event from propagating to the card
-    if (!showInfo && onInfoClick) {
+
+    if (!isInfoVisible && onInfoClick) {
       await onInfoClick(code);
     }
-    setShowInfo(!showInfo);
+    handleInfoToggle();
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -81,14 +204,15 @@ export function CapacityCard({
     onExpand();
   };
 
-  const handleTitleClick = (e: React.MouseEvent) => {
-    // Allow navigation when clicking on the title
-    e.stopPropagation();
-    router.push(`/feed?capacityId=${code}`);
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onExpand();
+    }
   };
 
   const renderExpandedContent = () => {
-    if (!showInfo) return null;
+    if (!isInfoVisible) return null;
 
     // Determine the background color of the button
     const getButtonBackgroundColor = () => {
@@ -99,20 +223,15 @@ export function CapacityCard({
 
       // For non-root capacities, we can safely check level and other properties
 
-      // For third level (level 3) capacities, use fixed black color
+      // For third level (level 3) capacities, try to get root color from parent hierarchy
       if (level === 3) {
-        return '#507380'; // Black color for third level
-      }
-
-      // If level isn't explicitly set, try to determine from bgColorClass
-      // This is safe to use for non-root capacities
-      try {
-        if (bgColorClass === 'bg-[#507380]') {
-          return '#507380'; // Black color for third level
+        if (parentCapacity?.parentCapacity?.color) {
+          return parentCapacity.parentCapacity.color; // Get root color from grandparent
         }
-      } catch (e) {
-        // If bgColorClass is not accessible, log error but continue
-        console.error('Error accessing bgColorClass:', e);
+        if (parentCapacity?.color) {
+          return parentCapacity.color; // Get color from parent
+        }
+        return '#507380'; // Fallback dark color
       }
 
       // For second level capacities (direct children of root)
@@ -132,35 +251,89 @@ export function CapacityCard({
     const buttonBgColor = getButtonBackgroundColor();
 
     return (
-      <div
-        className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-3' : 'px-2'}`}
+      <button
+        className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-1 sm:px-3' : 'px-1 sm:px-2'} ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}
         onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
+        tabIndex={-1}
       >
-        {wd_code && (
-          <a
-            href={`https://www.wikidata.org/wiki/${wd_code}`}
-            onClick={e => e.stopPropagation()}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div className="flex flex-row items-center gap-2">
-              <div className="relative w-[36px] h-[36px]">
-                <Image
-                  src={BarCodeIcon}
-                  alt={pageContent['alt-external-link'] || 'External link to Wikidata'}
-                  fill
-                  priority
-                />
+        <div
+          className={`flex flex-row text-start gap-2 sm:gap-6 overflow-hidden ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}
+        >
+          {metabase_code && metabase_code !== '' && (
+            <a
+              href={`https://metabase.wikibase.cloud/wiki/Item:${metabase_code}`}
+              onClick={e => e.stopPropagation()}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={
+                pageContent['capacity-card-visit-metabase'] ||
+                'Visit the capacity item page on Metabase'
+              }
+            >
+              <div className="flex flex-row items-center gap-2 flex-shrink-0">
+                <div className="relative w-[36px] h-[36px]">
+                  <Image
+                    src={darkMode ? MetabaseLightIcon : MetabaseIcon}
+                    alt={pageContent['capacity-card-metabase-logo'] || 'Metabase logo'}
+                    fill
+                    priority
+                  />
+                </div>
+                <p
+                  className={`text-[14px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
+                >
+                  {metabase_code}
+                </p>
               </div>
-              <p className="text-[20px] text-capx-light-link underline">{wd_code}</p>
-            </div>
-          </a>
-        )}
+            </a>
+          )}
+          {wd_code && wd_code !== '' && (
+            <a
+              href={`https://www.wikidata.org/wiki/${wd_code}`}
+              onClick={e => e.stopPropagation()}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={
+                pageContent['capacity-card-visit-wikidata'] ||
+                'Visit the capacity item page on Wikidata'
+              }
+            >
+              <div className="flex flex-row items-center gap-2 flex-shrink-0">
+                <div className="relative w-[36px] h-[36px]">
+                  <Image
+                    src={darkMode ? BarCodeLightIcon : BarCodeIcon}
+                    alt={pageContent['capacity-card-barcode'] || 'BarCode'}
+                    fill
+                    priority
+                  />
+                </div>
+                <p
+                  className={`text-[14px] ${darkMode ? 'text-blue-400' : 'text-capx-light-link'} underline break-all`}
+                >
+                  {wd_code}
+                </p>
+              </div>
+            </a>
+          )}
+        </div>
         {description && (
-          <p className={`text-capx-dark-box-bg ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}>
+          <p
+            className={`${darkMode ? 'text-gray-200' : 'text-capx-dark-box-bg'} break-words text-left ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}
+          >
             {capitalizeFirstLetter(description)}
           </p>
         )}
+
+        {/* Translation Contribution CTA */}
+        {isUsingFallback && (
+          <TranslationContributeCTA
+            capacityCode={code}
+            metabaseCode={metabase_code}
+            compact={isMobile}
+          />
+        )}
+
         <div
           className="rounded-lg w-fit"
           style={{
@@ -169,14 +342,14 @@ export function CapacityCard({
           }}
         >
           <BaseButton
-            label={pageContent['capacity-card-explore-capacity']}
+            label={pageContent['capacity-card-explore-capacity'] || 'Explore capacity'}
             customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
               isMobile ? 'text-[16px]' : 'text-[24px]'
             }`}
             onClick={() => router.push(`/feed?capacityId=${code}`)}
           />
         </div>
-      </div>
+      </button>
     );
   };
 
@@ -202,12 +375,22 @@ export function CapacityCard({
       return '#FFFFFF'; // White text for level 3
     }
 
+    // For second level with colored background, use white text for contrast
+    if (level === 2) {
+      return '#FFFFFF'; // White text on colored background
+    }
+
+    // For level 1 with colored background (root cards in search), use white text
+    if (level === 1 && color) {
+      return '#FFFFFF'; // White text on colored background
+    }
+
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getCapacityColor(parentCapacity.color);
     }
 
-    // If we have a color but no parent (e.g., in search results)
+    // Fallback to the passed color
     if (color) {
       return getCapacityColor(color);
     }
@@ -234,9 +417,24 @@ export function CapacityCard({
       return 'brightness(0) invert(1)'; // White icons for level 3
     }
 
+    // For second level with colored background, use white icons for contrast
+    if (level === 2) {
+      return 'brightness(0) invert(1)'; // White icons on colored background
+    }
+
+    // For level 1 with colored background (root cards in search), use white icons
+    if (level === 1 && color) {
+      return 'brightness(0) invert(1)'; // White icons on colored background
+    }
+
     // If it has a parent, use the parent's color
     if (parentCapacity?.color) {
       return getHueRotate(parentCapacity.color);
+    }
+
+    // Fallback to the passed color
+    if (color) {
+      return getHueRotate(color);
     }
 
     // Otherwise, use the default icon color
@@ -270,12 +468,12 @@ export function CapacityCard({
       <button
         onClick={handleInfoClick}
         className={`p-1 flex-shrink-0 ${isSearch ? 'mr-12' : ''} opacity-100 z-10`}
-        aria-label={pageContent['capacity-card-info']}
+        aria-label={pageContent['capacity-card-info'] || 'Information'}
         style={{ visibility: 'visible' }}
       >
         <div className="relative" style={{ width: `${size}px`, height: `${size}px` }}>
           <Image
-            src={showInfo ? InfoFilledIcon : icon}
+            src={isInfoVisible ? InfoFilledIcon : icon}
             alt={name}
             fill
             priority
@@ -307,7 +505,7 @@ export function CapacityCard({
         >
           <Image
             src={icon}
-            alt={pageContent['capacity-card-expand-capacity']}
+            alt={pageContent['capacity-card-expand-capacity'] || 'Expand capacity'}
             fill
             priority
             style={{
@@ -320,200 +518,361 @@ export function CapacityCard({
     );
   };
 
-  const getBgColorClass = (): string => {
-    // Use explicit level check first if available
-    if (level === 3) {
-      return 'bg-[#507380]'; // Black background for level 3
-    }
-
-    // Continue using existing checks as fallbacks
-    // Direct check for third level capacities
-    if (parentCapacity?.parentCapacity) {
-      return 'bg-[#507380]'; // Black background for third level
-    }
-
-    // Alternative check for third level (if parent is not a root capacity itself)
-    if (parentCapacity && parentCapacity.skill_type !== parentCapacity.code) {
-      return 'bg-[#507380]'; // Black background for third level
-    }
-
-    // Second level (direct child of root) - Use light background
-    return 'bg-capx-light-box-bg';
-  };
-
-  const bgColorClass = getBgColorClass();
+  // Calculate background color
+  const backgroundColor = getBackgroundColor(level, color, parentCapacity);
 
   if (isSearch) {
-    // Search card - sempre renderiza como um card de busca
-
-    // Check if this is a third-level capacity for proper styling
-    // Always prioritize the explicit level prop first
-    const isThirdLevel = level === 3 || parentCapacity?.parentCapacity !== undefined;
-
-    // Use appropriate background color based on level
-    const backgroundColor = isThirdLevel
-      ? '#507380' // Black for third level
-      : getCapacityColor(parentCapacity?.color || color);
-
     return (
-      <div className="w-full">
-        <div
-          onClick={handleCardClick}
-          className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
-          ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
-          cursor-pointer hover:brightness-95 transition-all`}
-          style={{
-            backgroundColor: backgroundColor,
-          }}
-        >
-          <div
-            className={`flex p-4 ${
-              isMobile
-                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
-                : 'flex-row h-[326px] justify-around items-center'
-            }`}
-          >
-            {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
-
-            <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-              <div
-                className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
-              >
-                <Link href={`/feed?capacityId=${code}`}>
-                  <h3
-                    onClick={handleTitleClick}
-                    className={`font-extrabold text-white hover:underline ${
-                      isMobile ? 'text-[20px]' : 'text-[48px]'
-                    }`}
-                  >
-                    {capitalizeFirstLetter(name)}
-                  </h3>
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {isMobile ? renderInfoButton(24, InfoIcon) : renderInfoButton(68, InfoIcon)}
-              </div>
-            </div>
-          </div>
-
-          {showInfo && (
-            <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
-              {renderExpandedContent()}
-            </div>
-          )}
-        </div>
-      </div>
+      <SearchCard
+        code={code}
+        name={name}
+        icon={icon}
+        color={color}
+        level={level}
+        parentCapacity={parentCapacity}
+        isMobile={isMobile}
+        darkMode={darkMode}
+        isInfoVisible={isInfoVisible}
+        handleCardClick={handleCardClick}
+        handleCardKeyDown={handleCardKeyDown}
+        renderIcon={renderIcon}
+        renderInfoButton={renderInfoButton}
+        renderExpandedContent={renderExpandedContent}
+      />
     );
   }
 
-  if (isRoot && hasChildren) {
+  if (isRoot) {
     return (
-      <div className="w-full">
-        <div
-          onClick={handleCardClick}
-          className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
-          ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
-          cursor-pointer hover:brightness-95 transition-all`}
-          style={{
-            backgroundColor: getCapacityColor(color),
-          }}
-        >
-          <div
-            className={`flex p-4 ${
-              isMobile
-                ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
-                : 'flex-row h-[326px] justify-around items-center'
-            }`}
-          >
-            {icon && isMobile ? renderIcon(48, icon) : renderIcon(85, icon)}
-
-            <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-              <div
-                className={`flex items-center ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}
-              >
-                <Link href={`/feed?capacityId=${code}`}>
-                  <h3
-                    onClick={handleTitleClick}
-                    className={`font-extrabold text-white hover:underline ${
-                      isMobile ? 'text-[20px]' : 'text-[48px]'
-                    }`}
-                  >
-                    {capitalizeFirstLetter(name)}
-                  </h3>
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {isMobile ? (
-                  <>
-                    {renderInfoButton(24, InfoIcon)}
-                    {renderArrowButton(24, ArrowDownIcon)}
-                  </>
-                ) : (
-                  <>
-                    {renderInfoButton(68, InfoIcon)}
-                    {renderArrowButton(68, ArrowDownIcon)}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {showInfo && (
-            <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
-              {renderExpandedContent()}
-            </div>
-          )}
-        </div>
-        {isExpanded && (
-          <div
-            ref={childrenContainerRef}
-            className={`mt-4 ${isMobile ? 'w-full' : 'w-full'} overflow-x-auto scrollbar-hide`}
-          >
-            <div
-              className={`flex flex-nowrap ${isMobile ? 'gap-2' : 'gap-4'} pb-4 ${isMobile ? 'w-full' : ''}`}
-            >
-              {/* the expanded content will be rendered here by the parent component */}
-            </div>
-          </div>
-        )}
-      </div>
+      <RootCard
+        code={code}
+        name={name}
+        icon={icon}
+        color={color}
+        isMobile={isMobile}
+        darkMode={darkMode}
+        language={language}
+        isInfoVisible={isInfoVisible}
+        isExpanded={isExpanded}
+        hasChildrenFromCache={hasChildrenFromCache}
+        handleCardClick={handleCardClick}
+        handleCardKeyDown={handleCardKeyDown}
+        renderIcon={renderIcon}
+        renderInfoButton={renderInfoButton}
+        renderArrowButton={renderArrowButton}
+        renderExpandedContent={renderExpandedContent}
+        childrenContainerRef={childrenContainerRef}
+      />
     );
   }
 
   // Child capacity card (non-root)
   return (
+    <ChildCard
+      code={code}
+      displayName={displayName}
+      backgroundColor={backgroundColor}
+      isRoot={isRoot}
+      isMobile={isMobile}
+      darkMode={darkMode}
+      language={language}
+      isInfoVisible={isInfoVisible}
+      hasChildrenFromCache={hasChildrenFromCache}
+      parentCapacity={parentCapacity}
+      color={color}
+      handleCardClick={handleCardClick}
+      handleCardKeyDown={handleCardKeyDown}
+      renderIcon={renderIcon}
+      renderInfoButton={renderInfoButton}
+      renderArrowButton={renderArrowButton}
+      renderExpandedContent={renderExpandedContent}
+      getNameColor={getNameColor}
+      icon={icon}
+    />
+  );
+}
+
+// Search Card Component
+interface SearchCardProps {
+  code: number;
+  name: string;
+  icon: string;
+  color: string;
+  level?: number;
+  parentCapacity?: Capacity;
+  isMobile?: boolean;
+  darkMode: boolean;
+  isInfoVisible: boolean;
+  handleCardClick: (e: React.MouseEvent) => void;
+  handleCardKeyDown: (e: React.KeyboardEvent) => void;
+  renderIcon: (size: number, iconSrc: string) => React.ReactNode;
+  renderInfoButton: (size: number, icon: string) => React.ReactNode;
+  renderExpandedContent: () => React.ReactNode;
+}
+
+const SearchCard: React.FC<SearchCardProps> = ({
+  code,
+  name,
+  icon,
+  color,
+  level,
+  parentCapacity,
+  isMobile,
+  darkMode,
+  isInfoVisible,
+  handleCardClick,
+  handleCardKeyDown,
+  renderIcon,
+  renderInfoButton,
+  renderExpandedContent,
+}) => {
+  const backgroundColor = getSearchCardBackgroundColor(level, color, parentCapacity);
+
+  return (
     <div className="w-full">
-      <div
+      <button
         onClick={handleCardClick}
-        className={`flex flex-col w-full rounded-lg ${bgColorClass} cursor-pointer hover:shadow-md transition-shadow`}
+        className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
+        ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
+        cursor-pointer hover:brightness-95 transition-all`}
+        style={{ backgroundColor }}
+        tabIndex={0}
+        onKeyDown={handleCardKeyDown}
       >
         <div
-          className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 ${isMobile ? 'px-4' : 'px-12'}`}
+          className={`flex p-4 ${
+            isMobile
+              ? 'h-[191px] flex-col mt-12 mx-0 gap-6 md:mx-6'
+              : 'flex-row h-[326px] justify-around items-center'
+          }`}
+        >
+          {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
+
+          <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
+            <div className={`flex items-start ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}>
+              <Link href={`/feed?capacityId=${code}`}>
+                <h3
+                  className={`font-extrabold text-white hover:underline truncate text-left ${
+                    isMobile ? 'text-[20px]' : 'text-[48px]'
+                  }`}
+                >
+                  {capitalizeFirstLetter(name)}
+                </h3>
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {isMobile ? renderInfoButton(24, InfoIcon) : renderInfoButton(68, InfoIcon)}
+            </div>
+          </div>
+        </div>
+
+        {isInfoVisible && (
+          <button
+            className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}
+          >
+            {renderExpandedContent()}
+          </button>
+        )}
+      </button>
+    </div>
+  );
+};
+
+// Root Card Component
+interface RootCardProps {
+  code: number;
+  name: string;
+  icon: string;
+  color: string;
+  isMobile?: boolean;
+  darkMode: boolean;
+  language?: string;
+  isInfoVisible: boolean;
+  isExpanded: boolean;
+  hasChildrenFromCache?: boolean;
+  handleCardClick: (e: React.MouseEvent) => void;
+  handleCardKeyDown: (e: React.KeyboardEvent) => void;
+  renderIcon: (size: number, iconSrc: string) => React.ReactNode;
+  renderInfoButton: (size: number, icon: string) => React.ReactNode;
+  renderArrowButton: (size: number, icon: string) => React.ReactNode;
+  renderExpandedContent: () => React.ReactNode;
+  childrenContainerRef: React.RefObject<HTMLDivElement>;
+}
+
+const RootCard: React.FC<RootCardProps> = ({
+  code,
+  name,
+  icon,
+  color,
+  isMobile,
+  darkMode,
+  language,
+  isInfoVisible,
+  isExpanded,
+  hasChildrenFromCache,
+  handleCardClick,
+  handleCardKeyDown,
+  renderIcon,
+  renderInfoButton,
+  renderArrowButton,
+  renderExpandedContent,
+  childrenContainerRef,
+}) => {
+  return (
+    <div className="w-full">
+      <button
+        onClick={handleCardClick}
+        className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
+        ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
+        cursor-pointer hover:brightness-95 transition-all`}
+        style={{ backgroundColor: getCapacityColor(color) }}
+        tabIndex={0}
+        onKeyDown={handleCardKeyDown}
+      >
+        <div
+          className={`flex p-4 ${
+            isMobile
+              ? 'h-[191px] flex-row items-center mx-0 gap-3 md:mx-6'
+              : 'flex-row h-[326px] justify-around items-center'
+          }`}
+        >
+          {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
+
+          <div
+            className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}
+          >
+            <div
+              className={`flex items-start ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[378px] pl-8'} h-full`}
+            >
+              <Link href={`/feed?capacityId=${code}`}>
+                <h3
+                  className={`font-extrabold text-white hover:underline break-words hyphens-auto capacity-name text-left ${
+                    isMobile ? 'text-[20px]' : 'text-[48px]'
+                  }`}
+                  style={{ wordBreak: 'break-word', hyphens: 'auto' }}
+                  lang={language || 'en'}
+                >
+                  {capitalizeFirstLetter(name)}
+                </h3>
+              </Link>
+            </div>
+
+            <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-4'}`}>
+              {isMobile ? (
+                <>
+                  {renderInfoButton(20, InfoIcon)}
+                  {hasChildrenFromCache && renderArrowButton(20, ArrowDownIcon)}
+                </>
+              ) : (
+                <>
+                  {renderInfoButton(68, InfoIcon)}
+                  {hasChildrenFromCache && renderArrowButton(68, ArrowDownIcon)}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {isInfoVisible && (
+          <button
+            className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+            onClick={e => e.stopPropagation()}
+          >
+            {renderExpandedContent()}
+          </button>
+        )}
+      </button>
+      {isExpanded && (
+        <div ref={childrenContainerRef} className={`mt-4 w-full overflow-x-auto scrollbar-hide`}>
+          <div
+            className={`flex flex-nowrap ${isMobile ? 'gap-2' : 'gap-4'} pb-4 ${isMobile ? 'w-full' : ''}`}
+          >
+            {/* the expanded content will be rendered here by the parent component */}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Child Card Component
+interface ChildCardProps {
+  code: number;
+  displayName: string;
+  backgroundColor: string;
+  isRoot?: boolean;
+  isMobile?: boolean;
+  darkMode: boolean;
+  language?: string;
+  isInfoVisible: boolean;
+  hasChildrenFromCache?: boolean;
+  parentCapacity?: Capacity;
+  color: string;
+  icon: string;
+  handleCardClick: (e: React.MouseEvent) => void;
+  handleCardKeyDown: (e: React.KeyboardEvent) => void;
+  renderIcon: (size: number, iconSrc: string) => React.ReactNode;
+  renderInfoButton: (size: number, icon: string) => React.ReactNode;
+  renderArrowButton: (size: number, icon: string) => React.ReactNode;
+  renderExpandedContent: () => React.ReactNode;
+  getNameColor: (isRoot?: boolean, parentCapacity?: Capacity, color?: string) => string;
+}
+
+const ChildCard: React.FC<ChildCardProps> = ({
+  code,
+  displayName,
+  backgroundColor,
+  isRoot,
+  isMobile,
+  darkMode,
+  language,
+  isInfoVisible,
+  hasChildrenFromCache,
+  parentCapacity,
+  color,
+  icon,
+  handleCardClick,
+  handleCardKeyDown,
+  renderIcon,
+  renderInfoButton,
+  renderArrowButton,
+  renderExpandedContent,
+  getNameColor,
+}) => {
+  return (
+    <div className="w-full">
+      <button
+        onClick={handleCardClick}
+        className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
+        style={{ backgroundColor }}
+        tabIndex={0}
+      >
+        <div
+          className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-4`}
         >
           <div className={`flex items-center ${isRoot ? 'gap-12' : 'gap-4'} min-w-0`}>
-            {icon && isRoot
-              ? renderIcon(48, icon)
-              : isMobile
-                ? renderIcon(48, icon)
-                : renderIcon(68, icon)}
+            {renderIconByType(icon, renderIcon, isRoot, isMobile, parentCapacity)}
             <div
-              className={`flex flex-row items-center justify-between ${
+              className={`flex flex-row items-start justify-between ${
                 isRoot && !isMobile ? 'w-max' : ''
               } min-w-0 flex-1`}
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
                 <h3
-                  onClick={handleTitleClick}
-                  className={`font-extrabold hover:underline truncate ${
-                    isMobile ? 'text-[20px]' : 'text-[36px]'
-                  }
-                  `}
+                  className={getTextClasses(isRoot, isMobile, displayName.length)}
                   style={{
                     color: getNameColor(isRoot, parentCapacity, color),
+                    ...getTextStyles(isRoot, isMobile, displayName),
                   }}
                   title={capitalizeFirstLetter(displayName)}
+                  lang={
+                    isRoot || (isMobile && displayName && displayName.length >= 8)
+                      ? language || 'en'
+                      : undefined
+                  }
                 >
                   {capitalizeFirstLetter(displayName)}
                 </h3>
@@ -536,13 +895,18 @@ export function CapacityCard({
             )}
           </div>
         </div>
-      </div>
+      </button>
 
-      {showInfo && (
-        <div className="bg-white rounded-b-lg p-8" onClick={e => e.stopPropagation()}>
+      {isInfoVisible && (
+        <button
+          className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+          onClick={e => e.stopPropagation()}
+          onKeyDown={e => e.stopPropagation()}
+          tabIndex={-1}
+        >
           {renderExpandedContent()}
-        </div>
+        </button>
       )}
     </div>
   );
-}
+};

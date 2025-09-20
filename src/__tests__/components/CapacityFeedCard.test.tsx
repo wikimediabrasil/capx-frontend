@@ -17,7 +17,11 @@ jest.mock('next/navigation', () => ({
 // next/image's mock
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} alt={props.alt || ''} />,
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    const { fill, unoptimized, loading, ...imgProps } = props;
+    return <img {...imgProps} alt={props.alt || ''} />;
+  },
 }));
 
 // next-auth's mock
@@ -32,11 +36,21 @@ jest.mock('next-auth/react', () => ({
   }),
 }));
 
-// useCapacityDetails hook's mock
-jest.mock('@/hooks/useCapacityDetails', () => ({
-  useCapacityDetails: () => ({
-    getCapacityName: (id: string) => id.toString(),
+// CapacityCacheContext mock
+jest.mock('@/contexts/CapacityCacheContext', () => ({
+  useCapacityCache: () => ({
+    getName: (id: number) => {
+      const capacityNames: Record<number, string> = {
+        1: 'Coding',
+        2: 'Design',
+        3: 'Teaching',
+        4: 'Mentoring',
+      };
+      return capacityNames[id] || `Capacity ${id}`;
+    },
+    preloadCapacities: jest.fn(),
   }),
+  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 jest.mock('@/hooks/useTerritories', () => ({
@@ -106,7 +120,7 @@ const defaultProps = {
 const learnerProps = {
   ...defaultProps,
   type: ProfileCapacityType.Learner,
-  capacities: ['Coding', 'Design'],
+  capacities: [1, 2], // Use numeric IDs like in real app
   languages: [
     { id: 1, proficiency: 'Native' },
     { id: 2, proficiency: 'Native' },
@@ -117,7 +131,7 @@ const learnerProps = {
 const sharerProps = {
   ...defaultProps,
   type: ProfileCapacityType.Sharer,
-  capacities: ['Teaching', 'Mentoring'],
+  capacities: [3, 4], // Use numeric IDs like in real app
   languages: [
     { id: 3, proficiency: 'Native' },
     { id: 4, proficiency: 'Native' },

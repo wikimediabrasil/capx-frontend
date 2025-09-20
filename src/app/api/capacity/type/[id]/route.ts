@@ -1,6 +1,6 @@
+import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchMetabase, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -42,6 +42,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({});
     }
 
+    // Try both Metabase and Wikidata in parallel
+    const [metabaseResults, wikidataResults] = await Promise.all([
+      fetchCapacitiesWithFallback(codes, language),
+      fetchWikidata(codes, language),
+    ]);
+
     // try to get names from Metabase first
     let capacityNames = {};
 
@@ -50,52 +56,40 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       const validCodes = codes.filter(code => code.wd_code);
 
       if (validCodes.length > 0) {
-        // Fetch from Metabase first as the primary source
-        const metabaseResults = await fetchMetabase(validCodes, language);
+        // Combine results, prioritizing Metabase over Wikidata
+        const combinedResults = [...metabaseResults, ...wikidataResults];
 
-        // Use Wikidata as fallback
-        const wikidataResults = await fetchWikidata(validCodes, language);
-
-        // Process all codes, prioritizing Metabase data with fallback to Wikidata
-        codes.forEach(code => {
-          const metabaseMatch = metabaseResults.find(item => item.wd_code === code.wd_code);
-          const wikidataMatch = wikidataResults.find(item => item.wd_code === code.wd_code);
-
-          capacityNames[code.code] = metabaseMatch?.name || wikidataMatch?.name || code.name;
+        // Create a map of wd_code to name
+        combinedResults.forEach(result => {
+          if (result.wd_code && result.name) {
+            capacityNames[result.wd_code] = result.name;
+          }
         });
       }
     } catch (error) {
-      console.error('Error fetching names from Metabase/Wikidata:', error);
-
-      // in case of error, use the original names
-      codes.forEach(code => {
-        capacityNames[code.code] = code.name;
-      });
+      console.error('Error fetching from Metabase/Wikidata:', error);
+      // Continue with fallback
     }
 
-    // if we don't have any name, use the original names
-    if (Object.keys(capacityNames).length === 0) {
-      return NextResponse.json(skillsData);
-    }
+    // Create the final response with metabase_code
+    const finalResponse = {};
+    codes.forEach(code => {
+      const metabaseMatch = metabaseResults.find(item => item?.wd_code === code.wd_code);
+      const wikidataMatch = wikidataResults.find(item => item?.wd_code === code.wd_code);
 
-    return NextResponse.json(capacityNames);
+      // Priority: Metabase name > Wikidata name > original name
+      const finalName = metabaseMatch?.name || wikidataMatch?.name || code.name;
+
+      finalResponse[code.code] = {
+        name: finalName,
+        wd_code: code.wd_code || '',
+        metabase_code: metabaseMatch?.metabase_code || '',
+      };
+    });
+
+    return NextResponse.json(finalResponse);
   } catch (error) {
-    console.error('API error in type/[id]:', error);
-
-    if (axios.isAxiosError(error)) {
-      console.error('API error details:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      });
-    }
-
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch capacity data',
-        details: error.message,
-      },
-      { status: 500 }
-    );
+    console.error('Error in capacity type API:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

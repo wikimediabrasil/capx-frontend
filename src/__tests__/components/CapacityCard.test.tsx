@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CapacityCard } from '@/app/(auth)/capacity/components/CapacityCard';
+import React from 'react';
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -24,7 +25,16 @@ jest.mock('@/contexts/AppContext', () => ({
 jest.mock('@/contexts/CapacityCacheContext', () => ({
   useCapacityCache: () => ({
     hasChildren: jest.fn(),
+    isFallbackTranslation: jest.fn(() => false),
   }),
+}));
+
+jest.mock('@/contexts/ThemeContext', () => ({
+  useTheme: () => ({
+    darkMode: false,
+    setDarkMode: jest.fn(),
+  }),
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 describe('CapacityCard', () => {

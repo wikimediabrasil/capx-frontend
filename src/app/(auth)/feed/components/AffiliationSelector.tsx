@@ -1,7 +1,8 @@
-import { SelectList } from './Selector';
+import { useApp } from '@/contexts/AppContext';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
-import { useApp } from '@/contexts/AppContext';
+import React from 'react';
+import { SelectList } from './Selector';
 
 interface AffiliationSelectorProps {
   affiliations: Record<string, string>;

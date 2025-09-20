@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { OrganizationDocument } from '@/types/document';
-import Image from 'next/image';
 // Hooks Mock
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
@@ -27,8 +26,9 @@ jest.mock('next/navigation', () => ({
 
 // Image Mock
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, ...props }: any) {
-    return <Image src={src} alt={alt} {...props} />;
+  return function MockedImage({ src, alt, fill, unoptimized, loading, ...props }: any) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={alt} {...props} />;
   };
 });
 

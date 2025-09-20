@@ -22,7 +22,7 @@ export function useCapacityProfile(selectedCapacityId: string, language: string 
     isLoading,
     refetch,
   } = useQuery<CapacityProfileData | null>({
-    queryKey: [...CAPACITY_CACHE_KEYS.byId(Number(selectedCapacityId)), 'profile', language],
+    queryKey: [...CAPACITY_CACHE_KEYS.byId(Number(selectedCapacityId), language), 'profile'],
     queryFn: async () => {
       if (!selectedCapacityId || !token) return null;
 

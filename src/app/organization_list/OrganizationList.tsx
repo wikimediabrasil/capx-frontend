@@ -1,30 +1,30 @@
 'use client';
 
 import { Filters } from '@/app/(auth)/feed/components/Filters';
-import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
-import {
-  createProfilesFromOrganizations,
-  FilterState,
-  ProfileCapacityType,
-  Skill,
-} from '@/app/(auth)/feed/types';
+import { FilterState, ProfileCapacityType, Skill } from '@/app/(auth)/feed/types';
+import { useLanguageSync } from '@/components/LanguageSync';
 import { PaginationButtons } from '@/components/PaginationButtons';
+import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
+import { SearchFilterSection } from '@/components/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { Capacity } from '@/types/capacity';
 import { useEffect, useMemo, useState } from 'react';
 
-import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import Banner from '@/components/Banner';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
 import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import OrgListBanner from '@/public/static/images/organization_list.svg';
 
+// Removed duplicated components - now using shared components
+
 export default function OrganizationList() {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
+
+  // Use shared language sync logic
+  const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();
 
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilters, setActiveFilters] = useState({
@@ -55,6 +55,30 @@ export default function OrganizationList() {
 
   const totalRecords = allOrganizationsCount;
 
+  // Helper function to create organization profile object
+  const createOrganizationProfile = (
+    org: any,
+    capacities: any[],
+    type: ProfileCapacityType | 'incomplete',
+    hasIncompleteProfile: boolean,
+    priority: number
+  ) => ({
+    id: org.id,
+    username: org.display_name,
+    capacities,
+    type,
+    profile_image: org.profile_image,
+    territory: org.territory?.[0],
+    avatar: org.profile_image || undefined,
+    isOrganization: true,
+    hasIncompleteProfile,
+    priority,
+  });
+
+  // Helper function to check if capacities array is valid and non-empty
+  const hasValidCapacities = (capacities: any) =>
+    capacities && Array.isArray(capacities) && capacities.length > 0;
+
   // Create profiles (to create cards) from organizations
   const allProfiles = useMemo(() => {
     if (!allOrganizations) return [];
@@ -62,63 +86,38 @@ export default function OrganizationList() {
     const organizationProfiles: any[] = [];
 
     allOrganizations.forEach(org => {
-      // Check if the organization has wanted capacities (learner)
-      const hasWantedCapacities =
-        org.wanted_capacities &&
-        Array.isArray(org.wanted_capacities) &&
-        org.wanted_capacities.length > 0;
-      // Check if the organization has available capacities (sharer)
-      const hasAvailableCapacities =
-        org.available_capacities &&
-        Array.isArray(org.available_capacities) &&
-        org.available_capacities.length > 0;
+      const hasWantedCapacities = hasValidCapacities(org.wanted_capacities);
+      const hasAvailableCapacities = hasValidCapacities(org.available_capacities);
 
-      // If the organization has wanted capacities, create a learner profile
+      // Create learner profile if organization has wanted capacities
       if (hasWantedCapacities) {
-        organizationProfiles.push({
-          id: org.id,
-          username: org.display_name,
-          capacities: org.wanted_capacities,
-          type: ProfileCapacityType.Learner,
-          profile_image: org.profile_image,
-          territory: org.territory?.[0],
-          avatar: org.profile_image || undefined,
-          isOrganization: true,
-          hasIncompleteProfile: false,
-          priority: 1, // High priority for organizations with capacities
-        });
+        organizationProfiles.push(
+          createOrganizationProfile(
+            org,
+            org.wanted_capacities,
+            ProfileCapacityType.Learner,
+            false,
+            1
+          )
+        );
       }
 
-      // If the organization has available capacities, create a sharer profile
+      // Create sharer profile if organization has available capacities
       if (hasAvailableCapacities) {
-        organizationProfiles.push({
-          id: org.id,
-          username: org.display_name,
-          capacities: org.available_capacities,
-          type: ProfileCapacityType.Sharer,
-          profile_image: org.profile_image,
-          territory: org.territory?.[0],
-          avatar: org.profile_image || undefined,
-          isOrganization: true,
-          hasIncompleteProfile: false,
-          priority: 1, // High priority for organizations with capacities
-        });
+        organizationProfiles.push(
+          createOrganizationProfile(
+            org,
+            org.available_capacities,
+            ProfileCapacityType.Sharer,
+            false,
+            1
+          )
+        );
       }
 
-      // If the organization has no capacities, create an incomplete profile
+      // Create incomplete profile if organization has no capacities
       if (!hasWantedCapacities && !hasAvailableCapacities) {
-        organizationProfiles.push({
-          id: org.id,
-          username: org.display_name,
-          capacities: [],
-          type: 'incomplete' as any, // Special type for incomplete profile
-          profile_image: org.profile_image,
-          territory: org.territory?.[0],
-          avatar: org.profile_image || undefined,
-          isOrganization: true,
-          hasIncompleteProfile: true,
-          priority: 2, // Lower priority for incomplete profiles
-        });
+        organizationProfiles.push(createOrganizationProfile(org, [], 'incomplete' as any, true, 2));
       }
     });
 
@@ -148,15 +147,20 @@ export default function OrganizationList() {
     setCurrentPage(1);
   }, [activeFilters]);
 
+  // Helper function to update active filters
+  const updateActiveFilters = (updater: (prev: typeof activeFilters) => typeof activeFilters) => {
+    setActiveFilters(updater);
+  };
+
   const handleCapacitySelect = (capacities: Capacity[]) => {
-    setActiveFilters(prev => ({
+    updateActiveFilters(prev => ({
       ...prev,
       capacities: addUniqueCapacities(prev.capacities, capacities),
     }));
   };
 
   const handleRemoveCapacity = (capacityCode: number) => {
-    setActiveFilters(prev => ({
+    updateActiveFilters(prev => ({
       ...prev,
       capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
@@ -175,7 +179,7 @@ export default function OrganizationList() {
     }
   };
 
-  if (isAllOrganizationsLoading) {
+  if (isAllOrganizationsLoading || isLoadingTranslations || isLanguageChanging) {
     return <LoadingState fullScreen={true} />;
   }
 
@@ -188,53 +192,16 @@ export default function OrganizationList() {
       />
       <div className="container mx-auto px-4 mt-6">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
-          {/* SearchBar and Filters Button */}
-          <SearchBar
-            showCapacitiesSearch={true}
-            selectedCapacities={activeFilters.capacities}
+          <SearchFilterSection
+            activeFilters={activeFilters}
+            showSkillModal={showSkillModal}
             onRemoveCapacity={handleRemoveCapacity}
-            onCapacityInputFocus={() => setShowSkillModal(true)}
-            capacitiesPlaceholder={pageContent['filters-search-by-capacities']}
-            removeItemAltText={pageContent['filters-remove-item-alt-icon']}
-            onFilterClick={() => setShowFilters(true)}
-            filterAriaLabel={pageContent['saved-profiles-filters-button']}
+            onShowSkillModal={setShowSkillModal}
+            onShowFilters={setShowFilters}
+            onCapacitySelect={handleCapacitySelect}
           />
 
-          <CapacitySelectionModal
-            isOpen={showSkillModal}
-            onClose={() => setShowSkillModal(false)}
-            onSelect={handleCapacitySelect}
-            title={pageContent['select-capacity']}
-          />
-
-          {filteredProfiles.length > 0 ? (
-            <div className="w-full mx-auto space-y-6">
-              {filteredProfiles.map((profile, index) => (
-                <ProfileCard
-                  id={profile.id}
-                  key={index}
-                  profile_image={profile.profile_image}
-                  username={profile.username}
-                  type={profile.type}
-                  capacities={profile.capacities}
-                  avatar={profile.avatar}
-                  languages={profile.languages}
-                  territory={profile.territory}
-                  isOrganization={profile.isOrganization}
-                  hasIncompleteProfile={profile.hasIncompleteProfile}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <p className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
-                {pageContent['feed-no-data-message']}
-              </p>
-              <p className={`mt-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {pageContent['feed-no-data-description']}
-              </p>
-            </div>
-          )}
+          <ProfileListWithEmpty profiles={filteredProfiles} />
         </div>
       </div>
 
