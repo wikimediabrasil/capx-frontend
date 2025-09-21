@@ -543,6 +543,7 @@
   "organization-profile-new-event": "New event",
   "organization-profile-remove-featured": "Remove featured",
   "organization-profile-wiki-subtitle": "Wiki subtitle",
+  "aria-language-input": "Select a language",
   "pagination-previous": "Previous",
   "pagination-current-page": "Current page {page}",
   "pagination-first": "Go to first page",
