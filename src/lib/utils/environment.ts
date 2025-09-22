@@ -52,6 +52,8 @@ export function getCurrentAppUrl(): string {
       return process.env.NEXT_PUBLIC_APP_URL_TEST || 'https://capx-test.toolforge.org';
     case 'local':
     default:
-      return process.env.NEXT_PUBLIC_APP_URL_LOCAL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      return (
+        process.env.NEXT_PUBLIC_APP_URL_LOCAL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
+      );
   }
 }
