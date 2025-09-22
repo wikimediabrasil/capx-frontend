@@ -8,6 +8,7 @@ import TechnologyIcon from '@/public/static/images/wifi_tethering.svg';
 import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { Dispatch, SetStateAction } from 'react';
+import { getCurrentAppUrl } from './environment';
 
 /**
  * Consolidated utility functions for handling capacity operations
@@ -295,8 +296,8 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
     try {
-      // Use absolute URL for server-side requests
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      // Use environment-specific URL for server-side requests
+      const baseUrl = getCurrentAppUrl();
       const response = await axios.get(`${baseUrl}/api/metabase-sparql`, {
         params: {
           format: 'json',
