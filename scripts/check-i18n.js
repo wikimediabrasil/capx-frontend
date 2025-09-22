@@ -116,7 +116,8 @@ function main() {
 
       // Check for other locale files and remove from them too
       const localesDir = path.dirname(EN_JSON_PATH);
-      const localeFiles = fs.readdirSync(localesDir)
+      const localeFiles = fs
+        .readdirSync(localesDir)
         .filter(file => file.endsWith('.json') && file !== 'en.json')
         .map(file => path.join(localesDir, file));
 
@@ -125,7 +126,6 @@ function main() {
           removeUnusedKeys(localeFile, unused);
         }
       }
-
     } else {
       const failOnUnused = (process.env.I18N_FAIL_ON_UNUSED || 'true').toLowerCase() !== 'false';
       if (failOnUnused) hasErrors = true;
@@ -140,7 +140,9 @@ function main() {
       }
       preview.forEach(k => (failOnUnused ? console.error(`  - ${k}`) : console.warn(`  - ${k}`)));
       if (unused.length > preview.length) {
-        (failOnUnused ? console.error : console.warn)(`  ...and ${unused.length - preview.length} more`);
+        (failOnUnused ? console.error : console.warn)(
+          `  ...and ${unused.length - preview.length} more`
+        );
       }
 
       if (failOnUnused) {

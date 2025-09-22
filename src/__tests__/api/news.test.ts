@@ -23,12 +23,9 @@ describe('News API Tag Validation', () => {
       { input: 'Data Science', expected: 'data-science' },
     ];
 
-    it.each(testCases)(
-      'should format "$input" to "$expected"',
-      ({ input, expected }) => {
-        expect(formatTag(input)).toBe(expected);
-      }
-    );
+    it.each(testCases)('should format "$input" to "$expected"', ({ input, expected }) => {
+      expect(formatTag(input)).toBe(expected);
+    });
   });
 
   describe('Special Character Handling', () => {
@@ -61,7 +58,7 @@ describe('News API Tag Validation', () => {
         'healthcare',
         'pharmaceutical',
         'clinical-trials',
-        'epidemiology'
+        'epidemiology',
       ],
       technology: [
         'technology',
@@ -73,7 +70,7 @@ describe('News API Tag Validation', () => {
         'quantum-computing',
         'robotics',
         'biotechnology',
-        'nanotechnology'
+        'nanotechnology',
       ],
       science: [
         'science',
@@ -85,7 +82,7 @@ describe('News API Tag Validation', () => {
         'neuroscience',
         'genetics',
         'astronomy',
-        'geology'
+        'geology',
       ],
       social: [
         'politics',
@@ -97,8 +94,8 @@ describe('News API Tag Validation', () => {
         'sociology',
         'anthropology',
         'psychology',
-        'philosophy'
-      ]
+        'philosophy',
+      ],
     };
 
     // Helper function to validate a tag
@@ -132,7 +129,7 @@ describe('News API Tag Validation', () => {
         'COVID-19',
         'Artificial Intelligence',
         'C++',
-        '.NET'
+        '.NET',
       ];
 
       testTags.forEach(tag => {
@@ -180,15 +177,7 @@ describe('News API Tag Validation', () => {
     };
 
     it('should validate tag input correctly', () => {
-      const validTags = [
-        'medicine',
-        'health-care',
-        'covid-19',
-        'ai/ml',
-        'c++',
-        '.net',
-        'web-3.0'
-      ];
+      const validTags = ['medicine', 'health-care', 'covid-19', 'ai/ml', 'c++', '.net', 'web-3.0'];
 
       const invalidTags = [
         '',
