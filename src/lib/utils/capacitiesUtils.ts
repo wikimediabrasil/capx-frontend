@@ -296,7 +296,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
 
     try {
       // Use absolute URL for server-side requests
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       const response = await axios.get(`${baseUrl}/api/metabase-sparql`, {
         params: {
           format: 'json',
