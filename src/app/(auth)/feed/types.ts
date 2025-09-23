@@ -49,6 +49,8 @@ export const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapac
       id: user.user.id,
       username: user.user.username,
       capacities: type === ProfileCapacityType.Sharer ? user.skills_available : user.skills_wanted,
+      wantedCapacities: user.skills_wanted,
+      availableCapacities: user.skills_available,
       type,
       languages: user.language,
       profile_image: user.profile_image,
@@ -56,6 +58,63 @@ export const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapac
       avatar: user.avatar,
       isOrganization: false,
     });
+  });
+  return profiles;
+};
+
+// Combine both sharer and learner data
+export const createUnifiedProfiles = (users: UserProfile[]) => {
+  const profiles: any[] = [];
+  users.forEach(user => {
+    const hasWanted = user.skills_wanted && user.skills_wanted.length > 0;
+    const hasAvailable = user.skills_available && user.skills_available.length > 0;
+    
+    if (hasWanted && hasAvailable) {
+      // User is both learner and sharer
+      profiles.push({
+        id: user.user.id,
+        username: user.user.username,
+        capacities: [...(user.skills_wanted || []), ...(user.skills_available || [])],
+        wantedCapacities: user.skills_wanted,
+        availableCapacities: user.skills_available,
+        type: [ProfileCapacityType.Learner, ProfileCapacityType.Sharer],
+        languages: user.language,
+        profile_image: user.profile_image,
+        territory: user.territory?.[0],
+        avatar: user.avatar,
+        isOrganization: false,
+      });
+    } else if (hasWanted) {
+      // User is only learner
+      profiles.push({
+        id: user.user.id,
+        username: user.user.username,
+        capacities: user.skills_wanted,
+        wantedCapacities: user.skills_wanted,
+        availableCapacities: [],
+        type: ProfileCapacityType.Learner,
+        languages: user.language,
+        profile_image: user.profile_image,
+        territory: user.territory?.[0],
+        avatar: user.avatar,
+        isOrganization: false,
+      });
+    } else if (hasAvailable) {
+      // User is only sharer
+      profiles.push({
+        id: user.user.id,
+        username: user.user.username,
+        capacities: user.skills_available,
+        wantedCapacities: [],
+        availableCapacities: user.skills_available,
+        type: ProfileCapacityType.Sharer,
+        languages: user.language,
+        profile_image: user.profile_image,
+        territory: user.territory?.[0],
+        avatar: user.avatar,
+        isOrganization: false,
+      });
+    }
   });
   return profiles;
 };
