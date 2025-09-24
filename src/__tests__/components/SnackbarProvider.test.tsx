@@ -192,6 +192,7 @@ describe('SnackbarProvider', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const TestComponentWithoutProvider = () => {
+      const { showSnackbar } = useSnackbar(); // This should throw
       return <div>Test</div>;
     };
 
