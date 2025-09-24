@@ -1,12 +1,12 @@
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { validateCapXDocumentUrl } from '@/lib/utils/validateDocumentUrl';
 import CancelIcon from '@/public/static/images/cancel.svg';
 import CancelIconWhite from '@/public/static/images/cancel_white.svg';
-import Image from 'next/image';
 import { OrganizationDocument } from '@/types/document';
-import { useApp } from '@/contexts/AppContext';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { validateCapXDocumentUrl } from '@/lib/utils/validateDocumentUrl';
-import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface DocumentFormItemProps {
   document: OrganizationDocument;
