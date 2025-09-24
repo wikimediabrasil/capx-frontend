@@ -447,18 +447,28 @@ export function extractWikimediaTitleFromURL(url: string): string | undefined {
   if (!url) return undefined;
 
   try {
-    // URL patterns for Wikimedia
+    // URL patterns for Wikimedia - Updated to handle Event: namespace and special characters
     const patterns = [
-      /wikimedia\.org\/wiki\/([^/#?]{1,200})/i,
-      /wikipedia\.org\/wiki\/([^/#?]{1,200})/i,
-      /meta\.wikimedia\.org\/wiki\/([^/#?]{1,200})/i,
+      /wikimedia\.org\/wiki\/(.+)/i,
+      /wikipedia\.org\/wiki\/(.+)/i,
+      /meta\.wikimedia\.org\/wiki\/(.+)/i,
     ];
 
     for (const pattern of patterns) {
       const match = url.match(pattern);
       if (match && match[1]) {
-        // Decode the URL title (to handle special characters)
-        return decodeURIComponent(match[1].replace(/_/g, ' '));
+        try {
+          // Decode the URL title (to handle special characters like %26)
+          const rawTitle = match[1];
+          // Remove fragment identifier (#) and query parameters (?)
+          const cleanTitle = rawTitle.split('#')[0].split('?')[0];
+          const decodedTitle = decodeURIComponent(cleanTitle);
+          // Replace underscores with spaces
+          return decodedTitle.replace(/_/g, ' ');
+        } catch (decodeError) {
+          // If decoding fails, use the original with underscores replaced
+          return match[1].replace(/_/g, ' ');
+        }
       }
     }
 
