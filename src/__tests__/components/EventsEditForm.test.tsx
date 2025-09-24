@@ -28,6 +28,21 @@ describe('EventsForm Service Tests', () => {
       expect(isValidEventURL(validWikidataURL)).toBe(true);
     });
 
+    test('should validate Event namespace URLs with special characters', () => {
+      const eventNamespaceUrl = 'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
+      expect(isValidEventURL(eventNamespaceUrl)).toBe(true);
+    });
+
+    test('should validate Event namespace URLs on local Wikimedia sites', () => {
+      const eventNamespaceLocalUrl = 'https://br.wikimedia.org/wiki/Event:WikiCon_Brasil_2025';
+      expect(isValidEventURL(eventNamespaceLocalUrl)).toBe(true);
+    });
+
+    test('should validate complex Event namespace URLs', () => {
+      const complexEventUrl = 'https://meta.wikimedia.org/wiki/Event:Test_Event_2025/Participants';
+      expect(isValidEventURL(complexEventUrl)).toBe(true);
+    });
+
     test('should reject empty or invalid inputs', () => {
       expect(isValidEventURL('')).toBe(false);
       expect(isValidEventURL(null as any)).toBe(false);
