@@ -21,7 +21,7 @@ export default function FeedPage() {
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
-  const capacityCode = searchParams.get('capacityId');
+  const capacityCode = searchParams?.get('capacityId');
 
   // Use shared language sync logic
   const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();
@@ -183,7 +183,7 @@ export default function FeedPage() {
       capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
 
-    const urlCapacityId = searchParams.get('capacityId');
+    const urlCapacityId = searchParams?.get('capacityId');
 
     // If the capacity removed is the same as the URL, update the URL
     if (

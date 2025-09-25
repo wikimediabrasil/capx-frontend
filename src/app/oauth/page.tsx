@@ -3,7 +3,7 @@ import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
 import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 function OAuthContent() {
   const router = useRouter();
@@ -12,8 +12,8 @@ function OAuthContent() {
   const [loginStatus, setLoginStatus] = useState<string | null>('Iniciando...');
   const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
   const isHandlingLoginRef = useRef(false); // Ref to control the execution of handleLogin
-  const oauth_verifier = searchParams.get('oauth_verifier');
-  const oauth_token_request = searchParams.get('oauth_token');
+  const oauth_verifier = searchParams?.get('oauth_verifier');
+  const oauth_token_request = searchParams?.get('oauth_token');
 
   useEffect(() => {
     if (status === 'authenticated' && session) {

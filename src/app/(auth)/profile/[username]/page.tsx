@@ -13,7 +13,7 @@ export default function ProfileByUserName() {
   const username = params?.username.toString();
 
   // Ensure the username is encoded and replace spaces with underscores
-  const decodedUsername = decodeURIComponent(username);
+  const decodedUsername = decodeURIComponent(username as string);
   const { userByUsername } = useUserByUsername(decodedUsername);
 
   const decodedUsernameToLower = decodedUsername?.toLowerCase().trim();

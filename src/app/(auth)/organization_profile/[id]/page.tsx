@@ -19,7 +19,7 @@ export default function OrganizationProfilePage() {
   const { isLoadingTranslations } = capacityCache;
 
   const params = useParams();
-  const organizationId = Number(params.id);
+  const organizationId = Number(params?.id);
 
   const {
     organizations,
