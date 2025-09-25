@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Event } from '@/types/event';
-import { eventsService } from '@/services/eventService';
 import { EventFilterState, EventLocationType } from '@/app/events/types';
+import { eventsService } from '@/services/eventService';
+import { Event } from '@/types/event';
+import { useEffect, useState } from 'react';
 
 export function useEvent(eventId?: number, token?: string) {
   const [event, setEvent] = useState<Event | null>(null);
@@ -33,6 +33,7 @@ export function useEvent(eventId?: number, token?: string) {
     try {
       const eventData = {
         ...data,
+        type_of_location: data.type_of_location || 'virtual',
         organization: data.organization,
       };
 
@@ -194,71 +195,6 @@ export function useEvents(
         passedOrganizationFilter &&
         passedDateFilter
       );
-    });
-  };
-
-  // Helper function to filter all criteria except location
-  const filterEventsWithoutLocation = (
-    eventsToFilter: Event[],
-    currentFilters?: EventFilterState
-  ) => {
-    if (!currentFilters) return eventsToFilter;
-
-    return eventsToFilter.filter(event => {
-      let passedCapacitiesFilter = true;
-      let passedOrganizationFilter = true;
-      let passedDateFilter = true;
-
-      // Filter by capacities
-      if (currentFilters.capacities && currentFilters.capacities.length > 0) {
-        if (
-          !event.related_skills ||
-          !Array.isArray(event.related_skills) ||
-          event.related_skills.length === 0
-        ) {
-          passedCapacitiesFilter = false;
-        } else {
-          const filterCapacityCodes = currentFilters.capacities.map(cap => cap.code);
-          const hasMatchingCapacity = event.related_skills.some(skillId =>
-            filterCapacityCodes.includes(skillId)
-          );
-
-          if (!hasMatchingCapacity) {
-            passedCapacitiesFilter = false;
-          }
-        }
-      }
-
-      // Filter by organization
-      if (currentFilters.organizationId) {
-        if (event.organization !== currentFilters.organizationId) {
-          passedOrganizationFilter = false;
-        }
-      }
-
-      // Filter by date
-      if (currentFilters.dateRange) {
-        const eventBeginDate = new Date(event.time_begin);
-
-        // Filter by start date
-        if (currentFilters.dateRange.startDate) {
-          const startDate = new Date(currentFilters.dateRange.startDate);
-          if (eventBeginDate < startDate) {
-            passedDateFilter = false;
-          }
-        }
-
-        // Filter by end date
-        if (currentFilters.dateRange.endDate) {
-          const endDate = new Date(currentFilters.dateRange.endDate);
-          endDate.setHours(23, 59, 59);
-          if (eventBeginDate > endDate) {
-            passedDateFilter = false;
-          }
-        }
-      }
-
-      return passedCapacitiesFilter && passedOrganizationFilter && passedDateFilter;
     });
   };
 
