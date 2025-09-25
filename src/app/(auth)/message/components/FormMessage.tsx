@@ -1,26 +1,26 @@
 'use client';
 
+import ActionButtons from '@/components/ActionButton';
 import Popup from '@/components/Popup';
-import Image from 'next/image';
-import IconChat from '@/public/static/images/chat.svg';
-import IconChatWhite from '@/public/static/images/chat_white.svg';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import SuccessSubmissionSVG from '@/public/static/images/capx_person_12.svg';
-import ActionButtons from '@/components/ActionButton';
+import IconChat from '@/public/static/images/chat.svg';
+import IconChatWhite from '@/public/static/images/chat_white.svg';
+import CleanIcon from '@/public/static/images/cleaning.svg';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoIconBlue from '@/public/static/images/info_blue.svg';
-import CleanIcon from '@/public/static/images/cleaning.svg';
 import SendIcon from '@/public/static/images/send.svg';
+import Image from 'next/image';
 
-import { useEffect, useState } from 'react';
-import { useMessage } from '@/hooks/useMessage';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useMessage } from '@/hooks/useMessage';
 import { Message } from '@/types/message';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 export enum MessageMethod {
   EMAIL = 'email',
   TALKPAGE = 'talkpage',
@@ -38,7 +38,7 @@ export default function FormMessage() {
   });
 
   const searchParams = useSearchParams();
-  const username = searchParams.get('username');
+  const username = searchParams?.get('username');
 
   useEffect(() => {
     if (username) {
@@ -118,7 +118,7 @@ export default function FormMessage() {
           className="w-4 h-5 md:w-[42px] md:h-[42px]"
         />
         <h1
-          className={`text-[14px] font-[Montserrat] font-bold md:text-[32px] 
+          className={`text-[14px] font-[Montserrat] font-bold md:text-[32px]
             ${darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'}`}
         >
           {pageContent['message-form-heading']}

@@ -12,8 +12,8 @@ function OAuthContent() {
   const [loginStatus, setLoginStatus] = useState<string | null>('Iniciando...');
   const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
   const isHandlingLoginRef = useRef(false); // Ref to control the execution of handleLogin
-  const oauth_verifier = searchParams.get('oauth_verifier');
-  const oauth_token_request = searchParams.get('oauth_token');
+  const oauth_verifier = searchParams?.get('oauth_verifier');
+  const oauth_token_request = searchParams?.get('oauth_token');
 
   useEffect(() => {
     if (status === 'authenticated' && session) {
@@ -26,13 +26,11 @@ function OAuthContent() {
     try {
       // Don't proceed if already authenticated
       if (status === 'authenticated') {
-        console.log('handleLogin skipped - already authenticated');
         return;
       }
 
       // Don't proceed if already handling login
       if (isHandlingLoginRef.current) {
-        console.log('handleLogin skipped - already in progress');
         return;
       }
 
@@ -77,7 +75,6 @@ function OAuthContent() {
 
     // Don't proceed if already authenticated
     if (status === 'authenticated') {
-      console.log('Already authenticated, redirecting to home');
       router.push('/home');
       return;
     }

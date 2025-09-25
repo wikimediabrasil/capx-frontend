@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
@@ -15,13 +15,15 @@ import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
 import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import { ProfileItem } from '@/components/ProfileItem';
 import { useRouter } from 'next/navigation';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSession } from 'next-auth/react';
@@ -35,8 +37,10 @@ interface ProfileCardProps {
   id: string;
   username: string;
   profile_image: string;
-  type: ProfileCapacityType;
+  type: ProfileCapacityType | ProfileCapacityType[];
   capacities: (number | string)[];
+  wantedCapacities?: (number | string)[];
+  availableCapacities?: (number | string)[];
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
@@ -53,6 +57,8 @@ export const ProfileCard = ({
   profile_image,
   type = ProfileCapacityType.Learner,
   capacities = [],
+  wantedCapacities = [],
+  availableCapacities = [],
   languages = [],
   territory,
   avatar,
@@ -64,26 +70,37 @@ export const ProfileCard = ({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const router = useRouter();
-  const { getCapacityName } = useCapacityDetails(capacities);
+  const { getName, preloadCapacities } = useCapacityCache();
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
   const { avatars } = useAvatars();
 
-  const capacitiesTitle =
-    type === 'learner'
-      ? pageContent['body-profile-wanted-capacities-title']
-      : pageContent['body-profile-available-capacities-title'];
+  // Determine if this is a multi-type profile (both sharer and learner)
+  const isMultiType = Array.isArray(type) && type.length > 1;
+  const primaryType = Array.isArray(type) ? type[0] : type;
+
+  // Preload capacities to ensure they're available in the cache
+  useEffect(() => {
+    const allCapacities = [...capacities, ...wantedCapacities, ...availableCapacities];
+    if (allCapacities.length > 0) {
+      preloadCapacities();
+    }
+  }, [capacities, wantedCapacities, availableCapacities, preloadCapacities]);
+
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
-  const capacitiesIcon = type === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon;
 
   const typeBadgeColorLightMode =
-    type === 'learner' ? 'text-purple-800 border-purple-800' : 'text-[#05A300] border-[#05A300]';
+    primaryType === 'learner'
+      ? 'text-purple-800 border-purple-800'
+      : 'text-[#05A300] border-[#05A300]';
 
   const typeBadgeColorDarkMode =
-    type === 'learner' ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
+    primaryType === 'learner'
+      ? 'text-purple-200 border-purple-200'
+      : 'text-[#05A300] border-[#05A300]';
 
   const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
 
@@ -113,8 +130,8 @@ export const ProfileCard = ({
           {/*  Right Column - Profile Info */}
           <div>
             <div className={`rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#EFEFEF]'}`}>
-              {/* Type Badge */}
-              <div className="flex justify-start mb-4">
+              {/* Type Badge(s) */}
+              <div className="flex justify-start mb-4 gap-2 flex-wrap">
                 {hasIncompleteProfile ? (
                   <span
                     className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
@@ -125,13 +142,39 @@ export const ProfileCard = ({
                   >
                     {pageContent['profile-incomplete']}
                   </span>
+                ) : isMultiType ? (
+                  // Show both badges for multi-type profiles
+                  <>
+                    <span
+                      className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+                        darkMode
+                          ? 'text-purple-200 border-purple-200'
+                          : 'text-purple-800 border-purple-800'
+                      }`}
+                    >
+                      {pageContent['profile-learner']}
+                    </span>
+                    <span
+                      className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+                        darkMode
+                          ? 'text-[#05A300] border-[#05A300]'
+                          : 'text-[#05A300] border-[#05A300]'
+                      }`}
+                    >
+                      {pageContent['profile-sharer']}
+                    </span>
+                  </>
                 ) : (
                   <span
                     className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
                       darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
                     }`}
                   >
-                    {pageContent[`profile-${type}`]}
+                    {primaryType === 'learner'
+                      ? pageContent['profile-learner']
+                      : primaryType === 'sharer'
+                        ? pageContent['profile-sharer']
+                        : ''}
                   </span>
                 )}
               </div>
@@ -197,7 +240,15 @@ export const ProfileCard = ({
                     : `/profile/${encodeURIComponent(username)}`;
                   router.push(routePath);
                 }}
-                imageUrl={darkMode ? AccountCircleWhite : AccountCircle}
+                imageUrl={
+                  isOrganization
+                    ? darkMode
+                      ? UserCircleIconWhite
+                      : UserCircleIcon
+                    : darkMode
+                      ? AccountCircleWhite
+                      : AccountCircle
+                }
                 imageAlt={pageContent['alt-view-profile-user'] || 'View user profile'}
                 imageWidth={40}
                 imageHeight={40}
@@ -250,13 +301,54 @@ export const ProfileCard = ({
                   </p>
                 </div>
               </div>
+            ) : isMultiType ? (
+              // Show both wanted and available capacities for multi-type profiles
+              <div className="flex flex-col gap-4">
+                {wantedCapacities && wantedCapacities.length > 0 && (
+                  <ProfileItem
+                    icon={wantedCapacitiesIcon}
+                    title={pageContent['body-profile-wanted-capacities-title']}
+                    items={wantedCapacities}
+                    showEmptyDataText={false}
+                    getItemName={id => getName(Number(id))}
+                    customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
+                  />
+                )}
+                {availableCapacities && availableCapacities.length > 0 && (
+                  <ProfileItem
+                    icon={availableCapacitiesIcon}
+                    title={pageContent['body-profile-available-capacities-title']}
+                    items={availableCapacities}
+                    showEmptyDataText={false}
+                    getItemName={id => getName(Number(id))}
+                    customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
+                  />
+                )}
+                {/* Show message if no capacities are available */}
+                {(!wantedCapacities || wantedCapacities.length === 0) &&
+                  (!availableCapacities || availableCapacities.length === 0) && (
+                    <div className="text-center py-4">
+                      <p
+                        className={`font-[Montserrat] text-[14px] ${
+                          darkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        No capacities available
+                      </p>
+                    </div>
+                  )}
+              </div>
             ) : (
               <ProfileItem
-                icon={capacitiesIcon}
-                title={capacitiesTitle}
+                icon={primaryType === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon}
+                title={
+                  primaryType === 'learner'
+                    ? pageContent['body-profile-wanted-capacities-title']
+                    : pageContent['body-profile-available-capacities-title']
+                }
                 items={capacities}
                 showEmptyDataText={false}
-                getItemName={id => getCapacityName(id)}
+                getItemName={id => getName(Number(id))}
                 customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
               />
             )}

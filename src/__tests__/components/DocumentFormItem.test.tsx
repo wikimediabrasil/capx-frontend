@@ -1,12 +1,21 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DocumentFormItem from '@/app/(auth)/organization_profile/components/DocumentFormItem';
-
 import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 
 // Image Mock
 jest.mock('next/image', () => {
-  return function MockedImage({ src, alt, width, height, ...props }: any) {
+  return function MockedImage({
+    src,
+    alt,
+    width,
+    height,
+    fill,
+    unoptimized,
+    loading,
+    ...props
+  }: any) {
+    // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} width={width} height={height} {...props} />;
   };
 });

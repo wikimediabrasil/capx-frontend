@@ -83,7 +83,7 @@ global.Response = Object.assign(
 
 // Mock NextResponse specifically
 jest.mock('next/server', () => ({
-  NextRequest: jest.fn().mockImplementation((url) => ({
+  NextRequest: jest.fn().mockImplementation(url => ({
     url,
     method: 'GET',
     headers: new Map(),

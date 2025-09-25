@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useApp } from '@/contexts/AppContext';
 
 // Paths where we don't need to prefetch all capacity data
 const EXCLUDED_PATHS = [
@@ -12,51 +12,53 @@ const EXCLUDED_PATHS = [
   '/profile', // User profile paths
 ];
 
-// Component to load capacities in the background
+// Component to load capacities in the background using unified cache
 export const CapacitiesPrefetcher = () => {
-  const { prefetchCapacityData, isLoaded, clearCache } = useCapacityCache();
-  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // Wait for hydration before accessing contexts
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return <CapacitiesPrefetcherInternal />;
+};
+
+const CapacitiesPrefetcherInternal = () => {
+  const { updateLanguage, isLoaded, language, isLoadingTranslations } = useCapacityCache();
   const { data: session } = useSession();
-  const [hasPrefetched, setHasPrefetched] = useState(false);
-  const prefetchTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const queryClient = useQueryClient();
+  const { language: appLanguage } = useApp();
+  const pathname = usePathname();
 
   // Check if we should skip prefetching based on the current path
   const shouldSkipPrefetch = pathname && EXCLUDED_PATHS.some(path => pathname.includes(path));
 
-  // Clean up any pending prefetch timer when component unmounts
+  // Only prefetch when we have a session, no cache loaded, and not already loading
   useEffect(() => {
-    return () => {
-      if (prefetchTimerRef.current) {
-        clearTimeout(prefetchTimerRef.current);
-      }
-    };
-  }, []);
-
-  // Start loading when the user navigates
-  useEffect(() => {
-    // Skip prefetching if:
-    // 1. User is not logged in
-    // 2. Capacities are already loaded
-    // 3. We've already prefetched in this session
-    // 4. We're on an excluded path
-    if (!session?.user || isLoaded || hasPrefetched || shouldSkipPrefetch) {
+    if (!session?.user?.token || shouldSkipPrefetch || isLoaded || isLoadingTranslations) {
       return;
     }
 
-    // Use setTimeout to avoid blocking initial rendering
-    prefetchTimerRef.current = setTimeout(() => {
-      prefetchCapacityData().then(() => {
-        setHasPrefetched(true);
-      });
-    }, 5000); // Longer delay to prioritize page rendering and core functionality
+    // Use the app language (from localStorage/context) instead of cache language
+    const languageToLoad = appLanguage || 'en';
 
-    return () => {
-      if (prefetchTimerRef.current) {
-        clearTimeout(prefetchTimerRef.current);
-      }
-    };
-  }, [session, isLoaded, hasPrefetched, prefetchCapacityData, pathname, shouldSkipPrefetch]);
+    const timer = setTimeout(() => {
+      updateLanguage(languageToLoad);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [
+    session?.user?.token,
+    shouldSkipPrefetch,
+    isLoaded,
+    isLoadingTranslations,
+    updateLanguage,
+    appLanguage,
+  ]);
 
   return null;
 };

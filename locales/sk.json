@@ -4,7 +4,6 @@
 			"Oujon"
 		]
 	},
-	"navbar-link-about": "O",
 	"navbar-link-capacities": "Kapacity",
 	"navbar-link-events": "Udalosti",
 	"body-home-section01-title-text": "Priestor na výmenu",
@@ -12,11 +11,6 @@
 	"body-home-section01-description": "Spojte sa s kolegami, učte sa a zdieľajte kapacitu na platforme vytvorenej pre hnutie Wikimedia a ním.",
 	"body-home-section01-button": "Zapojte sa do Výmeny kapacít!",
 	"body-loggedin-home-main-section-button02": "Môj profil",
-	"body-capacity-searchbar-placeholder": "Zadajte názov funkcie, ktorú chcete vyhľadať.",
-	"body-capacity-wanted-user-list-title": "Používatelia, ktorí sa chcú naučiť túto kapacitu:",
-	"body-capacity-known-user-list-title": "Používatelia, ktorí vedia o tejto kapacite:",
-	"body-capacity-available-user-list-title": "Používatelia, ktorí vedia o tejto kapacite a sú k dispozícii na poskytovanie služieb s ňou:",
-	"body-capacity-user-list-fallback-message": "V tejto kategórii nie sú žiadni používatelia na zobrazenie.",
 	"footer-link-documentation": "Dokumentácia",
 	"footer-link-wikimedia": "Meta-wikimedia",
 	"footer-message": "Pre a podľa hnutia Wikimedia"

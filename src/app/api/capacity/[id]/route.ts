@@ -1,33 +1,11 @@
+import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchMetabase, fetchWikidata, sanitizeCapacityName } from '@/lib/utils/capacitiesUtils';
-
-// Hard-coded fallback names for known capacity IDs
-const CAPACITY_NAMES = {
-  '69': 'Strategic Thinking',
-  '71': 'Team Leadership',
-  '97': 'Project Management',
-  '10': 'Organizational Skills',
-  '36': 'Communication',
-  '50': 'Learning',
-  '56': 'Community Building',
-  '65': 'Social Skills',
-  '74': 'Strategic Planning',
-  '106': 'Technology',
-};
-
-export interface Capacity {
-  id: string;
-}
-
-export interface Users {
-  wanted: Capacity[];
-}
 
 export interface CapacityById {
   code: string;
   wd_code: string;
-  users: Users[];
+  users: any[];
   name: string;
   description?: string;
   icon?: string;
@@ -35,7 +13,6 @@ export interface CapacityById {
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    console.log(`⏳ API: Processing request for capacity ID: ${params.id}`);
     const id = params.id;
     const language = req.nextUrl.searchParams.get('language') || 'en';
 
@@ -55,14 +32,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const userList = await axios.get(`${process.env.BASE_URL}/users_by_skill/${id}/`);
 
     const capacityCodes = {
-      code: id,
+      code: parseInt(id, 10), // Ensure code is a number
       wd_code: codeList.data[id],
       users: userList.data,
     };
 
     try {
-      // fetch details using fetchMetabase first
-      const metabaseResults = await fetchMetabase([capacityCodes], language);
+      // Validate that we have a proper wd_code before making the request
+      if (!capacityCodes.wd_code || typeof capacityCodes.wd_code !== 'string') {
+        // Skip to hardcoded fallback
+        throw new Error('No wd_code available');
+      }
+
+      const metabaseResults = await fetchCapacitiesWithFallback([capacityCodes], language);
 
       if (metabaseResults.length > 0 && metabaseResults[0].name) {
         // use Metabase data
@@ -73,6 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           name,
           description: metabaseResults[0].description || '',
           item: metabaseResults[0].item,
+          metabase_code: metabaseResults[0].metabase_code || '',
         });
       }
 
@@ -93,15 +76,26 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 
     // If we got here, use the hard-coded name if we have it
-    if (CAPACITY_NAMES[id]) {
+    const hardcodedNames: Record<string, string> = {
+      '10': 'Organizational Skills',
+      '36': 'Communication',
+      '50': 'Learning',
+      '56': 'Community Building',
+      '65': 'Social Skills',
+      '74': 'Strategic Planning',
+      '106': 'Technology',
+    };
+
+    const hardcodedName = hardcodedNames[id];
+    if (hardcodedName) {
       return NextResponse.json({
         ...capacityCodes,
-        name: CAPACITY_NAMES[id],
+        name: hardcodedName,
         description: '',
       });
     }
 
-    // If no result is found from any source, use a generic name
+    // Final fallback
     return NextResponse.json({
       ...capacityCodes,
       name: `Capacity ${id}`,
@@ -109,26 +103,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     });
   } catch (error) {
     console.error(`❌ API: Error processing capacity ${params.id}:`, error);
-
-    // Try one last time with hardcoded name
-    if (CAPACITY_NAMES[params.id]) {
-      return NextResponse.json({
-        code: params.id,
-        name: CAPACITY_NAMES[params.id],
-        description: '',
-        wd_code: null,
-        users: [],
-      });
-    }
-
-    // Return a generic response with a 200 status to avoid breaking the UI
-    return NextResponse.json({
-      code: params.id,
-      name: `Capacity ${params.id}`,
-      description: '',
-      wd_code: null,
-      users: [],
-      error: 'Failed to fetch data',
-    });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+// Helper function to sanitize capacity names
+function sanitizeCapacityName(name: string | undefined, code: string | number): string {
+  if (!name || name.trim() === '') {
+    return `Capacity ${code}`;
+  }
+
+  // Check if the name looks like a QID (common format with Q followed by numbers)
+  if (name.startsWith('Q') && /^Q\d+$/.test(name)) {
+    return `Capacity ${code}`;
+  }
+
+  return name;
 }

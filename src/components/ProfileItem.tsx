@@ -261,6 +261,7 @@ export function ProfileItem({
             ${customClass}
             font-normal
             text-sm
+            ${darkMode ? 'text-white' : 'text-[#053749]'}
             md:text-[24px]
           `}
                 >

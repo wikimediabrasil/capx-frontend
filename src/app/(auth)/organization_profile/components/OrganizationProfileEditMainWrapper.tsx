@@ -3,10 +3,9 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
-import { CAPACITY_CACHE_KEYS, useCapacities } from '@/hooks/useCapacities';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
 import { useFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useDocument } from '@/hooks/useDocument';
 import { useOrganizationEvents } from '@/hooks/useOrganizationEvents';
@@ -21,7 +20,7 @@ import {
 } from '@/lib/utils/capacityValidation';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { createSafeFunction, ensureArray } from '@/lib/utils/safeDataAccess';
+import { ensureArray } from '@/lib/utils/safeDataAccess';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 import { Contacts } from '@/types/contacts';
 import { OrganizationDocument } from '@/types/document';
@@ -29,11 +28,9 @@ import { Event } from '@/types/event';
 import { Organization } from '@/types/organization';
 import { Project } from '@/types/project';
 import { tagDiff } from '@/types/tagDiff';
-import { useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import CapacityDebug from '../../profile/edit/components/CapacityDebug';
 import EventsForm from './EventsEditForm';
 import OrganizationProfileEditDesktopView from './OrganizationProfileEditDesktopView';
 import OrganizationProfileEditMobileView from './OrganizationProfileEditMobileView';
@@ -47,15 +44,17 @@ interface ProfileOption {
 export default function EditOrganizationProfilePage() {
   const router = useRouter();
   const params = useParams();
-  const organizationId = params.id as string;
+  const organizationId = params?.id as string;
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const { isMobile, pageContent } = useApp();
+  const { isMobile, pageContent, language } = useApp();
   const [isInitialized, setIsInitialized] = useState(false);
   const { darkMode } = useTheme();
   const { showSnackbar } = useSnackbar();
   const { userProfile, isLoading: isUserLoading } = useUserProfile();
   const { avatars } = useAvatars();
+  const capacityCache = useCapacityCache();
+  const { isLoadingTranslations } = capacityCache;
 
   /* State Management*/
 
@@ -146,13 +145,25 @@ export default function EditOrganizationProfilePage() {
     website: '',
   });
 
-  // Capacities setters
-  const { rootCapacities, isLoadingRootCapacities } = useCapacities();
+  // Monitor language changes and update capacity cache
+  useEffect(() => {
+    const updateCacheLanguage = async () => {
+      if (language && token) {
+        try {
+          await capacityCache?.updateLanguage?.(language);
+        } catch (error) {
+          console.error('Error updating capacity cache language:', error);
+        }
+      }
+    };
+
+    updateCacheLanguage();
+  }, [language, token, capacityCache]);
 
   // Combine all loading states for better UI experience
   const isLoading = useMemo(() => {
-    return isOrganizationLoading || isUserLoading || isLoadingRootCapacities;
-  }, [isOrganizationLoading, isUserLoading, isLoadingRootCapacities]);
+    return isOrganizationLoading || isUserLoading || isLoadingTranslations;
+  }, [isOrganizationLoading, isUserLoading, isLoadingTranslations]);
 
   // Effect to load profile options
   useEffect(() => {
@@ -433,112 +444,13 @@ export default function EditOrganizationProfilePage() {
     setFormData,
   ]);
 
-  /* Capacity setters need formData to be initialized, therefore it's initialized here */
-  // Capacity IDs setters
-  const capacityIds = useMemo(() => {
-    // If formData is not initialized, return empty array
-    if (!formData) return [];
-
-    const knownCapacities = ensureArray(formData.known_capacities);
-    const availableCapacities = ensureArray(formData.available_capacities);
-    const wantedCapacities = ensureArray(formData.wanted_capacities);
-
-    // Combine all arrays and remove duplicates
-    const allIds = [...knownCapacities, ...availableCapacities, ...wantedCapacities];
-    const uniqueIds = Array.from(new Set(allIds)).filter(id => id !== null && id !== undefined);
-
-    return uniqueIds;
-  }, [formData?.known_capacities, formData?.available_capacities, formData?.wanted_capacities]);
-
-  // Capacity details setters - com tratamento seguro de erro
-  const [safeGetCapacityName, setSafeGetCapacityName] = useState<(id: any) => string>(
-    () => id => `Capacity ${id}`
+  // Use cached capacity names
+  const getCapacityName = useCallback(
+    (id: any) => {
+      return capacityCache.getName(Number(id));
+    },
+    [capacityCache]
   );
-
-  // Get React Query client for manual cache access
-  const queryClient = useQueryClient();
-
-  // Call the hook directly, not in a try-catch
-  const capacityDetailsResult = useCapacityDetails(capacityIds);
-  const capacityDetailsRef = useRef<any>(capacityDetailsResult);
-
-  // Update the reference when the result changes
-  useEffect(() => {
-    capacityDetailsRef.current = capacityDetailsResult;
-  }, [capacityDetailsResult]);
-
-  // Use a useEffect to update our function safely
-  useEffect(() => {
-    try {
-      if (capacityDetailsRef.current) {
-        const { getCapacityName } = capacityDetailsRef.current;
-
-        if (typeof getCapacityName === 'function') {
-          // Create an optimized version that checks React Query cache first
-          const optimizedGetCapacityName = (id: any) => {
-            try {
-              // Skip processing for invalid IDs
-              if (id === null || id === undefined) {
-                return pageContent['capacity-unknown'] || 'Unknown Capacity';
-              }
-
-              // First, sanitize the ID if it's a Wikibase URL or other non-standard format
-              let sanitizedId = id;
-              if (typeof id === 'object' && id?.code) {
-                sanitizedId = sanitizeCapacityCode(id.code);
-              } else {
-                sanitizedId = sanitizeCapacityCode(id);
-              }
-
-              const idStr = String(sanitizedId);
-
-              // Try to get from React Query cache directly
-              const cachedCapacity = queryClient.getQueryData(
-                CAPACITY_CACHE_KEYS.byId(Number(idStr))
-              );
-
-              // Only use cache data if it has a valid name that's not a URL
-              if (
-                cachedCapacity &&
-                typeof cachedCapacity === 'object' &&
-                'name' in cachedCapacity &&
-                typeof cachedCapacity.name === 'string' &&
-                !cachedCapacity.name.startsWith('https://')
-              ) {
-                return cachedCapacity.name;
-              }
-
-              // Fall back to the original function
-              const originalName = getCapacityName(sanitizedId);
-
-              // Don't return URLs as capacity names
-              if (typeof originalName === 'string' && originalName.startsWith('https://')) {
-                return `Capacity ${idStr}`;
-              }
-
-              return originalName;
-            } catch (error) {
-              console.error('Error in optimizedGetCapacityName:', error);
-              return `Capacity ${id}`;
-            }
-          };
-
-          const safeFunction = createSafeFunction(
-            optimizedGetCapacityName,
-            'Unknown Capacity',
-            error => console.error('Error in getCapacityName:', error)
-          );
-
-          setSafeGetCapacityName(() => safeFunction);
-        }
-      }
-    } catch (error) {
-      console.error('Error extracting getCapacityName:', error);
-    }
-  }, [capacityIds, queryClient, pageContent]);
-
-  // Use the safe function
-  const getCapacityName = safeGetCapacityName;
 
   /* Handlers */
 
@@ -1061,20 +973,33 @@ export default function EditOrganizationProfilePage() {
       if (!editingEventRef.current) return;
 
       if (editingEventRef.current.id === 0) {
-        // Create new event
+        // Create new event - only include safe fields
         const newEventData = {
-          ...editingEventRef.current,
-          organizations: [Number(organizationId)],
-          creator: Number(session?.user?.id),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          team: editingEventRef.current.team || [Number(session?.user?.id)],
-          type_of_location: editingEventRef.current.type_of_location || 'virtual',
-          url: editingEventRef.current.url || '',
-          image_url: editingEventRef.current.image_url || '',
-          description: editingEventRef.current.description || '',
-          related_skills: editingEventRef.current.related_skills || [],
+          name: editingEventRef.current.name,
+          time_begin: editingEventRef.current.time_begin,
           organization: Number(organizationId),
+          type_of_location: editingEventRef.current.type_of_location || 'virtual',
+          creator: Number(session?.user?.id),
+          // Only include optional fields if they have valid values
+          ...(editingEventRef.current.url && { url: editingEventRef.current.url }),
+          ...(editingEventRef.current.image_url && {
+            image_url: editingEventRef.current.image_url,
+          }),
+          ...(editingEventRef.current.description && {
+            description: editingEventRef.current.description,
+          }),
+          ...(editingEventRef.current.related_skills &&
+            Array.isArray(editingEventRef.current.related_skills) &&
+            editingEventRef.current.related_skills.length > 0 && {
+              related_skills: editingEventRef.current.related_skills,
+            }),
+          ...(editingEventRef.current.time_end && { time_end: editingEventRef.current.time_end }),
+          ...(editingEventRef.current.wikidata_qid && {
+            wikidata_qid: editingEventRef.current.wikidata_qid,
+          }),
+          ...(editingEventRef.current.openstreetmap_id && {
+            openstreetmap_id: editingEventRef.current.openstreetmap_id,
+          }),
         };
 
         try {
@@ -1200,37 +1125,6 @@ export default function EditOrganizationProfilePage() {
     setIsModalOpen(true);
   };
 
-  // Helper function to sanitize capacity codes
-  const sanitizeCapacityCode = useCallback((code: any): number => {
-    // If it's already a valid number, return it
-    if (typeof code === 'number' && !isNaN(code)) {
-      return code;
-    }
-
-    // If it's a string, check for URLs or try to convert to number
-    if (typeof code === 'string') {
-      // Check for Wikibase URLs
-      if (code.indexOf('wikibase') !== -1 || code.indexOf('entity/Q') !== -1) {
-        console.warn('Converting Wikibase URL to numeric ID:', code);
-        // Extract Q-number if possible
-        const match = code.match(/Q(\d+)/);
-        if (match && match[1]) {
-          return parseInt(match[1], 10);
-        }
-      }
-
-      // Try to convert string to number
-      const numericValue = parseInt(code, 10);
-      if (!isNaN(numericValue)) {
-        return numericValue;
-      }
-    }
-
-    // Return a fallback value if all else fails
-    console.warn('Could not sanitize capacity code:', code);
-    return typeof code === 'number' ? code : 0;
-  }, []);
-
   // Memoize the current capacities to avoid hook dependency changes
   const currentCapacities = useMemo(() => {
     const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
@@ -1252,8 +1146,7 @@ export default function EditOrganizationProfilePage() {
   const { handleCapacitySelect } = useFormCapacitySelection(
     currentCapacities,
     updateCapacities,
-    () => setIsModalOpen(false),
-    sanitizeCapacityCode
+    () => setIsModalOpen(false)
   );
 
   const handleRemoveCapacity = (type: 'known' | 'available' | 'wanted', index: number) => {
@@ -1348,7 +1241,7 @@ export default function EditOrganizationProfilePage() {
           handleDeleteEvent={handleDeleteEvent}
           handleDeleteDocument={handleDeleteDocument}
           handleDocumentChange={handleDocumentChange}
-          capacities={rootCapacities || []}
+          capacities={capacityCache.getRootCapacities()}
           handleChooseEvent={handleChooseEvent}
           handleViewAllEvents={handleViewAllEvents}
           handleEditEvent={handleEditEvent}
@@ -1465,7 +1358,7 @@ export default function EditOrganizationProfilePage() {
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}
-        capacities={rootCapacities || []}
+        capacities={capacityCache.getRootCapacities()}
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
@@ -1545,16 +1438,6 @@ export default function EditOrganizationProfilePage() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Debug Tools - Only in Development */}
-      {process.env.NODE_ENV === 'development' && (
-        <CapacityDebug
-          capacityIds={capacityIds}
-          knownSkills={formData.known_capacities}
-          availableSkills={formData.available_capacities}
-          wantedSkills={formData.wanted_capacities}
-        />
       )}
     </>
   );

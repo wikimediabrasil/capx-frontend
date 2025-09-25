@@ -352,18 +352,6 @@ const EventsForm = memo(
     const [organizationName, setOrganizationName] = useState<string>('');
     const [organizationLoading, setOrganizationLoading] = useState<boolean>(false);
 
-    // Log initial values for debugging (only on mount)
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(
-          '🚀 EventsForm mounted - organizationId:',
-          eventData.organization,
-          'eventId:',
-          eventData.id
-        );
-      }
-    }, []); // Empty dependency array - only runs on mount
-
     // Calculate organizationId once
     const organizationId = useMemo(() => {
       return eventData.organization;
