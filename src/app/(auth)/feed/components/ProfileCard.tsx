@@ -93,10 +93,14 @@ export const ProfileCard = ({
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
 
   const typeBadgeColorLightMode =
-    primaryType === 'learner' ? 'text-purple-800 border-purple-800' : 'text-[#05A300] border-[#05A300]';
+    primaryType === 'learner'
+      ? 'text-purple-800 border-purple-800'
+      : 'text-[#05A300] border-[#05A300]';
 
   const typeBadgeColorDarkMode =
-    primaryType === 'learner' ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
+    primaryType === 'learner'
+      ? 'text-purple-200 border-purple-200'
+      : 'text-[#05A300] border-[#05A300]';
 
   const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
 
@@ -143,14 +147,18 @@ export const ProfileCard = ({
                   <>
                     <span
                       className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-                        darkMode ? 'text-purple-200 border-purple-200' : 'text-purple-800 border-purple-800'
+                        darkMode
+                          ? 'text-purple-200 border-purple-200'
+                          : 'text-purple-800 border-purple-800'
                       }`}
                     >
                       {pageContent['profile-learner']}
                     </span>
                     <span
                       className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-                        darkMode ? 'text-[#05A300] border-[#05A300]' : 'text-[#05A300] border-[#05A300]'
+                        darkMode
+                          ? 'text-[#05A300] border-[#05A300]'
+                          : 'text-[#05A300] border-[#05A300]'
                       }`}
                     >
                       {pageContent['profile-sharer']}
@@ -232,9 +240,14 @@ export const ProfileCard = ({
                     : `/profile/${encodeURIComponent(username)}`;
                   router.push(routePath);
                 }}
-                imageUrl={isOrganization 
-                  ? (darkMode ? UserCircleIconWhite : UserCircleIcon)
-                  : (darkMode ? AccountCircleWhite : AccountCircle)
+                imageUrl={
+                  isOrganization
+                    ? darkMode
+                      ? UserCircleIconWhite
+                      : UserCircleIcon
+                    : darkMode
+                      ? AccountCircleWhite
+                      : AccountCircle
                 }
                 imageAlt={pageContent['alt-view-profile-user'] || 'View user profile'}
                 imageWidth={40}
@@ -312,23 +325,27 @@ export const ProfileCard = ({
                   />
                 )}
                 {/* Show message if no capacities are available */}
-                {(!wantedCapacities || wantedCapacities.length === 0) && 
-                 (!availableCapacities || availableCapacities.length === 0) && (
-                  <div className="text-center py-4">
-                    <p className={`font-[Montserrat] text-[14px] ${
-                      darkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      No capacities available
-                    </p>
-                  </div>
-                )}
+                {(!wantedCapacities || wantedCapacities.length === 0) &&
+                  (!availableCapacities || availableCapacities.length === 0) && (
+                    <div className="text-center py-4">
+                      <p
+                        className={`font-[Montserrat] text-[14px] ${
+                          darkMode ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        No capacities available
+                      </p>
+                    </div>
+                  )}
               </div>
             ) : (
               <ProfileItem
                 icon={primaryType === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon}
-                title={primaryType === 'learner'
-                  ? pageContent['body-profile-wanted-capacities-title']
-                  : pageContent['body-profile-available-capacities-title']}
+                title={
+                  primaryType === 'learner'
+                    ? pageContent['body-profile-wanted-capacities-title']
+                    : pageContent['body-profile-available-capacities-title']
+                }
                 items={capacities}
                 showEmptyDataText={false}
                 getItemName={id => getName(Number(id))}

@@ -68,7 +68,7 @@ export const createUnifiedProfiles = (users: UserProfile[]) => {
   users.forEach(user => {
     const hasWanted = user.skills_wanted && user.skills_wanted.length > 0;
     const hasAvailable = user.skills_available && user.skills_available.length > 0;
-    
+
     if (hasWanted && hasAvailable) {
       // User is both learner and sharer
       profiles.push({
