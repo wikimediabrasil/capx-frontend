@@ -9,7 +9,6 @@ import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
 import CancelIcon from '@/public/static/images/cancel.svg';
-import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import ReportIcon from '@/public/static/images/report.svg';
 import ReportIconWhite from '@/public/static/images/report_white.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
@@ -35,7 +34,6 @@ import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import ProjectsFormItem from './ProjectsFormItem';
-import { Capacity } from '@/types/capacity';
 import NewsFormItem from './NewsFormItem';
 import DocumentFormItem from './DocumentFormItem';
 import ExpandAllIcon from '@/public/static/images/expand_all.svg';
@@ -44,6 +42,7 @@ import { useAvatars } from '@/hooks/useAvatars';
 import EventsList from '@/app/events/components/EventsList';
 
 export default function OrganizationProfileEditDesktopView({
+  capacities,
   handleSubmit,
   handleRemoveCapacity,
   handleAddCapacity,
@@ -55,7 +54,6 @@ export default function OrganizationProfileEditDesktopView({
   contactsData,
   setContactsData,
   documentsData,
-  setDocumentsData,
   isModalOpen,
   setIsModalOpen,
   currentCapacityType,
@@ -69,11 +67,9 @@ export default function OrganizationProfileEditDesktopView({
   handleDiffTagChange,
   handleAddDiffTag,
   eventsData,
-  handleEventChange,
   handleAddEvent,
   handleDeleteDocument,
   handleDocumentChange,
-  capacities,
   handleEditEvent,
   handleChooseEvent,
   handleViewAllEvents,
@@ -81,7 +77,7 @@ export default function OrganizationProfileEditDesktopView({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const { data: session } = useSession();
-  const { userProfile, isLoading: isUserLoading } = useUserProfile();
+  const { userProfile } = useUserProfile();
   const { avatars } = useAvatars();
   const router = useRouter();
 

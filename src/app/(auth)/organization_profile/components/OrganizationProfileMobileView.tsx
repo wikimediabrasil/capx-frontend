@@ -37,7 +37,6 @@ export default function OrganizationProfileMobileView({
   token,
   isOrgManager,
   getCapacityName,
-  allCapacityIds,
 }) {
   const router = useRouter();
   const {

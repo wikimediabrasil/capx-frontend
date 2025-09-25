@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { avatarService } from '@/services/avatarService';
 import { useSession } from 'next-auth/react';
-import { useCallback } from 'react';
 import { Avatar } from '@/types/avatar';
 
 export function useAvatars(limit?: number, offset?: number) {

@@ -42,17 +42,12 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
     setLoading(true);
     try {
       const basicDocument = await documentService.fetchSingleDocument(token, id);
+
       if (basicDocument) {
         const enrichedDocument = await fetchWikimediaData(basicDocument.url || '');
-        const mergedDocument: WikimediaDocument = {
-          // Preserve backend fields first, then enriched overwrite/adds display fields
-          ...(basicDocument as WikimediaDocument),
-          ...(enrichedDocument as WikimediaDocument),
-          id: (basicDocument.id ?? enrichedDocument.id ?? 0) as number,
-          url: basicDocument.url ?? enrichedDocument.fullUrl ?? basicDocument.url,
-        };
-        setDocument(mergedDocument);
-        return mergedDocument;
+        setDocument(enrichedDocument);
+
+        return enrichedDocument;
       }
     } catch (error) {
       console.error('Error fetching document:', error);
