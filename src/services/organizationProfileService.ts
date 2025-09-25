@@ -75,14 +75,18 @@ export const organizationProfileService = {
   },
 
   async updateOrganizationProfile(token: string, id: number, data: Partial<Organization>) {
+    // First, get the current organization data to ensure required fields are included
+    const currentOrg = await this.getOrganizationById(token, id);
+
     const sanitizedData = {
-      ...data,
+      ...currentOrg, // Include all current data as base
+      ...data, // Override with new data
       events: Array.isArray(data.events)
         ? data.events.map((event: any) => (typeof event === 'object' ? event.id : event))
-        : [],
+        : currentOrg.events || [],
       choose_events: Array.isArray(data.choose_events)
         ? data.choose_events.map((event: any) => (typeof event === 'object' ? event.id : event))
-        : [],
+        : currentOrg.choose_events || [],
     };
 
     const response = await axios.put(`/api/organizations/${id}/`, sanitizedData, {

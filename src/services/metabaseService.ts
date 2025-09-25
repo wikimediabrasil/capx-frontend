@@ -447,27 +447,31 @@ export function extractWikimediaTitleFromURL(url: string): string | undefined {
   if (!url) return undefined;
 
   try {
-    // URL patterns for Wikimedia - Updated to handle Event: namespace and special characters
+    // URL patterns for Wikimedia - Updated to handle Event: namespace, special characters, and mobile URLs
     const patterns = [
-      /wikimedia\.org\/wiki\/(.+)/i,
-      /wikipedia\.org\/wiki\/(.+)/i,
-      /meta\.wikimedia\.org\/wiki\/(.+)/i,
+      /(m\.)?wikimedia\.org\/wiki\/(.+)/i,
+      /(m\.)?wikipedia\.org\/wiki\/(.+)/i,
+      /meta\.(m\.)?wikimedia\.org\/wiki\/(.+)/i,
     ];
 
     for (const pattern of patterns) {
       const match = url.match(pattern);
-      if (match && match[1]) {
-        try {
-          // Decode the URL title (to handle special characters like %26)
-          const rawTitle = match[1];
-          // Remove fragment identifier (#) and query parameters (?)
-          const cleanTitle = rawTitle.split('#')[0].split('?')[0];
-          const decodedTitle = decodeURIComponent(cleanTitle);
-          // Replace underscores with spaces
-          return decodedTitle.replace(/_/g, ' ');
-        } catch (decodeError) {
-          // If decoding fails, use the original with underscores replaced
-          return match[1].replace(/_/g, ' ');
+      if (match) {
+        // Get the title from the last capture group (which contains the actual title)
+        const titleMatch = match[match.length - 1];
+        if (titleMatch) {
+          try {
+            // Decode the URL title (to handle special characters like %26)
+            const rawTitle = titleMatch;
+            // Remove fragment identifier (#) and query parameters (?)
+            const cleanTitle = rawTitle.split('#')[0].split('?')[0];
+            const decodedTitle = decodeURIComponent(cleanTitle);
+            // Replace underscores with spaces
+            return decodedTitle.replace(/_/g, ' ');
+          } catch (decodeError) {
+            // If decoding fails, use the original with underscores replaced
+            return titleMatch.replace(/_/g, ' ');
+          }
         }
       }
     }
@@ -1018,10 +1022,10 @@ export function isValidEventURL(url: string): boolean {
   }
 
   const validPatterns = [
-    // Meta Wikimedia URLs
-    { name: 'Meta Wikimedia', pattern: /^https?:\/\/meta\.wikimedia\.org\/wiki\/.+/i },
-    // Local Wikimedia URLs (like br.wikimedia.org)
-    { name: 'Local Wikimedia', pattern: /^https?:\/\/[a-z]{2}\.wikimedia\.org\/wiki\/.+/i },
+    // Meta Wikimedia URLs (desktop and mobile)
+    { name: 'Meta Wikimedia', pattern: /^https?:\/\/meta\.(m\.)?wikimedia\.org\/wiki\/.+/i },
+    // Local Wikimedia URLs (like br.wikimedia.org, desktop and mobile)
+    { name: 'Local Wikimedia', pattern: /^https?:\/\/[a-z]{2}\.(m\.)?wikimedia\.org\/wiki\/.+/i },
     // WikiLearn URLs
     { name: 'WikiLearn', pattern: /^https?:\/\/app\.learn\.wiki\/learning\/course\/.+/i },
     // Wikidata URLs (for events)
