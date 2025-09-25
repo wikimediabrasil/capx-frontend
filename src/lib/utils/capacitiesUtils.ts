@@ -290,8 +290,10 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
     }
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
+      PREFIX wb: <https://metabase.wikibase.cloud/entity/>
       SELECT ?item ?itemLabel ?itemDescription ?value WHERE {
       VALUES ?value {${codes.map((code: any) => `"${code.wd_code}"`).join(' ')}}
+      ?item wbt:P5 wb:Q34531.
       ?item wbt:P67/wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
