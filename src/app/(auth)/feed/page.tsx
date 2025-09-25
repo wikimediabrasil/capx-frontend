@@ -229,6 +229,19 @@ export default function FeedPage() {
     return <LoadingState fullScreen={true} />;
   }
 
+  // Ensure save type is a single value even when the profile is multi-type
+  // To avoid errors when saving the profile
+  // TODO: Fix this in the future, removing type from backend
+  const resolveSaveType = (type: any) => {
+    if (Array.isArray(type)) {
+      // Prefer Sharer if present; otherwise use the first
+      return type.includes(ProfileCapacityType.Sharer)
+        ? ProfileCapacityType.Sharer
+        : type[0];
+    }
+    return type;
+  };
+
   const handleToggleSaved = (profile: any) => {
     try {
       if (profile.isSaved) {
@@ -241,7 +254,8 @@ export default function FeedPage() {
           showSnackbar(pageContent['saved-profiles-delete-success'], 'success');
         }
       } else {
-        createSavedItem('user', profile.id, profile.type);
+        const saveType = resolveSaveType(profile.type);
+        createSavedItem('user', profile.id, saveType);
         showSnackbar(pageContent['saved-profiles-add-success'], 'success');
       }
     } catch {
