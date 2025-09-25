@@ -235,9 +235,7 @@ export default function FeedPage() {
   const resolveSaveType = (type: any) => {
     if (Array.isArray(type)) {
       // Prefer Sharer if present; otherwise use the first
-      return type.includes(ProfileCapacityType.Sharer)
-        ? ProfileCapacityType.Sharer
-        : type[0];
+      return type.includes(ProfileCapacityType.Sharer) ? ProfileCapacityType.Sharer : type[0];
     }
     return type;
   };
