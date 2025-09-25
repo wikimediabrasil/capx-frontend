@@ -42,6 +42,7 @@ import { useAvatars } from '@/hooks/useAvatars';
 import EventsList from '@/app/events/components/EventsList';
 
 export default function OrganizationProfileEditDesktopView({
+  capacities,
   handleSubmit,
   handleRemoveCapacity,
   handleAddCapacity,
