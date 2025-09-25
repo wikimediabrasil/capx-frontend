@@ -100,7 +100,9 @@ export async function POST(request: NextRequest) {
 
   // Clean and validate event data - only include fields that can be sent to backend
   // Default time_end to 2 hours after time_begin if not provided
-  const defaultTimeEnd = event.time_end || new Date(new Date(event.time_begin).getTime() + 2 * 60 * 60 * 1000).toISOString();
+  const defaultTimeEnd =
+    event.time_end ||
+    new Date(new Date(event.time_begin).getTime() + 2 * 60 * 60 * 1000).toISOString();
 
   const cleanedEvent: any = {
     name: event.name,

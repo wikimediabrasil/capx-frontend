@@ -982,12 +982,24 @@ export default function EditOrganizationProfilePage() {
           creator: Number(session?.user?.id),
           // Only include optional fields if they have valid values
           ...(editingEventRef.current.url && { url: editingEventRef.current.url }),
-          ...(editingEventRef.current.image_url && { image_url: editingEventRef.current.image_url }),
-          ...(editingEventRef.current.description && { description: editingEventRef.current.description }),
-          ...(editingEventRef.current.related_skills && Array.isArray(editingEventRef.current.related_skills) && editingEventRef.current.related_skills.length > 0 && { related_skills: editingEventRef.current.related_skills }),
+          ...(editingEventRef.current.image_url && {
+            image_url: editingEventRef.current.image_url,
+          }),
+          ...(editingEventRef.current.description && {
+            description: editingEventRef.current.description,
+          }),
+          ...(editingEventRef.current.related_skills &&
+            Array.isArray(editingEventRef.current.related_skills) &&
+            editingEventRef.current.related_skills.length > 0 && {
+              related_skills: editingEventRef.current.related_skills,
+            }),
           ...(editingEventRef.current.time_end && { time_end: editingEventRef.current.time_end }),
-          ...(editingEventRef.current.wikidata_qid && { wikidata_qid: editingEventRef.current.wikidata_qid }),
-          ...(editingEventRef.current.openstreetmap_id && { openstreetmap_id: editingEventRef.current.openstreetmap_id }),
+          ...(editingEventRef.current.wikidata_qid && {
+            wikidata_qid: editingEventRef.current.wikidata_qid,
+          }),
+          ...(editingEventRef.current.openstreetmap_id && {
+            openstreetmap_id: editingEventRef.current.openstreetmap_id,
+          }),
         };
 
         try {

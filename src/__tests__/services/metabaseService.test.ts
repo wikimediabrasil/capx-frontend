@@ -104,7 +104,8 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should handle Event namespace with special characters', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
+      const url =
+        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
       const result = extractWikimediaTitleFromURL(url);
 
       expect(result).toBe('Event:Wikipedia & Education User Group Showcase/September');
@@ -169,7 +170,8 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should validate Meta Wikimedia URLs with Event namespace', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
+      const url =
+        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
       expect(isValidEventURL(url)).toBe(true);
     });
 

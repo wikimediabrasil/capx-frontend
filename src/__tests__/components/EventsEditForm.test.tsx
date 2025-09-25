@@ -29,7 +29,8 @@ describe('EventsForm Service Tests', () => {
     });
 
     test('should validate Event namespace URLs with special characters', () => {
-      const eventNamespaceUrl = 'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
+      const eventNamespaceUrl =
+        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
       expect(isValidEventURL(eventNamespaceUrl)).toBe(true);
     });
 
