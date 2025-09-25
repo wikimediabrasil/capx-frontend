@@ -59,13 +59,17 @@ export default function OrganizationList() {
   const createOrganizationProfile = (
     org: any,
     capacities: any[],
-    type: ProfileCapacityType | 'incomplete',
+    type: ProfileCapacityType | ProfileCapacityType[] | 'incomplete',
     hasIncompleteProfile: boolean,
-    priority: number
+    priority: number,
+    wantedCapacities?: any[],
+    availableCapacities?: any[]
   ) => ({
     id: org.id,
     username: org.display_name,
     capacities,
+    wantedCapacities: wantedCapacities || [],
+    availableCapacities: availableCapacities || [],
     type,
     profile_image: org.profile_image,
     territory: org.territory?.[0],
@@ -89,35 +93,50 @@ export default function OrganizationList() {
       const hasWantedCapacities = hasValidCapacities(org.wanted_capacities);
       const hasAvailableCapacities = hasValidCapacities(org.available_capacities);
 
-      // Create learner profile if organization has wanted capacities
-      if (hasWantedCapacities) {
+      if (hasWantedCapacities && hasAvailableCapacities) {
+        // Organization has both wanted and available capacities - create unified profile
+        organizationProfiles.push(
+          createOrganizationProfile(
+            org,
+            [...(org.wanted_capacities || []), ...(org.available_capacities || [])],
+            [ProfileCapacityType.Learner, ProfileCapacityType.Sharer],
+            false,
+            1,
+            org.wanted_capacities,
+            org.available_capacities
+          )
+        );
+      } else if (hasWantedCapacities) {
+        // Organization has only wanted capacities
         organizationProfiles.push(
           createOrganizationProfile(
             org,
             org.wanted_capacities,
             ProfileCapacityType.Learner,
             false,
-            1
+            1,
+            org.wanted_capacities,
+            []
           )
         );
-      }
-
-      // Create sharer profile if organization has available capacities
-      if (hasAvailableCapacities) {
+      } else if (hasAvailableCapacities) {
+        // Organization has only available capacities
         organizationProfiles.push(
           createOrganizationProfile(
             org,
             org.available_capacities,
             ProfileCapacityType.Sharer,
             false,
-            1
+            1,
+            [],
+            org.available_capacities
           )
         );
-      }
-
-      // Create incomplete profile if organization has no capacities
-      if (!hasWantedCapacities && !hasAvailableCapacities) {
-        organizationProfiles.push(createOrganizationProfile(org, [], 'incomplete' as any, true, 2));
+      } else {
+        // Organization has no capacities - create incomplete profile
+        organizationProfiles.push(
+          createOrganizationProfile(org, [], 'incomplete' as any, true, 2, [], [])
+        );
       }
     });
 

@@ -14,7 +14,13 @@ import { useAllUsers } from '@/hooks/useUserProfile';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
-import { createProfilesFromUsers, FilterState, ProfileCapacityType, Skill } from './types';
+import {
+  createProfilesFromUsers,
+  createUnifiedProfiles,
+  FilterState,
+  ProfileCapacityType,
+  Skill,
+} from './types';
 
 export default function FeedPage() {
   const { pageContent } = useApp();
@@ -127,36 +133,43 @@ export default function FeedPage() {
 
   // Create profiles (to create cards) from users
   const filteredProfiles = useMemo(() => {
-    const wantedUserProfiles = createProfilesFromUsers(
-      usersLearner || [],
-      ProfileCapacityType.Learner
-    ).map(profile => ({
-      ...profile,
-      isSaved: isProfileSaved(profile.id),
-    }));
+    const isBothTypesSelected =
+      activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) &&
+      activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
 
-    const availableUserProfiles = createProfilesFromUsers(
-      usersSharer || [],
-      ProfileCapacityType.Sharer
-    ).map(profile => ({
-      ...profile,
-      isSaved: isProfileSaved(profile.id),
-    }));
+    if (isBothTypesSelected) {
+      // When both types are selected, use unified profiles to avoid duplicates
+      const allUsers = [...(usersLearner || []), ...(usersSharer || [])];
+      // Remove duplicates based on user ID
+      const uniqueUsers = allUsers.filter(
+        (user, index, self) => index === self.findIndex(u => u.user.id === user.user.id)
+      );
 
-    // Filter users based on activeFilters.profileCapacityTypes
-    const userProfilesWanted = activeFilters.profileCapacityTypes.includes(
-      ProfileCapacityType.Learner
-    )
-      ? wantedUserProfiles
-      : [];
-    const userProfilesAvailable = activeFilters.profileCapacityTypes.includes(
-      ProfileCapacityType.Sharer
-    )
-      ? availableUserProfiles
-      : [];
-    const userProfiles = [...userProfilesWanted, ...userProfilesAvailable];
+      return createUnifiedProfiles(uniqueUsers).map(profile => ({
+        ...profile,
+        isSaved: isProfileSaved(profile.id),
+      }));
+    } else {
+      // When only one type is selected, use the original logic
+      const wantedUserProfiles = activeFilters.profileCapacityTypes.includes(
+        ProfileCapacityType.Learner
+      )
+        ? createProfilesFromUsers(usersLearner || [], ProfileCapacityType.Learner)
+        : [];
 
-    return userProfiles;
+      const availableUserProfiles = activeFilters.profileCapacityTypes.includes(
+        ProfileCapacityType.Sharer
+      )
+        ? createProfilesFromUsers(usersSharer || [], ProfileCapacityType.Sharer)
+        : [];
+
+      const userProfiles = [...wantedUserProfiles, ...availableUserProfiles];
+
+      return userProfiles.map(profile => ({
+        ...profile,
+        isSaved: isProfileSaved(profile.id),
+      }));
+    }
   }, [activeFilters, usersLearner, usersSharer, savedItems, isProfileSaved]);
 
   // Calculate total of pages based on total profiles
