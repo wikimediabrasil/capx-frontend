@@ -9,6 +9,7 @@
 			"EmDashUser002",
 			"Gomoko",
 			"MacOS Weed",
+			"Marphy 123",
 			"McDutchie",
 			"Méthodes Bulebe Hangi"
 		]
@@ -57,6 +58,7 @@
 	"body-loggedin-home-third-section-description": "Partagez vos idées, commentaires ou suggestions avec nous.",
 	"body-loggedin-home-third-section-button": "Envoyer un courriel",
 	"body-loggedin-home-third-section-button-success": "Courriel copiée dans le presse-papiers !",
+	"body-profile-birthday-title": "Anniversaire sur les wikis",
 	"body-profile-box-title-wikidata-item": "Élément Wikidata",
 	"body-profile-box-title-alt-wiki-acc": "Compte Wikimédia alternatif",
 	"body-profile-section-title-territory": "Territoire",
@@ -117,7 +119,6 @@
 	"footer-link-wikimedia": "Méta-Wiki",
 	"footer-message": "Pour et par le Mouvement Wikimédia",
 	"footer-privacy-policy": "Politique de confidentialité",
-	"aria-language-input": "Sélectionnez une langue",
 	"aria-label-profile-selector": "Sélectionnez le profil à afficher",
 	"sign-out-button": "Déconnexion",
 	"sign-in-button": "Se connecter",
@@ -252,10 +253,6 @@
 	"filters-search-by-username": "Rechercher par nom d’utilisateur",
 	"filters-affiliations": "Affiliations",
 	"filters-add-affiliation": "Ajouter une affiliation",
-	"pagination-previous": "Précédent",
-	"pagination-next": "Suivant",
-	"pagination-page": "Page",
-	"pagination-of": "sur",
 	"feed-no-data-message": "Aucune donnée trouvée",
 	"feed-no-data-description": "Essayez d’ajuster les filtres ou revenez plus tard",
 	"profile-incomplete": "Profil incomplet",
@@ -517,8 +514,12 @@
 	"edit-profile-mini-bio-exceeded-chars": "caractères excédentaires",
 	"edit-profile-mini-bio-remaining-chars": "caractères restants",
 	"capacity-card-capacity-prefix": "Compétence",
-	"body-profile-birthday-title": "Anniversaire sur les wikis",
 	"filters-territory": "Territoire",
+	"aria-language-input": "Sélectionnez une langue",
+	"pagination-previous": "Précédent",
+	"pagination-next": "Suivant",
+	"pagination-page": "Page",
+	"pagination-of": "sur",
 	"profile-learner": "Apprenant",
 	"profile-sharer": "Partageur"
 }

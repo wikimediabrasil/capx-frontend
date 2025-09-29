@@ -29,6 +29,7 @@
 	"body-loggedin-home-third-section-title": "제안 및 피드백",
 	"body-loggedin-home-third-section-button": "이메일 보내기",
 	"body-loggedin-home-third-section-button-success": "이메일이 클립보드에 복사되었습니다!",
+	"body-profile-birthday-title": "위키 생일",
 	"body-profile-box-title-wikidata-item": "위키데이터 항목",
 	"body-profile-box-title-alt-wiki-acc": "대체 위키미디어 계정",
 	"body-profile-section-title-territory": "지역",
@@ -47,7 +48,6 @@
 	"body-profile-section-title-contact": "연락하기",
 	"footer-link-documentation": "문서",
 	"footer-privacy-policy": "개인정보보호정책",
-	"aria-language-input": "언어 선택",
 	"aria-label-profile-selector": "열람할 프로필을 선택하세요",
 	"sign-out-button": "로그아웃",
 	"sign-in-button": "로그인",
@@ -103,9 +103,6 @@
 	"filters-username": "사용자 이름",
 	"filters-username-alt-icon": "사용자 이름 아이콘",
 	"filters-search-by-username": "사용자 이름으로 검색",
-	"pagination-previous": "이전",
-	"pagination-next": "다음",
-	"pagination-page": "문서",
 	"feed-no-data-message": "데이터가 없습니다",
 	"snackbar-edit-profile-success": "프로필이 성공적으로 업데이트되었습니다!",
 	"snackbar-edit-profile-failed-generic": "프로필 업데이트 중 오류가 발생했습니다. 데이터를 확인하고 다시 시도해 주십시오.",
@@ -188,6 +185,9 @@
 	"aria-label-loading": "콘텐츠가 로드 중입니다",
 	"aria-label-report-bug-description": "버그 설명 신고",
 	"aria-label-report-bug-title": "버그 신고 제목",
-	"body-profile-birthday-title": "위키 생일",
-	"filters-territory": "지역"
+	"filters-territory": "지역",
+	"aria-language-input": "언어 선택",
+	"pagination-previous": "이전",
+	"pagination-next": "다음",
+	"pagination-page": "문서"
 }

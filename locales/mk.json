@@ -36,7 +36,6 @@
 	"footer-link-documentation": "Документација",
 	"footer-link-wikimedia": "Мета-Викимедија",
 	"footer-message": "За и од Викимедииното движење",
-	"aria-language-input": "Изберете јазик",
 	"sign-out-button": "Одјава",
 	"sign-in-button": "Најава",
 	"form-profile-languages": "Јазици",
@@ -55,5 +54,6 @@
 	"edit-profile-mini-bio": "Минибиографија",
 	"edit-profile-mini-bio-placeholder": "Напишете краток опис за себе.",
 	"edit-profile-insert-item": "Вметни предмет",
-	"filters-territory": "Територија"
+	"filters-territory": "Територија",
+	"aria-language-input": "Изберете јазик"
 }

@@ -26,6 +26,7 @@
 	"body-loggedin-home-main-section-button02": "Мой профиль",
 	"body-loggedin-home-third-section-button": "Отправить письмо",
 	"body-loggedin-home-third-section-button-success": "Электронный адрес скопирован в буфер обмена!",
+	"body-profile-birthday-title": "День рождения Вики",
 	"body-profile-box-title-wikidata-item": "Элемент Викиданных",
 	"body-profile-section-title-territory": "Территория",
 	"body-profile-section-title-events": "События",
@@ -57,6 +58,5 @@
 	"edit-profile-insert-project": "Вставить проект",
 	"privacy-policy-link-toolforge": "Toolforge",
 	"filters-username": "Имя участника",
-	"statistics-users-title": "Пользователи",
-	"body-profile-birthday-title": "День рождения Вики"
+	"statistics-users-title": "Пользователи"
 }

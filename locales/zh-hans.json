@@ -50,7 +50,6 @@
 	"footer-link-documentation": "文档",
 	"footer-link-wikimedia": "元维基媒体",
 	"footer-message": "由维基媒体运动打造，并用于维基媒体运动",
-	"aria-language-input": "选择语言",
 	"sign-out-button": "登出",
 	"sign-in-button": "登录",
 	"form-profile-languages": "语言",
@@ -68,5 +67,6 @@
 	"capacity-selection-modal-select-capacity-button-multiple-capacities": "容量",
 	"capacity-selection-modal-back": "返回",
 	"capacity-card-capacity-prefix": "容量",
-	"filters-territory": "区域"
+	"filters-territory": "区域",
+	"aria-language-input": "选择语言"
 }

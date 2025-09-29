@@ -96,7 +96,6 @@
 	"organization-list-alt-banner": "Seite mit der Organisationsliste der Bannerbilder",
 	"organization-list-banner-page": "Organisationsliste",
 	"footer-link-documentation": "Dokumentation",
-	"aria-language-input": "Sprache auswählen",
 	"sign-out-button": "Abmelden",
 	"sign-in-button": "Anmelden",
 	"form-profile-languages": "Sprachen",
@@ -130,5 +129,6 @@
 	"capacity-selection-modal-back": "Zurück",
 	"edit-profile-mini-bio-exceeded-chars": "Zeichen überschritten",
 	"edit-profile-mini-bio-remaining-chars": "verbleibende Zeichen",
-	"capacity-card-capacity-prefix": "Kapazität"
+	"capacity-card-capacity-prefix": "Kapazität",
+	"aria-language-input": "Sprache auswählen"
 }

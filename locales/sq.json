@@ -37,9 +37,9 @@
 	"footer-link-documentation": "Dokumentimi",
 	"footer-link-wikimedia": "Meta-Wikimedia",
 	"footer-message": "Për dhe nga Lëvizja e Wikimedia-s",
-	"aria-language-input": "Zgjidhni një gjuhë",
 	"sign-out-button": "Dilni",
 	"sign-in-button": "Hyni",
 	"form-profile-languages": "Gjuhët",
-	"filters-territory": "Territori"
+	"filters-territory": "Territori",
+	"aria-language-input": "Zgjidhni një gjuhë"
 }

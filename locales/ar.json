@@ -55,7 +55,6 @@
 	"footer-link-github": "جيت هب",
 	"footer-link-wikimedia": "ميتا ويكي",
 	"footer-message": "من أجل حركة ويكيميديا ومن أجلها",
-	"aria-language-input": "اختر لغة",
 	"sign-out-button": "تسجيل الخروج",
 	"sign-in-button": "تسجيل الدخول",
 	"form-profile-languages": "اللغات",
@@ -80,5 +79,6 @@
 	"statistics-error-text": "تعذّر تحميل الإحصائيات. يُرجى المحاولة لاحقًا.",
 	"badges-back-to-user-profile": "ارجع إلى ملفك",
 	"body-profile-badges-title": "الشارات",
-	"filters-territory": "إِقلِيم"
+	"filters-territory": "إِقلِيم",
+	"aria-language-input": "اختر لغة"
 }
