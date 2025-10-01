@@ -14,7 +14,12 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "test": "jest",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "profile": "ts-node scripts/performance-profiling.ts all",
+    "profile:quick": "ts-node scripts/performance-profiling.ts quick",
+    "profile:manual": "ts-node scripts/performance-profiling-manual.ts quick",
+    "profile:manual:full": "ts-node scripts/performance-profiling-manual.ts all",
+    "profile:html": "node scripts/generate-html-report.js"
   },
   "dependencies": {
     "@next/codemod": "^15.1.6",
@@ -49,6 +54,7 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
     "@chromatic-com/storybook": "^3.2.2",
+    "@playwright/test": "^1.55.1",
     "@storybook/addon-essentials": "^8.4.5",
     "@storybook/addon-interactions": "^8.4.5",
     "@storybook/addon-onboarding": "^8.4.5",
@@ -75,6 +81,7 @@
     "eslint-plugin-storybook": "^0.11.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "playwright": "^1.55.1",
     "postcss": "^8",
     "prettier": "3.5.3",
     "storybook": "^8.4.5",
