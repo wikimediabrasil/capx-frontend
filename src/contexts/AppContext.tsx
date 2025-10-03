@@ -110,11 +110,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [isMobile, mobileMenuStatus, language, pageContent, session]
   );
 
-  // Don't render anything before mount to avoid hydration mismatch
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
+  // Always provide the context to avoid consumers running outside the provider
+  // During initial mount, values update after effects run
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 

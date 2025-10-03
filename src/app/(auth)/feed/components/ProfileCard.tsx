@@ -92,8 +92,8 @@ export const ProfileCard = ({
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
 
-  const learnerLabel = pageContent['profile-learner'];
-  const sharerLabel = pageContent['profile-sharer'];
+  const learnerLabel = pageContent['profile-learner'] || 'Learner';
+  const sharerLabel = pageContent['profile-sharer'] || 'Sharer';
 
   const typeBadgeBaseClass =
     'md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border';
