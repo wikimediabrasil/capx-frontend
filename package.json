@@ -15,8 +15,6 @@
     "test": "jest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "profile": "ts-node scripts/performance-profiling.ts all",
-    "profile:quick": "ts-node scripts/performance-profiling.ts quick",
     "profile:manual": "ts-node scripts/performance-profiling-manual.ts quick",
     "profile:manual:full": "ts-node scripts/performance-profiling-manual.ts all",
     "profile:html": "node scripts/generate-html-report.js"
