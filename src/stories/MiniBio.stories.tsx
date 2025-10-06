@@ -41,14 +41,16 @@ export const Empty: Story = {
 
 export const LongText: Story = {
   args: {
-    about: 'This is a very long mini bio text that demonstrates how the component handles longer content. It includes multiple sentences and shows how text wrapping works in the component. The text should break properly and maintain good readability even with extensive content.',
+    about:
+      'This is a very long mini bio text that demonstrates how the component handles longer content. It includes multiple sentences and shows how text wrapping works in the component. The text should break properly and maintain good readability even with extensive content.',
     isEditing: false,
   },
 };
 
 export const WithLineBreaks: Story = {
   args: {
-    about: 'This is the first line of the mini bio.\n\nThis is the second paragraph.\n\nAnd this is the third paragraph with multiple lines.',
+    about:
+      'This is the first line of the mini bio.\n\nThis is the second paragraph.\n\nAnd this is the third paragraph with multiple lines.',
     isEditing: false,
   },
 };
@@ -86,9 +88,7 @@ export const DarkMode: Story = {
   parameters: {
     backgrounds: {
       default: 'dark',
-      values: [
-        { name: 'dark', value: '#1a1a1a' },
-      ],
+      values: [{ name: 'dark', value: '#1a1a1a' }],
     },
   },
 };
@@ -102,9 +102,7 @@ export const DarkModeEditing: Story = {
   parameters: {
     backgrounds: {
       default: 'dark',
-      values: [
-        { name: 'dark', value: '#1a1a1a' },
-      ],
+      values: [{ name: 'dark', value: '#1a1a1a' }],
     },
   },
 };
@@ -143,7 +141,8 @@ export const UnicodeText: Story = {
 
 export const Multilingual: Story = {
   args: {
-    about: 'This mini bio contains multiple languages: English, Español, Français, Deutsch, 中文, 日本語, 한국어, العربية, हिन्दी, Русский.',
+    about:
+      'This mini bio contains multiple languages: English, Español, Français, Deutsch, 中文, 日本語, 한국어, العربية, हिन्दी, Русский.',
     isEditing: false,
   },
 };

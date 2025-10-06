@@ -8,38 +8,38 @@ import { SessionProvider } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  });
+  defaultOptions: {
+    queries: { retry: false, gcTime: 0 },
+  },
+});
 
 const meta: Meta<typeof ProfileCard> = {
-    title: 'Components/ProfileCard',
-    component: ProfileCard,
-    decorators: [
-      Story => (
-        <AppProvider>
-          <ThemeProvider>
-            <QueryClientProvider client={queryClient}>
+  title: 'Components/ProfileCard',
+  component: ProfileCard,
+  decorators: [
+    Story => (
+      <AppProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
             <SessionProvider>
-          <CapacityCacheProvider>
-            <div className="max-w-[600px] mx-auto p-4">
-              <Story />
-            </div>
-            </CapacityCacheProvider>
+              <CapacityCacheProvider>
+                <div className="max-w-[600px] mx-auto p-4">
+                  <Story />
+                </div>
+              </CapacityCacheProvider>
             </SessionProvider>
-            </QueryClientProvider>
-          </ThemeProvider>
-        </AppProvider>
-      ),
-    ],
-    parameters: {
-      layout: 'centered',
-      nextjs: {
-        appDirectory: true,
-      },
+          </QueryClientProvider>
+        </ThemeProvider>
+      </AppProvider>
+    ),
+  ],
+  parameters: {
+    layout: 'centered',
+    nextjs: {
+      appDirectory: true,
     },
-  };
+  },
+};
 
 export default meta;
 type Story = StoryObj<typeof ProfileCard>;
@@ -199,9 +199,7 @@ export const DarkMode: Story = {
   parameters: {
     backgrounds: {
       default: 'dark',
-      values: [
-        { name: 'dark', value: '#1a1a1a' },
-      ],
+      values: [{ name: 'dark', value: '#1a1a1a' }],
     },
   },
 };

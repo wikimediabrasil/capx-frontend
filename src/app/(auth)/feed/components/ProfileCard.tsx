@@ -195,7 +195,11 @@ export const ProfileCard = ({
                       darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
                     }`}
                   >
-                    {primaryType === 'learner' ? learnerLabel : primaryType === 'sharer' ? sharerLabel : ''}
+                    {primaryType === 'learner'
+                      ? learnerLabel
+                      : primaryType === 'sharer'
+                        ? sharerLabel
+                        : ''}
                   </span>
                 )}
               </div>
