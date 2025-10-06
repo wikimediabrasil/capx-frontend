@@ -30,7 +30,7 @@ import { Project } from '@/types/project';
 import { tagDiff } from '@/types/tagDiff';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import EventsForm from './EventsEditForm';
 import OrganizationProfileEditDesktopView from './OrganizationProfileEditDesktopView';
 import OrganizationProfileEditMobileView from './OrganizationProfileEditMobileView';
@@ -44,7 +44,7 @@ interface ProfileOption {
 export default function EditOrganizationProfilePage() {
   const router = useRouter();
   const params = useParams();
-  const organizationId = params.id as string;
+  const organizationId = params?.id as string;
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { isMobile, pageContent, language } = useApp();
@@ -961,20 +961,33 @@ export default function EditOrganizationProfilePage() {
       if (!editingEventRef.current) return;
 
       if (editingEventRef.current.id === 0) {
-        // Create new event
+        // Create new event - only include safe fields
         const newEventData = {
-          ...editingEventRef.current,
-          organizations: [Number(organizationId)],
-          creator: Number(session?.user?.id),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          team: editingEventRef.current.team || [Number(session?.user?.id)],
-          type_of_location: editingEventRef.current.type_of_location || 'virtual',
-          url: editingEventRef.current.url || '',
-          image_url: editingEventRef.current.image_url || '',
-          description: editingEventRef.current.description || '',
-          related_skills: editingEventRef.current.related_skills || [],
+          name: editingEventRef.current.name,
+          time_begin: editingEventRef.current.time_begin,
           organization: Number(organizationId),
+          type_of_location: editingEventRef.current.type_of_location || 'virtual',
+          creator: Number(session?.user?.id),
+          // Only include optional fields if they have valid values
+          ...(editingEventRef.current.url && { url: editingEventRef.current.url }),
+          ...(editingEventRef.current.image_url && {
+            image_url: editingEventRef.current.image_url,
+          }),
+          ...(editingEventRef.current.description && {
+            description: editingEventRef.current.description,
+          }),
+          ...(editingEventRef.current.related_skills &&
+            Array.isArray(editingEventRef.current.related_skills) &&
+            editingEventRef.current.related_skills.length > 0 && {
+              related_skills: editingEventRef.current.related_skills,
+            }),
+          ...(editingEventRef.current.time_end && { time_end: editingEventRef.current.time_end }),
+          ...(editingEventRef.current.wikidata_qid && {
+            wikidata_qid: editingEventRef.current.wikidata_qid,
+          }),
+          ...(editingEventRef.current.openstreetmap_id && {
+            openstreetmap_id: editingEventRef.current.openstreetmap_id,
+          }),
         };
 
         try {

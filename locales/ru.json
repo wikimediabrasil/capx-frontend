@@ -5,6 +5,7 @@
 			"Kareyac",
 			"Mitte27",
 			"Okras",
+			"Pavel200071",
 			"Yupik",
 			"Yurina Tatiana"
 		]
@@ -18,7 +19,7 @@
 	"navbar-link-dark-mode": "Тёмный/светлый режим",
 	"navbar-link-messages": "Сообщения",
 	"body-home-section01-title-text": "Пространство для обмена",
-	"body-home-section01-description": "Общайтесь с коллегами, учитесь и делитесь своими знаниями на платформе, созданной для Движения Викимедиа.",
+	"body-home-section01-description": "Общайтесь со сверстниками, учитесь и делитесь своими навыками на платформе, созданной для Движения Викимедиа.",
 	"body-home-section01-about-button": "О CapX",
 	"body-home-main-section-carrousel-description-more-projects": "…",
 	"body-home-section01-call-to-action-button02": "Создать учётную запись",
@@ -26,6 +27,7 @@
 	"body-loggedin-home-main-section-button02": "Мой профиль",
 	"body-loggedin-home-third-section-button": "Отправить письмо",
 	"body-loggedin-home-third-section-button-success": "Электронный адрес скопирован в буфер обмена!",
+	"body-profile-birthday-title": "День рождения Вики",
 	"body-profile-box-title-wikidata-item": "Элемент Викиданных",
 	"body-profile-section-title-territory": "Территория",
 	"body-profile-section-title-events": "События",
@@ -52,11 +54,10 @@
 	"edit-profile-main-projects": "Основные проекты",
 	"edit-profile-add-projects": "Добавить проекты",
 	"edit-profile-add-more-projects": "Добавить больше проектов",
-	"edit-profile-add-events": "Добавить события",
+	"edit-profile-add-events": "Создать новое событие",
 	"edit-profile-news": "Новости",
 	"edit-profile-insert-project": "Вставить проект",
 	"privacy-policy-link-toolforge": "Toolforge",
 	"filters-username": "Имя участника",
-	"statistics-users-title": "Пользователи",
-	"body-profile-birthday-title": "День рождения Вики"
+	"statistics-users-title": "Пользователи"
 }

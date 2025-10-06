@@ -1,8 +1,7 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
@@ -10,8 +9,8 @@ function AuthErrorContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const errorParam = searchParams.get('error');
-    setError(errorParam);
+    const errorParam = searchParams?.get('error');
+    if (errorParam) setError(errorParam);
   }, [searchParams]);
 
   const handleReturnHome = () => {

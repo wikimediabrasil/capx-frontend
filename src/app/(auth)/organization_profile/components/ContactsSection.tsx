@@ -1,15 +1,15 @@
-import Image from 'next/image';
-import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
-import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import ContactMetaIcon from '@/public/static/images/contact_meta.svg';
-import ContactMetaIconWhite from '@/public/static/images/contact_meta_white.svg';
+import { ProfileItem } from '@/components/ProfileItem';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import ContactEmailIcon from '@/public/static/images/contact_alternate_email.svg';
 import ContactEmailIconWhite from '@/public/static/images/contact_alternate_email_white.svg';
 import ContactPortalIcon from '@/public/static/images/contact_captive_portal.svg';
 import ContactPortalIconWhite from '@/public/static/images/contact_captive_portal_white.svg';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { ProfileItem } from '@/components/ProfileItem';
+import ContactMetaIcon from '@/public/static/images/contact_meta.svg';
+import ContactMetaIconWhite from '@/public/static/images/contact_meta_white.svg';
+import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import Image from 'next/image';
 
 interface ContactsSectionProps {
   email: string;
@@ -24,19 +24,11 @@ export const ContactsSection = ({ email, meta_page, website }: ContactsSectionPr
   const formatContactInfo = (info: string) => {
     if (!info) return '';
 
-    if (info.includes('@')) {
-      return {
-        display: info,
-        url: `mailto:${info}`,
-        isLink: true,
-      };
-    }
-
     if (info.startsWith('http://') || info.startsWith('https://')) {
       const url = new URL(info);
       return {
-        display: info.length > 30 ? url.hostname : info,
-        url: info,
+        display: info,
+        url: url.href,
         isLink: true,
       };
     }

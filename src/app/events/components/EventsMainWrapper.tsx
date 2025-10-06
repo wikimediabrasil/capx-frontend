@@ -27,8 +27,7 @@ export default function EventsMainWrapper() {
   const { data: session } = useSession();
   const { darkMode } = useTheme();
   const searchParams = useSearchParams();
-  const organizationId = searchParams.get('organization');
-  const capacityCode = searchParams.get('capacityId');
+  const organizationId = searchParams?.get('organization');
   const { pageContent } = useApp();
   const router = useRouter();
 
@@ -110,7 +109,7 @@ export default function EventsMainWrapper() {
       capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
     }));
 
-    const urlCapacityId = searchParams.get('capacityId');
+    const urlCapacityId = searchParams?.get('capacityId');
 
     // If the capacity removed is the same as the URL, update the URL
     if (urlCapacityId && urlCapacityId.toString() === capacityCode.toString()) {
@@ -204,7 +203,7 @@ export default function EventsMainWrapper() {
             <div className="flex flex-wrap gap-2 mb-4 items-center">
               {activeFilters.capacities.map((capacity, index) => (
                 <span
-                  key={index}
+                  key={capacity.code + index}
                   className={`
                     inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px]
                     ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}

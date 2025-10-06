@@ -1,36 +1,32 @@
-import { Event } from '@/types/event';
 import BaseButton from '@/components/BaseButton';
-import Image from 'next/image';
-import AlarmDarkIcon from '@/public/static/images/alarm_dark.svg';
-import AlarmLightIcon from '@/public/static/images/alarm.svg';
-import LocationDarkIcon from '@/public/static/images/location_on_dark.svg';
-import LocationLightIcon from '@/public/static/images/location_on.svg';
-import CalendarDarkIcon from '@/public/static/images/calendar_month_dark.svg';
-import CalendarLightIcon from '@/public/static/images/calendar_month.svg';
-import EmojiObjectsDarkIcon from '@/public/static/images/emoji_objects_events.svg';
-import EmojiObjectsLightIcon from '@/public/static/images/emoji_objects_white.svg';
-import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import { useOrganization } from '@/hooks/useOrganizationProfile';
-import MoreHorizIcon from '@/public/static/images/more_horiz.svg';
-import MoreHorizLightIcon from '@/public/static/images/more_horiz_light.svg';
-import ArrowDropDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
-import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import LoadingState from '@/components/LoadingState';
-import CheckBoxOutlineBlankIconLight from '@/public/static/images/check_box_outline_blank_light.svg';
+import { useApp } from '@/contexts/AppContext';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { getLocaleFromLanguage } from '@/lib/utils/dateLocale';
+import AlarmLightIcon from '@/public/static/images/alarm.svg';
+import AlarmDarkIcon from '@/public/static/images/alarm_dark.svg';
+import ArrowDropDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
+import CalendarLightIcon from '@/public/static/images/calendar_month.svg';
+import CalendarDarkIcon from '@/public/static/images/calendar_month_dark.svg';
 import CheckBoxIcon from '@/public/static/images/check_box.svg';
+import CheckBoxOutlineBlankIconLight from '@/public/static/images/check_box_outline_blank_light.svg';
+import DeleteIcon from '@/public/static/images/delete.svg';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconLight from '@/public/static/images/edit_white.svg';
-import DeleteIcon from '@/public/static/images/delete.svg';
-import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import { useTheme } from '@/contexts/ThemeContext';
-import {
-  formatDateForLanguage,
-  formatDateTimeForLanguage,
-  getLocaleFromLanguage,
-} from '@/lib/utils/dateLocale';
+import EmojiObjectsDarkIcon from '@/public/static/images/emoji_objects_events.svg';
+import EmojiObjectsLightIcon from '@/public/static/images/emoji_objects_white.svg';
+import LocationLightIcon from '@/public/static/images/location_on.svg';
+import LocationDarkIcon from '@/public/static/images/location_on_dark.svg';
+import MoreHorizIcon from '@/public/static/images/more_horiz.svg';
+import MoreHorizLightIcon from '@/public/static/images/more_horiz_light.svg';
+import { Event } from '@/types/event';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 interface EventCardProps {
   event: Partial<Event>;
@@ -56,7 +52,7 @@ export default function EventCard({
   const { darkMode } = useTheme();
   const token = session?.user?.token;
 
-  const { capacityNames, getCapacityName } = useCapacityDetails(event.related_skills || []);
+  const { getName: getCapacityName, updateLanguage, isLoaded } = useCapacityCache();
   const { organization } = useOrganization(token, event.organization);
 
   const [showAllCapacities, setShowAllCapacities] = useState(false);
@@ -67,6 +63,13 @@ export default function EventCard({
 
   const capacitiesContainerRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState(false);
+
+  // Update capacity cache language when component language changes
+  useEffect(() => {
+    if (language && token) {
+      updateLanguage(language);
+    }
+  }, [language, token, updateLanguage]);
 
   // Check if the event is in the organization's choose_events list
   useEffect(() => {
@@ -289,7 +292,7 @@ export default function EventCard({
                 !isHorizontalScroll && !isMobile ? 'flex-row gap-8' : 'flex-col gap-4'
               }`}
             >
-              <div className={`flex gap-4 flex-col`}>
+              <div className={`flex gap-4 flex-col min-w-fit`}>
                 {event.time_begin && event.time_end && (
                   <div className="flex flex-row gap-2">
                     <Image

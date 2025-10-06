@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Event } from '@/types/event';
 import { eventsService } from '@/services/eventService';
+import { Event } from '@/types/event';
+import { useCallback, useEffect, useState } from 'react';
 
 export function useOrganizationEvents(organizationId: number | string, token?: string) {
   const [events, setEvents] = useState<Event[]>([]);

@@ -27,7 +27,6 @@
 	"body-profile-section-title-contact": "İrtıbat",
 	"footer-link-documentation": "Dokumantasyon",
 	"footer-link-wikimedia": "Meta-wikimedia",
-	"aria-language-input": "Yew zıwan weçine",
 	"sign-in-button": "Cıkewtış",
 	"form-profile-languages": "Zıwani",
 	"body-profile-languages-title": "Zıwani",
@@ -42,9 +41,6 @@
 	"capacity-selection-modal-select-capacity-button-cancel": "Bıtexelne",
 	"capacity-selection-modal-loading": "Bar beno...",
 	"filters-username": "Nameyê karberi",
-	"pagination-previous": "Verên",
-	"pagination-next": "Bahdoyên",
-	"pagination-page": "Pele",
 	"events-banner-title": "Fealiyeti",
 	"organization-profile-event-popup-cancel": "Bıtexelne",
 	"report-bug-title": "Sername",
@@ -65,5 +61,9 @@
 	"statistics-messages-title": "Mesaci",
 	"statistics-new-label": "newe",
 	"date-picker-today": "Ewro",
-	"date-picker-date": "Tarix"
+	"date-picker-date": "Tarix",
+	"aria-language-input": "Yew zıwan weçine",
+	"pagination-previous": "Verên",
+	"pagination-next": "Bahdoyên",
+	"pagination-page": "Pele"
 }

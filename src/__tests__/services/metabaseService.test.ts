@@ -95,6 +95,49 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
 
       expect(result).toBe('Event with spaces');
     });
+
+    it('should extract title with Event namespace', () => {
+      const url = 'https://meta.wikimedia.org/wiki/Event:WikiCon_Brasil_2025';
+      const result = extractWikimediaTitleFromURL(url);
+
+      expect(result).toBe('Event:WikiCon Brasil 2025');
+    });
+
+    it('should handle Event namespace with special characters', () => {
+      const url =
+        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
+      const result = extractWikimediaTitleFromURL(url);
+
+      expect(result).toBe('Event:Wikipedia & Education User Group Showcase/September');
+    });
+
+    it('should handle URLs with fragment identifiers', () => {
+      const url = 'https://meta.wikimedia.org/wiki/Event:Test_Event#Section';
+      const result = extractWikimediaTitleFromURL(url);
+
+      expect(result).toBe('Event:Test Event');
+    });
+
+    it('should handle URLs with query parameters', () => {
+      const url = 'https://meta.wikimedia.org/wiki/Event:Test_Event?action=edit';
+      const result = extractWikimediaTitleFromURL(url);
+
+      expect(result).toBe('Event:Test Event');
+    });
+
+    it('should extract title from mobile Meta Wikimedia URLs', () => {
+      const mobileUrl = 'https://meta.m.wikimedia.org/wiki/Event:EduWiki_Workshop_October_2025';
+      const result = extractWikimediaTitleFromURL(mobileUrl);
+
+      expect(result).toBe('Event:EduWiki Workshop October 2025');
+    });
+
+    it('should extract title from mobile local Wikimedia URLs', () => {
+      const mobileUrl = 'https://br.m.wikimedia.org/wiki/WikiCon_Brasil_2025';
+      const result = extractWikimediaTitleFromURL(mobileUrl);
+
+      expect(result).toBe('WikiCon Brasil 2025');
+    });
   });
 
   describe('extractQIDFromURL', () => {
@@ -126,8 +169,19 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
       expect(isValidEventURL(url)).toBe(true);
     });
 
+    it('should validate Meta Wikimedia URLs with Event namespace', () => {
+      const url =
+        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
+      expect(isValidEventURL(url)).toBe(true);
+    });
+
     it('should validate local Wikimedia URLs', () => {
       const url = 'https://br.wikimedia.org/wiki/Event';
+      expect(isValidEventURL(url)).toBe(true);
+    });
+
+    it('should validate local Wikimedia URLs with Event namespace', () => {
+      const url = 'https://br.wikimedia.org/wiki/Event:WikiCon_Brasil_2025';
       expect(isValidEventURL(url)).toBe(true);
     });
 
@@ -139,6 +193,16 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     it('should validate Wikidata URLs', () => {
       const url = 'https://www.wikidata.org/wiki/Q123456';
       expect(isValidEventURL(url)).toBe(true);
+    });
+
+    it('should validate mobile Meta Wikimedia URLs', () => {
+      const mobileMetaUrl = 'https://meta.m.wikimedia.org/wiki/Event:EduWiki_Workshop_October_2025';
+      expect(isValidEventURL(mobileMetaUrl)).toBe(true);
+    });
+
+    it('should validate mobile local Wikimedia URLs', () => {
+      const mobileLocalUrl = 'https://br.m.wikimedia.org/wiki/WikiCon_Brasil_2025';
+      expect(isValidEventURL(mobileLocalUrl)).toBe(true);
     });
 
     it('should reject invalid URLs', () => {

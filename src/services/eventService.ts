@@ -1,6 +1,6 @@
+import { EventFilterState, EventLocationType } from '@/app/events/types';
 import { Event } from '@/types/event';
 import axios from 'axios';
-import { EventFilterState, EventLocationType } from '@/app/events/types';
 
 interface EventsResponse {
   results: Event[];
@@ -144,8 +144,12 @@ export const eventsService = {
 
   async createEvent(event: Partial<Event>, token: string): Promise<Event> {
     const headers = { Authorization: `Token ${token}` };
+    const payload = {
+      ...event,
+      type_of_location: event.type_of_location || 'virtual',
+    };
     try {
-      const response = await axios.post('/api/events/', event, {
+      const response = await axios.post('/api/events/', payload, {
         headers,
       });
       return response.data;

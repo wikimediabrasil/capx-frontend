@@ -47,6 +47,7 @@
 	"body-loggedin-home-third-section-description": "Pasidalinkite savo idėjomis, komentarais ar pasiūlymais su mumis.",
 	"body-loggedin-home-third-section-button": "Siųsti el. laišką",
 	"body-loggedin-home-third-section-button-success": "El. paštas nukopijuotas į iškarpinę!",
+	"body-profile-birthday-title": "Viki gimtadienis",
 	"body-profile-box-title-wikidata-item": "Vikiduomenų elementas",
 	"body-profile-box-title-alt-wiki-acc": "Alternatyvi Vikimedijos paskyra",
 	"body-profile-section-title-territory": "Teritorija",
@@ -107,7 +108,6 @@
 	"footer-link-wikimedia": "Meta-Viki",
 	"footer-message": "Vikimedijos judėjimui ir jo dėka",
 	"footer-privacy-policy": "Privatumo politika",
-	"aria-language-input": "Pasirinkite kalbą",
 	"aria-label-profile-selector": "Pasirinkite profilį, kurį norite peržiūrėti",
 	"sign-out-button": "Atsijungti",
 	"sign-in-button": "Prisijungti",
@@ -149,6 +149,6 @@
 	"edit-profile-main-projects": "Pagrindiniai projektai",
 	"edit-profile-add-projects": "Pridėti projektus",
 	"edit-profile-add-more-projects": "Pridėti daugiau projektų",
-	"body-profile-birthday-title": "Viki gimtadienis",
-	"filters-territory": "Teritorija"
+	"filters-territory": "Teritorija",
+	"aria-language-input": "Pasirinkite kalbą"
 }
