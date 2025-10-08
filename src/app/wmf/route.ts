@@ -15,7 +15,7 @@ function csvEscape(value: any): string {
 
 async function isWMFAuthorized(session: any): Promise<boolean> {
   const endsWithWMF = (s?: string | null) =>
-    !!s && (s.trim().endsWith('(WMF)') || s.trim().endsWith('leoncio'));
+    !!s && (s.trim().endsWith('(WMF)') || s.trim().endsWith('WMF') || s.trim().endsWith('(WMB)'));
   if (endsWithWMF(session?.user?.name) || endsWithWMF(session?.user?.username)) return true;
 
   // Fallback check using display_name from profile
