@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import type { Session } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import axios from 'axios';
+import type { UserProfile } from '@/types/user';
+import type { Affiliations } from '@/types/affiliation';
+import { userService } from '@/services/userService';
+import { affiliationsListService } from '@/services/affiliationsListService';
 
 // Helper to safely CSV-escape fields
-function csvEscape(value: any): string {
+function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return '';
   const str = String(value);
   if (/[",\n]/.test(str)) {
@@ -13,16 +18,19 @@ function csvEscape(value: any): string {
   return str;
 }
 
-async function isWMFAuthorized(session: any): Promise<boolean> {
+async function isWMFAuthorized(session: Session): Promise<boolean> {
   const endsWithWMF = (s?: string | null) =>
     !!s && (s.trim().endsWith('(WMF)') || s.trim().endsWith('WMF') || s.trim().endsWith('(WMB)'));
   if (endsWithWMF(session?.user?.name) || endsWithWMF(session?.user?.username)) return true;
 
   // Fallback check using display_name from profile
   try {
-    const profileResp = await axios.get(`${process.env.BASE_URL}/users/${session.user.id}`, {
-      headers: { Authorization: `Token ${session.user.token}` },
-    });
+    const profileResp = await axios.get<UserProfile>(
+      `${process.env.BASE_URL}/users/${session.user.id}`,
+      {
+        headers: { Authorization: `Token ${session.user.token}` },
+      }
+    );
     const displayName: string | undefined = profileResp?.data?.display_name;
     return endsWithWMF(displayName);
   } catch (e: any) {
@@ -31,35 +39,11 @@ async function isWMFAuthorized(session: any): Promise<boolean> {
   }
 }
 
-async function fetchAffiliationsMap(token: string): Promise<Record<string, string>> {
-  const resp = await axios.get(`${process.env.BASE_URL}/list/affiliation/`, {
-    headers: { Authorization: `Token ${token}` },
-  });
-  return resp.data || {};
-}
+// Reuse server-side services to avoid duplication
+const fetchAffiliationsMap = (token: string) => affiliationsListService.fetchAll(token);
+const fetchAllUsers = (token: string) => userService.fetchAllUsersAllPagesServer(token);
 
-async function fetchAllUsers(token: string): Promise<any[]> {
-  const limit = 200;
-  let offset = 0;
-  let total = Infinity;
-  const users: any[] = [];
-
-  while (offset < total) {
-    const resp = await axios.get(`${process.env.BASE_URL}/users/`, {
-      headers: { Authorization: `Token ${token}` },
-      params: { limit, offset },
-    });
-
-    const { results = [], count } = resp.data || {};
-    if (typeof count === 'number') total = count;
-    users.push(...results);
-    if (!results.length) break;
-    offset += results.length;
-  }
-  return users;
-}
-
-function buildCsv(users: any[], affiliationsMap: Record<string, string>): string {
+function buildCsv(users: UserProfile[], affiliationsMap: Affiliations): string {
   const headers = [
     'Username',
     'Role',

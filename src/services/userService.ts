@@ -33,7 +33,9 @@ export const userService = {
       return null;
     }
   },
-  async fetchAllUsers(queryParams: FetchAllUsersParams) {
+  async fetchAllUsers(
+    queryParams: FetchAllUsersParams
+  ): Promise<{ count: number; results: UserProfile[] }> {
     if (!queryParams.token) return { count: 0, results: [] };
 
     const params = new URLSearchParams();
@@ -75,14 +77,13 @@ export const userService = {
     if (queryParams?.offset) {
       params.append('offset', queryParams.offset.toString());
     }
-    1;
 
     if (queryParams?.filters?.username) {
       params.append('username', queryParams.filters.username);
     }
 
     try {
-      const response = await axios.get(`/api/users/`, {
+      const response = await axios.get<{ count: number; results: UserProfile[] }>(`/api/users/`, {
         params,
         headers: {
           Authorization: `Token ${queryParams.token}`,
@@ -96,5 +97,36 @@ export const userService = {
       console.error('Error fetching users:', error);
       return { count: 0, results: [] };
     }
+  },
+  /**
+   * Server-side: fetch all users across all pages directly from backend (uses BASE_URL)
+   */
+  async fetchAllUsersAllPagesServer(token: string): Promise<UserProfile[]> {
+    if (!token) return [];
+    const limit = 200;
+    let offset = 0;
+    let total = Infinity as number;
+    const all: UserProfile[] = [];
+
+    while (offset < total) {
+      try {
+        const resp = await axios.get<{ results: UserProfile[]; count: number }>(
+          `${process.env.BASE_URL}/users/`,
+          {
+            headers: { Authorization: `Token ${token}` },
+            params: { limit, offset },
+          }
+        );
+        const { results = [], count } = resp.data || ({} as any);
+        if (typeof count === 'number') total = count;
+        all.push(...results);
+        if (!results.length) break;
+        offset += results.length;
+      } catch (error) {
+        console.error('Error fetching users (server, paged):', error);
+        break;
+      }
+    }
+    return all;
   },
 };
