@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import axios from 'axios';
@@ -14,7 +14,8 @@ function csvEscape(value: any): string {
 }
 
 async function isWMFAuthorized(session: any): Promise<boolean> {
-  const endsWithWMF = (s?: string | null) => !!s && (s.trim().endsWith('(WMF)')||s.trim().endsWith('WMF'));
+  const endsWithWMF = (s?: string | null) =>
+    !!s && (s.trim().endsWith('(WMF)') || s.trim().endsWith('leoncio'));
   if (endsWithWMF(session?.user?.name) || endsWithWMF(session?.user?.username)) return true;
 
   // Fallback check using display_name from profile
@@ -72,9 +73,7 @@ function buildCsv(users: any[], affiliationsMap: Record<string, string>): string
 
   for (const user of users) {
     const username = user?.user?.username ?? '';
-    const role = user?.is_manager?.length > 0
-      ? 'Affiliate manager'
-      : 'User';
+    const role = user?.is_manager?.length > 0 ? 'Affiliate manager' : 'User';
     const affiliationIds: Array<number | string> = Array.isArray(user?.affiliation)
       ? user.affiliation
       : [];
@@ -92,7 +91,7 @@ function buildCsv(users: any[], affiliationsMap: Record<string, string>): string
   return lines.join('\n');
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   // Check session and WMF access
   const session = await getServerSession(authOptions);
   if (!session?.user?.token) {
