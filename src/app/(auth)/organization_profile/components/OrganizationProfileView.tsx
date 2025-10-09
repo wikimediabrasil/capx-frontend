@@ -30,8 +30,15 @@ import EventsSection from './EventsSection';
 import { NewsSection } from './NewsSection';
 import ProjectsList from './ProjectsList';
 
-function HeaderSection({ pageContent, darkMode, organization,
- isOrgManager, organizationId, router, showSnackbar }) {
+function HeaderSection({
+  pageContent,
+  darkMode,
+  organization,
+  isOrgManager,
+  organizationId,
+  router,
+  showSnackbar,
+}) {
   return (
     <div className="flex flex-col md:flex-row gap-6">
       {/* Logo */}
@@ -92,9 +99,7 @@ function HeaderSection({ pageContent, darkMode, organization,
           }}
           label={pageContent['body-profile-copy-link']}
           customClass={`w-full font-[Montserrat] text-sm md:text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[32px] md:h-[64px] px-3 py-2 md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
-            darkMode
-              ? 'border-white text-white'
-              : 'border-capx-dark-box-bg text-capx-light-text'
+            darkMode ? 'border-white text-white' : 'border-capx-dark-box-bg text-capx-light-text'
           }`}
           imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
           imageAlt="Copy link icon"
@@ -108,9 +113,7 @@ function HeaderSection({ pageContent, darkMode, organization,
             label={pageContent['body-profile-edit-organization-button']}
             customClass={`w-full font-[Montserrat] text-sm md:text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[32px] md:h-[64px] px-3 py-2 md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-
 center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
-              darkMode
-                ? 'border-white text-white'
-                : 'border-capx-dark-box-bg text-capx-light-text'
+              darkMode ? 'border-white text-white' : 'border-capx-dark-box-bg text-capx-light-text'
             }`}
             imageUrl={darkMode ? EditIconWhite : EditIcon}
             imageAlt="Edit icon"
@@ -141,9 +144,7 @@ function ReportActivitySection({ organization, pageContent }) {
           {pageContent['organization-profile-report-activities-title']}
         </h2>
         <BaseButton
-          onClick={() =>
-            organization?.report && window.open(organization.report, '_blank')
-          }
+          onClick={() => organization?.report && window.open(organization.report, '_blank')}
           label={pageContent['organization-profile-click-here']}
           customClass="inline-flex h-[32px] md:h-[64px] px-[19px] py-[8px] md:px-[32px] md:py-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[4px] md:rounded-[8px] bg-[#851970] text-[#F6F6F6] text-center font-[Montserrat] text-sm md:text-[24px] not-italic font-extrabold leading-[normal]"
         />
@@ -171,8 +172,8 @@ function CapacitiesSection({ organization, pageContent, darkMode, getCapacityNam
         title={pageContent['body-profile-available-capacities-title']}
         customClass={`font-[Montserrat] text-sm
  md:text-[24px] not-italic font-extrabold leading-[normal] md:leading-[29px] ${
-          darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-        }`}
+   darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+ }`}
       />
       <ProfileItem
         items={organization?.wanted_capacities || []}

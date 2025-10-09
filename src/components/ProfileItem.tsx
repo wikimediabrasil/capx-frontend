@@ -258,19 +258,17 @@ export function ProfileItem({
                 return (
                   <div
                     key={item.toString()}
-                className={
-                  [
-                    'capacity-item',
-                    'rounded-[8px]',
-                    'inline-flex',
-                    'px-[4px]',
-                    'py-[6px]',
-                    'items-center',
-                    'gap-[8px]',
-                    useDefaultStyle ? capacityStyle.backgroundColor : '',
-                    useDefaultStyle ? capacityStyle.textColor : ''
-                  ].join(' ')
-                }
+                    className={[
+                      'capacity-item',
+                      'rounded-[8px]',
+                      'inline-flex',
+                      'px-[4px]',
+                      'py-[6px]',
+                      'items-center',
+                      'gap-[8px]',
+                      useDefaultStyle ? capacityStyle.backgroundColor : '',
+                      useDefaultStyle ? capacityStyle.textColor : '',
+                    ].join(' ')}
                   >
                     <p
                       className={

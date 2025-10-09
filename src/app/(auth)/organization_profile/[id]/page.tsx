@@ -32,7 +32,6 @@ export default function OrganizationProfilePage() {
 
   const organization = organizations.find(org => org.id === organizationId);
 
-
   // Use cached capacity names
   const getCapacityName = useCallback(
     (id: any) => {
