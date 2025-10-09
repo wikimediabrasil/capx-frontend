@@ -22,6 +22,7 @@ import {
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { ensureArray } from '@/lib/utils/safeDataAccess';
+import { sanitizeContactUrls } from '@/lib/utils/sanitizeUrl';
 import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 import { Contacts } from '@/types/contacts';
 import { OrganizationDocument } from '@/types/document';
@@ -87,9 +88,7 @@ export default function EditOrganizationProfilePage() {
   // State for capacities
   const [isModalOpen, setIsModalOpen] = useState(false);
   type CapacityType = 'known' | 'available' | 'wanted';
-  const [currentCapacityType, setCurrentCapacityType] = useState<CapacityType>(
-    'known'
-  );
+  const [currentCapacityType, setCurrentCapacityType] = useState<CapacityType>('known');
 
   /* Setters */
 
@@ -479,10 +478,15 @@ export default function EditOrganizationProfilePage() {
       // Create a copy of the form data for updating
       const updatedFormData = { ...formData };
 
-      // Include contacts data in the organization update
-      updatedFormData.email = contactsData.email;
-      updatedFormData.meta_page = contactsData.meta_page;
-      updatedFormData.website = contactsData.website;
+      // Sanitize and include contacts data in the organization update
+      const sanitizedContacts = sanitizeContactUrls({
+        email: contactsData.email ?? '',
+        website: contactsData.website ?? '',
+        meta_page: contactsData.meta_page ?? '',
+      });
+      updatedFormData.email = sanitizedContacts.email;
+      updatedFormData.meta_page = sanitizedContacts.meta_page;
+      updatedFormData.website = sanitizedContacts.website;
 
       // Process documents data - create/update documents via API
       const validDocuments = documentsData.filter(doc => doc.url && doc.url.trim() !== '');
@@ -991,7 +995,9 @@ export default function EditOrganizationProfilePage() {
     ...(event.url && { url: event.url }),
     ...(event.image_url && { image_url: event.image_url }),
     ...(event.description && { description: event.description }),
-    ...(event.related_skills && Array.isArray(event.related_skills) && event.related_skills.length > 0 && { related_skills: event.related_skills }),
+    ...(event.related_skills &&
+      Array.isArray(event.related_skills) &&
+      event.related_skills.length > 0 && { related_skills: event.related_skills }),
     ...(event.time_end && { time_end: event.time_end }),
     ...(event.wikidata_qid && { wikidata_qid: event.wikidata_qid }),
     ...(event.openstreetmap_id && { openstreetmap_id: event.openstreetmap_id }),
@@ -1025,7 +1031,10 @@ export default function EditOrganizationProfilePage() {
           events: updatedEvents,
         }));
         await updateOrgEvents(updatedEvents);
-        showSnackbar(pageContent['snackbar-edit-profile-organization-create-event-success'], 'success');
+        showSnackbar(
+          pageContent['snackbar-edit-profile-organization-create-event-success'],
+          'success'
+        );
       }
     } catch (createError) {
       console.error('Error creating event:', createError);
@@ -1040,14 +1049,16 @@ export default function EditOrganizationProfilePage() {
       if (updatedEvent) {
         setEventsData(prev => prev.map(e => (e.id === updatedEvent.id ? updatedEvent : e)));
         showSnackbar(
-          pageContent['snackbar-edit-profile-organization-update-event-success'] || 'Evento atualizado com sucesso',
+          pageContent['snackbar-edit-profile-organization-update-event-success'] ||
+            'Evento atualizado com sucesso',
           'success'
         );
       }
     } catch (updateError) {
       console.error('Erro ao atualizar evento:', updateError);
       showSnackbar(
-        pageContent['snackbar-edit-profile-organization-update-event-failed'] || 'Erro ao atualizar evento',
+        pageContent['snackbar-edit-profile-organization-update-event-failed'] ||
+          'Erro ao atualizar evento',
         'error'
       );
     }
@@ -1070,7 +1081,8 @@ export default function EditOrganizationProfilePage() {
     } catch (error) {
       console.error('Erro ao salvar evento:', error);
       showSnackbar(
-        pageContent['snackbar-edit-profile-organization-save-event-failed'] || 'Erro ao salvar evento',
+        pageContent['snackbar-edit-profile-organization-save-event-failed'] ||
+          'Erro ao salvar evento',
         'error'
       );
     }
@@ -1246,7 +1258,9 @@ export default function EditOrganizationProfilePage() {
               setCurrentEditingEvent(null);
               editingEventRef.current = null;
             }}
-            aria-label={pageContent['organization-profile-event-popup-close-overlay'] || 'Close event modal'}
+            aria-label={
+              pageContent['organization-profile-event-popup-close-overlay'] || 'Close event modal'
+            }
             style={{ cursor: 'pointer' }}
           />
           <div
