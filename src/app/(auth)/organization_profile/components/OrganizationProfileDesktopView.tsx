@@ -20,6 +20,8 @@ import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ContactsSection } from './ContactsSection';
@@ -38,6 +40,7 @@ export default function OrganizationProfileDesktopView({
   isOrgManager,
   getCapacityName,
   allCapacityIds,
+  territories,
 }) {
   const router = useRouter();
   const { isLoading: isOrganizationLoading, refetch } = useOrganization(token, organizationId);
@@ -205,6 +208,46 @@ export default function OrganizationProfileDesktopView({
                 }`}
               />
             </div>
+
+            {/* Territory Section */}
+            {organization?.territory && organization.territory.length > 0 && (
+              <div className="mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Image
+                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                    alt="Territory icon"
+                    width={48}
+                    height={48}
+                    className="object-cover"
+                  />
+                  <h2
+                    className={`font-[Montserrat] text-[24px] font-bold ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['body-profile-section-title-territory']}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {organization.territory.map((territoryId, index) => (
+                    <div
+                      key={index}
+                      className={`rounded-[4px] px-[16px] py-[8px] ${
+                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
+                      }`}
+                    >
+                      <span
+                        className={`font-[Montserrat] text-[24px] ${
+                          darkMode ? 'text-white' : 'text-[#053749]'
+                        }`}
+                      >
+                        {territories[territoryId] || territoryId}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Projects */}
             <div className="space-y-6 mt-4">

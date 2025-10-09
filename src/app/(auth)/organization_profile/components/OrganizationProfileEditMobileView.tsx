@@ -34,6 +34,10 @@ import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
+import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import ProjectsFormItem from './ProjectsFormItem';
 import EventsList from '@/app/events/components/EventsList';
@@ -78,6 +82,7 @@ export default function OrganizationProfileEditMobileView({
   capacities,
   handleChooseEvent,
   handleViewAllEvents,
+  territories,
 }) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
@@ -437,17 +442,42 @@ export default function OrganizationProfileEditMobileView({
                     );
                   })}
                 </div>
-                <BaseButton
-                  onClick={() => handleAddCapacity('available')}
-                  label={pageContent['edit-profile-add-capacities']}
-                  customClass={`rounded-[4px] mt-2 flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-                    darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-[#053749]'
-                  }`}
-                  imageUrl={darkMode ? AddIcon : AddIconWhite}
-                  imageAlt="Add icon"
-                  imageWidth={20}
-                  imageHeight={20}
-                />
+                <div className="flex flex-col gap-2 mt-2 w-full">
+                  <BaseButton
+                    onClick={() => handleAddCapacity('available')}
+                    label={pageContent['edit-profile-add-capacities']}
+                    customClass={`rounded-[4px] flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
+                      darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-[#053749]'
+                    }`}
+                    imageUrl={darkMode ? AddIcon : AddIconWhite}
+                    imageAlt="Add icon"
+                    imageWidth={20}
+                    imageHeight={20}
+                  />
+                  <BaseButton
+                    onClick={() => {
+                      const knownCapacities = formData?.known_capacities || [];
+                      const availableCapacities = formData?.available_capacities || [];
+                      const newAvailable = Array.from(
+                        new Set([...availableCapacities, ...knownCapacities])
+                      );
+                      setFormData({ ...formData, available_capacities: newAvailable });
+                    }}
+                    label={
+                      pageContent['edit-profile-import-known-capacities'] ||
+                      'Import Known Capacities'
+                    }
+                    customClass={`rounded-[4px] flex w-full px-[13px] py-[6px] pb-[6px] items-center gap-[116px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
+                      darkMode
+                        ? 'bg-transparent border-white text-white border-2'
+                        : 'bg-transparent border-[#053749] text-[#053749] border-2'
+                    }`}
+                    imageUrl={darkMode ? AddIcon : AddIconWhite}
+                    imageAlt="Import known capacities"
+                    imageWidth={20}
+                    imageHeight={20}
+                  />
+                </div>
                 <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
                   {pageContent['body-profile-choose-skills']}
                 </p>
@@ -522,6 +552,114 @@ export default function OrganizationProfileEditMobileView({
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Territory Section */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative w-[32px] h-[32px]">
+                <Image
+                  src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                  alt="Territory icon"
+                  width={24}
+                  height={24}
+                />
+              </div>
+              <h2
+                className={`font-[Montserrat] text-[14px] font-bold ${
+                  darkMode ? 'text-white' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['body-profile-section-title-territory']}
+              </h2>
+            </div>
+
+            {/* Lista de territórios */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {formData.territory?.map((terr, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 p-2 rounded ${
+                    darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
+                  }`}
+                >
+                  <span className="font-[Montserrat] text-[12px]">{territories[terr]}</span>
+                  <button
+                    onClick={() => {
+                      const newTerritories = [...(formData.territory || [])];
+                      newTerritories.splice(index, 1);
+                      setFormData({
+                        ...formData,
+                        territory: newTerritories,
+                      });
+                    }}
+                    className="ml-2"
+                  >
+                    <Image
+                      src={darkMode ? CloseIconWhite : CloseIcon}
+                      alt="Remove territory"
+                      width={16}
+                      height={16}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Select para adicionar novo território */}
+            <div className="relative">
+              <select
+                value=""
+                onChange={e => {
+                  if (e.target.value) {
+                    const newTerritories = [...(formData.territory || [])];
+                    if (!newTerritories.includes(e.target.value)) {
+                      newTerritories.push(e.target.value);
+                      setFormData({
+                        ...formData,
+                        territory: newTerritories,
+                      });
+                    }
+                  }
+                }}
+                className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[14px] appearance-none ${
+                  darkMode
+                    ? 'bg-transparent border-white text-white opacity-50'
+                    : 'border-[#053749] text-[#829BA4]'
+                } border`}
+                style={{
+                  backgroundColor: darkMode ? '#053749' : 'white',
+                  color: darkMode ? 'white' : '#053749',
+                }}
+              >
+                <option value="">{pageContent['edit-profile-insert-item']}</option>
+                {Object.entries(territories).map(([id, name]) => (
+                  <option
+                    key={id}
+                    value={id}
+                    style={{
+                      backgroundColor: darkMode ? '#053749' : 'white',
+                      color: darkMode ? 'white' : '#053749',
+                    }}
+                  >
+                    {name as string}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <Image
+                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                  alt="Select"
+                  width={16}
+                  height={16}
+                />
+              </div>
+            </div>
+
+            {/* Tooltip */}
+            <p className={`text-[12px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-2`}>
+              {pageContent['edit-profile-territory']}
+            </p>
           </div>
 
           {/* Projects Section */}

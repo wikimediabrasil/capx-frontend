@@ -4,6 +4,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useTerritories } from '@/hooks/useTerritories';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -17,6 +18,7 @@ export default function OrganizationProfilePage() {
   const token = session?.user?.token;
   const capacityCache = useCapacityCache();
   const { isLoadingTranslations } = capacityCache;
+  const { territories, loading: territoriesLoading } = useTerritories(token);
 
   const params = useParams();
   const organizationId = Number(params?.id);
@@ -97,6 +99,7 @@ export default function OrganizationProfilePage() {
         isOrgManager={isOrgManager}
         getCapacityName={getCapacityName}
         allCapacityIds={allCapacityIds}
+        territories={territories || {}}
       />
     );
   }
@@ -112,6 +115,7 @@ export default function OrganizationProfilePage() {
       isOrgManager={isOrgManager}
       getCapacityName={getCapacityName}
       allCapacityIds={allCapacityIds}
+      territories={territories || {}}
     />
   );
 }

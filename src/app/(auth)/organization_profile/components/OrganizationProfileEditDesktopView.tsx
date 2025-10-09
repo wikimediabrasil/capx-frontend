@@ -1,47 +1,49 @@
-import { useTheme } from '@/contexts/ThemeContext';
+import EventsList from '@/app/events/components/EventsList';
+import BaseButton from '@/components/BaseButton';
+import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useApp } from '@/contexts/AppContext';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
-import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
-import SaveIcon from '@/public/static/images/save_as.svg';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { getProfileImage } from '@/lib/utils/getProfileImage';
+import AddIconWhite from '@/public/static/images/add.svg';
+import AddIcon from '@/public/static/images/add_dark.svg';
+import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
+import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import CancelIcon from '@/public/static/images/cancel.svg';
-import CancelIconWhite from '@/public/static/images/cancel_white.svg';
-import ReportIcon from '@/public/static/images/report.svg';
-import ReportIconWhite from '@/public/static/images/report_white.svg';
-import NeurologyIcon from '@/public/static/images/neurology.svg';
-import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
-import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import ContactMetaIcon from '@/public/static/images/contact_meta.svg';
-import ContactMetaIconWhite from '@/public/static/images/contact_meta_white.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import ContactEmailIcon from '@/public/static/images/contact_alternate_email.svg';
 import ContactEmailIconWhite from '@/public/static/images/contact_alternate_email_white.svg';
 import ContactPortalIcon from '@/public/static/images/contact_captive_portal.svg';
 import ContactPortalIconWhite from '@/public/static/images/contact_captive_portal_white.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
-import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import AddIcon from '@/public/static/images/add_dark.svg';
-import AddIconWhite from '@/public/static/images/add.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import BaseButton from '@/components/BaseButton';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import ContactMetaIcon from '@/public/static/images/contact_meta.svg';
+import ContactMetaIconWhite from '@/public/static/images/contact_meta_white.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
-import TargetIcon from '@/public/static/images/target.svg';
-import TargetIconWhite from '@/public/static/images/target_white.svg';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import ProjectsFormItem from './ProjectsFormItem';
-import { Capacity } from '@/types/capacity';
-import NewsFormItem from './NewsFormItem';
-import DocumentFormItem from './DocumentFormItem';
 import ExpandAllIcon from '@/public/static/images/expand_all.svg';
 import ExpandAllIconWhite from '@/public/static/images/expand_all_white.svg';
-import { useAvatars } from '@/hooks/useAvatars';
-import EventsList from '@/app/events/components/EventsList';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import ReportIcon from '@/public/static/images/report.svg';
+import ReportIconWhite from '@/public/static/images/report_white.svg';
+import SaveIcon from '@/public/static/images/save_as.svg';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import DocumentFormItem from './DocumentFormItem';
+import NewsFormItem from './NewsFormItem';
+import ProjectsFormItem from './ProjectsFormItem';
 
 export default function OrganizationProfileEditDesktopView({
   handleSubmit,
@@ -77,6 +79,7 @@ export default function OrganizationProfileEditDesktopView({
   handleEditEvent,
   handleChooseEvent,
   handleViewAllEvents,
+  territories,
 }) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -430,17 +433,41 @@ export default function OrganizationProfileEditDesktopView({
                 })}
               </div>
 
-              <BaseButton
-                onClick={() => handleAddCapacity('available')}
-                label={pageContent['edit-profile-add-capacities']}
-                customClass={`rounded-[8px] w-fit mt-2 flex !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
-                  darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-capx-dark-box-bg'
-                }`}
-                imageUrl={darkMode ? AddIcon : AddIconWhite}
-                imageAlt="Add icon"
-                imageWidth={32}
-                imageHeight={32}
-              />
+              <div className="flex gap-2 mt-2">
+                <BaseButton
+                  onClick={() => handleAddCapacity('available')}
+                  label={pageContent['edit-profile-add-capacities']}
+                  customClass={`rounded-[8px] w-fit flex !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
+                    darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-capx-dark-box-bg'
+                  }`}
+                  imageUrl={darkMode ? AddIcon : AddIconWhite}
+                  imageAlt="Add icon"
+                  imageWidth={32}
+                  imageHeight={32}
+                />
+                <BaseButton
+                  onClick={() => {
+                    const knownCapacities = formData?.known_capacities || [];
+                    const availableCapacities = formData?.available_capacities || [];
+                    const newAvailable = Array.from(
+                      new Set([...availableCapacities, ...knownCapacities])
+                    );
+                    setFormData({ ...formData, available_capacities: newAvailable });
+                  }}
+                  label={
+                    pageContent['edit-profile-import-known-capacities'] || 'Import Known Capacities'
+                  }
+                  customClass={`rounded-[8px] w-fit flex !px-[32px] !py-[16px] !pb-[16px] items-center gap-3 text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${
+                    darkMode
+                      ? 'bg-transparent border-white text-white border-2'
+                      : 'bg-transparent border-capx-dark-box-bg text-capx-dark-box-bg border-2'
+                  }`}
+                  imageUrl={darkMode ? AddIcon : AddIconWhite}
+                  imageAlt="Import known capacities"
+                  imageWidth={32}
+                  imageHeight={32}
+                />
+              </div>
               <p className={`text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}>
                 {pageContent['body-profile-choose-skills']}
               </p>
@@ -515,6 +542,115 @@ export default function OrganizationProfileEditDesktopView({
                 {pageContent['edit-profile-wanted-capacities']}
               </p>
             </div>
+          </div>
+
+          {/* Territory Section */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative w-[48px] h-[48px]">
+                <Image
+                  src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                  alt="Territory icon"
+                  className="object-contain"
+                  width={48}
+                  height={48}
+                />
+              </div>
+              <h2
+                className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
+                  darkMode ? 'text-white' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['body-profile-section-title-territory']}
+              </h2>
+            </div>
+
+            {/* Lista de territórios */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {formData.territory?.map((terr, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 p-2 rounded ${
+                    darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
+                  }`}
+                >
+                  <span className="font-[Montserrat] text-[24px]">{territories[terr]}</span>
+                  <button
+                    onClick={() => {
+                      const newTerritories = [...(formData.territory || [])];
+                      newTerritories.splice(index, 1);
+                      setFormData({
+                        ...formData,
+                        territory: newTerritories,
+                      });
+                    }}
+                    className="ml-2"
+                  >
+                    <Image
+                      src={darkMode ? CloseIconWhite : CloseIcon}
+                      alt="Remove territory"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Select para adicionar novo território */}
+            <div className="relative">
+              <select
+                value=""
+                onChange={e => {
+                  if (e.target.value) {
+                    const newTerritories = [...(formData.territory || [])];
+                    if (!newTerritories.includes(e.target.value)) {
+                      newTerritories.push(e.target.value);
+                      setFormData({
+                        ...formData,
+                        territory: newTerritories,
+                      });
+                    }
+                  }
+                }}
+                className={`w-full px-4 py-2 rounded-[16px] font-[Montserrat] text-[24px] appearance-none ${
+                  darkMode
+                    ? 'bg-transparent border-white text-white opacity-50'
+                    : 'border-[#053749] text-[#829BA4]'
+                } border`}
+                style={{
+                  backgroundColor: darkMode ? '#053749' : 'white',
+                  color: darkMode ? 'white' : '#053749',
+                }}
+              >
+                <option value="">{pageContent['edit-profile-insert-item']}</option>
+                {Object.entries(territories).map(([id, name]) => (
+                  <option
+                    key={id}
+                    value={id}
+                    style={{
+                      backgroundColor: darkMode ? '#053749' : 'white',
+                      color: darkMode ? 'white' : '#053749',
+                    }}
+                  >
+                    {name as string}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                <Image
+                  src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+                  alt="Select"
+                  width={24}
+                  height={24}
+                />
+              </div>
+            </div>
+
+            {/* Tooltip */}
+            <p className={`text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-2`}>
+              {pageContent['edit-profile-territory']}
+            </p>
           </div>
 
           {/* Projects Section */}

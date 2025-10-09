@@ -12,6 +12,7 @@ import { useOrganizationEvents } from '@/hooks/useOrganizationEvents';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useProject, useProjects } from '@/hooks/useProjects';
 import { useTagDiff } from '@/hooks/useTagDiff';
+import { useTerritories } from '@/hooks/useTerritories';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import {
   getCapacityValidationErrorMessage,
@@ -55,6 +56,7 @@ export default function EditOrganizationProfilePage() {
   const { avatars } = useAvatars();
   const capacityCache = useCapacityCache();
   const { isLoadingTranslations } = capacityCache;
+  const { territories, loading: territoriesLoading } = useTerritories(token);
 
   /* State Management*/
 
@@ -1245,6 +1247,7 @@ export default function EditOrganizationProfilePage() {
           handleChooseEvent={handleChooseEvent}
           handleViewAllEvents={handleViewAllEvents}
           handleEditEvent={handleEditEvent}
+          territories={territories || {}}
         />
 
         {showEventModal && editingEventRef.current && (
@@ -1362,6 +1365,7 @@ export default function EditOrganizationProfilePage() {
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
+        territories={territories || {}}
       />
 
       {showEventModal && editingEventRef.current && (
