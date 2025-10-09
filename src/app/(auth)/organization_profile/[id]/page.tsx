@@ -7,18 +7,17 @@ import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
-import OrganizationProfileDesktopView from '../components/OrganizationProfileDesktopView';
-import OrganizationProfileMobileView from '../components/OrganizationProfileMobileView';
+import { useCallback, useEffect } from 'react';
+import OrganizationProfileView from '../components/OrganizationProfileView';
 
 export default function OrganizationProfilePage() {
   const { darkMode } = useTheme();
-  const { isMobile, pageContent, language } = useApp();
+  const { pageContent, language } = useApp();
   const { data: session } = useSession();
   const token = session?.user?.token;
   const capacityCache = useCapacityCache();
   const { isLoadingTranslations } = capacityCache;
-  const { territories, loading: territoriesLoading } = useTerritories(token);
+  const { territories } = useTerritories(token);
 
   const params = useParams();
   const organizationId = Number(params?.id);
@@ -33,15 +32,6 @@ export default function OrganizationProfilePage() {
 
   const organization = organizations.find(org => org.id === organizationId);
 
-  // Memoize the capacity IDs to prevent unnecessary re-renders
-  const allCapacityIds = useMemo(() => {
-    if (!organization) return [];
-    return [
-      ...(organization.known_capacities || []),
-      ...(organization.available_capacities || []),
-      ...(organization.wanted_capacities || []),
-    ];
-  }, [organization]);
 
   // Use cached capacity names
   const getCapacityName = useCallback(
@@ -87,34 +77,15 @@ export default function OrganizationProfilePage() {
     return <LoadingState fullScreen={true} />;
   }
 
-  if (isMobile) {
-    return (
-      <OrganizationProfileMobileView
-        pageContent={pageContent}
-        darkMode={darkMode}
-        isMobile={isMobile}
-        organization={organization}
-        organizationId={organizationId}
-        token={token}
-        isOrgManager={isOrgManager}
-        getCapacityName={getCapacityName}
-        allCapacityIds={allCapacityIds}
-        territories={territories || {}}
-      />
-    );
-  }
-
   return (
-    <OrganizationProfileDesktopView
+    <OrganizationProfileView
       pageContent={pageContent}
       darkMode={darkMode}
-      isMobile={isMobile}
       organization={organization}
       organizationId={organizationId}
       token={token}
       isOrgManager={isOrgManager}
       getCapacityName={getCapacityName}
-      allCapacityIds={allCapacityIds}
       territories={territories || {}}
     />
   );

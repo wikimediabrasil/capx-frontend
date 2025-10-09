@@ -33,8 +33,7 @@ import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import EventsForm from './EventsEditForm';
-import OrganizationProfileEditDesktopView from './OrganizationProfileEditDesktopView';
-import OrganizationProfileEditMobileView from './OrganizationProfileEditMobileView';
+import OrganizationProfileEditView from './OrganizationProfileEditView';
 
 interface ProfileOption {
   value: string;
@@ -87,7 +86,8 @@ export default function EditOrganizationProfilePage() {
 
   // State for capacities
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentCapacityType, setCurrentCapacityType] = useState<'known' | 'available' | 'wanted'>(
+  type CapacityType = 'known' | 'available' | 'wanted';
+  const [currentCapacityType, setCurrentCapacityType] = useState<CapacityType>(
     'known'
   );
 
@@ -743,13 +743,22 @@ export default function EditOrganizationProfilePage() {
 
   const handleEditEvent = (event: Event) => {
     // Ensure that the event has the related_skills property defined as an array
+    let relatedSkills: any[] = [];
+    if (Array.isArray(event.related_skills)) {
+      relatedSkills = event.related_skills;
+    } else if (typeof event.related_skills === 'string') {
+      try {
+        relatedSkills = JSON.parse(event.related_skills);
+      } catch {
+        relatedSkills = [];
+      }
+    } else {
+      relatedSkills = [];
+    }
+
     const eventToEdit = {
       ...event,
-      related_skills: Array.isArray(event.related_skills)
-        ? event.related_skills
-        : typeof event.related_skills === 'string'
-          ? JSON.parse(event.related_skills)
-          : [],
+      related_skills: relatedSkills,
     };
 
     editingEventRef.current = eventToEdit;
@@ -902,7 +911,8 @@ export default function EditOrganizationProfilePage() {
               [field]: Array.isArray(parsedValue) ? parsedValue : [],
             };
           } catch (e) {
-            // If it's not a valid JSON, use empty array
+            // If it's not a valid JSON, use empty array and log the error
+            console.error('Failed to parse related_skills JSON:', e);
             updated[index] = {
               ...updated[index],
               [field]: [],
@@ -955,7 +965,8 @@ export default function EditOrganizationProfilePage() {
         const parsedValue = JSON.parse(value);
         updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
       } catch (e) {
-        // If it's not a valid JSON, use empty array
+        // If it's not a valid JSON, use empty array and log the error
+        console.error('Failed to parse related_skills JSON in handleModalEventChange:', e);
         updatedValue = [];
       }
     }
@@ -970,120 +981,96 @@ export default function EditOrganizationProfilePage() {
     // The ref maintains the current data and the form handles its own state
   }, []);
 
+  // Helper to build new event data
+  const buildNewEventData = (event: Event) => ({
+    name: event.name,
+    time_begin: event.time_begin,
+    organization: Number(organizationId),
+    type_of_location: event.type_of_location || 'virtual',
+    creator: Number(session?.user?.id),
+    ...(event.url && { url: event.url }),
+    ...(event.image_url && { image_url: event.image_url }),
+    ...(event.description && { description: event.description }),
+    ...(event.related_skills && Array.isArray(event.related_skills) && event.related_skills.length > 0 && { related_skills: event.related_skills }),
+    ...(event.time_end && { time_end: event.time_end }),
+    ...(event.wikidata_qid && { wikidata_qid: event.wikidata_qid }),
+    ...(event.openstreetmap_id && { openstreetmap_id: event.openstreetmap_id }),
+  });
+
+  // Helper to update organization events
+  const updateOrgEvents = async (updatedEvents: number[]) => {
+    try {
+      const updatedOrgData = {
+        ...organization,
+        events: updatedEvents,
+      };
+      await updateOrganization(updatedOrgData);
+    } catch (err) {
+      console.error('Error updating organization with new event:', err);
+    }
+  };
+
+  // Helper to handle event creation
+  const handleCreateEvent = async (event: Event) => {
+    try {
+      const createdEvent = await createEvent(buildNewEventData(event));
+      if (createdEvent && createdEvent.id) {
+        setEventsData(prev => [...prev, createdEvent]);
+        const updatedEvents = [...(formData.events || [])];
+        if (!updatedEvents.includes(createdEvent.id)) {
+          updatedEvents.push(createdEvent.id);
+        }
+        setFormData(prev => ({
+          ...prev,
+          events: updatedEvents,
+        }));
+        await updateOrgEvents(updatedEvents);
+        showSnackbar(pageContent['snackbar-edit-profile-organization-create-event-success'], 'success');
+      }
+    } catch (createError) {
+      console.error('Error creating event:', createError);
+      showSnackbar(pageContent['snackbar-edit-profile-organization-create-event-failed'], 'error');
+    }
+  };
+
+  // Helper to handle event update
+  const handleUpdateEvent = async (event: Event) => {
+    try {
+      const updatedEvent = await updateEvent(event.id, event);
+      if (updatedEvent) {
+        setEventsData(prev => prev.map(e => (e.id === updatedEvent.id ? updatedEvent : e)));
+        showSnackbar(
+          pageContent['snackbar-edit-profile-organization-update-event-success'] || 'Evento atualizado com sucesso',
+          'success'
+        );
+      }
+    } catch (updateError) {
+      console.error('Erro ao atualizar evento:', updateError);
+      showSnackbar(
+        pageContent['snackbar-edit-profile-organization-update-event-failed'] || 'Erro ao atualizar evento',
+        'error'
+      );
+    }
+  };
+
   const handleSaveEventChanges = async () => {
     try {
-      if (!editingEventRef.current) return;
+      const event = editingEventRef.current;
+      if (!event) return;
 
-      if (editingEventRef.current.id === 0) {
-        // Create new event - only include safe fields
-        const newEventData = {
-          name: editingEventRef.current.name,
-          time_begin: editingEventRef.current.time_begin,
-          organization: Number(organizationId),
-          type_of_location: editingEventRef.current.type_of_location || 'virtual',
-          creator: Number(session?.user?.id),
-          // Only include optional fields if they have valid values
-          ...(editingEventRef.current.url && { url: editingEventRef.current.url }),
-          ...(editingEventRef.current.image_url && {
-            image_url: editingEventRef.current.image_url,
-          }),
-          ...(editingEventRef.current.description && {
-            description: editingEventRef.current.description,
-          }),
-          ...(editingEventRef.current.related_skills &&
-            Array.isArray(editingEventRef.current.related_skills) &&
-            editingEventRef.current.related_skills.length > 0 && {
-              related_skills: editingEventRef.current.related_skills,
-            }),
-          ...(editingEventRef.current.time_end && { time_end: editingEventRef.current.time_end }),
-          ...(editingEventRef.current.wikidata_qid && {
-            wikidata_qid: editingEventRef.current.wikidata_qid,
-          }),
-          ...(editingEventRef.current.openstreetmap_id && {
-            openstreetmap_id: editingEventRef.current.openstreetmap_id,
-          }),
-        };
-
-        try {
-          const createdEvent = await createEvent(newEventData);
-
-          if (createdEvent && createdEvent.id) {
-            setEventsData(prev => [...prev, createdEvent]);
-
-            // Update the formData with the new event
-            const updatedEvents = [...(formData.events || [])];
-            if (!updatedEvents.includes(createdEvent.id)) {
-              updatedEvents.push(createdEvent.id);
-            }
-
-            setFormData(prev => ({
-              ...prev,
-              events: updatedEvents,
-            }));
-
-            // Update the organization with the new event
-            try {
-              const updatedOrgData = {
-                ...organization,
-                events: updatedEvents,
-              };
-
-              await updateOrganization(updatedOrgData);
-            } catch (updateOrgError) {
-              console.error('Error updating organization with new event:', updateOrgError);
-            }
-
-            showSnackbar(
-              pageContent['snackbar-edit-profile-organization-create-event-success'],
-              'success'
-            );
-          }
-        } catch (createError) {
-          console.error('Error creating event:', createError);
-          showSnackbar(
-            pageContent['snackbar-edit-profile-organization-create-event-failed'],
-            'error'
-          );
-        }
+      if (event.id === 0) {
+        await handleCreateEvent(event);
       } else {
-        // Update existing event
-        try {
-          const updatedEvent = await updateEvent(
-            editingEventRef.current.id,
-            editingEventRef.current
-          );
-
-          if (updatedEvent) {
-            // Update the events list
-            setEventsData(prev =>
-              prev.map(event => (event.id === updatedEvent.id ? updatedEvent : event))
-            );
-
-            showSnackbar(
-              pageContent['snackbar-edit-profile-organization-update-event-success'] ||
-                'Evento atualizado com sucesso',
-              'success'
-            );
-          }
-        } catch (updateError) {
-          console.error('Erro ao atualizar evento:', updateError);
-          showSnackbar(
-            pageContent['snackbar-edit-profile-organization-update-event-failed'] ||
-              'Erro ao atualizar evento',
-            'error'
-          );
-        }
+        await handleUpdateEvent(event);
       }
 
-      // Close the modal and clear the event in edit
       setShowEventModal(false);
       setCurrentEditingEvent(null);
       editingEventRef.current = null;
     } catch (error) {
       console.error('Erro ao salvar evento:', error);
       showSnackbar(
-        pageContent['snackbar-edit-profile-organization-save-event-failed'] ||
-          'Erro ao salvar evento',
+        pageContent['snackbar-edit-profile-organization-save-event-failed'] || 'Erro ao salvar evento',
         'error'
       );
     }
@@ -1210,128 +1197,9 @@ export default function EditOrganizationProfilePage() {
     return <LoadingState fullScreen={true} />;
   }
 
-  if (isMobile) {
-    return (
-      <>
-        <OrganizationProfileEditMobileView
-          handleSubmit={handleSubmit}
-          handleRemoveCapacity={handleRemoveCapacity}
-          handleAddCapacity={handleAddCapacity}
-          handleAddDocument={handleAddDocument}
-          getCapacityName={getCapacityName}
-          formData={formData}
-          setFormData={setFormData}
-          contactsData={contactsData}
-          setContactsData={setContactsData}
-          documentsData={documentsData}
-          setDocumentsData={setDocumentsData}
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          currentCapacityType={currentCapacityType}
-          handleCapacitySelect={handleCapacitySelect}
-          projectsData={projectsData}
-          handleDeleteProject={handleDeleteProject}
-          handleProjectChange={handleProjectChange}
-          handleAddProject={handleAddProject}
-          diffTagsData={diffTagsData}
-          handleDeleteDiffTag={handleDeleteDiffTag}
-          handleDiffTagChange={handleDiffTagChange}
-          handleAddDiffTag={handleAddDiffTag}
-          eventsData={eventsData}
-          handleEventChange={handleEventChange}
-          handleAddEvent={handleAddEvent}
-          handleDeleteEvent={handleDeleteEvent}
-          handleDeleteDocument={handleDeleteDocument}
-          handleDocumentChange={handleDocumentChange}
-          capacities={capacityCache.getRootCapacities()}
-          handleChooseEvent={handleChooseEvent}
-          handleViewAllEvents={handleViewAllEvents}
-          handleEditEvent={handleEditEvent}
-          territories={territories || {}}
-        />
-
-        {showEventModal && editingEventRef.current && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black bg-opacity-50"
-              onClick={() => {
-                setShowEventModal(false);
-                setCurrentEditingEvent(null);
-                editingEventRef.current = null;
-              }}
-            />
-            <div
-              className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
-                darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
-              }`}
-            >
-              <button
-                onClick={() => {
-                  setShowEventModal(false);
-                  setCurrentEditingEvent(null);
-                  editingEventRef.current = null;
-                }}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-
-              <div className="mb-6">
-                <EventsForm
-                  key={`${editingEventRef.current.id}-${editingEventRef.current.organization}`}
-                  eventData={editingEventRef.current}
-                  index={0}
-                  onDelete={() => {
-                    setShowEventModal(false);
-                    setCurrentEditingEvent(null);
-                    editingEventRef.current = null;
-                  }}
-                  onChange={handleModalEventChange}
-                  eventType={editingEventRef.current?.id === 0 ? 'new' : 'edit'}
-                />
-              </div>
-
-              <div className="flex justify-end gap-4 mt-6 border-t pt-4">
-                <button
-                  onClick={() => {
-                    setShowEventModal(false);
-                    setCurrentEditingEvent(null);
-                    editingEventRef.current = null;
-                  }}
-                  className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
-                    darkMode
-                      ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
-                      : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
-                  }`}
-                >
-                  {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
-                </button>
-                <button
-                  onClick={handleSaveEventChanges}
-                  className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
-                >
-                  {editingEventRef.current?.id === 0
-                    ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'
-                    : pageContent['organization-profile-event-popup-save-changes'] ||
-                      'Save changes'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
   return (
     <>
-      <OrganizationProfileEditDesktopView
+      <OrganizationProfileEditView
         handleSubmit={handleSubmit}
         handleRemoveCapacity={handleRemoveCapacity}
         handleAddCapacity={handleAddCapacity}
@@ -1370,13 +1238,16 @@ export default function EditOrganizationProfilePage() {
 
       {showEventModal && editingEventRef.current && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black bg-opacity-50"
             onClick={() => {
               setShowEventModal(false);
               setCurrentEditingEvent(null);
               editingEventRef.current = null;
             }}
+            aria-label={pageContent['organization-profile-event-popup-close-overlay'] || 'Close event modal'}
+            style={{ cursor: 'pointer' }}
           />
           <div
             className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
