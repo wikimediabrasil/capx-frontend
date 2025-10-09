@@ -60,16 +60,11 @@ export default function EditOrganizationProfilePage() {
 
   /* State Management*/
 
-  // State for profile options
-  const [profileOptions, setProfileOptions] = useState<ProfileOption[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileOption | null>(null);
-
   // State for projects
   const [projectsData, setProjectsData] = useState<Project[]>([]);
   const projectsLoaded = useRef(false);
 
   // State for existing and new projects
-  const [newProjects, setNewProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<number>(0);
 
   // State for diff tags
@@ -190,13 +185,6 @@ export default function EditOrganizationProfilePage() {
         },
         ...managedOrgOptions,
       ];
-
-      setProfileOptions(options);
-
-      const currentOrgOption = options.find(opt => opt.value === `org_${organizationId}`);
-      if (currentOrgOption) {
-        setSelectedProfile(currentOrgOption);
-      }
     }
   }, [userProfile, organizations, organizationId, session?.user?.name, avatars]);
 
@@ -1223,7 +1211,6 @@ export default function EditOrganizationProfilePage() {
         contactsData={contactsData}
         setContactsData={setContactsData}
         documentsData={documentsData}
-        setDocumentsData={setDocumentsData}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         currentCapacityType={currentCapacityType}
@@ -1237,7 +1224,6 @@ export default function EditOrganizationProfilePage() {
         handleDiffTagChange={handleDiffTagChange}
         handleAddDiffTag={handleAddDiffTag}
         eventsData={eventsData}
-        handleEventChange={handleEventChange}
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
 import { Capacity } from '@/types/capacity';
 import axios from 'axios';
