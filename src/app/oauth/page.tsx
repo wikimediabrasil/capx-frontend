@@ -125,7 +125,7 @@ function OAuthContent() {
               router.push('/home');
             }
           } else {
-            let protocol = result.extra === 'capx-test.toolforge.org' ? 'https' : 'http';
+            let protocol = result.extra.includes('toolforge.org') ? 'https' : 'http';
             router.push(
               `${protocol}://${result.extra}/oauth?oauth_token=${oauth_token_request}&oauth_verifier=${oauth_verifier}`
             );
