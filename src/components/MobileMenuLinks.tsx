@@ -101,6 +101,11 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
       to: '/organization_list',
       active: true,
     },
+    {
+      title: pageContent['analytics-dashboard'],
+      to: '/data_analytics_dashboard',
+      active: true,
+    },
 
     {
       title: pageContent['navbar-link-dark-mode'],
