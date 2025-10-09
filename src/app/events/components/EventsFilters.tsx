@@ -19,9 +19,7 @@ import CheckBoxOutlineBlankIcon from '@/public/static/images/check_box_outline_b
 import CheckBoxOutlineBlankIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
 import CheckBoxIcon from '@/public/static/images/check_box.svg';
 import CheckBoxIconWhite from '@/public/static/images/check_box_light.svg';
-import { useSession } from 'next-auth/react';
 import BaseButton from '@/components/BaseButton';
-import { Capacity } from '@/types/capacity';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 
@@ -34,13 +32,10 @@ interface EventsFiltersProps {
 export function EventsFilters({ onClose, onApplyFilters, initialFilters }: EventsFiltersProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
-  const { data: session } = useSession();
-  const token = session?.user?.token;
 
   const [searchCapacity, setSearchCapacity] = useState('');
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
-  const [territory, setTerritory] = useState('');
 
   const { handleCapacitySelect } = useFilterCapacitySelection(
     filters.capacities,
@@ -101,7 +96,6 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
       organizationId: undefined,
     };
     setFilters(clearedFilters);
-    setTerritory('');
   };
 
   // Avoid multiple scrolls when the modal is open
