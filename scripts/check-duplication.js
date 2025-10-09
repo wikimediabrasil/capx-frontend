@@ -10,58 +10,107 @@ const MIN_LINES = 5; // Minimum lines to consider as duplication
 const MIN_TOKENS = 50; // Minimum tokens to consider as duplication
 
 /**
- * Validates that a command exists and is executable in the system PATH
+ * Gets a list of trusted directories to search for executables
+ * These are standard system directories that should be write-protected
+ *
+ * @returns {string[]} Array of trusted directory paths
+ */
+function getTrustedDirectories() {
+  // Standard system directories that are typically read-only for regular users
+  const dirs = [
+    '/usr/local/bin',
+    '/usr/bin',
+    '/bin',
+    '/usr/local/sbin',
+    '/usr/sbin',
+    '/sbin',
+  ];
+
+  // Add common package manager directories based on OS
+  // These are managed by package managers and are also considered trusted
+  if (process.platform === 'darwin') {
+    // macOS Homebrew paths (Intel and Apple Silicon)
+    dirs.push('/opt/homebrew/bin', '/usr/local/Homebrew/bin');
+  }
+
+  // Node.js global bin directory (cross-platform)
+  if (process.env.npm_config_prefix) {
+    dirs.push(path.join(process.env.npm_config_prefix, 'bin'));
+  }
+
+  return dirs;
+}
+
+/**
+ * Validates that a command exists in trusted system directories
  *
  * Security measures:
- * - Uses 'which' command to verify the executable exists
- * - Prevents execution of commands that don't exist in PATH
- * - Helps mitigate PATH manipulation attacks
+ * - Only searches in predefined, trusted system directories
+ * - Does NOT rely on PATH environment variable
+ * - Verifies file exists and is executable
+ * - Prevents PATH manipulation attacks
  *
  * @param {string} commandName - The name of the command to validate
  * @returns {string} The full path to the command
- * @throws {Error} If command is not found or not executable
+ * @throws {Error} If command is not found in trusted directories
  */
 function validateCommand(commandName) {
-  const result = spawnSync('which', [commandName], {
-    encoding: 'utf-8',
-    shell: false, // SECURITY: Disable shell to prevent command injection
-  });
+  const trustedDirs = getTrustedDirectories();
 
-  if (result.error || !result.stdout || result.status !== 0) {
-    throw new Error(`Command '${commandName}' not found or not executable in PATH`);
+  // Search for command in trusted directories only
+  for (const dir of trustedDirs) {
+    const commandPath = path.join(dir, commandName);
+
+    try {
+      // Check if file exists and is executable
+      if (fs.existsSync(commandPath)) {
+        const stats = fs.statSync(commandPath);
+        // Check if file is executable (mode includes execute bit)
+        if (stats.mode & fs.constants.S_IXUSR || stats.mode & fs.constants.S_IXGRP || stats.mode & fs.constants.S_IXOTH) {
+          return commandPath;
+        }
+      }
+    } catch (error) {
+      // Continue searching in other directories
+      continue;
+    }
   }
 
-  return result.stdout.trim();
+  throw new Error(
+    `Command '${commandName}' not found in trusted directories: ${trustedDirs.join(', ')}`
+  );
 }
 
 /**
  * Safely executes a command with security validation
  *
  * Security measures:
- * - Validates command exists before execution
+ * - Validates command exists in trusted directories only
+ * - Uses full absolute path for command execution
  * - Uses shell: false to prevent shell injection attacks
  * - Arguments are passed as array to prevent command injection
- * - All commands are validated against system PATH
+ * - Does NOT rely on PATH environment variable
  *
  * This approach addresses SonarCloud security warnings about PATH usage
- * by ensuring commands are validated before execution.
+ * by using only trusted, write-protected system directories.
  *
- * @param {string} command - The command to execute
+ * @param {string} command - The command name to execute
  * @param {string[]} args - Array of arguments for the command
  * @param {object} options - Options to pass to spawnSync
  * @returns {object} The result from spawnSync
  * @throws {Error} If command validation fails
  */
 function safeSpawn(command, args, options = {}) {
-  // SECURITY: Validate command exists and is executable
+  // SECURITY: Validate command exists in trusted directories and get full path
+  let commandPath;
   try {
-    validateCommand(command);
+    commandPath = validateCommand(command);
   } catch (error) {
     throw new Error(`Security validation failed: ${error.message}`);
   }
 
-  // SECURITY: Execute with shell: false to prevent shell injection
-  return spawnSync(command, args, {
+  // SECURITY: Execute using full absolute path with shell: false
+  return spawnSync(commandPath, args, {
     ...options,
     shell: false,
   });
