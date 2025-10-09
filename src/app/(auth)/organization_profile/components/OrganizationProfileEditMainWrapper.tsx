@@ -1211,6 +1211,7 @@ export default function EditOrganizationProfilePage() {
         contactsData={contactsData}
         setContactsData={setContactsData}
         documentsData={documentsData}
+        setDocumentsData={setDocumentsData}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         currentCapacityType={currentCapacityType}
@@ -1224,6 +1225,7 @@ export default function EditOrganizationProfilePage() {
         handleDiffTagChange={handleDiffTagChange}
         handleAddDiffTag={handleAddDiffTag}
         eventsData={eventsData}
+        handleEventChange={handleEventChange}
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}
