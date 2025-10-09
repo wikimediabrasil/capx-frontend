@@ -21,6 +21,11 @@ export const statisticsService = {
         new_messages: 0,
         total_organizations: 0,
         new_organizations: 0,
+        active_users: 0,
+        territory_user_counts: {},
+        language_user_counts: {},
+        skill_available_user_counts: {},
+        skill_wanted_user_counts: {},
       };
     }
   },

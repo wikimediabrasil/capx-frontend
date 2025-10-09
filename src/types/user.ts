@@ -57,5 +57,4 @@ export interface UserProfile {
   last_update: string;
   is_manager: number[];
   badges: number[];
-  last_login: string;
 }
