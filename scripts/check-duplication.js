@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -15,7 +15,15 @@ try {
   // Get list of changed files in the current branch compared to dev
   let changedFiles;
   try {
-    changedFiles = execSync('git diff --name-only dev...HEAD', { encoding: 'utf-8' })
+    const gitDiffResult = spawnSync('git', ['diff', '--name-only', 'dev...HEAD'], {
+      encoding: 'utf-8',
+    });
+
+    if (gitDiffResult.error) {
+      throw gitDiffResult.error;
+    }
+
+    changedFiles = gitDiffResult.stdout
       .split('\n')
       .filter(file => file.match(/\.(tsx?|jsx?)$/))
       .filter(file => file.length > 0);
@@ -23,9 +31,11 @@ try {
     console.log(
       '⚠️  Could not compare with dev branch. Checking all TypeScript/JavaScript files instead.'
     );
-    changedFiles = execSync('git ls-files "*.ts" "*.tsx" "*.js" "*.jsx"', { encoding: 'utf-8' })
-      .split('\n')
-      .filter(file => file.length > 0);
+    const gitLsResult = spawnSync('git', ['ls-files', '*.ts', '*.tsx', '*.js', '*.jsx'], {
+      encoding: 'utf-8',
+    });
+
+    changedFiles = gitLsResult.stdout.split('\n').filter(file => file.length > 0);
   }
 
   if (changedFiles.length === 0) {
@@ -39,17 +49,15 @@ try {
 
   // Run jscpd on the entire src directory to catch cross-file duplications
   // Configuration is in .jscpd.json file
-  const jscpdCommand = 'npx jscpd ./src';
-
   console.log('Running jscpd...\n');
 
-  let output;
-  try {
-    output = execSync(jscpdCommand, { encoding: 'utf-8', stdio: 'pipe' });
-  } catch (error) {
-    // jscpd might exit with error code if duplications are found
-    output = error.stdout || '';
-  }
+  const jscpdResult = spawnSync('npx', ['jscpd', './src'], {
+    encoding: 'utf-8',
+    stdio: 'pipe',
+  });
+
+  // jscpd might exit with error code if duplications are found, but we still want to continue
+  // to read the report
 
   // Parse jscpd report
   const reportPath = path.join(process.cwd(), 'jscpd-report', 'jscpd-report.json');
