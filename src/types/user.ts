@@ -27,6 +27,7 @@ interface UserData {
   is_staff: boolean;
   is_active: boolean;
   date_joined: string;
+  last_login: string;
 }
 
 interface Language {
@@ -55,5 +56,4 @@ export interface UserProfile {
   social: Social[];
   is_manager: number[];
   badges: number[];
-  last_login: string;
 }
