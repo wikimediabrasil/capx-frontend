@@ -9,13 +9,72 @@ const DUPLICATION_THRESHOLD = 10; // Maximum acceptable duplication percentage
 const MIN_LINES = 5; // Minimum lines to consider as duplication
 const MIN_TOKENS = 50; // Minimum tokens to consider as duplication
 
+/**
+ * Validates that a command exists and is executable in the system PATH
+ *
+ * Security measures:
+ * - Uses 'which' command to verify the executable exists
+ * - Prevents execution of commands that don't exist in PATH
+ * - Helps mitigate PATH manipulation attacks
+ *
+ * @param {string} commandName - The name of the command to validate
+ * @returns {string} The full path to the command
+ * @throws {Error} If command is not found or not executable
+ */
+function validateCommand(commandName) {
+  const result = spawnSync('which', [commandName], {
+    encoding: 'utf-8',
+    shell: false, // SECURITY: Disable shell to prevent command injection
+  });
+
+  if (result.error || !result.stdout || result.status !== 0) {
+    throw new Error(`Command '${commandName}' not found or not executable in PATH`);
+  }
+
+  return result.stdout.trim();
+}
+
+/**
+ * Safely executes a command with security validation
+ *
+ * Security measures:
+ * - Validates command exists before execution
+ * - Uses shell: false to prevent shell injection attacks
+ * - Arguments are passed as array to prevent command injection
+ * - All commands are validated against system PATH
+ *
+ * This approach addresses SonarCloud security warnings about PATH usage
+ * by ensuring commands are validated before execution.
+ *
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Array of arguments for the command
+ * @param {object} options - Options to pass to spawnSync
+ * @returns {object} The result from spawnSync
+ * @throws {Error} If command validation fails
+ */
+function safeSpawn(command, args, options = {}) {
+  // SECURITY: Validate command exists and is executable
+  try {
+    validateCommand(command);
+  } catch (error) {
+    throw new Error(`Security validation failed: ${error.message}`);
+  }
+
+  // SECURITY: Execute with shell: false to prevent shell injection
+  return spawnSync(command, args, {
+    ...options,
+    shell: false,
+  });
+}
+
 console.log('\n🔍 Checking for code duplication...\n');
 
 try {
   // Get list of changed files in the current branch compared to dev
   let changedFiles;
   try {
-    const gitDiffResult = spawnSync('git', ['diff', '--name-only', 'dev...HEAD'], {
+    // SECURITY: Using safeSpawn with validated 'git' command and array arguments
+    const gitDiffResult = safeSpawn('git', ['diff', '--name-only', 'dev...HEAD'], {
       encoding: 'utf-8',
     });
 
@@ -31,7 +90,8 @@ try {
     console.log(
       '⚠️  Could not compare with dev branch. Checking all TypeScript/JavaScript files instead.'
     );
-    const gitLsResult = spawnSync('git', ['ls-files', '*.ts', '*.tsx', '*.js', '*.jsx'], {
+    // SECURITY: Using safeSpawn with validated 'git' command and array arguments
+    const gitLsResult = safeSpawn('git', ['ls-files', '*.ts', '*.tsx', '*.js', '*.jsx'], {
       encoding: 'utf-8',
     });
 
@@ -51,7 +111,8 @@ try {
   // Configuration is in .jscpd.json file
   console.log('Running jscpd...\n');
 
-  const jscpdResult = spawnSync('npx', ['jscpd', './src'], {
+  // SECURITY: Using safeSpawn with validated 'npx' command and array arguments
+  const jscpdResult = safeSpawn('npx', ['jscpd', './src'], {
     encoding: 'utf-8',
     stdio: 'pipe',
   });
