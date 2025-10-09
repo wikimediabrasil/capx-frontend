@@ -204,40 +204,15 @@ export default function OrganizationProfileMobileView({
             {/* Territory Section */}
             {organization?.territory && organization.territory.length > 0 && (
               <div className="mt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image
-                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                    alt="Territory icon"
-                    width={20}
-                    height={20}
-                    className="object-cover"
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-territory']}
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {organization.territory.map((territoryId, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[4px] py-[6px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[14px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
-                        }`}
-                      >
-                        {territories[territoryId] || territoryId}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <ProfileItem
+                  items={organization.territory}
+                  icon={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                  title={pageContent['body-profile-section-title-territory']}
+                  getItemName={id => territories[id] || id}
+                  customClass={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]`}
+                  useDefaultStyle={false}
+                  itemCustomClass="font-[Montserrat] text-[14px] not-italic font-normal leading-[normal] break-all hover:underline text-[#003649]"
+                />
               </div>
             )}
 

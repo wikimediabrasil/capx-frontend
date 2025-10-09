@@ -212,40 +212,17 @@ export default function OrganizationProfileDesktopView({
             {/* Territory Section */}
             {organization?.territory && organization.territory.length > 0 && (
               <div className="mt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Image
-                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                    alt="Territory icon"
-                    width={48}
-                    height={48}
-                    className="object-cover"
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-territory']}
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {organization.territory.map((territoryId, index) => (
-                    <div
-                      key={index}
-                      className={`rounded-[4px] px-[16px] py-[8px] ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span
-                        className={`font-[Montserrat] text-[24px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
-                        }`}
-                      >
-                        {territories[territoryId] || territoryId}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                <ProfileItem
+                  items={organization.territory}
+                  icon={darkMode ? TerritoryIconWhite : TerritoryIcon}
+                  title={pageContent['body-profile-section-title-territory']}
+                  getItemName={id => territories[id] || id}
+                  customClass={`text-center text-[24px] not-italic font-extrabold leading-[29px] font-[Montserrat] ${
+                    darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                  }`}
+                  useDefaultStyle={false}
+                  itemCustomClass="font-[Montserrat] text-[24px] not-italic font-normal leading-[normal] break-all hover:underline text-[#003649]"
+                />
               </div>
             )}
 

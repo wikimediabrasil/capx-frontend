@@ -46,6 +46,8 @@ interface ProfileItemProps {
   showEmptyDataText?: boolean;
   customClass?: string;
   getItemName: (id: string | number) => string;
+  itemCustomClass?: string;
+  useDefaultStyle?: boolean;
 }
 
 export function ProfileItem({
@@ -55,6 +57,8 @@ export function ProfileItem({
   showEmptyDataText = true,
   customClass = '',
   getItemName,
+  itemCustomClass = '',
+  useDefaultStyle = true,
 }: ProfileItemProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -244,11 +248,11 @@ export function ProfileItem({
                 return (
                   <div
                     key={index}
-                    className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}
+                    className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${useDefaultStyle ? `${capacityStyle.backgroundColor} ${capacityStyle.textColor}` : ''}
                 `}
                   >
                     <p
-                      className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
+                      className={useDefaultStyle ? `font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}` : itemCustomClass}
                     >
                       {name}
                     </p>

@@ -88,6 +88,14 @@ export default function OrganizationProfileEditDesktopView({
   const { avatars } = useAvatars();
   const router = useRouter();
 
+  // Helper function to import known capacities to available
+  const handleImportKnownCapacities = () => {
+    const knownCapacities = formData?.known_capacities || [];
+    const availableCapacities = formData?.available_capacities || [];
+    const newAvailable = Array.from(new Set([...availableCapacities, ...knownCapacities]));
+    setFormData({ ...formData, available_capacities: newAvailable });
+  };
+
   return (
     <div
       className={`relative w-full overflow-x-hidden min-h-screen ${
@@ -446,14 +454,7 @@ export default function OrganizationProfileEditDesktopView({
                   imageHeight={32}
                 />
                 <BaseButton
-                  onClick={() => {
-                    const knownCapacities = formData?.known_capacities || [];
-                    const availableCapacities = formData?.available_capacities || [];
-                    const newAvailable = Array.from(
-                      new Set([...availableCapacities, ...knownCapacities])
-                    );
-                    setFormData({ ...formData, available_capacities: newAvailable });
-                  }}
+                  onClick={handleImportKnownCapacities}
                   label={
                     pageContent['edit-profile-import-known-capacities'] || 'Import Known Capacities'
                   }
