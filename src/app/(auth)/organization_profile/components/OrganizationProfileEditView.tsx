@@ -84,7 +84,7 @@ export default function OrganizationProfileEditView({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const { data: session } = useSession();
-  const { userProfile, isLoading: isUserLoading } = useUserProfile();
+  const { userProfile } = useUserProfile();
   const { avatars } = useAvatars();
   const router = useRouter();
 
@@ -103,71 +103,54 @@ export default function OrganizationProfileEditView({
       }`}
     >
       <section
-        className={`flex w-full h-full justify-between pb-6 pt-10 px-4 md:px-8 lg:px-12 max-w-screen-xl mx-auto`}
+        className={`flex w-full h-full justify-between pb-6 pt-20 lg:pt-10 px-4 md:px-8 lg:px-12 max-w-screen-xl mx-auto`}
       >
         <div className="flex flex-col gap-6 mx-auto w-full">
           {/* Header */}
           <div className="flex flex-col md:flex-row gap-6 md:gap-12 w-full">
-            {/* Logo Section */}
-            <div className="w-full md:w-1/2 flex-shrink-0">
-              <div className="rounded-md md:rounded-[16px] h-full items-center justify-center flex bg-[#EFEFEF]">
-                <div className="relative w-[127px] h-[78px] md:w-[300px] md:h-[165px]">
+            {/* Mobile Layout */}
+            <div className="flex flex-col gap-4 md:hidden w-full mt-4">
+              {/* User info and avatar */}
+              <div className="flex flex-row justify-between gap-4 items-center">
+                <div className="flex flex-col gap-2">
+                  <h1
+                    className={`font-[Montserrat] text-[16px] not-italic font-normal leading-[29px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['edit-profile-welcome']}
+                  </h1>
+                  <h2
+                    className={`font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {session?.user?.name}
+                  </h2>
+                </div>
+                <div className="relative w-[75px] h-[75px]">
                   <Image
-                    src={formatWikiImageUrl(formData?.profile_image || '')}
-                    alt="Organization logo"
-                    className="object-contain w-full rounded-lg"
+                    src={getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars)}
+                    alt="Avatar"
                     fill
-                    sizes="(max-width: 768px) 127px, 300px"
+                    sizes="75px"
                     priority
-                    loading="eager"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
-            </div>
-            <div className="w-full md:w-1/2 flex-1">
-              <div className="relative w-16 h-16 md:w-[114px] md:h-[114px] mb-4 md:mb-6">
+
+              {/* Organization name */}
+              <div className="flex items-center gap-2">
                 <Image
-                  src={getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars)}
-                  alt="User Profile Image"
-                  fill
-                  sizes="(max-width: 768px) 64px, 114px"
-                  priority
-                  className="object-contain w-full rounded-lg"
+                  src={darkMode ? UserCircleIconWhite : UserCircleIcon}
+                  alt="User circle icon"
+                  width={32}
+                  height={32}
+                  className="w-auto h-auto"
                 />
-              </div>
-              <div
-                className={`flex flex-col gap-2 text-base md:text-[30px] mb-4 md:mb-6 ${
-                  darkMode ? 'text-white' : 'text-[#053749]'
-                }`}
-              >
-                <h1
-                  className={`font-[Montserrat] not-italic font-normal leading-[normal] md:leading-[29px] ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['edit-profile-welcome']}
-                </h1>
-                <h2
-                  className={`font-[Montserrat] not-italic font-extrabold leading-[normal] ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {session?.user?.name}
-                </h2>
-              </div>
-
-              <div className="flex items-center gap-2 mb-4">
-                <div className="relative w-5 h-5 md:w-[42px] md:h-[42px] flex-shrink-0">
-                  <Image
-                    src={darkMode ? UserCircleIconWhite : UserCircleIcon}
-                    alt="User circle icon"
-                    className="object-contain"
-                    fill
-                  />
-                </div>
-
                 <span
-                  className={`text-start font-[Montserrat] text-base md:text-[24px] font-extrabold ${
+                  className={`text-start font-[Montserrat] text-[16px] font-extrabold ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
@@ -175,12 +158,27 @@ export default function OrganizationProfileEditView({
                 </span>
               </div>
 
+              {/* Organization logo */}
+              <div className="w-full h-[78px] bg-[#EFEFEF] flex items-center justify-center rounded-md">
+                <div className="relative h-[51px] w-[127px]">
+                  <Image
+                    src={formatWikiImageUrl(formData?.profile_image || '')}
+                    alt="Organization logo"
+                    width={127}
+                    height={51}
+                    className="w-full rounded-lg object-contain"
+                    priority
+                    loading="eager"
+                  />
+                </div>
+              </div>
+
               {/* Save/Cancel Buttons */}
-              <div className="flex flex-col gap-4 mt-4">
+              <div className="flex flex-col gap-[10px] mt-4">
                 <BaseButton
                   onClick={handleSubmit}
-                  label={pageContent['edit-profile-save']}
-                  customClass={`flex bg-[#851970] items-center justify-between text-white px-4 py-2 rounded-[8px] font-[Montserrat] text-sm md:text-[24px] font-bold px-3 py-2 md:!px-[32px] md:!py-[16px] w-full md:!w-3/4 h-auto !mb-0`}
+                  label={pageContent['edit-profile-save-organization']}
+                  customClass={`w-full flex items-center px-[13px] py-[6px] bg-[#851970] text-white rounded-md font-bold !mb-0 justify-between font-[Montserrat] text-[14px] !pb-2`}
                   imageUrl={SaveIcon}
                   imageAlt="Save icon"
                   imageWidth={20}
@@ -189,12 +187,106 @@ export default function OrganizationProfileEditView({
                 <BaseButton
                   onClick={() => router.back()}
                   label={pageContent['edit-profile-cancel']}
-                  customClass={`flex border rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg px-3 py-2 md:!px-[32px] md:!py-[16px] rounded-[8px] font-[Montserrat] text-sm md:text-[24px] w-full md:w-3/4 font-bold pb-[6px]`}
+                  customClass={`flex border rounded-[4px] !mb-0 border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg px-4 py-2 rounded-md font-[Montserrat] text-[14px] font-bold !pb-2`}
                   imageUrl={CancelIcon}
                   imageAlt="Cancel icon"
                   imageWidth={20}
                   imageHeight={20}
                 />
+              </div>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden md:flex md:flex-row gap-12 w-full">
+              {/* Logo Section */}
+              <div className="w-1/2 flex-shrink-0">
+                <div className="rounded-[16px] h-full items-center justify-center flex bg-[#EFEFEF]">
+                  <div className="relative w-[300px] h-[165px]">
+                    <Image
+                      src={formatWikiImageUrl(formData?.profile_image || '')}
+                      alt="Organization logo"
+                      className="object-contain w-full rounded-lg"
+                      fill
+                      sizes="300px"
+                      priority
+                      loading="eager"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-1/2 flex-1">
+                <div className="relative w-[114px] h-[114px] mb-6">
+                  <Image
+                    src={getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars)}
+                    alt="User Profile Image"
+                    fill
+                    sizes="114px"
+                    priority
+                    className="object-contain w-full rounded-lg"
+                  />
+                </div>
+                <div
+                  className={`flex flex-col gap-2 text-[30px] mb-6 ${
+                    darkMode ? 'text-white' : 'text-[#053749]'
+                  }`}
+                >
+                  <h1
+                    className={`font-[Montserrat] not-italic font-normal leading-[29px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['edit-profile-welcome']}
+                  </h1>
+                  <h2
+                    className={`font-[Montserrat] not-italic font-extrabold leading-[normal] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {session?.user?.name}
+                  </h2>
+                </div>
+
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="relative w-[42px] h-[42px] flex-shrink-0">
+                    <Image
+                      src={darkMode ? UserCircleIconWhite : UserCircleIcon}
+                      alt="User circle icon"
+                      className="object-contain"
+                      fill
+                    />
+                  </div>
+
+                  <span
+                    className={`text-start font-[Montserrat] text-[24px] font-extrabold ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {formData?.display_name}
+                  </span>
+                </div>
+
+                {/* Save/Cancel Buttons */}
+                <div className="flex flex-col gap-4 mt-4">
+                  <BaseButton
+                    onClick={handleSubmit}
+                    label={pageContent['edit-profile-save-organization']}
+                    customClass={`flex bg-[#851970] items-center justify-between text-white rounded-[8px] font-[Montserrat] text-[24px] font-bold px-[32px] py-[16px] w-3/4 h-auto !mb-0`}
+                    imageUrl={SaveIcon}
+                    imageAlt="Save icon"
+                    imageWidth={20}
+                    imageHeight={20}
+                  />
+                  <BaseButton
+                    onClick={() => router.back()}
+                    label={pageContent['edit-profile-cancel']}
+                    customClass={`flex border rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg px-[32px] py-[16px] rounded-[8px] font-[Montserrat] text-[24px] w-3/4 font-bold pb-[6px]`}
+                    imageUrl={CancelIcon}
+                    imageAlt="Cancel icon"
+                    imageWidth={20}
+                    imageHeight={20}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -233,7 +325,7 @@ export default function OrganizationProfileEditView({
                 }
               />
               <p
-                className={`text-xs md:text-[20px] ${
+                className={`text-xs md:text-[20px] md:leading-relaxed ${
                   darkMode ? 'text-white' : 'text-[#053749]'
                 } mt-1`}
               >
@@ -303,7 +395,7 @@ export default function OrganizationProfileEditView({
               onChange={e => setFormData({ ...formData, report: e.target.value })}
             />
             <p
-              className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
+              className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
             >
               {pageContent['organization-profile-provide-meta-link']}
             </p>
@@ -392,7 +484,7 @@ export default function OrganizationProfileEditView({
                           <BaseButton
                             onClick={() => handleRemoveCapacity(type, index)}
                             label={displayName}
-                            customClass={`rounded-[4px] border-[1px] border-[solid] flex p-2 md:!p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-xs md:text-[24px] not-italic font-normal leading-[normal] !mb-0 ${borderColorClass}`}
+                            customClass={`rounded-[4px] border-[1px] border-[solid] flex p-1 !pb-1 md:!p-[8px] justify-center items-center gap-[4px] font-[Montserrat] text-xs md:text-[24px] not-italic font-normal leading-[normal] !mb-0 ${borderColorClass}`}
                             imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                             imageAlt="Close icon"
                             imageWidth={12}
@@ -435,7 +527,7 @@ export default function OrganizationProfileEditView({
                     )}
                   </div>
                   <p
-                    className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
+                    className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
                   >
                     {helpText}
                   </p>
@@ -515,7 +607,7 @@ export default function OrganizationProfileEditView({
                     }
                   }
                 }}
-                className={`w-full px-4 py-2 rounded-md md:rounded-[16px] font-[Montserrat] text-xs md:text-[24px] appearance-none ${
+                className={`w-full px-4 py-2 rounded-md md:rounded-[8px] font-[Montserrat] text-xs md:text-[24px] md:py-4 appearance-none ${
                   darkMode
                     ? 'bg-transparent border-white text-white opacity-50'
                     : 'border-[#053749] text-[#829BA4]'
@@ -525,7 +617,9 @@ export default function OrganizationProfileEditView({
                   color: darkMode ? 'white' : '#053749',
                 }}
               >
-                <option value="">{pageContent['edit-profile-insert-item']}</option>
+                <option value="" >
+                  {pageContent['edit-profile-insert-item']}
+                </option>
                 {Object.entries(territories).map(([id, name]) => (
                   <option
                     key={id}
@@ -533,6 +627,7 @@ export default function OrganizationProfileEditView({
                     style={{
                       backgroundColor: darkMode ? '#053749' : 'white',
                       color: darkMode ? 'white' : '#053749',
+                      fontSize: 'medium',
                     }}
                   >
                     {name as string}
@@ -551,7 +646,7 @@ export default function OrganizationProfileEditView({
             </div>
 
             <p
-              className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-2`}
+              className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-2`}
             >
               {pageContent['edit-profile-territory']}
             </p>
@@ -602,7 +697,7 @@ export default function OrganizationProfileEditView({
               />
             </div>
             <p
-              className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
+              className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
             >
               {pageContent['edit-profile-display-links']}
             </p>
@@ -664,7 +759,7 @@ export default function OrganizationProfileEditView({
             </div>
 
             <p
-              className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-4`}
+              className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-4`}
             >
               {pageContent['edit-profile-display-events']}
             </p>
@@ -714,7 +809,7 @@ export default function OrganizationProfileEditView({
               imageHeight={20}
             />
             <p
-              className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
+              className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
             >
               {pageContent['edit-profile-enter-diff-tags']}
             </p>
@@ -775,7 +870,7 @@ export default function OrganizationProfileEditView({
               );
             })()}
             <p
-              className={`text-xs md:text-[20px] ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
+              className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
             >
               {pageContent['edit-profile-share-documents-tooltop']}
             </p>
@@ -815,7 +910,7 @@ export default function OrganizationProfileEditView({
               ].map(({ icon, field, placeholder }) => (
                 <div
                   key={field}
-                  className={`flex flex-row border-[1px] border-[solid] w-full px-3 py-4 md:px-[12px] md:py-[24px] items-center gap-3 md:gap-[12px] rounded-md md:rounded-[16px] ${
+                  className={`flex flex-row border-[1px] border-[solid] w-full px-1 lg:px-3 py-1 lg:py-4 md:px-[12px] md:py-[24px] items-center gap-3 md:gap-[12px] rounded-md md:rounded-[16px] ${
                     darkMode
                       ? 'bg-capx-dark-box-bg border-white'
                       : 'bg-[#FFF] border-capx-dark-box-bg'
@@ -850,11 +945,11 @@ export default function OrganizationProfileEditView({
           </section>
 
           {/* Save/Cancel Buttons (Bottom) */}
-          <div className="flex flex-col md:flex-row gap-2 mt-6 w-full md:w-[50%]">
+          <div className="flex flex-col md:flex-row gap-2 mt-6 w-full md:w-[50%] lg:w-[50%]">
             <BaseButton
               onClick={handleSubmit}
-              label={pageContent['edit-profile-save']}
-              customClass="flex border w-full md:w-1/2 rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#851970] items-center justify-between text-white px-3 py-2 md:!px-[32px] md:!py-[16px] rounded-md font-[Montserrat] text-sm md:text-[24px] font-bold pb-[6px]"
+              label={pageContent['edit-profile-save-organization']}
+              customClass="flex border w-full md:w-1/2 rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#851970] items-center justify-between text-white px-3 py-2 md:!px-[32px] md:!py-[16px] md:pb-4 rounded-md font-[Montserrat] text-sm md:text-[24px] font-bold pb-[6px]"
               imageUrl={SaveIcon}
               imageAlt={pageContent['alt-save'] || 'Save changes'}
               imageWidth={20}
@@ -863,7 +958,7 @@ export default function OrganizationProfileEditView({
             <BaseButton
               onClick={() => router.back()}
               label={pageContent['edit-profile-cancel']}
-              customClass="flex border w-full md:w-1/2 rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg px-3 py-2 md:!px-[32px] md:!py-[16px] rounded-md font-[Montserrat] text-sm md:text-[24px] font-bold pb-[6px]"
+              customClass="flex border w-full md:w-1/2 rounded-[4px] border-[1.5px] border-[solid] border-capx-dark-box-bg bg-[#FFF] items-center justify-between text-capx-dark-box-bg px-3 py-2 md:!px-[32px] md:!py-[16px] md:pb-4 rounded-md font-[Montserrat] text-sm md:text-[24px] font-bold pb-[6px]"
               imageUrl={CancelIcon}
               imageAlt={pageContent['alt-cancel'] || 'Cancel operation'}
               imageWidth={20}

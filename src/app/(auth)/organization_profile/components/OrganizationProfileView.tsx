@@ -41,26 +41,6 @@ function HeaderSection({
 }) {
   return (
     <div className="flex flex-col md:flex-row gap-6">
-      {/* Logo */}
-      <div className="w-full">
-        <div className="relative h-[78px] w-full md:h-[326px] md:w-[595px] bg-[#EFEFEF] rounded-md md:rounded-[16px] flex items-center justify-center">
-          {organization?.profile_image ? (
-            <Image
-              src={formatWikiImageUrl(organization.profile_image) || NoAvatarIcon}
-              alt="Organization logo"
-              className="object-contain p-4 md:p-24"
-              fill
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400 text-xs md:text-base">
-                {pageContent['logo-not-available']}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Content */}
       <div className="w-full flex flex-col gap-4 justify-center">
@@ -91,6 +71,27 @@ function HeaderSection({
           </span>
         </div>
 
+      {/* Logo */}
+      <div className="w-full">
+        <div className="relative h-[78px] w-full md:h-[326px] md:w-[595px] bg-[#EFEFEF] rounded-md md:rounded-[16px] flex items-center justify-center">
+          {organization?.profile_image ? (
+            <Image
+              src={formatWikiImageUrl(organization.profile_image) || NoAvatarIcon}
+              alt="Organization logo"
+              className="object-contain p-4 md:p-24"
+              fill
+              priority
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-400 text-xs md:text-base">
+                {pageContent['logo-not-available']}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
         <BaseButton
           onClick={() => {
             const url = window.location.href;
@@ -98,7 +99,7 @@ function HeaderSection({
             showSnackbar(pageContent['body-profile-copy-link-success'], 'success');
           }}
           label={pageContent['body-profile-copy-link']}
-          customClass={`w-full font-[Montserrat] text-sm md:text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[32px] md:h-[64px] px-3 py-2 md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
+          customClass={`w-full font-[Montserrat] text-sm md:text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[32px] md:h-[64px] px-3 py-4 md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
             darkMode ? 'border-white text-white' : 'border-capx-dark-box-bg text-capx-light-text'
           }`}
           imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
@@ -111,7 +112,7 @@ function HeaderSection({
           <BaseButton
             onClick={() => router.push(`/organization_profile/${organizationId}/edit`)}
             label={pageContent['body-profile-edit-organization-button']}
-            customClass={`w-full font-[Montserrat] text-sm md:text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[32px] md:h-[64px] px-3 py-2 md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-
+            customClass={`w-full font-[Montserrat] text-sm md:text-[20px] not-italic font-extrabold leading-[normal] inline-flex h-[32px] md:h-[64px] px-3 py-4 md:px-2 lg:py-2 xl:px-8 xl:py-4 pb-0 justify-
 center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid] ${
               darkMode ? 'border-white text-white' : 'border-capx-dark-box-bg text-capx-light-text'
             }`}

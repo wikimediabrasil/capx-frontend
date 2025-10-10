@@ -12,7 +12,7 @@ const CAPACITY_STYLES = {
     textColor: 'text-white',
   },
   available: {
-    backgroundColor: 'bg-[#05A300]',
+    backgroundColor: 'bg-[#075F36]',
     textColor: 'text-white',
   },
   wanted: {
@@ -217,7 +217,7 @@ export function ProfileItem({
           <div className="relative h-5 w-5 md:h-[42px] md:w-[42px]">
             <Image
               src={icon}
-              alt={pageContent['alt-capacity']?.replace('{capacityType}', title) || `${title} icon`}
+              alt={title + '' + pageContent['alt-capacity'] || `${title} icon`}
               className="object-contain"
               fill
             />
@@ -270,7 +270,7 @@ export function ProfileItem({
                       useDefaultStyle ? capacityStyle.textColor : '',
                     ].join(' ')}
                   >
-                    <p
+                    <h2
                       className={
                         useDefaultStyle
                           ? `font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`
@@ -278,7 +278,7 @@ export function ProfileItem({
                       }
                     >
                       {name}
-                    </p>
+                    </h2>
                   </div>
                 );
               })
