@@ -26,6 +26,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useSession } from 'next-auth/react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
+import LoadingState from '@/components/LoadingState';
 
 export default function AnalyticsDashboardPage() {
   const { data: session, status: sessionStatus } = useSession();
@@ -108,6 +109,8 @@ export default function AnalyticsDashboardPage() {
   const availableCount = data?.skill_available_user_counts;
   const wantedCount = data?.skill_wanted_user_counts;
 
+  if (!data) return <LoadingState />;
+
   return (
     <section className="w-full flex flex-col min-h-screen gap-4 pt-24 md:pt-8 mx-auto md:max-w-[1200px]">
       <Banner
@@ -120,7 +123,7 @@ export default function AnalyticsDashboardPage() {
         }}
       />
 
-      <div className="flex flex-row justify-center md:justify-start gap-4 md:gap-60 py-8 px-4 w-full">
+      <div className="flex flex-row justify-between md:justify-start gap-10 md:gap-60 py-8 px-4 w-full">
         {/* Total Users */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left">
           <p
@@ -136,6 +139,11 @@ export default function AnalyticsDashboardPage() {
             }`}
           >
             {formatNumber(data?.total_users ?? 0)}
+          </p>
+          <p
+            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#0B8E46]`}
+          >
+            {pageContent['analytics-bashboard-total-users-sub']}
           </p>
         </div>
 
@@ -155,6 +163,11 @@ export default function AnalyticsDashboardPage() {
           >
             {formatNumber(data?.new_users ?? 0)}
           </p>
+          <p
+            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#D43831]`}
+          >
+            {pageContent['analytics-bashboard-new-users-sub']}
+          </p>
         </div>
 
         {/* Total Messages */}
@@ -172,6 +185,11 @@ export default function AnalyticsDashboardPage() {
             }`}
           >
             {formatNumber(data?.total_messages ?? 0)}
+          </p>
+          <p
+            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#0070B9]`}
+          >
+            {pageContent['analytics-bashboard-total-messages-sub']}
           </p>
         </div>
       </div>
