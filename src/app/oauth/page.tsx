@@ -3,18 +3,34 @@ import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
 import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
+/**
+ * OAuth callback page (clean flow)
+ *
+ * Responsibilities
+ * 1) Read oauth_token and oauth_verifier from the URL
+ * 2) Ask the backend which hostname owns this oauth_token (POST /api/check)
+ * 3) If the token belongs to another host, hard-redirect to that host's /oauth
+ * 4) If it belongs to this host, sign in once with NextAuth credentials
+ * 5) Navigate to /home on success, or to / on error
+ *
+ * Notes
+ * - Single effect with hasRunRef prevents duplicate work under React StrictMode
+ * - We use redirect: false in signIn to keep navigation control here
+ * - Cross-host navigation uses window.location.assign to avoid client router races
+ */
 function OAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const [loginStatus, setLoginStatus] = useState<string | null>('Iniciando...');
-  const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
-  const isHandlingLoginRef = useRef(false); // Ref to control the execution of handleLogin
-  const oauth_verifier = searchParams?.get('oauth_verifier');
-  const oauth_token_request = searchParams?.get('oauth_token');
+  const [message, setMessage] = useState<string>('Iniciando...');
+  const hasRunRef = useRef(false);
 
+  const oauth_verifier = searchParams?.get('oauth_verifier') ?? '';
+  const oauth_token_request = searchParams?.get('oauth_token') ?? '';
+
+  // Clean up temporary storage whenever we're authenticated
   useEffect(() => {
     if (status === 'authenticated' && session) {
       localStorage.removeItem('oauth_token');
@@ -22,133 +38,98 @@ function OAuthContent() {
     }
   }, [status, session]);
 
-  const handleLogin = useCallback(async () => {
-    try {
-      // Don't proceed if already authenticated
-      if (status === 'authenticated') {
-        return;
-      }
-
-      // Don't proceed if already handling login
-      if (isHandlingLoginRef.current) {
-        return;
-      }
-
-      // Set the flag to prevent concurrent execution
-      isHandlingLoginRef.current = true;
-
-      const oauth_token = localStorage.getItem('oauth_token');
-      const oauth_token_secret = localStorage.getItem('oauth_token_secret');
-
-      if (!oauth_token || !oauth_token_secret) {
-        throw new Error('Missing OAuth tokens');
-      }
-
-      setLoginStatus('Finalizando Login...');
-      const result = await signIn('credentials', {
-        oauth_token,
-        oauth_token_secret,
-        oauth_verifier,
-        stored_token: oauth_token,
-        stored_token_secret: oauth_token_secret,
-        redirect: true,
-        callbackUrl: '/home',
-      });
-      if (result?.error) {
-        console.error('Login error:', result.error);
-        setLoginStatus('Erro: ' + result.error);
-        router.push('/');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      return { error: error.message };
-    } finally {
-      // Always clear the flag when handleLogin completes
-      isHandlingLoginRef.current = false;
-    }
-  }, [oauth_verifier, router, status]);
-
   useEffect(() => {
-    if (!oauth_token_request || !oauth_verifier || isCheckingTokenRef.current) {
+    if (!oauth_token_request || !oauth_verifier) {
+      setMessage('Parâmetros de OAuth ausentes.');
+      router.push('/');
       return;
     }
 
-    // Don't proceed if already authenticated
-    if (status === 'authenticated') {
-      router.push('/home');
-      return;
-    }
+    // Ensure the effect runs only once per mount (guards StrictMode double invoke)
+    if (hasRunRef.current) return;
+    hasRunRef.current = true;
 
-    isCheckingTokenRef.current = true;
+    let cancelled = false;
 
-    async function checkToken() {
+    (async () => {
       try {
-        if (!oauth_token_request || !oauth_verifier) {
+        setMessage('Verificando host de origem...');
+        const response = await fetch('/api/check/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: oauth_token_request }),
+        });
+        if (!response.ok) throw new Error('Falha ao verificar token');
+        const result: any = await response.json();
+
+        // Compute the current host (with port when present) to compare with result.extra
+        let hostname = `${document.location.hostname}`;
+        if (document.location.port) hostname += `:${document.location.port}`;
+
+        // Ensure the request token is stored for the credentials sign-in below
+        const existing = localStorage.getItem('oauth_token');
+        if (existing !== oauth_token_request) {
+          localStorage.setItem('oauth_token', oauth_token_request);
+        }
+
+        // If token belongs to a different host, redirect there and stop
+        if (result.extra !== hostname) {
+          const protocol = result.extra.includes('toolforge.org') ? 'https' : 'http';
+          const target = `${protocol}://${result.extra}/oauth?oauth_token=${oauth_token_request}&oauth_verifier=${oauth_verifier}`;
+          if (!cancelled) {
+            setMessage('Redirecionando para o host correto...');
+            window.location.assign(target);
+          }
           return;
         }
 
-        const response = await fetch('/api/check/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token: oauth_token_request }),
+        // Host matches this instance → try to complete the login
+        const oauth_token_secret = localStorage.getItem('oauth_token_secret');
+        if (!oauth_token_secret) {
+          setMessage('Sessão expirada. Tente novamente.');
+          router.push('/');
+          return;
+        }
+
+        // If the user already has a valid session, just go home
+        if (status === 'authenticated') {
+          setMessage('Login já realizado. Redirecionando...');
+          router.push('/home');
+          return;
+        }
+
+        setMessage('Finalizando login...');
+        const res = await signIn('credentials', {
+          oauth_token: oauth_token_request,
+          oauth_token_secret,
+          oauth_verifier,
+          stored_token: oauth_token_request,
+          stored_token_secret: oauth_token_secret,
+          redirect: false, // keep control here
+          callbackUrl: '/home',
         });
 
-        if (response.ok) {
-          const result = await response.json();
-          let hostname = `${document.location.hostname}`;
-          if (document.location.port) {
-            hostname += `:${document.location.port}`;
-          }
-
-          if (localStorage.getItem('oauth_token') !== oauth_token_request) {
-            localStorage.setItem('oauth_token', oauth_token_request);
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-
-          const stored_secret = localStorage.getItem('oauth_token_secret');
-          // Check the hostname and tokens before proceeding
-
-          if (result.extra === hostname) {
-            if (!stored_secret) {
-              router.push('/');
-              return;
-            }
-
-            // Only call handleLogin if we're not already authenticated
-            if (status !== 'authenticated') {
-              await handleLogin();
-            } else {
-              // Already authenticated, redirect to home
-              setLoginStatus('Login já realizado! Redirecionando...');
-              router.push('/home');
-            }
-          } else {
-            let protocol = result.extra.includes('toolforge.org') ? 'https' : 'http';
-            router.push(
-              `${protocol}://${result.extra}/oauth?oauth_token=${oauth_token_request}&oauth_verifier=${oauth_verifier}`
-            );
-          }
+        if (res?.error) {
+          setMessage(`Erro: ${res.error}`);
+          router.push('/');
+          return;
         }
+
+        setMessage('Redirecionando...');
+        router.push('/home');
       } catch (error) {
-        console.error('Token check error:', error);
-        router.push('/');
-      } finally {
-        isCheckingTokenRef.current = false;
+        console.error('OAuth error:', error);
+        if (!cancelled) {
+          setMessage('Erro durante autenticação.');
+          router.push('/');
+        }
       }
-    }
+    })();
 
-    checkToken();
-  }, [oauth_token_request, oauth_verifier, router, handleLogin]);
-
-  // Cleanup effect to clear flags when component unmounts
-  useEffect(() => {
     return () => {
-      isHandlingLoginRef.current = false;
-      isCheckingTokenRef.current = false;
+      cancelled = true;
     };
-  }, []);
+  }, [oauth_token_request, oauth_verifier, router, status]);
 
   return (
     <section className="flex w-screen h-screen font-montserrat">
@@ -157,7 +138,7 @@ function OAuthContent() {
           <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16" />
         </div>
         <div className="flex w-full text-center mb-4">
-          <h1 className="w-full">{loginStatus}</h1>
+          <h1 className="w-full">{message}</h1>
         </div>
         <div className="flex w-fit mx-auto">
           <div className="mx-auto animate-spin ease-linear h-8 w-8 rounded-full border-8 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-capx-primary-blue"></div>
