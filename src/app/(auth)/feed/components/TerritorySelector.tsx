@@ -16,12 +16,37 @@ export function TerritorySelector({
   placeholder,
 }: TerritorySelectorProps) {
   const { pageContent } = useApp();
+  
+  // Region ids to order first
+  const priorityTerritoryIds = ['18', '19', '20', '21', '22', '23', '24', '25'];
+  
   const territoriesList = Object.entries(territories)
     .map(([id, name]) => ({
       id,
       name,
     }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => {
+      const aIsPriority = priorityTerritoryIds.includes(a.id);
+      const bIsPriority = priorityTerritoryIds.includes(b.id);
+      
+      // If both are regions, order them
+      if (aIsPriority && bIsPriority) {
+        return a.name.localeCompare(b.name);
+      }
+      
+      // If only A is region, it comes first
+      if (aIsPriority && !bIsPriority) {
+        return -1;
+      }
+      
+      // If B is region, B comes first
+      if (!aIsPriority && bIsPriority) {
+        return 1;
+      }
+      
+      // If none is region, order
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <SelectList
