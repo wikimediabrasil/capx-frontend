@@ -246,5 +246,15 @@
 	"pagination-page": "Säit",
 	"saved-profiles-filters-button": "Filteren",
 	"snackbar-edit-profile-failed": "Feeler beim Aktualiséiere vum Profil. Probéiert wgl. nach eng Kéier.",
-	"snackbar-edit-profile-organization-save-event-failed": "Feeler beim Späichere vum Evenement"
+	"snackbar-edit-profile-organization-save-event-failed": "Feeler beim Späichere vum Evenement",
+	"analytics-dashboard": "Datenanalys",
+	"analytics-bashboard-total-users": "Gesamtzuel vu Benotzer",
+	"analytics-bashboard-new-users": "Nei Benotzer",
+	"analytics-bashboard-total-messages": "Gesamtzuel vu Messagen",
+	"analytics-bashboard-languages-title": "Sproochen",
+	"analytics-bashboard-territory-users": "Benotzer",
+	"analytics-bashboard-capacities-card-organizational-structure": "Organisatiounsstruktur",
+	"analytics-bashboard-capacities-card-communication": "Kommunikatioun",
+	"analytics-bashboard-capacities-card-technology": "Technologie",
+	"analytics-bashboard-capacities-load-more": "Méi Resultater lueden"
 }
