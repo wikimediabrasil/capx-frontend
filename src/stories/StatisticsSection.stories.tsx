@@ -17,6 +17,11 @@ const defaultData: Statistics = {
   new_messages: 580,
   total_organizations: 75,
   new_organizations: 8,
+  active_users: 0,
+  territory_user_counts: {},
+  language_user_counts: {},
+  skill_available_user_counts: {},
+  skill_wanted_user_counts: {},
 };
 
 const highNumbersData: Statistics = {
@@ -28,6 +33,11 @@ const highNumbersData: Statistics = {
   new_messages: 5800,
   total_organizations: 750,
   new_organizations: 80,
+  active_users: 0,
+  territory_user_counts: {},
+  language_user_counts: {},
+  skill_available_user_counts: {},
+  skill_wanted_user_counts: {},
 };
 
 const lowNumbersData: Statistics = {
@@ -39,6 +49,11 @@ const lowNumbersData: Statistics = {
   new_messages: 10,
   total_organizations: 5,
   new_organizations: 1,
+  active_users: 0,
+  territory_user_counts: {},
+  language_user_counts: {},
+  skill_available_user_counts: {},
+  skill_wanted_user_counts: {},
 };
 
 // Colors for the charts (copied from original component)

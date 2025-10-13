@@ -52,8 +52,9 @@ export interface UserProfile {
   skills_available: string[];
   skills_wanted: string[];
   contact: Contact[];
+  last_login: string;
   social: Social[];
+  last_update: string;
   is_manager: number[];
   badges: number[];
-  last_login: string;
 }
