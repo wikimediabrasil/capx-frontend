@@ -41,7 +41,6 @@ function HeaderSection({
 }) {
   return (
     <div className="flex flex-col md:flex-row gap-6">
-
       {/* Content */}
       <div className="w-full flex flex-col gap-4 justify-center">
         <h1
@@ -71,26 +70,26 @@ function HeaderSection({
           </span>
         </div>
 
-      {/* Logo */}
-      <div className="w-full">
-        <div className="relative h-[78px] w-full md:h-[326px] md:w-[595px] bg-[#EFEFEF] rounded-md md:rounded-[16px] flex items-center justify-center">
-          {organization?.profile_image ? (
-            <Image
-              src={formatWikiImageUrl(organization.profile_image) || NoAvatarIcon}
-              alt="Organization logo"
-              className="object-contain p-4 md:p-24"
-              fill
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400 text-xs md:text-base">
-                {pageContent['logo-not-available']}
-              </span>
-            </div>
-          )}
+        {/* Logo */}
+        <div className="w-full">
+          <div className="relative h-[78px] w-full md:h-[326px] md:w-[595px] bg-[#EFEFEF] rounded-md md:rounded-[16px] flex items-center justify-center">
+            {organization?.profile_image ? (
+              <Image
+                src={formatWikiImageUrl(organization.profile_image) || NoAvatarIcon}
+                alt="Organization logo"
+                className="object-contain p-4 md:p-24"
+                fill
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-400 text-xs md:text-base">
+                  {pageContent['logo-not-available']}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
         <BaseButton
           onClick={() => {

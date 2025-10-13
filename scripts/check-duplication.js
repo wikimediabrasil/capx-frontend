@@ -17,14 +17,7 @@ const MIN_TOKENS = 50; // Minimum tokens to consider as duplication
  */
 function getTrustedDirectories() {
   // Standard system directories that are typically read-only for regular users
-  const dirs = [
-    '/usr/local/bin',
-    '/usr/bin',
-    '/bin',
-    '/usr/local/sbin',
-    '/usr/sbin',
-    '/sbin',
-  ];
+  const dirs = ['/usr/local/bin', '/usr/bin', '/bin', '/usr/local/sbin', '/usr/sbin', '/sbin'];
 
   // Add common package manager directories based on OS
   // These are managed by package managers and are also considered trusted
@@ -66,7 +59,11 @@ function validateCommand(commandName) {
       if (fs.existsSync(commandPath)) {
         const stats = fs.statSync(commandPath);
         // Check if file is executable (mode includes execute bit)
-        if (stats.mode & fs.constants.S_IXUSR || stats.mode & fs.constants.S_IXGRP || stats.mode & fs.constants.S_IXOTH) {
+        if (
+          stats.mode & fs.constants.S_IXUSR ||
+          stats.mode & fs.constants.S_IXGRP ||
+          stats.mode & fs.constants.S_IXOTH
+        ) {
           return commandPath;
         }
       }

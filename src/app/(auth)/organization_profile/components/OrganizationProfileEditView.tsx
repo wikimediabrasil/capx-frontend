@@ -617,9 +617,7 @@ export default function OrganizationProfileEditView({
                   color: darkMode ? 'white' : '#053749',
                 }}
               >
-                <option value="" >
-                  {pageContent['edit-profile-insert-item']}
-                </option>
+                <option value="">{pageContent['edit-profile-insert-item']}</option>
                 {Object.entries(territories).map(([id, name]) => (
                   <option
                     key={id}
