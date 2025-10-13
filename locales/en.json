@@ -561,7 +561,7 @@
   "analytics-bashboard-new-users": "New users",
   "analytics-bashboard-total-messages": "Total messages",
   "analytics-bashboard-total-users-sub": "Total number of users",
-  "analytics-bashboard-new-users-sub": "New users in the last monthRun yarn lint:i18n",
+  "analytics-bashboard-new-users-sub": "New users in the last monthRun yarn",
   "analytics-bashboard-total-messages-sub": "Number of messages exchanged",
   "analytics-bashboard-languages-title": "Languages",
   "analytics-bashboard-territory-title": "Territory",

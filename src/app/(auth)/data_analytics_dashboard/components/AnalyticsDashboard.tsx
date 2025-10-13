@@ -272,7 +272,11 @@ export default function AnalyticsDashboardPage() {
             {visibleLanguagesCount < sortedLanguages.length && (
               <button
                 onClick={handleLoadMoreLanguages}
-                className="w-full md:w-auto mx-auto flex items-center justify-center gap-2 px-4 md:py-2 border-2 border-[#053749] rounded-lg text-[#053749] text-[12px] md:text-[24px] font-bold hover:bg-[#EFEFEF] transition"
+                className={`w-full md:w-auto mx-auto flex items-center justify-center gap-2 px-4 md:py-2 border-2 border-[#053749] rounded-lg text-[#053749] text-[12px] md:text-[24px] font-bold hover:bg-[#EFEFEF] transition ${
+                  darkMode
+                    ? 'text-white border-white hover:bg-[#0A4C5A]'
+                    : 'text-[#053749] border-[#053749]'
+                }`}
               >
                 {pageContent['analytics-bashboard-capacities-load-more']}
                 <span className="text-xl">+</span>
