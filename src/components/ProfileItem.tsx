@@ -233,8 +233,6 @@ export function ProfileItem({
                       useDefaultStyle ? capacityStyle.backgroundColor : '',
                       useDefaultStyle ? capacityStyle.textColor : '',
                     ].join(' ')}
-                    // key={index}
-                    // className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}`}
                   >
                     <h2
                       className={
@@ -248,12 +246,16 @@ export function ProfileItem({
                   </div>
                 );
               })}
-              
+
               {/* Show total of hidden items */}
               {!isExpanded && needsToggle && items.length > 8 && (
-                <div className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}`}>
-                  <p className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}>
-                    +{items.length - 8} more
+                <div
+                  className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}`}
+                >
+                  <p
+                    className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
+                  >
+                    +{items.length - 8} {pageContent['profile-item-more'] || 'more'}
                   </p>
                 </div>
               )}
