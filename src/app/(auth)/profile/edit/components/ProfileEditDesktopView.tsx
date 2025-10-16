@@ -77,7 +77,7 @@ import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
 
 interface ProfileEditDesktopViewProps {
@@ -602,17 +602,41 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   </div>
                 ))}
               </div>
-              <BaseButton
-                onClick={() => handleAddCapacity('available')}
-                label={pageContent['edit-profile-add-capacities']}
-                customClass={`w-fit flex ${
-                  darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-                imageUrl={darkMode ? AddIconDark : AddIcon}
-                imageAlt="Add capacity"
-                imageWidth={30}
-                imageHeight={30}
-              />
+              <div className="flex gap-2">
+                <BaseButton
+                  onClick={() => handleAddCapacity('available')}
+                  label={pageContent['edit-profile-add-capacities']}
+                  customClass={`w-fit flex ${
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
+                  } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+                  imageUrl={darkMode ? AddIconDark : AddIcon}
+                  imageAlt="Add capacity"
+                  imageWidth={30}
+                  imageHeight={30}
+                />
+                <BaseButton
+                  onClick={() => {
+                    const knownCapacities = formData?.skills_known || [];
+                    const availableCapacities = formData?.skills_available || [];
+                    const newAvailable = Array.from(
+                      new Set([...availableCapacities, ...knownCapacities])
+                    );
+                    setFormData({ ...formData, skills_available: newAvailable });
+                  }}
+                  label={
+                    pageContent['edit-profile-import-known-capacities'] || 'Import Known Capacities'
+                  }
+                  customClass={`w-fit flex ${
+                    darkMode
+                      ? 'bg-transparent border-white text-white border-2'
+                      : 'bg-transparent border-[#053749] text-[#053749] border-2'
+                  } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+                  imageUrl={darkMode ? AddIconDark : AddIcon}
+                  imageAlt="Import known capacities"
+                  imageWidth={30}
+                  imageHeight={30}
+                />
+              </div>
               <span
                 className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
                   darkMode ? 'text-white' : 'text-[#053749]'

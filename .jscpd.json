@@ -1,0 +1,22 @@
+{
+  "threshold": 0,
+  "reporters": ["json"],
+  "ignore": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.min.js",
+    "**/coverage/**",
+    "**/.storybook/**",
+    "**/storybook-static/**"
+  ],
+  "format": ["typescript", "tsx", "javascript", "jsx"],
+  "minLines": 5,
+  "minTokens": 50,
+  "output": "./jscpd-report"
+}
