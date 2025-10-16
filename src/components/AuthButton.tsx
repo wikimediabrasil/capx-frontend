@@ -101,7 +101,8 @@ export default function AuthButton({
       min-w-[120px]
       max-w-[200px]
       px-3 py-2.5
-      md:w-auhandleRedirect]
+      md:w-auto
+      md:min-w-[140px]
       md:max-w-[280px]
       md:px-6
       md:py-3
