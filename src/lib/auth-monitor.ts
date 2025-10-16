@@ -16,9 +16,32 @@ const getSignOut = async (): Promise<typeof SignOutType> => {
   return signOut;
 };
 
+// Function to check if the session has exceeded 1 hour
+const checkSessionExpiration = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  const loginTimestamp = localStorage.getItem('login_timestamp');
+  if (!loginTimestamp) {
+    // If there's no timestamp, consider it expired to force re-login
+    return true;
+  }
+
+  const loginTime = parseInt(loginTimestamp, 10);
+  const currentTime = Date.now();
+  const ONE_HOUR_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+
+  return currentTime - loginTime > ONE_HOUR_IN_MS;
+};
+
 // Function to check if the token is still valid by making a test request
 const checkTokenValidity = async (token: string): Promise<boolean> => {
   try {
+    // First check if the session has expired (1 hour)
+    if (checkSessionExpiration()) {
+      console.warn('Session expired: 1 hour limit reached');
+      return false;
+    }
+
     // Make a simple request to check if the token is still valid
     const response = await fetch('/api/check-auth', {
       method: 'POST',
@@ -90,6 +113,7 @@ const clearApplicationState = (preserveOAuthTokens = false) => {
     // Clear other authentication data that may exist
     localStorage.removeItem('nextauth.message');
     localStorage.removeItem('token');
+    localStorage.removeItem('login_timestamp');
 
     // Clear sessionStorage (but preserves if in login process)
     const isInLoginProcess =
@@ -168,13 +192,19 @@ export const startAuthMonitoring = (authState: AuthState) => {
   // Initialize the state of the OAuth tokens
   initializeOAuthTokensState();
 
-  // Monitor changes in OAuth tokens every 2 seconds
+  // Monitor changes in OAuth tokens and session expiration every 2 seconds
   localStorageWatcher = setInterval(() => {
     if (isCheckingAuth) return;
 
     const tokensRemoved = checkOAuthTokensChange();
     if (tokensRemoved) {
       forceLogout('OAuth tokens removed from localStorage');
+      return;
+    }
+
+    // Check if the session has expired (1 hour)
+    if (checkSessionExpiration()) {
+      forceLogout('Session expired: 1 hour limit reached');
     }
   }, 2000); // 2 seconds for quick detection
 

@@ -17,6 +17,9 @@ function OAuthContent() {
 
   useEffect(() => {
     if (status === 'authenticated' && session) {
+      // Set login timestamp when authentication is successful
+      localStorage.setItem('login_timestamp', Date.now().toString());
+      // Clean up OAuth tokens after successful authentication
       localStorage.removeItem('oauth_token');
       localStorage.removeItem('oauth_token_secret');
     }

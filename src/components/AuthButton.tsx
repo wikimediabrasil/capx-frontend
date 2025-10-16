@@ -1,11 +1,11 @@
 'use client';
-import React, { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { useApp } from '@/contexts/AppContext';
 import axios from 'axios';
+import { signOut } from 'next-auth/react';
+import { useState } from 'react';
+import capxPersonIcon from '../../public/static/images/capx_person_icon.svg';
 import BaseButton from './BaseButton';
 import Popup from './Popup';
-import capxPersonIcon from '../../public/static/images/capx_person_icon.svg';
-import { useApp } from '@/contexts/AppContext';
 
 interface AuthButtonProps {
   message: string;
@@ -27,7 +27,7 @@ export default function AuthButton({
   imageWidth,
   imageHeight,
   isMobileMenu = false,
-}: AuthButtonProps) {
+}: Readonly<AuthButtonProps>) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const { pageContent } = useApp();
@@ -53,9 +53,10 @@ export default function AuthButton({
       });
 
       if (response.data?.redirect_url) {
-        // Store new tokens
+        // Store new tokens and login timestamp
         localStorage.setItem('oauth_token', response.data.oauth_token);
         localStorage.setItem('oauth_token_secret', response.data.oauth_token_secret);
+        localStorage.setItem('login_timestamp', Date.now().toString());
         window.location.href = response.data.redirect_url;
       } else {
         throw new Error('Redirect URL not received');
@@ -83,12 +84,12 @@ export default function AuthButton({
     flex items-center justify-center
     gap-[10px]
     rounded-md
-    bg-capx-secondary-purple 
+    bg-capx-secondary-purple
     text-[#F6F6F6]
-    text-center 
+    text-center
     font-[Montserrat]
-    font-extrabold 
-    not-italic 
+    font-extrabold
+    not-italic
     leading-[normal]
     text-[14px]
     md:text-[24px]
