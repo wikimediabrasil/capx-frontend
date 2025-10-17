@@ -22,9 +22,9 @@
 	"footer-link-documentation": "Documentación",
 	"footer-link-wikimedia": "Meta-Wikimedia",
 	"footer-message": "Para e polo Movemento da Wikimedia",
-	"aria-language-input": "Seleccionar unha lingua",
 	"sign-out-button": "Pechar a sesión",
 	"sign-in-button": "Iniciar a sesión",
 	"form-profile-languages": "Linguas",
-	"filters-territory": "Territorio"
+	"filters-territory": "Territorio",
+	"aria-language-input": "Seleccionar unha lingua"
 }

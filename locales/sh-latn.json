@@ -22,9 +22,9 @@
 	"footer-link-documentation": "Dokumentacija",
 	"footer-link-wikimedia": "Meta-Wikimedia",
 	"footer-message": "Kreirao Wikimedia Movement za svoje potrebe",
-	"aria-language-input": "Izaberi jezik",
 	"sign-out-button": "Izloguj se",
 	"sign-in-button": "Prijava",
 	"form-profile-languages": "Jezici",
-	"filters-territory": "Država/Oblast"
+	"filters-territory": "Država/Oblast",
+	"aria-language-input": "Izaberi jezik"
 }

@@ -26,9 +26,9 @@
 	"footer-link-documentation": "Dokümantasyon",
 	"footer-link-wikimedia": "Meta-Wikimedia",
 	"footer-message": "Wikimedia Hareketi için ve Wikimedia Hareketi tarafından",
-	"aria-language-input": "Bir dil seçin",
 	"sign-out-button": "Oturumu Kapat",
 	"sign-in-button": "Oturum aç",
 	"form-profile-languages": "Diller",
-	"filters-territory": "Bölge"
+	"filters-territory": "Bölge",
+	"aria-language-input": "Bir dil seçin"
 }

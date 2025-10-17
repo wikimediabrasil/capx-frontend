@@ -17,6 +17,9 @@ function OAuthContent() {
 
   useEffect(() => {
     if (status === 'authenticated' && session) {
+      // Set login timestamp when authentication is successful
+      localStorage.setItem('login_timestamp', Date.now().toString());
+      // Clean up OAuth tokens after successful authentication
       localStorage.removeItem('oauth_token');
       localStorage.removeItem('oauth_token_secret');
     }
@@ -125,7 +128,7 @@ function OAuthContent() {
               router.push('/home');
             }
           } else {
-            let protocol = result.extra === 'capx-test.toolforge.org' ? 'https' : 'http';
+            let protocol = result.extra.includes('toolforge.org') ? 'https' : 'http';
             router.push(
               `${protocol}://${result.extra}/oauth?oauth_token=${oauth_token_request}&oauth_verifier=${oauth_verifier}`
             );

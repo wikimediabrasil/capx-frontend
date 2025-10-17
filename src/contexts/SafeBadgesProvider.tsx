@@ -1,6 +1,5 @@
 'use client';
 
-import { useContext } from 'react';
 import { BadgesProvider } from './BadgesContext';
 import { useApp } from './AppContext';
 
@@ -13,7 +12,7 @@ export function SafeBadgesProvider({ children }: { children: React.ReactNode }) 
 
     // If AppContext is available, wrap children in BadgesProvider
     return <BadgesProvider>{children}</BadgesProvider>;
-  } catch (error) {
+  } catch {
     // If AppContext is not available, just render children without BadgesProvider
     return <>{children}</>;
   }

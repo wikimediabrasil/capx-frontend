@@ -556,6 +556,9 @@ yarn start            # Start production server
 # Code Quality
 yarn lint             # Run ESLint
 yarn lint:fix         # Run ESLint with auto-fix
+yarn lint:i18n        # Check i18n translation keys
+yarn lint:i18n:fix    # Fix i18n translation keys
+yarn lint:duplication # Check for code duplication
 yarn format           # Format code with Prettier
 yarn format:check     # Check code formatting
 
@@ -585,6 +588,28 @@ yarn build-storybook  # Build Storybook
 - **Jest**: Unit and integration testing
 - **React Testing Library**: Component testing utilities
 - **Storybook**: Component documentation and testing
+- **jscpd**: Code duplication detection (threshold: 10%)
+- **i18n Checker**: Validates translation key usage
+
+#### Code Duplication Check
+
+The project includes an automatic code duplication checker:
+
+```bash
+yarn lint:duplication
+```
+
+**Configuration** (`.jscpd.json`):
+- Threshold: 10% (fails if exceeded)
+- Minimum lines: 5
+- Minimum tokens: 50
+- Analyzes only changed files compared to `dev` branch
+
+**Best practices to avoid duplication**:
+- Use Tailwind responsive breakpoints (`sm:`, `md:`, `lg:`) instead of separate Desktop/Mobile components
+- Extract repeated code into shared components
+- Create utility functions for repeated logic
+- Use composition patterns
 
 ## Environment Variables
 

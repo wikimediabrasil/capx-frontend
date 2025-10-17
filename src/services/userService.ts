@@ -75,7 +75,6 @@ export const userService = {
     if (queryParams?.offset) {
       params.append('offset', queryParams.offset.toString());
     }
-    1;
 
     if (queryParams?.filters?.username) {
       params.append('username', queryParams.filters.username);

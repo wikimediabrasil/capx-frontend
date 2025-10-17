@@ -40,7 +40,6 @@
 	"footer-link-wikimedia": "Meta-Wikimedia",
 	"footer-message": "För och av Wikimedia-rörelsen",
 	"footer-privacy-policy": "Integritetspolicy",
-	"aria-language-input": "Välj ett språk",
 	"sign-out-button": "Logga ut",
 	"sign-in-button": "Logga in",
 	"form-profile-languages": "Språk",
@@ -63,5 +62,6 @@
 	"statistics-source-text": "Datakälla: CapX-plattformsstatistik uppdaterad i realtid.",
 	"statistics-loading-text": "Laddar statistik...",
 	"statistics-error-text": "Kan inte ladda statistik. Försök igen senare.",
-	"filters-territory": "Territorium"
+	"filters-territory": "Territorium",
+	"aria-language-input": "Välj ett språk"
 }

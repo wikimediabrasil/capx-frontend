@@ -45,6 +45,7 @@
 	"body-loggedin-home-secondary-section-image01-description": "Por proyecto",
 	"body-loggedin-home-secondary-section-image02-description": "Por capacidades",
 	"body-loggedin-home-secondary-section-image03-description": "Por territorio",
+	"body-profile-birthday-title": "Cumpleaños Wiki",
 	"body-profile-box-title-wikidata-item": "Elemento de Wikidata",
 	"body-profile-box-title-alt-wiki-acc": "Cuenta alternativa de Wikimedia",
 	"body-profile-section-title-territory": "Territorio",
@@ -85,7 +86,6 @@
 	"footer-link-wikimedia": "Meta-Wikimedia",
 	"footer-message": "Por y para el Movimiento Wikimedia",
 	"footer-privacy-policy": "Política de privacidad",
-	"aria-language-input": "Elige un idioma",
 	"sign-out-button": "Cerrar sesión",
 	"sign-in-button": "Acceder",
 	"form-profile-languages": "Idiomas",
@@ -184,6 +184,6 @@
 	"filters-icon": "Icono de filtros",
 	"filters-username": "Nombre de usuario",
 	"lets-connect-success-popup-title": "¡Bien hecho!",
-	"body-profile-birthday-title": "Cumpleaños Wiki",
-	"filters-territory": "Territorio"
+	"filters-territory": "Territorio",
+	"aria-language-input": "Elige un idioma"
 }

@@ -34,7 +34,6 @@
 	"lets-connect-import-data-cancel": "منسوخ",
 	"body-profile-section-title-contact": "رابطہ",
 	"footer-link-wikimedia": "میٹا وکیمیڈیا",
-	"aria-language-input": "زبان چݨو",
 	"sign-out-button": "لاگ آؤٹ",
 	"sign-in-button": "لاگ ان",
 	"form-profile-languages": "زباناں",
@@ -48,9 +47,6 @@
 	"edit-profile-wikidata-item": "وکی ڈیٹا آئٹم",
 	"edit-profile-consent-wikidata-item-after-link": ".",
 	"privacy-policy-banner": "رازداری پالیسی",
-	"pagination-previous": "پچھلا",
-	"pagination-next": "اڳلا",
-	"pagination-page": "ورقہ",
 	"snackbar-edit-profile-organization-create-event-failed": "ایونٹ بݨاوݨ وچ خرابی۔ مہربانی کر تے چیک کرو اَتے ولدی کوشش کرو",
 	"message-form-method-email": "ای میل",
 	"message-form-method-talkpage": "ڳالھ مُہاڑ ورقہ",
@@ -89,6 +85,12 @@
 	"capacity-selection-modal-back": "پچھوں",
 	"capacity-card-capacity-prefix": "گنجائش",
 	"filters-territory": "علاقہ",
+	"aria-language-input": "زبان چݨو",
+	"pagination-previous": "پچھلا",
+	"pagination-next": "اڳلا",
+	"pagination-page": "ورقہ",
 	"profile-learner": "سکھݨ آلا",
-	"profile-sharer": "شیئر کرݨ آلا"
+	"profile-sharer": "شیئر کرݨ آلا",
+	"analytics-bashboard-languages-title": "زباناں",
+	"analytics-bashboard-territory-title": "علاقہ"
 }
