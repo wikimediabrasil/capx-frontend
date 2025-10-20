@@ -50,14 +50,12 @@
 	"body-profile-languages-title": "Языки",
 	"edit-profile-update": "Обновить",
 	"edit-profile-add-language": "Добавить язык",
-	"edit-profile-save-organization": "Сохранить организацию",
 	"edit-profile-main-projects": "Основные проекты",
 	"edit-profile-add-projects": "Добавить проекты",
-	"edit-profile-add-more-projects": "Добавить больше проектов",
 	"edit-profile-add-events": "Создать новое событие",
 	"edit-profile-news": "Новости",
 	"edit-profile-insert-project": "Вставить проект",
+	"edit-profile-save-organization": "Сохранить организацию",
 	"privacy-policy-link-toolforge": "Toolforge",
-	"filters-username": "Имя участника",
-	"statistics-users-title": "Пользователи"
+	"filters-username": "Имя участника"
 }

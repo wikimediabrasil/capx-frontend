@@ -145,10 +145,9 @@
 	"edit-profile-language-tooltip": "Prašome išvardyti kalbas, kuriomis galite bendrauti.",
 	"edit-profile-choose-an-option": "Pasirinkite parinktį",
 	"edit-profile-add-language": "Pridėti kalbą",
-	"edit-profile-save-organization": "Išsaugoti organizaciją",
 	"edit-profile-main-projects": "Pagrindiniai projektai",
 	"edit-profile-add-projects": "Pridėti projektus",
-	"edit-profile-add-more-projects": "Pridėti daugiau projektų",
+	"edit-profile-save-organization": "Išsaugoti organizaciją",
 	"filters-territory": "Teritorija",
 	"aria-language-input": "Pasirinkite kalbą"
 }
