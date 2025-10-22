@@ -18,8 +18,8 @@ export const useStatistics = () => {
               headers: {
                 Authorization: `Token ${session.user.token}`,
                 'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-              }
+                Pragma: 'no-cache',
+              },
             }
           : undefined;
         const statisticsData = await statisticsService.fetchStatistics(config);
