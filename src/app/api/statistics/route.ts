@@ -4,10 +4,20 @@ import axios from 'axios';
 export async function GET() {
   try {
     const backendUrl = 'https://capx-backend.toolforge.org/statistics/';
-
-    const response = await axios.get(backendUrl);
-
-    return NextResponse.json(response.data);
+    const response = await axios.get(backendUrl, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    return NextResponse.json(response.data, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('Error fetching statistics from backend:', error);
     return NextResponse.json(
@@ -22,7 +32,14 @@ export async function GET() {
         new_organizations: 0,
         error: 'Failed to fetch statistics',
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
     );
   }
 }
