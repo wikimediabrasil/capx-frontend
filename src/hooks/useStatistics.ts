@@ -8,17 +8,20 @@ export const useStatistics = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { data: session } = useSession();
-
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
         setIsLoading(true);
         setError(null);
-
         const config = session?.user?.token
-          ? { headers: { Authorization: `Token ${session.user.token}` } }
+          ? {
+              headers: {
+                Authorization: `Token ${session.user.token}`,
+                'Cache-Control': 'no-cache',
+                Pragma: 'no-cache',
+              },
+            }
           : undefined;
-
         const statisticsData = await statisticsService.fetchStatistics(config);
         setData(statisticsData);
       } catch (err) {
@@ -28,9 +31,7 @@ export const useStatistics = () => {
         setIsLoading(false);
       }
     };
-
     fetchStatistics();
   }, [session]);
-
   return { data, isLoading, error };
 };
