@@ -5,7 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { capacityService } from '@/services/capacityService';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import D3TreeVisualization from './D3TreeVisualization';
 
 // Specific interface for D3 visualization
@@ -22,21 +22,55 @@ export default function CapacitiesTreeVisualization() {
   const { data: session } = useSession();
   const [capacities, setCapacities] = useState<D3Capacity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const previousLanguageRef = useRef<string>(language);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Fetch root capacities
   const { data: rootCapacities = [], isLoading: isLoadingRoots } = useRootCapacities(language);
 
+  // Create a stable reference to root capacities based on codes
+  const rootCapacitiesCodes = useMemo(
+    () => rootCapacities.map((cap) => cap.code).join(','),
+    [rootCapacities]
+  );
+
   // Transform API data to match the expected format for D3 visualization
   useEffect(() => {
-    if (!rootCapacities || rootCapacities.length === 0) return;
+    // If language changed, abort previous request and reset
+    if (previousLanguageRef.current !== language) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      setCapacities([]);
+      previousLanguageRef.current = language;
+    }
+
+    if (!rootCapacities || rootCapacities.length === 0) {
+      if (!isLoadingRoots) {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    if (!session?.user?.token) {
+      setIsLoading(false);
+      return;
+    }
 
     const transformCapacities = async () => {
+      // Create new abort controller for this transformation
+      abortControllerRef.current = new AbortController();
       setIsLoading(true);
 
       try {
         const transformedCapacities: D3Capacity[] = [];
 
         for (const rootCapacity of rootCapacities) {
+          // Check if aborted
+          if (abortControllerRef.current.signal.aborted) {
+            return;
+          }
+
           // Transform root capacity
           const transformedRoot: D3Capacity = {
             id: rootCapacity.code.toString(),
@@ -47,7 +81,7 @@ export default function CapacitiesTreeVisualization() {
           };
 
           // If root has children, fetch them
-          if (rootCapacity.hasChildren && session?.user?.token) {
+          if (rootCapacity.hasChildren) {
             try {
               const children = await capacityService.fetchCapacitiesByType(
                 rootCapacity.code.toString(),
@@ -56,6 +90,11 @@ export default function CapacitiesTreeVisualization() {
                 },
                 language
               );
+
+              // Check if aborted after fetch
+              if (abortControllerRef.current.signal.aborted) {
+                return;
+              }
 
               transformedRoot.children = Object.entries(children).map(([code, nameOrResponse]) => {
                 const name =
@@ -79,16 +118,29 @@ export default function CapacitiesTreeVisualization() {
           transformedCapacities.push(transformedRoot);
         }
 
-        setCapacities(transformedCapacities);
+        // Only update state if not aborted
+        if (!abortControllerRef.current.signal.aborted) {
+          setCapacities(transformedCapacities);
+        }
       } catch (error) {
         console.error('Error transforming capacities:', error);
       } finally {
-        setIsLoading(false);
+        if (!abortControllerRef.current.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 
     transformCapacities();
-  }, [rootCapacities, language, session?.user?.token]);
+
+    // Cleanup function
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rootCapacitiesCodes, language, session?.user?.token, isLoadingRoots]);
 
   if (isLoading || isLoadingRoots) {
     return <LoadingState fullScreen />;
