@@ -30,7 +30,7 @@ export default function CapacitiesTreeVisualization() {
 
   // Create a stable reference to root capacities based on codes
   const rootCapacitiesCodes = useMemo(
-    () => rootCapacities.map((cap) => cap.code).join(','),
+    () => rootCapacities.map(cap => cap.code).join(','),
     [rootCapacities]
   );
 
