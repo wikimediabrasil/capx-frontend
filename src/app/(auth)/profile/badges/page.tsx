@@ -113,12 +113,12 @@ export default function BadgesPage() {
             })
             .sort((a, b) => b.progress - a.progress)
             .map(({ badge, progress }) => {
-            const isUnlocked = Number(progress) >= 100;
+              const isUnlocked = Number(progress) >= 100;
 
-            return (
-              <div
-                key={badge.id}
-                className={`
+              return (
+                <div
+                  key={badge.id}
+                  className={`
                   p-4 
                   rounded-lg 
                   ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
@@ -128,44 +128,44 @@ export default function BadgesPage() {
                   h-full
                   justify-between
                 `}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
-                    <Image
-                      src={badge.picture}
-                      alt={badge.name}
-                      fill
-                      className={`object-contain ${!isUnlocked ? 'grayscale opacity-60' : ''}`}
-                    />
-                  </div>
-                  <h3
-                    className={`
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
+                      <Image
+                        src={badge.picture}
+                        alt={badge.name}
+                        fill
+                        className={`object-contain ${!isUnlocked ? 'grayscale opacity-60' : ''}`}
+                      />
+                    </div>
+                    <h3
+                      className={`
                     text-base md:text-lg 
                     font-bold 
                     mb-2
                     ${darkMode ? 'text-white' : 'text-[#053749]'}
                     ${!isUnlocked ? 'opacity-60' : ''}
                   `}
-                  >
-                    {badge.name}
-                  </h3>
-                  <p
-                    className={`
+                    >
+                      {badge.name}
+                    </h3>
+                    <p
+                      className={`
                     text-sm md:text-base 
                     mb-3
                     ${darkMode ? 'text-gray-300' : 'text-gray-600'}
                     ${!isUnlocked ? 'opacity-60' : ''}
                   `}
-                  >
-                    {badge.description}
-                  </p>
+                    >
+                      {badge.description}
+                    </p>
+                  </div>
+                  <div className="w-full mt-auto">
+                    <ProgressBar progress={progress} darkMode={darkMode} />
+                  </div>
                 </div>
-                <div className="w-full mt-auto">
-                  <ProgressBar progress={progress} darkMode={darkMode} />
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
     </main>
