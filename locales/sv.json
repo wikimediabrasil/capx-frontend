@@ -53,15 +53,6 @@
 	"edit-profile-add-language": "Lägg till språk",
 	"privacy-policy-private-information-topic02-link": "OAuth",
 	"filters-username": "Användarnamn",
-	"statistics-section-title": "Plattformstatistik",
-	"statistics-users-title": "Användare",
-	"statistics-capacities-title": "Kapaciteter",
-	"statistics-messages-title": "Meddelanden",
-	"statistics-organizations-title": "Organisationer",
-	"statistics-new-label": "nytt",
-	"statistics-source-text": "Datakälla: CapX-plattformsstatistik uppdaterad i realtid.",
-	"statistics-loading-text": "Laddar statistik...",
-	"statistics-error-text": "Kan inte ladda statistik. Försök igen senare.",
 	"filters-territory": "Territorium",
 	"aria-language-input": "Välj ett språk"
 }
