@@ -7,10 +7,10 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const backendUrl = 'https://capx-backend.toolforge.org/statistics/';
-    
+
     const timestamp = Date.now();
     const urlWithTimestamp = `${backendUrl}?_t=${timestamp}`;
-    
+
     const response = await axios.get(urlWithTimestamp, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
