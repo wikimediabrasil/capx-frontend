@@ -581,5 +581,8 @@
   "analytics-bashboard-capacities-card-technology": "Technology",
   "analytics-bashboard-capacities-card-learners": "Learners",
   "analytics-bashboard-capacities-card-sharers": "Shares",
-  "analytics-bashboard-capacities-load-more": "Load more results"
+  "analytics-bashboard-capacities-load-more": "Load more results",
+  "home-carrosel-suggestions-title-no-capacities": "Complete your profile",
+  "home-carrosel-suggestions-description-no-capacities": "By choosing the capacities you would like to learn and those you are willing to share with your peers, we can show you profiles and events you might want to explore.",
+  "home-carrosel-suggestions-description-no-capacities-button": "Edit profile"
 }
