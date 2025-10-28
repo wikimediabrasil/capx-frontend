@@ -9,6 +9,8 @@ import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import CardNoCapacities from '@/app/(auth)/home/components/CardCarrosselNoCapacities';
+
 interface AuthenticatedMainSectionProps {
   pageContent: any;
 }
@@ -21,11 +23,16 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
 
   const secondarySection = isMobile ? (
     <section
-      className={`flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 ${
-        darkMode ? 'bg-capx-dark-bg' : 'bg-capx-dark-box-bg'
+      className={`flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 mb-[64px] lg:px-12 ${
+        darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
       }`}
     >
-      <div className="flex flex-col md:flex-row items-center justify-between w-full py-16 md:py-32 gap-8">
+      <div className="flex flex-col items-center justify-between w-full py-16 md:py-32 gap-16">
+        <div className="flex items-center w-full">
+          <CardNoCapacities alt="Imagem de produto de contatos" />
+        </div>
+      </div>
+      {/* <div className="flex flex-col md:flex-row items-center justify-between w-full py-16 md:py-32 gap-8">
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2">
           <h1 className="text-capx-light-bg text-center text-[24px] not-italic font-extrabold leading-[29px]">
             {pageContent['body-loggedin-home-secondary-section-title']}
@@ -73,16 +80,20 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             {pageContent['body-loggedin-home-secondary-section-image03-description']}
           </p>
         </button>
-      </div>
+      </div> */}
     </section>
   ) : (
     <section
-      className={
-        (darkMode ? 'bg-capx-dark-bg' : 'bg-capx-dark-box-bg') +
-        'flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-8'
-      }
+      className={`flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 md:mb-[128px] lg:px-12 ${
+        darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
+      }`}
     >
       <div className="flex flex-col items-center justify-between w-full py-16 md:py-32 gap-16">
+        <div className="flex items-center w-full">
+          <CardNoCapacities alt="Imagem de produto de contatos" />
+        </div>
+      </div>
+      {/* <div className="flex flex-col items-center justify-between w-full py-16 md:py-32 gap-16">
         <div className="flex items-center w-full">
           <h1
             className={
@@ -149,7 +160,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 
