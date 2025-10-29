@@ -1,37 +1,37 @@
-import React, { useEffect } from 'react';
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
+import BaseButton from '@/components/BaseButton';
+import { ProfileItem } from '@/components/ProfileItem';
 import { useApp } from '@/contexts/AppContext';
-import { ProfileCapacityType } from '../types';
-import LanguageIcon from '@/public/static/images/language.svg';
-import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import EmojiIcon from '@/public/static/images/emoji_objects.svg';
-import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
-import TargetIcon from '@/public/static/images/target.svg';
-import TargetIconWhite from '@/public/static/images/target_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
-import TerritoryIcon from '@/public/static/images/territory.svg';
-import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useTerritories } from '@/hooks/useTerritories';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { getProfileImage } from '@/lib/utils/getProfileImage';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
-import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
-import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
-import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
-import { ProfileItem } from '@/components/ProfileItem';
-import { useRouter } from 'next/navigation';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTerritories } from '@/hooks/useTerritories';
-import { useLanguage } from '@/hooks/useLanguage';
-import { useSession } from 'next-auth/react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import { LanguageProficiency } from '@/types/language';
-import BaseButton from '@/components/BaseButton';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { ProfileCapacityType } from '../types';
 
 interface ProfileCardProps {
   id: string;
@@ -280,7 +280,7 @@ export const ProfileCard = ({
                       ? 'text-capx-light-bg border-capx-light-bg'
                       : 'text-capx-dark-box-bg border-capx-dark-box-bg'
                   }`}
-                  label={isSaved ? 'Saved' : 'Save profile'}
+                  label={isSaved ? pageContent['saved-profiles-saved-profile'] : pageContent['edit-profile-save']}
                   onClick={toggleSaved}
                   aria-label={
                     isSaved
