@@ -6,7 +6,13 @@ import { AppProvider } from '@/contexts/AppContext';
 import { useEffect } from 'react';
 
 // Helper component to force theme mode
-const ThemeWrapper = ({ children, forceDarkMode }: { children: React.ReactNode; forceDarkMode: boolean }) => {
+const ThemeWrapper = ({
+  children,
+  forceDarkMode,
+}: {
+  children: React.ReactNode;
+  forceDarkMode: boolean;
+}) => {
   const { setDarkMode } = useTheme();
 
   useEffect(() => {
@@ -122,7 +128,8 @@ export const DesktopLightMode: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop view in light mode with user_check_dark.svg icon. View at 1280px+ width to see full desktop layout.',
+        story:
+          'Desktop view in light mode with user_check_dark.svg icon. View at 1280px+ width to see full desktop layout.',
       },
     },
   },
@@ -156,7 +163,8 @@ export const DesktopDarkMode: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop view in dark mode with user_check.svg icon. View at 1280px+ width to see full desktop layout.',
+        story:
+          'Desktop view in dark mode with user_check.svg icon. View at 1280px+ width to see full desktop layout.',
       },
     },
   },
@@ -278,7 +286,8 @@ export const WithBackdrop: Story = {
     chromatic: { viewports: [1280] },
     docs: {
       description: {
-        story: 'Shows the popup overlaying other page content with a backdrop. Desktop layout at 1280px+ width.',
+        story:
+          'Shows the popup overlaying other page content with a backdrop. Desktop layout at 1280px+ width.',
       },
     },
   },

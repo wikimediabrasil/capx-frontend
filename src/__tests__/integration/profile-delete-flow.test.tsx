@@ -104,9 +104,9 @@ describe('Profile Delete Integration Flow', () => {
       };
       mockedProfileService.deleteProfile.mockRejectedValue(unauthorizedError);
 
-      await expect(
-        profileService.deleteProfile(mockUserId.toString(), mockToken)
-      ).rejects.toEqual(unauthorizedError);
+      await expect(profileService.deleteProfile(mockUserId.toString(), mockToken)).rejects.toEqual(
+        unauthorizedError
+      );
 
       expect(mockedSignOut).not.toHaveBeenCalled();
     });
@@ -120,9 +120,9 @@ describe('Profile Delete Integration Flow', () => {
       };
       mockedProfileService.deleteProfile.mockRejectedValue(serverError);
 
-      await expect(
-        profileService.deleteProfile(mockUserId.toString(), mockToken)
-      ).rejects.toEqual(serverError);
+      await expect(profileService.deleteProfile(mockUserId.toString(), mockToken)).rejects.toEqual(
+        serverError
+      );
 
       expect(mockedSignOut).not.toHaveBeenCalled();
     });
@@ -131,9 +131,9 @@ describe('Profile Delete Integration Flow', () => {
       const networkError = new Error('Network Error');
       mockedProfileService.deleteProfile.mockRejectedValue(networkError);
 
-      await expect(
-        profileService.deleteProfile(mockUserId.toString(), mockToken)
-      ).rejects.toThrow('Network Error');
+      await expect(profileService.deleteProfile(mockUserId.toString(), mockToken)).rejects.toThrow(
+        'Network Error'
+      );
 
       expect(mockedSignOut).not.toHaveBeenCalled();
     });

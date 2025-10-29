@@ -88,17 +88,13 @@ describe('useProfile.deleteProfile', () => {
   it('should throw error when token is missing', async () => {
     const { result } = renderHook(() => useProfile(undefined, mockUserId), { wrapper });
 
-    await expect(result.current.deleteProfile()).rejects.toThrow(
-      'No token or userId available'
-    );
+    await expect(result.current.deleteProfile()).rejects.toThrow('No token or userId available');
   });
 
   it('should throw error when userId is missing', async () => {
     const { result } = renderHook(() => useProfile(mockToken, undefined), { wrapper });
 
-    await expect(result.current.deleteProfile()).rejects.toThrow(
-      'No token or userId available'
-    );
+    await expect(result.current.deleteProfile()).rejects.toThrow('No token or userId available');
   });
 
   it('should handle deletion error', async () => {

@@ -53,13 +53,7 @@ describe('Profile Delete Flow with Success Popup', () => {
       window.location.href = '/';
       callOrder.push('redirect');
 
-      expect(callOrder).toEqual([
-        'delete',
-        'popup-shown',
-        'popup-closed',
-        'signOut',
-        'redirect',
-      ]);
+      expect(callOrder).toEqual(['delete', 'popup-shown', 'popup-closed', 'signOut', 'redirect']);
     });
 
     it('should not signOut if popup is closed before timer completes', async () => {

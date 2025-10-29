@@ -105,7 +105,9 @@ describe('ProfileDeletedSuccessPopup', () => {
       screen.getByText('Your profile has been permanently deleted from CapX.')
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Thank you for being part of our community. You can create a new account at any time.')
+      screen.getByText(
+        'Thank you for being part of our community. You can create a new account at any time.'
+      )
     ).toBeInTheDocument();
     expect(screen.getByText('OK')).toBeInTheDocument();
   });

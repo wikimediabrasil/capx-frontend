@@ -41,14 +41,11 @@ describe('DELETE /api/profile', () => {
     const response = await DELETE(mockRequest);
     const responseData = await response.json();
 
-    expect(mockedAxios.delete).toHaveBeenCalledWith(
-      `${mockBaseUrl}/profile/${mockUserId}/`,
-      {
-        headers: {
-          Authorization: `Token ${mockToken}`,
-        },
-      }
-    );
+    expect(mockedAxios.delete).toHaveBeenCalledWith(`${mockBaseUrl}/profile/${mockUserId}/`, {
+      headers: {
+        Authorization: `Token ${mockToken}`,
+      },
+    });
     expect(response.status).toBe(200);
     expect(responseData).toEqual({ success: true });
   });
@@ -75,14 +72,11 @@ describe('DELETE /api/profile', () => {
     const response = await DELETE(mockRequest);
     const responseData = await response.json();
 
-    expect(mockedAxios.delete).toHaveBeenCalledWith(
-      `${mockBaseUrl}/profile/${mockUserId}/`,
-      {
-        headers: {
-          Authorization: `Token ${mockToken}`,
-        },
-      }
-    );
+    expect(mockedAxios.delete).toHaveBeenCalledWith(`${mockBaseUrl}/profile/${mockUserId}/`, {
+      headers: {
+        Authorization: `Token ${mockToken}`,
+      },
+    });
     expect(response.status).toBe(200);
     expect(responseData).toEqual({ success: true });
   });

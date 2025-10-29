@@ -135,7 +135,9 @@ const Popup = ({
 
               {/* Footer */}
               <div className="flex-none">
-                <div className={`flex flex-row justify-center md:justify-start gap-3 md:gap-4 ${footerClassName || ''}`}>
+                <div
+                  className={`flex flex-row justify-center md:justify-start gap-3 md:gap-4 ${footerClassName || ''}`}
+                >
                   {closeButtonLabel && (
                     <BaseButton
                       customClass={
