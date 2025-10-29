@@ -14,6 +14,9 @@ interface PopupProps {
   children?: React.ReactNode;
   customClass?: string;
   imageSize?: string;
+  titleClassName?: string;
+  closeButtonClassName?: string;
+  footerClassName?: string;
 }
 
 const Popup = ({
@@ -26,6 +29,9 @@ const Popup = ({
   children,
   customClass,
   imageSize = 'w-full max-w-[200px] md:max-w-[300px]',
+  titleClassName,
+  closeButtonClassName,
+  footerClassName,
 }: PopupProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -103,7 +109,7 @@ const Popup = ({
                       id="popup-title"
                       className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-normal text-center ${
                         darkMode ? 'text-white' : 'text-[#053749]'
-                      }`}
+                      } ${titleClassName || ''}`}
                     >
                       {title}
                     </h2>
@@ -129,17 +135,20 @@ const Popup = ({
 
               {/* Footer */}
               <div className="flex-none">
-                <div className="flex flex-row justify-center md:justify-start gap-3 md:gap-4">
+                <div className={`flex flex-row justify-center md:justify-start gap-3 md:gap-4 ${footerClassName || ''}`}>
                   {closeButtonLabel && (
                     <BaseButton
-                      customClass={`
-                        bg-capx-light-bg hover:bg-capx-primary-green 
-                        border-capx-dark-box-bg border-2 
-                        text-capx-dark-box-bg font-extrabold rounded-lg 
+                      customClass={
+                        closeButtonClassName ||
+                        `
+                        bg-capx-light-bg hover:bg-capx-primary-green
+                        border-capx-dark-box-bg border-2
+                        text-capx-dark-box-bg font-extrabold rounded-lg
                         text-sm md:text-lg
                         py-2 px-4 md:py-3 md:px-6
                         min-w-[100px] md:min-w-[150px]
-                      `}
+                      `
+                      }
                       label={closeButtonLabel}
                       onClick={onCloseTab}
                     />
@@ -147,7 +156,7 @@ const Popup = ({
                   {continueButtonLabel && (
                     <BaseButton
                       customClass={`
-                        bg-capx-secondary-purple hover:bg-capx-primary-green 
+                        bg-capx-secondary-purple hover:bg-capx-primary-green
                         text-white hover:text-capx-dark-bg font-extrabold rounded-lg
                         text-sm md:text-lg
                         py-2 px-4 md:py-3 md:px-6
