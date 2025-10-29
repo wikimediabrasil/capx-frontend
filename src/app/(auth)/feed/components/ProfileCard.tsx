@@ -280,7 +280,11 @@ export const ProfileCard = ({
                       ? 'text-capx-light-bg border-capx-light-bg'
                       : 'text-capx-dark-box-bg border-capx-dark-box-bg'
                   }`}
-                  label={isSaved ? pageContent['saved-profiles-saved-profile'] : pageContent['edit-profile-save']}
+                  label={
+                    isSaved
+                      ? pageContent['saved-profiles-saved-profile']
+                      : pageContent['edit-profile-save']
+                  }
                   onClick={toggleSaved}
                   aria-label={
                     isSaved
