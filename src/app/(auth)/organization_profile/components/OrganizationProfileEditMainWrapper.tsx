@@ -1082,8 +1082,10 @@ export default function EditOrganizationProfilePage() {
 
   // Diff tags handlers
   const handleAddDiffTag = () => {
+    // Use timestamp + counter for better uniqueness than Math.random()
+    const timestamp = Date.now();
     const newTag = {
-      id: Math.floor(Math.random() * -1000), // Temporary negative ID for new tags
+      id: -timestamp, // Temporary negative ID for new tags (negative to distinguish from server IDs)
       tag: '', // Empty string instead of default text
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

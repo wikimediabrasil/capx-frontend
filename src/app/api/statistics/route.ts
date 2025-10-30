@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const backendUrl = 'https://capx-backend.toolforge.org/statistics/';
-    const response = await axios.get(backendUrl, {
+
+    const timestamp = Date.now();
+    const urlWithTimestamp = `${backendUrl}?_t=${timestamp}`;
+
+    const response = await axios.get(urlWithTimestamp, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         Pragma: 'no-cache',
@@ -13,7 +20,8 @@ export async function GET() {
     });
     return NextResponse.json(response.data, {
       headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'no-store, max-age=0',
+        'X-Data-Timestamp': timestamp.toString(),
         Pragma: 'no-cache',
         Expires: '0',
       },
