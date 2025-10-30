@@ -1,5 +1,6 @@
 import { profileService } from '@/services/profileService';
 import { signOut } from 'next-auth/react';
+import { mockConsoleError } from '../test-utils';
 
 // Mock dependencies
 jest.mock('@/services/profileService');
@@ -8,15 +9,17 @@ jest.mock('next-auth/react');
 const mockedProfileService = profileService as jest.Mocked<typeof profileService>;
 const mockedSignOut = signOut as jest.MockedFunction<typeof signOut>;
 
+mockConsoleError();
+
 describe('Profile Delete Integration Flow', () => {
   const mockToken = 'test-token-123';
   const mockUserId = 123;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset window.location.href
-    delete (window as any).location;
-    window.location = { href: '' } as any;
+    // Reset globalThis.location.href
+    delete (globalThis as any).location;
+    globalThis.location = { href: '' } as any;
   });
 
   describe('Complete deletion flow', () => {
@@ -28,7 +31,7 @@ describe('Profile Delete Integration Flow', () => {
       // Simulate the deletion flow
       await profileService.deleteProfile(mockUserId.toString(), mockToken);
       await signOut({ redirect: false });
-      window.location.href = '/';
+      globalThis.location.href = '/';
 
       // Verify all steps executed
       expect(mockedProfileService.deleteProfile).toHaveBeenCalledWith(
@@ -36,7 +39,7 @@ describe('Profile Delete Integration Flow', () => {
         mockToken
       );
       expect(mockedSignOut).toHaveBeenCalledWith({ redirect: false });
-      expect(window.location.href).toBe('/');
+      expect(globalThis.location.href).toBe('/');
     });
 
     it('should call signOut without redirect to prevent automatic navigation', async () => {
@@ -56,9 +59,9 @@ describe('Profile Delete Integration Flow', () => {
 
       await profileService.deleteProfile(mockUserId.toString(), mockToken);
       await signOut({ redirect: false });
-      window.location.href = '/';
+      globalThis.location.href = '/';
 
-      expect(window.location.href).toBe('/');
+      expect(globalThis.location.href).toBe('/');
     });
 
     it('should not signOut if deletion fails', async () => {
@@ -175,7 +178,7 @@ describe('Profile Delete Integration Flow', () => {
       await profileService.deleteProfile(mockUserId.toString(), mockToken);
       await signOut({ redirect: false });
       callOrder.push('redirect');
-      window.location.href = '/';
+      globalThis.location.href = '/';
 
       expect(callOrder).toEqual(['delete', 'signOut', 'redirect']);
     });
@@ -204,13 +207,4 @@ describe('Profile Delete Integration Flow', () => {
       );
     });
   });
-});
-
-// Mock console.error to avoid cluttering test output
-beforeAll(() => {
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-});
-
-afterAll(() => {
-  (console.error as jest.Mock).mockRestore();
 });
