@@ -6,6 +6,14 @@
 			"YaronSh"
 		]
 	},
+	"empty-field": "לא מילאת את השדה הזה עדיין",
+	"profile-item-more": "עוד",
+	"loading": "בטעינה…",
+	"complete-your-profile": "נא להשלים את הפרופיל שלך לחוויה טובה יותר",
+	"auth-dialog-content": "מתבצעת הפנייה לכניסה האחודה במטא־ויקי",
+	"auth-dialog-button-continue": "להמשיך",
+	"auth-dialog-button-close": "סגירת לישון",
+	"navbar-link-organizations": "רשימת ארגונים",
 	"navbar-link-profiles": "הפרופילים שלי",
 	"navbar-link-capacities": "מדריך יכולות",
 	"navbar-link-events": "אירועים",
