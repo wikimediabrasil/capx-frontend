@@ -74,8 +74,11 @@ export function useProfile(token: string | undefined, userId: number | undefined
 
     try {
       await profileService.deleteProfile(userId.toString(), token);
-      // Invalidate profile cache after deletion
-      await queryClient.invalidateQueries({ queryKey: ['profile', token, userId] });
+      // Remove profile cache after deletion (don't invalidate, as that would try to refetch)
+      queryClient.removeQueries({ queryKey: ['profile', token, userId] });
+      queryClient.removeQueries({ queryKey: ['users'] });
+      queryClient.removeQueries({ queryKey: ['userProfile'] });
+      queryClient.removeQueries({ queryKey: ['userProfile', userId, token] });
     } catch (err) {
       throw err;
     }

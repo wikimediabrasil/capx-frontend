@@ -98,7 +98,9 @@ export const profileService = {
           Authorization: `Token ${token}`,
         },
         data: {
-          userId,
+          user: {
+            id: userId,
+          },
         },
       });
       return response.data;
