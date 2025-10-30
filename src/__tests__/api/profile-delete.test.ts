@@ -1,6 +1,6 @@
 import { DELETE } from '@/app/api/profile/route';
-import { NextRequest } from 'next/server';
 import axios from 'axios';
+import { createMockRequest } from '../test-utils';
 
 // Mock axios
 jest.mock('axios');
@@ -20,24 +20,12 @@ describe('DELETE /api/profile', () => {
   });
 
   it('should successfully delete profile with status 200', async () => {
-    // Mock successful delete response
     mockedAxios.delete.mockResolvedValue({
       status: 200,
       data: { success: true },
     });
 
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: mockUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: mockUserId, token: mockToken });
     const response = await DELETE(mockRequest);
     const responseData = await response.json();
 
@@ -51,24 +39,12 @@ describe('DELETE /api/profile', () => {
   });
 
   it('should successfully delete profile with status 204', async () => {
-    // Mock delete response with 204 No Content
     mockedAxios.delete.mockResolvedValue({
       status: 204,
       data: null,
     });
 
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: mockUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: mockUserId, token: mockToken });
     const response = await DELETE(mockRequest);
     const responseData = await response.json();
 
@@ -82,7 +58,6 @@ describe('DELETE /api/profile', () => {
   });
 
   it('should handle unauthorized error (401)', async () => {
-    // Mock unauthorized error
     mockedAxios.delete.mockRejectedValue({
       response: {
         status: 401,
@@ -90,27 +65,18 @@ describe('DELETE /api/profile', () => {
       },
     });
 
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: mockUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: mockUserId, token: mockToken });
     const response = await DELETE(mockRequest);
     const responseData = await response.json();
 
     expect(response.status).toBe(500);
-    expect(responseData).toEqual({ error: 'Failed to delete user profile' });
+    expect(responseData).toEqual({
+      error: 'Failed to delete user profile',
+      details: '[object Object]'
+    });
   });
 
   it('should handle backend error', async () => {
-    // Mock backend error
     mockedAxios.delete.mockRejectedValue({
       response: {
         status: 500,
@@ -118,23 +84,15 @@ describe('DELETE /api/profile', () => {
       },
     });
 
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: mockUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: mockUserId, token: mockToken });
     const response = await DELETE(mockRequest);
     const responseData = await response.json();
 
     expect(response.status).toBe(500);
-    expect(responseData).toEqual({ error: 'Failed to delete user profile' });
+    expect(responseData).toEqual({
+      error: 'Failed to delete user profile',
+      details: '[object Object]'
+    });
   });
 
   it('should include trailing slash in DELETE URL', async () => {
@@ -143,18 +101,7 @@ describe('DELETE /api/profile', () => {
       data: null,
     });
 
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: mockUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: mockUserId, token: mockToken });
     await DELETE(mockRequest);
 
     // Verify the URL has trailing slash (Django requirement)
@@ -170,18 +117,7 @@ describe('DELETE /api/profile', () => {
       data: {},
     });
 
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: mockUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: mockUserId, token: mockToken });
     await DELETE(mockRequest);
 
     expect(mockedAxios.delete).toHaveBeenCalledWith(
@@ -201,18 +137,7 @@ describe('DELETE /api/profile', () => {
     });
 
     const customUserId = 456;
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        user: { id: customUserId },
-      }),
-      headers: {
-        get: jest.fn((header: string) => {
-          if (header === 'authorization') return `Token ${mockToken}`;
-          return null;
-        }),
-      },
-    } as unknown as NextRequest;
-
+    const mockRequest = createMockRequest({ userId: customUserId, token: mockToken });
     await DELETE(mockRequest);
 
     expect(mockedAxios.delete).toHaveBeenCalledWith(

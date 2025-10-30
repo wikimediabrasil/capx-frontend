@@ -1,8 +1,14 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useProfile } from '@/hooks/useProfile';
 import { profileService } from '@/services/profileService';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { QueryClient } from '@tanstack/react-query';
+import {
+  createTestQueryClient,
+  createQueryWrapper,
+  mockConsoleError,
+  setupProfileServiceMocks,
+  createMockProfile,
+} from '../test-utils';
 
 // Mock profileService
 jest.mock('@/services/profileService');
@@ -14,13 +20,7 @@ describe('useProfile.deleteProfile', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
-    // Create a new QueryClient for each test to ensure isolation
-    queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-        mutations: { retry: false },
-      },
-    });
+    queryClient = createTestQueryClient();
     jest.clearAllMocks();
   });
 
@@ -28,21 +28,12 @@ describe('useProfile.deleteProfile', () => {
     queryClient.clear();
   });
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-
   it('should successfully delete profile', async () => {
-    // Mock successful delete
-    mockedProfileService.deleteProfile.mockResolvedValue({ success: true });
+    setupProfileServiceMocks(mockedProfileService, mockUserId);
 
-    // Mock fetchUserProfile to return a profile
-    mockedProfileService.fetchUserProfile.mockResolvedValue({
-      user: { id: mockUserId, username: 'testuser' },
-      avatar: 'test.jpg',
+    const { result } = renderHook(() => useProfile(mockToken, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
     });
-
-    const { result } = renderHook(() => useProfile(mockToken, mockUserId), { wrapper });
 
     // Wait for initial profile fetch
     await waitFor(() => {
@@ -59,13 +50,11 @@ describe('useProfile.deleteProfile', () => {
   });
 
   it('should remove queries from cache after deletion', async () => {
-    mockedProfileService.deleteProfile.mockResolvedValue({ success: true });
-    mockedProfileService.fetchUserProfile.mockResolvedValue({
-      user: { id: mockUserId, username: 'testuser' },
-      avatar: 'test.jpg',
-    });
+    setupProfileServiceMocks(mockedProfileService, mockUserId);
 
-    const { result } = renderHook(() => useProfile(mockToken, mockUserId), { wrapper });
+    const { result } = renderHook(() => useProfile(mockToken, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.profile).toBeDefined();
@@ -86,13 +75,17 @@ describe('useProfile.deleteProfile', () => {
   });
 
   it('should throw error when token is missing', async () => {
-    const { result } = renderHook(() => useProfile(undefined, mockUserId), { wrapper });
+    const { result } = renderHook(() => useProfile(undefined, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await expect(result.current.deleteProfile()).rejects.toThrow('No token or userId available');
   });
 
   it('should throw error when userId is missing', async () => {
-    const { result } = renderHook(() => useProfile(mockToken, undefined), { wrapper });
+    const { result } = renderHook(() => useProfile(mockToken, undefined), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await expect(result.current.deleteProfile()).rejects.toThrow('No token or userId available');
   });
@@ -100,12 +93,11 @@ describe('useProfile.deleteProfile', () => {
   it('should handle deletion error', async () => {
     const deleteError = new Error('Failed to delete profile');
     mockedProfileService.deleteProfile.mockRejectedValue(deleteError);
-    mockedProfileService.fetchUserProfile.mockResolvedValue({
-      user: { id: mockUserId, username: 'testuser' },
-      avatar: 'test.jpg',
-    });
+    mockedProfileService.fetchUserProfile.mockResolvedValue(createMockProfile(mockUserId));
 
-    const { result } = renderHook(() => useProfile(mockToken, mockUserId), { wrapper });
+    const { result } = renderHook(() => useProfile(mockToken, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.profile).toBeDefined();
@@ -115,13 +107,11 @@ describe('useProfile.deleteProfile', () => {
   });
 
   it('should not refetch profile after deletion', async () => {
-    mockedProfileService.deleteProfile.mockResolvedValue({ success: true });
-    mockedProfileService.fetchUserProfile.mockResolvedValue({
-      user: { id: mockUserId, username: 'testuser' },
-      avatar: 'test.jpg',
-    });
+    setupProfileServiceMocks(mockedProfileService, mockUserId);
 
-    const { result } = renderHook(() => useProfile(mockToken, mockUserId), { wrapper });
+    const { result } = renderHook(() => useProfile(mockToken, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.profile).toBeDefined();
@@ -141,18 +131,16 @@ describe('useProfile.deleteProfile', () => {
   });
 
   it('should clear all related queries', async () => {
-    mockedProfileService.deleteProfile.mockResolvedValue({ success: true });
-    mockedProfileService.fetchUserProfile.mockResolvedValue({
-      user: { id: mockUserId, username: 'testuser' },
-      avatar: 'test.jpg',
-    });
+    setupProfileServiceMocks(mockedProfileService, mockUserId);
 
     // Set some related queries in cache
     queryClient.setQueryData(['users'], [{ id: mockUserId }]);
     queryClient.setQueryData(['userProfile'], { id: mockUserId });
     queryClient.setQueryData(['userProfile', mockUserId, mockToken], { id: mockUserId });
 
-    const { result } = renderHook(() => useProfile(mockToken, mockUserId), { wrapper });
+    const { result } = renderHook(() => useProfile(mockToken, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.profile).toBeDefined();
@@ -171,13 +159,11 @@ describe('useProfile.deleteProfile', () => {
   });
 
   it('should call profileService.deleteProfile with correct parameters', async () => {
-    mockedProfileService.deleteProfile.mockResolvedValue({ success: true });
-    mockedProfileService.fetchUserProfile.mockResolvedValue({
-      user: { id: mockUserId, username: 'testuser' },
-      avatar: 'test.jpg',
-    });
+    setupProfileServiceMocks(mockedProfileService, mockUserId);
 
-    const { result } = renderHook(() => useProfile(mockToken, mockUserId), { wrapper });
+    const { result } = renderHook(() => useProfile(mockToken, mockUserId), {
+      wrapper: createQueryWrapper(queryClient),
+    });
 
     await waitFor(() => {
       expect(result.current.profile).toBeDefined();
@@ -193,11 +179,4 @@ describe('useProfile.deleteProfile', () => {
   });
 });
 
-// Mock console.error to avoid cluttering test output
-beforeAll(() => {
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-});
-
-afterAll(() => {
-  (console.error as jest.Mock).mockRestore();
-});
+mockConsoleError();

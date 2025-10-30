@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
+import { renderWithThemeApp, createMockTheme, setupTimers, mockConsoleError } from '../test-utils';
 
 // Mock AppContext
 jest.mock('@/contexts/AppContext', () => ({
@@ -45,41 +46,17 @@ jest.mock('@/contexts/ThemeContext', () => ({
 }));
 
 describe('ProfileDeletedSuccessPopup', () => {
+  setupTimers();
+
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useFakeTimers();
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#FFFFFF',
-      getTextColor: () => '#000000',
-    });
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
   });
-
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
-  };
 
   it('should render popup when isOpen is true', () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     expect(screen.getByText('Profile successfully deleted')).toBeInTheDocument();
     expect(
@@ -90,7 +67,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should not render popup when isOpen is false', () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />);
 
     expect(screen.queryByText('Profile successfully deleted')).not.toBeInTheDocument();
   });
@@ -98,7 +75,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should display all required text content', () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     expect(screen.getByText('Profile successfully deleted')).toBeInTheDocument();
     expect(
@@ -115,7 +92,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should auto-close after 3 seconds', async () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     expect(onClose).not.toHaveBeenCalled();
 
@@ -130,7 +107,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should not auto-close before 3 seconds', () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     // Fast-forward time by 2.9 seconds (just before 3s)
     jest.advanceTimersByTime(2900);
@@ -141,7 +118,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should clear timeout when component unmounts', () => {
     const onClose = jest.fn();
 
-    const { unmount } = renderWithProviders(
+    const { unmount } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
@@ -157,7 +134,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should restart timer if isOpen changes from false to true', async () => {
     const onClose = jest.fn();
 
-    const { rerender } = renderWithProviders(
+    const { rerender } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
     );
 
@@ -178,23 +155,11 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in light mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#FFFFFF',
-      getTextColor: () => '#000000',
-    });
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
 
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     const image = screen.getByRole('img');
     expect(image).toHaveAttribute('alt', 'Success illustration');
@@ -202,23 +167,11 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in dark mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#005B3F',
-      getTextColor: () => '#FFFFFF',
-    });
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(true));
 
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     const image = screen.getByRole('img');
     expect(image).toBeInTheDocument();
@@ -229,21 +182,9 @@ describe('ProfileDeletedSuccessPopup', () => {
     const onClose = jest.fn();
 
     // Render in light mode first
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#FFFFFF',
-      getTextColor: () => '#000000',
-    });
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
 
-    const { rerender } = renderWithProviders(
+    const { rerender } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
@@ -251,19 +192,7 @@ describe('ProfileDeletedSuccessPopup', () => {
     expect(image).toBeInTheDocument();
 
     // Change to dark mode
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#005B3F',
-      getTextColor: () => '#FFFFFF',
-    });
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(true));
 
     rerender(
       <ThemeProvider>
@@ -280,7 +209,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should have accessible dialog attributes', () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
@@ -291,7 +220,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should call onClose only once even if timer fires multiple times', async () => {
     const onClose = jest.fn();
 
-    renderWithProviders(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     jest.advanceTimersByTime(3000);
 
@@ -309,7 +238,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should handle rapid open/close cycles', async () => {
     const onClose = jest.fn();
 
-    const { rerender } = renderWithProviders(
+    const { rerender } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
@@ -343,11 +272,4 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 });
 
-// Mock console.error to avoid cluttering test output
-beforeAll(() => {
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-});
-
-afterAll(() => {
-  (console.error as jest.Mock).mockRestore();
-});
+mockConsoleError();
