@@ -3,7 +3,7 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
   images: {
-    domains: ["commons.wikimedia.org", "upload.wikimedia.org"],
+    domains: ["commons.wikimedia.org", "upload.wikimedia.org", "api.badgr.io"],
     remotePatterns: [
       {
         protocol: "http",
@@ -23,7 +23,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "api.badgr.io",
       },
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],

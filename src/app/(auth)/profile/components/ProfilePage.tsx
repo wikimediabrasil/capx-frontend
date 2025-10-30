@@ -578,9 +578,9 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
         }`}
       >
         <section
-          className={`flex w-full h-full justify-between pb-6 pt-10 px-4 px-8 lg:px-12 max-w-screen-xl mx-auto`}
+          className={`flex w-full h-full justify-center pb-6 pt-10 px-8 lg:px-12 max-w-screen-xl mx-auto`}
         >
-          <div className={`flex flex-col mx-auto gap-6`}>
+          <div className={`flex flex-col gap-6 max-w-[800px] w-full`}>
             <ProfileHeader
               username={profile?.user?.username || ''}
               profileImage={profile?.profile_image}

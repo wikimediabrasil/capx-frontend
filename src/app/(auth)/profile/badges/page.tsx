@@ -28,7 +28,8 @@ export default function BadgesPage() {
 
   const { getAvatarById } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || NoAvatarIcon);
-  const { userBadges } = useBadges();
+  const { allBadges, userBadges } = useBadges();
+  const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 
   useEffect(() => {
     const fetchAvatar = async () => {
@@ -103,45 +104,68 @@ export default function BadgesPage() {
           />
         </div>
 
-        {/* Grid of badges */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {userBadges.map(badge => (
-            <div
-              key={badge.id}
-              className={`
-                p-4 
-                rounded-lg 
-                ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
-                flex flex-col 
-                items-center 
-                text-center
-              `}
-            >
-              <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
-                <Image src={badge.picture} alt={badge.name} fill className="object-contain" />
-              </div>
-              <h3
-                className={`
-                text-base md:text-lg 
-                font-bold 
-                mb-2
-                ${darkMode ? 'text-white' : 'text-[#053749]'}
-              `}
-              >
-                {badge.name}
-              </h3>
-              <p
-                className={`
-                text-sm md:text-base 
-                mb-3
-                ${darkMode ? 'text-gray-300' : 'text-gray-600'}
-              `}
-              >
-                {badge.description}
-              </p>
-              <ProgressBar progress={badge.progress || 0} darkMode={darkMode} />
-            </div>
-          ))}
+        {/* All badges grid; applies P&B to the ones not owned */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {allBadges
+            .map(badge => {
+              const progress = userBadgeById.get(badge.id)?.progress ?? 0;
+              return { badge, progress };
+            })
+            .sort((a, b) => b.progress - a.progress)
+            .map(({ badge, progress }) => {
+              const isUnlocked = Number(progress) >= 100;
+
+              return (
+                <div
+                  key={badge.id}
+                  className={`
+                  p-4 
+                  rounded-lg 
+                  ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
+                  flex flex-col 
+                  items-center 
+                  text-center
+                  h-full
+                  justify-between
+                `}
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
+                      <Image
+                        src={badge.picture}
+                        alt={badge.name}
+                        fill
+                        className={`object-contain ${!isUnlocked ? 'grayscale opacity-60' : ''}`}
+                      />
+                    </div>
+                    <h3
+                      className={`
+                    text-base md:text-lg 
+                    font-bold 
+                    mb-2
+                    ${darkMode ? 'text-white' : 'text-[#053749]'}
+                    ${!isUnlocked ? 'opacity-60' : ''}
+                  `}
+                    >
+                      {badge.name}
+                    </h3>
+                    <p
+                      className={`
+                    text-sm md:text-base 
+                    mb-3
+                    ${darkMode ? 'text-gray-300' : 'text-gray-600'}
+                    ${!isUnlocked ? 'opacity-60' : ''}
+                  `}
+                    >
+                      {badge.description}
+                    </p>
+                  </div>
+                  <div className="w-full mt-auto">
+                    <ProgressBar progress={progress} darkMode={darkMode} />
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
     </main>
