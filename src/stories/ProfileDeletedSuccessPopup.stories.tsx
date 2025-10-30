@@ -293,60 +293,63 @@ export const WithBackdrop: Story = {
   },
 };
 
-export const AutoCloseDemo: Story = {
-  render: args => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [countdown, setCountdown] = useState(3);
+// Helper component for AutoCloseDemo story
+const AutoCloseDemoComponent = (args: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
-    const handleOpen = () => {
-      setIsOpen(true);
-      setCountdown(3);
+  const handleOpen = () => {
+    setIsOpen(true);
+    setCountdown(3);
 
-      const interval = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    };
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
-    return (
-      <div>
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          <button
-            onClick={handleOpen}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold',
-            }}
-          >
-            Show Auto-Close Demo
-          </button>
-          {isOpen && countdown > 0 && (
-            <p style={{ marginTop: '10px', color: '#666', fontSize: '14px' }}>
-              Popup will auto-close in {countdown} seconds...
-            </p>
-          )}
-        </div>
-        <ProfileDeletedSuccessPopup
-          isOpen={isOpen}
-          onClose={() => {
-            setIsOpen(false);
-            args.onClose?.();
+  return (
+    <div>
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <button
+          onClick={handleOpen}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#dc2626',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: 'bold',
           }}
-        />
+        >
+          Show Auto-Close Demo
+        </button>
+        {isOpen && countdown > 0 && (
+          <p style={{ marginTop: '10px', color: '#666', fontSize: '14px' }}>
+            Popup will auto-close in {countdown} seconds...
+          </p>
+        )}
       </div>
-    );
-  },
+      <ProfileDeletedSuccessPopup
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+          args.onClose?.();
+        }}
+      />
+    </div>
+  );
+};
+
+export const AutoCloseDemo: Story = {
+  render: args => <AutoCloseDemoComponent {...args} />,
   args: {
     isOpen: false,
   },
