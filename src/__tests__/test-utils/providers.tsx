@@ -10,20 +10,24 @@ import { createTestQueryClient } from './queryClient';
  */
 export function createQueryWrapper(queryClient?: QueryClient) {
   const client = queryClient || createTestQueryClient();
-  return ({ children }: { children: React.ReactNode }) => (
+  const QueryWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
+  QueryWrapper.displayName = 'QueryWrapper';
+  return QueryWrapper;
 }
 
 /**
  * Wrapper with ThemeProvider and AppProvider for testing
  */
 export function createThemeAppWrapper() {
-  return ({ children }: { children: React.ReactNode }) => (
+  const ThemeAppWrapper = ({ children }: { children: React.ReactNode }) => (
     <ThemeProvider>
       <AppProvider>{children}</AppProvider>
     </ThemeProvider>
   );
+  ThemeAppWrapper.displayName = 'ThemeAppWrapper';
+  return ThemeAppWrapper;
 }
 
 /**
@@ -31,13 +35,15 @@ export function createThemeAppWrapper() {
  */
 export function createAllProvidersWrapper(queryClient?: QueryClient) {
   const client = queryClient || createTestQueryClient();
-  return ({ children }: { children: React.ReactNode }) => (
+  const AllProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={client}>
       <ThemeProvider>
         <AppProvider>{children}</AppProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
+  AllProvidersWrapper.displayName = 'AllProvidersWrapper';
+  return AllProvidersWrapper;
 }
 
 /**
