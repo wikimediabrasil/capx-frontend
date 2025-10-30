@@ -72,7 +72,7 @@ describe('DELETE /api/profile', () => {
     expect(response.status).toBe(500);
     expect(responseData).toEqual({
       error: 'Failed to delete user profile',
-      details: '[object Object]'
+      details: '[object Object]',
     });
   });
 
@@ -91,7 +91,7 @@ describe('DELETE /api/profile', () => {
     expect(response.status).toBe(500);
     expect(responseData).toEqual({
       error: 'Failed to delete user profile',
-      details: '[object Object]'
+      details: '[object Object]',
     });
   });
 
