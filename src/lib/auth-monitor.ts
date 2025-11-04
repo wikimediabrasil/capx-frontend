@@ -16,7 +16,7 @@ const getSignOut = async (): Promise<typeof SignOutType> => {
   return signOut;
 };
 
-// Function to check if the session has exceeded 1 hour
+// Function to check if the session has exceeded 24 hours
 const checkSessionExpiration = (): boolean => {
   if (typeof window === 'undefined') return false;
 
@@ -28,17 +28,17 @@ const checkSessionExpiration = (): boolean => {
 
   const loginTime = parseInt(loginTimestamp, 10);
   const currentTime = Date.now();
-  const ONE_HOUR_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+  const TWENTY_FOUR_HOURS_IN_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-  return currentTime - loginTime > ONE_HOUR_IN_MS;
+  return currentTime - loginTime > TWENTY_FOUR_HOURS_IN_MS;
 };
 
 // Function to check if the token is still valid by making a test request
 const checkTokenValidity = async (token: string): Promise<boolean> => {
   try {
-    // First check if the session has expired (1 hour)
+    // First check if the session has expired (24 hours)
     if (checkSessionExpiration()) {
-      console.warn('Session expired: 1 hour limit reached');
+      console.warn('Session expired: 24 hour limit reached');
       return false;
     }
 
@@ -202,9 +202,9 @@ export const startAuthMonitoring = (authState: AuthState) => {
       return;
     }
 
-    // Check if the session has expired (1 hour)
+    // Check if the session has expired (24 hours)
     if (checkSessionExpiration()) {
-      forceLogout('Session expired: 1 hour limit reached');
+      forceLogout('Session expired: 24 hour limit reached');
     }
   }, 2000); // 2 seconds for quick detection
 
