@@ -109,14 +109,14 @@ export function prefetchAllCapacityData(
 
             return children;
           },
-          staleTime: 1000 * 60 * 60, // 1 hour
+          staleTime: 1000 * 60 * 60 * 24, // 24 hours
         });
       });
 
       await Promise.all(childrenPromises);
       return rootCapacities;
     },
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
   });
 }
@@ -261,7 +261,7 @@ export function useCapacities(language: string = 'en') {
       );
     },
     enabled: !!token,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
   });
 
   // Process root capacities
@@ -303,7 +303,7 @@ export function useCapacities(language: string = 'en') {
       queryKey: CAPACITY_CACHE_KEYS.byId(id, language),
       queryFn: () => fetchCapacityById(id),
       enabled: !!id && !!token,
-      staleTime: 1000 * 60 * 60, // 1 hour
+      staleTime: 1000 * 60 * 60 * 24, // 24 hours
     }),
     [fetchCapacityById, token, language]
   );
@@ -313,7 +313,7 @@ export function useCapacities(language: string = 'en') {
       queryKey: CAPACITY_CACHE_KEYS.children(parentCode, language),
       queryFn: () => fetchCapacitiesByParent(parentCode),
       enabled: !!token && !!parentCode,
-      staleTime: 1000 * 60 * 60, // 1 hour
+      staleTime: 1000 * 60 * 60 * 24, // 24 hours
     }),
     [fetchCapacitiesByParent, token, language]
   );
@@ -392,7 +392,7 @@ export function useCapacityWithDetails(capacityId?: number) {
       }
     },
     enabled: !!capacityId && !!token,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
   });
 
   // Fetch description data directly
