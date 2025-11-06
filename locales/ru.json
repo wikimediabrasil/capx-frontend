@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Cabadeck",
+			"EneshTranslates",
 			"Kareyac",
 			"Lvova",
 			"Mitte27",
@@ -486,6 +487,10 @@
 	"pagination-next": "След.",
 	"pagination-page": "Страница",
 	"pagination-of": "из",
+	"profile-deleted-title": "Профиль успешно удалён",
+	"profile-deleted-message": "Ваш профиль был навсегда удалён с CapX.",
+	"profile-deleted-submessage": "Спасибо, что были частью нашего сообщества. Вы можете создать новый аккаунт в любое время.",
+	"profile-deleted-ok-button": "ОК",
 	"saved-profiles-filters-button": "Фильтры",
 	"select-capacity": "Выбрать компетенцию",
 	"snackbar-edit-profile-failed": "Ошибка обновления профиля. Попробуйте ещё раз.",
