@@ -5,5 +5,6 @@ export interface Message {
   receiver: string;
   method: string;
   status: string;
+  error_message?: string;
   date: string;
 }

@@ -12,42 +12,38 @@ export interface UserEmailCheckResult {
   username?: string;
 }
 
+export interface EmailCheckResult {
+  sender_emailable: boolean;
+  receiver_emailable: boolean;
+  can_send_email: boolean;
+}
+
 export class MessageService {
   /**
-   * Checks if a user has an email address linked to their account
-   * @param username - The username to check
+   * Checks if both sender and receiver can send/receive emails via MetaWiki.
+   * This method uses the backend's check_emailable endpoint which validates
+   * email capabilities through the MetaWiki API.
+   *
+   * @param receiver - The username of the message receiver
    * @param token - Authentication token
-   * @returns Object with hasEmail boolean and optional email/username
+   * @returns Object with sender_emailable, receiver_emailable, and can_send_email flags
    */
-  static async checkUserHasEmail(username: string, token: string): Promise<UserEmailCheckResult> {
+  static async checkEmailable(receiver: string, token: string): Promise<EmailCheckResult> {
     try {
-      const response = await axios.get('/api/users', {
-        params: {
-          username: username,
-        },
-        headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await axios.post(
+        '/api/messages/check_emailable',
+        { receiver },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      // API returns paginated results
-      const users = response.data?.results || response.data;
-
-      if (!users || users.length === 0) {
-        throw new Error('User not found');
-      }
-
-      const user = users[0];
-      const hasEmail = Boolean(user.user?.email || user.email);
-
-      return {
-        hasEmail,
-        email: user.user?.email || user.email,
-        username: user.user?.username || user.username,
-      };
+      return response.data;
     } catch (error) {
-      console.error('Failed to check user email:', error);
+      console.error('Failed to check email availability:', error);
       throw error;
     }
   }

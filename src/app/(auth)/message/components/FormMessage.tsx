@@ -18,6 +18,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMessage } from '@/hooks/useMessage';
 import { Message } from '@/types/message';
+import { MessageService } from '@/services/messageService';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -49,6 +50,10 @@ export default function FormMessage() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showInfoMessagePopup, setShowInfoMessagePopup] = useState(false);
   const [showInfoMethodPopup, setShowInfoMethodPopup] = useState(false);
+  const [showNoEmailErrorPopup, setShowNoEmailErrorPopup] = useState(false);
+  const [showUserNotFoundPopup, setShowUserNotFoundPopup] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailCheckMessage, setEmailCheckMessage] = useState<string>('');
 
   const { showSnackbar } = useSnackbar();
 
@@ -70,8 +75,53 @@ export default function FormMessage() {
 
   const handleSubmit = async () => {
     setShowInfoMessagePopup(false);
+
+    // Validate email availability before sending if method is email
+    if (formData.method === MessageMethod.EMAIL && formData.receiver && session?.user?.token) {
+      setIsCheckingEmail(true);
+      try {
+        const emailCheck = await MessageService.checkEmailable(
+          formData.receiver,
+          session.user.token
+        );
+
+        // Check if email sending is not possible
+        if (!emailCheck.can_send_email) {
+          setIsCheckingEmail(false);
+
+          // Build descriptive message based on which party cannot use email
+          let message = '';
+          if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
+            message = 'Neither you nor the receiver have email enabled in Wikimedia. Please use Talk Page instead.';
+          } else if (!emailCheck.sender_emailable) {
+            message = 'You do not have email enabled in your Wikimedia account. Please use Talk Page instead.';
+          } else if (!emailCheck.receiver_emailable) {
+            message = 'The receiver does not accept emails. Please use Talk Page instead.';
+          }
+
+          setEmailCheckMessage(message);
+          setShowNoEmailErrorPopup(true);
+          return;
+        }
+      } catch (error: any) {
+        setIsCheckingEmail(false);
+        console.error('Error checking email availability:', error);
+        showSnackbar('Failed to verify email availability. Proceeding with automatic fallback.', 'error');
+        // Continue with sending - backend will handle fallback
+      }
+      setIsCheckingEmail(false);
+    }
+
     try {
-      await sendMessage(formData);
+      const result = await sendMessage(formData);
+
+      // Check if there was a fallback (method changed from email to talkpage)
+      if (result.method === MessageMethod.TALKPAGE &&
+          formData.method === MessageMethod.EMAIL &&
+          result.error_message) {
+        showSnackbar(`⚠️ ${result.error_message}`, 'error');
+      }
+
       setShowSuccessPopup(true);
       setFormData({
         receiver: '',
@@ -107,6 +157,19 @@ export default function FormMessage() {
 
   const handleCloseInfoMethodPopup = () => {
     setShowInfoMethodPopup(false);
+  };
+
+  const handleCloseNoEmailErrorPopup = () => {
+    setShowNoEmailErrorPopup(false);
+  };
+
+  const handleSwitchToTalkPage = () => {
+    setFormData({ ...formData, method: MessageMethod.TALKPAGE });
+    setShowNoEmailErrorPopup(false);
+  };
+
+  const handleCloseUserNotFoundPopup = () => {
+    setShowUserNotFoundPopup(false);
   };
 
   return (
@@ -337,6 +400,30 @@ export default function FormMessage() {
           image={SuccessSubmissionSVG}
         >
           {pageContent['message-info-popup']}
+        </Popup>
+      )}
+      {/* No Email Error Popup */}
+      {showNoEmailErrorPopup && (
+        <Popup
+          title={pageContent['message-error-no-email-title'] || 'Email Not Available'}
+          closeButtonLabel={pageContent['auth-dialog-button-close']}
+          continueButtonLabel={pageContent['message-error-use-talkpage-button'] || 'Use Talk Page'}
+          onClose={handleCloseNoEmailErrorPopup}
+          onContinue={handleSwitchToTalkPage}
+          image={InfoIcon}
+        >
+          {emailCheckMessage || pageContent['message-error-no-email-body']}
+        </Popup>
+      )}
+      {/* User Not Found Error Popup */}
+      {showUserNotFoundPopup && (
+        <Popup
+          title={pageContent['message-error-user-not-found']}
+          closeButtonLabel={pageContent['auth-dialog-button-close']}
+          onClose={handleCloseUserNotFoundPopup}
+          image={InfoIcon}
+        >
+          {pageContent['message-error-user-not-found-body']}
         </Popup>
       )}
     </section>
