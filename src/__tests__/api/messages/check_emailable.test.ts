@@ -14,6 +14,31 @@ const createMockRequest = (body: any) => {
   return request;
 };
 
+// Helper to create mock MediaWiki API response
+const createMockApiResponse = (users: Array<{ name: string; emailable?: boolean }>) => ({
+  data: {
+    query: { users },
+  },
+});
+
+// Helper to test email check scenarios
+const testEmailCheck = async (
+  requestBody: { sender?: string; receiver: string },
+  mockUsers: Array<{ name: string; emailable?: boolean }>,
+  expectedResult: {
+    sender_emailable: boolean;
+    receiver_emailable: boolean;
+    can_send_email: boolean;
+  }
+) => {
+  mockedAxios.get.mockResolvedValueOnce(createMockApiResponse(mockUsers));
+  const request = createMockRequest(requestBody);
+  const response = await POST(request);
+  const data = await response.json();
+  expect(data).toEqual(expectedResult);
+  return { response, data };
+};
+
 describe('check_emailable API route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -22,7 +47,6 @@ describe('check_emailable API route', () => {
   describe('POST handler', () => {
     it('should return error when receiver is not provided', async () => {
       const request = createMockRequest({});
-
       const response = await POST(request);
       const data = await response.json();
 
@@ -31,181 +55,71 @@ describe('check_emailable API route', () => {
     });
 
     it('should check only receiver when sender is not provided', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          query: {
-            users: [
-              {
-                name: 'TestReceiver',
-                emailable: true,
-              },
-            ],
-          },
-        },
-      });
-
-      const request = createMockRequest({ receiver: 'TestReceiver' });
-
-      const response = await POST(request);
-      const data = await response.json();
+      const { response } = await testEmailCheck(
+        { receiver: 'TestReceiver' },
+        [{ name: 'TestReceiver', emailable: true }],
+        { sender_emailable: true, receiver_emailable: true, can_send_email: true }
+      );
 
       expect(response.status).toBe(200);
-      expect(data).toEqual({
-        sender_emailable: true,
-        receiver_emailable: true,
-        can_send_email: true,
-      });
-
       expect(mockedAxios.get).toHaveBeenCalledWith(
         'https://meta.wikimedia.org/w/api.php',
         expect.objectContaining({
-          params: expect.objectContaining({
-            ususers: 'TestReceiver',
-          }),
+          params: expect.objectContaining({ ususers: 'TestReceiver' }),
         })
       );
     });
 
     it('should check both sender and receiver when both are provided', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          query: {
-            users: [
-              {
-                name: 'TestSender',
-                emailable: true,
-              },
-              {
-                name: 'TestReceiver',
-                emailable: true,
-              },
-            ],
-          },
-        },
-      });
-
-      const request = createMockRequest({
-        sender: 'TestSender',
-        receiver: 'TestReceiver',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
+      const { response } = await testEmailCheck(
+        { sender: 'TestSender', receiver: 'TestReceiver' },
+        [
+          { name: 'TestSender', emailable: true },
+          { name: 'TestReceiver', emailable: true },
+        ],
+        { sender_emailable: true, receiver_emailable: true, can_send_email: true }
+      );
 
       expect(response.status).toBe(200);
-      expect(data).toEqual({
-        sender_emailable: true,
-        receiver_emailable: true,
-        can_send_email: true,
-      });
-
       expect(mockedAxios.get).toHaveBeenCalledWith(
         'https://meta.wikimedia.org/w/api.php',
         expect.objectContaining({
-          params: expect.objectContaining({
-            ususers: 'TestSender|TestReceiver',
-          }),
+          params: expect.objectContaining({ ususers: 'TestSender|TestReceiver' }),
         })
       );
     });
 
     it('should return false when sender does not have email', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          query: {
-            users: [
-              {
-                name: 'TestSender',
-                emailable: false,
-              },
-              {
-                name: 'TestReceiver',
-                emailable: true,
-              },
-            ],
-          },
-        },
-      });
-
-      const request = createMockRequest({
-        sender: 'TestSender',
-        receiver: 'TestReceiver',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(data).toEqual({
-        sender_emailable: false,
-        receiver_emailable: true,
-        can_send_email: false,
-      });
+      await testEmailCheck(
+        { sender: 'TestSender', receiver: 'TestReceiver' },
+        [
+          { name: 'TestSender', emailable: false },
+          { name: 'TestReceiver', emailable: true },
+        ],
+        { sender_emailable: false, receiver_emailable: true, can_send_email: false }
+      );
     });
 
     it('should return false when receiver does not have email', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          query: {
-            users: [
-              {
-                name: 'TestSender',
-                emailable: true,
-              },
-              {
-                name: 'TestReceiver',
-                emailable: false,
-              },
-            ],
-          },
-        },
-      });
-
-      const request = createMockRequest({
-        sender: 'TestSender',
-        receiver: 'TestReceiver',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(data).toEqual({
-        sender_emailable: true,
-        receiver_emailable: false,
-        can_send_email: false,
-      });
+      await testEmailCheck(
+        { sender: 'TestSender', receiver: 'TestReceiver' },
+        [
+          { name: 'TestSender', emailable: true },
+          { name: 'TestReceiver', emailable: false },
+        ],
+        { sender_emailable: true, receiver_emailable: false, can_send_email: false }
+      );
     });
 
     it('should return false when both do not have email', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          query: {
-            users: [
-              {
-                name: 'TestSender',
-                emailable: false,
-              },
-              {
-                name: 'TestReceiver',
-                emailable: false,
-              },
-            ],
-          },
-        },
-      });
-
-      const request = createMockRequest({
-        sender: 'TestSender',
-        receiver: 'TestReceiver',
-      });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(data).toEqual({
-        sender_emailable: false,
-        receiver_emailable: false,
-        can_send_email: false,
-      });
+      await testEmailCheck(
+        { sender: 'TestSender', receiver: 'TestReceiver' },
+        [
+          { name: 'TestSender', emailable: false },
+          { name: 'TestReceiver', emailable: false },
+        ],
+        { sender_emailable: false, receiver_emailable: false, can_send_email: false }
+      );
     });
 
     it('should handle API errors gracefully', async () => {
@@ -244,29 +158,11 @@ describe('check_emailable API route', () => {
     });
 
     it('should handle users with emailable property not set', async () => {
-      mockedAxios.get.mockResolvedValueOnce({
-        data: {
-          query: {
-            users: [
-              {
-                name: 'TestReceiver',
-                // emailable property is missing
-              },
-            ],
-          },
-        },
-      });
-
-      const request = createMockRequest({ receiver: 'TestReceiver' });
-
-      const response = await POST(request);
-      const data = await response.json();
-
-      expect(data).toEqual({
-        sender_emailable: true,
-        receiver_emailable: false,
-        can_send_email: false,
-      });
+      await testEmailCheck(
+        { receiver: 'TestReceiver' },
+        [{ name: 'TestReceiver' }], // emailable property is missing
+        { sender_emailable: true, receiver_emailable: false, can_send_email: false }
+      );
     });
   });
 });
