@@ -54,7 +54,9 @@ export default function FormMessage() {
   const [showUserNotFoundPopup, setShowUserNotFoundPopup] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailCheckMessage, setEmailCheckMessage] = useState<string>('');
-  const [receiverEmailStatus, setReceiverEmailStatus] = useState<'unknown' | 'checking' | 'available' | 'unavailable'>('unknown');
+  const [receiverEmailStatus, setReceiverEmailStatus] = useState<
+    'unknown' | 'checking' | 'available' | 'unavailable'
+  >('unknown');
   const [emailCheckResult, setEmailCheckResult] = useState<any>(null);
 
   const { showSnackbar } = useSnackbar();
@@ -69,7 +71,12 @@ export default function FormMessage() {
   // Debounced email check function
   const checkReceiverEmail = useCallback(
     async (receiver: string) => {
-      if (!receiver || receiver.trim().length < 3 || !session?.user?.token || !session?.user?.name) {
+      if (
+        !receiver ||
+        receiver.trim().length < 3 ||
+        !session?.user?.token ||
+        !session?.user?.name
+      ) {
         setReceiverEmailStatus('unknown');
         setEmailCheckResult(null);
         return;
@@ -161,11 +168,14 @@ export default function FormMessage() {
         // Build descriptive message based on which party cannot use email
         let message = '';
         if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
-          message = 'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+          message =
+            'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
         } else if (!emailCheck.sender_emailable) {
-          message = 'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+          message =
+            'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
         } else if (!emailCheck.receiver_emailable) {
-          message = 'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
+          message =
+            'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
         }
 
         setEmailCheckMessage(message);
@@ -178,9 +188,11 @@ export default function FormMessage() {
       const result = await sendMessage(formData);
 
       // Check if there was a fallback (method changed from email to talkpage)
-      if (result.method === MessageMethod.TALKPAGE &&
-          formData.method === MessageMethod.EMAIL &&
-          result.error_message) {
+      if (
+        result.method === MessageMethod.TALKPAGE &&
+        formData.method === MessageMethod.EMAIL &&
+        result.error_message
+      ) {
         showSnackbar(`⚠️ ${result.error_message}`, 'error');
       }
 
@@ -298,12 +310,18 @@ export default function FormMessage() {
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               {receiverEmailStatus === 'checking' && (
                 <div className="flex items-center gap-1">
-                  <div className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${
-                    darkMode ? 'border-white' : 'border-[#053749]'
-                  }`}></div>
-                  <span className={`text-[10px] md:text-[16px] ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}>Checking...</span>
+                  <div
+                    className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${
+                      darkMode ? 'border-white' : 'border-[#053749]'
+                    }`}
+                  ></div>
+                  <span
+                    className={`text-[10px] md:text-[16px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    Checking...
+                  </span>
                 </div>
               )}
               {receiverEmailStatus === 'available' && (
@@ -311,7 +329,9 @@ export default function FormMessage() {
                   <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center">
                     <span className="text-white text-[10px] md:text-[14px]">✓</span>
                   </div>
-                  <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">Email OK</span>
+                  <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
+                    Email OK
+                  </span>
                 </div>
               )}
               {receiverEmailStatus === 'unavailable' && (
@@ -319,7 +339,9 @@ export default function FormMessage() {
                   <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-orange-500 flex items-center justify-center">
                     <span className="text-white text-[10px] md:text-[14px]">!</span>
                   </div>
-                  <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">No email</span>
+                  <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
+                    No email
+                  </span>
                 </div>
               )}
             </div>
@@ -330,8 +352,8 @@ export default function FormMessage() {
             {emailCheckResult && !emailCheckResult.sender_emailable
               ? 'Email is not available. You need to configure email in your Meta-Wiki preferences.'
               : emailCheckResult && !emailCheckResult.receiver_emailable
-              ? 'This user cannot receive emails. Talk Page will be used instead.'
-              : 'Email is not available. Talk Page will be used instead.'}
+                ? 'This user cannot receive emails. Talk Page will be used instead.'
+                : 'Email is not available. Talk Page will be used instead.'}
           </p>
         )}
       </div>
@@ -369,9 +391,10 @@ export default function FormMessage() {
               } border`}
             >
               {Object.values(MessageMethod).map(method => {
-                const isEmailDisabled = method === MessageMethod.EMAIL &&
+                const isEmailDisabled =
+                  method === MessageMethod.EMAIL &&
                   (receiverEmailStatus === 'unavailable' ||
-                   (emailCheckResult && !emailCheckResult.can_send_email)) &&
+                    (emailCheckResult && !emailCheckResult.can_send_email)) &&
                   formData.receiver &&
                   formData.receiver.length >= 3;
 

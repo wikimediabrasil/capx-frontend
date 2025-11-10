@@ -126,9 +126,7 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
             </h4>
             <div
               className={`mt-1 p-3 rounded-md border-l-4 ${
-                darkMode
-                  ? 'bg-[#04222F] border-yellow-500'
-                  : 'bg-[#FFF9E6] border-yellow-600'
+                darkMode ? 'bg-[#04222F] border-yellow-500' : 'bg-[#FFF9E6] border-yellow-600'
               }`}
             >
               <p

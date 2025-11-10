@@ -29,7 +29,11 @@ export class MessageService {
    * @param sender - Optional sender username to check their email capability
    * @returns Object with sender_emailable, receiver_emailable, and can_send_email flags
    */
-  static async checkEmailable(receiver: string, token: string, sender?: string): Promise<EmailCheckResult> {
+  static async checkEmailable(
+    receiver: string,
+    token: string,
+    sender?: string
+  ): Promise<EmailCheckResult> {
     try {
       const response = await axios.post(
         '/api/messages/check_emailable',

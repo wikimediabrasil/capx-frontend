@@ -11,10 +11,7 @@ export async function POST(request: NextRequest) {
     const { receiver, sender } = body;
 
     if (!receiver) {
-      return NextResponse.json(
-        { error: 'Receiver username is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Receiver username is required' }, { status: 400 });
     }
 
     console.log('[check_emailable] Checking email for receiver:', receiver);
@@ -29,20 +26,17 @@ export async function POST(request: NextRequest) {
     // Check both sender and receiver in a single request if sender is provided
     const usersToCheck = sender ? `${sender}|${receiver}` : receiver;
 
-    const response = await axios.get(
-      'https://meta.wikimedia.org/w/api.php',
-      {
-        params: {
-          action: 'query',
-          format: 'json',
-          list: 'users',
-          formatversion: 2,
-          usprop: 'emailable',
-          ususers: usersToCheck,
-        },
-        headers,
-      }
-    );
+    const response = await axios.get('https://meta.wikimedia.org/w/api.php', {
+      params: {
+        action: 'query',
+        format: 'json',
+        list: 'users',
+        formatversion: 2,
+        usprop: 'emailable',
+        ususers: usersToCheck,
+      },
+      headers,
+    });
 
     const users = response.data?.query?.users || [];
 
@@ -71,10 +65,7 @@ export async function POST(request: NextRequest) {
     console.error('[check_emailable] Error:', error.message);
     console.error('[check_emailable] Error stack:', error.stack);
     console.error('[check_emailable] Error response:', error.response?.data);
-    return NextResponse.json(
-      { error: 'Failed to check email availability' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to check email availability' }, { status: 500 });
   }
 }
 
