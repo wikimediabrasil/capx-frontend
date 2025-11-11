@@ -7,7 +7,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import SectionNoCapacities from './SectionCarouselNoCapacities';
-import SectionRecomendationCarousel from './SectionRecomendationCarousel'
+import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
 import { useProfile } from '@/hooks/useProfile';
@@ -109,7 +109,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             </div>
           </div>
         </section>
-        {!hasSkillsOrLanguages && <SectionRecomendationCarousel/>} {/* test - SectionNoCapacities */}
+        <SectionRecommendationsCarousel/>
 
 
         <section
@@ -210,7 +210,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             />
           </div>
         </div>
-        {!hasSkillsOrLanguages && <SectionRecomendationCarousel/>} {/* test - SectionNoCapacities */}
+        <SectionRecommendationsCarousel/>
 
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
           <h1
