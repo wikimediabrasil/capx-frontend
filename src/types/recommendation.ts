@@ -32,14 +32,21 @@ export interface EventRecommendation {
   id: number;
   name: string;
   type_of_location?: string;
+  openstreetmap_id?: string;
+  url?: string;
+  description?: string;
+  wikidata_qid?: string;
+  image_url?: string;
   time_begin: string;
   time_end?: string;
+  created_at?: string;
+  updated_at?: string;
+  creator?: number;
   organization?: number;
   organization_name?: string;
-  image_url?: string;
-  description?: string;
-  capacities_hint?: boolean;
   related_skills?: number[];
+  // Legacy fields for backward compatibility
+  capacities_hint?: boolean;
   view_event_link?: string;
   save_action_link?: string;
   language?: string;

@@ -20,6 +20,7 @@ interface CapacitySelectionModalProps {
   readonly onSelect: (capacities: Capacity[]) => void;
   readonly title: string;
   readonly allowMultipleSelection?: boolean;
+  readonly initialCapacityId?: number;
 }
 
 // Helper function to convert cached capacity to Capacity object
@@ -370,6 +371,7 @@ export default function CapacitySelectionModal({
   onSelect,
   title,
   allowMultipleSelection = true,
+  initialCapacityId,
 }: CapacitySelectionModalProps) {
   const { darkMode } = useTheme();
   const { data: session } = useSession();
@@ -395,14 +397,60 @@ export default function CapacitySelectionModal({
     updateLanguage,
   } = capacityCache;
 
+  // Function to find the path to a capacity in the hierarchy (from root to parent of target)
+  const findPathToCapacity = useCallback((targetCapacityId: number): number[] => {
+    const path: number[] = [];
+    let currentCapacity = getCapacity(targetCapacityId);
+    
+    if (!currentCapacity) return path;
+
+    // Build path by following parent chain from target to root
+    const visited = new Set<number>();
+    const reversePath: number[] = [];
+    
+    while (currentCapacity) {
+      if (visited.has(currentCapacity.code)) break; // Prevent infinite loop
+      visited.add(currentCapacity.code);
+      
+      // Get parent from skill_type
+      const parentId = currentCapacity.skill_type;
+      
+      // If this capacity has a valid parent (and it's not itself), add parent to path
+      if (parentId && parentId !== currentCapacity.code) {
+        reversePath.push(parentId);
+        currentCapacity = getCapacity(parentId);
+      } else {
+        // Reached root or no parent
+        break;
+      }
+    }
+    
+    // Reverse to get path from root to parent of target
+    return reversePath.reverse();
+  }, [getCapacity]);
+
   useEffect(() => {
     if (isOpen && session?.user?.token) {
-      updateLanguage(language);
-      setSelectedPath([]);
-      setSelectedCapacities([]);
-      setShowInfoMap({});
+      updateLanguage(language).then(() => {
+        // If there's an initial capacity, navigate to it
+        if (initialCapacityId) {
+          const path = findPathToCapacity(initialCapacityId);
+          setSelectedPath(path);
+          
+          // Select the initial capacity
+          const capacity = getCapacity(initialCapacityId);
+          if (capacity) {
+            const convertedCapacity = convertCachedToCapacity(capacity);
+            setSelectedCapacities([convertedCapacity]);
+          }
+        } else {
+          setSelectedPath([]);
+          setSelectedCapacities([]);
+        }
+        setShowInfoMap({});
+      });
     }
-  }, [isOpen, session?.user?.token, language, updateLanguage]);
+  }, [isOpen, session?.user?.token, language, updateLanguage, initialCapacityId, findPathToCapacity, getCapacity]);
 
   const handleCategorySelect = async (category: Capacity) => {
     try {

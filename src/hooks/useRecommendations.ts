@@ -1,42 +1,38 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { recommendationService } from '@/services/recommendationService';
 import { RecommendationsResponse } from '@/types/recommendation';
 
 export const useRecommendations = () => {
-  const [data, setData] = useState<RecommendationsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const { data: session } = useSession();
+  const token = session?.user?.token;
 
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      if (!session?.user?.token) {
-        setIsLoading(false);
-        return;
+  const {
+    data,
+    isLoading,
+    error,
+  } = useQuery<RecommendationsResponse, Error>({
+    queryKey: ['recommendations', token],
+    queryFn: async () => {
+      if (!token) {
+        throw new Error('No token available');
       }
+      return recommendationService.getRecommendations(token);
+    },
+    enabled: !!token,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch on mount if data is fresh
+    retry: 1,
+  });
 
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const recommendationsData = await recommendationService.getRecommendations(
-          session.user.token
-        );
-        setData(recommendationsData);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch recommendations'));
-        console.error('Error fetching recommendations:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRecommendations();
-  }, [session]);
-
-  return { data, isLoading, error };
+  return { 
+    data: data || null, 
+    isLoading, 
+    error: error || null 
+  };
 };
 

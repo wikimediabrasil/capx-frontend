@@ -135,7 +135,7 @@ export default function RecommendationCarousel({
       <div className="relative w-full">
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth items-stretch"
+          className="flex gap-2 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth items-stretch"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {childrenArray.map((child, index) => (

@@ -8,6 +8,7 @@ import { CapacityRecommendation } from '@/types/recommendation';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
 import { useRouter } from 'next/navigation';
+import lamp_purple from '@/public/static/images/lamp_purple.svg';
 import { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { profileService } from '@/services/profileService';
@@ -15,16 +16,19 @@ import { userService } from '@/services/userService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 // Using a simple check mark - we'll use text or find an alternative icon
 
 interface RecommendationCapacityCardProps {
   recommendation: CapacityRecommendation;
   onAddToProfile?: (id: number) => void;
+  hintMessage?: string;
 }
 
 export default function RecommendationCapacityCard({
   recommendation,
   onAddToProfile,
+  hintMessage,
 }: RecommendationCapacityCardProps) {
   const { pageContent } = useApp();
   const { darkMode } = useTheme();
@@ -32,40 +36,41 @@ export default function RecommendationCapacityCard({
   const { data: session } = useSession();
   const { getName, getIcon, getColor, getDescription, preloadCapacities, getCapacity } = useCapacityCache();
   const { showSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
-  const [userWantedCapacities, setUserWantedCapacities] = useState<number[]>([]);
 
   const capacityId = recommendation.id;
   
-  // Check if capacity is already in user's wanted list
-  useEffect(() => {
-    const checkIfAdded = async () => {
+  // Use React Query to cache and fetch user profile
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile', session?.user?.id, session?.user?.token],
+    queryFn: async () => {
       if (!session?.user?.token || !session?.user?.id) {
-        return;
+        return null;
       }
+      return userService.fetchUserProfile(
+        Number(session.user.id),
+        session.user.token
+      );
+    },
+    enabled: !!session?.user?.token && !!session?.user?.id,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+  });
 
-      try {
-        const userProfile = await userService.fetchUserProfile(
-          Number(session.user.id),
-          session.user.token
-        );
-        if (userProfile) {
-          const wanted = (userProfile.skills_wanted || [])
-            .map(c => typeof c === 'string' ? parseInt(c, 10) : c)
-            .filter(c => !isNaN(c)) as number[];
-          setUserWantedCapacities(wanted);
-          setIsAdded(wanted.includes(capacityId));
-        }
-      } catch (error) {
-        console.error('Error checking if capacity is added:', error);
-      }
-    };
+  // Check if capacity is already in user's wanted list
+  const userWantedCapacities = useMemo(() => {
+    if (!userProfile) return [];
+    return (userProfile.skills_wanted || [])
+      .map(c => typeof c === 'string' ? parseInt(c, 10) : c)
+      .filter(c => !isNaN(c)) as number[];
+  }, [userProfile]);
 
-    checkIfAdded();
-  }, [session?.user?.token, session?.user?.id, capacityId]);
+  const isAdded = useMemo(() => {
+    return userWantedCapacities.includes(capacityId);
+  }, [userWantedCapacities, capacityId]);
   
   // Preload capacity data
   useEffect(() => {
@@ -102,38 +107,29 @@ export default function RecommendationCapacityCard({
   const backgroundColor = capacityColorCategory ? getCapacityColor(capacityColorCategory) : '#0078D4';
 
   const handleAddToProfile = async () => {
-    if (!session?.user?.token || !session?.user?.id || isAdding || isAdded) {
+    if (!session?.user?.token || !session?.user?.id || isAdding || isAdded || !userProfile) {
       return;
     }
 
     setIsAdding(true);
     try {
-      // Fetch current user profile
-      const userProfile = await userService.fetchUserProfile(
-        Number(session.user.id),
-        session.user.token
-      );
-
-      if (!userProfile) {
-        showSnackbar(pageContent['error'] || 'Error loading profile', 'error');
-        setIsAdding(false);
-        return;
-      }
-
       // Get current wanted capacities and convert to numbers for comparison
-      const currentWanted = (userProfile.skills_wanted || [])
-        .map(c => typeof c === 'string' ? parseInt(c, 10) : c)
-        .filter(c => !isNaN(c)) as number[];
+      const currentWanted = userWantedCapacities;
 
       // Add capacity if not already present
       if (!currentWanted.includes(capacityId)) {
         // Convert back to strings for the API (as UserProfile expects string[])
         const updatedWanted = [...currentWanted, capacityId].map(c => c.toString());
 
-        // Prepare update payload - only send the fields that need to be updated
-        const updatePayload = {
+        // Prepare update payload - include language field as it's required by the backend
+        const updatePayload: any = {
           skills_wanted: updatedWanted,
         };
+
+        // Include language field if it exists in the current profile (required by backend)
+        if (userProfile.language && Array.isArray(userProfile.language)) {
+          updatePayload.language = userProfile.language;
+        }
 
         // Update profile
         await profileService.updateProfile(
@@ -146,16 +142,20 @@ export default function RecommendationCapacityCard({
           }
         );
 
-        setIsAdded(true);
-        setUserWantedCapacities([...currentWanted, capacityId]);
+        // Update the cache optimistically
+        queryClient.setQueryData(['userProfile', session.user.id, session.user.token], {
+          ...userProfile,
+          skills_wanted: updatedWanted,
+        });
+
+        // Invalidate to ensure fresh data on next fetch
+        queryClient.invalidateQueries({ queryKey: ['userProfile', session.user.id, session.user.token] });
+        
         showSnackbar(pageContent['capacity-added-success'] || 'Capacity added to profile', 'success');
         
         if (onAddToProfile) {
           onAddToProfile(capacityId);
         }
-      } else {
-        // Already added
-        setIsAdded(true);
       }
     } catch (error: any) {
       console.error('Error adding capacity to profile:', error);
@@ -196,6 +196,18 @@ export default function RecommendationCapacityCard({
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       }`}
     >
+      {hintMessage && (
+        <div className="flex items-center justify-start gap-2 mb-4 w-full">
+          <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]">
+            <Image src={lamp_purple} alt="" fill className="object-contain" priority />
+          </div>
+          <p className={`text-[10px] md:text-[14px] ${
+            darkMode ? 'text-gray-300' : 'text-gray-500'
+          }`}>
+            {hintMessage}
+          </p>
+        </div>
+      )}
       <div className="w-full flex-1">
         <div className="flex items-start gap-4 mb-4 w-full">
           <div 
@@ -230,19 +242,19 @@ export default function RecommendationCapacityCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-start gap-2 w-full mt-auto">
+      <div className="flex items-center justify-start gap-2 w-full mt-auto pt-2">
         {isAdded ? (
           <BaseButton
             onClick={() => {}}
             disabled
-            customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold bg-green-600 text-white md:text-[16px] md:px-6 md:py-3 opacity-75 cursor-not-allowed"
+            customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold bg-green-600 text-white md:text-[16px] md:px-6 md:py-3 opacity-75 cursor-not-allowed flex-shrink-0"
             label={`✓ ${pageContent['added'] || 'Added'}`}
           />
         ) : (
           <BaseButton
             onClick={handleAddToProfile}
             disabled={isAdding}
-            customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] hover:bg-[#04222F] md:text-[16px] md:px-6 md:py-3 ${
+            customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] hover:bg-[#04222F] md:text-[16px] md:px-6 md:py-3 flex-shrink-0 ${
               isAdding ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             label={isAdding ? (pageContent['loading'] || 'Loading...') : (pageContent['add-to-profile'] || 'Add to Profile')}
@@ -250,7 +262,7 @@ export default function RecommendationCapacityCard({
         )}
         <BaseButton
           onClick={handleView}
-          customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold border-2 border-[#053749] md:text-[16px] md:px-6 md:py-3 ${
+          customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold border-2 border-[#053749] md:text-[16px] md:px-6 md:py-3 flex-shrink-0 ${
             darkMode 
               ? 'text-white bg-gray-800 hover:bg-gray-700' 
               : 'text-[#053749] bg-white hover:bg-gray-50'
@@ -265,6 +277,7 @@ export default function RecommendationCapacityCard({
         onSelect={handleCapacitySelect}
         title={capacityName || (pageContent['select-capacity'] || 'Select Capacity')}
         allowMultipleSelection={false}
+        initialCapacityId={capacityId}
       />
     </div>
   );

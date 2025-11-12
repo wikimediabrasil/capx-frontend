@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRecommendations } from '@/hooks/useRecommendations';
@@ -78,38 +79,55 @@ export default function SectionRecommendationsCarousel() {
     return null;
   }
 
+  // Combine share_with and share_with_orgs
+  const shareWithProfiles = [
+    ...(data.share_with || []),
+    ...(data.share_with_orgs || []),
+  ];
+
+  // Combine learn_from and learn_from_orgs
+  const learnFromProfiles = [
+    ...(data.learn_from || []),
+    ...(data.learn_from_orgs || []),
+  ];
+
   const sectionContent = (
     <div className="flex flex-col items-center justify-center w-full gap-8 md:gap-16">
-      {data.share_with && data.share_with.length > 0 && (
+      {/* Combined Share With carousel */}
+      {shareWithProfiles.length > 0 && (
         <RecommendationCarousel
           title={pageContent['recommendations-share-with'] || 'Profiles to share with'}
         >
-          {data.share_with.map((profile) => (
+          {shareWithProfiles.map((profile) => (
             <RecommendationProfileCard
-              key={profile.id}
+              key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
               onSave={handleSaveProfile}
               capacityType="available"
+              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
             />
           ))}
         </RecommendationCarousel>
       )}
 
-      {data.learn_from && data.learn_from.length > 0 && (
+      {/* Combined Learn From carousel */}
+      {learnFromProfiles.length > 0 && (
         <RecommendationCarousel
           title={pageContent['recommendations-learn-from'] || 'Profiles to learn from'}
         >
-          {data.learn_from.map((profile) => (
+          {learnFromProfiles.map((profile) => (
             <RecommendationProfileCard
-              key={profile.id}
+              key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
               onSave={handleSaveProfile}
               capacityType="wanted"
+              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
             />
           ))}
         </RecommendationCarousel>
       )}
 
+      {/* Same Language carousel */}
       {data.same_language && data.same_language.length > 0 && (
         <RecommendationCarousel
           title={pageContent['recommendations-same-language'] || 'Same language speakers'}
@@ -123,40 +141,7 @@ export default function SectionRecommendationsCarousel() {
               recommendation={profile}
               onSave={handleSaveProfile}
               capacityType="available"
-            />
-          ))}
-        </RecommendationCarousel>
-      )}
-
-      {data.share_with_orgs && data.share_with_orgs.length > 0 && (
-        <RecommendationCarousel
-          title={
-            pageContent['recommendations-share-with-orgs'] || 'Organizations to share with'
-          }
-        >
-          {data.share_with_orgs.map((org) => (
-            <RecommendationProfileCard
-              key={org.id}
-              recommendation={org}
-              onSave={handleSaveProfile}
-              capacityType="available"
-            />
-          ))}
-        </RecommendationCarousel>
-      )}
-
-      {data.learn_from_orgs && data.learn_from_orgs.length > 0 && (
-        <RecommendationCarousel
-          title={
-            pageContent['recommendations-learn-from-orgs'] || 'Organizations to learn from'
-          }
-        >
-          {data.learn_from_orgs.map((org) => (
-            <RecommendationProfileCard
-              key={org.id}
-              recommendation={org}
-              onSave={handleSaveProfile}
-              capacityType="wanted"
+              hintMessage={pageContent['recommendations-based-on-languages'] || 'Based on your languages'}
             />
           ))}
         </RecommendationCarousel>
@@ -171,6 +156,7 @@ export default function SectionRecommendationsCarousel() {
               key={capacity.id}
               recommendation={capacity}
               onAddToProfile={handleAddCapacity}
+              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
             />
           ))}
         </RecommendationCarousel>
@@ -185,6 +171,7 @@ export default function SectionRecommendationsCarousel() {
               key={event.id}
               recommendation={event}
               onSave={handleSaveEvent}
+              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
             />
           ))}
         </RecommendationCarousel>
