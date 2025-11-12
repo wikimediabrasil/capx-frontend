@@ -405,11 +405,10 @@ export default function FormMessage() {
                 let methodButtonClass = '';
                 if (isEmailDisabled) {
                   methodButtonClass = 'opacity-50 cursor-not-allowed';
-                  if (darkMode){
-                    methodButtonClass ='text-white cursor-not-allowed'
+                  if (darkMode) {
+                    methodButtonClass = 'text-white cursor-not-allowed';
                   }
-                }
-                else if (darkMode) {
+                } else if (darkMode) {
                   methodButtonClass = 'text-white hover:bg-[#053749]';
                 } else {
                   methodButtonClass = 'text-gray-700 hover:bg-gray-100';
