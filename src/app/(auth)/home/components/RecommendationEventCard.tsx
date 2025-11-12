@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import BaseButton from '@/components/BaseButton';
 import { EventRecommendation } from '@/types/recommendation';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
@@ -22,6 +23,7 @@ export default function RecommendationEventCard({
   onSave,
 }: RecommendationEventCardProps) {
   const { pageContent, language } = useApp();
+  const { darkMode } = useTheme();
   const router = useRouter();
 
   const handleViewEvent = () => {
@@ -81,13 +83,21 @@ export default function RecommendationEventCard({
         : '';
 
   return (
-    <div className="flex flex-col justify-start items-start bg-white p-4 mx-auto rounded-md w-[270px] md:w-[370px] border border-gray-200 min-h-[400px] md:min-h-[450px]">
+    <div
+      className={`flex h-full flex-col justify-between items-start p-4 rounded-md w-[270px] md:w-[370px] border min-h-[400px] md:min-h-[450px] ${
+        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      }`}
+    >
       {recommendation.capacities_hint && (
         <div className="flex items-center justify-start gap-2 mb-4">
           <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px]">
             <Image src={lamp_purple} alt="" fill className="object-contain" priority />
           </div>
-          <p className="text-[10px] md:text-[18px] text-gray-500">
+          <p
+            className={`text-[10px] md:text-[18px] ${
+              darkMode ? 'text-gray-300' : 'text-gray-500'
+            }`}
+          >
             {pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
           </p>
         </div>
@@ -104,18 +114,30 @@ export default function RecommendationEventCard({
           />
         </div>
         <div className="flex-1">
-          <h3 className="text-[16px] md:text-[24px] font-bold text-capx-dark-box-bg mb-2">
+          <h3
+            className={`text-[16px] md:text-[24px] font-bold mb-2 ${
+              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+            }`}
+          >
             {recommendation.name}
           </h3>
           {recommendation.organization_name && (
-            <p className="text-[12px] md:text-[16px] text-[#053749] mb-2">
+            <p
+              className={`text-[12px] md:text-[16px] mb-2 ${
+                darkMode ? 'text-gray-300' : 'text-[#053749]'
+              }`}
+            >
               by: {recommendation.organization_name}
             </p>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 mb-4 w-full text-[12px] md:text-[14px] text-gray-600">
+      <div
+        className={`flex flex-col gap-2 mb-4 w-full text-[12px] md:text-[14px] ${
+          darkMode ? 'text-gray-300' : 'text-gray-600'
+        }`}
+      >
         {timeRange && (
           <div className="flex items-center gap-2">
             <div className="relative w-[16px] h-[16px]">
@@ -153,15 +175,19 @@ export default function RecommendationEventCard({
         )}
       </div>
 
-      <div className="flex items-center justify-start gap-2 w-full">
+      <div className="flex items-center justify-start gap-2 w-full mt-auto">
         <BaseButton
           onClick={handleViewEvent}
-          customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] md:text-[16px] md:px-6 md:py-3"
+          customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] hover:bg-[#04222F] md:text-[16px] md:px-6 md:py-3"
           label={pageContent['view-event'] || 'View Event'}
         />
         <BaseButton
           onClick={handleSave}
-          customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-[#053749] font-extrabold border-2 border-[#053749] bg-white md:text-[16px] md:px-6 md:py-3"
+          customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold border-2 md:text-[16px] md:px-6 md:py-3 ${
+            darkMode
+              ? 'text-white border-white bg-transparent hover:bg-gray-700'
+              : 'text-[#053749] border-[#053749] bg-white hover:bg-gray-50'
+          }`}
           label={pageContent['save'] || 'Save'}
         />
       </div>

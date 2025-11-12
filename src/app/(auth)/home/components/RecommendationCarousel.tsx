@@ -95,8 +95,31 @@ export default function RecommendationCarousel({
           {title}
         </h2>
         {showInfoIcon && (
-          <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px]">
-            <Image src={info_blue} alt="" fill className="object-contain" priority />
+          <div className="relative group">
+            <div 
+              className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] cursor-help"
+              title={pageContent['recommendations-based-on-profile'] || 'Based on your profile'}
+            >
+              <Image src={info_blue} alt="" fill className="object-contain" priority />
+            </div>
+            {/* Tooltip for desktop hover and mobile tap */}
+            <div
+              className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 md:w-64 p-2 md:p-3 rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all duration-200 z-50 pointer-events-none ${
+                darkMode
+                  ? 'bg-gray-800 border-gray-600 text-gray-200'
+                  : 'bg-white border-gray-300 text-gray-700'
+              }`}
+            >
+              <div className="text-[10px] md:text-xs leading-relaxed text-center">
+                {pageContent['recommendations-based-on-profile'] || 'Based on your profile'}
+              </div>
+              {/* Arrow */}
+              <div
+                className={`absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent ${
+                  darkMode ? 'border-t-gray-800' : 'border-t-white'
+                }`}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -112,11 +135,11 @@ export default function RecommendationCarousel({
       <div className="relative w-full">
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth items-stretch"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {childrenArray.map((child, index) => (
-            <div key={index} className="flex-shrink-0">
+            <div key={index} className="flex-shrink-0 h-full">
               {child}
             </div>
           ))}
@@ -152,7 +175,12 @@ export default function RecommendationCarousel({
                 aria-label="Next"
               >
                 <div className="relative w-6 h-6 rotate-180">
-                  <Image src={ArrowBackIconWhite} alt="" fill className="object-contain" />
+                  <Image
+                    src={ArrowBackIconWhite}
+                    alt=""
+                    fill
+                    className="object-contain"
+                  />
                 </div>
               </button>
             )}

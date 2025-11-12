@@ -8,7 +8,6 @@ import RecommendationProfileCard from '@/app/(auth)/home/components/Recommendati
 import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
 import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
 import LoadingState from '@/components/LoadingState';
-import { ProfileRecommendation, OrganizationRecommendation } from '@/types/recommendation';
 
 export default function SectionRecommendationsCarousel() {
   const { isMobile, pageContent } = useApp();
@@ -138,7 +137,7 @@ export default function SectionRecommendationsCarousel() {
           {data.share_with_orgs.map((org) => (
             <RecommendationProfileCard
               key={org.id}
-              recommendation={org as unknown as ProfileRecommendation}
+              recommendation={org}
               onSave={handleSaveProfile}
               capacityType="available"
             />
@@ -155,7 +154,7 @@ export default function SectionRecommendationsCarousel() {
           {data.learn_from_orgs.map((org) => (
             <RecommendationProfileCard
               key={org.id}
-              recommendation={org as unknown as ProfileRecommendation}
+              recommendation={org}
               onSave={handleSaveProfile}
               capacityType="wanted"
             />

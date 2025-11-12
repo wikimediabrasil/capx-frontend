@@ -10,9 +10,10 @@ export interface ProfileRecommendation {
   profile_image?: string | null;
   matches?: number;
   // These will be populated when fetching full profile data
-  capacities?: number[];
-  skills_available?: number[];
-  skills_wanted?: number[];
+  capacities?: Array<number | string>;
+  skills_available?: Array<number | string>;
+  skills_wanted?: Array<number | string>;
+  skills_known?: Array<number | string>;
 }
 
 export interface OrganizationRecommendation {
@@ -22,9 +23,9 @@ export interface OrganizationRecommendation {
   acronym?: string;
   matches?: number;
   // These will be populated when fetching full organization data
-  capacities?: number[];
-  available_capacities?: number[];
-  wanted_capacities?: number[];
+  capacities?: Array<number | string>;
+  available_capacities?: Array<number | string>;
+  wanted_capacities?: Array<number | string>;
 }
 
 export interface EventRecommendation {

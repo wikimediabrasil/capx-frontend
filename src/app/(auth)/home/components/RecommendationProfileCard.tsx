@@ -4,7 +4,10 @@ import Image from 'next/image';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import BaseButton from '@/components/BaseButton';
-import { ProfileRecommendation } from '@/types/recommendation';
+import {
+  OrganizationRecommendation,
+  ProfileRecommendation,
+} from '@/types/recommendation';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { useAvatars } from '@/hooks/useAvatars';
@@ -26,8 +29,10 @@ import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 
+type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
+
 interface RecommendationProfileCardProps {
-  recommendation: ProfileRecommendation;
+  recommendation: ProfileCardRecommendation;
   onSave?: (id: number) => void;
   capacityType?: 'known' | 'available' | 'wanted';
 }
@@ -64,80 +69,163 @@ export default function RecommendationProfileCard({
   const { data: session } = useSession();
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
   const { showSnackbar } = useSnackbar();
-  const [capacities, setCapacities] = useState<number[]>(recommendation.capacities || []);
+  const [capacities, setCapacities] = useState<number[]>(
+    Array.isArray(recommendation.capacities)
+      ? recommendation.capacities
+          .map(capacityId =>
+            typeof capacityId === 'string' ? parseInt(capacityId, 10) : capacityId
+          )
+          .filter(capacityId => !Number.isNaN(capacityId))
+      : []
+  );
   const [isLoadingCapacities, setIsLoadingCapacities] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const isOrganization = 'acronym' in recommendation;
+  const organizationRecommendation = isOrganization
+    ? (recommendation as OrganizationRecommendation)
+    : null;
+  const profileRecommendation = !isOrganization ? (recommendation as ProfileRecommendation) : null;
+  const profileUsername = profileRecommendation?.username;
+
   const profileImage = recommendation.profile_image;
-  const displayName = recommendation.display_name || recommendation.username;
+  const displayName = recommendation.display_name || profileUsername;
   
   const finalCapacityType = capacityType;
   const capacityStyle = CAPACITY_STYLES[finalCapacityType] || CAPACITY_STYLES.default;
   const tagBgColor = capacityStyle.backgroundColor;
   const tagTextColor = capacityStyle.textColor;
 
+  const parseCapacityIds = (values?: Array<number | string> | null): number[] => {
+    if (!values || !Array.isArray(values)) {
+      return [];
+    }
+
+    return values
+      .map(value => (typeof value === 'string' ? parseInt(value, 10) : value))
+      .filter(value => !Number.isNaN(value) && typeof value === 'number');
+  };
+
+  // Hydrate capacities from the recommendation payload when available
+  useEffect(() => {
+    const directCapacities = parseCapacityIds(recommendation.capacities);
+
+    let additionalCapacities: number[] = [];
+
+    if (isOrganization && organizationRecommendation) {
+      additionalCapacities =
+        finalCapacityType === 'available'
+          ? parseCapacityIds(organizationRecommendation.available_capacities)
+          : parseCapacityIds(organizationRecommendation.wanted_capacities);
+    } else if (profileRecommendation) {
+      additionalCapacities =
+        finalCapacityType === 'available'
+          ? parseCapacityIds(profileRecommendation.skills_available)
+          : finalCapacityType === 'wanted'
+            ? parseCapacityIds(profileRecommendation.skills_wanted)
+            : parseCapacityIds(profileRecommendation.skills_known);
+    }
+
+    const mergedCapacities = Array.from(new Set([...directCapacities, ...additionalCapacities]));
+
+    if (mergedCapacities.length > 0) {
+      setCapacities(prev => {
+        // Only update if the capacities are actually different
+        const prevSet = new Set(prev);
+        const newSet = new Set(mergedCapacities);
+        if (prevSet.size === newSet.size && mergedCapacities.every(c => prevSet.has(c))) {
+          return prev;
+        }
+        return mergedCapacities;
+      });
+
+      preloadCapacities();
+    }
+  }, [recommendation, preloadCapacities, finalCapacityType, isOrganization]);
+
   // Fetch capacities from profile if not already available
   useEffect(() => {
     const fetchCapacities = async () => {
-      if (capacities.length > 0 || !session?.user?.token) {
+      if (!session?.user?.token) {
         return;
       }
 
-      setIsLoadingCapacities(true);
-      try {
-        if (isOrganization) {
-          const orgData = await organizationProfileService.getOrganizationById(
-            session.user.token,
-            recommendation.id
-          );
-          if (orgData) {
-            const orgCapacities =
-              finalCapacityType === 'available'
-                ? orgData.available_capacities || []
-                : orgData.wanted_capacities || [];
-            // Ensure capacities are numbers
-            const numericCapacities = orgCapacities.map(c => typeof c === 'string' ? parseInt(c, 10) : c).filter(c => !isNaN(c)) as number[];
-            setCapacities(numericCapacities);
-            if (orgCapacities.length > 0) {
-              preloadCapacities();
+      // Check if we already have capacities from the initial recommendation data
+      const hasInitialCapacities = 
+        (Array.isArray(recommendation.capacities) && recommendation.capacities.length > 0) ||
+        (isOrganization && organizationRecommendation && (
+          (finalCapacityType === 'available' && Array.isArray(organizationRecommendation.available_capacities) && organizationRecommendation.available_capacities.length > 0) ||
+          (finalCapacityType === 'wanted' && Array.isArray(organizationRecommendation.wanted_capacities) && organizationRecommendation.wanted_capacities.length > 0)
+        )) ||
+        (profileRecommendation && (
+          (finalCapacityType === 'available' && Array.isArray(profileRecommendation.skills_available) && profileRecommendation.skills_available.length > 0) ||
+          (finalCapacityType === 'wanted' && Array.isArray(profileRecommendation.skills_wanted) && profileRecommendation.skills_wanted.length > 0) ||
+          (finalCapacityType === 'known' && Array.isArray(profileRecommendation.skills_known) && profileRecommendation.skills_known.length > 0)
+        ));
+
+      // If we have initial capacities and they're already set in state, don't fetch again
+      if (hasInitialCapacities && capacities.length > 0) {
+        return;
+      }
+
+      // If we don't have capacities, try to fetch them
+      if (capacities.length === 0) {
+        setIsLoadingCapacities(true);
+        try {
+          if (isOrganization) {
+            const orgData = await organizationProfileService.getOrganizationById(
+              session.user.token,
+              recommendation.id
+            );
+            if (orgData) {
+              const orgCapacities =
+                finalCapacityType === 'available'
+                  ? orgData.available_capacities || []
+                  : orgData.wanted_capacities || [];
+              // Ensure capacities are numbers
+              const numericCapacities = orgCapacities.map(c => typeof c === 'string' ? parseInt(c, 10) : c).filter(c => !isNaN(c)) as number[];
+              if (numericCapacities.length > 0) {
+                setCapacities(numericCapacities);
+                preloadCapacities();
+              }
+            }
+          } else {
+            const userData = await userService.fetchUserProfile(
+              recommendation.id,
+              session.user.token
+            );
+            if (userData) {
+              const userCapacities =
+                finalCapacityType === 'available'
+                  ? userData.skills_available || []
+                  : finalCapacityType === 'wanted'
+                    ? userData.skills_wanted || []
+                    : userData.skills_known || [];
+              // Ensure capacities are numbers
+              const numericCapacities = userCapacities.map(c => typeof c === 'string' ? parseInt(c, 10) : c).filter(c => !isNaN(c)) as number[];
+              if (numericCapacities.length > 0) {
+                setCapacities(numericCapacities);
+                preloadCapacities();
+              }
             }
           }
-        } else {
-          const userData = await userService.fetchUserProfile(
-            recommendation.id,
-            session.user.token
-          );
-          if (userData) {
-            const userCapacities =
-              finalCapacityType === 'available'
-                ? userData.skills_available || []
-                : finalCapacityType === 'wanted'
-                  ? userData.skills_wanted || []
-                  : userData.skills_known || [];
-            // Ensure capacities are numbers
-            const numericCapacities = userCapacities.map(c => typeof c === 'string' ? parseInt(c, 10) : c).filter(c => !isNaN(c)) as number[];
-            setCapacities(numericCapacities);
-            if (userCapacities.length > 0) {
-              preloadCapacities();
-            }
-          }
+        } catch (error) {
+          console.error('Error fetching capacities:', error);
+        } finally {
+          setIsLoadingCapacities(false);
         }
-      } catch (error) {
-        console.error('Error fetching capacities:', error);
-      } finally {
-        setIsLoadingCapacities(false);
       }
     };
 
     fetchCapacities();
-  }, [recommendation.id, isOrganization, finalCapacityType, session?.user?.token, preloadCapacities, capacities.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recommendation.id, isOrganization, finalCapacityType, session?.user?.token]);
 
   const handleViewProfile = () => {
     if (isOrganization) {
       router.push(`/organization_profile/${recommendation.id}`);
-    } else if (recommendation.username) {
-      router.push(`/profile/${recommendation.username}`);
+    } else if (profileUsername) {
+      router.push(`/profile/${profileUsername}`);
     }
   };
 
@@ -203,7 +291,11 @@ export default function RecommendationProfileCard({
   }, [capacities, preloadCapacities]);
 
   return (
-    <div className="flex flex-col justify-start items-start bg-white p-4 mx-auto rounded-md w-[270px] md:w-[370px] border border-gray-200 min-h-[400px] md:min-h-[450px]">
+    <div
+      className={`flex h-full flex-col justify-between items-start p-4 rounded-md w-[270px] md:w-[370px] border min-h-[400px] md:min-h-[450px] ${
+        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      }`}
+    >
       {false && (
         <div className="flex items-center justify-start gap-2 mb-4">
           <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px]">
@@ -215,7 +307,11 @@ export default function RecommendationProfileCard({
         </div>
       )}
 
-      <div className="relative w-[195px] h-[115px] md:w-[280px] md:h-[180px] bg-[#EFEFEF] mt-4 mb-4 mx-auto">
+      <div
+        className={`relative w-full max-w-[195px] h-[115px] md:max-w-[280px] md:h-[180px] ${
+          darkMode ? 'bg-gray-700' : 'bg-[#EFEFEF]'
+        } mt-4 mb-4 self-center rounded-md`}
+      >
         {profileImage ? (
           <Image
             src={imageUrl}
@@ -226,7 +322,7 @@ export default function RecommendationProfileCard({
             priority
           />
         ) : (
-          <Image src={NoAvatarIcon} alt={displayName} fill className="object-contain" />
+          <Image src={NoAvatarIcon} alt={displayName || ''} fill className="object-contain" />
         )}
       </div>
 
@@ -234,7 +330,11 @@ export default function RecommendationProfileCard({
         <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px]">
           <Image src={AccountCircle} alt="" fill className="object-contain" priority />
         </div>
-        <p className="text-[14px] md:text-[18px] font-bold text-capx-dark-box-bg truncate flex-1">
+        <p
+          className={`text-[14px] md:text-[18px] font-bold truncate flex-1 ${
+            darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+          }`}
+        >
           {displayName}
         </p>
       </div>
@@ -267,10 +367,10 @@ export default function RecommendationProfileCard({
         <div className="mb-4 min-h-[40px]" />
       )}
 
-      <div className="flex items-center justify-start gap-2 w-full">
+      <div className="flex items-center justify-start gap-2 w-full mt-auto">
         <BaseButton
           onClick={handleViewProfile}
-          customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] md:text-[16px] md:px-6 md:py-3"
+          customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] hover:bg-[#04222F] md:text-[16px] md:px-6 md:py-3"
           label={pageContent['view-profile'] || 'View Profile'}
         />
         <BaseButton
@@ -278,8 +378,10 @@ export default function RecommendationProfileCard({
           disabled={isSaving}
           customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold border-2 md:text-[16px] md:px-6 md:py-3 ${
             isSaved
-              ? 'bg-[#053749] text-white border-[#053749]'
-              : 'text-[#053749] border-[#053749] bg-white'
+              ? 'bg-[#053749] text-white border-[#053749] hover:bg-[#04222F]'
+              : darkMode
+                ? 'text-white border-white bg-transparent hover:bg-gray-700'
+                : 'text-[#053749] border-[#053749] bg-white hover:bg-gray-50'
           } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
           label={isSaving ? (pageContent['loading'] || 'Loading...') : (isSaved ? (pageContent['saved'] || 'Saved') : (pageContent['save'] || 'Save'))}
           imageUrl={bookmarkIcon}
