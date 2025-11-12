@@ -23,8 +23,8 @@ import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 export enum MessageMethod {
-  EMAIL = 'email',
-  TALKPAGE = 'talkpage',
+  EMAIL = 'Email',
+  TALKPAGE = 'Talkpage',
 }
 
 export default function FormMessage() {
@@ -320,7 +320,7 @@ export default function FormMessage() {
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
-                    Checking...
+                    {pageContent['message-form-email-checking'] || 'checking'}
                   </span>
                 </div>
               )}
@@ -330,7 +330,7 @@ export default function FormMessage() {
                     <span className="text-white text-[10px] md:text-[14px]">✓</span>
                   </div>
                   <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
-                    Email OK
+                    {pageContent['message-form-email-available'] || 'available'}
                   </span>
                 </div>
               )}
@@ -340,7 +340,7 @@ export default function FormMessage() {
                     <span className="text-white text-[10px] md:text-[14px]">!</span>
                   </div>
                   <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
-                    No email
+                    {pageContent['message-form-email-unavailable'] || 'unavailable'}
                   </span>
                 </div>
               )}
@@ -350,10 +350,13 @@ export default function FormMessage() {
         {receiverEmailStatus === 'unavailable' && formData.receiver && (
           <p className="mt-1 text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
             {emailCheckResult && !emailCheckResult.sender_emailable
-              ? 'Email is not available. You need to configure email in your Meta-Wiki preferences.'
+              ? pageContent['message-form-email-sender-not-configured'] ||
+                'Email is not available. You need to configure email in your Meta-Wiki preferences.'
               : emailCheckResult && !emailCheckResult.receiver_emailable
-                ? 'This user cannot receive emails. Talk Page will be used instead.'
-                : 'Email is not available. Talk Page will be used instead.'}
+                ? pageContent['message-form-email-receiver-not-emailable'] ||
+                  'This user cannot receive emails. Talk Page will be used instead.'
+                : pageContent['message-form-email-not-available'] ||
+                  'Email is not available. Talk Page will be used instead.'}
           </p>
         )}
       </div>
@@ -398,17 +401,25 @@ export default function FormMessage() {
                   formData.receiver &&
                   formData.receiver.length >= 3;
 
+                // compute button class without nested ternary
+                let methodButtonClass = '';
+                if (isEmailDisabled) {
+                  methodButtonClass = 'opacity-50 cursor-not-allowed';
+                  if (darkMode){
+                    methodButtonClass ='text-white cursor-not-allowed'
+                  }
+                }
+                else if (darkMode) {
+                  methodButtonClass = 'text-white hover:bg-[#053749]';
+                } else {
+                  methodButtonClass = 'text-gray-700 hover:bg-gray-100';
+                }
+
                 return (
                   <button
                     key={method}
                     disabled={isEmailDisabled}
-                    className={`block w-full text-left px-4 py-2 text-sm ${
-                      isEmailDisabled
-                        ? 'opacity-50 cursor-not-allowed'
-                        : darkMode
-                          ? 'text-white hover:bg-[#053749]'
-                          : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`block w-full text-left px-4 py-2 text-sm ${methodButtonClass}`}
                     onClick={() => {
                       if (!isEmailDisabled) {
                         setFormData({ ...formData, method });
@@ -418,7 +429,9 @@ export default function FormMessage() {
                   >
                     {messageMethodLabels[method]}
                     {isEmailDisabled && (
-                      <span className="text-[10px] ml-2 text-orange-500">(Unavailable)</span>
+                      <span className="text-[10px] ml-2 text-orange-500">
+                        ({pageContent['message-form-method-unavailable'] || 'Unavailable'})
+                      </span>
                     )}
                   </button>
                 );
