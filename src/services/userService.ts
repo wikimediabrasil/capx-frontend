@@ -17,6 +17,7 @@ export interface FetchAllUsersParams {
   limit?: number;
   offset?: number;
   filters?: UserFilters;
+  ordering?: string;
 }
 
 export const userService = {
@@ -78,6 +79,10 @@ export const userService = {
 
     if (queryParams?.filters?.username) {
       params.append('username', queryParams.filters.username);
+    }
+
+    if (queryParams?.ordering) {
+      params.append('ordering', queryParams.ordering);
     }
 
     try {
