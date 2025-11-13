@@ -582,7 +582,12 @@
   "analytics-bashboard-capacities-card-learners": "Learners",
   "analytics-bashboard-capacities-card-sharers": "Shares",
   "analytics-bashboard-capacities-load-more": "Load more results",
-  "home-carrosel-suggestions-title-no-capacities": "Complete your profile",
-  "home-carrosel-suggestions-description-no-capacities": "By choosing the capacities you would like to learn and those you are willing to share with your peers, we can show you profiles and events you might want to explore.",
-  "home-carrosel-suggestions-description-no-capacities-button": "Edit profile"
+  "home-carousel-suggestions-title-no-capacities": "Complete your profile",
+  "home-carousel-suggestions-description-no-capacities": "By choosing the capacities you would like to learn and those you are willing to share with your peers, we can show you profiles and events you might want to explore.",
+  "home-carousel-suggestions-description-no-capacities-button": "Edit profile",
+  "recommendations-share-with-tooltip": "Recommendations of profiles according the available capacities that you selected on your profile.",
+  "recommendations-learn-from-tooltip": "Recommendations of profiles according the wanted capacities that you selected on your profile.",
+  "recommendations-same-language-tooltip": "Recommendations of profiles according the languages that you selected on your profile.",
+  "recommendations-new-skills-tooltip": "Recommended new skills.",
+  "recommendations-events-tooltip": "Recommended events."
 }

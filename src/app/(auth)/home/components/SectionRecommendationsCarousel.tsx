@@ -9,6 +9,8 @@ import RecommendationProfileCard from '@/app/(auth)/home/components/Recommendati
 import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
 import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
 import LoadingState from '@/components/LoadingState';
+import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
+import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations';
 
 export default function SectionRecommendationsCarousel() {
   const { isMobile, pageContent } = useApp();
@@ -55,17 +57,21 @@ export default function SectionRecommendationsCarousel() {
     return null;
   }
 
-  // Check if there's any data to show
-  const hasAnyRecommendations =
+  // Check if there's any data to show (excluding new_skills)
+  const hasOtherRecommendations =
     (data.share_with && data.share_with.length > 0) ||
     (data.learn_from && data.learn_from.length > 0) ||
     (data.same_language && data.same_language.length > 0) ||
     (data.share_with_orgs && data.share_with_orgs.length > 0) ||
     (data.learn_from_orgs && data.learn_from_orgs.length > 0) ||
-    (data.new_skills && data.new_skills.length > 0) ||
     (data.events && data.events.length > 0);
 
+  const hasNewSkills = data.new_skills && data.new_skills.length > 0;
+  const hasAnyRecommendations = hasOtherRecommendations || hasNewSkills;
+
   console.log('Has any recommendations:', hasAnyRecommendations);
+  console.log('Has other recommendations:', hasOtherRecommendations);
+  console.log('Has new skills:', hasNewSkills);
   console.log('share_with:', data.share_with?.length || 0);
   console.log('learn_from:', data.learn_from?.length || 0);
   console.log('same_language:', data.same_language?.length || 0);
@@ -74,9 +80,61 @@ export default function SectionRecommendationsCarousel() {
   console.log('new_skills:', data.new_skills?.length || 0);
   console.log('events:', data.events?.length || 0);
 
+  // If there are no recommendations at all, show only the no recommendations section
   if (!hasAnyRecommendations) {
     console.log('No recommendations to display');
-    return null;
+    return <SectionNoCapacities />;
+  }
+
+  // If there are only new_skills (Recommended Capacities), show SectionNoRecommendations above + new_skills carousel
+  const showOnlyNewSkills = hasNewSkills && !hasOtherRecommendations;
+
+  // If only new_skills, show SectionNoRecommendations + new_skills carousel
+  if (showOnlyNewSkills) {
+    const newSkillsContent = (
+      <div className="flex flex-col items-center justify-center w-full gap-8 md:gap-16">
+        {data.new_skills && data.new_skills.length > 0 && (
+          <RecommendationCarousel
+            title={pageContent['recommendations-new-skills'] || 'Recommended Capacities'}
+            tooltipText={pageContent['recommendations-new-skills-tooltip']}
+          >
+            {data.new_skills.map((capacity) => (
+              <RecommendationCapacityCard
+                key={capacity.id}
+                recommendation={capacity}
+                onAddToProfile={handleAddCapacity}
+                hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
+              />
+            ))}
+          </RecommendationCarousel>
+        )}
+      </div>
+    );
+
+    return (
+      <>
+        <SectionNoCapacities />
+        {isMobile ? (
+          <section
+            className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 ${
+              darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
+            }`}
+          >
+            {newSkillsContent}
+          </section>
+        ) : (
+          <section
+            className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 md:mb-[128px] ${
+              darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
+            }`}
+          >
+            <div className="flex flex-col items-center justify-between w-full py-16 gap-16">
+              {newSkillsContent}
+            </div>
+          </section>
+        )}
+      </>
+    );
   }
 
   // Combine share_with and share_with_orgs
@@ -94,11 +152,12 @@ export default function SectionRecommendationsCarousel() {
   const sectionContent = (
     <div className="flex flex-col items-center justify-center w-full gap-8 md:gap-16">
       {/* Combined Share With carousel */}
-      {shareWithProfiles.length > 0 && (
-        <RecommendationCarousel
-          title={pageContent['recommendations-share-with'] || 'Profiles to share with'}
-        >
-          {shareWithProfiles.map((profile) => (
+      <RecommendationCarousel
+        title={pageContent['recommendations-share-with'] || 'Profiles to share with'}
+        tooltipText={pageContent['recommendations-share-with-tooltip']}
+      >
+        {shareWithProfiles.length > 0 ? (
+          shareWithProfiles.map((profile) => (
             <RecommendationProfileCard
               key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
@@ -106,16 +165,19 @@ export default function SectionRecommendationsCarousel() {
               capacityType="available"
               hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
             />
-          ))}
-        </RecommendationCarousel>
-      )}
+          ))
+        ) : (
+          <CardNoCapacities alt="No profiles to share with" />
+        )}
+      </RecommendationCarousel>
 
       {/* Combined Learn From carousel */}
-      {learnFromProfiles.length > 0 && (
-        <RecommendationCarousel
-          title={pageContent['recommendations-learn-from'] || 'Profiles to learn from'}
-        >
-          {learnFromProfiles.map((profile) => (
+      <RecommendationCarousel
+        title={pageContent['recommendations-learn-from'] || 'Profiles to learn from'}
+        tooltipText={pageContent['recommendations-learn-from-tooltip']}
+      >
+        {learnFromProfiles.length > 0 ? (
+          learnFromProfiles.map((profile) => (
             <RecommendationProfileCard
               key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
@@ -123,19 +185,22 @@ export default function SectionRecommendationsCarousel() {
               capacityType="wanted"
               hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
             />
-          ))}
-        </RecommendationCarousel>
-      )}
+          ))
+        ) : (
+          <CardNoCapacities alt="No profiles to learn from" />
+        )}
+      </RecommendationCarousel>
 
       {/* Same Language carousel */}
-      {data.same_language && data.same_language.length > 0 && (
-        <RecommendationCarousel
-          title={pageContent['recommendations-same-language'] || 'Same language speakers'}
-          description={
-            pageContent['recommendations-based-on-languages'] || 'Based on your languages'
-          }
-        >
-          {data.same_language.map((profile) => (
+      <RecommendationCarousel
+        title={pageContent['recommendations-same-language'] || 'Same language speakers'}
+        description={
+          'By choosing the languages you know we can show you profiles and events you might want to explore.'
+        }
+        tooltipText={pageContent['recommendations-same-language-tooltip']}
+      >
+        {data.same_language && data.same_language.length > 0 ? (
+          data.same_language.map((profile) => (
             <RecommendationProfileCard
               key={profile.id}
               recommendation={profile}
@@ -143,13 +208,16 @@ export default function SectionRecommendationsCarousel() {
               capacityType="available"
               hintMessage={pageContent['recommendations-based-on-languages'] || 'Based on your languages'}
             />
-          ))}
-        </RecommendationCarousel>
-      )}
+          ))
+        ) : (
+          <CardNoCapacities alt="No same language speakers" />
+        )}
+      </RecommendationCarousel>
 
       {data.new_skills && data.new_skills.length > 0 && (
         <RecommendationCarousel
           title={pageContent['recommendations-new-skills'] || 'Recommended Capacities'}
+          tooltipText={pageContent['recommendations-new-skills-tooltip']}
         >
           {data.new_skills.map((capacity) => (
             <RecommendationCapacityCard
@@ -165,6 +233,7 @@ export default function SectionRecommendationsCarousel() {
       {data.events && data.events.length > 0 && (
         <RecommendationCarousel
           title={pageContent['recommendations-events'] || 'Events You Might Like'}
+          tooltipText={pageContent['recommendations-events-tooltip']}
         >
           {data.events.map((event) => (
             <RecommendationEventCard
@@ -176,7 +245,7 @@ export default function SectionRecommendationsCarousel() {
           ))}
         </RecommendationCarousel>
       )}
-                </div>
+    </div>
   );
 
   return isMobile ? (

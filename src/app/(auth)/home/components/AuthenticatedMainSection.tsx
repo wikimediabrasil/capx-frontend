@@ -6,7 +6,7 @@ import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import SectionNoCapacities from './SectionCarouselNoCapacities';
+import SectionNoCapacities from './SectionNoRecommendations';
 import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';

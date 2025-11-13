@@ -13,6 +13,7 @@ interface RecommendationCarouselProps {
   description?: string;
   children: React.ReactNode;
   showInfoIcon?: boolean;
+  tooltipText?: string;
 }
 
 export default function RecommendationCarousel({
@@ -20,6 +21,7 @@ export default function RecommendationCarousel({
   description,
   children,
   showInfoIcon = true,
+  tooltipText,
 }: RecommendationCarouselProps) {
   const { pageContent } = useApp();
   const { darkMode } = useTheme();
@@ -77,6 +79,7 @@ export default function RecommendationCarousel({
     }
   };
 
+  // Allow rendering even with 0 items (shouldn't happen, but just in case)
   if (totalItems === 0) {
     console.log('RecommendationCarousel - No items to display for:', title);
     return null;
@@ -98,7 +101,7 @@ export default function RecommendationCarousel({
           <div className="relative group">
             <div 
               className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] cursor-help"
-              title={pageContent['recommendations-based-on-profile'] || 'Based on your profile'}
+              title={tooltipText || pageContent['recommendations-based-on-profile'] || 'Based on your profile'}
             >
               <Image src={info_blue} alt="" fill className="object-contain" priority />
             </div>
@@ -111,7 +114,7 @@ export default function RecommendationCarousel({
               }`}
             >
               <div className="text-[10px] md:text-xs leading-relaxed text-center">
-                {pageContent['recommendations-based-on-profile'] || 'Based on your profile'}
+                {tooltipText || pageContent['recommendations-based-on-profile'] || 'Based on your profile'}
               </div>
               {/* Arrow */}
               <div
@@ -135,11 +138,13 @@ export default function RecommendationCarousel({
       <div className="relative w-full">
         <div
           ref={scrollContainerRef}
-          className="flex gap-2 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth items-stretch"
+          className={`flex gap-2 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth items-stretch ${
+            totalItems === 1 ? 'justify-center' : ''
+          }`}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {childrenArray.map((child, index) => (
-            <div key={index} className="flex-shrink-0 h-full">
+            <div key={index} className={`${totalItems === 1 ? 'flex-shrink' : 'flex-shrink-0'} h-full`}>
               {child}
             </div>
           ))}
