@@ -41,22 +41,6 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
     (Array.isArray(fd.skills_available) && fd.skills_available.length > 0) ||
     (Array.isArray(fd.skills_wanted) && fd.skills_wanted.length > 0);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   if (isMobile) {
     return (
       <>
@@ -109,8 +93,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             </div>
           </div>
         </section>
-        <SectionRecommendationsCarousel/>
-
+        <SectionRecommendationsCarousel />
 
         <section
           className={
@@ -210,7 +193,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             />
           </div>
         </div>
-        <SectionRecommendationsCarousel/>
+        <SectionRecommendationsCarousel />
 
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
           <h1

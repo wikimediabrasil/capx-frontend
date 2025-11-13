@@ -34,7 +34,8 @@ export default function RecommendationCapacityCard({
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
-  const { getName, getIcon, getColor, getDescription, preloadCapacities, getCapacity } = useCapacityCache();
+  const { getName, getIcon, getColor, getDescription, preloadCapacities, getCapacity } =
+    useCapacityCache();
   const { showSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +43,7 @@ export default function RecommendationCapacityCard({
   const [showCapacityModal, setShowCapacityModal] = useState(false);
 
   const capacityId = recommendation.id;
-  
+
   // Use React Query to cache and fetch user profile
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile', session?.user?.id, session?.user?.token],
@@ -50,10 +51,7 @@ export default function RecommendationCapacityCard({
       if (!session?.user?.token || !session?.user?.id) {
         return null;
       }
-      return userService.fetchUserProfile(
-        Number(session.user.id),
-        session.user.token
-      );
+      return userService.fetchUserProfile(Number(session.user.id), session.user.token);
     },
     enabled: !!session?.user?.token && !!session?.user?.id,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
@@ -64,14 +62,14 @@ export default function RecommendationCapacityCard({
   const userWantedCapacities = useMemo(() => {
     if (!userProfile) return [];
     return (userProfile.skills_wanted || [])
-      .map(c => typeof c === 'string' ? parseInt(c, 10) : c)
+      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
       .filter(c => !isNaN(c)) as number[];
   }, [userProfile]);
 
   const isAdded = useMemo(() => {
     return userWantedCapacities.includes(capacityId);
   }, [userWantedCapacities, capacityId]);
-  
+
   // Preload capacity data
   useEffect(() => {
     const loadCapacity = async () => {
@@ -97,14 +95,19 @@ export default function RecommendationCapacityCard({
     [recommendation.color, getColor, capacityId]
   );
   const capacityDescription = useMemo(() => {
-    if (typeof recommendation.description === 'string' && recommendation.description.trim().length > 0) {
+    if (
+      typeof recommendation.description === 'string' &&
+      recommendation.description.trim().length > 0
+    ) {
       return recommendation.description;
     }
     return getDescription(capacityId);
   }, [recommendation.description, getDescription, capacityId]);
-  
+
   // Get background color from capacity color category (e.g., "organizational" -> "#0078D4")
-  const backgroundColor = capacityColorCategory ? getCapacityColor(capacityColorCategory) : '#0078D4';
+  const backgroundColor = capacityColorCategory
+    ? getCapacityColor(capacityColorCategory)
+    : '#0078D4';
 
   const handleAddToProfile = async () => {
     if (!session?.user?.token || !session?.user?.id || isAdding || isAdded || !userProfile) {
@@ -132,15 +135,11 @@ export default function RecommendationCapacityCard({
         }
 
         // Update profile
-        await profileService.updateProfile(
-          Number(session.user.id),
-          updatePayload,
-          {
-            headers: {
-              Authorization: `Token ${session.user.token}`,
-            },
-          }
-        );
+        await profileService.updateProfile(Number(session.user.id), updatePayload, {
+          headers: {
+            Authorization: `Token ${session.user.token}`,
+          },
+        });
 
         // Update the cache optimistically
         queryClient.setQueryData(['userProfile', session.user.id, session.user.token], {
@@ -149,17 +148,26 @@ export default function RecommendationCapacityCard({
         });
 
         // Invalidate to ensure fresh data on next fetch
-        queryClient.invalidateQueries({ queryKey: ['userProfile', session.user.id, session.user.token] });
-        
-        showSnackbar(pageContent['capacity-added-success'] || 'Capacity added to profile', 'success');
-        
+        queryClient.invalidateQueries({
+          queryKey: ['userProfile', session.user.id, session.user.token],
+        });
+
+        showSnackbar(
+          pageContent['capacity-added-success'] || 'Capacity added to profile',
+          'success'
+        );
+
         if (onAddToProfile) {
           onAddToProfile(capacityId);
         }
       }
     } catch (error: any) {
       console.error('Error adding capacity to profile:', error);
-      const errorMessage = error?.response?.data?.error || error?.message || pageContent['error'] || 'Error adding capacity';
+      const errorMessage =
+        error?.response?.data?.error ||
+        error?.message ||
+        pageContent['error'] ||
+        'Error adding capacity';
       showSnackbar(errorMessage, 'error');
     } finally {
       setIsAdding(false);
@@ -201,16 +209,16 @@ export default function RecommendationCapacityCard({
           <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]">
             <Image src={lamp_purple} alt="" fill className="object-contain" priority />
           </div>
-          <p className={`text-[10px] md:text-[14px] ${
-            darkMode ? 'text-gray-300' : 'text-gray-500'
-          }`}>
+          <p
+            className={`text-[10px] md:text-[14px] ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
+          >
             {hintMessage}
           </p>
         </div>
       )}
       <div className="w-full flex-1">
         <div className="flex items-start gap-4 mb-4 w-full">
-          <div 
+          <div
             className="relative w-[60px] h-[60px] md:w-[80px] md:h-[80px] rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor }}
           >
@@ -226,15 +234,19 @@ export default function RecommendationCapacityCard({
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className={`text-[16px] md:text-[24px] font-bold mb-1 break-words ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}>
+            <h3
+              className={`text-[16px] md:text-[24px] font-bold mb-1 break-words ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+              }`}
+            >
               {capacityName}
             </h3>
             {capacityDescription && (
-              <p className={`text-[12px] md:text-[16px] line-clamp-2 ${
-                darkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}>
+              <p
+                className={`text-[12px] md:text-[16px] line-clamp-2 ${
+                  darkMode ? 'text-gray-300' : 'text-gray-600'
+                }`}
+              >
                 {capacityDescription}
               </p>
             )}
@@ -257,14 +269,18 @@ export default function RecommendationCapacityCard({
             customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold bg-[#053749] hover:bg-[#04222F] md:text-[16px] md:px-6 md:py-3 flex-shrink-0 ${
               isAdding ? 'opacity-50 cursor-not-allowed' : ''
             }`}
-            label={isAdding ? (pageContent['loading'] || 'Loading...') : (pageContent['add-to-profile'] || 'Add to Profile')}
+            label={
+              isAdding
+                ? pageContent['loading'] || 'Loading...'
+                : pageContent['add-to-profile'] || 'Add to Profile'
+            }
           />
         )}
         <BaseButton
           onClick={handleView}
           customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold border-2 border-[#053749] md:text-[16px] md:px-6 md:py-3 flex-shrink-0 ${
-            darkMode 
-              ? 'text-white bg-gray-800 hover:bg-gray-700' 
+            darkMode
+              ? 'text-white bg-gray-800 hover:bg-gray-700'
               : 'text-[#053749] bg-white hover:bg-gray-50'
           }`}
           label={pageContent['view'] || 'View'}
@@ -275,11 +291,10 @@ export default function RecommendationCapacityCard({
         isOpen={showCapacityModal}
         onClose={() => setShowCapacityModal(false)}
         onSelect={handleCapacitySelect}
-        title={capacityName || (pageContent['select-capacity'] || 'Select Capacity')}
+        title={capacityName || pageContent['select-capacity'] || 'Select Capacity'}
         allowMultipleSelection={false}
         initialCapacityId={capacityId}
       />
     </div>
   );
 }
-

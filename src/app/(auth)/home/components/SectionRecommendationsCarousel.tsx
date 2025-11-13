@@ -14,7 +14,7 @@ import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations
 
 export default function SectionRecommendationsCarousel() {
   const { isMobile, pageContent } = useApp();
-    const { darkMode } = useTheme();
+  const { darkMode } = useTheme();
   const { data, isLoading, error } = useRecommendations();
   console.log('Recommendations data:', data);
   console.log('Recommendations isLoading:', isLoading);
@@ -37,11 +37,11 @@ export default function SectionRecommendationsCarousel() {
 
   if (isLoading) {
     return (
-        <section
-            className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 ${
-                darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
-            }`}
-        >
+      <section
+        className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 ${
+          darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
+        }`}
+      >
         <LoadingState />
       </section>
     );
@@ -98,12 +98,14 @@ export default function SectionRecommendationsCarousel() {
             title={pageContent['recommendations-new-skills'] || 'Recommended Capacities'}
             tooltipText={pageContent['recommendations-new-skills-tooltip']}
           >
-            {data.new_skills.map((capacity) => (
+            {data.new_skills.map(capacity => (
               <RecommendationCapacityCard
                 key={capacity.id}
                 recommendation={capacity}
                 onAddToProfile={handleAddCapacity}
-                hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
+                hintMessage={
+                  pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+                }
               />
             ))}
           </RecommendationCarousel>
@@ -138,16 +140,10 @@ export default function SectionRecommendationsCarousel() {
   }
 
   // Combine share_with and share_with_orgs
-  const shareWithProfiles = [
-    ...(data.share_with || []),
-    ...(data.share_with_orgs || []),
-  ];
+  const shareWithProfiles = [...(data.share_with || []), ...(data.share_with_orgs || [])];
 
   // Combine learn_from and learn_from_orgs
-  const learnFromProfiles = [
-    ...(data.learn_from || []),
-    ...(data.learn_from_orgs || []),
-  ];
+  const learnFromProfiles = [...(data.learn_from || []), ...(data.learn_from_orgs || [])];
 
   const sectionContent = (
     <div className="flex flex-col items-center justify-center w-full gap-8 md:gap-16">
@@ -157,13 +153,15 @@ export default function SectionRecommendationsCarousel() {
         tooltipText={pageContent['recommendations-share-with-tooltip']}
       >
         {shareWithProfiles.length > 0 ? (
-          shareWithProfiles.map((profile) => (
+          shareWithProfiles.map(profile => (
             <RecommendationProfileCard
               key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
               onSave={handleSaveProfile}
               capacityType="available"
-              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
+              hintMessage={
+                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+              }
             />
           ))
         ) : (
@@ -177,13 +175,15 @@ export default function SectionRecommendationsCarousel() {
         tooltipText={pageContent['recommendations-learn-from-tooltip']}
       >
         {learnFromProfiles.length > 0 ? (
-          learnFromProfiles.map((profile) => (
+          learnFromProfiles.map(profile => (
             <RecommendationProfileCard
               key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
               onSave={handleSaveProfile}
               capacityType="wanted"
-              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
+              hintMessage={
+                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+              }
             />
           ))
         ) : (
@@ -200,13 +200,15 @@ export default function SectionRecommendationsCarousel() {
         tooltipText={pageContent['recommendations-same-language-tooltip']}
       >
         {data.same_language && data.same_language.length > 0 ? (
-          data.same_language.map((profile) => (
+          data.same_language.map(profile => (
             <RecommendationProfileCard
               key={profile.id}
               recommendation={profile}
               onSave={handleSaveProfile}
               capacityType="available"
-              hintMessage={pageContent['recommendations-based-on-languages'] || 'Based on your languages'}
+              hintMessage={
+                pageContent['recommendations-based-on-languages'] || 'Based on your languages'
+              }
             />
           ))
         ) : (
@@ -219,12 +221,14 @@ export default function SectionRecommendationsCarousel() {
           title={pageContent['recommendations-new-skills'] || 'Recommended Capacities'}
           tooltipText={pageContent['recommendations-new-skills-tooltip']}
         >
-          {data.new_skills.map((capacity) => (
+          {data.new_skills.map(capacity => (
             <RecommendationCapacityCard
               key={capacity.id}
               recommendation={capacity}
               onAddToProfile={handleAddCapacity}
-              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
+              hintMessage={
+                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+              }
             />
           ))}
         </RecommendationCarousel>
@@ -235,12 +239,14 @@ export default function SectionRecommendationsCarousel() {
           title={pageContent['recommendations-events'] || 'Events You Might Like'}
           tooltipText={pageContent['recommendations-events-tooltip']}
         >
-          {data.events.map((event) => (
+          {data.events.map(event => (
             <RecommendationEventCard
               key={event.id}
               recommendation={event}
               onSave={handleSaveEvent}
-              hintMessage={pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'}
+              hintMessage={
+                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+              }
             />
           ))}
         </RecommendationCarousel>
@@ -255,16 +261,16 @@ export default function SectionRecommendationsCarousel() {
       }`}
     >
       {sectionContent}
-        </section>
-        ) : (
-        <section
-        className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 md:mb-[128px] ${
-            darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
-        }`}
-        >
-        <div className="flex flex-col items-center justify-between w-full py-16 gap-16">
+    </section>
+  ) : (
+    <section
+      className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 md:mb-[128px] ${
+        darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
+      }`}
+    >
+      <div className="flex flex-col items-center justify-between w-full py-16 gap-16">
         {sectionContent}
-        </div>
-        </section>
-    );
+      </div>
+    </section>
+  );
 }

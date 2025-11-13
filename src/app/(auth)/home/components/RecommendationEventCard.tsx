@@ -36,7 +36,9 @@ export default function RecommendationEventCard({
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
-  const [organizationName, setOrganizationName] = useState<string | null>(recommendation.organization_name || null);
+  const [organizationName, setOrganizationName] = useState<string | null>(
+    recommendation.organization_name || null
+  );
 
   // Fetch organization name if we have organization ID but no name
   useEffect(() => {
@@ -123,9 +125,7 @@ export default function RecommendationEventCard({
             <Image src={lamp_purple} alt="" fill className="object-contain" priority />
           </div>
           <p
-            className={`text-[10px] md:text-[14px] ${
-              darkMode ? 'text-gray-300' : 'text-gray-500'
-            }`}
+            className={`text-[10px] md:text-[14px] ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
           >
             {hintMessage}
           </p>
@@ -170,11 +170,11 @@ export default function RecommendationEventCard({
         {timeRange && (
           <div className="flex items-center gap-2">
             <div className="relative w-[16px] h-[16px]">
-              <Image 
-                src={darkMode ? AlarmLightIcon : AlarmDarkIcon} 
-                alt="" 
-                fill 
-                className="object-contain" 
+              <Image
+                src={darkMode ? AlarmLightIcon : AlarmDarkIcon}
+                alt=""
+                fill
+                className="object-contain"
               />
             </div>
             <span>{timeRange}</span>
@@ -183,11 +183,11 @@ export default function RecommendationEventCard({
         {recommendation.time_begin && (
           <div className="flex items-center gap-2">
             <div className="relative w-[16px] h-[16px]">
-              <Image 
-                src={darkMode ? CalendarLightIcon : CalendarDarkIcon} 
-                alt="" 
-                fill 
-                className="object-contain" 
+              <Image
+                src={darkMode ? CalendarLightIcon : CalendarDarkIcon}
+                alt=""
+                fill
+                className="object-contain"
               />
             </div>
             <span>{formatDate(recommendation.time_begin)}</span>
@@ -196,11 +196,11 @@ export default function RecommendationEventCard({
         {recommendation.type_of_location && (
           <div className="flex items-center gap-2">
             <div className="relative w-[16px] h-[16px]">
-              <Image 
-                src={darkMode ? LocationLightIcon : LocationDarkIcon} 
-                alt="" 
-                fill 
-                className="object-contain" 
+              <Image
+                src={darkMode ? LocationLightIcon : LocationDarkIcon}
+                alt=""
+                fill
+                className="object-contain"
               />
             </div>
             <span>
@@ -215,11 +215,11 @@ export default function RecommendationEventCard({
         {recommendation.language && (
           <div className="flex items-center gap-2">
             <div className="relative w-[16px] h-[16px]">
-              <Image 
-                src={darkMode ? LanguageIconWhite : LanguageIcon} 
-                alt="" 
-                fill 
-                className="object-contain" 
+              <Image
+                src={darkMode ? LanguageIconWhite : LanguageIcon}
+                alt=""
+                fill
+                className="object-contain"
               />
             </div>
             <span>{recommendation.language}</span>
@@ -237,4 +237,3 @@ export default function RecommendationEventCard({
     </div>
   );
 }
-

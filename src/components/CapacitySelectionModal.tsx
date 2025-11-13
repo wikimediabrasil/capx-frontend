@@ -398,36 +398,39 @@ export default function CapacitySelectionModal({
   } = capacityCache;
 
   // Function to find the path to a capacity in the hierarchy (from root to parent of target)
-  const findPathToCapacity = useCallback((targetCapacityId: number): number[] => {
-    const path: number[] = [];
-    let currentCapacity = getCapacity(targetCapacityId);
-    
-    if (!currentCapacity) return path;
+  const findPathToCapacity = useCallback(
+    (targetCapacityId: number): number[] => {
+      const path: number[] = [];
+      let currentCapacity = getCapacity(targetCapacityId);
 
-    // Build path by following parent chain from target to root
-    const visited = new Set<number>();
-    const reversePath: number[] = [];
-    
-    while (currentCapacity) {
-      if (visited.has(currentCapacity.code)) break; // Prevent infinite loop
-      visited.add(currentCapacity.code);
-      
-      // Get parent from skill_type
-      const parentId = currentCapacity.skill_type;
-      
-      // If this capacity has a valid parent (and it's not itself), add parent to path
-      if (parentId && parentId !== currentCapacity.code) {
-        reversePath.push(parentId);
-        currentCapacity = getCapacity(parentId);
-      } else {
-        // Reached root or no parent
-        break;
+      if (!currentCapacity) return path;
+
+      // Build path by following parent chain from target to root
+      const visited = new Set<number>();
+      const reversePath: number[] = [];
+
+      while (currentCapacity) {
+        if (visited.has(currentCapacity.code)) break; // Prevent infinite loop
+        visited.add(currentCapacity.code);
+
+        // Get parent from skill_type
+        const parentId = currentCapacity.skill_type;
+
+        // If this capacity has a valid parent (and it's not itself), add parent to path
+        if (parentId && parentId !== currentCapacity.code) {
+          reversePath.push(parentId);
+          currentCapacity = getCapacity(parentId);
+        } else {
+          // Reached root or no parent
+          break;
+        }
       }
-    }
-    
-    // Reverse to get path from root to parent of target
-    return reversePath.reverse();
-  }, [getCapacity]);
+
+      // Reverse to get path from root to parent of target
+      return reversePath.reverse();
+    },
+    [getCapacity]
+  );
 
   useEffect(() => {
     if (isOpen && session?.user?.token) {
@@ -436,7 +439,7 @@ export default function CapacitySelectionModal({
         if (initialCapacityId) {
           const path = findPathToCapacity(initialCapacityId);
           setSelectedPath(path);
-          
+
           // Select the initial capacity
           const capacity = getCapacity(initialCapacityId);
           if (capacity) {
@@ -450,7 +453,15 @@ export default function CapacitySelectionModal({
         setShowInfoMap({});
       });
     }
-  }, [isOpen, session?.user?.token, language, updateLanguage, initialCapacityId, findPathToCapacity, getCapacity]);
+  }, [
+    isOpen,
+    session?.user?.token,
+    language,
+    updateLanguage,
+    initialCapacityId,
+    findPathToCapacity,
+    getCapacity,
+  ]);
 
   const handleCategorySelect = async (category: Capacity) => {
     try {

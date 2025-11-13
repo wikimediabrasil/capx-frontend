@@ -9,11 +9,7 @@ export const useRecommendations = () => {
   const { data: session } = useSession();
   const token = session?.user?.token;
 
-  const {
-    data,
-    isLoading,
-    error,
-  } = useQuery<RecommendationsResponse, Error>({
+  const { data, isLoading, error } = useQuery<RecommendationsResponse, Error>({
     queryKey: ['recommendations', token],
     queryFn: async () => {
       if (!token) {
@@ -29,10 +25,9 @@ export const useRecommendations = () => {
     retry: 1,
   });
 
-  return { 
-    data: data || null, 
-    isLoading, 
-    error: error || null 
+  return {
+    data: data || null,
+    isLoading,
+    error: error || null,
   };
 };
-

@@ -11,18 +11,12 @@ interface CardNoCapacitiesProps {
 }
 
 export default function CardNoCapacities({ alt = '' }: CardNoCapacitiesProps) {
-    const { pageContent } = useApp();
-    const router = useRouter();
+  const { pageContent } = useApp();
+  const router = useRouter();
   return (
     <div className="flex flex-col justify-center items-center bg-[#FFFFFF] p-8 mx-auto text-center rounded-md w-full max-w-full">
       <div className="relative w-[270px] md:w-[180px] h-[180px] md:h-[180px] mx-auto">
-        <Image
-          src={contacts_product}
-          alt={alt}
-          fill
-          className="object-contain"
-          priority
-        />
+        <Image src={contacts_product} alt={alt} fill className="object-contain" priority />
       </div>
       <h1 className="text-[14px] font-[Montserrat] font-bold mt-4 text-capx-dark-box-bg md:text-[32px] md:mt-8 text-center mx-auto">
         {pageContent['home-carousel-suggestions-title-no-capacities']}
@@ -34,7 +28,7 @@ export default function CardNoCapacities({ alt = '' }: CardNoCapacitiesProps) {
         onClick={() => router.push('/profile/edit')}
         customClass="flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] text-white font-extrabold rounded-lg mt-4 bg-[#053749] md:text-[24px] md:px-8 md:py-4 mx-auto"
         label={pageContent['home-carousel-suggestions-description-no-capacities-button']}
-      />      
+      />
     </div>
   );
 }

@@ -4,10 +4,7 @@ import Image from 'next/image';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import BaseButton from '@/components/BaseButton';
-import {
-  OrganizationRecommendation,
-  ProfileRecommendation,
-} from '@/types/recommendation';
+import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { useAvatars } from '@/hooks/useAvatars';
@@ -36,7 +33,6 @@ interface RecommendationProfileCardProps {
   capacityType?: 'known' | 'available' | 'wanted';
   hintMessage?: string;
 }
-
 
 export default function RecommendationProfileCard({
   recommendation,
@@ -72,12 +68,15 @@ export default function RecommendationProfileCard({
   };
 
   // Check if profile is saved
-  const isSaved = savedItems?.some(
-    item => item.entity_id === recommendation.id && item.entity === (isOrganization ? 'org' : 'user')
-  ) || false;
+  const isSaved =
+    savedItems?.some(
+      item =>
+        item.entity_id === recommendation.id && item.entity === (isOrganization ? 'org' : 'user')
+    ) || false;
 
   const savedItem = savedItems?.find(
-    item => item.entity_id === recommendation.id && item.entity === (isOrganization ? 'org' : 'user')
+    item =>
+      item.entity_id === recommendation.id && item.entity === (isOrganization ? 'org' : 'user')
   );
 
   const bookmarkIcon = isSaved
@@ -96,19 +95,26 @@ export default function RecommendationProfileCard({
       if (isSaved && savedItem) {
         const success = await deleteSavedItem(savedItem.id);
         if (success) {
-          showSnackbar(pageContent['saved-profiles-delete-success'] || 'Profile removed from saved', 'success');
+          showSnackbar(
+            pageContent['saved-profiles-delete-success'] || 'Profile removed from saved',
+            'success'
+          );
         } else {
           showSnackbar(pageContent['saved-profiles-error'] || 'Error removing profile', 'error');
         }
       } else {
-        const saveType = capacityType === 'available' ? ProfileCapacityType.Sharer : ProfileCapacityType.Learner;
+        const saveType =
+          capacityType === 'available' ? ProfileCapacityType.Sharer : ProfileCapacityType.Learner;
         const success = await createSavedItem(
           isOrganization ? 'org' : 'user',
           recommendation.id,
           saveType
         );
         if (success) {
-          showSnackbar(pageContent['saved-profiles-add-success'] || 'Profile saved successfully', 'success');
+          showSnackbar(
+            pageContent['saved-profiles-add-success'] || 'Profile saved successfully',
+            'success'
+          );
         } else {
           showSnackbar(pageContent['saved-profiles-error'] || 'Error saving profile', 'error');
         }
@@ -125,7 +131,6 @@ export default function RecommendationProfileCard({
     ? formatWikiImageUrl(profileImage || '')
     : getProfileImage(profileImage, null, avatars);
 
-
   return (
     <div
       className={`flex h-full flex-col justify-between items-start p-4 rounded-md w-[270px] md:w-[370px] border min-h-[300px] md:min-h-[350px] ${
@@ -137,9 +142,9 @@ export default function RecommendationProfileCard({
           <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]">
             <Image src={lamp_purple} alt="" fill className="object-contain" priority />
           </div>
-          <p className={`text-[10px] md:text-[14px] ${
-            darkMode ? 'text-gray-300' : 'text-gray-500'
-          }`}>
+          <p
+            className={`text-[10px] md:text-[14px] ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}
+          >
             {hintMessage}
           </p>
         </div>
@@ -166,15 +171,20 @@ export default function RecommendationProfileCard({
 
       <div className="flex items-center justify-start gap-2 mb-4 w-full">
         <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0">
-          <Image 
-            src={isOrganization 
-              ? (darkMode ? UserCircleIconWhite : UserCircleIcon)
-              : (darkMode ? AccountCircleWhite : AccountCircle)
-            } 
-            alt="" 
-            fill 
-            className="object-contain" 
-            priority 
+          <Image
+            src={
+              isOrganization
+                ? darkMode
+                  ? UserCircleIconWhite
+                  : UserCircleIcon
+                : darkMode
+                  ? AccountCircleWhite
+                  : AccountCircle
+            }
+            alt=""
+            fill
+            className="object-contain"
+            priority
           />
         </div>
         <p
@@ -185,7 +195,6 @@ export default function RecommendationProfileCard({
           {displayName}
         </p>
       </div>
-
 
       <div className="flex items-center justify-start gap-2 w-full mt-auto">
         <BaseButton
@@ -203,7 +212,13 @@ export default function RecommendationProfileCard({
                 ? 'text-white border-white bg-transparent hover:bg-gray-700'
                 : 'text-[#053749] border-[#053749] bg-white hover:bg-gray-50'
           } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-          label={isSaving ? (pageContent['loading'] || 'Loading...') : (isSaved ? (pageContent['saved'] || 'Saved') : (pageContent['save'] || 'Save'))}
+          label={
+            isSaving
+              ? pageContent['loading'] || 'Loading...'
+              : isSaved
+                ? pageContent['saved'] || 'Saved'
+                : pageContent['save'] || 'Save'
+          }
           imageUrl={bookmarkIcon}
           imageWidth={16}
           imageHeight={16}
@@ -212,4 +227,3 @@ export default function RecommendationProfileCard({
     </div>
   );
 }
-

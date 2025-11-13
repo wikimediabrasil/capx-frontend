@@ -72,4 +72,3 @@ export interface RecommendationsResponse {
   new_skills: CapacityRecommendation[];
   events: EventRecommendation[];
 }
-
