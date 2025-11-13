@@ -655,10 +655,7 @@ export default function EditOrganizationProfilePage() {
   const handleAddProject = () => {
     // Check if we've reached the maximum limit of 4 projects
     if (projectsData.length >= 4) {
-      showSnackbar(
-        pageContent['snackbar-edit-profile-organization-max-projects-reached'],
-        'error'
-      );
+      showSnackbar(pageContent['snackbar-edit-profile-organization-max-projects-reached'], 'error');
       return;
     }
 
