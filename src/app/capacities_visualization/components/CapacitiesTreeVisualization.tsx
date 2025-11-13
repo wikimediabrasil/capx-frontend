@@ -3,7 +3,7 @@
 import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
 import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
-import { capacityService } from '@/services/capacityService';
+import { useCapacityList } from '@/hooks/useCapacityList';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import D3TreeVisualization from './D3TreeVisualization';
@@ -27,6 +27,12 @@ export default function CapacitiesTreeVisualization() {
 
   // Fetch root capacities
   const { data: rootCapacities = [], isLoading: isLoadingRoots } = useRootCapacities(language);
+
+  // Use capacity list hook for fetching children and descriptions
+  const { fetchCapacitiesByParent, fetchCapacityDescription } = useCapacityList(
+    session?.user?.token,
+    language
+  );
 
   // Create a stable reference to root capacities based on codes
   const rootCapacitiesCodes = useMemo(
@@ -80,36 +86,92 @@ export default function CapacitiesTreeVisualization() {
             children: [],
           };
 
-          // If root has children, fetch them
+          // If root has children, fetch them using the hook
           if (rootCapacity.hasChildren) {
             try {
-              const children = await capacityService.fetchCapacitiesByType(
-                rootCapacity.code.toString(),
-                {
-                  headers: { Authorization: `Token ${session.user.token}` },
-                },
-                language
-              );
+              // Fetch children using hook
+              const children = await fetchCapacitiesByParent(rootCapacity.code.toString());
 
               // Check if aborted after fetch
               if (abortControllerRef.current.signal.aborted) {
                 return;
               }
 
-              transformedRoot.children = Object.entries(children).map(([code, nameOrResponse]) => {
-                const name =
-                  typeof nameOrResponse === 'string'
-                    ? nameOrResponse
-                    : nameOrResponse?.name || `Capacity ${code}`;
+              // Transform children and fetch their data
+              const childrenPromises = children.map(async child => {
+                const childCode =
+                  typeof child.code === 'string' ? child.code : child.code.toString();
+
+                // Ensure child has a valid name
+                const childName =
+                  typeof child.name === 'string' && child.name
+                    ? child.name
+                    : `Capacity ${childCode}`;
+
+                // Fetch child capacity description using hook
+                let description = '';
+                try {
+                  description = (await fetchCapacityDescription(Number(childCode))) || '';
+                } catch (error) {
+                  console.error(`Error fetching description for capacity ${childCode}:`, error);
+                }
+
+                // Fetch grandchildren using hook
+                let grandchildren: D3Capacity[] = [];
+                if (child.hasChildren) {
+                  try {
+                    const grandchildrenData = await fetchCapacitiesByParent(childCode);
+
+                    // Transform grandchildren
+                    grandchildren = await Promise.all(
+                      grandchildrenData.map(async grandChild => {
+                        const grandChildCode =
+                          typeof grandChild.code === 'string'
+                            ? grandChild.code
+                            : grandChild.code.toString();
+
+                        // Ensure grandchild has a valid name
+                        const grandChildName =
+                          typeof grandChild.name === 'string' && grandChild.name
+                            ? grandChild.name
+                            : `Capacity ${grandChildCode}`;
+
+                        // Fetch grandchild description using hook
+                        let grandDescription = '';
+                        try {
+                          grandDescription =
+                            (await fetchCapacityDescription(Number(grandChildCode))) || '';
+                        } catch (error) {
+                          console.error(
+                            `Error fetching description for grandchild ${grandChildCode}:`,
+                            error
+                          );
+                        }
+
+                        return {
+                          id: grandChildCode,
+                          name: grandChildName,
+                          color: 'gray-200',
+                          description: grandDescription,
+                          children: [],
+                        };
+                      })
+                    );
+                  } catch (error) {
+                    console.error(`Error fetching grandchildren for capacity ${childCode}:`, error);
+                  }
+                }
 
                 return {
-                  id: code,
-                  name,
+                  id: childCode,
+                  name: childName,
                   color: 'gray-200',
-                  description: '',
-                  children: [],
+                  description,
+                  children: grandchildren,
                 };
               });
+
+              transformedRoot.children = await Promise.all(childrenPromises);
             } catch (error) {
               console.error(`Error fetching children for capacity ${rootCapacity.code}:`, error);
             }
@@ -140,7 +202,14 @@ export default function CapacitiesTreeVisualization() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rootCapacitiesCodes, language, session?.user?.token, isLoadingRoots]);
+  }, [
+    rootCapacitiesCodes,
+    language,
+    session?.user?.token,
+    isLoadingRoots,
+    fetchCapacitiesByParent,
+    fetchCapacityDescription,
+  ]);
 
   if (isLoading || isLoadingRoots) {
     return <LoadingState fullScreen />;
