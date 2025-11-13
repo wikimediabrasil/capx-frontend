@@ -10,6 +10,7 @@ export interface UseAllUsersParams {
   limit?: number;
   offset?: number;
   activeFilters?: FilterState;
+  ordering?: string;
 }
 
 export function useUserProfile() {
@@ -147,6 +148,7 @@ export function useAllUsers(params: UseAllUsersParams) {
           limit: params.limit,
           offset: params.offset,
           filters,
+          ordering: params.ordering,
         });
         setAllUsers(data.results);
         setCount(data.count);
@@ -163,6 +165,7 @@ export function useAllUsers(params: UseAllUsersParams) {
     session?.user?.token,
     params.limit,
     params.offset,
+    params.ordering,
     capacitiesCodes,
     territories,
     languages,
