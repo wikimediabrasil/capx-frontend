@@ -256,6 +256,7 @@
   "snackbar-edit-profile-organization-update-event-failed": "Error updating event. Please check and try again",
   "snackbar-edit-profile-organization-create-event-failed": "Error creating event. Please check and try again",
   "snackbar-edit-profile-organization-max-documents-reached": "Maximum of 4 documents allowed per organization. You already have 4 documents.",
+  "snackbar-edit-profile-organization-max-projects-reached": "Maximum of 4 projects allowed per organization. You already have 4 projects.",
   "snackbar-edit-profile-organization-fetch-tags-failed": "Error fetching tags. Please check and try again",
   "snackbar-submit-report-bug-failed-generic": "Error submitting report. Please check and try again.",
   "snackbar-submit-report-bug-success-title": "Congratulations! You can now track its progress in the 'Submissions' tab.",
