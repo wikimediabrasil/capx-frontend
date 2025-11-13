@@ -17,7 +17,7 @@ export interface FilterState {
   profileCapacityTypes: ProfileCapacityType[];
   territories: string[];
   languages: string[];
-  username?: string;
+  name?: string;
   affiliations?: string[];
 }
 

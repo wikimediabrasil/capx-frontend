@@ -2,6 +2,7 @@ import axios from 'axios';
 import { UserProfile } from '@/types/user';
 
 export interface UserFilters {
+  name?: string;
   username?: string;
   language?: string[];
   territory?: string[];
@@ -77,8 +78,8 @@ export const userService = {
       params.append('offset', queryParams.offset.toString());
     }
 
-    if (queryParams?.filters?.username) {
-      params.append('username', queryParams.filters.username);
+    if (queryParams?.filters?.name) {
+      params.append('name', queryParams.filters.name);
     }
 
     if (queryParams?.ordering) {

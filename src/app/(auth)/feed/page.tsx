@@ -41,7 +41,7 @@ export default function FeedPage() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    username: undefined,
+    name: undefined,
     affiliations: [] as string[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
