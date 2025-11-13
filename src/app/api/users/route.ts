@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit') || undefined,
       offset: searchParams.get('offset') || undefined,
       user__username: searchParams.get('username') || undefined,
+      name: searchParams.get('name') || undefined,
       territory: searchParams.get('territory') || undefined,
       languageproficiency__language: searchParams.get('language') || undefined,
       skills_wanted: searchParams.get('skills_wanted') || undefined,

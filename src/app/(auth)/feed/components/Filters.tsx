@@ -96,10 +96,10 @@ export function Filters({
     });
   };
 
-  const handleUsernameChange = (username: string) => {
+  const handleNameChange = (name: string) => {
     setFilters(prev => ({
       ...prev,
-      username: username || undefined,
+      name: name || undefined,
     }));
   };
 
@@ -282,8 +282,8 @@ export function Filters({
                   </div>
                   <input
                     type="text"
-                    value={filters.username || ''}
-                    onChange={e => handleUsernameChange(e.target.value)}
+                    value={filters.name || ''}
+                    onChange={e => handleNameChange(e.target.value)}
                     placeholder={pageContent['filters-search-by-username']}
                     className={`
                       w-full p-2 rounded-lg border
