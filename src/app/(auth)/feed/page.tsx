@@ -147,7 +147,8 @@ export default function FeedPage() {
         (user, index, self) => index === self.findIndex(u => u.user.id === user.user.id)
       );
 
-      return createUnifiedProfiles(uniqueUsers).map(profile => ({
+      return createUnifiedProfiles(uniqueUsers)
+        .map(profile => ({
           ...profile,
           isSaved: isProfileSaved(profile.id),
         }))
