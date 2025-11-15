@@ -96,7 +96,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Learner],
         }
       : undefined,
-    ordering: 'update_date',
+    ordering: 'last_update',
   });
 
   const shouldFetchSharerUsers = activeFilters.profileCapacityTypes.includes(
@@ -115,7 +115,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Sharer],
         }
       : undefined,
-    ordering: 'update_date',
+    ordering: 'last_update',
   });
 
   // Total of records according to the profileFilter
@@ -148,9 +148,10 @@ export default function FeedPage() {
       );
 
       return createUnifiedProfiles(uniqueUsers).map(profile => ({
-        ...profile,
-        isSaved: isProfileSaved(profile.id),
-      }));
+          ...profile,
+          isSaved: isProfileSaved(profile.id),
+        }))
+        .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
     } else {
       // When only one type is selected, use the original logic
       const wantedUserProfiles = activeFilters.profileCapacityTypes.includes(
