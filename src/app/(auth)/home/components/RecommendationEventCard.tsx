@@ -23,13 +23,11 @@ import LanguageIconWhite from '@/public/static/images/language_white.svg';
 
 interface RecommendationEventCardProps {
   recommendation: EventRecommendation;
-  onSave?: (id: number) => void;
   hintMessage?: string;
 }
 
 export default function RecommendationEventCard({
   recommendation,
-  onSave,
   hintMessage,
 }: RecommendationEventCardProps) {
   const { pageContent, language } = useApp();

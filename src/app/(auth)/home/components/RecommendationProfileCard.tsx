@@ -61,9 +61,9 @@ export default function RecommendationProfileCard({
 
   const handleViewProfile = () => {
     if (isOrganization) {
-      router.push(`/organization_profile/${recommendation.id}`);
+      window.location.href = `/organization_profile/${recommendation.id}`;
     } else if (profileUsername) {
-      router.push(`/profile/${profileUsername}`);
+      window.location.href = `/profile/${profileUsername}`;
     }
   };
 

@@ -17,22 +17,18 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-// Using a simple check mark - we'll use text or find an alternative icon
 
 interface RecommendationCapacityCardProps {
   recommendation: CapacityRecommendation;
-  onAddToProfile?: (id: number) => void;
   hintMessage?: string;
 }
 
 export default function RecommendationCapacityCard({
   recommendation,
-  onAddToProfile,
   hintMessage,
 }: RecommendationCapacityCardProps) {
   const { pageContent } = useApp();
   const { darkMode } = useTheme();
-  const router = useRouter();
   const { data: session } = useSession();
   const { getName, getIcon, getColor, getDescription, preloadCapacities, getCapacity } =
     useCapacityCache();
@@ -156,10 +152,6 @@ export default function RecommendationCapacityCard({
           pageContent['capacity-added-success'] || 'Capacity added to profile',
           'success'
         );
-
-        if (onAddToProfile) {
-          onAddToProfile(capacityId);
-        }
       }
     } catch (error: any) {
       console.error('Error adding capacity to profile:', error);
@@ -179,8 +171,6 @@ export default function RecommendationCapacityCard({
   };
 
   const handleCapacitySelect = (selectedCapacities: any[]) => {
-    // This is called when a capacity is selected in the modal
-    // We can use this to navigate or perform other actions
     setShowCapacityModal(false);
   };
 

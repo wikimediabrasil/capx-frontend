@@ -53,7 +53,7 @@ export default function RecommendationCarousel({
         window.removeEventListener('resize', updateScrollButtons);
       };
     }
-  }, [children]);
+  }, [children, darkMode]);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -85,14 +85,6 @@ export default function RecommendationCarousel({
     return null;
   }
 
-  console.log(
-    'RecommendationCarousel - Rendering carousel for:',
-    title,
-    'with',
-    totalItems,
-    'items'
-  );
-
   return (
     <div className="flex flex-col w-full mb-8">
       <div className="flex items-center justify-start gap-2 mb-4">
@@ -104,7 +96,7 @@ export default function RecommendationCarousel({
           {title}
         </h2>
         {showInfoIcon && (
-          <div className="relative group">
+          <div className="relative group z-20">
             <div
               className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] cursor-help"
               title={
@@ -113,7 +105,19 @@ export default function RecommendationCarousel({
                 'Based on your profile'
               }
             >
-              <Image src={info_blue} alt="" fill className="object-contain" priority />
+              <Image 
+                src={info_blue} 
+                alt="" 
+                fill 
+                className="object-contain" 
+                priority
+                style={{ 
+                  filter: 'none',
+                  opacity: 1,
+                  transition: 'none',
+                  display: 'block'
+                }}
+              />
             </div>
             {/* Tooltip for desktop hover and mobile tap */}
             <div
@@ -172,14 +176,12 @@ export default function RecommendationCarousel({
             {canScrollLeft && (
               <button
                 onClick={scrollLeft}
-                className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                  darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-                }`}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-gray-200 hover:bg-gray-300"
                 aria-label="Previous"
               >
                 <div className="relative w-6 h-6">
                   <Image
-                    src={darkMode ? ArrowBackIconWhite : ArrowBackIcon}
+                    src={ArrowBackIcon}
                     alt=""
                     fill
                     className="object-contain"
@@ -191,11 +193,16 @@ export default function RecommendationCarousel({
             {canScrollRight && (
               <button
                 onClick={scrollRight}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#053749] hover:bg-[#04222F] flex items-center justify-center transition-all"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-gray-200 hover:bg-gray-300"
                 aria-label="Next"
               >
                 <div className="relative w-6 h-6 rotate-180">
-                  <Image src={ArrowBackIconWhite} alt="" fill className="object-contain" />
+                  <Image
+                    src={ArrowBackIcon}
+                    alt=""
+                    fill
+                    className="object-contain"
+                  />
                 </div>
               </button>
             )}
@@ -207,7 +214,9 @@ export default function RecommendationCarousel({
                   onClick={() => goToSlide(index)}
                   className={`w-2 h-2 rounded-full transition-all ${
                     index === currentIndex
-                      ? 'bg-[#053749]'
+                      ? darkMode
+                        ? 'bg-gray-400'
+                        : 'bg-[#053749]'
                       : darkMode
                         ? 'bg-gray-600'
                         : 'bg-gray-300'

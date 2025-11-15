@@ -25,10 +25,6 @@ export default function SectionRecommendationsCarousel() {
     console.log('Save profile:', id);
   };
 
-  const handleSaveEvent = (id: number) => {
-    // TODO: Implement save event functionality
-    console.log('Save event:', id);
-  };
 
   const handleAddCapacity = (id: number) => {
     // TODO: Implement add capacity to profile functionality
@@ -69,17 +65,6 @@ export default function SectionRecommendationsCarousel() {
   const hasNewSkills = data.new_skills && data.new_skills.length > 0;
   const hasAnyRecommendations = hasOtherRecommendations || hasNewSkills;
 
-  console.log('Has any recommendations:', hasAnyRecommendations);
-  console.log('Has other recommendations:', hasOtherRecommendations);
-  console.log('Has new skills:', hasNewSkills);
-  console.log('share_with:', data.share_with?.length || 0);
-  console.log('learn_from:', data.learn_from?.length || 0);
-  console.log('same_language:', data.same_language?.length || 0);
-  console.log('share_with_orgs:', data.share_with_orgs?.length || 0);
-  console.log('learn_from_orgs:', data.learn_from_orgs?.length || 0);
-  console.log('new_skills:', data.new_skills?.length || 0);
-  console.log('events:', data.events?.length || 0);
-
   // If there are no recommendations at all, show only the no recommendations section
   if (!hasAnyRecommendations) {
     console.log('No recommendations to display');
@@ -102,7 +87,6 @@ export default function SectionRecommendationsCarousel() {
               <RecommendationCapacityCard
                 key={capacity.id}
                 recommendation={capacity}
-                onAddToProfile={handleAddCapacity}
                 hintMessage={
                   pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
                 }
@@ -160,7 +144,7 @@ export default function SectionRecommendationsCarousel() {
               onSave={handleSaveProfile}
               capacityType="available"
               hintMessage={
-                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+                pageContent['recommendation-based-on-available-capacities'] || 'Based on your available capacities'
               }
             />
           ))
@@ -182,7 +166,7 @@ export default function SectionRecommendationsCarousel() {
               onSave={handleSaveProfile}
               capacityType="wanted"
               hintMessage={
-                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+                pageContent['recommendation-based-on-wanted-capacities'] || 'Based on your wanted capacities'
               }
             />
           ))
@@ -225,9 +209,8 @@ export default function SectionRecommendationsCarousel() {
             <RecommendationCapacityCard
               key={capacity.id}
               recommendation={capacity}
-              onAddToProfile={handleAddCapacity}
               hintMessage={
-                pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
+                pageContent['recommendation-based-on-most-used-capacities'] || 'Based on the most used capacities in the network'
               }
             />
           ))}
@@ -243,7 +226,6 @@ export default function SectionRecommendationsCarousel() {
             <RecommendationEventCard
               key={event.id}
               recommendation={event}
-              onSave={handleSaveEvent}
               hintMessage={
                 pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
               }
