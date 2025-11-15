@@ -628,5 +628,16 @@
   "recommendation-based-on-available-capacities": "Based on your available capacities",
   "recommendation-based-on-wanted-capacities": "Based on your wanted capacities",
   "recommendation-based-on-most-used-capacities": "Based on the most used capacities.",
-  "recommendation-based-on-capacities": "Based on your capacities"
+  "recommendation-based-on-capacities": "Based on your capacities",
+  "mentorship-programs": "Mentorship Programs",
+  "search-by-mentorships": "Search by mentorships",
+  "filter-mentorship-programs": "Filter mentorship programs",
+  "subscribe": "Subscribe",
+  "learn-more": "Learn more",
+  "select-your-role": "Select Your Role",
+  "mentorship-role-instruction": "Please indicate whether you would like to participate as a mentor or as a mentee.",
+  "mentor": "Mentor",
+  "mentee": "Mentee",
+  "close-tab": "Close tab",
+  "no-mentorship-programs-found": "No mentorship programs found"
 }
