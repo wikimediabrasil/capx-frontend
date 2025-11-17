@@ -1,16 +1,15 @@
 'use client';
 
-import React from 'react';
+import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations';
+import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
+import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
+import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
+import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
+import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
+import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRecommendations } from '@/hooks/useRecommendations';
-import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
-import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
-import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
-import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
-import LoadingState from '@/components/LoadingState';
-import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
-import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations';
 
 export default function SectionRecommendationsCarousel() {
   const { isMobile, pageContent } = useApp();
@@ -221,7 +220,7 @@ export default function SectionRecommendationsCarousel() {
 
       {data.events && data.events.length > 0 && (
         <RecommendationCarousel
-          title={pageContent['recommendations-events'] || 'Events You Might Like'}
+          title={pageContent['recommendations-events-title']}
           tooltipText={pageContent['recommendations-events-tooltip']}
         >
           {data.events.map(event => (

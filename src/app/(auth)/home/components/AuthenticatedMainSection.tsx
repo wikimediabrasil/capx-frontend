@@ -1,16 +1,15 @@
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import MainSectionIllustration from '@/public/static/images/capx_loggedin_home_illustration.svg';
-import MainSectionIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import SectionNoCapacities from './SectionNoRecommendations';
-import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
+import { useProfile } from '@/hooks/useProfile';
+import MainSectionIllustration from '@/public/static/images/capx_loggedin_home_illustration.svg';
+import MainSectionIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
-import { useProfile } from '@/hooks/useProfile';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
 
 interface AuthenticatedMainSectionProps {
   pageContent: any;
@@ -60,14 +59,14 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
               >
                 {pageContent['body-loggedin-home-main-section-title']}
               </h1>
-              <p
+              <h2
                 className={
                   (darkMode ? 'text-capx-dark-text' : 'text-capx-light-text') +
                   ' text-[16px] not-italic font-normal leading-[20px]'
                 }
               >
                 {pageContent['body-loggedin-home-main-section-description']}
-              </p>
+              </h2>
             </div>
             <div className="w-full md:w-1/2">
               <Image
@@ -150,14 +149,14 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             >
               {pageContent['body-loggedin-home-main-section-title']}
             </h1>
-            <p
+            <h2
               className={
                 (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
                 ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
               }
             >
               {pageContent['body-loggedin-home-main-section-description']}
-            </p>
+            </h2>
             <p
               className={
                 (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +

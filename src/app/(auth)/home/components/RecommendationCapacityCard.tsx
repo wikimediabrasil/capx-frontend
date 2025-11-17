@@ -196,7 +196,7 @@ export default function RecommendationCapacityCard({
     >
       {hintMessage && (
         <div className="flex items-center justify-start gap-2 mb-4 w-full">
-          <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]">
+          <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]" aria-hidden="true">
             <Image src={lamp_purple} alt="" fill className="object-contain" priority />
           </div>
           <p
@@ -215,7 +215,7 @@ export default function RecommendationCapacityCard({
             <div className="relative w-[40px] h-[40px] md:w-[50px] md:h-[50px]">
               <Image
                 src={capacityIcon}
-                alt={capacityName}
+                alt={pageContent['capacity-icon'] || 'Capacity icon'}
                 fill
                 className="object-contain"
                 style={{ filter: iconFilter }}

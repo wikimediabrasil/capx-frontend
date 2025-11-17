@@ -51,10 +51,10 @@ const CapacityIcon: React.FC<CapacityIconProps> = ({ capacity, getIconFilter }) 
   if (!capacity.icon) return null;
 
   return (
-    <div className="relative w-[24px] h-[24px] flex-shrink-0 mr-2">
+    <div className="relative w-[24px] h-[24px] flex-shrink-0 mr-2" aria-hidden="true">
       <Image
         src={capacity.icon}
-        alt={capacity.name}
+        alt=""
         width={24}
         height={24}
         style={{ filter: getIconFilter() }}
@@ -609,7 +609,13 @@ export default function CapacitySelectionModal({
   return (
     <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
       {/* Overlay */}
-      <button className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <button
+        className="fixed inset-0 bg-black bg-opacity-50"
+        onClick={onClose}
+        aria-label={pageContent['close-modal'] || 'Close modal'}
+      >
+        <span className="sr-only">{pageContent['close-modal'] || 'Close modal'}</span>
+      </button>
 
       {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -634,6 +640,7 @@ export default function CapacitySelectionModal({
               className={`p-1 hover:bg-gray-100 rounded ${
                 darkMode ? 'text-white hover:bg-gray-700' : 'text-gray-500'
               }`}
+              aria-label={pageContent['close-modal'] || 'Close modal'}
             >
               ✕
             </button>
@@ -650,6 +657,7 @@ export default function CapacitySelectionModal({
                     ? 'text-gray-300 hover:text-white hover:bg-gray-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
+                aria-label={pageContent['capacity-selection-modal-back'] || 'Go back'}
               >
                 <svg
                   width="16"
@@ -658,6 +666,7 @@ export default function CapacitySelectionModal({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  aria-hidden="true"
                 >
                   <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
@@ -671,6 +680,7 @@ export default function CapacitySelectionModal({
               <button
                 onClick={() => setSelectedPath([])}
                 className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 ${getRootButtonClasses(selectedPath.length === 0, darkMode)}`}
+                aria-label={pageContent['capacity-selection-modal-root-capacities'] || 'Root capacities'}
               >
                 <svg
                   width="14"
@@ -679,6 +689,7 @@ export default function CapacitySelectionModal({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  aria-hidden="true"
                 >
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                   <polyline points="9,22 9,12 15,12 15,22" />
@@ -710,6 +721,7 @@ export default function CapacitySelectionModal({
                       stroke="currentColor"
                       strokeWidth="2"
                       className={`flex-shrink-0 ${getSeparatorClasses(darkMode)}`}
+                      aria-hidden="true"
                     >
                       <polyline points="9,18 15,12 9,6" />
                     </svg>
@@ -719,13 +731,14 @@ export default function CapacitySelectionModal({
                       onClick={() => setSelectedPath(prev => prev.slice(0, index + 1))}
                       className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 max-w-[150px] ${getBreadcrumbItemClasses(isLast, darkMode)}`}
                       title={capacityName}
+                      aria-label={`${pageContent['capacity-selection-modal-navigate-to'] || 'Navigate to'} ${capacityName}`}
                     >
                       {/* Capacity icon */}
                       {capacityIcon && (
-                        <div className="relative w-[14px] h-[14px] flex-shrink-0">
+                        <div className="relative w-[14px] h-[14px] flex-shrink-0" aria-hidden="true">
                           <Image
                             src={capacityIcon}
-                            alt={capacityName}
+                            alt=""
                             width={14}
                             height={14}
                             style={{

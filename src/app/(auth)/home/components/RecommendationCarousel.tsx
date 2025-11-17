@@ -104,6 +104,7 @@ export default function RecommendationCarousel({
                 pageContent['recommendations-based-on-profile'] ||
                 'Based on your profile'
               }
+              aria-hidden="true"
             >
               <Image
                 src={info_blue}
@@ -197,21 +198,22 @@ export default function RecommendationCarousel({
               </button>
             )}
 
-            <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="flex items-center justify-center gap-3 mt-4">
               {Array.from({ length: totalItems }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`min-w-[12px] min-h-[12px] w-3 h-3 rounded-full transition-all ${
                     index === currentIndex
                       ? darkMode
-                        ? 'bg-gray-400'
+                        ? 'bg-white'
                         : 'bg-[#053749]'
                       : darkMode
-                        ? 'bg-gray-600'
-                        : 'bg-gray-300'
+                        ? 'bg-gray-500'
+                        : 'bg-[#053749] opacity-40'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
+                  {...(index === currentIndex && { 'aria-current': 'true' })}
                 />
               ))}
             </div>

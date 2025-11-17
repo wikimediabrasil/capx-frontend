@@ -139,7 +139,7 @@ export default function RecommendationProfileCard({
     >
       {hintMessage && (
         <div className="flex items-center justify-start gap-2 mb-4">
-          <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]">
+          <div className="relative w-[15px] h-[15px] md:w-[20px] md:h-[20px]" aria-hidden="true">
             <Image src={lamp_purple} alt="" fill className="object-contain" priority />
           </div>
           <p
@@ -158,19 +158,24 @@ export default function RecommendationProfileCard({
         {profileImage ? (
           <Image
             src={imageUrl}
-            alt={displayName || ''}
+            alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
             fill
             className="object-contain"
             unoptimized
             priority
           />
         ) : (
-          <Image src={NoAvatarIcon} alt={displayName || ''} fill className="object-contain" />
+          <Image
+            src={NoAvatarIcon}
+            alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
+            fill
+            className="object-contain"
+          />
         )}
       </div>
 
       <div className="flex items-center justify-start gap-2 mb-4 w-full">
-        <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0">
+        <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0" aria-hidden="true">
           <Image
             src={
               isOrganization
@@ -187,13 +192,13 @@ export default function RecommendationProfileCard({
             priority
           />
         </div>
-        <p
+        <h3
           className={`text-[14px] md:text-[18px] font-bold truncate flex-1 ${
             darkMode ? 'text-white' : 'text-capx-dark-box-bg'
           }`}
         >
           {displayName}
-        </p>
+        </h3>
       </div>
 
       <div className="flex items-center justify-start gap-2 w-full mt-auto">
@@ -212,13 +217,7 @@ export default function RecommendationProfileCard({
                 ? 'text-white border-white bg-transparent hover:bg-gray-700'
                 : 'text-[#053749] border-[#053749] bg-white hover:bg-gray-50'
           } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-          label={
-            isSaving
-              ? pageContent['loading'] || 'Loading...'
-              : isSaved
-                ? pageContent['saved'] || 'Saved'
-                : pageContent['save'] || 'Save'
-          }
+          label={pageContent['save'] || 'Save'}
           imageUrl={bookmarkIcon}
           imageWidth={16}
           imageHeight={16}
