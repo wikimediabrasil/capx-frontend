@@ -14,7 +14,6 @@ import { useSession } from 'next-auth/react';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -30,13 +29,13 @@ export default function RecommendationCapacityCard({
   const { pageContent } = useApp();
   const { darkMode } = useTheme();
   const { data: session } = useSession();
+  const router = useRouter();
   const { getName, getIcon, getColor, getDescription, preloadCapacities, getCapacity } =
     useCapacityCache();
   const { showSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [showCapacityModal, setShowCapacityModal] = useState(false);
 
   const capacityId = recommendation.id;
 
@@ -167,11 +166,8 @@ export default function RecommendationCapacityCard({
   };
 
   const handleView = () => {
-    setShowCapacityModal(true);
-  };
-
-  const handleCapacitySelect = (selectedCapacities: any[]) => {
-    setShowCapacityModal(false);
+    // Redirect to feed page with capacity filter
+    router.push(`/feed?capacityId=${capacityId}`);
   };
 
   const iconFilter = 'brightness(0) invert(1)';
@@ -276,15 +272,6 @@ export default function RecommendationCapacityCard({
           label={pageContent['view'] || 'View'}
         />
       </div>
-
-      <CapacitySelectionModal
-        isOpen={showCapacityModal}
-        onClose={() => setShowCapacityModal(false)}
-        onSelect={handleCapacitySelect}
-        title={capacityName || pageContent['select-capacity'] || 'Select Capacity'}
-        allowMultipleSelection={false}
-        initialCapacityId={capacityId}
-      />
     </div>
   );
 }

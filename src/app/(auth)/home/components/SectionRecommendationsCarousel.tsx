@@ -32,9 +32,8 @@ export default function SectionRecommendationsCarousel() {
   if (isLoading) {
     return (
       <section
-        className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 ${
-          darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
-        }`}
+        className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 bg-transparent
+        `}
       >
         <LoadingState />
       </section>
