@@ -19,6 +19,17 @@ export default function MainSection() {
   const { darkMode } = useTheme();
   const { data: session } = useSession();
 
+  // Internationalized dynamic title handling using a parameterized template with a $1 placeholder
+  // and a list of words from the carousel. This enables correct ordering for other languages.
+  const rawTemplate: string | undefined = pageContent['body-home-section01-title-template'];
+  const cleanedTemplate = typeof rawTemplate === 'string' ? rawTemplate.trim() : '';
+  const template = cleanedTemplate.length > 0 ? cleanedTemplate : 'A space for exchanging $1';
+  const hasTemplate = template.includes('$1');
+  const [prefix, suffix] = hasTemplate ? template.split('$1') : [template + ' ', ''];
+  const words: string[] = (pageContent['body-home-section01-title-carousel']?.split(',') || [])
+    .map(w => w.trim())
+    .filter(Boolean);
+
   const scrollToVideo = () => {
     const element = document.getElementById('video-section');
     if (element) {
@@ -41,9 +52,9 @@ export default function MainSection() {
                 darkMode ? 'capx-dark-text' : 'capx-light-text'
               } text-center font-[Montserrat] text-[32px] not-italic font-extrabold leading-[normal] mb-4`}
             >
-              {pageContent['body-home-section01-title-text'] + ' '}
+              {prefix}
               <Typewriter
-                words={pageContent['body-home-section01-title-carousel']?.split(',')}
+                words={words}
                 loop={0}
                 cursor
                 cursorStyle="_"
@@ -51,6 +62,7 @@ export default function MainSection() {
                 deleteSpeed={50}
                 delaySpeed={3000}
               />
+              {suffix}
             </h1>
             <p
               className={`text-[12px] text-center mx-4 font-[Montserrat] ${
@@ -104,11 +116,11 @@ export default function MainSection() {
                   darkMode ? 'capx-dark-text' : 'capx-light-text'
                 } font-[Montserrat] text-[72px] not-italic font-extrabold leading-[1.2] break-words`}
               >
-                {pageContent['body-home-section01-title-text'] + ' '}
-                <br />
+                {prefix}
+                {prefix && !suffix && words.length > 0 && <br />}
                 <span className="inline-block">
                   <Typewriter
-                    words={pageContent['body-home-section01-title-carousel']?.split(',')}
+                    words={words}
                     loop={0}
                     cursor
                     cursorStyle="_"
@@ -117,6 +129,7 @@ export default function MainSection() {
                     delaySpeed={3000}
                   />
                 </span>
+                {suffix}
               </h1>
             </div>
             <p
