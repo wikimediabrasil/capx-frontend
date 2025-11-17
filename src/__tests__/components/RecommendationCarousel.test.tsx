@@ -41,18 +41,14 @@ describe('RecommendationCarousel', () => {
   const renderCarousel = (props = {}) => {
     const defaultProps = {
       title: 'Test Carousel',
-      children: [
-        <div key="1">Item 1</div>,
-        <div key="2">Item 2</div>,
-        <div key="3">Item 3</div>,
-      ],
+      children: [<div key="1">Item 1</div>, <div key="2">Item 2</div>, <div key="3">Item 3</div>],
       ...props,
     };
 
-    return renderWithProviders(
-      <RecommendationCarousel {...defaultProps} />,
-      [ThemeProvider, AppProvider]
-    );
+    return renderWithProviders(<RecommendationCarousel {...defaultProps} />, [
+      ThemeProvider,
+      AppProvider,
+    ]);
   };
 
   describe('Rendering', () => {

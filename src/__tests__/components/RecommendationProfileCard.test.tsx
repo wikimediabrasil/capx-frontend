@@ -57,7 +57,6 @@ const createMockOrganizationRecommendation = (overrides = {}): OrganizationRecom
   ...overrides,
 });
 
-
 describe('RecommendationProfileCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockSavedItems = createMockSavedItems();
@@ -78,10 +77,10 @@ describe('RecommendationProfileCard', () => {
       ...props,
     };
 
-    return renderWithProviders(
-      <RecommendationProfileCard {...defaultProps} />,
-      [ThemeProvider, AppProvider]
-    );
+    return renderWithProviders(<RecommendationProfileCard {...defaultProps} />, [
+      ThemeProvider,
+      AppProvider,
+    ]);
   };
 
   describe('Rendering', () => {
@@ -212,10 +211,7 @@ describe('RecommendationProfileCard', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
-          'Error saving profile',
-          'error'
-        );
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith('Error saving profile', 'error');
       });
     });
 

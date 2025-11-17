@@ -88,10 +88,11 @@ describe('RecommendationCapacityCard', () => {
       ...props,
     };
 
-    return renderWithProviders(
-      <RecommendationCapacityCard {...defaultProps} />,
-      [ThemeProvider, AppProvider, CapacityCacheProvider]
-    );
+    return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />, [
+      ThemeProvider,
+      AppProvider,
+      CapacityCacheProvider,
+    ]);
   };
 
   describe('Rendering', () => {
@@ -207,10 +208,7 @@ describe('RecommendationCapacityCard', () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
-          'Network error',
-          'error'
-        );
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith('Network error', 'error');
       });
     });
 

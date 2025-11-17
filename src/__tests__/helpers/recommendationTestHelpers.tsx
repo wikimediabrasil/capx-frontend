@@ -1,7 +1,9 @@
 import { render } from '@testing-library/react';
 
 // Common test wrapper component
-export const createTestWrapper = (additionalProviders?: Array<React.ComponentType<{ children: React.ReactNode }>>) => {
+export const createTestWrapper = (
+  additionalProviders?: Array<React.ComponentType<{ children: React.ReactNode }>>
+) => {
   const TestWrapper = ({ children }: { children: React.ReactNode }) => {
     let wrappedChildren = children;
 
@@ -22,18 +24,18 @@ export const createTestWrapper = (additionalProviders?: Array<React.ComponentTyp
 // Common mock functions
 export const createMockPageContent = (overrides = {}) => ({
   'view-profile': 'View Profile',
-  'save': 'Save',
+  save: 'Save',
   'saved-profiles-delete-success': 'Profile removed from saved',
   'saved-profiles-add-success': 'Profile saved successfully',
   'saved-profiles-error': 'Error saving profile',
   'profile-picture': 'Profile picture',
   'organization-logo': 'Organization logo',
   'add-to-profile': 'Add to Profile',
-  'added': 'Added',
-  'view': 'View',
-  'loading': 'Loading...',
+  added: 'Added',
+  view: 'View',
+  loading: 'Loading...',
   'capacity-added-success': 'Capacity added to profile',
-  'error': 'Error adding capacity',
+  error: 'Error adding capacity',
   'capacity-icon': 'Capacity icon',
   'select-capacity': 'Select Capacity',
   'recommendations-based-on-profile': 'Based on your profile',
@@ -70,7 +72,6 @@ export const renderWithProviders = (
   return render(ui, { wrapper: Wrapper });
 };
 
-
 // Common afterEach cleanup
 export const cleanupMocks = () => {
   jest.clearAllMocks();
@@ -78,13 +79,13 @@ export const cleanupMocks = () => {
 
 // Mock factory for CapacityCache
 export const createMockCapacityCache = (overrides = {}) => ({
-  getName: jest.fn((id) => {
+  getName: jest.fn(id => {
     if (id === 50) return 'Learning';
     return `Capacity ${id}`;
   }),
   getIcon: jest.fn(() => '/icons/book.svg'),
   getColor: jest.fn(() => 'learning'),
-  getDescription: jest.fn((id) => {
+  getDescription: jest.fn(id => {
     if (id === 50) return 'Learning capability';
     return `Description for ${id}`;
   }),
@@ -178,4 +179,3 @@ export const setupScrollableContainer = (
   }
   return null;
 };
-
