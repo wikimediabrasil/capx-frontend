@@ -41,7 +41,7 @@ export default function FeedPage() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    username: undefined,
+    name: undefined,
     affiliations: [] as string[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
@@ -96,6 +96,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Learner],
         }
       : undefined,
+    ordering: 'last_update',
   });
 
   const shouldFetchSharerUsers = activeFilters.profileCapacityTypes.includes(
@@ -114,6 +115,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Sharer],
         }
       : undefined,
+    ordering: 'last_update',
   });
 
   // Total of records according to the profileFilter
@@ -145,10 +147,12 @@ export default function FeedPage() {
         (user, index, self) => index === self.findIndex(u => u.user.id === user.user.id)
       );
 
-      return createUnifiedProfiles(uniqueUsers).map(profile => ({
-        ...profile,
-        isSaved: isProfileSaved(profile.id),
-      }));
+      return createUnifiedProfiles(uniqueUsers)
+        .map(profile => ({
+          ...profile,
+          isSaved: isProfileSaved(profile.id),
+        }))
+        .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
     } else {
       // When only one type is selected, use the original logic
       const wantedUserProfiles = activeFilters.profileCapacityTypes.includes(

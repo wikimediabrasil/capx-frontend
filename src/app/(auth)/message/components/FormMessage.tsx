@@ -23,8 +23,8 @@ import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 export enum MessageMethod {
-  EMAIL = 'email',
-  TALKPAGE = 'talkpage',
+  EMAIL = 'Email',
+  TALKPAGE = 'Talkpage',
 }
 
 export default function FormMessage() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useApp } from '@/contexts/AppContext';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -29,6 +29,7 @@ import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
 import ProfileEditDesktopView from './ProfileEditDesktopView';
 import ProfileEditMobileView from './ProfileEditMobileView';
+import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
@@ -182,6 +183,7 @@ export default function EditProfilePage() {
   >('known');
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
@@ -400,6 +402,12 @@ export default function EditProfilePage() {
     () => setShowCapacityModal(false)
   );
 
+  // Define handler for closing delete success popup
+  const handleDeleteSuccessPopupClose = () => {
+    setShowDeleteSuccessPopup(false);
+    // SignOut and redirect are already scheduled in handleDeleteProfile
+  };
+
   // Show loading state while session is loading
   if (sessionStatus === 'loading') {
     return <LoadingState fullScreen={true} />;
@@ -408,6 +416,17 @@ export default function EditProfilePage() {
   // If session is unauthenticated, don't render anything
   if (sessionStatus === 'unauthenticated') {
     return null;
+  }
+
+  // If showing delete success popup, return only the popup
+  // This prevents the component from trying to render profile data that no longer exists
+  if (showDeleteSuccessPopup) {
+    return (
+      <ProfileDeletedSuccessPopup
+        isOpen={showDeleteSuccessPopup}
+        onClose={handleDeleteSuccessPopupClose}
+      />
+    );
   }
 
   // Show loading state while profile is loading or capacity translations are loading
@@ -441,7 +460,14 @@ export default function EditProfilePage() {
 
     try {
       await deleteProfile();
-      router.push('/');
+      setShowDeleteSuccessPopup(true);
+
+      // Schedule signOut and redirect after showing the popup
+      // This prevents the component from trying to refetch the deleted profile
+      setTimeout(async () => {
+        await signOut({ redirect: false });
+        window.location.href = '/';
+      }, 3100); // Slightly after the popup auto-closes
     } catch (error) {
       console.error('Error deleting profile:', error);
     }

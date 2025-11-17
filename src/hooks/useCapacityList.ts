@@ -154,7 +154,13 @@ export function useCapacityList(token?: string, language: string = 'en') {
           });
 
           const capacityData = await Promise.all(
-            Object.entries(response).map(async ([code, name]) => {
+            Object.entries(response).map(async ([code, nameOrResponse]) => {
+              // Extract name from response (API returns { name, wd_code, metabase_code })
+              const name =
+                typeof nameOrResponse === 'string'
+                  ? nameOrResponse
+                  : (nameOrResponse as any)?.name || `Capacity ${code}`;
+
               // Verificar se já temos os filhos desta capacidade no cache
               if (!globalCache.childrenCapacities[code]) {
                 const childrenResponse = await capacityService.fetchCapacitiesByType(code, {

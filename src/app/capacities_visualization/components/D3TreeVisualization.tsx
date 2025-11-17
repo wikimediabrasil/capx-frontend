@@ -229,8 +229,8 @@ export default function D3TreeVisualization({
   };
 
   // Utility function to capitalize first letter
-  function capitalizeFirst(str: string) {
-    if (!str) return '';
+  function capitalizeFirst(str: string | undefined | null) {
+    if (!str || typeof str !== 'string') return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 

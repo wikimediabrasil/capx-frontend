@@ -685,8 +685,13 @@ export default function OrganizationProfileEditView({
                   handleAddProject();
                 }}
                 label={pageContent['edit-profile-add-projects']}
+                disabled={projectsData?.length >= 4}
                 customClass={`rounded-[8px] mt-2 flex w-full md:w-fit px-3 py-2 md:!px-[32px] md:!py-[16px] md:!pb-[16px] items-center gap-3 text-center font-[Montserrat] text-sm md:text-[24px] not-italic font-extrabold leading-[normal] ${
-                  darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-capx-dark-box-bg'
+                  projectsData?.length >= 4
+                    ? 'text-gray-400 bg-gray-300 cursor-not-allowed opacity-50'
+                    : darkMode
+                      ? 'text-[#053749] bg-[#EFEFEF]'
+                      : 'text-white bg-capx-dark-box-bg'
                 }`}
                 imageUrl={darkMode ? AddIcon : AddIconWhite}
                 imageAlt="Add icon"
