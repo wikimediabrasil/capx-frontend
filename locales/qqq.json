@@ -78,6 +78,7 @@
 	"footer-link-github": "{{Optional}}\nLink to the GitHub repository in the footer",
 	"footer-link-wikimedia": "Link to the Meta-Wikimedia page in the footer",
 	"footer-message": "Motto displayed in the footer.",
+	"footter-translate-link": "Link to the translatewiki.net page for Capacity Exchange in the footer",
 	"edit-profile-consent-wikidata-link": "Preceded by {{msg-wm|Capex-edit-profile-consent-wikidata-before-link}} or {{msg-wm|Capex-edit-profile-consent-wikidata-item-before-link}}. Followed by {{msg-wm|Capex-edit-profile-consent-wikidata-after-link}} or {{msg-wm|Capex-edit-profile-consent-wikidata-item-after-link}}.",
 	"edit-profile-consent-wikidata-before-link": "Followed by {{msg-wm|Capex-edit-profile-consent-wikidata-link}}.",
 	"edit-profile-consent-wikidata-after-link": "Preceded by {{msg-wm|Capex-edit-profile-consent-wikidata-link}}.",

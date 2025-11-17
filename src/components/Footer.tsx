@@ -27,6 +27,10 @@ export default function Footer() {
       title: pageContent['footer-link-wikimedia'],
       to: 'https://meta.wikimedia.org/wiki/Capacity_Exchange',
     },
+    {
+      title: pageContent['footer-translate-link'],
+      to: 'https://translatewiki.net/wiki/Translating:CapacityExchange',
+    }
   ];
 
   const linksComponent = footerLinks.map((link, index) => {
