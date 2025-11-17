@@ -2,19 +2,17 @@ import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationC
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { renderWithProviders, setupCommonMocks } from '../helpers/recommendationTestHelpers';
+import { renderWithProviders, setupCommonMocks, cleanupMocks } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('@/contexts/ThemeContext', () => ({
   useTheme: jest.fn(),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('@/contexts/AppContext', () => ({
   useApp: jest.fn(),
   AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
@@ -34,9 +32,7 @@ describe('RecommendationCarousel', () => {
     Element.prototype.scrollTo = jest.fn();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  afterEach(cleanupMocks);
 
   const renderCarousel = (props = {}) => {
     const defaultProps = {

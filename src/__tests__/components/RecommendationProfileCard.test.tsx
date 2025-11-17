@@ -7,23 +7,20 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import { ProfileRecommendation, OrganizationRecommendation } from '@/types/recommendation';
-import { renderWithProviders, setupCommonMocks } from '../helpers/recommendationTestHelpers';
+import { renderWithProviders, setupCommonMocks, cleanupMocks } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
-
 jest.mock('@/contexts/ThemeContext', () => ({
   useTheme: jest.fn(),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('@/contexts/AppContext', () => ({
   useApp: jest.fn(),
   AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('@/hooks/useAvatars');
 jest.mock('@/hooks/useSavedItems');
 jest.mock('@/app/providers/SnackbarProvider');
@@ -77,9 +74,7 @@ describe('RecommendationProfileCard', () => {
     });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  afterEach(cleanupMocks);
 
   const renderCard = (props = {}) => {
     const defaultProps = {

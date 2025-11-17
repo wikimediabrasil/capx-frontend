@@ -7,28 +7,24 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CapacityRecommendation } from '@/types/recommendation';
-import { renderWithProviders, setupCommonMocks } from '../helpers/recommendationTestHelpers';
+import { renderWithProviders, setupCommonMocks, cleanupMocks } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
-
 jest.mock('@/contexts/ThemeContext', () => ({
   useTheme: jest.fn(),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('@/contexts/AppContext', () => ({
   useApp: jest.fn(),
   AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('@/contexts/CapacityCacheContext', () => ({
   useCapacityCache: jest.fn(),
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
 jest.mock('@/app/providers/SnackbarProvider');
 jest.mock('@tanstack/react-query');
 jest.mock('@/services/profileService');
@@ -114,9 +110,7 @@ describe('RecommendationCapacityCard', () => {
     (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  afterEach(cleanupMocks);
 
   const renderCard = (props = {}) => {
     const defaultProps = {

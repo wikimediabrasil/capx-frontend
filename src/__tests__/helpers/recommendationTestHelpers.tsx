@@ -69,3 +69,18 @@ export const renderWithProviders = (
   const Wrapper = createTestWrapper(additionalProviders);
   return render(ui, { wrapper: Wrapper });
 };
+
+// Common test utilities
+export const testDarkModeRendering = (container: HTMLElement, selector: string) => {
+  const element = container.querySelector(selector);
+  expect(element).toBeInTheDocument();
+};
+
+export const testHintMessageRendering = (screen: any, message: string) => {
+  expect(screen.getByText(message)).toBeInTheDocument();
+};
+
+// Common afterEach cleanup
+export const cleanupMocks = () => {
+  jest.clearAllMocks();
+};
