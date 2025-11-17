@@ -30,7 +30,7 @@ export default function Footer() {
     {
       title: pageContent['footer-translate-link'],
       to: 'https://translatewiki.net/wiki/Translating:CapacityExchange',
-    }
+    },
   ];
 
   const linksComponent = footerLinks.map((link, index) => {

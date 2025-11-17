@@ -74,8 +74,7 @@ describe('MainSection', () => {
   it('maintains layout structure with long text', () => {
     const longContent = {
       ...mockPageContent,
-      'body-home-section01-title-template':
-        'Sebuah ruang untuk saling bertukar $1',
+      'body-home-section01-title-template': 'Sebuah ruang untuk saling bertukar $1',
       'body-home-section01-description':
         'Berhubung dengan rekan sejawat, belajar, dan berbagi keterampilan dalam platform yang dibuat untuk dan oleh Gerakan Wikimedia. Kami mendorong kolaborasi dan pertukaran pengetahuan antar komunitas.',
     };
