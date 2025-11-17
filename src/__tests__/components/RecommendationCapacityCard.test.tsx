@@ -7,7 +7,15 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CapacityRecommendation } from '@/types/recommendation';
-import { renderWithProviders, setupCommonMocks, cleanupMocks } from '../helpers/recommendationTestHelpers';
+import {
+  renderWithProviders,
+  setupCommonMocks,
+  cleanupMocks,
+  createMockCapacityCache,
+  createMockRouter,
+  createMockQueryClient,
+  createMockSnackbar,
+} from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('next-auth/react', () => ({
@@ -47,37 +55,10 @@ const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendatio
   ...overrides,
 });
 
-// Mock capacity cache helper
-const createMockCapacityCache = () => ({
-  getName: jest.fn((id) => {
-    if (id === 50) return 'Learning';
-    return `Capacity ${id}`;
-  }),
-  getIcon: jest.fn(() => '/icons/book.svg'),
-  getColor: jest.fn(() => 'learning'),
-  getDescription: jest.fn((id) => {
-    if (id === 50) return 'Learning capability';
-    return `Description for ${id}`;
-  }),
-  preloadCapacities: jest.fn().mockResolvedValue(undefined),
-  getCapacity: jest.fn(),
-  getRootCapacities: jest.fn(() => []),
-  getChildren: jest.fn(() => []),
-  hasChildren: jest.fn(() => false),
-  getMetabaseCode: jest.fn(code => `M${code}`),
-  getWdCode: jest.fn(code => `Q${code}`),
-  isLoadingTranslations: false,
-  updateLanguage: jest.fn().mockResolvedValue(undefined),
-  isFallbackTranslation: jest.fn(() => false),
-});
-
 describe('RecommendationCapacityCard', () => {
-  const mockShowSnackbar = jest.fn();
-  const mockPush = jest.fn();
-  const mockQueryClient = {
-    setQueryData: jest.fn(),
-    invalidateQueries: jest.fn(),
-  };
+  const mockSnackbar = createMockSnackbar();
+  const mockRouter = createMockRouter();
+  const mockQueryClient = createMockQueryClient();
 
   const mockUserProfile = {
     id: 123,
@@ -88,25 +69,14 @@ describe('RecommendationCapacityCard', () => {
 
   beforeEach(() => {
     const { useRouter } = require('next/navigation');
-    (useRouter as jest.Mock).mockReturnValue({
-      push: mockPush,
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-    });
-
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
     setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-
     (useCapacityCache as jest.Mock).mockReturnValue(createMockCapacityCache());
-
-    (useSnackbar as jest.Mock).mockReturnValue({
-      showSnackbar: mockShowSnackbar,
-    });
-
+    (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
     (useQuery as jest.Mock).mockReturnValue({
       data: mockUserProfile,
       isLoading: false,
     });
-
     (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
   });
 
@@ -197,7 +167,7 @@ describe('RecommendationCapacityCard', () => {
       });
 
       await waitFor(() => {
-        expect(mockShowSnackbar).toHaveBeenCalledWith(
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
           'Capacity added to profile',
           'success'
         );
@@ -237,7 +207,7 @@ describe('RecommendationCapacityCard', () => {
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(mockShowSnackbar).toHaveBeenCalledWith(
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
           'Network error',
           'error'
         );
@@ -299,7 +269,7 @@ describe('RecommendationCapacityCard', () => {
       fireEvent.click(viewButton);
 
       // Should redirect to feed with capacityId parameter
-      expect(mockPush).toHaveBeenCalledWith('/feed?capacityId=50');
+      expect(mockRouter.push).toHaveBeenCalledWith('/feed?capacityId=50');
     });
   });
 

@@ -7,7 +7,14 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import { ProfileRecommendation, OrganizationRecommendation } from '@/types/recommendation';
-import { renderWithProviders, setupCommonMocks, cleanupMocks } from '../helpers/recommendationTestHelpers';
+import {
+  renderWithProviders,
+  setupCommonMocks,
+  cleanupMocks,
+  createMockSnackbar,
+  createMockSavedItems,
+  createMockAvatars,
+} from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('next-auth/react', () => ({
@@ -52,26 +59,15 @@ const createMockOrganizationRecommendation = (overrides = {}): OrganizationRecom
 
 
 describe('RecommendationProfileCard', () => {
-  const mockShowSnackbar = jest.fn();
-  const mockCreateSavedItem = jest.fn();
-  const mockDeleteSavedItem = jest.fn();
+  const mockSnackbar = createMockSnackbar();
+  const mockSavedItems = createMockSavedItems();
+  const mockAvatars = createMockAvatars();
 
   beforeEach(() => {
     setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-
-    (useAvatars as jest.Mock).mockReturnValue({
-      avatars: [],
-    });
-
-    (useSavedItems as jest.Mock).mockReturnValue({
-      savedItems: [],
-      createSavedItem: mockCreateSavedItem,
-      deleteSavedItem: mockDeleteSavedItem,
-    });
-
-    (useSnackbar as jest.Mock).mockReturnValue({
-      showSnackbar: mockShowSnackbar,
-    });
+    (useAvatars as jest.Mock).mockReturnValue(mockAvatars);
+    (useSavedItems as jest.Mock).mockReturnValue(mockSavedItems);
+    (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
   });
 
   afterEach(cleanupMocks);
@@ -145,7 +141,7 @@ describe('RecommendationProfileCard', () => {
 
   describe('Save functionality', () => {
     it('should save profile when Save button is clicked', async () => {
-      mockCreateSavedItem.mockResolvedValue(true);
+      mockSavedItems.createSavedItem.mockResolvedValue(true);
 
       renderCard();
 
@@ -153,11 +149,11 @@ describe('RecommendationProfileCard', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockCreateSavedItem).toHaveBeenCalledWith('user', 1, 'sharer');
+        expect(mockSavedItems.createSavedItem).toHaveBeenCalledWith('user', 1, 'sharer');
       });
 
       await waitFor(() => {
-        expect(mockShowSnackbar).toHaveBeenCalledWith(
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
           'Profile saved successfully',
           'success'
         );
@@ -165,7 +161,7 @@ describe('RecommendationProfileCard', () => {
     });
 
     it('should save organization when Save button is clicked', async () => {
-      mockCreateSavedItem.mockResolvedValue(true);
+      mockSavedItems.createSavedItem.mockResolvedValue(true);
 
       renderCard({
         recommendation: createMockOrganizationRecommendation(),
@@ -175,7 +171,7 @@ describe('RecommendationProfileCard', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockCreateSavedItem).toHaveBeenCalledWith('org', 2, 'sharer');
+        expect(mockSavedItems.createSavedItem).toHaveBeenCalledWith('org', 2, 'sharer');
       });
     });
 
@@ -184,11 +180,11 @@ describe('RecommendationProfileCard', () => {
 
       (useSavedItems as jest.Mock).mockReturnValue({
         savedItems: [savedItem],
-        createSavedItem: mockCreateSavedItem,
-        deleteSavedItem: mockDeleteSavedItem,
+        createSavedItem: mockSavedItems.createSavedItem,
+        deleteSavedItem: mockSavedItems.deleteSavedItem,
       });
 
-      mockDeleteSavedItem.mockResolvedValue(true);
+      mockSavedItems.deleteSavedItem.mockResolvedValue(true);
 
       renderCard();
 
@@ -196,11 +192,11 @@ describe('RecommendationProfileCard', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockDeleteSavedItem).toHaveBeenCalledWith(999);
+        expect(mockSavedItems.deleteSavedItem).toHaveBeenCalledWith(999);
       });
 
       await waitFor(() => {
-        expect(mockShowSnackbar).toHaveBeenCalledWith(
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
           'Profile removed from saved',
           'success'
         );
@@ -208,7 +204,7 @@ describe('RecommendationProfileCard', () => {
     });
 
     it('should show error message when save fails', async () => {
-      mockCreateSavedItem.mockResolvedValue(false);
+      mockSavedItems.createSavedItem.mockResolvedValue(false);
 
       renderCard();
 
@@ -216,7 +212,7 @@ describe('RecommendationProfileCard', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockShowSnackbar).toHaveBeenCalledWith(
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
           'Error saving profile',
           'error'
         );
@@ -224,7 +220,7 @@ describe('RecommendationProfileCard', () => {
     });
 
     it('should use learner capacity type when capacityType is wanted', async () => {
-      mockCreateSavedItem.mockResolvedValue(true);
+      mockSavedItems.createSavedItem.mockResolvedValue(true);
 
       renderCard({
         capacityType: 'wanted',
@@ -234,12 +230,12 @@ describe('RecommendationProfileCard', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockCreateSavedItem).toHaveBeenCalledWith('user', 1, 'learner');
+        expect(mockSavedItems.createSavedItem).toHaveBeenCalledWith('user', 1, 'learner');
       });
     });
 
     it('should disable save button while saving', async () => {
-      mockCreateSavedItem.mockImplementation(
+      mockSavedItems.createSavedItem.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(true), 100))
       );
 
@@ -283,8 +279,8 @@ describe('RecommendationProfileCard', () => {
     it('should show filled bookmark icon when profile is saved', () => {
       (useSavedItems as jest.Mock).mockReturnValue({
         savedItems: [{ id: 999, entity_id: 1, entity: 'user' }],
-        createSavedItem: mockCreateSavedItem,
-        deleteSavedItem: mockDeleteSavedItem,
+        createSavedItem: mockSavedItems.createSavedItem,
+        deleteSavedItem: mockSavedItems.deleteSavedItem,
       });
 
       renderCard();

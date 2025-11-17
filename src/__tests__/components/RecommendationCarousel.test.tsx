@@ -2,7 +2,16 @@ import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationC
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { renderWithProviders, setupCommonMocks, cleanupMocks } from '../helpers/recommendationTestHelpers';
+import {
+  renderWithProviders,
+  setupCommonMocks,
+  cleanupMocks,
+  expectTextInDocument,
+  expectTextNotInDocument,
+  expectElementWithSelector,
+  mockScrollMethods,
+  setupScrollableContainer,
+} from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -23,13 +32,8 @@ jest.mock('next/image', () => ({
 
 describe('RecommendationCarousel', () => {
   beforeEach(() => {
-    // We don't need useSession for carousel, so we pass a dummy mock
-    const dummyMock = jest.fn();
-    setupCommonMocks(dummyMock, useTheme as jest.Mock, useApp as jest.Mock);
-
-    // Mock scrollBy and scrollTo methods
-    Element.prototype.scrollBy = jest.fn();
-    Element.prototype.scrollTo = jest.fn();
+    setupCommonMocks(jest.fn(), useTheme as jest.Mock, useApp as jest.Mock);
+    mockScrollMethods();
   });
 
   afterEach(cleanupMocks);
@@ -54,61 +58,39 @@ describe('RecommendationCarousel', () => {
   describe('Rendering', () => {
     it('should render carousel with title', () => {
       renderCarousel();
-
-      expect(screen.getByText('Test Carousel')).toBeInTheDocument();
+      expectTextInDocument(screen, 'Test Carousel');
     });
 
     it('should render all children items', () => {
       renderCarousel();
-
-      expect(screen.getByText('Item 1')).toBeInTheDocument();
-      expect(screen.getByText('Item 2')).toBeInTheDocument();
-      expect(screen.getByText('Item 3')).toBeInTheDocument();
+      expectTextInDocument(screen, 'Item 1');
+      expectTextInDocument(screen, 'Item 2');
+      expectTextInDocument(screen, 'Item 3');
     });
 
     it('should render description when provided', () => {
-      renderCarousel({
-        description: 'Test description',
-      });
-
-      expect(screen.getByText('Test description')).toBeInTheDocument();
+      renderCarousel({ description: 'Test description' });
+      expectTextInDocument(screen, 'Test description');
     });
 
     it('should render info icon when showInfoIcon is true', () => {
-      renderCarousel({
-        showInfoIcon: true,
-      });
-
-      // Info icon has aria-hidden="true" so it's role is "presentation"
-      const tooltip = screen.getByText('Based on your profile');
-      expect(tooltip).toBeInTheDocument();
+      renderCarousel({ showInfoIcon: true });
+      expectTextInDocument(screen, 'Based on your profile');
     });
 
     it('should not render info icon when showInfoIcon is false', () => {
-      renderCarousel({
-        showInfoIcon: false,
-      });
-
-      // Check that there is no info icon by looking for the tooltip
-      expect(screen.queryByText('Based on your profile')).not.toBeInTheDocument();
+      renderCarousel({ showInfoIcon: false });
+      expectTextNotInDocument(screen, 'Based on your profile');
     });
 
     it('should render with custom tooltip text', () => {
-      renderCarousel({
-        tooltipText: 'Custom tooltip',
-      });
-
-      const tooltip = screen.getByText('Custom tooltip');
-      expect(tooltip).toBeInTheDocument();
+      renderCarousel({ tooltipText: 'Custom tooltip' });
+      expectTextInDocument(screen, 'Custom tooltip');
     });
 
     it('should render in dark mode correctly', () => {
-      (useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-      });
-
+      (useTheme as jest.Mock).mockReturnValue({ darkMode: true });
       const { container } = renderCarousel();
-
       const title = screen.getByText('Test Carousel');
       expect(title).toHaveClass('text-white');
     });
@@ -160,27 +142,10 @@ describe('RecommendationCarousel', () => {
 
     it('should scroll left when left arrow is clicked', () => {
       const { container } = renderCarousel();
+      const scrollContainer = setupScrollableContainer(container, 300, 1000, 400);
 
-      // Simulate scrollable state by setting up scroll properties
-      const scrollContainer = container.querySelector('[class*="overflow-x-auto"]');
       if (scrollContainer) {
-        Object.defineProperty(scrollContainer, 'scrollLeft', {
-          writable: true,
-          value: 300,
-        });
-        Object.defineProperty(scrollContainer, 'scrollWidth', {
-          writable: true,
-          value: 1000,
-        });
-        Object.defineProperty(scrollContainer, 'clientWidth', {
-          writable: true,
-          value: 400,
-        });
-
-        // Trigger scroll event to update button states
         fireEvent.scroll(scrollContainer);
-
-        // Check if left arrow button appears
         const leftButton = screen.queryByLabelText('Previous');
         if (leftButton) {
           fireEvent.click(leftButton);
@@ -191,27 +156,10 @@ describe('RecommendationCarousel', () => {
 
     it('should scroll right when right arrow is clicked', () => {
       const { container } = renderCarousel();
+      const scrollContainer = setupScrollableContainer(container, 0, 1000, 400);
 
-      // Simulate scrollable state
-      const scrollContainer = container.querySelector('[class*="overflow-x-auto"]');
       if (scrollContainer) {
-        Object.defineProperty(scrollContainer, 'scrollLeft', {
-          writable: true,
-          value: 0,
-        });
-        Object.defineProperty(scrollContainer, 'scrollWidth', {
-          writable: true,
-          value: 1000,
-        });
-        Object.defineProperty(scrollContainer, 'clientWidth', {
-          writable: true,
-          value: 400,
-        });
-
-        // Trigger scroll event to update button states
         fireEvent.scroll(scrollContainer);
-
-        // Check if right arrow button appears
         const rightButton = screen.queryByLabelText('Next');
         if (rightButton) {
           fireEvent.click(rightButton);
@@ -254,12 +202,8 @@ describe('RecommendationCarousel', () => {
   describe('Responsive behavior', () => {
     it('should handle window resize events', () => {
       renderCarousel();
-
-      // Trigger resize event
       fireEvent(window, new Event('resize'));
-
-      // Component should still render correctly
-      expect(screen.getByText('Test Carousel')).toBeInTheDocument();
+      expectTextInDocument(screen, 'Test Carousel');
     });
   });
 
@@ -287,25 +231,10 @@ describe('RecommendationCarousel', () => {
 
     it('should have aria-labels on navigation buttons', () => {
       const { container } = renderCarousel();
+      const scrollContainer = setupScrollableContainer(container, 300, 1000, 400);
 
-      // Set up scrollable state to show navigation buttons
-      const scrollContainer = container.querySelector('[class*="overflow-x-auto"]');
       if (scrollContainer) {
-        Object.defineProperty(scrollContainer, 'scrollLeft', {
-          writable: true,
-          value: 300,
-        });
-        Object.defineProperty(scrollContainer, 'scrollWidth', {
-          writable: true,
-          value: 1000,
-        });
-        Object.defineProperty(scrollContainer, 'clientWidth', {
-          writable: true,
-          value: 400,
-        });
-
         fireEvent.scroll(scrollContainer);
-
         const prevButton = screen.queryByLabelText('Previous');
         const nextButton = screen.queryByLabelText('Next');
 
@@ -320,34 +249,21 @@ describe('RecommendationCarousel', () => {
 
     it('should have aria-hidden on decorative info icon', () => {
       renderCarousel();
-
-      // The info icon container has aria-hidden="true"
-      // We can verify by checking that the tooltip exists (it's inside the container)
-      const tooltip = screen.getByText('Based on your profile');
-      expect(tooltip).toBeInTheDocument();
+      expectTextInDocument(screen, 'Based on your profile');
     });
   });
 
   describe('Tooltip behavior', () => {
     it('should show tooltip on hover (desktop)', () => {
-      renderCarousel({
-        tooltipText: 'Hover tooltip text',
-      });
-
-      // The tooltip text is rendered inside a container with opacity-0
+      renderCarousel({ tooltipText: 'Hover tooltip text' });
       const tooltipText = screen.getByText('Hover tooltip text');
       expect(tooltipText).toBeInTheDocument();
-
-      // Check that tooltip container has opacity-0 class
-      const tooltipContainer = tooltipText.parentElement;
-      expect(tooltipContainer).toHaveClass('opacity-0');
+      expect(tooltipText.parentElement).toHaveClass('opacity-0');
     });
 
     it('should show default tooltip text when no custom text provided', () => {
       renderCarousel();
-
-      const tooltip = screen.getByText('Based on your profile');
-      expect(tooltip).toBeInTheDocument();
+      expectTextInDocument(screen, 'Based on your profile');
     });
   });
 

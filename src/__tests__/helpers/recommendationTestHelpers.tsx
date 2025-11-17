@@ -70,17 +70,112 @@ export const renderWithProviders = (
   return render(ui, { wrapper: Wrapper });
 };
 
-// Common test utilities
-export const testDarkModeRendering = (container: HTMLElement, selector: string) => {
-  const element = container.querySelector(selector);
-  expect(element).toBeInTheDocument();
-};
-
-export const testHintMessageRendering = (screen: any, message: string) => {
-  expect(screen.getByText(message)).toBeInTheDocument();
-};
 
 // Common afterEach cleanup
 export const cleanupMocks = () => {
   jest.clearAllMocks();
 };
+
+// Mock factory for CapacityCache
+export const createMockCapacityCache = (overrides = {}) => ({
+  getName: jest.fn((id) => {
+    if (id === 50) return 'Learning';
+    return `Capacity ${id}`;
+  }),
+  getIcon: jest.fn(() => '/icons/book.svg'),
+  getColor: jest.fn(() => 'learning'),
+  getDescription: jest.fn((id) => {
+    if (id === 50) return 'Learning capability';
+    return `Description for ${id}`;
+  }),
+  preloadCapacities: jest.fn().mockResolvedValue(undefined),
+  getCapacity: jest.fn(),
+  getRootCapacities: jest.fn(() => []),
+  getChildren: jest.fn(() => []),
+  hasChildren: jest.fn(() => false),
+  getMetabaseCode: jest.fn(code => `M${code}`),
+  getWdCode: jest.fn(code => `Q${code}`),
+  isLoadingTranslations: false,
+  updateLanguage: jest.fn().mockResolvedValue(undefined),
+  isFallbackTranslation: jest.fn(() => false),
+  ...overrides,
+});
+
+// Mock factory for Router
+export const createMockRouter = (overrides = {}) => ({
+  push: jest.fn(),
+  replace: jest.fn(),
+  prefetch: jest.fn(),
+  ...overrides,
+});
+
+// Mock factory for QueryClient
+export const createMockQueryClient = () => ({
+  setQueryData: jest.fn(),
+  invalidateQueries: jest.fn(),
+});
+
+// Mock factory for Snackbar
+export const createMockSnackbar = () => ({
+  showSnackbar: jest.fn(),
+});
+
+// Mock factory for SavedItems
+export const createMockSavedItems = (savedItems = []) => ({
+  savedItems,
+  createSavedItem: jest.fn(),
+  deleteSavedItem: jest.fn(),
+});
+
+// Mock factory for Avatars
+export const createMockAvatars = (avatars = []) => ({
+  avatars,
+});
+
+// Test assertion helpers
+export const expectTextInDocument = (screen: any, text: string) => {
+  expect(screen.getByText(text)).toBeInTheDocument();
+};
+
+export const expectTextNotInDocument = (screen: any, text: string) => {
+  expect(screen.queryByText(text)).not.toBeInTheDocument();
+};
+
+export const expectElementWithSelector = (container: HTMLElement, selector: string) => {
+  const element = container.querySelector(selector);
+  expect(element).toBeInTheDocument();
+  return element;
+};
+
+// Mock for scroll methods (common in carousel tests)
+export const mockScrollMethods = () => {
+  Element.prototype.scrollBy = jest.fn();
+  Element.prototype.scrollTo = jest.fn();
+};
+
+// Setup scrollable container state
+export const setupScrollableContainer = (
+  container: HTMLElement,
+  scrollLeft: number,
+  scrollWidth: number,
+  clientWidth: number
+) => {
+  const scrollContainer = container.querySelector('[class*="overflow-x-auto"]');
+  if (scrollContainer) {
+    Object.defineProperty(scrollContainer, 'scrollLeft', {
+      writable: true,
+      value: scrollLeft,
+    });
+    Object.defineProperty(scrollContainer, 'scrollWidth', {
+      writable: true,
+      value: scrollWidth,
+    });
+    Object.defineProperty(scrollContainer, 'clientWidth', {
+      writable: true,
+      value: clientWidth,
+    });
+    return scrollContainer;
+  }
+  return null;
+};
+
