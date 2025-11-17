@@ -1,7 +1,7 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
 import CardNoRecommendations from '@/app/(auth)/home/components/CardNoRecommendations';
+import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SectionNoRecommendations() {
@@ -24,9 +24,7 @@ export default function SectionNoRecommendations() {
   ) : (
     //Desktop
     <section
-      className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 md:mb-[128px] ${
-        darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
-      }`}
+      className={`flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 md:mb-[128px] bg-transparent`}
     >
       <div className="flex flex-col items-center justify-between w-full py-16 gap-16">
         <div className="flex items-center w-full">

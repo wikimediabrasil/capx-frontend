@@ -680,7 +680,9 @@ export default function CapacitySelectionModal({
               <button
                 onClick={() => setSelectedPath([])}
                 className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors flex-shrink-0 ${getRootButtonClasses(selectedPath.length === 0, darkMode)}`}
-                aria-label={pageContent['capacity-selection-modal-root-capacities'] || 'Root capacities'}
+                aria-label={
+                  pageContent['capacity-selection-modal-root-capacities'] || 'Root capacities'
+                }
               >
                 <svg
                   width="14"
@@ -735,7 +737,10 @@ export default function CapacitySelectionModal({
                     >
                       {/* Capacity icon */}
                       {capacityIcon && (
-                        <div className="relative w-[14px] h-[14px] flex-shrink-0" aria-hidden="true">
+                        <div
+                          className="relative w-[14px] h-[14px] flex-shrink-0"
+                          aria-hidden="true"
+                        >
                           <Image
                             src={capacityIcon}
                             alt=""

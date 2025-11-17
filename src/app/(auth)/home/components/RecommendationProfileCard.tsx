@@ -1,29 +1,30 @@
 'use client';
 
-import Image from 'next/image';
+import { ProfileCapacityType } from '@/app/(auth)/feed/types';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import BaseButton from '@/components/BaseButton';
-import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { useAvatars } from '@/hooks/useAvatars';
-import lamp_purple from '@/public/static/images/lamp_purple.svg';
+import { useSavedItems } from '@/hooks/useSavedItems';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { getProfileImage } from '@/lib/utils/getProfileImage';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
-import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
-import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useSavedItems } from '@/hooks/useSavedItems';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import Bookmark from '@/public/static/images/bookmark.svg';
-import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
-import { ProfileCapacityType } from '@/app/(auth)/feed/types';
+import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
+import lamp_purple from '@/public/static/images/lamp_purple.svg';
+import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -166,7 +167,7 @@ export default function RecommendationProfileCard({
           />
         ) : (
           <Image
-            src={NoAvatarIcon}
+            src={darkMode ? NoAvatarIconWhite : NoAvatarIcon}
             alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
             fill
             className="object-contain"
@@ -175,7 +176,10 @@ export default function RecommendationProfileCard({
       </div>
 
       <div className="flex items-center justify-start gap-2 mb-4 w-full">
-        <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0" aria-hidden="true">
+        <div
+          className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0"
+          aria-hidden="true"
+        >
           <Image
             src={
               isOrganization
