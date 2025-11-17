@@ -105,17 +105,17 @@ export default function RecommendationCarousel({
                 'Based on your profile'
               }
             >
-              <Image 
-                src={info_blue} 
-                alt="" 
-                fill 
-                className="object-contain" 
+              <Image
+                src={info_blue}
+                alt=""
+                fill
+                className="object-contain"
                 priority
-                style={{ 
+                style={{
                   filter: 'none',
                   opacity: 1,
                   transition: 'none',
-                  display: 'block'
+                  display: 'block',
                 }}
               />
             </div>
@@ -180,12 +180,7 @@ export default function RecommendationCarousel({
                 aria-label="Previous"
               >
                 <div className="relative w-6 h-6">
-                  <Image
-                    src={ArrowBackIcon}
-                    alt=""
-                    fill
-                    className="object-contain"
-                  />
+                  <Image src={ArrowBackIcon} alt="" fill className="object-contain" />
                 </div>
               </button>
             )}
@@ -197,12 +192,7 @@ export default function RecommendationCarousel({
                 aria-label="Next"
               >
                 <div className="relative w-6 h-6 rotate-180">
-                  <Image
-                    src={ArrowBackIcon}
-                    alt=""
-                    fill
-                    className="object-contain"
-                  />
+                  <Image src={ArrowBackIcon} alt="" fill className="object-contain" />
                 </div>
               </button>
             )}

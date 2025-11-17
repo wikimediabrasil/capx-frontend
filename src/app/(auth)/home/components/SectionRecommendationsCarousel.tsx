@@ -25,7 +25,6 @@ export default function SectionRecommendationsCarousel() {
     console.log('Save profile:', id);
   };
 
-
   const handleAddCapacity = (id: number) => {
     // TODO: Implement add capacity to profile functionality
     console.log('Add capacity:', id);
@@ -144,7 +143,8 @@ export default function SectionRecommendationsCarousel() {
               onSave={handleSaveProfile}
               capacityType="available"
               hintMessage={
-                pageContent['recommendation-based-on-available-capacities'] || 'Based on your available capacities'
+                pageContent['recommendation-based-on-available-capacities'] ||
+                'Based on your available capacities'
               }
             />
           ))
@@ -166,7 +166,8 @@ export default function SectionRecommendationsCarousel() {
               onSave={handleSaveProfile}
               capacityType="wanted"
               hintMessage={
-                pageContent['recommendation-based-on-wanted-capacities'] || 'Based on your wanted capacities'
+                pageContent['recommendation-based-on-wanted-capacities'] ||
+                'Based on your wanted capacities'
               }
             />
           ))
@@ -210,7 +211,8 @@ export default function SectionRecommendationsCarousel() {
               key={capacity.id}
               recommendation={capacity}
               hintMessage={
-                pageContent['recommendation-based-on-most-used-capacities'] || 'Based on the most used capacities in the network'
+                pageContent['recommendation-based-on-most-used-capacities'] ||
+                'Based on the most used capacities in the network'
               }
             />
           ))}
