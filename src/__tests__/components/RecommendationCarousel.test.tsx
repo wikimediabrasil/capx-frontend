@@ -1,7 +1,8 @@
 import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { renderWithProviders, setupCommonMocks } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -22,30 +23,11 @@ jest.mock('next/image', () => ({
   },
 }));
 
-// Common mock data
-const createMockPageContent = () => ({
-  'recommendations-based-on-profile': 'Based on your profile',
-});
-
-// Test wrapper
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <ThemeProvider>
-      <AppProvider>{children}</AppProvider>
-    </ThemeProvider>
-  );
-};
-
 describe('RecommendationCarousel', () => {
   beforeEach(() => {
-    // Setup mocks
-    (useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-    });
-
-    (useApp as jest.Mock).mockReturnValue({
-      pageContent: createMockPageContent(),
-    });
+    // We don't need useSession for carousel, so we pass a dummy mock
+    const dummyMock = jest.fn();
+    setupCommonMocks(dummyMock, useTheme as jest.Mock, useApp as jest.Mock);
 
     // Mock scrollBy and scrollTo methods
     Element.prototype.scrollBy = jest.fn();
@@ -67,9 +49,10 @@ describe('RecommendationCarousel', () => {
       ...props,
     };
 
-    return render(<RecommendationCarousel {...defaultProps} />, {
-      wrapper: TestWrapper,
-    });
+    return renderWithProviders(
+      <RecommendationCarousel {...defaultProps} />,
+      [ThemeProvider, AppProvider]
+    );
   };
 
   describe('Rendering', () => {

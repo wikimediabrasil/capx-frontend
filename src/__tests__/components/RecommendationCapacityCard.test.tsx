@@ -3,15 +3,15 @@ import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { CapacityCacheProvider, useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { SessionProvider, useSession } from 'next-auth/react';
-import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { useSession } from 'next-auth/react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CapacityRecommendation } from '@/types/recommendation';
+import { renderWithProviders, setupCommonMocks } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -29,29 +29,10 @@ jest.mock('@/contexts/CapacityCacheContext', () => ({
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/app/providers/SnackbarProvider', () => ({
-  useSnackbar: jest.fn(),
-}));
-
-jest.mock('@tanstack/react-query', () => ({
-  useQuery: jest.fn(),
-  useQueryClient: jest.fn(),
-  QueryClient: jest.requireActual('@tanstack/react-query').QueryClient,
-  QueryClientProvider: jest.requireActual('@tanstack/react-query').QueryClientProvider,
-}));
-
-jest.mock('@/services/profileService', () => ({
-  profileService: {
-    updateProfile: jest.fn(),
-  },
-}));
-
-jest.mock('@/services/userService', () => ({
-  userService: {
-    fetchUserProfile: jest.fn(),
-  },
-}));
-
+jest.mock('@/app/providers/SnackbarProvider');
+jest.mock('@tanstack/react-query');
+jest.mock('@/services/profileService');
+jest.mock('@/services/userService');
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
@@ -59,10 +40,7 @@ jest.mock('next/image', () => ({
     return <img {...props} />;
   },
 }));
-
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-}));
+jest.mock('next/navigation');
 
 // Test data factory
 const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendation => ({
@@ -73,32 +51,29 @@ const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendatio
   ...overrides,
 });
 
-// Common mock data
-const createMockPageContent = () => ({
-  'add-to-profile': 'Add to Profile',
-  'added': 'Added',
-  'view': 'View',
-  'loading': 'Loading...',
-  'capacity-added-success': 'Capacity added to profile',
-  'error': 'Error adding capacity',
-  'capacity-icon': 'Capacity icon',
-  'select-capacity': 'Select Capacity',
+// Mock capacity cache helper
+const createMockCapacityCache = () => ({
+  getName: jest.fn((id) => {
+    if (id === 50) return 'Learning';
+    return `Capacity ${id}`;
+  }),
+  getIcon: jest.fn(() => '/icons/book.svg'),
+  getColor: jest.fn(() => 'learning'),
+  getDescription: jest.fn((id) => {
+    if (id === 50) return 'Learning capability';
+    return `Description for ${id}`;
+  }),
+  preloadCapacities: jest.fn().mockResolvedValue(undefined),
+  getCapacity: jest.fn(),
+  getRootCapacities: jest.fn(() => []),
+  getChildren: jest.fn(() => []),
+  hasChildren: jest.fn(() => false),
+  getMetabaseCode: jest.fn(code => `M${code}`),
+  getWdCode: jest.fn(code => `Q${code}`),
+  isLoadingTranslations: false,
+  updateLanguage: jest.fn().mockResolvedValue(undefined),
+  isFallbackTranslation: jest.fn(() => false),
 });
-
-// Query client configuration
-const createTestQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-        staleTime: 0,
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        refetchOnReconnect: false,
-      },
-    },
-  });
 
 describe('RecommendationCapacityCard', () => {
   const mockShowSnackbar = jest.fn();
@@ -116,7 +91,6 @@ describe('RecommendationCapacityCard', () => {
   };
 
   beforeEach(() => {
-    // Setup mocks
     const { useRouter } = require('next/navigation');
     (useRouter as jest.Mock).mockReturnValue({
       push: mockPush,
@@ -124,40 +98,9 @@ describe('RecommendationCapacityCard', () => {
       prefetch: jest.fn(),
     });
 
-    (useSession as jest.Mock).mockReturnValue({
-      data: { user: { token: 'mock-token', id: '123' } },
-    });
+    setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
 
-    (useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-    });
-
-    (useApp as jest.Mock).mockReturnValue({
-      pageContent: createMockPageContent(),
-    });
-
-    (useCapacityCache as jest.Mock).mockReturnValue({
-      getName: jest.fn((id) => {
-        if (id === 50) return 'Learning';
-        return `Capacity ${id}`;
-      }),
-      getIcon: jest.fn(() => '/icons/book.svg'),
-      getColor: jest.fn(() => 'learning'),
-      getDescription: jest.fn((id) => {
-        if (id === 50) return 'Learning capability';
-        return `Description for ${id}`;
-      }),
-      preloadCapacities: jest.fn().mockResolvedValue(undefined),
-      getCapacity: jest.fn(),
-      getRootCapacities: jest.fn(() => []),
-      getChildren: jest.fn(() => []),
-      hasChildren: jest.fn(() => false),
-      getMetabaseCode: jest.fn(code => `M${code}`),
-      getWdCode: jest.fn(code => `Q${code}`),
-      isLoadingTranslations: false,
-      updateLanguage: jest.fn(),
-      isFallbackTranslation: jest.fn(() => false),
-    });
+    (useCapacityCache as jest.Mock).mockReturnValue(createMockCapacityCache());
 
     (useSnackbar as jest.Mock).mockReturnValue({
       showSnackbar: mockShowSnackbar,
@@ -175,31 +118,16 @@ describe('RecommendationCapacityCard', () => {
     jest.clearAllMocks();
   });
 
-  const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-    const queryClient = createTestQueryClient();
-
-    return (
-      <SessionProvider session={null}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <AppProvider>
-              <CapacityCacheProvider>{children}</CapacityCacheProvider>
-            </AppProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </SessionProvider>
-    );
-  };
-
   const renderCard = (props = {}) => {
     const defaultProps = {
       recommendation: createMockCapacityRecommendation(),
       ...props,
     };
 
-    return render(<RecommendationCapacityCard {...defaultProps} />, {
-      wrapper: TestWrapper,
-    });
+    return renderWithProviders(
+      <RecommendationCapacityCard {...defaultProps} />,
+      [ThemeProvider, AppProvider, CapacityCacheProvider]
+    );
   };
 
   describe('Rendering', () => {

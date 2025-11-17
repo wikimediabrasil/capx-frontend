@@ -4,14 +4,14 @@ import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { SessionProvider, useSession } from 'next-auth/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { useSession } from 'next-auth/react';
 import { ProfileRecommendation, OrganizationRecommendation } from '@/types/recommendation';
+import { renderWithProviders, setupCommonMocks } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -24,26 +24,10 @@ jest.mock('@/contexts/AppContext', () => ({
   AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/hooks/useAvatars', () => ({
-  useAvatars: jest.fn(),
-}));
-
-jest.mock('@/hooks/useSavedItems', () => ({
-  useSavedItems: jest.fn(),
-}));
-
-jest.mock('@/app/providers/SnackbarProvider', () => ({
-  useSnackbar: jest.fn(),
-}));
-
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-  })),
-}));
-
+jest.mock('@/hooks/useAvatars');
+jest.mock('@/hooks/useSavedItems');
+jest.mock('@/app/providers/SnackbarProvider');
+jest.mock('next/navigation');
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
@@ -69,27 +53,6 @@ const createMockOrganizationRecommendation = (overrides = {}): OrganizationRecom
   ...overrides,
 });
 
-// Common mock data
-const createMockPageContent = () => ({
-  'view-profile': 'View Profile',
-  'save': 'Save',
-  'saved-profiles-delete-success': 'Profile removed from saved',
-  'saved-profiles-add-success': 'Profile saved successfully',
-  'saved-profiles-error': 'Error saving profile',
-  'profile-picture': 'Profile picture',
-  'organization-logo': 'Organization logo',
-});
-
-// Test wrapper
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <SessionProvider session={null}>
-      <ThemeProvider>
-        <AppProvider>{children}</AppProvider>
-      </ThemeProvider>
-    </SessionProvider>
-  );
-};
 
 describe('RecommendationProfileCard', () => {
   const mockShowSnackbar = jest.fn();
@@ -97,19 +60,7 @@ describe('RecommendationProfileCard', () => {
   const mockDeleteSavedItem = jest.fn();
 
   beforeEach(() => {
-    // Setup mocks
-    (useSession as jest.Mock).mockReturnValue({
-      data: { user: { token: 'mock-token', id: '123' } },
-    });
-
-    (useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-    });
-
-    (useApp as jest.Mock).mockReturnValue({
-      pageContent: createMockPageContent(),
-      language: 'en',
-    });
+    setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
 
     (useAvatars as jest.Mock).mockReturnValue({
       avatars: [],
@@ -136,9 +87,10 @@ describe('RecommendationProfileCard', () => {
       ...props,
     };
 
-    return render(<RecommendationProfileCard {...defaultProps} />, {
-      wrapper: TestWrapper,
-    });
+    return renderWithProviders(
+      <RecommendationProfileCard {...defaultProps} />,
+      [ThemeProvider, AppProvider]
+    );
   };
 
   describe('Rendering', () => {
