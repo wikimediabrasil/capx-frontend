@@ -214,7 +214,7 @@ export default function RecommendationProfileCard({
         <BaseButton
           onClick={handleSave}
           disabled={isSaving}
-          customClass={`flex justify-center items-center gap-2 px-4 py-2 rounded-lg text-[14px] font-extrabold border-2 md:text-[16px] md:px-6 md:py-3 ${
+          customClass={`flex justify-center items-center gap-2 px-4 !py-2 rounded-lg text-[14px] font-extrabold border-2 md:text-[16px] md:px-6 md:py-3 ${
             isSaved
               ? 'bg-[#053749] text-white border-[#053749] hover:bg-[#04222F]'
               : darkMode
