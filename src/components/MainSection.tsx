@@ -53,15 +53,17 @@ export default function MainSection() {
               } text-center font-[Montserrat] text-[32px] not-italic font-extrabold leading-[normal] mb-4`}
             >
               {prefix}
-              <Typewriter
-                words={words}
-                loop={0}
-                cursor
-                cursorStyle="_"
-                typeSpeed={120}
-                deleteSpeed={50}
-                delaySpeed={3000}
-              />
+              {words.length > 0 ? (
+                <Typewriter
+                  words={words}
+                  loop={0}
+                  cursor
+                  cursorStyle="_"
+                  typeSpeed={120}
+                  deleteSpeed={50}
+                  delaySpeed={3000}
+                />
+              ) : null}
               {suffix}
             </h1>
             <p
@@ -119,15 +121,17 @@ export default function MainSection() {
                 {prefix}
                 {prefix && !suffix && words.length > 0 && <br />}
                 <span className="inline-block">
-                  <Typewriter
-                    words={words}
-                    loop={0}
-                    cursor
-                    cursorStyle="_"
-                    typeSpeed={120}
-                    deleteSpeed={50}
-                    delaySpeed={3000}
-                  />
+                  {words.length > 0 ? (
+                    <Typewriter
+                      words={words}
+                      loop={0}
+                      cursor
+                      cursorStyle="_"
+                      typeSpeed={120}
+                      deleteSpeed={50}
+                      delaySpeed={3000}
+                    />
+                  ) : null}
                 </span>
                 {suffix}
               </h1>
