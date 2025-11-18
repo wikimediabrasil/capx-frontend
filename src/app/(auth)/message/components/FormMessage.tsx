@@ -152,7 +152,10 @@ export default function FormMessage() {
 
     // Check if we have email check result
     if (!emailCheckResult && formData.receiver && session?.user?.token) {
-      showSnackbar(pageContent['message-form-user-checking'] || 'Checking user. Wait a moment.', 'error');
+      showSnackbar(
+        pageContent['message-form-user-checking'] || 'Checking user. Wait a moment.',
+        'error'
+      );
       return;
     }
 
@@ -190,13 +193,16 @@ export default function FormMessage() {
         let message = '';
         if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
           message =
-            pageContent['message-error-no-email-body'] || 'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+            pageContent['message-error-no-email-body'] ||
+            'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
         } else if (!emailCheck.sender_emailable) {
           message =
-            pageContent['message-error-no-email-from-sender-body'] || 'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+            pageContent['message-error-no-email-from-sender-body'] ||
+            'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
         } else if (!emailCheck.receiver_emailable) {
           message =
-            pageContent['message-error-no-email-from-receiver-body'] || 'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
+            pageContent['message-error-no-email-from-receiver-body'] ||
+            'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
         }
 
         setEmailCheckMessage(message);
@@ -355,26 +361,31 @@ export default function FormMessage() {
                   </span>
                 </div>
               )}
-              {emailCheckResult && emailCheckResult.receiver_exists && receiverEmailStatus === 'available' && (
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center">
-                    <span className="text-white text-[10px] md:text-[14px]">✓</span>
+              {emailCheckResult &&
+                emailCheckResult.receiver_exists &&
+                receiverEmailStatus === 'available' && (
+                  <div className="flex items-center gap-1">
+                    <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center">
+                      <span className="text-white text-[10px] md:text-[14px]">✓</span>
+                    </div>
+                    <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
+                      {pageContent['message-form-email-available'] || 'email available'}
+                    </span>
                   </div>
-                  <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
-                    {pageContent['message-form-email-available'] || 'email available'}
-                  </span>
-                </div>
-              )}
-              {emailCheckResult && emailCheckResult.receiver_exists && receiverEmailStatus === 'unavailable' && !emailCheckResult.can_send_email && (
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-orange-500 flex items-center justify-center">
-                    <span className="text-white text-[10px] md:text-[14px]">!</span>
+                )}
+              {emailCheckResult &&
+                emailCheckResult.receiver_exists &&
+                receiverEmailStatus === 'unavailable' &&
+                !emailCheckResult.can_send_email && (
+                  <div className="flex items-center gap-1">
+                    <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                      <span className="text-white text-[10px] md:text-[14px]">!</span>
+                    </div>
+                    <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
+                      {pageContent['message-form-email-unavailable'] || 'email unavailable'}
+                    </span>
                   </div>
-                  <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
-                    {pageContent['message-form-email-unavailable'] || 'email unavailable'}
-                  </span>
-                </div>
-              )}
+                )}
             </div>
           )}
         </div>
