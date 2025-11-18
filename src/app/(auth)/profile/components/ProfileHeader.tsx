@@ -153,8 +153,8 @@ export default function ProfileHeader({
   }
 
   return (
-    <div className="flex flex-row gap-[96px] mb-[96px]">
-      <div className="relative w-[250px] h-[250px]">
+    <div className="flex flex-row gap-8 md:gap-12 lg:gap-[96px] mb-8 md:mb-12 lg:mb-[96px] flex-wrap">
+      <div className="relative w-[200px] h-[200px] md:w-[250px] md:h-[250px] flex-shrink-0">
         <Image
           priority
           src={getCorrectImage()}
@@ -168,34 +168,35 @@ export default function ProfileHeader({
           }}
         />
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 flex-1 min-w-0">
         <h1
-          className={` text-[48px] font-[Montserrat] font-normal ${
+          className={`text-[32px] md:text-[40px] lg:text-[48px] font-[Montserrat] font-normal break-words ${
             darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
           }`}
         >
           {pageContent['edit-profile-welcome']}
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Image
             src={darkMode ? UserCircleIconWhite : UserCircleIcon}
             alt={pageContent['navbar-user-profile']}
             width={42}
             height={42}
+            className="flex-shrink-0"
           />
           <span
-            className={`text-[24px] font-[Montserrat] font-bold ${
+            className={`text-[20px] md:text-[22px] lg:text-[24px] font-[Montserrat] font-bold break-words ${
               darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
             }`}
           >
             {username || 'Loading...'}
           </span>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full max-w-full">
           <BaseButton
             onClick={handleCopyLink}
             label={pageContent['body-profile-copy-link']}
-            customClass={`w-full font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
+            customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
               darkMode
                 ? 'text-capx-light-bg border-capx-light-bg'
                 : 'text-capx-dark-box-bg border-capx-dark-box-bg'
@@ -209,7 +210,7 @@ export default function ProfileHeader({
             <BaseButton
               onClick={() => router.push('/profile/edit')}
               label={pageContent['body-profile-edit-user-button']}
-              customClass={`w-full font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
+              customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
                 darkMode
                   ? 'text-capx-light-bg border-capx-light-bg'
                   : 'text-capx-dark-box-bg border-capx-dark-box-bg'

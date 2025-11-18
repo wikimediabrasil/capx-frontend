@@ -1,18 +1,18 @@
-import Image from 'next/image';
-import { Typewriter } from 'react-simple-typewriter';
-import MainImage from '@/public/static/images/main_image.svg';
-import AuthButton from './AuthButton';
-import BaseButton from './BaseButton';
-import WikimediaLogo from '@/public/static/images/wikimedia_logo.svg';
-import WikipediaLogo from '@/public/static/images/wikipedia_logo.svg';
-import WikibooksLogo from '@/public/static/images/wikibooks_logo.svg';
-import MediaWikiLogo from '@/public/static/images/mediawiki_logo.svg';
-import WikidataLogo from '@/public/static/images/wikidata_logo.svg';
-import WikifunctionsLogo from '@/public/static/images/wikifunctions_logo.svg';
-import CommonsLogo from '@/public/static/images/commons_logo.svg';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import CommonsLogo from '@/public/static/images/commons_logo.svg';
+import MainImage from '@/public/static/images/main_image.svg';
+import MediaWikiLogo from '@/public/static/images/mediawiki_logo.svg';
+import WikibooksLogo from '@/public/static/images/wikibooks_logo.svg';
+import WikidataLogo from '@/public/static/images/wikidata_logo.svg';
+import WikifunctionsLogo from '@/public/static/images/wikifunctions_logo.svg';
+import WikimediaLogo from '@/public/static/images/wikimedia_logo.svg';
+import WikipediaLogo from '@/public/static/images/wikipedia_logo.svg';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { Typewriter } from 'react-simple-typewriter';
+import AuthButton from './AuthButton';
+import BaseButton from './BaseButton';
 
 export default function MainSection() {
   const { isMobile, pageContent } = useApp();
