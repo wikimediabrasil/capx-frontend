@@ -350,6 +350,11 @@
   "message-form-email-sender-not-configured": "Email is not available. You need to configure email in your Meta-Wiki preferences.",
   "message-form-email-unavailable": "unavailable",
   "message-form-method-unavailable": "unavailable",
+  "message-form-user-checking": "Checking user. Wait a moment.",
+  "message-form-user-not-found": "User not found",
+  "message-form-user-exists": "User found",
+  "message-form-user-not-found-message": "User not found. Try a different username.",
+
   "message-button-confirme-and-send": "Confirm/Send",
   "message-button-cancel-message": "Cancel",
   "message-info-popup-title": "This message will be sent via Meta",

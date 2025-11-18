@@ -18,6 +18,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMessage } from '@/hooks/useMessage';
 import { MessageService } from '@/services/messageService';
+import { userService } from '@/services/userService';
 import { Message } from '@/types/message';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -58,6 +59,9 @@ export default function FormMessage() {
     'unknown' | 'checking' | 'available' | 'unavailable'
   >('unknown');
   const [emailCheckResult, setEmailCheckResult] = useState<any>(null);
+  const [receiverUserStatus, setReceiverUserStatus] = useState<
+    'unknown' | 'checking' | 'exists' | 'not_found'
+  >('unknown');
 
   const { showSnackbar } = useSnackbar();
 
@@ -68,14 +72,35 @@ export default function FormMessage() {
 
   const { showMethodSelector, setShowMethodSelector, sendMessage } = useMessage();
 
-  // Debounced email check function
+  // Debounced user existence check function
+  const checkUserExists = useCallback(
+    async (receiver: string) => {
+      if (!receiver || receiver.trim().length < 1 || !session?.user?.token) {
+        setReceiverUserStatus('unknown');
+        return;
+      }
+
+      setReceiverUserStatus('checking');
+      try {
+        const exists = await userService.checkUserExists(receiver, session.user.token);
+        setReceiverUserStatus(exists ? 'exists' : 'not_found');
+      } catch (error) {
+        console.error('Error checking if user exists:', error);
+        setReceiverUserStatus('unknown');
+      }
+    },
+    [session?.user?.token]
+  );
+
+  // Debounced email check function (only if user exists)
   const checkReceiverEmail = useCallback(
     async (receiver: string) => {
       if (
         !receiver ||
         receiver.trim().length < 3 ||
         !session?.user?.token ||
-        !session?.user?.name
+        !session?.user?.name ||
+        receiverUserStatus !== 'exists'
       ) {
         setReceiverEmailStatus('unknown');
         setEmailCheckResult(null);
@@ -102,17 +127,31 @@ export default function FormMessage() {
         setEmailCheckResult(null);
       }
     },
-    [session?.user?.token, session?.user?.name]
+    [session?.user?.token, session?.user?.name, receiverUserStatus]
   );
 
-  // Effect to check receiver email when receiver changes
+  // Effect to check if user exists when receiver changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      checkReceiverEmail(formData.receiver || '');
+      checkUserExists(formData.receiver || '');
     }, 800); // 800ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [formData.receiver, checkReceiverEmail]);
+  }, [formData.receiver, checkUserExists]);
+
+  // Effect to check receiver email when receiver changes and user exists
+  useEffect(() => {
+    if (receiverUserStatus === 'exists') {
+      const timeoutId = setTimeout(() => {
+        checkReceiverEmail(formData.receiver || '');
+      }, 300); // 300ms debounce after user check
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setReceiverEmailStatus('unknown');
+      setEmailCheckResult(null);
+    }
+  }, [formData.receiver, receiverUserStatus, checkReceiverEmail]);
 
   // Effect to auto-switch to talkpage if email is unavailable and user selected email
   useEffect(() => {
@@ -136,10 +175,30 @@ export default function FormMessage() {
     });
     setReceiverEmailStatus('unknown');
     setEmailCheckResult(null);
+    setReceiverUserStatus('unknown');
   };
 
   const handleSubmit = async () => {
     setShowInfoMessagePopup(false);
+
+    // Validate that receiver user exists before proceeding
+    if (receiverUserStatus !== 'exists') {
+      if (receiverUserStatus === 'not_found') {
+        setShowUserNotFoundPopup(true);
+      } else if (receiverUserStatus === 'checking') {
+        showSnackbar(
+          pageContent['message-form-user-checking'] || 'Checking user. Wait a moment.',
+          'error'
+        );
+      } else {
+        showSnackbar(
+          pageContent['message-form-user-not-found-message'] ||
+            'User not found. Try a different username.',
+          'error'
+        );
+      }
+      return;
+    }
 
     // Validate email availability before sending if method is email
     if (formData.method === MessageMethod.EMAIL && formData.receiver && session?.user?.token) {
@@ -205,6 +264,7 @@ export default function FormMessage() {
       });
       setReceiverEmailStatus('unknown');
       setEmailCheckResult(null);
+      setReceiverUserStatus('unknown');
     } catch (error) {
       console.error('Error sending message:', error);
       showSnackbar('Failed to send message', 'error');
@@ -306,9 +366,9 @@ export default function FormMessage() {
             }`}
             placeholder={pageContent['message-form-to-placeholder']}
           />
-          {formData.receiver && formData.receiver.length >= 3 && (
+          {formData.receiver && formData.receiver.length >= 1 && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              {receiverEmailStatus === 'checking' && (
+              {receiverUserStatus === 'checking' && (
                 <div className="flex items-center gap-1">
                   <div
                     className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${
@@ -320,45 +380,89 @@ export default function FormMessage() {
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
-                    {pageContent['message-form-email-checking'] || 'checking'}
+                    {pageContent['message-form-user-checking'] || 'checking user'}
                   </span>
                 </div>
               )}
-              {receiverEmailStatus === 'available' && (
+              {receiverUserStatus === 'not_found' && (
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-red-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] md:text-[14px]">✗</span>
+                  </div>
+                  <span className="text-[10px] md:text-[16px] text-red-600 dark:text-red-400">
+                    {pageContent['message-form-user-not-found'] || 'User not found'}
+                  </span>
+                </div>
+              )}
+              {receiverUserStatus === 'exists' && receiverEmailStatus === 'checking' && (
+                <div className="flex items-center gap-1">
+                  <div
+                    className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${
+                      darkMode ? 'border-white' : 'border-[#053749]'
+                    }`}
+                  ></div>
+                  <span
+                    className={`text-[10px] md:text-[16px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['message-form-email-checking'] || 'checking email'}
+                  </span>
+                </div>
+              )}
+              {receiverUserStatus === 'exists' && receiverEmailStatus === 'available' && (
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center">
                     <span className="text-white text-[10px] md:text-[14px]">✓</span>
                   </div>
                   <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
-                    {pageContent['message-form-email-available'] || 'available'}
+                    {pageContent['message-form-email-available'] || 'email available'}
                   </span>
                 </div>
               )}
-              {receiverEmailStatus === 'unavailable' && (
+              {receiverUserStatus === 'exists' && receiverEmailStatus === 'unavailable' && (
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-orange-500 flex items-center justify-center">
                     <span className="text-white text-[10px] md:text-[14px]">!</span>
                   </div>
                   <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
-                    {pageContent['message-form-email-unavailable'] || 'unavailable'}
+                    {pageContent['message-form-email-unavailable'] || 'email unavailable'}
+                  </span>
+                </div>
+              )}
+              {receiverUserStatus === 'exists' && receiverEmailStatus === 'unknown' && (
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] md:text-[14px]">✓</span>
+                  </div>
+                  <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
+                    {pageContent['message-form-user-exists'] || 'user found'}
                   </span>
                 </div>
               )}
             </div>
           )}
         </div>
-        {receiverEmailStatus === 'unavailable' && formData.receiver && (
-          <p className="mt-1 text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
-            {emailCheckResult && !emailCheckResult.sender_emailable
-              ? pageContent['message-form-email-sender-not-configured'] ||
-                'Email is not available. You need to configure email in your Meta-Wiki preferences.'
-              : emailCheckResult && !emailCheckResult.receiver_emailable
-                ? pageContent['message-form-email-receiver-not-emailable'] ||
-                  'This user cannot receive emails. Talk Page will be used instead.'
-                : pageContent['message-form-email-not-available'] ||
-                  'Email is not available. Talk Page will be used instead.'}
+        {receiverUserStatus === 'not_found' && formData.receiver && (
+          <p className="mt-1 text-[10px] md:text-[16px] text-red-600 dark:text-red-400">
+            {pageContent['message-form-user-not-found-message'] ||
+              'This username does not exist. Please check and try again.'}
           </p>
         )}
+        {receiverUserStatus === 'exists' &&
+          receiverEmailStatus === 'unavailable' &&
+          formData.receiver && (
+            <p className="mt-1 text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
+              {emailCheckResult && !emailCheckResult.sender_emailable
+                ? pageContent['message-form-email-sender-not-configured'] ||
+                  'Email is not available. You need to configure email in your Meta-Wiki preferences.'
+                : emailCheckResult && !emailCheckResult.receiver_emailable
+                  ? pageContent['message-form-email-receiver-not-emailable'] ||
+                    'This user cannot receive emails. Talk Page will be used instead.'
+                  : pageContent['message-form-email-not-available'] ||
+                    'Email is not available. Talk Page will be used instead.'}
+            </p>
+          )}
       </div>
 
       <div className="mt-2">
