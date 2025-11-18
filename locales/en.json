@@ -344,7 +344,6 @@
   "message-form-message": "Message",
   "message-form-message-placeholder": " I'm Ana, working on a new Wikimedia Brasil project. I saw you have experience with similar projects and was wondering if you could help me with organizing the budget. Any tips would be really appreciated! Thanks a lot, Ana",
   "message-form-email-available": "available",
-  "message-form-email-checking": "checking",
   "message-form-email-not-available": "Email is not available. Talk Page will be used instead.",
   "message-form-email-receiver-not-emailable": "This user cannot receive emails. Talk Page will be used instead.",
   "message-form-email-sender-not-configured": "Email is not available. You need to configure email in your Meta-Wiki preferences.",
@@ -352,7 +351,6 @@
   "message-form-method-unavailable": "unavailable",
   "message-form-user-checking": "Checking user. Wait a moment.",
   "message-form-user-not-found": "User not found",
-  "message-form-user-exists": "User found",
   "message-form-user-not-found-message": "User not found. Try a different username.",
 
   "message-button-confirme-and-send": "Confirm/Send",
