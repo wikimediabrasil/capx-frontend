@@ -152,7 +152,7 @@ export default function FormMessage() {
 
     // Check if we have email check result
     if (!emailCheckResult && formData.receiver && session?.user?.token) {
-      showSnackbar('Checking user information. Please wait.', 'error');
+      showSnackbar(pageContent['message-form-user-checking'] || 'Checking user. Wait a moment.', 'error');
       return;
     }
 
@@ -190,13 +190,13 @@ export default function FormMessage() {
         let message = '';
         if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
           message =
-            'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+            pageContent['message-error-no-email-body'] || 'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
         } else if (!emailCheck.sender_emailable) {
           message =
-            'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+            pageContent['message-error-no-email-from-sender-body'] || 'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
         } else if (!emailCheck.receiver_emailable) {
           message =
-            'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
+            pageContent['message-error-no-email-from-receiver-body'] || 'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
         }
 
         setEmailCheckMessage(message);
