@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     const receiverUser = users.find((u: any) => u.name === receiver);
-    const receiver_exists = receiverUser && !receiverUser.missing;
+    const receiver_exists = receiverUser ? !receiverUser.missing : false;
     receiver_emailable = receiverUser?.emailable === true;
     console.log('[check_emailable] Receiver exists:', receiver_exists);
     console.log('[check_emailable] Receiver emailable:', receiver_emailable);
