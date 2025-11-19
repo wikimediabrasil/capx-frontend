@@ -35,6 +35,20 @@ export const userService = {
       return null;
     }
   },
+  async checkUserExists(username: string, token: string): Promise<boolean> {
+    if (!token || !username || username.trim().length < 1) return false;
+
+    try {
+      const response = await axios.get(`/api/users/`, {
+        params: { username },
+        headers: { Authorization: `Token ${token}` },
+      });
+      return response.data.count > 0;
+    } catch (error) {
+      console.error(`Error checking if user exists with username ${username}:`, error);
+      return false;
+    }
+  },
   async fetchAllUsers(queryParams: FetchAllUsersParams) {
     if (!queryParams.token) return { count: 0, results: [] };
 

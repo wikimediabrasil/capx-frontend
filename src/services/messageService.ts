@@ -15,6 +15,7 @@ export interface UserEmailCheckResult {
 export interface EmailCheckResult {
   sender_emailable: boolean;
   receiver_emailable: boolean;
+  receiver_exists: boolean;
   can_send_email: boolean;
 }
 

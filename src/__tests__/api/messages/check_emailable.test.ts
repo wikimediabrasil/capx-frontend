@@ -15,7 +15,7 @@ const createMockRequest = (body: any) => {
 };
 
 // Helper to create mock MediaWiki API response
-const createMockApiResponse = (users: Array<{ name: string; emailable?: boolean }>) => ({
+const createMockApiResponse = (users: Array<{ name: string; emailable?: boolean; missing?: boolean }>) => ({
   data: {
     query: { users },
   },
@@ -24,10 +24,11 @@ const createMockApiResponse = (users: Array<{ name: string; emailable?: boolean 
 // Helper to test email check scenarios
 const testEmailCheck = async (
   requestBody: { sender?: string; receiver: string },
-  mockUsers: Array<{ name: string; emailable?: boolean }>,
+  mockUsers: Array<{ name: string; emailable?: boolean; missing?: boolean }>,
   expectedResult: {
     sender_emailable: boolean;
     receiver_emailable: boolean;
+    receiver_exists: boolean;
     can_send_email: boolean;
   }
 ) => {
@@ -58,7 +59,7 @@ describe('check_emailable API route', () => {
       const { response } = await testEmailCheck(
         { receiver: 'TestReceiver' },
         [{ name: 'TestReceiver', emailable: true }],
-        { sender_emailable: true, receiver_emailable: true, can_send_email: true }
+        { sender_emailable: true, receiver_emailable: true, receiver_exists: true, can_send_email: true }
       );
 
       expect(response.status).toBe(200);
@@ -77,7 +78,7 @@ describe('check_emailable API route', () => {
           { name: 'TestSender', emailable: true },
           { name: 'TestReceiver', emailable: true },
         ],
-        { sender_emailable: true, receiver_emailable: true, can_send_email: true }
+        { sender_emailable: true, receiver_emailable: true, receiver_exists: true, can_send_email: true }
       );
 
       expect(response.status).toBe(200);
@@ -96,7 +97,7 @@ describe('check_emailable API route', () => {
           { name: 'TestSender', emailable: false },
           { name: 'TestReceiver', emailable: true },
         ],
-        { sender_emailable: false, receiver_emailable: true, can_send_email: false }
+        { sender_emailable: false, receiver_emailable: true, receiver_exists: true, can_send_email: false }
       );
     });
 
@@ -107,7 +108,7 @@ describe('check_emailable API route', () => {
           { name: 'TestSender', emailable: true },
           { name: 'TestReceiver', emailable: false },
         ],
-        { sender_emailable: true, receiver_emailable: false, can_send_email: false }
+        { sender_emailable: true, receiver_emailable: false, receiver_exists: true, can_send_email: false }
       );
     });
 
@@ -118,7 +119,7 @@ describe('check_emailable API route', () => {
           { name: 'TestSender', emailable: false },
           { name: 'TestReceiver', emailable: false },
         ],
-        { sender_emailable: false, receiver_emailable: false, can_send_email: false }
+        { sender_emailable: false, receiver_emailable: false, receiver_exists: true, can_send_email: false }
       );
     });
 
@@ -161,8 +162,30 @@ describe('check_emailable API route', () => {
       await testEmailCheck(
         { receiver: 'TestReceiver' },
         [{ name: 'TestReceiver' }], // emailable property is missing
-        { sender_emailable: true, receiver_emailable: false, can_send_email: false }
+        { sender_emailable: true, receiver_emailable: false, receiver_exists: true, can_send_email: false }
       );
+    });
+
+    it('should return receiver_exists false when user is missing', async () => {
+      await testEmailCheck(
+        { receiver: 'NonExistentUser' },
+        [{ name: 'NonExistentUser', missing: true }],
+        { sender_emailable: true, receiver_emailable: false, receiver_exists: false, can_send_email: false }
+      );
+    });
+
+    it('should return receiver_exists false when user is not found in response', async () => {
+      mockedAxios.get.mockResolvedValueOnce(createMockApiResponse([]));
+      const request = createMockRequest({ receiver: 'NonExistentUser' });
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(data).toEqual({
+        sender_emailable: true,
+        receiver_emailable: false,
+        receiver_exists: false,
+        can_send_email: false
+      });
     });
   });
 });
