@@ -571,16 +571,16 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   }
   // Desktop
   return (
-    <main className="flex-grow">
+    <main className="flex-grow overflow-x-hidden">
       <div
         className={`relative w-full overflow-x-hidden ${
           darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'
         }`}
       >
         <section
-          className={`flex w-full h-full justify-center pb-6 pt-10 px-8 lg:px-12 max-w-screen-xl mx-auto`}
+          className={`flex w-full h-full justify-between pb-6 pt-10 px-4 md:px-8 lg:px-12 max-w-screen-xl mx-auto`}
         >
-          <div className={`flex flex-col gap-6 max-w-[800px] w-full`}>
+          <div className={`flex flex-col mx-auto gap-6 w-full max-w-full`}>
             <ProfileHeader
               username={profile?.user?.username || ''}
               profileImage={profile?.profile_image}
@@ -908,8 +908,8 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
                 {pageContent['body-profile-section-title-contact']}
               </p>
             </div>
-            <div className="flex w-full justify-center m-auto px-[34px] flex-row items-center gap-[31px] rounded-[4px] bg-[#0070B9]">
-              <div className="relative h-[248px] w-[248px]">
+            <div className="flex w-full max-w-full justify-center m-auto px-4 md:px-[34px] flex-row items-center gap-4 md:gap-[31px] rounded-[4px] bg-[#0070B9] overflow-hidden">
+              <div className="relative h-[200px] w-[200px] md:h-[248px] md:w-[248px] flex-shrink-0">
                 <Image
                   src={ContactImageDesktop}
                   alt={'Contact Image'}

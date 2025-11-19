@@ -163,7 +163,7 @@ export const getCapacityColor = (color: string): string => {
 };
 
 export const getCapacityIcon = (code: number): string => {
-  const codeStr = code.toString();
+  const codeStr = code ? code.toString() : '';
 
   const iconMap: Record<string, string> = {
     '10': OrganizationalIcon,

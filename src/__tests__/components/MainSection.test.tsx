@@ -23,7 +23,7 @@ jest.mock('@/contexts/ThemeContext', () => ({
 
 describe('MainSection', () => {
   const mockPageContent = {
-    'body-home-section01-title-text': 'Sebuah ruang untuk',
+    'body-home-section01-title-template': 'Sebuah ruang untuk $1',
     'body-home-section01-title-carousel': 'saling tukar,berbagi,belajar',
     'body-home-section01-description':
       'Berhubung dengan rekan sejawat, belajar, dan berbagi keterampilan dalam platform yang dibuat untuk dan oleh Gerakan Wikimedia.',
@@ -74,8 +74,7 @@ describe('MainSection', () => {
   it('maintains layout structure with long text', () => {
     const longContent = {
       ...mockPageContent,
-      'body-home-section01-title-text':
-        'Sebuah ruang untuk saling bertukar pengalaman dan pengetahuan',
+      'body-home-section01-title-template': 'Sebuah ruang untuk saling bertukar $1',
       'body-home-section01-description':
         'Berhubung dengan rekan sejawat, belajar, dan berbagi keterampilan dalam platform yang dibuat untuk dan oleh Gerakan Wikimedia. Kami mendorong kolaborasi dan pertukaran pengetahuan antar komunitas.',
     };

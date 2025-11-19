@@ -260,6 +260,8 @@
 	"snackbar-edit-profile-organization-delete-project-failed": "プロジェクト削除でエラーが発生しました。確認してから、もう一度、お願いします。",
 	"snackbar-edit-profile-organization-update-event-failed": "イベント更新中にエラーが発生しました。確認してから、もう一度、お願いします",
 	"snackbar-edit-profile-organization-create-event-failed": "イベント作成中にエラーが発生しました。確認してから、もう一度、お願いします",
+	"saved-profiles-error": "プロファイルの保存中にエラーが発生しました。",
+	"snackbar-submit-message-success-title": "おめでとうございます！ 送信済みメッセージを「送信済み」タブで表示できるようになりました。",
 	"edit-profile-organization-logo-help": "ウィキメディア・コモンズの画像リンクを入力。例: https://commons.wikimedia.org/wiki/File:Example.jpg",
 	"events-banner-title": "イベント",
 	"organization-profile-event-popup-cancel": "キャンセル",

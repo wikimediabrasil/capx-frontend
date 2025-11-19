@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Leo",
+			"Sakblue",
 			"SaldırganSincap",
 			"İsimsizman"
 		]
@@ -30,6 +31,11 @@
 	"sign-out-button": "Oturumu kapat",
 	"sign-in-button": "Oturum aç",
 	"form-profile-languages": "Diller",
+	"saved-profiles-saved-profile": "Kaydedildi",
 	"filters-territory": "Bölge",
-	"aria-language-input": "Bir dil seç"
+	"aria-language-input": "Bir dil seç",
+	"profile-deleted-title": "Profil başarıyla silindi",
+	"profile-deleted-message": "Profiliniz CapX'ten kalıcı olarak silindi.",
+	"profile-deleted-submessage": "Topluluğumuzun bir parçası olduğunuz için teşekkür ederiz. Dilediğiniz zaman yeni bir hesap oluşturabilirsiniz.",
+	"profile-deleted-ok-button": "TAMAM"
 }

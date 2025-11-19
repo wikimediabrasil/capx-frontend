@@ -17,10 +17,11 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useMessage } from '@/hooks/useMessage';
+import { MessageService } from '@/services/messageService';
 import { Message } from '@/types/message';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 export enum MessageMethod {
   EMAIL = 'email',
   TALKPAGE = 'talkpage',
@@ -49,6 +50,14 @@ export default function FormMessage() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showInfoMessagePopup, setShowInfoMessagePopup] = useState(false);
   const [showInfoMethodPopup, setShowInfoMethodPopup] = useState(false);
+  const [showNoEmailErrorPopup, setShowNoEmailErrorPopup] = useState(false);
+  const [showUserNotFoundPopup, setShowUserNotFoundPopup] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailCheckMessage, setEmailCheckMessage] = useState<string>('');
+  const [receiverEmailStatus, setReceiverEmailStatus] = useState<
+    'unknown' | 'checking' | 'available' | 'unavailable'
+  >('unknown');
+  const [emailCheckResult, setEmailCheckResult] = useState<any>(null);
 
   const { showSnackbar } = useSnackbar();
 
@@ -59,6 +68,74 @@ export default function FormMessage() {
 
   const { showMethodSelector, setShowMethodSelector, sendMessage } = useMessage();
 
+  // Debounced email check function - also checks if user exists via Meta-Wiki
+  const checkReceiverEmail = useCallback(
+    async (receiver: string) => {
+      if (
+        !receiver ||
+        receiver.trim().length < 1 ||
+        !session?.user?.token ||
+        !session?.user?.name
+      ) {
+        setReceiverEmailStatus('unknown');
+        setEmailCheckResult(null);
+        return;
+      }
+
+      setReceiverEmailStatus('checking');
+      try {
+        const result = await MessageService.checkEmailable(
+          receiver,
+          session.user.token,
+          session.user.name ?? undefined
+        );
+        setEmailCheckResult(result);
+
+        // User doesn't exist in Meta-Wiki
+        if (!result.receiver_exists) {
+          setReceiverEmailStatus('unavailable');
+          return;
+        }
+
+        // User exists - check email availability
+        if (result.can_send_email) {
+          setReceiverEmailStatus('available');
+        } else {
+          setReceiverEmailStatus('unavailable');
+        }
+      } catch (error) {
+        console.error('Error checking receiver email:', error);
+        setReceiverEmailStatus('unknown');
+        setEmailCheckResult(null);
+      }
+    },
+    [session?.user?.token, session?.user?.name]
+  );
+
+  // Effect to check receiver email (and existence) when receiver changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      checkReceiverEmail(formData.receiver || '');
+    }, 800); // 800ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.receiver, checkReceiverEmail]);
+
+  // Effect to auto-switch to talkpage if email is unavailable and user selected email
+  useEffect(() => {
+    if (
+      formData.method === MessageMethod.EMAIL &&
+      emailCheckResult &&
+      !emailCheckResult.can_send_email &&
+      emailCheckResult.receiver_exists &&
+      formData.receiver &&
+      formData.receiver.length >= 1
+    ) {
+      setFormData({ ...formData, method: MessageMethod.TALKPAGE });
+      showSnackbar('Email unavailable. Switched to Talk Page method.', 'error');
+    }
+  }, [emailCheckResult, formData.method, formData.receiver]);
+
   const clearFormData = () => {
     setFormData({
       receiver: '',
@@ -66,12 +143,86 @@ export default function FormMessage() {
       message: '',
       method: '',
     });
+    setReceiverEmailStatus('unknown');
+    setEmailCheckResult(null);
   };
 
   const handleSubmit = async () => {
     setShowInfoMessagePopup(false);
+
+    // Check if we have email check result
+    if (!emailCheckResult && formData.receiver && session?.user?.token) {
+      showSnackbar(
+        pageContent['message-form-user-checking'] || 'Checking user. Wait a moment.',
+        'error'
+      );
+      return;
+    }
+
+    // Validate that receiver user exists before proceeding
+    if (emailCheckResult && !emailCheckResult.receiver_exists) {
+      setShowUserNotFoundPopup(true);
+      return;
+    }
+
+    // Validate email availability before sending if method is email
+    if (formData.method === MessageMethod.EMAIL && formData.receiver && session?.user?.token) {
+      // Use cached email check result if available, otherwise perform a new check
+      let emailCheck = emailCheckResult;
+
+      if (!emailCheck || emailCheckResult.receiver !== formData.receiver) {
+        setIsCheckingEmail(true);
+        try {
+          emailCheck = await MessageService.checkEmailable(
+            formData.receiver,
+            session.user.token,
+            session.user.name ?? undefined
+          );
+        } catch (error: any) {
+          setIsCheckingEmail(false);
+          console.error('Error checking email availability:', error);
+          showSnackbar('Failed to verify email availability. Please try again.', 'error');
+          return;
+        }
+        setIsCheckingEmail(false);
+      }
+
+      // Check if email sending is not possible
+      if (!emailCheck.can_send_email) {
+        // Build descriptive message based on which party cannot use email
+        let message = '';
+        if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
+          message =
+            pageContent['message-error-no-email-body'] ||
+            'Neither you nor the receiver have email enabled in Wikimedia.\n\nTo enable email on your account, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+        } else if (!emailCheck.sender_emailable) {
+          message =
+            pageContent['message-error-no-email-from-sender-body'] ||
+            'You do not have email enabled in your Wikimedia account.\n\nTo enable email, please visit your preferences on Meta-Wiki at https://meta.wikimedia.org/wiki/Special:Preferences#mw-prefsection-personal and configure your email address.\n\nPlease use Talk Page instead for now.';
+        } else if (!emailCheck.receiver_emailable) {
+          message =
+            pageContent['message-error-no-email-from-receiver-body'] ||
+            'The receiver does not accept emails via Wikimedia.\n\nPlease use Talk Page instead.';
+        }
+
+        setEmailCheckMessage(message);
+        setShowNoEmailErrorPopup(true);
+        return;
+      }
+    }
+
     try {
-      await sendMessage(formData);
+      const result = await sendMessage(formData);
+
+      // Check if there was a fallback (method changed from email to talkpage)
+      if (
+        result.method === MessageMethod.TALKPAGE &&
+        formData.method === MessageMethod.EMAIL &&
+        result.error_message
+      ) {
+        showSnackbar(`⚠️ ${result.error_message}`, 'error');
+      }
+
       setShowSuccessPopup(true);
       setFormData({
         receiver: '',
@@ -79,6 +230,8 @@ export default function FormMessage() {
         message: '',
         method: '',
       });
+      setReceiverEmailStatus('unknown');
+      setEmailCheckResult(null);
     } catch (error) {
       console.error('Error sending message:', error);
       showSnackbar('Failed to send message', 'error');
@@ -107,6 +260,19 @@ export default function FormMessage() {
 
   const handleCloseInfoMethodPopup = () => {
     setShowInfoMethodPopup(false);
+  };
+
+  const handleCloseNoEmailErrorPopup = () => {
+    setShowNoEmailErrorPopup(false);
+  };
+
+  const handleSwitchToTalkPage = () => {
+    setFormData({ ...formData, method: MessageMethod.TALKPAGE });
+    setShowNoEmailErrorPopup(false);
+  };
+
+  const handleCloseUserNotFoundPopup = () => {
+    setShowUserNotFoundPopup(false);
   };
 
   return (
@@ -154,18 +320,97 @@ export default function FormMessage() {
         >
           {pageContent['message-to-from']}
         </h4>
-        <input
-          type="text"
-          id="to"
-          value={formData.receiver}
-          onChange={e => setFormData({ ...formData, receiver: e.target.value })}
-          className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
-            darkMode
-              ? 'bg-transparent border-[#FFFFFF] text-white'
-              : 'border-[#053749] text-[#829BA4]'
-          }`}
-          placeholder={pageContent['message-form-to-placeholder']}
-        />
+        <div className="relative">
+          <input
+            type="text"
+            id="to"
+            value={formData.receiver}
+            onChange={e => setFormData({ ...formData, receiver: e.target.value })}
+            className={`w-full px-3 py-2 border rounded-md text-[12px] md:text-[24px] md:py-4 ${
+              darkMode
+                ? 'bg-transparent border-[#FFFFFF] text-white'
+                : 'border-[#053749] text-[#829BA4]'
+            }`}
+            placeholder={pageContent['message-form-to-placeholder']}
+          />
+          {formData.receiver && formData.receiver.length >= 1 && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              {receiverEmailStatus === 'checking' && (
+                <div className="flex items-center gap-1">
+                  <div
+                    className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${
+                      darkMode ? 'border-white' : 'border-[#053749]'
+                    }`}
+                  ></div>
+                  <span
+                    className={`text-[10px] md:text-[16px] ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {pageContent['message-form-user-checking'] || 'checking user'}
+                  </span>
+                </div>
+              )}
+              {emailCheckResult && !emailCheckResult.receiver_exists && (
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-red-500 flex items-center justify-center">
+                    <span className="text-white text-[10px] md:text-[14px]">✗</span>
+                  </div>
+                  <span className="text-[10px] md:text-[16px] text-red-600 dark:text-red-400">
+                    {pageContent['message-form-user-not-found'] || 'User not found'}
+                  </span>
+                </div>
+              )}
+              {emailCheckResult &&
+                emailCheckResult.receiver_exists &&
+                receiverEmailStatus === 'available' && (
+                  <div className="flex items-center gap-1">
+                    <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-green-500 flex items-center justify-center">
+                      <span className="text-white text-[10px] md:text-[14px]">✓</span>
+                    </div>
+                    <span className="text-[10px] md:text-[16px] text-green-600 dark:text-green-400">
+                      {pageContent['message-form-email-available'] || 'email available'}
+                    </span>
+                  </div>
+                )}
+              {emailCheckResult &&
+                emailCheckResult.receiver_exists &&
+                receiverEmailStatus === 'unavailable' &&
+                !emailCheckResult.can_send_email && (
+                  <div className="flex items-center gap-1">
+                    <div className="w-4 h-4 md:w-6 md:h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                      <span className="text-white text-[10px] md:text-[14px]">!</span>
+                    </div>
+                    <span className="text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
+                      {pageContent['message-form-email-unavailable'] || 'email unavailable'}
+                    </span>
+                  </div>
+                )}
+            </div>
+          )}
+        </div>
+        {emailCheckResult && !emailCheckResult.receiver_exists && formData.receiver && (
+          <p className="mt-1 text-[10px] md:text-[16px] text-red-600 dark:text-red-400">
+            {pageContent['message-form-user-not-found-message'] ||
+              'This username does not exist. Please check and try again.'}
+          </p>
+        )}
+        {emailCheckResult &&
+          emailCheckResult.receiver_exists &&
+          receiverEmailStatus === 'unavailable' &&
+          !emailCheckResult.can_send_email &&
+          formData.receiver && (
+            <p className="mt-1 text-[10px] md:text-[16px] text-orange-600 dark:text-orange-400">
+              {!emailCheckResult.sender_emailable
+                ? pageContent['message-form-email-sender-not-configured'] ||
+                  'Email is not available. You need to configure email in your Meta-Wiki preferences.'
+                : !emailCheckResult.receiver_emailable
+                  ? pageContent['message-form-email-receiver-not-emailable'] ||
+                    'This user cannot receive emails. Talk Page will be used instead.'
+                  : pageContent['message-form-email-not-available'] ||
+                    'Email is not available. Talk Page will be used instead.'}
+            </p>
+          )}
       </div>
 
       <div className="mt-2">
@@ -200,20 +445,48 @@ export default function FormMessage() {
                 darkMode ? 'bg-[#04222F] border-gray-700' : 'bg-[#FFFFFF] border-gray-200'
               } border`}
             >
-              {Object.values(MessageMethod).map(method => (
-                <button
-                  key={method}
-                  className={`block w-full text-left px-4 py-2 text-sm ${
-                    darkMode ? 'text-white hover:bg-[#053749]' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                  onClick={() => {
-                    setFormData({ ...formData, method });
-                    setShowMethodSelector(false);
-                  }}
-                >
-                  {messageMethodLabels[method]}
-                </button>
-              ))}
+              {Object.values(MessageMethod).map(method => {
+                const isEmailDisabled =
+                  method === MessageMethod.EMAIL &&
+                  (receiverEmailStatus === 'unavailable' ||
+                    (emailCheckResult && !emailCheckResult.can_send_email)) &&
+                  formData.receiver &&
+                  formData.receiver.length >= 3;
+
+                // compute button class without nested ternary
+                let methodButtonClass = '';
+                if (isEmailDisabled) {
+                  methodButtonClass = 'opacity-50 cursor-not-allowed';
+                  if (darkMode) {
+                    methodButtonClass = 'text-white cursor-not-allowed';
+                  }
+                } else if (darkMode) {
+                  methodButtonClass = 'text-white hover:bg-[#053749]';
+                } else {
+                  methodButtonClass = 'text-gray-700 hover:bg-gray-100';
+                }
+
+                return (
+                  <button
+                    key={method}
+                    disabled={isEmailDisabled}
+                    className={`block w-full text-left px-4 py-2 text-sm ${methodButtonClass}`}
+                    onClick={() => {
+                      if (!isEmailDisabled) {
+                        setFormData({ ...formData, method });
+                        setShowMethodSelector(false);
+                      }
+                    }}
+                  >
+                    {messageMethodLabels[method]}
+                    {isEmailDisabled && (
+                      <span className="text-[10px] ml-2 text-orange-500">
+                        ({pageContent['message-form-method-unavailable'] || 'Unavailable'})
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -337,6 +610,30 @@ export default function FormMessage() {
           image={SuccessSubmissionSVG}
         >
           {pageContent['message-info-popup']}
+        </Popup>
+      )}
+      {/* No Email Error Popup */}
+      {showNoEmailErrorPopup && (
+        <Popup
+          title={pageContent['message-error-no-email-title'] || 'Email Not Available'}
+          closeButtonLabel={pageContent['auth-dialog-button-close']}
+          continueButtonLabel={pageContent['message-error-use-talkpage-button'] || 'Use Talk Page'}
+          onClose={handleCloseNoEmailErrorPopup}
+          onContinue={handleSwitchToTalkPage}
+          image={InfoIcon}
+        >
+          {emailCheckMessage || pageContent['message-error-no-email-body']}
+        </Popup>
+      )}
+      {/* User Not Found Error Popup */}
+      {showUserNotFoundPopup && (
+        <Popup
+          title={pageContent['message-error-user-not-found']}
+          closeButtonLabel={pageContent['auth-dialog-button-close']}
+          onClose={handleCloseUserNotFoundPopup}
+          image={InfoIcon}
+        >
+          {pageContent['message-error-user-not-found-body']}
         </Popup>
       )}
     </section>
