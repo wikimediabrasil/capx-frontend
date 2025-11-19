@@ -96,6 +96,10 @@ export const userService = {
       params.append('name', queryParams.filters.name);
     }
 
+    if (queryParams?.filters?.username) {
+      params.append('username', queryParams.filters.username);
+    }
+
     if (queryParams?.ordering) {
       params.append('ordering', queryParams.ordering);
     }
