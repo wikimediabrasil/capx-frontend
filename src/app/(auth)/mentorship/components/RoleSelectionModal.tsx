@@ -4,21 +4,22 @@ import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
+import { MentorshipProgram } from '@/types/mentorship';
+import MentorIcon from '@/public/static/images/mentor.svg';
+import MenteeIcon from '@/public/static/images/mentee.svg';
 
 interface RoleSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (role: 'mentor' | 'mentee') => void;
-  programName: string;
-  programLogo: string | null;
+  onSelect: (role: 'mentor' | 'mentee', program: MentorshipProgram) => void;
+  program: MentorshipProgram;
 }
 
 export default function RoleSelectionModal({
   isOpen,
   onClose,
   onSelect,
-  programName,
-  programLogo,
+  program,
 }: RoleSelectionModalProps) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -36,31 +37,18 @@ export default function RoleSelectionModal({
       {/* Modal */}
       <div
         className={`relative w-full max-w-md mx-4 rounded-lg shadow-xl ${
-          darkMode ? 'bg-gray-800' : 'bg-white'
+          darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
         }`}
       >
-        {/* Modal Header (traffic lights style) */}
-        <div
-          className={`flex items-center gap-2 px-4 py-2 rounded-t-lg ${
-            darkMode ? 'bg-gray-700' : 'bg-gray-100'
-          }`}
-        >
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-          </div>
-        </div>
-
         {/* Modal Content */}
         <div className="p-6">
           {/* Logo */}
           <div className="flex justify-center mb-4">
             <div className="relative w-20 h-20">
-              {programLogo && programLogo.trim() !== '' && programLogo !== null ? (
+              {program.logo && program.logo.trim() !== '' && program.logo !== null ? (
                 <Image
-                  src={programLogo}
-                  alt={programName}
+                  src={program.logo}
+                  alt={program.name}
                   fill
                   className="object-contain"
                 />
@@ -71,7 +59,7 @@ export default function RoleSelectionModal({
                   }`}
                 >
                   <span className="text-xl font-bold text-gray-500">
-                    {programName.charAt(0)}
+                    {program.name.charAt(0)}
                   </span>
                 </div>
               )}
@@ -81,7 +69,7 @@ export default function RoleSelectionModal({
           {/* Title */}
           <h2
             className={`text-xl font-bold text-center mb-2 ${
-              darkMode ? 'text-white' : 'text-gray-900'
+              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
             }`}
           >
             {pageContent['select-your-role'] || 'Select Your Role'}
@@ -100,21 +88,37 @@ export default function RoleSelectionModal({
           {/* Role Selection Buttons */}
           <div className="space-y-3 mb-6">
             <BaseButton
-              onClick={() => onSelect('mentor')}
-              customClass="w-full px-4 py-3 rounded-lg text-base font-extrabold bg-[#053749] hover:bg-[#04222F] text-white"
+              onClick={() => onSelect('mentor', program)}
+              customClass="w-full px-4 py-3 rounded-lg text-base font-extrabold bg-[#053749] hover:bg-[#04222F] text-white flex items-center justify-center gap-2"
               label={pageContent['mentor'] || 'Mentor'}
+              imageUrl={MentorIcon}
+              imageAlt="Mentor icon"
+              imageWidth={24}
+              imageHeight={24}
             />
             <BaseButton
-              onClick={() => onSelect('mentee')}
-              customClass="w-full px-4 py-3 rounded-lg text-base font-extrabold border-2 border-[#053749] text-[#053749] bg-transparent hover:bg-[#053749] hover:text-white"
+              onClick={() => onSelect('mentee', program)}
+              customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold border-2 border-[#053749] flex items-center justify-center gap-2 ${
+                darkMode
+                  ? 'bg-transparent text-white hover:bg-[#053749]'
+                  : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
+              }`}
               label={pageContent['mentee'] || 'Mentee'}
+              imageUrl={MenteeIcon}
+              imageAlt="Mentee icon"
+              imageWidth={24}
+              imageHeight={24}
             />
           </div>
 
           {/* Close Button */}
           <BaseButton
             onClick={onClose}
-            customClass="w-full px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] text-[#053749] bg-transparent hover:bg-[#053749] hover:text-white"
+            customClass={`w-full px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] ${
+              darkMode
+                ? 'bg-transparent text-white hover:bg-[#053749]'
+                : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
+            }`}
             label={pageContent['close-tab'] || 'Close tab'}
           />
         </div>
