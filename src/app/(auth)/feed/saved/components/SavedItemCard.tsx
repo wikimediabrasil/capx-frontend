@@ -16,8 +16,9 @@ import BaseButton from '@/components/BaseButton';
 interface SavedItemCardProps {
   id: string;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   isOrganization?: boolean;
   onDelete: () => void;
 }
@@ -27,6 +28,7 @@ export const SavedItemCard = ({
   username,
   profile_image,
   avatar,
+  wikidataQid,
   isOrganization = false,
   onDelete,
 }: SavedItemCardProps) => {
@@ -67,12 +69,12 @@ export const SavedItemCard = ({
           {/* Profile image */}
           <div className="rounded-lg p-4 mb-3">
             <div className="relative w-full h-[120px] flex justify-center">
-              {profile_image || avatar ? (
+              {(isOrganization && profile_image) || (!isOrganization && avatar) ? (
                 <Image
                   src={
                     isOrganization
                       ? formatWikiImageUrl(profile_image || '')
-                      : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
+                      : getProfileImage(undefined, avatar ? Number(avatar) : null, avatars)
                   }
                   alt={username}
                   width={120}
@@ -131,12 +133,12 @@ export const SavedItemCard = ({
           {/* Left side - Profile Image */}
           <div className="rounded-lg p-4 flex justify-center items-center">
             <div className="relative w-full h-[160px] flex justify-center">
-              {profile_image || avatar ? (
+              {(isOrganization && profile_image) || (!isOrganization && avatar) ? (
                 <Image
                   src={
                     isOrganization
                       ? formatWikiImageUrl(profile_image || '')
-                      : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
+                      : getProfileImage(undefined, avatar ? Number(avatar) : null, avatars)
                   }
                   alt={username}
                   width={160}

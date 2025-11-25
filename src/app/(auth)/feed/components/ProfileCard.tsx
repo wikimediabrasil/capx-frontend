@@ -36,7 +36,7 @@ import { ProfileCapacityType } from '../types';
 interface ProfileCardProps {
   id: string;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   type: ProfileCapacityType | ProfileCapacityType[];
   capacities: (number | string)[];
   wantedCapacities?: (number | string)[];
@@ -44,6 +44,7 @@ interface ProfileCardProps {
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   pageContent?: Record<string, string>;
   isOrganization?: boolean;
   isSaved?: boolean;
@@ -62,6 +63,7 @@ export const ProfileCard = ({
   languages = [],
   territory,
   avatar,
+  wikidataQid,
   isOrganization = false,
   isSaved = false,
   onToggleSaved,
@@ -207,12 +209,12 @@ export const ProfileCard = ({
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
-                  {profile_image || avatar ? (
+                  {(isOrganization && profile_image) || (!isOrganization && avatar) ? (
                     <Image
                       src={
                         isOrganization
                           ? formatWikiImageUrl(profile_image || '')
-                          : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
+                          : getProfileImage(undefined, avatar ? Number(avatar) : null, avatars)
                       }
                       alt={pageContent['alt-profile-picture'] || 'User profile picture'}
                       fill

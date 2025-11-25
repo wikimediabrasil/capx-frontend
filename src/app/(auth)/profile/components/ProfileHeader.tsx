@@ -16,15 +16,39 @@ import { useCallback, useEffect, useState } from 'react';
 
 interface ProfileHeaderProps {
   username: string;
-  profileImage?: string;
   avatar?: number;
+  wikidataQid?: string;
   isSameUser: boolean;
 }
 
+// Helper to fetch Wikidata image URL
+const fetchWikidataImage = async (qid: string): Promise<string | null> => {
+  try {
+    const sparqlQuery = `
+      SELECT ?image WHERE {
+        wd:${qid} wdt:P18 ?image.
+      }
+    `;
+    const encodedQuery = encodeURIComponent(sparqlQuery);
+    const response = await fetch(
+      `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`
+    );
+    const data = await response.json();
+
+    if (data?.results?.bindings?.length > 0) {
+      return data.results.bindings[0].image.value;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching Wikidata image:', error);
+    return null;
+  }
+};
+
 export default function ProfileHeader({
   username,
-  profileImage,
   avatar,
+  wikidataQid,
   isSameUser,
 }: ProfileHeaderProps & { isSameUser: boolean }) {
   const router = useRouter();
@@ -35,6 +59,14 @@ export default function ProfileHeader({
   const { showSnackbar } = useSnackbar();
 
   const loadAvatar = useCallback(async () => {
+    // If avatar = 0 and we have a Wikidata QID, fetch the Wikidata image
+    if (avatar === 0 && wikidataQid) {
+      const wikidataImage = await fetchWikidataImage(wikidataQid);
+      setAvatarUrl(wikidataImage || NoAvatarIcon);
+      return;
+    }
+
+    // If avatar > 0, fetch from avatar system
     if (typeof avatar === 'number' && avatar > 0) {
       try {
         const avatarData = await getAvatarById(avatar);
@@ -46,16 +78,20 @@ export default function ProfileHeader({
         console.error('Error fetching avatar:', error);
       }
     }
-    setAvatarUrl(profileImage || NoAvatarIcon);
-  }, [avatar, profileImage, getAvatarById]);
+
+    // Default: no avatar
+    setAvatarUrl(NoAvatarIcon);
+  }, [avatar, wikidataQid, getAvatarById]);
 
   useEffect(() => {
     loadAvatar();
   }, [loadAvatar]);
+
   const getCorrectImage = () => {
-    if (profileImage) {
-      return profileImage;
-    } else if (avatar) {
+    if (avatarUrl) {
+      return avatarUrl;
+    }
+    if (avatar && avatar > 0) {
       const avatarData = avatars?.find(a => a.id === avatar);
       return avatarData?.avatar_url || NoAvatarIcon;
     }

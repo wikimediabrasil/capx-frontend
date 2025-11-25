@@ -75,7 +75,7 @@ jest.mock('@/hooks/useLanguage', () => ({
 
 jest.mock('@/hooks/useAvatars', () => ({
   useAvatars: () => ({
-    avatars: [],
+    avatars: [{ id: 1, avatar_url: '/path/to/avatar.jpg' }],
   }),
 }));
 
@@ -106,7 +106,7 @@ jest.mock('@/contexts/AppContext', () => ({
 
 const defaultProps = {
   id: '1',
-  profile_image: '/path/to/image.jpg',
+  avatar: '1', // Use avatar for people profiles
   username: 'Test User',
   type: ProfileCapacityType.Learner,
   capacities: [],

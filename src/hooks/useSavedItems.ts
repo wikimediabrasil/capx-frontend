@@ -12,12 +12,13 @@ import { LanguageProficiency } from '@/types/language';
 export interface SavedProfile {
   id: number;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   type: string;
   capacities?: string[];
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   isOrganization: boolean;
   savedItemId: number;
 }
@@ -60,7 +61,6 @@ export function useSavedItems() {
                 profiles.push({
                   id: userData.user.id,
                   username: userData.user.username,
-                  profile_image: userData.profile_image || '',
                   type: item.relation || ProfileCapacityType.Learner,
                   capacities:
                     item.relation === ProfileCapacityType.Sharer
@@ -69,6 +69,7 @@ export function useSavedItems() {
                   languages: userData.language,
                   territory: userData.territory?.[0]?.toString() || '',
                   avatar: userData.avatar?.toString(),
+                  wikidataQid: userData.wikidata_qid,
                   isOrganization: false,
                   savedItemId: item.id,
                 });
@@ -121,7 +122,6 @@ export function useSavedItems() {
           const newProfile: SavedProfile = {
             id: userData.user.id,
             username: userData.user.username,
-            profile_image: userData.profile_image || '',
             type: savedItem.relation || ProfileCapacityType.Learner,
             capacities:
               savedItem.relation === ProfileCapacityType.Sharer
@@ -130,6 +130,7 @@ export function useSavedItems() {
             languages: userData.language,
             territory: userData.territory?.[0]?.toString() || '',
             avatar: userData.avatar?.toString(),
+            wikidataQid: userData.wikidata_qid,
             isOrganization: false,
             savedItemId: savedItem.id,
           };

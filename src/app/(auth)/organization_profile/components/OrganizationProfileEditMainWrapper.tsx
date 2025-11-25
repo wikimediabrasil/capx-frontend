@@ -181,7 +181,7 @@ export default function EditOrganizationProfilePage() {
         {
           value: 'user',
           label: userProfile.display_name || session?.user?.name || '',
-          image: getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars),
+          image: getProfileImage(undefined, userProfile?.avatar, avatars),
         },
         ...managedOrgOptions,
       ];

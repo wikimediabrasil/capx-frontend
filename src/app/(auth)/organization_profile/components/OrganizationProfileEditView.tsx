@@ -130,7 +130,7 @@ export default function OrganizationProfileEditView({
                 </div>
                 <div className="relative w-[75px] h-[75px]">
                   <Image
-                    src={getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars)}
+                    src={getProfileImage(undefined, userProfile?.avatar, avatars)}
                     alt="Avatar"
                     fill
                     sizes="75px"
@@ -218,7 +218,7 @@ export default function OrganizationProfileEditView({
               <div className="w-1/2 flex-1">
                 <div className="relative w-[114px] h-[114px] mb-6">
                   <Image
-                    src={getProfileImage(userProfile?.profile_image, userProfile?.avatar, avatars)}
+                    src={getProfileImage(undefined, userProfile?.avatar, avatars)}
                     alt="User Profile Image"
                     fill
                     sizes="114px"
