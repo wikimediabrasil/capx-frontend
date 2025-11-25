@@ -649,5 +649,10 @@
   "mentor": "Mentor",
   "mentee": "Mentee",
   "close-tab": "Close tab",
-  "no-mentorship-programs-found": "No mentorship programs found"
+  "no-mentorship-programs-found": "No mentorship programs found",
+  "congratulations": "Congratulations!",
+  "mentorship-application-forwarded": "I've forwarded your application to the mentorship program. They will contact you directly soon.",
+  "more-mentorships": "More mentorships",
+  "close": "Close",
+  "mentorship-programs-alt": "Mentorship Programs"
 }
