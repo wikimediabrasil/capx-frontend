@@ -209,11 +209,11 @@ export default function EditProfilePage() {
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [previousImageState, setPreviousImageState] = useState<{
-    avatar: number;
+    avatar: number | null;
     wikidata_qid: string;
     src: string;
   }>({
-    avatar: 0,
+    avatar: null,
     wikidata_qid: '',
     src: NoAvatarIcon,
   });
@@ -283,8 +283,8 @@ export default function EditProfilePage() {
       });
       formPopulatedRef.current = true;
 
-      // Check if the user is using Wikidata (avatar = 0)
-      const isUsingWikidata = profile.avatar === 0 && Boolean(profile.wikidata_qid);
+      // Check if the user is using Wikidata (avatar = null or 0)
+      const isUsingWikidata = (profile.avatar === null || profile.avatar === 0) && Boolean(profile.wikidata_qid);
       setIsWikidataSelected(isUsingWikidata);
 
       if (isUsingWikidata) {
@@ -310,7 +310,7 @@ export default function EditProfilePage() {
 
       // Save the initial state
       setPreviousImageState({
-        avatar: profile.avatar || 0,
+        avatar: profile.avatar ?? null,
         wikidata_qid: profile.wikidata_qid || '',
         src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || NoAvatarIcon,
       });
@@ -537,7 +537,7 @@ export default function EditProfilePage() {
       if (newWikidataSelected) {
         // Save the current state before fetching the Wikidata image
         setPreviousImageState({
-          avatar: formData.avatar || 0,
+          avatar: formData.avatar ?? null,
           wikidata_qid: formData.wikidata_qid || '',
           src: selectedAvatar.src,
         });
@@ -557,11 +557,11 @@ export default function EditProfilePage() {
             src: wikidataImage || NoAvatarIcon,
           });
 
-          // Update the formData: set avatar = 0 to indicate Wikidata image
+          // Update the formData: set avatar = null to indicate Wikidata image
           const updatedFormData = {
             ...formData,
             wikidata_qid: wikidataQid,
-            avatar: 0, // avatar = 0 means "use Wikidata image"
+            avatar: null, // avatar = null means "use Wikidata image"
           };
 
           setFormData(updatedFormData);
@@ -582,7 +582,7 @@ export default function EditProfilePage() {
         const restoredFormData = {
           ...formData,
           wikidata_qid: '',
-          avatar: 0, // Keep avatar = 0 (no avatar selected)
+          avatar: null, // Keep avatar = null (no avatar selected)
         };
         setFormData(restoredFormData);
         setUnsavedData(restoredFormData);

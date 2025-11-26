@@ -59,8 +59,8 @@ export default function ProfileHeader({
   const { showSnackbar } = useSnackbar();
 
   const loadAvatar = useCallback(async () => {
-    // If avatar = 0 and we have a Wikidata QID, fetch the Wikidata image
-    if (avatar === 0 && wikidataQid) {
+    // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
+    if ((avatar === null || avatar === 0) && wikidataQid) {
       const wikidataImage = await fetchWikidataImage(wikidataQid);
       setAvatarUrl(wikidataImage || NoAvatarIcon);
       return;
