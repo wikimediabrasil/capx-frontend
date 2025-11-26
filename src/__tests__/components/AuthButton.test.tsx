@@ -1,14 +1,14 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import AuthButton from '@/components/AuthButton';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
 import MoveOutIcon from '@/public/static/images/move_item.svg';
+import {
+  renderWithProviders,
+  createMockThemeContext,
+  createMockPageContent,
+} from '../utils/test-helpers';
 
-const mockPageContent = {
-  'sign-in-button': 'Login',
-  'sign-out-button': 'Logout',
-};
+const mockPageContent = createMockPageContent();
 
 // Mock AppContext
 jest.mock('@/contexts/AppContext', () => ({
@@ -45,173 +45,104 @@ jest.mock('@/contexts/ThemeContext', () => ({
 
 describe('AuthButton', () => {
   beforeEach(() => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#FFFFFF',
-      getTextColor: () => '#000000',
-    });
+    jest.clearAllMocks();
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockThemeContext(false));
   });
 
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
+  const renderButton = (props: any) => {
+    return renderWithProviders(<AuthButton {...props} />);
   };
 
   it('renders login button correctly', () => {
-    renderWithProviders(
-      <AuthButton message={mockPageContent['sign-in-button']} isSignOut={false} />
-    );
-
+    renderButton({ message: mockPageContent['sign-in-button'], isSignOut: false });
     expect(screen.getByText('Login')).toBeInTheDocument();
   });
 
   it('renders logout button correctly', () => {
-    renderWithProviders(
-      <AuthButton message={mockPageContent['sign-out-button']} isSignOut={true} />
-    );
-
+    renderButton({ message: mockPageContent['sign-out-button'], isSignOut: true });
     expect(screen.getByText('Logout')).toBeInTheDocument();
   });
 
   it('applies correct styles for sign out button', () => {
-    const { container } = renderWithProviders(
-      <AuthButton
-        message={mockPageContent['sign-out-button']}
-        isSignOut={true}
-        isMobileMenu={true}
-        imageUrl={MoveOutIcon}
-      />
-    );
+    const { container } = renderButton({
+      message: mockPageContent['sign-out-button'],
+      isSignOut: true,
+      isMobileMenu: true,
+      imageUrl: MoveOutIcon,
+    });
 
-    const button = container.querySelector('button');
-    expect(button).toHaveClass('w-full');
+    expect(container.querySelector('button')).toHaveClass('w-full');
   });
 
   it('applies correct styles for sign in button', () => {
-    const { container } = renderWithProviders(
-      <AuthButton message={mockPageContent['sign-in-button']} isSignOut={false} />
-    );
+    const { container } = renderButton({
+      message: mockPageContent['sign-in-button'],
+      isSignOut: false,
+    });
 
-    const button = container.querySelector('button');
-    expect(button).not.toHaveClass('w-full');
+    expect(container.querySelector('button')).not.toHaveClass('w-full');
   });
 
   it('includes image when imageUrl is provided', () => {
-    renderWithProviders(
-      <AuthButton
-        message={mockPageContent['sign-out-button']}
-        isSignOut={true}
-        imageUrl={MoveOutIcon}
-      />
-    );
-
-    const image = screen.getByRole('img');
-    expect(image).toBeInTheDocument();
-  });
-
-  it('applies dark mode styles', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#005B3F',
-      getTextColor: () => '#FFFFFF',
+    renderButton({
+      message: mockPageContent['sign-out-button'],
+      isSignOut: true,
+      imageUrl: MoveOutIcon,
     });
 
-    renderWithProviders(
-      <AuthButton message="Sign In" isSignOut={false} customClass="bg-capx-dark-primary" />
-    );
+    expect(screen.getByRole('img')).toBeInTheDocument();
+  });
 
-    const button = screen.getByText('Sign In');
-    expect(button.closest('button')).toHaveClass('bg-capx-dark-primary');
+  const testThemeMode = (darkMode: boolean, expectedClass: string) => {
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockThemeContext(darkMode));
+    renderButton({ message: 'Sign In', isSignOut: false, customClass: expectedClass });
+    expect(screen.getByText('Sign In').closest('button')).toHaveClass(expectedClass);
+  };
+
+  it('applies dark mode styles', () => {
+    testThemeMode(true, 'bg-capx-dark-primary');
   });
 
   it('applies light mode styles', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-      theme: {
-        fontSize: {
-          mobile: { base: '14px' },
-          desktop: { base: '24px' },
-        },
-      },
-      getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-      getBackgroundColor: () => '#FFFFFF',
-      getTextColor: () => '#000000',
-    });
-
-    renderWithProviders(
-      <AuthButton message="Sign In" isSignOut={false} customClass="bg-capx-light-primary" />
-    );
-
-    const button = screen.getByText('Sign In');
-    expect(button.closest('button')).toHaveClass('bg-capx-light-primary');
+    testThemeMode(false, 'bg-capx-light-primary');
   });
 
   it('handles long text without breaking layout', () => {
-    const longMessage =
-      'Entrar com sua conta da Wikimedia para acessar todos os recursos disponíveis';
+    const longMessage = 'Entrar com sua conta da Wikimedia para acessar todos os recursos disponíveis';
+    renderButton({ message: longMessage, isSignOut: false });
 
-    renderWithProviders(<AuthButton message={longMessage} isSignOut={false} />);
-
-    const button = screen.getByText(longMessage);
-    const buttonContainer = button.closest('button');
+    const buttonContainer = screen.getByText(longMessage).closest('button');
     expect(buttonContainer).toHaveClass('min-w-[120px]', 'max-w-[200px]');
   });
 
-  it('handles long text in mobile view', () => {
-    global.innerWidth = 375;
+  const testResponsiveView = (width: number, expectedClass: string) => {
+    global.innerWidth = width;
     global.dispatchEvent(new Event('resize'));
 
-    const longMessage = 'Entrar com sua conta da Wikimedia';
+    renderButton({ message: 'Entrar com sua conta da Wikimedia', isSignOut: false });
+    expect(screen.getByRole('button')).toHaveClass(expectedClass);
+  };
 
-    renderWithProviders(<AuthButton message={longMessage} isSignOut={false} />);
-
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('text-[14px]');
+  it('handles long text in mobile view', () => {
+    testResponsiveView(375, 'text-[14px]');
   });
 
   it('shows full text in desktop view', () => {
-    global.innerWidth = 1024;
-    global.dispatchEvent(new Event('resize'));
-
-    const longMessage = 'Entrar com sua conta da Wikimedia';
-
-    renderWithProviders(<AuthButton message={longMessage} isSignOut={false} />);
-
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('md:text-[24px]');
+    testResponsiveView(1024, 'md:text-[24px]');
   });
 
   it('handles text responsively', () => {
-    const longMessage = 'Entrar com sua conta da Wikimedia para acessar todos os recursos';
-
-    renderWithProviders(<AuthButton message={longMessage} isSignOut={false} />);
+    renderButton({
+      message: 'Entrar com sua conta da Wikimedia para acessar todos os recursos',
+      isSignOut: false,
+    });
 
     const button = screen.getByRole('button');
     expect(button).toHaveClass('text-[14px]', 'md:text-[24px]');
   });
 
   it('maintains consistent button sizing', () => {
-    renderWithProviders(<AuthButton message="Test" isSignOut={false} />);
+    renderButton({ message: 'Test', isSignOut: false });
 
     const button = screen.getByRole('button');
     expect(button).toHaveClass('min-w-[120px]', 'max-w-[200px]');

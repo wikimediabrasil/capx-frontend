@@ -1,8 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import BaseButton from '../../components/BaseButton';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
+import {
+  renderWithProviders,
+  createMockThemeContext,
+} from '../utils/test-helpers';
 
 // Mock do Next.js Router
 jest.mock('next/navigation', () => ({
@@ -29,69 +31,49 @@ jest.mock('@/contexts/ThemeContext', () => ({
 }));
 
 describe('BaseButton', () => {
+  const defaultOnClick = jest.fn();
+
   beforeEach(() => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    jest.clearAllMocks();
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockThemeContext(false));
   });
 
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
+  const renderButton = (props: any = {}) => {
+    return renderWithProviders(
+      <BaseButton label="Test Button" onClick={defaultOnClick} {...props} />
     );
   };
 
   it('renders button with label', () => {
-    const handleClick = jest.fn();
-    renderWithProviders(<BaseButton label="Test Button" onClick={handleClick} />);
-
-    const button = screen.getByText('Test Button');
-    expect(button).toBeInTheDocument();
+    renderButton();
+    expect(screen.getByText('Test Button')).toBeInTheDocument();
   });
 
   it('handles click events', () => {
-    const handleClick = jest.fn();
-    renderWithProviders(<BaseButton label="Test Button" onClick={handleClick} />);
-
-    const button = screen.getByText('Test Button');
-    fireEvent.click(button);
-    expect(handleClick).toHaveBeenCalled();
+    renderButton();
+    fireEvent.click(screen.getByText('Test Button'));
+    expect(defaultOnClick).toHaveBeenCalled();
   });
 
   it('applies custom class', () => {
-    const customClass = 'test-custom-class';
-    renderWithProviders(
-      <BaseButton label="Test Button" onClick={() => {}} customClass={customClass} />
-    );
-
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass(customClass);
+    renderButton({ customClass: 'test-custom-class' });
+    expect(screen.getByRole('button')).toHaveClass('test-custom-class');
   });
 
   it('renders disabled state', () => {
-    renderWithProviders(<BaseButton label="Test Button" onClick={() => {}} disabled={true} />);
-
-    const button = screen.getByRole('button');
-    expect(button).toBeDisabled();
+    renderButton({ disabled: true });
+    expect(screen.getByRole('button')).toBeDisabled();
   });
 
   it('renders with image', () => {
-    renderWithProviders(
-      <BaseButton
-        label="Test Button"
-        onClick={() => {}}
-        imageUrl="/test-image.svg"
-        imageAlt="Test Image"
-        imageWidth={24}
-        imageHeight={24}
-      />
-    );
+    renderButton({
+      imageUrl: '/test-image.svg',
+      imageAlt: 'Test Image',
+      imageWidth: 24,
+      imageHeight: 24,
+    });
 
-    const image = screen.getByAltText('Test Image');
-    expect(image).toBeInTheDocument();
+    expect(screen.getByAltText('Test Image')).toBeInTheDocument();
   });
 
   afterEach(() => {

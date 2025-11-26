@@ -1,10 +1,13 @@
 import * as AppContext from '@/contexts/AppContext';
-import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import DarkModeButton from '../../components/DarkModeButton';
+import {
+  renderWithProviders,
+  createMockThemeContext,
+  createMockPageContent,
+} from '../utils/test-helpers';
 
 // Next.js Router's mock
 jest.mock('next/navigation', () => ({
@@ -38,83 +41,54 @@ jest.mock('@/contexts/AppContext', () => ({
 
 describe('DarkModeButton', () => {
   const mockSetDarkMode = jest.fn();
-
-  beforeEach(() => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: mockSetDarkMode,
-    });
-
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      pageContent: {
-        'alt-light-mode': 'Switch to light mode',
-        'alt-dark-mode': 'Switch to dark mode',
-      },
-    });
+  const mockPageContent = createMockPageContent({
+    'alt-light-mode': 'Switch to light mode',
+    'alt-dark-mode': 'Switch to dark mode',
   });
 
-  const renderWithProviders = (component: React.ReactNode, darkMode = false) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>
-          <div data-testid="test-container">{component}</div>
-        </AppProvider>
-      </ThemeProvider>
-    );
-  };
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockThemeContext(false, { setDarkMode: mockSetDarkMode }));
+    (AppContext.useApp as jest.Mock).mockReturnValue({ pageContent: mockPageContent });
+  });
 
   it('renders dark mode button', () => {
     renderWithProviders(<DarkModeButton />);
-    const button = screen.getByRole('button');
-    expect(button).toBeInTheDocument();
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('toggles dark mode when clicked', () => {
     renderWithProviders(<DarkModeButton />);
-    const button = screen.getByRole('button');
-
-    fireEvent.click(button);
+    fireEvent.click(screen.getByRole('button'));
     expect(mockSetDarkMode).toHaveBeenCalledWith(true);
   });
 
-  it('shows dark mode icon in light mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: mockSetDarkMode,
-    });
+  const testIconDisplay = (darkMode: boolean, expectedAltText: string) => {
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(
+      createMockThemeContext(darkMode, { setDarkMode: mockSetDarkMode })
+    );
 
     renderWithProviders(<DarkModeButton />);
-    const darkModeIcon = screen.getByAltText('Switch to dark mode');
-    expect(darkModeIcon).toBeInTheDocument();
+    expect(screen.getByAltText(expectedAltText)).toBeInTheDocument();
+  };
+
+  it('shows dark mode icon in light mode', () => {
+    testIconDisplay(false, 'Switch to dark mode');
   });
 
   it('shows light mode icon in dark mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
-      setDarkMode: mockSetDarkMode,
-    });
-
-    renderWithProviders(<DarkModeButton />);
-    const lightModeIcon = screen.getByAltText('Switch to light mode');
-    expect(lightModeIcon).toBeInTheDocument();
+    testIconDisplay(true, 'Switch to light mode');
   });
 
   it('uses pageContent for alt text when available', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: mockSetDarkMode,
+    const customPageContent = createMockPageContent({
+      'alt-light-mode': 'Mudar para modo claro',
+      'alt-dark-mode': 'Mudar para modo escuro',
     });
 
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      pageContent: {
-        'alt-light-mode': 'Mudar para modo claro',
-        'alt-dark-mode': 'Mudar para modo escuro',
-      },
-    });
-
+    (AppContext.useApp as jest.Mock).mockReturnValue({ pageContent: customPageContent });
     renderWithProviders(<DarkModeButton />);
-    const darkModeIcon = screen.getByAltText('Mudar para modo escuro');
-    expect(darkModeIcon).toBeInTheDocument();
+    expect(screen.getByAltText('Mudar para modo escuro')).toBeInTheDocument();
   });
 
   afterEach(() => {

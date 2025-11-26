@@ -11,6 +11,19 @@ import {
   fetchLocationByOSMId,
   isValidEventURL,
 } from '@/services/metabaseService';
+import {
+  createWikidataBinding,
+  createWikidataResponse,
+  createEmptyWikidataResponse,
+  createWikimediaPageExtract,
+  createWikimediaPageProps,
+  createWikimediaRevision,
+  createLocationBinding,
+  createMockEventData,
+  mockFetchSequence,
+  mockFetchError,
+  mockFetchFailure,
+} from '../utils/api-test-helpers';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -21,49 +34,55 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
   });
 
   describe('extractDatesFromPageContent', () => {
-    it('should extract dates with month names', () => {
-      const content = 'The event will take place from July 19 to July 21, 2025.';
+    const testDateExtraction = (
+      content: string,
+      expectedBegin: string,
+      expectedEnd: string
+    ) => {
       const result = extractDatesFromPageContent(content);
-
       expect(result).toBeDefined();
-      expect(result?.time_begin).toBe('2025-07-19T00:00:00.000Z');
-      expect(result?.time_end).toBe('2025-07-21T23:59:59.000Z');
+      expect(result?.time_begin).toBe(expectedBegin);
+      expect(result?.time_end).toBe(expectedEnd);
+    };
+
+    it('should extract dates with month names', () => {
+      testDateExtraction(
+        'The event will take place from July 19 to July 21, 2025.',
+        '2025-07-19T00:00:00.000Z',
+        '2025-07-21T23:59:59.000Z'
+      );
     });
 
     it('should extract single date with month name', () => {
-      const content = 'The conference is scheduled for August 15, 2025.';
-      const result = extractDatesFromPageContent(content);
-
-      expect(result).toBeDefined();
-      expect(result?.time_begin).toBe('2025-08-15T00:00:00.000Z');
-      expect(result?.time_end).toBe('2025-08-15T23:59:59.000Z');
+      testDateExtraction(
+        'The conference is scheduled for August 15, 2025.',
+        '2025-08-15T00:00:00.000Z',
+        '2025-08-15T23:59:59.000Z'
+      );
     });
 
     it('should extract consecutive dates', () => {
-      const content = 'Event dates: 19-21 July 2025';
-      const result = extractDatesFromPageContent(content);
-
-      expect(result).toBeDefined();
-      expect(result?.time_begin).toBe('2025-07-19T00:00:00.000Z');
-      expect(result?.time_end).toBe('2025-07-21T23:59:59.000Z');
+      testDateExtraction(
+        'Event dates: 19-21 July 2025',
+        '2025-07-19T00:00:00.000Z',
+        '2025-07-21T23:59:59.000Z'
+      );
     });
 
     it('should extract ISO format dates', () => {
-      const content = 'From 2025-07-19 to 2025-07-21';
-      const result = extractDatesFromPageContent(content);
-
-      expect(result).toBeDefined();
-      expect(result?.time_begin).toBe('2025-07-19T00:00:00.000Z');
-      expect(result?.time_end).toBe('2025-07-21T23:59:59.000Z');
+      testDateExtraction(
+        'From 2025-07-19 to 2025-07-21',
+        '2025-07-19T00:00:00.000Z',
+        '2025-07-21T23:59:59.000Z'
+      );
     });
 
     it('should handle different month formats', () => {
-      const content = 'September 1-3, 2025';
-      const result = extractDatesFromPageContent(content);
-
-      expect(result).toBeDefined();
-      expect(result?.time_begin).toBe('2025-09-01T00:00:00.000Z');
-      expect(result?.time_end).toBe('2025-09-03T23:59:59.000Z');
+      testDateExtraction(
+        'September 1-3, 2025',
+        '2025-09-01T00:00:00.000Z',
+        '2025-09-03T23:59:59.000Z'
+      );
     });
 
     it('should return undefined for invalid content', () => {
@@ -75,68 +94,47 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
   });
 
   describe('extractWikimediaTitleFromURL', () => {
-    it('should extract title from meta.wikimedia.org URL', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Wikimania_2025';
-      const result = extractWikimediaTitleFromURL(url);
+    const testTitleExtraction = (url: string, expected: string) => {
+      expect(extractWikimediaTitleFromURL(url)).toBe(expected);
+    };
 
-      expect(result).toBe('Wikimania 2025');
+    it('should extract title from meta.wikimedia.org URL', () => {
+      testTitleExtraction('https://meta.wikimedia.org/wiki/Wikimania_2025', 'Wikimania 2025');
     });
 
     it('should extract title from local wikimedia URL', () => {
-      const url = 'https://br.wikimedia.org/wiki/Wikicon_Brasil_2025';
-      const result = extractWikimediaTitleFromURL(url);
-
-      expect(result).toBe('Wikicon Brasil 2025');
+      testTitleExtraction('https://br.wikimedia.org/wiki/Wikicon_Brasil_2025', 'Wikicon Brasil 2025');
     });
 
     it('should handle URL encoded titles', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Event%20with%20spaces';
-      const result = extractWikimediaTitleFromURL(url);
-
-      expect(result).toBe('Event with spaces');
+      testTitleExtraction('https://meta.wikimedia.org/wiki/Event%20with%20spaces', 'Event with spaces');
     });
 
     it('should extract title with Event namespace', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Event:WikiCon_Brasil_2025';
-      const result = extractWikimediaTitleFromURL(url);
-
-      expect(result).toBe('Event:WikiCon Brasil 2025');
+      testTitleExtraction('https://meta.wikimedia.org/wiki/Event:WikiCon_Brasil_2025', 'Event:WikiCon Brasil 2025');
     });
 
     it('should handle Event namespace with special characters', () => {
-      const url =
-        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September';
-      const result = extractWikimediaTitleFromURL(url);
-
-      expect(result).toBe('Event:Wikipedia & Education User Group Showcase/September');
+      testTitleExtraction(
+        'https://meta.wikimedia.org/wiki/Event:Wikipedia_%26_Education_User_Group_Showcase/September',
+        'Event:Wikipedia & Education User Group Showcase/September'
+      );
     });
 
     it('should handle URLs with fragment identifiers', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Event:Test_Event#Section';
-      const result = extractWikimediaTitleFromURL(url);
-
-      expect(result).toBe('Event:Test Event');
+      testTitleExtraction('https://meta.wikimedia.org/wiki/Event:Test_Event#Section', 'Event:Test Event');
     });
 
     it('should handle URLs with query parameters', () => {
-      const url = 'https://meta.wikimedia.org/wiki/Event:Test_Event?action=edit';
-      const result = extractWikimediaTitleFromURL(url);
-
-      expect(result).toBe('Event:Test Event');
+      testTitleExtraction('https://meta.wikimedia.org/wiki/Event:Test_Event?action=edit', 'Event:Test Event');
     });
 
     it('should extract title from mobile Meta Wikimedia URLs', () => {
-      const mobileUrl = 'https://meta.m.wikimedia.org/wiki/Event:EduWiki_Workshop_October_2025';
-      const result = extractWikimediaTitleFromURL(mobileUrl);
-
-      expect(result).toBe('Event:EduWiki Workshop October 2025');
+      testTitleExtraction('https://meta.m.wikimedia.org/wiki/Event:EduWiki_Workshop_October_2025', 'Event:EduWiki Workshop October 2025');
     });
 
     it('should extract title from mobile local Wikimedia URLs', () => {
-      const mobileUrl = 'https://br.m.wikimedia.org/wiki/WikiCon_Brasil_2025';
-      const result = extractWikimediaTitleFromURL(mobileUrl);
-
-      expect(result).toBe('WikiCon Brasil 2025');
+      testTitleExtraction('https://br.m.wikimedia.org/wiki/WikiCon_Brasil_2025', 'WikiCon Brasil 2025');
     });
   });
 
@@ -236,40 +234,22 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
 
   describe('fetchEventDataByQID', () => {
     it('should fetch event data successfully', async () => {
-      const mockResponse = {
-        results: {
-          bindings: [
-            {
-              name: { value: 'Wikimania 2025' },
-              description: { value: 'Annual Wikimedia conference' },
-              image_url: { value: 'https://commons.wikimedia.org/wiki/Special:FilePath/event.jpg' },
-              start_date: { value: '2025-07-19T00:00:00Z' },
-              end_date: { value: '2025-07-21T23:59:59Z' },
-              location: { value: 'https://www.wikidata.org/entity/Q123' },
-              location_name: { value: 'São Paulo' },
-              url: { value: 'https://meta.wikimedia.org/wiki/Wikimania_2025' },
-            },
-          ],
-        },
-      };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
+      const binding = createWikidataBinding({
+        name: 'Wikimania 2025',
+        description: 'Annual Wikimedia conference',
+        image_url: 'https://commons.wikimedia.org/wiki/Special:FilePath/event.jpg',
+        start_date: '2025-07-19T00:00:00Z',
+        end_date: '2025-07-21T23:59:59Z',
+        location: 'https://www.wikidata.org/entity/Q123',
+        location_name: 'São Paulo',
+        url: 'https://meta.wikimedia.org/wiki/Wikimania_2025',
       });
+
+      mockFetchSequence(createWikidataResponse([binding]));
 
       const result = await fetchEventDataByQID('Q123456');
 
-      expect(result).toEqual({
-        name: 'Wikimania 2025',
-        wikidata_qid: 'Q123456',
-        description: 'Annual Wikimedia conference',
-        image_url: 'https://commons.wikimedia.org/wiki/Special:FilePath/event.jpg',
-        url: 'https://meta.wikimedia.org/wiki/Wikimania_2025',
-        time_begin: '2025-07-19T00:00:00.000Z',
-        time_end: '2025-07-21T23:59:59.000Z',
-        type_of_location: 'in-person',
-      });
+      expect(result).toEqual(createMockEventData());
     });
 
     it('should return null for invalid QID', async () => {
@@ -283,18 +263,13 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should handle API errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
-
+      mockFetchError();
       const result = await fetchEventDataByQID('Q123456');
       expect(result).toBeNull();
     });
 
     it('should handle empty results', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ results: { bindings: [] } }),
-      });
-
+      mockFetchSequence(createEmptyWikidataResponse());
       const result = await fetchEventDataByQID('Q123456');
       expect(result).toBeNull();
     });
@@ -334,32 +309,18 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
 
   describe('fetchLocationByOSMId', () => {
     it('should fetch location data successfully', async () => {
-      const mockResponse = {
-        results: {
-          bindings: [
-            {
-              name: { value: 'São Paulo' },
-              lat: { value: '-23.5505' },
-              lon: { value: '-46.6333' },
-              address: { value: 'São Paulo, Brazil' },
-            },
-          ],
-        },
-      };
-
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockResponse,
+      const locationData = createLocationBinding({
+        name: 'São Paulo',
+        lat: '-23.5505',
+        lon: '-46.6333',
+        address: 'São Paulo, Brazil',
       });
+
+      mockFetchSequence(createWikidataResponse([locationData]));
 
       const result = await fetchLocationByOSMId('123456');
 
-      expect(result).toEqual({
-        name: { value: 'São Paulo' },
-        lat: { value: '-23.5505' },
-        lon: { value: '-46.6333' },
-        address: { value: 'São Paulo, Brazil' },
-      });
+      expect(result).toEqual(locationData);
     });
 
     it('should return null for empty OSM ID', async () => {
@@ -368,18 +329,13 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should handle API errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('API Error'));
-
+      mockFetchError();
       const result = await fetchLocationByOSMId('123456');
       expect(result).toBeNull();
     });
 
     it('should handle empty response', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ results: { bindings: [] } }),
-      });
-
+      mockFetchSequence(createEmptyWikidataResponse());
       const result = await fetchLocationByOSMId('123456');
       expect(result).toBeNull();
     });
@@ -387,50 +343,11 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
 
   describe('fetchEventDataByWikimediaURL', () => {
     it('should fetch event data from Wikimedia page', async () => {
-      // Mock multiple API calls for Wikimedia page data
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            query: {
-              pages: {
-                '123': {
-                  extract: 'Event will take place from July 19 to July 21, 2025',
-                },
-              },
-            },
-          }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            query: {
-              pages: {
-                '123': {
-                  pageprops: {
-                    wikibase_item: 'Q123456',
-                  },
-                },
-              },
-            },
-          }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            query: {
-              pages: {
-                '123': {
-                  revisions: [
-                    {
-                      '*': '{{Infobox event\n|name=Wikimania 2025\n|date=July 19-21, 2025\n|location=São Paulo}}',
-                    },
-                  ],
-                },
-              },
-            },
-          }),
-        });
+      mockFetchSequence(
+        createWikimediaPageExtract('Event will take place from July 19 to July 21, 2025'),
+        createWikimediaPageProps('Q123456'),
+        createWikimediaRevision('{{Infobox event\n|name=Wikimania 2025\n|date=July 19-21, 2025\n|location=São Paulo}}')
+      );
 
       const result = await fetchEventDataByWikimediaURL(
         'https://meta.wikimedia.org/wiki/Wikimania_2025'
@@ -441,9 +358,7 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should return null when page data is not available', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-      });
+      mockFetchFailure();
 
       const result = await fetchEventDataByWikimediaURL(
         'https://meta.wikimedia.org/wiki/InvalidEvent'
@@ -477,62 +392,19 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should return null when page content is not available', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-      });
-
+      mockFetchFailure();
       const result = await fetchEventDataByLearnWikiURL('https://app.learn.wiki/invalid/course');
-
       expect(result).toBeNull();
     });
   });
 
   describe('fetchEventDataByGenericURL', () => {
     it('should fetch event data from Wikimedia URL', async () => {
-      // Mock Wikimedia API calls
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            query: {
-              pages: {
-                '123': {
-                  extract: 'Event will take place from July 19 to July 21, 2025',
-                },
-              },
-            },
-          }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            query: {
-              pages: {
-                '123': {
-                  pageprops: {
-                    wikibase_item: 'Q123456',
-                  },
-                },
-              },
-            },
-          }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            query: {
-              pages: {
-                '123': {
-                  revisions: [
-                    {
-                      '*': '{{Infobox event\n|name=Wikimania 2025\n|date=July 19-21, 2025}}',
-                    },
-                  ],
-                },
-              },
-            },
-          }),
-        });
+      mockFetchSequence(
+        createWikimediaPageExtract('Event will take place from July 19 to July 21, 2025'),
+        createWikimediaPageProps('Q123456'),
+        createWikimediaRevision('{{Infobox event\n|name=Wikimania 2025\n|date=July 19-21, 2025}}')
+      );
 
       const result = await fetchEventDataByGenericURL(
         'https://meta.wikimedia.org/wiki/GenericEvent'
@@ -543,20 +415,14 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should try Learn Wiki if Wikimedia fails', async () => {
-      // Mock Wikimedia failure
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: false,
-        })
-        // Mock Learn Wiki success
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            title: 'Learn Wiki Event',
-            description: 'A Learn Wiki event',
-            dates: 'August 1-3, 2025',
-          }),
-        });
+      mockFetchSequence(
+        { ok: false },
+        {
+          title: 'Learn Wiki Event',
+          description: 'A Learn Wiki event',
+          dates: 'August 1-3, 2025',
+        }
+      );
 
       const result = await fetchEventDataByGenericURL(
         'https://app.learn.wiki/learning/course/course-v1:WikimediaBrasil+TRAIN001+2025'
@@ -568,12 +434,8 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should return null when all methods fail', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-      });
-
+      mockFetchFailure();
       const result = await fetchEventDataByGenericURL('https://example.com/invalid');
-
       expect(result).toBeNull();
     });
   });
