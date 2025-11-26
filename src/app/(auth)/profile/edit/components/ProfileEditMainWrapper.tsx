@@ -284,7 +284,8 @@ export default function EditProfilePage() {
       formPopulatedRef.current = true;
 
       // Check if the user is using Wikidata (avatar = null or 0)
-      const isUsingWikidata = (profile.avatar === null || profile.avatar === 0) && Boolean(profile.wikidata_qid);
+      const isUsingWikidata =
+        (profile.avatar === null || profile.avatar === 0) && Boolean(profile.wikidata_qid);
       setIsWikidataSelected(isUsingWikidata);
 
       if (isUsingWikidata) {
