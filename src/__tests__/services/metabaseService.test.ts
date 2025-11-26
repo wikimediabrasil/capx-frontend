@@ -245,7 +245,7 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
               image_url: { value: 'https://commons.wikimedia.org/wiki/Special:FilePath/event.jpg' },
               start_date: { value: '2025-07-19T00:00:00Z' },
               end_date: { value: '2025-07-21T23:59:59Z' },
-              location: { value: 'http://www.wikidata.org/entity/Q123' },
+              location: { value: 'https://www.wikidata.org/entity/Q123' },
               location_name: { value: 'São Paulo' },
               url: { value: 'https://meta.wikimedia.org/wiki/Wikimania_2025' },
             },
