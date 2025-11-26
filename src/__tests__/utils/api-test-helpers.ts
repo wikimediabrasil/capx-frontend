@@ -92,7 +92,7 @@ export const createMockEventData = (overrides?: any) => ({
 // Setup fetch mock with multiple responses
 export const mockFetchSequence = (...responses: any[]) => {
   const mockFetch = global.fetch as jest.Mock;
-  responses.forEach((response) => {
+  responses.forEach(response => {
     mockFetch.mockResolvedValueOnce(createMockFetchResponse(response));
   });
 };

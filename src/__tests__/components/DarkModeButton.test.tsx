@@ -48,7 +48,9 @@ describe('DarkModeButton', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockThemeContext(false, { setDarkMode: mockSetDarkMode }));
+    (ThemeContext.useTheme as jest.Mock).mockReturnValue(
+      createMockThemeContext(false, { setDarkMode: mockSetDarkMode })
+    );
     (AppContext.useApp as jest.Mock).mockReturnValue({ pageContent: mockPageContent });
   });
 

@@ -34,11 +34,7 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
   });
 
   describe('extractDatesFromPageContent', () => {
-    const testDateExtraction = (
-      content: string,
-      expectedBegin: string,
-      expectedEnd: string
-    ) => {
+    const testDateExtraction = (content: string, expectedBegin: string, expectedEnd: string) => {
       const result = extractDatesFromPageContent(content);
       expect(result).toBeDefined();
       expect(result?.time_begin).toBe(expectedBegin);
@@ -103,15 +99,24 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should extract title from local wikimedia URL', () => {
-      testTitleExtraction('https://br.wikimedia.org/wiki/Wikicon_Brasil_2025', 'Wikicon Brasil 2025');
+      testTitleExtraction(
+        'https://br.wikimedia.org/wiki/Wikicon_Brasil_2025',
+        'Wikicon Brasil 2025'
+      );
     });
 
     it('should handle URL encoded titles', () => {
-      testTitleExtraction('https://meta.wikimedia.org/wiki/Event%20with%20spaces', 'Event with spaces');
+      testTitleExtraction(
+        'https://meta.wikimedia.org/wiki/Event%20with%20spaces',
+        'Event with spaces'
+      );
     });
 
     it('should extract title with Event namespace', () => {
-      testTitleExtraction('https://meta.wikimedia.org/wiki/Event:WikiCon_Brasil_2025', 'Event:WikiCon Brasil 2025');
+      testTitleExtraction(
+        'https://meta.wikimedia.org/wiki/Event:WikiCon_Brasil_2025',
+        'Event:WikiCon Brasil 2025'
+      );
     });
 
     it('should handle Event namespace with special characters', () => {
@@ -122,19 +127,31 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     });
 
     it('should handle URLs with fragment identifiers', () => {
-      testTitleExtraction('https://meta.wikimedia.org/wiki/Event:Test_Event#Section', 'Event:Test Event');
+      testTitleExtraction(
+        'https://meta.wikimedia.org/wiki/Event:Test_Event#Section',
+        'Event:Test Event'
+      );
     });
 
     it('should handle URLs with query parameters', () => {
-      testTitleExtraction('https://meta.wikimedia.org/wiki/Event:Test_Event?action=edit', 'Event:Test Event');
+      testTitleExtraction(
+        'https://meta.wikimedia.org/wiki/Event:Test_Event?action=edit',
+        'Event:Test Event'
+      );
     });
 
     it('should extract title from mobile Meta Wikimedia URLs', () => {
-      testTitleExtraction('https://meta.m.wikimedia.org/wiki/Event:EduWiki_Workshop_October_2025', 'Event:EduWiki Workshop October 2025');
+      testTitleExtraction(
+        'https://meta.m.wikimedia.org/wiki/Event:EduWiki_Workshop_October_2025',
+        'Event:EduWiki Workshop October 2025'
+      );
     });
 
     it('should extract title from mobile local Wikimedia URLs', () => {
-      testTitleExtraction('https://br.m.wikimedia.org/wiki/WikiCon_Brasil_2025', 'WikiCon Brasil 2025');
+      testTitleExtraction(
+        'https://br.m.wikimedia.org/wiki/WikiCon_Brasil_2025',
+        'WikiCon Brasil 2025'
+      );
     });
   });
 
@@ -346,7 +363,9 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
       mockFetchSequence(
         createWikimediaPageExtract('Event will take place from July 19 to July 21, 2025'),
         createWikimediaPageProps('Q123456'),
-        createWikimediaRevision('{{Infobox event\n|name=Wikimania 2025\n|date=July 19-21, 2025\n|location=São Paulo}}')
+        createWikimediaRevision(
+          '{{Infobox event\n|name=Wikimania 2025\n|date=July 19-21, 2025\n|location=São Paulo}}'
+        )
       );
 
       const result = await fetchEventDataByWikimediaURL(

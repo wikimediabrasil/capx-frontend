@@ -108,7 +108,8 @@ describe('AuthButton', () => {
   });
 
   it('handles long text without breaking layout', () => {
-    const longMessage = 'Entrar com sua conta da Wikimedia para acessar todos os recursos disponíveis';
+    const longMessage =
+      'Entrar com sua conta da Wikimedia para acessar todos os recursos disponíveis';
     renderButton({ message: longMessage, isSignOut: false });
 
     const buttonContainer = screen.getByText(longMessage).closest('button');

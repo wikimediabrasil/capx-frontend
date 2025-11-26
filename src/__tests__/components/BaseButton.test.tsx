@@ -1,10 +1,7 @@
 import { screen, fireEvent } from '@testing-library/react';
 import BaseButton from '../../components/BaseButton';
 import * as ThemeContext from '@/contexts/ThemeContext';
-import {
-  renderWithProviders,
-  createMockThemeContext,
-} from '../utils/test-helpers';
+import { renderWithProviders, createMockThemeContext } from '../utils/test-helpers';
 
 // Mock do Next.js Router
 jest.mock('next/navigation', () => ({

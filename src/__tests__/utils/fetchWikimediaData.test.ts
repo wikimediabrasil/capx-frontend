@@ -25,11 +25,7 @@ describe('formatWikiImageUrl', () => {
     expect(out).toContain('width=');
   });
 
-  const testThumbPhpGeneration = (
-    fileType: string,
-    url: string,
-    expectedFilename: string
-  ) => {
+  const testThumbPhpGeneration = (fileType: string, url: string, expectedFilename: string) => {
     const out = formatWikiImageUrl(url);
     expect(out).toContain('commons.wikimedia.org/w/thumb.php');
     expect(out).toContain(`f=${expectedFilename}`);
@@ -37,7 +33,11 @@ describe('formatWikiImageUrl', () => {
   };
 
   it('builds thumb.php for PDF with page=1', () => {
-    testThumbPhpGeneration('PDF', 'https://commons.wikimedia.org/wiki/File:Document.pdf', 'Document.pdf');
+    testThumbPhpGeneration(
+      'PDF',
+      'https://commons.wikimedia.org/wiki/File:Document.pdf',
+      'Document.pdf'
+    );
   });
 
   it('builds thumb.php for DJVU with page=1', () => {
@@ -45,7 +45,11 @@ describe('formatWikiImageUrl', () => {
   });
 
   it('builds thumb.php for TSL with page=1', () => {
-    testThumbPhpGeneration('TSL', 'https://commons.wikimedia.org/wiki/File:Specimen.tsl', 'Specimen.tsl');
+    testThumbPhpGeneration(
+      'TSL',
+      'https://commons.wikimedia.org/wiki/File:Specimen.tsl',
+      'Specimen.tsl'
+    );
   });
 
   it('decodes double-encoded filenames before building URL', () => {

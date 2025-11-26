@@ -98,7 +98,7 @@ describe('NewsFormItem', () => {
     mockUseTheme.mockReturnValue(createMockThemeContext(darkMode));
     renderWithProviders(<NewsFormItem {...mockProps} />);
     const tagInput = screen.getByDisplayValue('Breaking News');
-    expectedClasses.forEach((className) => {
+    expectedClasses.forEach(className => {
       expect(tagInput).toHaveClass(className);
     });
   };
@@ -133,7 +133,9 @@ describe('NewsFormItem', () => {
 
   describe('mobile view', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue(createMockAppContext({ isMobile: true, pageContent: mockPageContent }));
+      mockUseApp.mockReturnValue(
+        createMockAppContext({ isMobile: true, pageContent: mockPageContent })
+      );
     });
 
     it('renders mobile layout correctly', () => {
