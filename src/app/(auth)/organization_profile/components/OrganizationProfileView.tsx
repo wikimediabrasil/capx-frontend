@@ -29,6 +29,9 @@ import { DocumentsList } from './DocumentsList';
 import EventsSection from './EventsSection';
 import { NewsSection } from './NewsSection';
 import ProjectsList from './ProjectsList';
+import { useOrganizationNames } from '@/hooks/useOrganizationNames';
+import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
+import { useApp } from '@/contexts/AppContext';
 
 function HeaderSection({
   pageContent,
@@ -38,7 +41,20 @@ function HeaderSection({
   organizationId,
   router,
   showSnackbar,
+  token,
 }) {
+  const { language } = useApp();
+  const { names } = useOrganizationNames({
+    organizationId: organization?.id,
+    token,
+  });
+
+  const displayName = getOrganizationDisplayName(
+    organization?.display_name || '',
+    names,
+    language
+  );
+
   return (
     <div className="flex flex-col md:flex-row gap-6">
       {/* Content */}
@@ -66,7 +82,7 @@ function HeaderSection({
               darkMode ? 'text-white' : 'text-capx-dark-box-bg'
             }`}
           >
-            {organization?.display_name}
+            {displayName}
           </span>
         </div>
 
@@ -270,6 +286,7 @@ export default function OrganizationProfileView({
             organizationId={organizationId}
             router={router}
             showSnackbar={showSnackbar}
+            token={token}
           />
           <ReportActivitySection organization={organization} pageContent={pageContent} />
           <CapacitiesSection
