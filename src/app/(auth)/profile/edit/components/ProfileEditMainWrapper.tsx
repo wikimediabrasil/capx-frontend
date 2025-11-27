@@ -203,9 +203,7 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar ? DEFAULT_AVATAR : DEFAULT_AVATAR
-  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(DEFAULT_AVATAR);
 
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);

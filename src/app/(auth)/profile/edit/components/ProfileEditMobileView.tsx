@@ -169,9 +169,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    profile?.avatar ? DEFAULT_AVATAR : DEFAULT_AVATAR
-  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(DEFAULT_AVATAR);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
