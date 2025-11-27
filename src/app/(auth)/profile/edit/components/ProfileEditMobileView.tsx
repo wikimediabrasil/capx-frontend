@@ -60,7 +60,7 @@ import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
 import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import PersonIcon from '@/public/static/images/person_book.svg';
 import PersonIconWhite from '@/public/static/images/person_book_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
@@ -169,7 +169,9 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    profile?.avatar ? DEFAULT_AVATAR : DEFAULT_AVATAR
+  );
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
@@ -287,7 +289,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       fill
                       className="object-contain"
                       onError={e => {
-                        e.currentTarget.src = NoAvatarIcon;
+                        e.currentTarget.src = DEFAULT_AVATAR;
                       }}
                     />
                   )}

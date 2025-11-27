@@ -9,7 +9,7 @@ import AccountCircleIconWhite from '@/public/static/images/account_circle_white.
 import BaseButton from '@/components/BaseButton';
 import { useSession } from 'next-auth/react';
 import { useProfile } from '@/hooks/useProfile';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import { useEffect, useState } from 'react';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useBadges } from '@/contexts/BadgesContext';
@@ -27,7 +27,7 @@ export default function BadgesPage() {
   const { profile } = useProfile(token, Number(userId));
 
   const { getAvatarById } = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || NoAvatarIcon);
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || DEFAULT_AVATAR);
   const { allBadges, userBadges } = useBadges();
   const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 

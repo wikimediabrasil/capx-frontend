@@ -7,7 +7,7 @@ import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
 import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
 import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import Image from 'next/image';
@@ -62,7 +62,7 @@ export default function ProfileHeader({
     // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
     if ((avatar === null || avatar === 0) && wikidataQid) {
       const wikidataImage = await fetchWikidataImage(wikidataQid);
-      setAvatarUrl(wikidataImage || NoAvatarIcon);
+      setAvatarUrl(wikidataImage || DEFAULT_AVATAR);
       return;
     }
 
@@ -79,8 +79,8 @@ export default function ProfileHeader({
       }
     }
 
-    // Default: no avatar
-    setAvatarUrl(NoAvatarIcon);
+    // Default: person avatar
+    setAvatarUrl(DEFAULT_AVATAR);
   }, [avatar, wikidataQid, getAvatarById]);
 
   useEffect(() => {
@@ -93,9 +93,9 @@ export default function ProfileHeader({
     }
     if (avatar && avatar > 0) {
       const avatarData = avatars?.find(a => a.id === avatar);
-      return avatarData?.avatar_url || NoAvatarIcon;
+      return avatarData?.avatar_url || DEFAULT_AVATAR;
     }
-    return NoAvatarIcon;
+    return DEFAULT_AVATAR;
   };
 
   const handleCopyLink = async () => {
@@ -127,7 +127,7 @@ export default function ProfileHeader({
             unoptimized
             onError={e => {
               console.error('Error fetching avatar:', e);
-              e.currentTarget.src = NoAvatarIcon;
+              e.currentTarget.src = DEFAULT_AVATAR;
             }}
           />
         </div>
@@ -200,7 +200,7 @@ export default function ProfileHeader({
           unoptimized
           onError={e => {
             console.error('Error fetching avatar:', e);
-            e.currentTarget.src = NoAvatarIcon;
+            e.currentTarget.src = DEFAULT_AVATAR;
           }}
         />
       </div>

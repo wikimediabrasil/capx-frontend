@@ -23,7 +23,7 @@ import {
   addUniqueTerritory,
 } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
@@ -174,7 +174,7 @@ export default function EditProfilePage() {
     src: string;
   }>({
     id: 0,
-    src: NoAvatarIcon,
+    src: DEFAULT_AVATAR,
   });
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
@@ -203,7 +203,9 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    profile?.avatar ? DEFAULT_AVATAR : DEFAULT_AVATAR
+  );
 
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
@@ -215,7 +217,7 @@ export default function EditProfilePage() {
   }>({
     avatar: null,
     wikidata_qid: '',
-    src: NoAvatarIcon,
+    src: DEFAULT_AVATAR,
   });
 
   // Move useMemo before any early returns to fix Rules of Hooks violation
@@ -292,20 +294,20 @@ export default function EditProfilePage() {
         // Avatar 0 means Wikidata image - we'll fetch it
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon, // Will be replaced by fetched Wikidata image
+          src: DEFAULT_AVATAR, // Will be replaced by fetched Wikidata image
         });
       } else if (profile.avatar && profile.avatar > 0) {
         // Regular avatar from the system
         const avatarData = avatars?.find(avatar => avatar.id === profile.avatar);
         setSelectedAvatar({
           id: profile.avatar,
-          src: avatarData?.avatar_url || NoAvatarIcon,
+          src: avatarData?.avatar_url || DEFAULT_AVATAR,
         });
       } else {
         // No avatar set
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon,
+          src: DEFAULT_AVATAR,
         });
       }
 
@@ -313,7 +315,7 @@ export default function EditProfilePage() {
       setPreviousImageState({
         avatar: profile.avatar ?? null,
         wikidata_qid: profile.wikidata_qid || '',
-        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || NoAvatarIcon,
+        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || DEFAULT_AVATAR,
       });
     }
   }, [profile, avatars]);
@@ -526,7 +528,7 @@ export default function EditProfilePage() {
 
     setSelectedAvatar({
       id: avatarId,
-      src: selectedAvatarUrl || NoAvatarIcon,
+      src: selectedAvatarUrl || DEFAULT_AVATAR,
     });
   };
 
@@ -555,7 +557,7 @@ export default function EditProfilePage() {
           // Update the state with the Wikidata image
           setSelectedAvatar({
             id: 0,
-            src: wikidataImage || NoAvatarIcon,
+            src: wikidataImage || DEFAULT_AVATAR,
           });
 
           // Update the formData: set avatar = null to indicate Wikidata image
@@ -576,7 +578,7 @@ export default function EditProfilePage() {
         // Clear the Wikidata data and set the default image
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon,
+          src: DEFAULT_AVATAR,
         });
 
         // Update the formData removing the Wikidata data
@@ -595,7 +597,7 @@ export default function EditProfilePage() {
       // In case of error, restore the previous state
       setSelectedAvatar({
         id: previousImageState.avatar || 0,
-        src: previousImageState.src || NoAvatarIcon,
+        src: previousImageState.src || DEFAULT_AVATAR,
       });
     } finally {
       setIsImageLoading(false);
@@ -731,7 +733,7 @@ export default function EditProfilePage() {
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
-      src: selectedAvatar.src || NoAvatarIcon,
+      src: selectedAvatar.src || DEFAULT_AVATAR,
     },
     handleAvatarSelect,
     hasLetsConnectData: letsConnectData !== null,
