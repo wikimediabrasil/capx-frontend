@@ -29,3 +29,17 @@ export interface OrganizationType {
   name: string;
   description: string;
 }
+
+export interface OrganizationName {
+  id: number;
+  organization: number;
+  language_code: string;
+  name: string;
+}
+
+export interface OrganizationNameResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: OrganizationName[];
+}
