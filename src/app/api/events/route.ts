@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
   if (territories) params.territories = territories;
   if (location_type) {
     params.location_type = location_type;
-    console.log('API - Enviando location_type:', location_type);
   }
   if (start_date) params.start_date = start_date;
   if (end_date) params.end_date = end_date;

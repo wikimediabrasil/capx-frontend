@@ -68,7 +68,7 @@ export function useSavedItems() {
                       : userData.skills_wanted,
                   languages: userData.language,
                   territory: userData.territory?.[0]?.toString() || '',
-                  avatar: userData.avatar?.toString(),
+                  avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
                   wikidataQid: userData.wikidata_qid,
                   isOrganization: false,
                   savedItemId: item.id,
@@ -85,7 +85,7 @@ export function useSavedItems() {
                   username: orgData.display_name,
                   profile_image: orgData.profile_image,
                   type: item.relation,
-                  avatar: orgData.profile_image || undefined,
+                  avatar: undefined, // Organizations don't use avatar field
                   capacities:
                     item.relation === ProfileCapacityType.Learner
                       ? orgData.wanted_capacities
@@ -129,7 +129,7 @@ export function useSavedItems() {
                 : userData.skills_wanted,
             languages: userData.language,
             territory: userData.territory?.[0]?.toString() || '',
-            avatar: userData.avatar?.toString(),
+            avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
             wikidataQid: userData.wikidata_qid,
             isOrganization: false,
             savedItemId: savedItem.id,
@@ -154,7 +154,7 @@ export function useSavedItems() {
                 ? orgData.wanted_capacities
                 : orgData.available_capacities,
             territory: orgData.territory[0],
-            avatar: orgData.profile_image || undefined,
+            avatar: undefined, // Organizations don't use avatar field
             isOrganization: true,
             savedItemId: savedItem.id,
           };

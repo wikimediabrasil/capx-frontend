@@ -60,7 +60,9 @@ export default function ProfileHeader({
 
   const loadAvatar = useCallback(async () => {
     // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
-    if ((avatar === null || avatar === 0) && wikidataQid) {
+    // Special case: if avatar = 1 (Wikidata logo) but wikidataQid is set, use Wikidata image instead
+    // This handles legacy data where users were set to avatar 1 instead of 0/null
+    if ((avatar === null || avatar === 0 || (avatar === 1 && wikidataQid)) && wikidataQid) {
       const wikidataImage = await fetchWikidataImage(wikidataQid);
       setAvatarUrl(wikidataImage || DEFAULT_AVATAR);
       return;

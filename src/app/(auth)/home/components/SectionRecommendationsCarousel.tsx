@@ -15,9 +15,6 @@ export default function SectionRecommendationsCarousel() {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const { data, isLoading, error } = useRecommendations();
-  console.log('Recommendations data:', data);
-  console.log('Recommendations isLoading:', isLoading);
-  console.log('Recommendations error:', error);
 
   const handleSaveProfile = (id: number) => {
     // TODO: Implement save profile functionality

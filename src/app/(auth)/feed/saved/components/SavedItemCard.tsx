@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
@@ -12,6 +11,30 @@ import { useAvatars } from '@/hooks/useAvatars';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import BaseButton from '@/components/BaseButton';
+
+// Helper to fetch Wikidata image URL
+const fetchWikidataImage = async (qid: string): Promise<string | null> => {
+  try {
+    const sparqlQuery = `
+      SELECT ?image WHERE {
+        wd:${qid} wdt:P18 ?image.
+      }
+    `;
+    const encodedQuery = encodeURIComponent(sparqlQuery);
+    const response = await fetch(
+      `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`
+    );
+    const data = await response.json();
+
+    if (data?.results?.bindings?.length > 0) {
+      return data.results.bindings[0].image.value;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching Wikidata image:', error);
+    return null;
+  }
+};
 
 interface SavedItemCardProps {
   id: string;
@@ -36,8 +59,50 @@ export const SavedItemCard = ({
   const { pageContent } = useApp();
   const router = useRouter();
   const { avatars } = useAvatars();
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
-  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
+  const defaultAvatar = DEFAULT_AVATAR;
+
+  // Load profile image (Wikidata or regular avatar)
+  const loadProfileImage = useCallback(async () => {
+    if (isOrganization) {
+      // Organizations use profile_image directly
+      if (profile_image) {
+        setProfileImageUrl(formatWikiImageUrl(profile_image));
+      } else {
+        setProfileImageUrl(null);
+      }
+      return;
+    }
+
+    // For users: check if they use Wikidata image (avatar = null or 0)
+    const avatarNum = avatar != null ? Number(avatar) : null;
+
+    // Special case: if avatar = 1 (Wikidata logo) but wikidataQid is set, use Wikidata image instead
+    // This handles legacy data where users were set to avatar 1 instead of 0/null
+    if (
+      (avatarNum === null || avatarNum === 0 || (avatarNum === 1 && wikidataQid)) &&
+      wikidataQid
+    ) {
+      // Fetch Wikidata image
+      const wikidataImage = await fetchWikidataImage(wikidataQid);
+      setProfileImageUrl(wikidataImage);
+    } else if (avatarNum && avatarNum > 0) {
+      // Use avatar from system
+      const imageUrl = getProfileImage(undefined, avatarNum, avatars);
+      setProfileImageUrl(imageUrl);
+    } else if (profile_image && !wikidataQid) {
+      // Only use profile_image if no Wikidata is configured
+      setProfileImageUrl(formatWikiImageUrl(profile_image));
+    } else {
+      // No avatar
+      setProfileImageUrl(null);
+    }
+  }, [isOrganization, profile_image, avatar, wikidataQid, avatars]);
+
+  useEffect(() => {
+    loadProfileImage();
+  }, [loadProfileImage]);
 
   return (
     <div
@@ -69,29 +134,14 @@ export const SavedItemCard = ({
           {/* Profile image */}
           <div className="rounded-lg p-4 mb-3">
             <div className="relative w-full h-[120px] flex justify-center">
-              {(isOrganization && profile_image) || (!isOrganization && avatar) ? (
-                <Image
-                  src={
-                    isOrganization
-                      ? formatWikiImageUrl(profile_image || '')
-                      : getProfileImage(undefined, avatar ? Number(avatar) : null, avatars)
-                  }
-                  alt={username}
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                  unoptimized
-                />
-              ) : (
-                <Image
-                  src={defaultAvatar}
-                  alt="User profile"
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                  unoptimized
-                />
-              )}
+              <Image
+                src={profileImageUrl || defaultAvatar}
+                alt={username}
+                width={120}
+                height={120}
+                className="object-contain"
+                unoptimized
+              />
             </div>
           </div>
 
@@ -133,29 +183,14 @@ export const SavedItemCard = ({
           {/* Left side - Profile Image */}
           <div className="rounded-lg p-4 flex justify-center items-center">
             <div className="relative w-full h-[160px] flex justify-center">
-              {(isOrganization && profile_image) || (!isOrganization && avatar) ? (
-                <Image
-                  src={
-                    isOrganization
-                      ? formatWikiImageUrl(profile_image || '')
-                      : getProfileImage(undefined, avatar ? Number(avatar) : null, avatars)
-                  }
-                  alt={username}
-                  width={160}
-                  height={160}
-                  className="object-contain"
-                  unoptimized
-                />
-              ) : (
-                <Image
-                  src={defaultAvatar}
-                  alt="User profile"
-                  width={160}
-                  height={160}
-                  className="object-contain"
-                  unoptimized
-                />
-              )}
+              <Image
+                src={profileImageUrl || defaultAvatar}
+                alt={username}
+                width={160}
+                height={160}
+                className="object-contain"
+                unoptimized
+              />
             </div>
           </div>
 

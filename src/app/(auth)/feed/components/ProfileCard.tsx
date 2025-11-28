@@ -18,8 +18,7 @@ import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import TargetIcon from '@/public/static/images/target.svg';
@@ -30,8 +29,32 @@ import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ProfileCapacityType } from '../types';
+
+// Helper to fetch Wikidata image URL
+const fetchWikidataImage = async (qid: string): Promise<string | null> => {
+  try {
+    const sparqlQuery = `
+      SELECT ?image WHERE {
+        wd:${qid} wdt:P18 ?image.
+      }
+    `;
+    const encodedQuery = encodeURIComponent(sparqlQuery);
+    const response = await fetch(
+      `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`
+    );
+    const data = await response.json();
+
+    if (data?.results?.bindings?.length > 0) {
+      return data.results.bindings[0].image.value;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching Wikidata image:', error);
+    return null;
+  }
+};
 
 interface ProfileCardProps {
   id: string;
@@ -78,10 +101,52 @@ export const ProfileCard = ({
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
   const { avatars } = useAvatars();
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
   // Determine if this is a multi-type profile (both sharer and learner)
   const isMultiType = Array.isArray(type) && type.length > 1;
   const primaryType = Array.isArray(type) ? type[0] : type;
+
+  // Load profile image (Wikidata or regular avatar)
+  const loadProfileImage = useCallback(async () => {
+    if (isOrganization) {
+      // Organizations use profile_image directly
+      if (profile_image) {
+        setProfileImageUrl(formatWikiImageUrl(profile_image));
+      } else {
+        setProfileImageUrl(null);
+      }
+      return;
+    }
+
+    // For users: check if they use Wikidata image (avatar = null or 0)
+    const avatarNum = avatar != null ? Number(avatar) : null;
+
+    // Special case: if avatar = 1 (Wikidata logo) but wikidataQid is set, use Wikidata image instead
+    // This handles legacy data where users were set to avatar 1 instead of 0/null
+    if (
+      (avatarNum === null || avatarNum === 0 || (avatarNum === 1 && wikidataQid)) &&
+      wikidataQid
+    ) {
+      // Fetch Wikidata image
+      const wikidataImage = await fetchWikidataImage(wikidataQid);
+      setProfileImageUrl(wikidataImage);
+    } else if (avatarNum && avatarNum > 0) {
+      // Use avatar from system
+      const imageUrl = getProfileImage(undefined, avatarNum, avatars);
+      setProfileImageUrl(imageUrl);
+    } else if (profile_image && !wikidataQid) {
+      // Only use profile_image if no Wikidata is configured
+      setProfileImageUrl(formatWikiImageUrl(profile_image));
+    } else {
+      // No avatar
+      setProfileImageUrl(null);
+    }
+  }, [isOrganization, profile_image, avatar, wikidataQid, avatars]);
+
+  useEffect(() => {
+    loadProfileImage();
+  }, [loadProfileImage]);
 
   // Preload capacities to ensure they're available in the cache
   useEffect(() => {
@@ -110,7 +175,7 @@ export const ProfileCard = ({
       ? 'text-purple-200 border-purple-200'
       : 'text-[#05A300] border-[#05A300]';
 
-  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
+  const defaultAvatar = DEFAULT_AVATAR;
 
   const capacityItemClass = 'font-[Montserrat] text-[14px] not-italic leading-[normal]';
 
@@ -209,34 +274,14 @@ export const ProfileCard = ({
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
-                  {(isOrganization && profile_image) || (!isOrganization && avatar) ? (
-                    <Image
-                      src={
-                        isOrganization
-                          ? formatWikiImageUrl(profile_image || '')
-                          : getProfileImage(undefined, avatar ? Number(avatar) : null, avatars)
-                      }
-                      alt={pageContent['alt-profile-picture'] || 'User profile picture'}
-                      fill
-                      className="object-contain rounded-[4px]"
-                      unoptimized
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Image
-                        src={defaultAvatar}
-                        alt={
-                          pageContent['alt-profile-picture-default'] ||
-                          'Default user profile picture'
-                        }
-                        fill
-                        className="object-contain rounded-[4px]"
-                        unoptimized
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
+                  <Image
+                    src={profileImageUrl || defaultAvatar}
+                    alt={pageContent['alt-profile-picture'] || 'User profile picture'}
+                    fill
+                    className="object-contain rounded-[4px]"
+                    unoptimized
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>

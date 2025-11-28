@@ -26,7 +26,7 @@ import ExpandAllIcon from '@/public/static/images/expand_all.svg';
 import ExpandAllIconWhite from '@/public/static/images/expand_all_white.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import ReportIcon from '@/public/static/images/report.svg';
 import ReportIconWhite from '@/public/static/images/report_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
@@ -344,7 +344,7 @@ export default function OrganizationProfileEditView({
                       sizes="(max-width: 768px) 100vw, 600px"
                       onError={e => {
                         console.error('Erro ao carregar preview:', e);
-                        e.currentTarget.src = NoAvatarIcon;
+                        e.currentTarget.src = DEFAULT_AVATAR;
                       }}
                       priority
                       loading="eager"
@@ -353,7 +353,7 @@ export default function OrganizationProfileEditView({
                 ) : (
                   <div className="flex flex-col items-center justify-center">
                     <Image
-                      src={NoAvatarIcon}
+                      src={DEFAULT_AVATAR}
                       alt="Sem imagem"
                       width={60}
                       height={60}

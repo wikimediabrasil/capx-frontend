@@ -95,10 +95,7 @@ describe('AvatarSelectionPopup', () => {
 
       const noAvatarImage = screen.getByAltText('Avatar no-avatar');
       expect(noAvatarImage).toBeInTheDocument();
-      expect(noAvatarImage).toHaveAttribute(
-        'src',
-        '/static/images/person.svg'
-      );
+      expect(noAvatarImage).toHaveAttribute('src', '/static/images/person.svg');
     });
 
     it('displays the default person avatar in dark mode', () => {
@@ -111,10 +108,7 @@ describe('AvatarSelectionPopup', () => {
 
       const noAvatarImage = screen.getByAltText('Avatar no-avatar');
       expect(noAvatarImage).toBeInTheDocument();
-      expect(noAvatarImage).toHaveAttribute(
-        'src',
-        '/static/images/person.svg'
-      );
+      expect(noAvatarImage).toHaveAttribute('src', '/static/images/person.svg');
     });
 
     it('displays all avatars from the API', () => {

@@ -16,15 +16,38 @@ import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+
+// Helper to fetch Wikidata image URL
+const fetchWikidataImage = async (qid: string): Promise<string | null> => {
+  try {
+    const sparqlQuery = `
+      SELECT ?image WHERE {
+        wd:${qid} wdt:P18 ?image.
+      }
+    `;
+    const encodedQuery = encodeURIComponent(sparqlQuery);
+    const response = await fetch(
+      `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`
+    );
+    const data = await response.json();
+
+    if (data?.results?.bindings?.length > 0) {
+      return data.results.bindings[0].image.value;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching Wikidata image:', error);
+    return null;
+  }
+};
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -49,6 +72,7 @@ export default function RecommendationProfileCard({
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
   const { showSnackbar } = useSnackbar();
   const [isSaving, setIsSaving] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
   const isOrganization = 'acronym' in recommendation;
   const organizationRecommendation = isOrganization
@@ -59,6 +83,49 @@ export default function RecommendationProfileCard({
 
   const profileImage = recommendation.profile_image;
   const displayName = recommendation.display_name || profileUsername;
+  const avatar = profileRecommendation?.avatar;
+  const wikidataQid = profileRecommendation?.wikidata_qid;
+
+  // Load profile image (Wikidata or regular avatar)
+  const loadProfileImage = useCallback(async () => {
+    if (isOrganization) {
+      // Organizations use profile_image directly
+      if (profileImage) {
+        setProfileImageUrl(formatWikiImageUrl(profileImage));
+      } else {
+        setProfileImageUrl(null);
+      }
+      return;
+    }
+
+    // For users: check if they use Wikidata image (avatar = null or 0)
+    const avatarNum = avatar != null ? Number(avatar) : null;
+
+    // Special case: if avatar = 1 (Wikidata logo) but wikidataQid is set, use Wikidata image instead
+    // This handles legacy data where users were set to avatar 1 instead of 0/null
+    if (
+      (avatarNum === null || avatarNum === 0 || (avatarNum === 1 && wikidataQid)) &&
+      wikidataQid
+    ) {
+      // Fetch Wikidata image
+      const wikidataImage = await fetchWikidataImage(wikidataQid);
+      setProfileImageUrl(wikidataImage);
+    } else if (avatarNum && avatarNum > 0) {
+      // Use avatar from system
+      const imageUrl = getProfileImage(undefined, avatarNum, avatars);
+      setProfileImageUrl(imageUrl);
+    } else if (profileImage && !wikidataQid) {
+      // Only use profile_image if no Wikidata is configured
+      setProfileImageUrl(formatWikiImageUrl(profileImage));
+    } else {
+      // No avatar
+      setProfileImageUrl(null);
+    }
+  }, [isOrganization, profileImage, avatar, wikidataQid, avatars]);
+
+  useEffect(() => {
+    loadProfileImage();
+  }, [loadProfileImage]);
 
   const handleViewProfile = () => {
     if (isOrganization) {
@@ -128,10 +195,6 @@ export default function RecommendationProfileCard({
     }
   };
 
-  const imageUrl = isOrganization
-    ? formatWikiImageUrl(profileImage || '')
-    : getProfileImage(profileImage, null, avatars);
-
   return (
     <div
       className={`flex h-full flex-col justify-between items-start p-4 rounded-md w-[270px] md:w-[370px] border min-h-[300px] md:min-h-[350px] ${
@@ -156,23 +219,14 @@ export default function RecommendationProfileCard({
           darkMode ? 'bg-gray-700' : 'bg-[#EFEFEF]'
         } mt-4 mb-4 self-center rounded-md`}
       >
-        {profileImage ? (
-          <Image
-            src={imageUrl}
-            alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
-            fill
-            className="object-contain"
-            unoptimized
-            priority
-          />
-        ) : (
-          <Image
-            src={darkMode ? NoAvatarIconWhite : NoAvatarIcon}
-            alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
-            fill
-            className="object-contain"
-          />
-        )}
+        <Image
+          src={profileImageUrl || DEFAULT_AVATAR}
+          alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
+          fill
+          className="object-contain"
+          unoptimized
+          priority
+        />
       </div>
 
       <div className="flex items-center justify-start gap-2 mb-4 w-full">

@@ -23,7 +23,7 @@ import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { ensureArray } from '@/lib/utils/safeDataAccess';
 import { sanitizeContactUrls } from '@/lib/utils/sanitizeUrl';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import { Contacts } from '@/types/contacts';
 import { OrganizationDocument } from '@/types/document';
 import { Event } from '@/types/event';
@@ -172,7 +172,7 @@ export default function EditOrganizationProfilePage() {
           return {
             value: `org_${org.id}`,
             label: org.display_name || '',
-            image: org.profile_image ? formatWikiImageUrl(org.profile_image) : NoAvatarIcon,
+            image: org.profile_image ? formatWikiImageUrl(org.profile_image) : DEFAULT_AVATAR,
           };
         })
         .filter((item): item is NonNullable<typeof item> => item !== null);
