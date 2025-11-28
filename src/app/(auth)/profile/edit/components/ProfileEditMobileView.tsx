@@ -285,7 +285,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       src={selectedAvatar.src || avatarUrl}
                       alt={
                         (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR
-                          ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                          ? pageContent['alt-profile-picture-default'] ||
+                            'Default user profile picture'
                           : 'Selected avatar'
                       }
                       fill

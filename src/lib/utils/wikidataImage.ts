@@ -49,9 +49,5 @@ export const shouldUseWikidataImage = (
   // Use Wikidata if:
   // 1. avatar is null/undefined/0 (explicitly set to use Wikidata)
   // 2. avatar is 1 AND wikidataQid exists (legacy data - avatar 1 was Wikidata logo)
-  return (
-    avatarNum === null ||
-    avatarNum === 0 ||
-    (avatarNum === 1 && !!wikidataQid)
-  );
+  return avatarNum === null || avatarNum === 0 || (avatarNum === 1 && !!wikidataQid);
 };

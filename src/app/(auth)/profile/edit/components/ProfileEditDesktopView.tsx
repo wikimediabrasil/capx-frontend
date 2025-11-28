@@ -284,7 +284,8 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                         src={selectedAvatar.src}
                         alt={
                           selectedAvatar.src === DEFAULT_AVATAR
-                            ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                            ? pageContent['alt-profile-picture-default'] ||
+                              'Default user profile picture'
                             : 'Selected avatar'
                         }
                         fill

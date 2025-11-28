@@ -262,5 +262,4 @@ describe('RecommendationCarousel', () => {
       expectTextInDocument(screen, 'Based on your profile');
     });
   });
-
 });

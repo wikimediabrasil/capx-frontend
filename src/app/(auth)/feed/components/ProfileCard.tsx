@@ -217,7 +217,8 @@ export const ProfileCard = ({
                     src={profileImageUrl || defaultAvatar}
                     alt={
                       !profileImageUrl || profileImageUrl === defaultAvatar
-                        ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                        ? pageContent['alt-profile-picture-default'] ||
+                          'Default user profile picture'
                         : pageContent['alt-profile-picture'] || 'User profile picture'
                     }
                     fill
