@@ -3,6 +3,7 @@
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useProfileImage } from '@/hooks/useProfileImage';
@@ -14,7 +15,6 @@ import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
-import { DEFAULT_AVATAR } from '@/constants/images';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
@@ -61,9 +61,9 @@ export default function RecommendationProfileCard({
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({
     isOrganization,
-    profile_image: profileImage,
-    avatar,
-    wikidataQid,
+    profile_image: profileImage || undefined,
+    avatar: avatar || undefined,
+    wikidataQid: wikidataQid || undefined,
   });
 
   const handleViewProfile = () => {
