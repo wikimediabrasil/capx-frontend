@@ -5,11 +5,8 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAvatars } from '@/hooks/useAvatars';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import { useSavedItems } from '@/hooks/useSavedItems';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
@@ -17,14 +14,14 @@ import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
-const DEFAULT_AVATAR = '/static/images/person.svg';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -43,13 +40,11 @@ export default function RecommendationProfileCard({
 }: RecommendationProfileCardProps) {
   const { pageContent, language } = useApp();
   const { darkMode } = useTheme();
-  const { avatars } = useAvatars();
   const router = useRouter();
   const { data: session } = useSession();
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
   const { showSnackbar } = useSnackbar();
   const [isSaving, setIsSaving] = useState(false);
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
   const isOrganization = 'acronym' in recommendation;
   const organizationRecommendation = isOrganization
@@ -63,39 +58,13 @@ export default function RecommendationProfileCard({
   const avatar = profileRecommendation?.avatar;
   const wikidataQid = profileRecommendation?.wikidata_qid;
 
-  // Load profile image (Wikidata or regular avatar)
-  const loadProfileImage = useCallback(async () => {
-    if (isOrganization) {
-      // Organizations use profile_image directly
-      if (profileImage) {
-        setProfileImageUrl(formatWikiImageUrl(profileImage));
-      } else {
-        setProfileImageUrl(null);
-      }
-      return;
-    }
-
-    // For users: check if they use Wikidata image (avatar = null or 0)
-    if (shouldUseWikidataImage(avatar, wikidataQid)) {
-      // Fetch Wikidata image
-      const wikidataImage = await fetchWikidataImage(wikidataQid!);
-      setProfileImageUrl(wikidataImage);
-    } else if (avatar && Number(avatar) > 0) {
-      // Use avatar from system
-      const imageUrl = getProfileImage(undefined, Number(avatar), avatars);
-      setProfileImageUrl(imageUrl);
-    } else if (profileImage && !wikidataQid) {
-      // Only use profile_image if no Wikidata is configured
-      setProfileImageUrl(formatWikiImageUrl(profileImage));
-    } else {
-      // No avatar
-      setProfileImageUrl(null);
-    }
-  }, [isOrganization, profileImage, avatar, wikidataQid, avatars]);
-
-  useEffect(() => {
-    loadProfileImage();
-  }, [loadProfileImage]);
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image: profileImage,
+    avatar,
+    wikidataQid,
+  });
 
   const handleViewProfile = () => {
     if (isOrganization) {

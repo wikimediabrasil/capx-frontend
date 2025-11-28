@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-const DEFAULT_AVATAR = '/static/images/person.svg';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import { useRouter } from 'next/navigation';
-import { useAvatars } from '@/hooks/useAvatars';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import BaseButton from '@/components/BaseButton';
 
 interface SavedItemCardProps {
@@ -35,44 +32,16 @@ export const SavedItemCard = ({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const router = useRouter();
-  const { avatars } = useAvatars();
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image,
+    avatar,
+    wikidataQid,
+  });
 
   const defaultAvatar = DEFAULT_AVATAR;
-
-  // Load profile image (Wikidata or regular avatar)
-  const loadProfileImage = useCallback(async () => {
-    if (isOrganization) {
-      // Organizations use profile_image directly
-      if (profile_image) {
-        setProfileImageUrl(formatWikiImageUrl(profile_image));
-      } else {
-        setProfileImageUrl(null);
-      }
-      return;
-    }
-
-    // For users: check if they use Wikidata image (avatar = null or 0)
-    if (shouldUseWikidataImage(avatar, wikidataQid)) {
-      // Fetch Wikidata image
-      const wikidataImage = await fetchWikidataImage(wikidataQid!);
-      setProfileImageUrl(wikidataImage);
-    } else if (avatar && Number(avatar) > 0) {
-      // Use avatar from system
-      const imageUrl = getProfileImage(undefined, Number(avatar), avatars);
-      setProfileImageUrl(imageUrl);
-    } else if (profile_image && !wikidataQid) {
-      // Only use profile_image if no Wikidata is configured
-      setProfileImageUrl(formatWikiImageUrl(profile_image));
-    } else {
-      // No avatar
-      setProfileImageUrl(null);
-    }
-  }, [isOrganization, profile_image, avatar, wikidataQid, avatars]);
-
-  useEffect(() => {
-    loadProfileImage();
-  }, [loadProfileImage]);
 
   return (
     <div

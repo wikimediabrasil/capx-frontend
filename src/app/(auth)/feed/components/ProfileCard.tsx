@@ -3,12 +3,9 @@ import { ProfileItem } from '@/components/ProfileItem';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAvatars } from '@/hooks/useAvatars';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import { useTerritories } from '@/hooks/useTerritories';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
@@ -19,18 +16,18 @@ import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { ProfileCapacityType } from '../types';
 
 interface ProfileCardProps {
@@ -77,46 +74,18 @@ export const ProfileCard = ({
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
-  const { avatars } = useAvatars();
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image,
+    avatar,
+    wikidataQid,
+  });
 
   // Determine if this is a multi-type profile (both sharer and learner)
   const isMultiType = Array.isArray(type) && type.length > 1;
   const primaryType = Array.isArray(type) ? type[0] : type;
-
-  // Load profile image (Wikidata or regular avatar)
-  const loadProfileImage = useCallback(async () => {
-    if (isOrganization) {
-      // Organizations use profile_image directly
-      if (profile_image) {
-        setProfileImageUrl(formatWikiImageUrl(profile_image));
-      } else {
-        setProfileImageUrl(null);
-      }
-      return;
-    }
-
-    // For users: check if they use Wikidata image (avatar = null or 0)
-    if (shouldUseWikidataImage(avatar, wikidataQid)) {
-      // Fetch Wikidata image
-      const wikidataImage = await fetchWikidataImage(wikidataQid!);
-      setProfileImageUrl(wikidataImage);
-    } else if (avatar && Number(avatar) > 0) {
-      // Use avatar from system
-      const imageUrl = getProfileImage(undefined, Number(avatar), avatars);
-      setProfileImageUrl(imageUrl);
-    } else if (profile_image && !wikidataQid) {
-      // Only use profile_image if no Wikidata is configured
-      setProfileImageUrl(formatWikiImageUrl(profile_image));
-    } else {
-      // No avatar
-      setProfileImageUrl(null);
-    }
-  }, [isOrganization, profile_image, avatar, wikidataQid, avatars]);
-
-  useEffect(() => {
-    loadProfileImage();
-  }, [loadProfileImage]);
 
   // Preload capacities to ensure they're available in the cache
   useEffect(() => {
