@@ -9,7 +9,6 @@ export interface Profile {
   display_name?: string;
   automated_lets_connect?: boolean;
   language: LanguageProficiency[];
-  profile_image?: string;
   pronoun?: string;
   skills_known: number[];
   skills_available: number[];

@@ -19,8 +19,8 @@ export const avatarService = {
       params: { limit, offset },
     });
 
-    // Filter out the avatar 0 from the list of results, because it's the Wikidata avatar
-    return response.data.filter((avatar: Avatar) => avatar.id !== 1);
+    // Filter out avatar 0 from the list of results, because it's reserved for Wikidata images
+    return response.data.filter((avatar: Avatar) => avatar.id !== 0);
   },
 
   fetchAvatarById: async (id: number, config?: any): Promise<Avatar> => {

@@ -1,5 +1,6 @@
 import { getProfileImage } from '@/lib/utils/getProfileImage';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+
+const DEFAULT_AVATAR = '/static/images/person.svg';
 
 describe('getProfileImage', () => {
   const mockAvatars = [
@@ -19,7 +20,7 @@ describe('getProfileImage', () => {
 
   it('should return default avatar when no image or avatar is available', () => {
     const result = getProfileImage(null, null, mockAvatars);
-    expect(result).toBe(NoAvatarIcon);
+    expect(result).toBe(DEFAULT_AVATAR);
   });
 
   it('should handle empty strings in profile image', () => {
@@ -29,6 +30,6 @@ describe('getProfileImage', () => {
 
   it('should handle invalid avatar id', () => {
     const result = getProfileImage(null, 999, mockAvatars);
-    expect(result).toBe(NoAvatarIcon);
+    expect(result).toBe(DEFAULT_AVATAR);
   });
 });

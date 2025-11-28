@@ -3,12 +3,11 @@
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAvatars } from '@/hooks/useAvatars';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import { useSavedItems } from '@/hooks/useSavedItems';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
@@ -16,8 +15,6 @@ import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
@@ -43,7 +40,6 @@ export default function RecommendationProfileCard({
 }: RecommendationProfileCardProps) {
   const { pageContent, language } = useApp();
   const { darkMode } = useTheme();
-  const { avatars } = useAvatars();
   const router = useRouter();
   const { data: session } = useSession();
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
@@ -59,6 +55,16 @@ export default function RecommendationProfileCard({
 
   const profileImage = recommendation.profile_image;
   const displayName = recommendation.display_name || profileUsername;
+  const avatar = profileRecommendation?.avatar;
+  const wikidataQid = profileRecommendation?.wikidata_qid;
+
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image: profileImage || undefined,
+    avatar: avatar || undefined,
+    wikidataQid: wikidataQid || undefined,
+  });
 
   const handleViewProfile = () => {
     if (isOrganization) {
@@ -128,10 +134,6 @@ export default function RecommendationProfileCard({
     }
   };
 
-  const imageUrl = isOrganization
-    ? formatWikiImageUrl(profileImage || '')
-    : getProfileImage(profileImage, null, avatars);
-
   return (
     <div
       className={`flex h-full flex-col justify-between items-start p-4 rounded-md w-[270px] md:w-[370px] border min-h-[300px] md:min-h-[350px] ${
@@ -152,27 +154,20 @@ export default function RecommendationProfileCard({
       )}
 
       <div
-        className={`relative w-full max-w-[195px] h-[115px] md:max-w-[280px] md:h-[180px] ${
-          darkMode ? 'bg-gray-700' : 'bg-[#EFEFEF]'
-        } mt-4 mb-4 self-center rounded-md`}
+        className={`relative w-full max-w-[195px] h-[115px] md:max-w-[280px] md:h-[180px] bg-[#EFEFEF] mt-4 mb-4 self-center rounded-md`}
       >
-        {profileImage ? (
-          <Image
-            src={imageUrl}
-            alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
-            fill
-            className="object-contain"
-            unoptimized
-            priority
-          />
-        ) : (
-          <Image
-            src={darkMode ? NoAvatarIconWhite : NoAvatarIcon}
-            alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
-            fill
-            className="object-contain"
-          />
-        )}
+        <Image
+          src={profileImageUrl || DEFAULT_AVATAR}
+          alt={
+            !profileImageUrl || profileImageUrl === DEFAULT_AVATAR
+              ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+              : `${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`
+          }
+          fill
+          className="object-contain"
+          unoptimized
+          priority
+        />
       </div>
 
       <div className="flex items-center justify-start gap-2 mb-4 w-full">
