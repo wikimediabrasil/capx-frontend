@@ -10,31 +10,8 @@ import { useRouter } from 'next/navigation';
 import { useAvatars } from '@/hooks/useAvatars';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import BaseButton from '@/components/BaseButton';
-
-// Helper to fetch Wikidata image URL
-const fetchWikidataImage = async (qid: string): Promise<string | null> => {
-  try {
-    const sparqlQuery = `
-      SELECT ?image WHERE {
-        wd:${qid} wdt:P18 ?image.
-      }
-    `;
-    const encodedQuery = encodeURIComponent(sparqlQuery);
-    const response = await fetch(
-      `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`
-    );
-    const data = await response.json();
-
-    if (data?.results?.bindings?.length > 0) {
-      return data.results.bindings[0].image.value;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching Wikidata image:', error);
-    return null;
-  }
-};
 
 interface SavedItemCardProps {
   id: string;
@@ -76,20 +53,13 @@ export const SavedItemCard = ({
     }
 
     // For users: check if they use Wikidata image (avatar = null or 0)
-    const avatarNum = avatar != null ? Number(avatar) : null;
-
-    // Special case: if avatar = 1 (Wikidata logo) but wikidataQid is set, use Wikidata image instead
-    // This handles legacy data where users were set to avatar 1 instead of 0/null
-    if (
-      (avatarNum === null || avatarNum === 0 || (avatarNum === 1 && wikidataQid)) &&
-      wikidataQid
-    ) {
+    if (shouldUseWikidataImage(avatar, wikidataQid)) {
       // Fetch Wikidata image
-      const wikidataImage = await fetchWikidataImage(wikidataQid);
+      const wikidataImage = await fetchWikidataImage(wikidataQid!);
       setProfileImageUrl(wikidataImage);
-    } else if (avatarNum && avatarNum > 0) {
+    } else if (avatar && Number(avatar) > 0) {
       // Use avatar from system
-      const imageUrl = getProfileImage(undefined, avatarNum, avatars);
+      const imageUrl = getProfileImage(undefined, Number(avatar), avatars);
       setProfileImageUrl(imageUrl);
     } else if (profile_image && !wikidataQid) {
       // Only use profile_image if no Wikidata is configured

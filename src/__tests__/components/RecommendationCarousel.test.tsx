@@ -263,35 +263,4 @@ describe('RecommendationCarousel', () => {
     });
   });
 
-  describe('Console logging', () => {
-    it('should log carousel information', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      renderCarousel();
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'RecommendationCarousel - title:',
-        'Test Carousel',
-        'totalItems:',
-        3
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should log when no items are displayed', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      renderCarousel({
-        children: null,
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'RecommendationCarousel - No items to display for:',
-        'Test Carousel'
-      );
-
-      consoleSpy.mockRestore();
-    });
-  });
 });

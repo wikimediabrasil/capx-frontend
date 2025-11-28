@@ -3,6 +3,7 @@ import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
+import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
 import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
@@ -21,30 +22,6 @@ interface ProfileHeaderProps {
   isSameUser: boolean;
 }
 
-// Helper to fetch Wikidata image URL
-const fetchWikidataImage = async (qid: string): Promise<string | null> => {
-  try {
-    const sparqlQuery = `
-      SELECT ?image WHERE {
-        wd:${qid} wdt:P18 ?image.
-      }
-    `;
-    const encodedQuery = encodeURIComponent(sparqlQuery);
-    const response = await fetch(
-      `https://query.wikidata.org/sparql?query=${encodedQuery}&format=json`
-    );
-    const data = await response.json();
-
-    if (data?.results?.bindings?.length > 0) {
-      return data.results.bindings[0].image.value;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching Wikidata image:', error);
-    return null;
-  }
-};
-
 export default function ProfileHeader({
   username,
   avatar,
@@ -60,10 +37,8 @@ export default function ProfileHeader({
 
   const loadAvatar = useCallback(async () => {
     // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
-    // Special case: if avatar = 1 (Wikidata logo) but wikidataQid is set, use Wikidata image instead
-    // This handles legacy data where users were set to avatar 1 instead of 0/null
-    if ((avatar === null || avatar === 0 || (avatar === 1 && wikidataQid)) && wikidataQid) {
-      const wikidataImage = await fetchWikidataImage(wikidataQid);
+    if (shouldUseWikidataImage(avatar, wikidataQid)) {
+      const wikidataImage = await fetchWikidataImage(wikidataQid!);
       setAvatarUrl(wikidataImage || DEFAULT_AVATAR);
       return;
     }
