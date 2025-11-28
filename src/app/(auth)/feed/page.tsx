@@ -266,8 +266,8 @@ export default function FeedPage() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center pt-24 md:pt-8">
-      <div className="container mx-auto px-4">
+    <div className="w-full flex flex-col items-center pt-24 md:pt-8 overflow-x-hidden">
+      <div className="container mx-auto px-4 w-full max-w-full">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           <SearchFilterSection
             activeFilters={activeFilters.capacities ? activeFilters : { capacities: [] }}
