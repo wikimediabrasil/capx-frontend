@@ -75,7 +75,11 @@ export const SavedItemCard = ({
             <div className="relative w-full h-[120px] flex justify-center">
               <Image
                 src={profileImageUrl || defaultAvatar}
-                alt={username}
+                alt={
+                  !profileImageUrl || profileImageUrl === defaultAvatar
+                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                    : username
+                }
                 width={120}
                 height={120}
                 className="object-contain"
@@ -124,7 +128,11 @@ export const SavedItemCard = ({
             <div className="relative w-full h-[160px] flex justify-center">
               <Image
                 src={profileImageUrl || defaultAvatar}
-                alt={username}
+                alt={
+                  !profileImageUrl || profileImageUrl === defaultAvatar
+                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                    : username
+                }
                 width={160}
                 height={160}
                 className="object-contain"

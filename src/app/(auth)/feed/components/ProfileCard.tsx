@@ -1,5 +1,6 @@
 import BaseButton from '@/components/BaseButton';
 import { ProfileItem } from '@/components/ProfileItem';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -22,7 +23,6 @@ import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
-import { DEFAULT_AVATAR } from '@/constants/images';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -215,7 +215,11 @@ export const ProfileCard = ({
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
                   <Image
                     src={profileImageUrl || defaultAvatar}
-                    alt={pageContent['alt-profile-picture'] || 'User profile picture'}
+                    alt={
+                      !profileImageUrl || profileImageUrl === defaultAvatar
+                        ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                        : pageContent['alt-profile-picture'] || 'User profile picture'
+                    }
                     fill
                     className="object-contain rounded-[4px]"
                     unoptimized

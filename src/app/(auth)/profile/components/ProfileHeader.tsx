@@ -8,12 +8,12 @@ import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
 import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
 import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileHeaderProps {
   username: string;
@@ -92,13 +92,19 @@ export default function ProfileHeader({
   }
 
   if (isMobile) {
+    const imageSrc = getCorrectImage();
+    const isDefaultAvatar = imageSrc === DEFAULT_AVATAR;
     return (
       <div className="flex flex-col gap-4">
         <div className="relative w-[100px] h-[100px]">
           <Image
             priority
-            src={getCorrectImage()}
-            alt={pageContent['navbar-user-profile']}
+            src={imageSrc}
+            alt={
+              isDefaultAvatar
+                ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                : pageContent['navbar-user-profile'] || 'User profile'
+            }
             fill
             className="object-cover border rounded-[4px]"
             unoptimized
@@ -165,13 +171,19 @@ export default function ProfileHeader({
     );
   }
 
+  const imageSrc = getCorrectImage();
+  const isDefaultAvatar = imageSrc === DEFAULT_AVATAR;
   return (
     <div className="flex flex-row gap-8 md:gap-12 lg:gap-[96px] mb-8 md:mb-12 lg:mb-[96px] flex-wrap">
       <div className="relative w-[200px] h-[200px] md:w-[250px] md:h-[250px] flex-shrink-0">
         <Image
           priority
-          src={getCorrectImage()}
-          alt={pageContent['navbar-user-profile']}
+          src={imageSrc}
+          alt={
+            isDefaultAvatar
+              ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+              : pageContent['navbar-user-profile'] || 'User profile'
+          }
           fill
           className="object-cover"
           unoptimized

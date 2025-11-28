@@ -160,7 +160,11 @@ export default function RecommendationProfileCard({
       >
         <Image
           src={profileImageUrl || DEFAULT_AVATAR}
-          alt={`${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`}
+          alt={
+            !profileImageUrl || profileImageUrl === DEFAULT_AVATAR
+              ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+              : `${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`
+          }
           fill
           className="object-contain"
           unoptimized

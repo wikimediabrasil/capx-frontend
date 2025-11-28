@@ -84,7 +84,16 @@ export default function BadgesPage() {
         <div className="flex flex-col gap-4">
           <div className="bg-gray-100 p-4 rounded-lg">
             <div className="w-32 h-32 mx-auto mb-4 relative">
-              <Image src={avatarUrl} alt="Selected avatar" fill className="object-contain" />
+              <Image
+                src={avatarUrl}
+                alt={
+                  avatarUrl === DEFAULT_AVATAR
+                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                    : 'Selected avatar'
+                }
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
 
@@ -119,11 +128,11 @@ export default function BadgesPage() {
                 <div
                   key={badge.id}
                   className={`
-                  p-4 
-                  rounded-lg 
+                  p-4
+                  rounded-lg
                   ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
-                  flex flex-col 
-                  items-center 
+                  flex flex-col
+                  items-center
                   text-center
                   h-full
                   justify-between
@@ -140,8 +149,8 @@ export default function BadgesPage() {
                     </div>
                     <h3
                       className={`
-                    text-base md:text-lg 
-                    font-bold 
+                    text-base md:text-lg
+                    font-bold
                     mb-2
                     ${darkMode ? 'text-white' : 'text-[#053749]'}
                     ${!isUnlocked ? 'opacity-60' : ''}
@@ -151,7 +160,7 @@ export default function BadgesPage() {
                     </h3>
                     <p
                       className={`
-                    text-sm md:text-base 
+                    text-sm md:text-base
                     mb-3
                     ${darkMode ? 'text-gray-300' : 'text-gray-600'}
                     ${!isUnlocked ? 'opacity-60' : ''}

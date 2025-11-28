@@ -60,7 +60,6 @@ import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
 import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import PersonIcon from '@/public/static/images/person_book.svg';
 import PersonIconWhite from '@/public/static/images/person_book_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
@@ -79,6 +78,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -282,7 +282,11 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     ) : (
                       <Image
                         src={selectedAvatar.src}
-                        alt="Selected avatar"
+                        alt={
+                          selectedAvatar.src === DEFAULT_AVATAR
+                            ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                            : 'Selected avatar'
+                        }
                         fill
                         className="object-contain"
                         onError={e => {
