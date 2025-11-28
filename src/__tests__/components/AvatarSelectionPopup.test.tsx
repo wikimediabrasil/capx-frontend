@@ -97,11 +97,11 @@ describe('AvatarSelectionPopup', () => {
       expect(noAvatarImage).toBeInTheDocument();
       expect(noAvatarImage).toHaveAttribute(
         'src',
-        'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
+        '/static/images/person.svg'
       );
     });
 
-    it('displays the white "No Avatar" option when in dark mode', () => {
+    it('displays the default person avatar in dark mode', () => {
       (ThemeContext.useTheme as jest.Mock).mockReturnValue({
         darkMode: true,
         setDarkMode: jest.fn(),
@@ -113,7 +113,7 @@ describe('AvatarSelectionPopup', () => {
       expect(noAvatarImage).toBeInTheDocument();
       expect(noAvatarImage).toHaveAttribute(
         'src',
-        'https://upload.wikimedia.org/wikipedia/commons/7/7a/CapX_-_No_avatar_white.svg'
+        '/static/images/person.svg'
       );
     });
 
