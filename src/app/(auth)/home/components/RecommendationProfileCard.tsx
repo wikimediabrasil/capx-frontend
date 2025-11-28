@@ -154,9 +154,7 @@ export default function RecommendationProfileCard({
       )}
 
       <div
-        className={`relative w-full max-w-[195px] h-[115px] md:max-w-[280px] md:h-[180px] ${
-          darkMode ? 'bg-gray-700' : 'bg-[#EFEFEF]'
-        } mt-4 mb-4 self-center rounded-md`}
+        className={`relative w-full max-w-[195px] h-[115px] md:max-w-[280px] md:h-[180px] bg-[#EFEFEF] mt-4 mb-4 self-center rounded-md`}
       >
         <Image
           src={profileImageUrl || DEFAULT_AVATAR}
