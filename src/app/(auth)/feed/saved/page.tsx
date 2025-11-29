@@ -83,6 +83,7 @@ export default function SavedProfilesPage() {
                   profile_image={profile.profile_image}
                   username={profile.username}
                   avatar={profile.avatar}
+                  wikidataQid={profile.wikidataQid}
                   isOrganization={profile.isOrganization}
                   onDelete={() => handleRemoveSavedItem(profile.savedItemId)}
                 />

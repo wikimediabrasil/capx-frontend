@@ -8,6 +8,8 @@ export interface ProfileRecommendation {
   display_name?: string;
   username: string;
   profile_image?: string | null;
+  avatar?: number | null;
+  wikidata_qid?: string | null;
   matches?: number;
   // These will be populated when fetching full profile data
   capacities?: Array<number | string>;

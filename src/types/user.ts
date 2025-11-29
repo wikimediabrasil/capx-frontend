@@ -36,7 +36,6 @@ interface Language {
 
 export interface UserProfile {
   user: UserData;
-  profile_image: string;
   display_name: string;
   pronoun: string;
   about: string;

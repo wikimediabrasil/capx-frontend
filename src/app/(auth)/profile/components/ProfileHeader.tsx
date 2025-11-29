@@ -3,28 +3,29 @@ import BaseButton from '@/components/BaseButton';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
+import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
 import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
 import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileHeaderProps {
   username: string;
-  profileImage?: string;
   avatar?: number;
+  wikidataQid?: string;
   isSameUser: boolean;
 }
 
 export default function ProfileHeader({
   username,
-  profileImage,
   avatar,
+  wikidataQid,
   isSameUser,
 }: ProfileHeaderProps & { isSameUser: boolean }) {
   const router = useRouter();
@@ -35,6 +36,14 @@ export default function ProfileHeader({
   const { showSnackbar } = useSnackbar();
 
   const loadAvatar = useCallback(async () => {
+    // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
+    if (shouldUseWikidataImage(avatar, wikidataQid)) {
+      const wikidataImage = await fetchWikidataImage(wikidataQid!);
+      setAvatarUrl(wikidataImage || DEFAULT_AVATAR);
+      return;
+    }
+
+    // If avatar > 0, fetch from avatar system
     if (typeof avatar === 'number' && avatar > 0) {
       try {
         const avatarData = await getAvatarById(avatar);
@@ -46,20 +55,24 @@ export default function ProfileHeader({
         console.error('Error fetching avatar:', error);
       }
     }
-    setAvatarUrl(profileImage || NoAvatarIcon);
-  }, [avatar, profileImage, getAvatarById]);
+
+    // Default: person avatar
+    setAvatarUrl(DEFAULT_AVATAR);
+  }, [avatar, wikidataQid, getAvatarById]);
 
   useEffect(() => {
     loadAvatar();
   }, [loadAvatar]);
+
   const getCorrectImage = () => {
-    if (profileImage) {
-      return profileImage;
-    } else if (avatar) {
-      const avatarData = avatars?.find(a => a.id === avatar);
-      return avatarData?.avatar_url || NoAvatarIcon;
+    if (avatarUrl) {
+      return avatarUrl;
     }
-    return NoAvatarIcon;
+    if (avatar && avatar > 0) {
+      const avatarData = avatars?.find(a => a.id === avatar);
+      return avatarData?.avatar_url || DEFAULT_AVATAR;
+    }
+    return DEFAULT_AVATAR;
   };
 
   const handleCopyLink = async () => {
@@ -79,19 +92,25 @@ export default function ProfileHeader({
   }
 
   if (isMobile) {
+    const imageSrc = getCorrectImage();
+    const isDefaultAvatar = imageSrc === DEFAULT_AVATAR;
     return (
       <div className="flex flex-col gap-4">
         <div className="relative w-[100px] h-[100px]">
           <Image
             priority
-            src={getCorrectImage()}
-            alt={pageContent['navbar-user-profile']}
+            src={imageSrc}
+            alt={
+              isDefaultAvatar
+                ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                : pageContent['navbar-user-profile'] || 'User profile'
+            }
             fill
             className="object-cover border rounded-[4px]"
             unoptimized
             onError={e => {
               console.error('Error fetching avatar:', e);
-              e.currentTarget.src = NoAvatarIcon;
+              e.currentTarget.src = DEFAULT_AVATAR;
             }}
           />
         </div>
@@ -152,19 +171,25 @@ export default function ProfileHeader({
     );
   }
 
+  const imageSrc = getCorrectImage();
+  const isDefaultAvatar = imageSrc === DEFAULT_AVATAR;
   return (
     <div className="flex flex-row gap-8 md:gap-12 lg:gap-[96px] mb-8 md:mb-12 lg:mb-[96px] flex-wrap">
       <div className="relative w-[200px] h-[200px] md:w-[250px] md:h-[250px] flex-shrink-0">
         <Image
           priority
-          src={getCorrectImage()}
-          alt={pageContent['navbar-user-profile']}
+          src={imageSrc}
+          alt={
+            isDefaultAvatar
+              ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+              : pageContent['navbar-user-profile'] || 'User profile'
+          }
           fill
           className="object-cover"
           unoptimized
           onError={e => {
             console.error('Error fetching avatar:', e);
-            e.currentTarget.src = NoAvatarIcon;
+            e.currentTarget.src = DEFAULT_AVATAR;
           }}
         />
       </div>

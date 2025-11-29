@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect, Children } from 'react';
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import info_blue from '@/public/static/images/info_blue.svg';
+import { useTheme } from '@/contexts/ThemeContext';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
-import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
+import info_blue from '@/public/static/images/info_blue.svg';
+import Image from 'next/image';
+import { Children, useEffect, useRef, useState } from 'react';
 
 interface RecommendationCarouselProps {
   title: string;
@@ -31,8 +30,6 @@ export default function RecommendationCarousel({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const childrenArray = Children.toArray(children);
   const totalItems = childrenArray.length;
-
-  console.log('RecommendationCarousel - title:', title, 'totalItems:', totalItems);
 
   const updateScrollButtons = () => {
     if (scrollContainerRef.current) {
@@ -81,7 +78,6 @@ export default function RecommendationCarousel({
 
   // Allow rendering even with 0 items (shouldn't happen, but just in case)
   if (totalItems === 0) {
-    console.log('RecommendationCarousel - No items to display for:', title);
     return null;
   }
 

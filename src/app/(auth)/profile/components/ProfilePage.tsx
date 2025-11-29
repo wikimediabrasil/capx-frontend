@@ -208,8 +208,8 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
           <div className={'flex flex-col max-w-[600px] mx-auto gap-6'}>
             <ProfileHeader
               username={profile?.user?.username || ''}
-              profileImage={profile?.profile_image}
               avatar={profile?.avatar}
+              wikidataQid={profile?.wikidata_qid}
               isSameUser={isSameUser}
             />
             {shouldRenderEmptyField(profile?.about) && <MiniBio about={profile?.about || ''} />}
@@ -583,8 +583,8 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
           <div className={`flex flex-col mx-auto gap-6 w-full max-w-full`}>
             <ProfileHeader
               username={profile?.user?.username || ''}
-              profileImage={profile?.profile_image}
               avatar={profile?.avatar}
+              wikidataQid={profile?.wikidata_qid}
               isSameUser={isSameUser}
             />
             {shouldRenderEmptyField(profile?.about) && <MiniBio about={profile?.about || ''} />}

@@ -39,6 +39,7 @@ export const ProfileListWithEmpty: React.FC<ProfileListWithEmptyProps> = ({
             wantedCapacities={profile.wantedCapacities}
             availableCapacities={profile.availableCapacities}
             avatar={profile.avatar}
+            wikidataQid={profile.wikidataQid}
             languages={profile.languages}
             territory={profile.territory}
             isOrganization={profile.isOrganization || false}

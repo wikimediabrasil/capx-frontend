@@ -2,22 +2,20 @@ import React from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import { useRouter } from 'next/navigation';
-import { useAvatars } from '@/hooks/useAvatars';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import BaseButton from '@/components/BaseButton';
 
 interface SavedItemCardProps {
   id: string;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   isOrganization?: boolean;
   onDelete: () => void;
 }
@@ -27,15 +25,23 @@ export const SavedItemCard = ({
   username,
   profile_image,
   avatar,
+  wikidataQid,
   isOrganization = false,
   onDelete,
 }: SavedItemCardProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const router = useRouter();
-  const { avatars } = useAvatars();
 
-  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image,
+    avatar,
+    wikidataQid,
+  });
+
+  const defaultAvatar = DEFAULT_AVATAR;
 
   return (
     <div
@@ -67,29 +73,18 @@ export const SavedItemCard = ({
           {/* Profile image */}
           <div className="rounded-lg p-4 mb-3">
             <div className="relative w-full h-[120px] flex justify-center">
-              {profile_image || avatar ? (
-                <Image
-                  src={
-                    isOrganization
-                      ? formatWikiImageUrl(profile_image || '')
-                      : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
-                  }
-                  alt={username}
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                  unoptimized
-                />
-              ) : (
-                <Image
-                  src={defaultAvatar}
-                  alt="User profile"
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                  unoptimized
-                />
-              )}
+              <Image
+                src={profileImageUrl || defaultAvatar}
+                alt={
+                  !profileImageUrl || profileImageUrl === defaultAvatar
+                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                    : username
+                }
+                width={120}
+                height={120}
+                className="object-contain"
+                unoptimized
+              />
             </div>
           </div>
 
@@ -131,29 +126,18 @@ export const SavedItemCard = ({
           {/* Left side - Profile Image */}
           <div className="rounded-lg p-4 flex justify-center items-center">
             <div className="relative w-full h-[160px] flex justify-center">
-              {profile_image || avatar ? (
-                <Image
-                  src={
-                    isOrganization
-                      ? formatWikiImageUrl(profile_image || '')
-                      : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
-                  }
-                  alt={username}
-                  width={160}
-                  height={160}
-                  className="object-contain"
-                  unoptimized
-                />
-              ) : (
-                <Image
-                  src={defaultAvatar}
-                  alt="User profile"
-                  width={160}
-                  height={160}
-                  className="object-contain"
-                  unoptimized
-                />
-              )}
+              <Image
+                src={profileImageUrl || defaultAvatar}
+                alt={
+                  !profileImageUrl || profileImageUrl === defaultAvatar
+                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                    : username
+                }
+                width={160}
+                height={160}
+                className="object-contain"
+                unoptimized
+              />
             </div>
           </div>
 
