@@ -138,7 +138,7 @@ export default function AnalyticsDashboardPage() {
               darkMode ? 'text-white' : 'text-capx-dark-box-bg'
             }`}
           >
-            {formatNumber(data?.total_users ?? 0)}
+            {data?.total_users ?? 0}
           </p>
           <p
             className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#0B8E46]`}
