@@ -96,7 +96,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Learner],
         }
       : undefined,
-    ordering: 'last_update',
+    ordering: '-last_update',
   });
 
   const shouldFetchSharerUsers = activeFilters.profileCapacityTypes.includes(
@@ -115,7 +115,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Sharer],
         }
       : undefined,
-    ordering: 'last_update',
+    ordering: '-last_update',
   });
 
   // Total of records according to the profileFilter
