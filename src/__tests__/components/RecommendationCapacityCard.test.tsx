@@ -55,54 +55,81 @@ const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendatio
   ...overrides,
 });
 
+const createMockUserProfile = () => ({
+  id: 123,
+  username: 'testuser',
+  skills_wanted: [],
+  language: ['en'],
+});
+
+// Helper to setup all mocks
+function setupAllMocks(
+  mockSnackbar: ReturnType<typeof createMockSnackbar>,
+  mockRouter: ReturnType<typeof createMockRouter>,
+  mockQueryClient: ReturnType<typeof createMockQueryClient>,
+  mockUserProfile: ReturnType<typeof createMockUserProfile>
+) {
+  const { useRouter } = require('next/navigation');
+  (useRouter as jest.Mock).mockReturnValue(mockRouter);
+  setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
+  (useCapacityCache as jest.Mock).mockReturnValue(createMockCapacityCache());
+  (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
+  (useQuery as jest.Mock).mockReturnValue({
+    data: mockUserProfile,
+    isLoading: false,
+  });
+  (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+}
+
+// Helper to render card with default props
+function renderCapacityCard(props = {}) {
+  const defaultProps = {
+    recommendation: createMockCapacityRecommendation(),
+    ...props,
+  };
+
+  return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />, [
+    ThemeProvider,
+    AppProvider,
+    CapacityCacheProvider,
+  ]);
+}
+
+// Helper to wait for card to be loaded
+async function waitForCardLoaded() {
+  await waitFor(() => {
+    const headings = screen.queryAllByText('Learning');
+    expect(headings.length).toBeGreaterThan(0);
+  });
+}
+
+// Helper to click add to profile button
+async function clickAddToProfileButton() {
+  await waitFor(() => {
+    expect(screen.getByText('Add to Profile')).toBeInTheDocument();
+  });
+
+  const addButton = screen.getByText('Add to Profile');
+  fireEvent.click(addButton);
+}
+
 describe('RecommendationCapacityCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockRouter = createMockRouter();
   const mockQueryClient = createMockQueryClient();
-
-  const mockUserProfile = {
-    id: 123,
-    username: 'testuser',
-    skills_wanted: [],
-    language: ['en'],
-  };
+  const mockUserProfile = createMockUserProfile();
 
   beforeEach(() => {
-    const { useRouter } = require('next/navigation');
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-    (useCapacityCache as jest.Mock).mockReturnValue(createMockCapacityCache());
-    (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
-    (useQuery as jest.Mock).mockReturnValue({
-      data: mockUserProfile,
-      isLoading: false,
-    });
-    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+    setupAllMocks(mockSnackbar, mockRouter, mockQueryClient, mockUserProfile);
   });
 
   afterEach(cleanupMocks);
 
-  const renderCard = (props = {}) => {
-    const defaultProps = {
-      recommendation: createMockCapacityRecommendation(),
-      ...props,
-    };
-
-    return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />, [
-      ThemeProvider,
-      AppProvider,
-      CapacityCacheProvider,
-    ]);
-  };
-
   describe('Rendering', () => {
     it('should render capacity recommendation card correctly', async () => {
-      renderCard();
+      renderCapacityCard();
 
-      await waitFor(() => {
-        const headings = screen.queryAllByText('Learning');
-        expect(headings.length).toBeGreaterThan(0);
-      });
+      await waitForCardLoaded();
 
       expect(screen.getByText('Learning capability')).toBeInTheDocument();
       expect(screen.getByText('Add to Profile')).toBeInTheDocument();
@@ -110,7 +137,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should render with hint message when provided', async () => {
-      renderCard({
+      renderCapacityCard({
         hintMessage: 'Recommended for you',
       });
 
@@ -124,7 +151,7 @@ describe('RecommendationCapacityCard', () => {
         darkMode: true,
       });
 
-      const { container } = renderCard();
+      const { container } = renderCapacityCard();
 
       await waitFor(() => {
         const card = container.querySelector('.bg-gray-800');
@@ -133,9 +160,8 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should eventually show content after loading', async () => {
-      renderCard();
+      renderCapacityCard();
 
-      // Wait for content to load
       await waitFor(() => {
         expect(screen.getByText('Add to Profile')).toBeInTheDocument();
       });
@@ -147,7 +173,7 @@ describe('RecommendationCapacityCard', () => {
       const { profileService } = require('@/services/profileService');
       profileService.updateProfile.mockResolvedValue({});
 
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         expect(screen.getByText('Learning')).toBeInTheDocument();
@@ -184,7 +210,7 @@ describe('RecommendationCapacityCard', () => {
         isLoading: false,
       });
 
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         expect(screen.getByText('✓ Added')).toBeInTheDocument();
@@ -198,14 +224,9 @@ describe('RecommendationCapacityCard', () => {
       const { profileService } = require('@/services/profileService');
       profileService.updateProfile.mockRejectedValue(new Error('Network error'));
 
-      renderCard();
+      renderCapacityCard();
 
-      await waitFor(() => {
-        expect(screen.getByText('Add to Profile')).toBeInTheDocument();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      await clickAddToProfileButton();
 
       await waitFor(() => {
         expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith('Network error', 'error');
@@ -214,11 +235,10 @@ describe('RecommendationCapacityCard', () => {
 
     it('should disable button while adding capacity', async () => {
       const { profileService } = require('@/services/profileService');
-      profileService.updateProfile.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({}), 100))
-      );
+      const delayedResponse = new Promise(resolve => setTimeout(() => resolve({}), 100));
+      profileService.updateProfile.mockImplementation(() => delayedResponse);
 
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         expect(screen.getByText('Learning')).toBeInTheDocument();
@@ -244,36 +264,32 @@ describe('RecommendationCapacityCard', () => {
         isLoading: false,
       });
 
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         expect(screen.getByText('✓ Added')).toBeInTheDocument();
       });
 
-      // Should not call updateProfile since capacity is already added
       expect(profileService.updateProfile).not.toHaveBeenCalled();
     });
   });
 
   describe('View functionality', () => {
     it('should redirect to feed page with capacity filter when View button is clicked', async () => {
-      renderCard();
+      renderCapacityCard();
 
-      await waitFor(() => {
-        expect(screen.getByText('Add to Profile')).toBeInTheDocument();
-      });
+      await clickAddToProfileButton();
 
       const viewButton = screen.getByText('View');
       fireEvent.click(viewButton);
 
-      // Should redirect to feed with capacityId parameter
       expect(mockRouter.push).toHaveBeenCalledWith('/feed?capacityId=50');
     });
   });
 
   describe('Capacity data', () => {
     it('should use recommendation name if provided', async () => {
-      renderCard({
+      renderCapacityCard({
         recommendation: createMockCapacityRecommendation({
           name: 'Custom Capacity Name',
         }),
@@ -285,7 +301,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should use cached name if recommendation name is empty', async () => {
-      renderCard({
+      renderCapacityCard({
         recommendation: createMockCapacityRecommendation({
           name: '',
         }),
@@ -297,7 +313,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should use recommendation description if provided', async () => {
-      renderCard({
+      renderCapacityCard({
         recommendation: createMockCapacityRecommendation({
           description: 'Custom description',
         }),
@@ -309,7 +325,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should use cached description if recommendation description is empty', async () => {
-      renderCard({
+      renderCapacityCard({
         recommendation: createMockCapacityRecommendation({
           description: '',
         }),
@@ -321,7 +337,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should display capacity icon with correct styling', async () => {
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         const icon = screen.getByAltText('Capacity icon');
@@ -332,7 +348,7 @@ describe('RecommendationCapacityCard', () => {
 
   describe('Accessibility', () => {
     it('should have proper aria labels and semantic HTML', async () => {
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         const heading = screen.getByRole('heading', { name: /Learning/i });
@@ -341,7 +357,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should render hint icon with aria-hidden', async () => {
-      renderCard({
+      renderCapacityCard({
         hintMessage: 'Test hint',
       });
 
@@ -356,7 +372,7 @@ describe('RecommendationCapacityCard', () => {
       const { profileService } = require('@/services/profileService');
       profileService.updateProfile.mockResolvedValue({});
 
-      renderCard();
+      renderCapacityCard();
 
       await waitFor(() => {
         expect(screen.getByText('Learning')).toBeInTheDocument();
