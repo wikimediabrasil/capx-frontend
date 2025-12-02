@@ -117,8 +117,8 @@ describe('AuthButton', () => {
   });
 
   const testResponsiveView = (width: number, expectedClass: string) => {
-    global.innerWidth = width;
-    global.dispatchEvent(new Event('resize'));
+    globalThis.innerWidth = width;
+    globalThis.dispatchEvent(new Event('resize'));
 
     renderButton({ message: 'Entrar com sua conta da Wikimedia', isSignOut: false });
     expect(screen.getByRole('button')).toHaveClass(expectedClass);

@@ -91,7 +91,7 @@ export const createMockEventData = (overrides?: any) => ({
 
 // Setup fetch mock with multiple responses
 export const mockFetchSequence = (...responses: any[]) => {
-  const mockFetch = global.fetch as jest.Mock;
+  const mockFetch = globalThis.fetch as jest.Mock;
   responses.forEach(response => {
     mockFetch.mockResolvedValueOnce(createMockFetchResponse(response));
   });
@@ -99,12 +99,12 @@ export const mockFetchSequence = (...responses: any[]) => {
 
 // Common error response
 export const mockFetchError = (error: string = 'API Error') => {
-  (global.fetch as jest.Mock).mockRejectedValueOnce(new Error(error));
+  (globalThis.fetch as jest.Mock).mockRejectedValueOnce(new Error(error));
 };
 
 // Common failure response
 export const mockFetchFailure = () => {
-  (global.fetch as jest.Mock).mockResolvedValueOnce({
+  (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
     ok: false,
   });
 };

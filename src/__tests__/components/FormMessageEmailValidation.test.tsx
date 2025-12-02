@@ -133,9 +133,10 @@ describe('FormMessage Email Validation', () => {
 
   describe('Email availability checking', () => {
     it('should show loading state while checking email', async () => {
-      const delayedResponse = new Promise<EmailStatus>(resolve =>
-        setTimeout(() => resolve(createMockEmailStatus(true, true, true)), 100)
-      );
+      const delayedResponse = new Promise<EmailStatus>(resolve => {
+        const mockStatus = createMockEmailStatus(true, true, true);
+        setTimeout(() => resolve(mockStatus), 100);
+      });
       mockedMessageService.checkEmailable.mockImplementation(() => delayedResponse);
 
       renderEmailValidation();

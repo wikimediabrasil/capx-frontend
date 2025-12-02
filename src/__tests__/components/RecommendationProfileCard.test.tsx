@@ -237,7 +237,9 @@ describe('RecommendationProfileCard', () => {
     });
 
     it('should disable save button while saving', async () => {
-      const delayedResponse = new Promise(resolve => setTimeout(() => resolve(true), 100));
+      const delayedResponse = new Promise(resolve => {
+        setTimeout(() => resolve(true), 100);
+      });
       mockSavedItems.createSavedItem.mockImplementation(() => delayedResponse);
 
       renderProfileCard();

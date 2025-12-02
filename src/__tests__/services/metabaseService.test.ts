@@ -12,12 +12,8 @@ import {
   isValidEventURL,
 } from '@/services/metabaseService';
 import {
-  createWikidataBinding,
   createWikidataResponse,
   createEmptyWikidataResponse,
-  createWikimediaPageExtract,
-  createWikimediaPageProps,
-  createWikimediaRevision,
   createLocationBinding,
   createMockEventData,
   mockFetchSequence,
@@ -28,7 +24,7 @@ import {
 } from '../utils/api-test-helpers';
 
 // Mock fetch globally
-global.fetch = jest.fn();
+globalThis.fetch = jest.fn();
 
 describe('MetabaseService - Enhanced Auto-fill', () => {
   beforeEach(() => {

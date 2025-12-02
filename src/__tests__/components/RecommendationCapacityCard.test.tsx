@@ -235,7 +235,9 @@ describe('RecommendationCapacityCard', () => {
 
     it('should disable button while adding capacity', async () => {
       const { profileService } = require('@/services/profileService');
-      const delayedResponse = new Promise(resolve => setTimeout(() => resolve({}), 100));
+      const delayedResponse = new Promise(resolve => {
+        setTimeout(() => resolve({}), 100);
+      });
       profileService.updateProfile.mockImplementation(() => delayedResponse);
 
       renderCapacityCard();

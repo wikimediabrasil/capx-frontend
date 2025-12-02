@@ -61,13 +61,18 @@ function getInputClasses(darkMode: boolean): string {
 
 // Component: Filter Section Header
 interface FilterSectionHeaderProps {
-  icon: any;
-  iconWhite: any;
-  title: string;
-  darkMode: boolean;
+  readonly icon: any;
+  readonly iconWhite: any;
+  readonly title: string;
+  readonly darkMode: boolean;
 }
 
-function FilterSectionHeader({ icon, iconWhite, title, darkMode }: FilterSectionHeaderProps) {
+function FilterSectionHeader({
+  icon,
+  iconWhite,
+  title,
+  darkMode,
+}: Readonly<FilterSectionHeaderProps>) {
   return (
     <div className="flex items-center gap-2">
       <Image src={darkMode ? iconWhite : icon} alt={`${title} icon`} width={24} height={24} />
@@ -78,10 +83,10 @@ function FilterSectionHeader({ icon, iconWhite, title, darkMode }: FilterSection
 
 // Component: Selected Capacities List
 interface SelectedCapacitiesListProps {
-  capacities: Skill[];
-  onRemove: (code: number) => void;
-  darkMode: boolean;
-  removeIconAlt: string;
+  readonly capacities: Skill[];
+  readonly onRemove: (code: number) => void;
+  readonly darkMode: boolean;
+  readonly removeIconAlt: string;
 }
 
 function SelectedCapacitiesList({
@@ -89,7 +94,7 @@ function SelectedCapacitiesList({
   onRemove,
   darkMode,
   removeIconAlt,
-}: SelectedCapacitiesListProps) {
+}: Readonly<SelectedCapacitiesListProps>) {
   if (capacities.length === 0) return null;
 
   return (

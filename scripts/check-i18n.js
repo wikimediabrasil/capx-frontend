@@ -10,7 +10,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SRC_DIR = path.join(ROOT, 'src');
 const EN_JSON_PATH = path.join(ROOT, 'locales', 'en.json');
-const EXCLUDED_DIRS = ['.next', 'node_modules', 'coverage'];
+const EXCLUDED_DIRS = new Set(['.next', 'node_modules', 'coverage']);
 const VALID_FILE_EXTENSIONS = /\.(ts|tsx|js|jsx)$/;
 const I18N_KEY_REGEX = /pageContent\s*(?:\?\.)?\[\s*([`'"])(.*?)\1\s*\]/g;
 const MAX_PREVIEW_KEYS = 200;
@@ -26,7 +26,7 @@ function readJson(filePath) {
 }
 
 function shouldProcessDirectory(dirName) {
-  return !EXCLUDED_DIRS.includes(dirName);
+  return !EXCLUDED_DIRS.has(dirName);
 }
 
 function shouldProcessFile(fileName) {

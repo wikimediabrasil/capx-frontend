@@ -141,7 +141,7 @@ export const createMockFetchResponse = (data: any, ok = true) => ({
 });
 
 export const setupFetchMock = (responses: any[]) => {
-  const mockFetch = global.fetch as jest.Mock;
+  const mockFetch = globalThis.fetch as jest.Mock;
   responses.forEach(response => {
     mockFetch.mockResolvedValueOnce(response);
   });

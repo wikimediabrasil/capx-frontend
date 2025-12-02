@@ -91,14 +91,14 @@ function getTopItems<T extends Record<string, any>>(
 
 // Component: Stat Card
 interface StatCardProps {
-  title: string;
-  value: number;
-  subtitle: string;
-  subtitleColor: string;
-  darkMode: boolean;
+  readonly title: string;
+  readonly value: number;
+  readonly subtitle: string;
+  readonly subtitleColor: string;
+  readonly darkMode: boolean;
 }
 
-function StatCard({ title, value, subtitle, subtitleColor, darkMode }: StatCardProps) {
+function StatCard({ title, value, subtitle, subtitleColor, darkMode }: Readonly<StatCardProps>) {
   const textColor = darkMode ? 'text-white' : 'text-capx-dark-box-bg';
 
   return (
@@ -122,12 +122,12 @@ function StatCard({ title, value, subtitle, subtitleColor, darkMode }: StatCardP
 
 // Component: Dropdown Section Header
 interface DropdownHeaderProps {
-  icon: any;
-  iconWhite: any;
-  title: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  darkMode: boolean;
+  readonly icon: any;
+  readonly iconWhite: any;
+  readonly title: string;
+  readonly isOpen: boolean;
+  readonly onToggle: () => void;
+  readonly darkMode: boolean;
 }
 
 function DropdownHeader({
@@ -137,12 +137,26 @@ function DropdownHeader({
   isOpen,
   onToggle,
   darkMode,
-}: DropdownHeaderProps) {
+}: Readonly<DropdownHeaderProps>) {
   const arrowIcon = darkMode ? ArrowDownIconWhite : ArrowDownIcon;
   const sectionIcon = darkMode ? iconWhite : icon;
 
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onToggle();
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between cursor-pointer" onClick={onToggle}>
+    <div
+      role="button"
+      tabIndex={0}
+      className="flex items-center justify-between cursor-pointer"
+      onClick={onToggle}
+      onKeyPress={handleKeyPress}
+      aria-expanded={isOpen}
+    >
       <div className="flex items-center gap-2">
         <Image
           src={sectionIcon}
