@@ -108,3 +108,25 @@ export const mockFetchFailure = () => {
     ok: false,
   });
 };
+
+// Helper to create complete Wikimedia page mock sequence
+export const mockWikimediaPageSequence = (extract: string, qid: string, infoboxContent: string) => {
+  mockFetchSequence(
+    createWikimediaPageExtract(extract),
+    createWikimediaPageProps(qid),
+    createWikimediaRevision(infoboxContent)
+  );
+};
+
+// Helper to create standard event binding
+export const createStandardEventBinding = () =>
+  createWikidataBinding({
+    name: 'Wikimania 2025',
+    description: 'Annual Wikimedia conference',
+    image_url: 'https://commons.wikimedia.org/wiki/Special:FilePath/event.jpg',
+    start_date: '2025-07-19T00:00:00Z',
+    end_date: '2025-07-21T23:59:59Z',
+    location: 'https://www.wikidata.org/entity/Q123',
+    location_name: 'São Paulo',
+    url: 'https://meta.wikimedia.org/wiki/Wikimania_2025',
+  });
