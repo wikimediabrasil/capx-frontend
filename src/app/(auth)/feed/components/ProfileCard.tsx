@@ -51,6 +51,35 @@ interface ProfileCardProps {
   hasIncompleteProfile?: boolean;
 }
 
+// Helper functions
+function getTypeBadgeColors(type: string, darkMode: boolean) {
+  const isLearner = type === 'learner';
+  if (darkMode) {
+    return isLearner ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
+  }
+  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#05A300] border-[#05A300]';
+}
+
+function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
+  if (isSaved) {
+    return darkMode ? BookmarkFilledWhite : BookmarkFilled;
+  }
+  return darkMode ? BookmarkWhite : Bookmark;
+}
+
+function getProfileButtonIcon(isOrganization: boolean, darkMode: boolean) {
+  if (isOrganization) {
+    return darkMode ? UserCircleIconWhite : UserCircleIcon;
+  }
+  return darkMode ? AccountCircleWhite : AccountCircle;
+}
+
+function getProfileRoute(isOrganization: boolean, id: string, username: string) {
+  return isOrganization
+    ? `/organization_profile/${id}`
+    : `/profile/${encodeURIComponent(username)}`;
+}
+
 export const ProfileCard = ({
   id,
   username,
@@ -91,25 +120,14 @@ export const ProfileCard = ({
 
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
+  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
+  const bookmarkIcon = getBookmarkIcon(isSaved, darkMode);
+  const profileButtonIcon = getProfileButtonIcon(isOrganization, darkMode);
 
   const learnerLabel = pageContent['profile-learner'] || 'Learner';
   const sharerLabel = pageContent['profile-sharer'] || 'Sharer';
-
   const typeBadgeBaseClass =
     'md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border';
-
-  const typeBadgeColorLightMode =
-    primaryType === 'learner'
-      ? 'text-purple-800 border-purple-800'
-      : 'text-[#05A300] border-[#05A300]';
-
-  const typeBadgeColorDarkMode =
-    primaryType === 'learner'
-      ? 'text-purple-200 border-purple-200'
-      : 'text-[#05A300] border-[#05A300]';
-
-  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
-
   const capacityItemClass = 'font-[Montserrat] text-[14px] not-italic leading-[normal]';
 
   const capacitiesTitleSingle =
@@ -117,28 +135,12 @@ export const ProfileCard = ({
       ? pageContent['body-profile-wanted-capacities-title']
       : pageContent['body-profile-available-capacities-title'];
 
-  const profileButtonIcon = isOrganization
-    ? darkMode
-      ? UserCircleIconWhite
-      : UserCircleIcon
-    : darkMode
-      ? AccountCircleWhite
-      : AccountCircle;
-
-  const hasNoSpecificCapacities =
-    (!wantedCapacities || wantedCapacities.length === 0) &&
-    (!availableCapacities || availableCapacities.length === 0);
-
-  const bookmarkIcon = isSaved
-    ? darkMode
-      ? BookmarkFilledWhite
-      : BookmarkFilled
-    : darkMode
-      ? BookmarkWhite
-      : Bookmark;
-
   const toggleSaved = () => {
     onToggleSaved && onToggleSaved();
+  };
+
+  const navigateToProfile = () => {
+    router.push(getProfileRoute(isOrganization, id, username));
   };
 
   return (
@@ -191,9 +193,7 @@ export const ProfileCard = ({
                   </>
                 ) : (
                   <span
-                    className={`${typeBadgeBaseClass} ${
-                      darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
-                    }`}
+                    className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}
                   >
                     {primaryType === 'learner'
                       ? learnerLabel
@@ -259,12 +259,7 @@ export const ProfileCard = ({
                     ? 'text-capx-light-bg border-capx-light-bg'
                     : 'text-capx-dark-box-bg border-capx-dark-box-bg'
                 }`}
-                onClick={() => {
-                  const routePath = isOrganization
-                    ? `/organization_profile/${id}`
-                    : `/profile/${encodeURIComponent(username)}`;
-                  router.push(routePath);
-                }}
+                onClick={navigateToProfile}
                 imageUrl={profileButtonIcon}
                 imageAlt={pageContent['alt-view-profile-user'] || 'View user profile'}
                 imageWidth={40}
@@ -397,12 +392,7 @@ export const ProfileCard = ({
                 className={`inline-flex items-center justify-center p-1.5 rounded-full ${
                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                 }`}
-                onClick={() => {
-                  const routePath = isOrganization
-                    ? `/organization_profile/${id}`
-                    : `/profile/${encodeURIComponent(username)}`;
-                  router.push(routePath);
-                }}
+                onClick={navigateToProfile}
               >
                 <Image
                   src={darkMode ? AccountCircleWhite : AccountCircle}

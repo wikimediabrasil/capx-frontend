@@ -28,8 +28,162 @@ import { useSession } from 'next-auth/react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
 import LoadingState from '@/components/LoadingState';
 
+// Constants
+const SKILL_METADATA = {
+  10: {
+    icon: corporateFareWhite,
+    headerColor: '#0070B9',
+    key: 'analytics-bashboard-capacities-card-organizational-structure',
+  },
+  36: {
+    icon: communication,
+    headerColor: '#AE0269',
+    key: 'analytics-bashboard-capacities-card-communication',
+  },
+  50: {
+    icon: learner,
+    headerColor: '#02AE8C',
+    key: 'analytics-bashboard-capacities-card-learning-and-evaluation',
+  },
+  56: {
+    icon: communities,
+    headerColor: '#811A96',
+    key: 'analytics-bashboard-capacities-card-community-health-initiative',
+  },
+  65: {
+    icon: socialSkills,
+    headerColor: '#AE6F02',
+    key: 'analytics-bashboard-capacities-card-social-skill',
+  },
+  74: {
+    icon: strategic,
+    headerColor: '#369BDB',
+    key: 'analytics-bashboard-capacities-card-strategic-management',
+  },
+  106: {
+    icon: technology,
+    headerColor: '#0B8E46',
+    key: 'analytics-bashboard-capacities-card-technology',
+  },
+};
+
+// Helper functions
+function formatNumber(num: number): string {
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString();
+}
+
+function getTopItems<T extends Record<string, any>>(
+  items: T,
+  counts: Record<string, number> | undefined,
+  limit?: number
+) {
+  const sorted = Object.entries(items)
+    .map(([id, name]) => ({
+      id: Number(id),
+      name,
+      count: counts?.[id] ?? 0,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  return limit ? sorted.slice(0, limit) : sorted;
+}
+
+// Component: Stat Card
+interface StatCardProps {
+  title: string;
+  value: number;
+  subtitle: string;
+  subtitleColor: string;
+  darkMode: boolean;
+}
+
+function StatCard({ title, value, subtitle, subtitleColor, darkMode }: StatCardProps) {
+  const textColor = darkMode ? 'text-white' : 'text-capx-dark-box-bg';
+
+  return (
+    <div className="flex flex-col items-center md:items-start text-center md:text-left">
+      <p
+        className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal leading-[2] md:leading-[29px] ${textColor}`}
+      >
+        {title}
+      </p>
+      <p className={`font-[Montserrat] text-[36px] md:text-[96px] font-bold ${textColor}`}>
+        {formatNumber(value)}
+      </p>
+      <p
+        className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] ${subtitleColor}`}
+      >
+        {subtitle}
+      </p>
+    </div>
+  );
+}
+
+// Component: Dropdown Section Header
+interface DropdownHeaderProps {
+  icon: any;
+  iconWhite: any;
+  title: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  darkMode: boolean;
+}
+
+function DropdownHeader({
+  icon,
+  iconWhite,
+  title,
+  isOpen,
+  onToggle,
+  darkMode,
+}: DropdownHeaderProps) {
+  const arrowIcon = darkMode ? ArrowDownIconWhite : ArrowDownIcon;
+  const sectionIcon = darkMode ? iconWhite : icon;
+
+  return (
+    <div className="flex items-center justify-between cursor-pointer" onClick={onToggle}>
+      <div className="flex items-center gap-2">
+        <Image
+          src={sectionIcon}
+          alt="Section icon"
+          width={20}
+          height={20}
+          className="block md:hidden"
+        />
+        <Image
+          src={sectionIcon}
+          alt="Section icon"
+          width={48}
+          height={48}
+          className="hidden md:block"
+        />
+        <h2
+          className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${darkMode ? 'text-white' : 'text-[#053749]'}`}
+        >
+          {title}
+        </h2>
+      </div>
+      <Image
+        src={arrowIcon}
+        alt="Arrow dropdown"
+        width={48}
+        height={48}
+        className={`transition-transform duration-300 hidden md:block ${isOpen ? 'rotate-180' : ''}`}
+      />
+      <Image
+        src={arrowIcon}
+        alt="Arrow dropdown"
+        width={20}
+        height={20}
+        className={`transition-transform duration-300 block md:hidden ${isOpen ? 'rotate-180' : ''}`}
+      />
+    </div>
+  );
+}
+
 export default function AnalyticsDashboardPage() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { data: session } = useSession();
   const token = session?.user?.token;
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -40,72 +194,16 @@ export default function AnalyticsDashboardPage() {
   const [openLanguages, setOpenLanguages] = useState(false);
   const [openTerritories, setOpenTerritories] = useState(false);
   const [openCapacities, setOpenCapacities] = useState(false);
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-    return num.toLocaleString();
-  };
-
-  const sortedTerritories = Object.entries(territories)
-    .map(([id, name]) => ({
-      id: Number(id),
-      name,
-      count: data?.territory_user_counts[id] ?? 0,
-    }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
-
-  const sortedLanguages = Object.entries(languages)
-    .map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-      count: data?.language_user_counts[id] ?? 0,
-    }))
-    .sort((a, b) => b.count - a.count);
-
   const [visibleLanguagesCount, setVisibleLanguagesCount] = useState(8);
+
+  const sortedTerritories = getTopItems(territories, data?.territory_user_counts, 8);
+  const sortedLanguages = getTopItems(languages, data?.language_user_counts);
   const visibleLanguages = sortedLanguages.slice(0, visibleLanguagesCount);
+
   const handleLoadMoreLanguages = () => {
     setVisibleLanguagesCount(prev => prev + 8);
   };
 
-  const skillMeta = {
-    10: {
-      icon: corporateFareWhite,
-      headerColor: '#0070B9',
-      title: pageContent['analytics-bashboard-capacities-card-organizational-structure'],
-    },
-    36: {
-      icon: communication,
-      headerColor: '#AE0269',
-      title: pageContent['analytics-bashboard-capacities-card-communication'],
-    },
-    50: {
-      icon: learner,
-      headerColor: '#02AE8C',
-      title: pageContent['analytics-bashboard-capacities-card-learning-and-evaluation'],
-    },
-    56: {
-      icon: communities,
-      headerColor: '#811A96',
-      title: pageContent['analytics-bashboard-capacities-card-community-health-initiative'],
-    },
-    65: {
-      icon: socialSkills,
-      headerColor: '#AE6F02',
-      title: pageContent['analytics-bashboard-capacities-card-social-skill'],
-    },
-    74: {
-      icon: strategic,
-      headerColor: '#369BDB',
-      title: pageContent['analytics-bashboard-capacities-card-strategic-management'],
-    },
-    106: {
-      icon: technology,
-      headerColor: '#0B8E46',
-      title: pageContent['analytics-bashboard-capacities-card-technology'],
-    },
-  };
   const availableCount = data?.skill_available_user_counts;
   const wantedCount = data?.skill_wanted_user_counts;
 
@@ -124,124 +222,39 @@ export default function AnalyticsDashboardPage() {
       />
 
       <div className="flex flex-row justify-between md:justify-start gap-10 md:gap-60 py-8 px-4 w-full">
-        {/* Total Users */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left">
-          <p
-            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal leading-[2] md:leading-[29px] ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {pageContent['analytics-bashboard-total-users']}
-          </p>
-          <p
-            className={`font-[Montserrat] text-[36px] md:text-[96px] font-bold ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {formatNumber(data?.total_users ?? 0)}
-          </p>
-          <p
-            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#0B8E46]`}
-          >
-            {pageContent['analytics-bashboard-total-users-sub']}
-          </p>
-        </div>
-
-        {/* Total New Users */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left">
-          <p
-            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal leading-[2] md:leading-[29px] ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {pageContent['analytics-bashboard-new-users']}
-          </p>
-          <p
-            className={`font-[Montserrat] text-[36px] md:text-[96px] font-bold ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {formatNumber(data?.new_users ?? 0)}
-          </p>
-          <p
-            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#D43831]`}
-          >
-            {pageContent['analytics-bashboard-new-users-sub']}
-          </p>
-        </div>
-
-        {/* Total Messages */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left">
-          <p
-            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal leading-[2] md:leading-[29px] ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {pageContent['analytics-bashboard-total-messages']}
-          </p>
-          <p
-            className={`font-[Montserrat] text-[36px] md:text-[96px] font-bold ${
-              darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {formatNumber(data?.total_messages ?? 0)}
-          </p>
-          <p
-            className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] text-[#0070B9]`}
-          >
-            {pageContent['analytics-bashboard-total-messages-sub']}
-          </p>
-        </div>
+        <StatCard
+          title={pageContent['analytics-bashboard-total-users']}
+          value={data?.total_users ?? 0}
+          subtitle={pageContent['analytics-bashboard-total-users-sub']}
+          subtitleColor="text-[#0B8E46]"
+          darkMode={darkMode}
+        />
+        <StatCard
+          title={pageContent['analytics-bashboard-new-users']}
+          value={data?.new_users ?? 0}
+          subtitle={pageContent['analytics-bashboard-new-users-sub']}
+          subtitleColor="text-[#D43831]"
+          darkMode={darkMode}
+        />
+        <StatCard
+          title={pageContent['analytics-bashboard-total-messages']}
+          value={data?.total_messages ?? 0}
+          subtitle={pageContent['analytics-bashboard-total-messages-sub']}
+          subtitleColor="text-[#0070B9]"
+          darkMode={darkMode}
+        />
       </div>
 
       {/* Language Dropdown */}
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
-        <div
-          className="flex items-center justify-between cursor-pointer"
-          onClick={() => setOpenLanguages(!openLanguages)}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? LanguageIconWhite : LanguageIcon}
-              alt="Territory icon"
-              width={20}
-              height={20}
-              className="block md:hidden"
-            />
-            <Image
-              src={darkMode ? LanguageIconWhite : LanguageIcon}
-              alt="Territory icon"
-              width={48}
-              height={48}
-              className="hidden md:block"
-            />
-            <h2
-              className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${
-                darkMode ? 'text-white' : 'text-[#053749]'
-              }`}
-            >
-              {pageContent['analytics-bashboard-languages-title']}
-            </h2>
-          </div>
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt="Arrow dropdown"
-            width={48}
-            height={48}
-            className={`transition-transform duration-300 hidden md:block ${
-              openLanguages ? 'rotate-180' : ''
-            }`}
-          />
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt="Arrow dropdown"
-            width={20}
-            height={20}
-            className={`transition-transform duration-300 block md:hidden ${
-              openLanguages ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
+        <DropdownHeader
+          icon={LanguageIcon}
+          iconWhite={LanguageIconWhite}
+          title={pageContent['analytics-bashboard-languages-title']}
+          isOpen={openLanguages}
+          onToggle={() => setOpenLanguages(!openLanguages)}
+          darkMode={darkMode}
+        />
 
         {openLanguages && (
           <div
@@ -288,52 +301,14 @@ export default function AnalyticsDashboardPage() {
 
       {/* Territories Dropdown */}
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
-        <div
-          className="flex items-center justify-between cursor-pointer"
-          onClick={() => setOpenTerritories(!openTerritories)}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-              alt="Territory icon"
-              width={20}
-              height={20}
-              className="block md:hidden"
-            />
-            <Image
-              src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-              alt="Territory icon"
-              width={48}
-              height={48}
-              className="hidden md:block"
-            />
-            <h2
-              className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${
-                darkMode ? 'text-white' : 'text-[#053749]'
-              }`}
-            >
-              {pageContent['analytics-bashboard-territory-title']}
-            </h2>
-          </div>
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt="Arrow dropdown"
-            width={48}
-            height={48}
-            className={`transition-transform duration-300 hidden md:block ${
-              openTerritories ? 'rotate-180' : ''
-            }`}
-          />
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt="Arrow dropdown"
-            width={20}
-            height={20}
-            className={`transition-transform duration-300 block md:hidden ${
-              openTerritories ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
+        <DropdownHeader
+          icon={TerritoryIcon}
+          iconWhite={TerritoryIconWhite}
+          title={pageContent['analytics-bashboard-territory-title']}
+          isOpen={openTerritories}
+          onToggle={() => setOpenTerritories(!openTerritories)}
+          darkMode={darkMode}
+        />
 
         {openTerritories && (
           <div
@@ -369,76 +344,43 @@ export default function AnalyticsDashboardPage() {
 
       {/* Capacties Dropdown */}
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
-        <div
-          className="flex items-center justify-between cursor-pointer"
-          onClick={() => setOpenCapacities(!openCapacities)}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? capxIconWhite : CapxIcon}
-              alt="Territory icon"
-              width={20}
-              height={20}
-              className="block md:hidden"
-            />
-            <Image
-              src={darkMode ? capxIconWhite : CapxIcon}
-              alt="Territory icon"
-              width={48}
-              height={48}
-              className="hidden md:block"
-            />
-            <h2
-              className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${
-                darkMode ? 'text-white' : 'text-[#053749]'
-              }`}
-            >
-              {pageContent['analytics-bashboard-capacities-title']}
-            </h2>
-          </div>
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt="Arrow dropdown"
-            width={48}
-            height={48}
-            className={`transition-transform duration-300 hidden md:block ${
-              openCapacities ? 'rotate-180' : ''
-            }`}
-          />
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt="Arrow dropdown"
-            width={20}
-            height={20}
-            className={`transition-transform duration-300 block md:hidden ${
-              openCapacities ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
+        <DropdownHeader
+          icon={CapxIcon}
+          iconWhite={capxIconWhite}
+          title={pageContent['analytics-bashboard-capacities-title']}
+          isOpen={openCapacities}
+          onToggle={() => setOpenCapacities(!openCapacities)}
+          darkMode={darkMode}
+        />
 
         {openCapacities && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {availableCount &&
-              Object.keys(availableCount).map(id => (
-                <CapacityCardAnalytics
-                  key={id}
-                  open={openCapacities}
-                  title={skillMeta[Number(id)]?.title}
-                  icon={skillMeta[Number(id)]?.icon}
-                  headerColor={skillMeta[Number(id)]?.headerColor || '#EFEFEF'}
-                  darkMode={darkMode}
-                  cards={[
-                    {
-                      titleCard: pageContent['analytics-bashboard-capacities-card-learners'],
-                      value: wantedCount?.[id] || 0,
-                    },
-                    {
-                      titleCard: pageContent['analytics-bashboard-capacities-card-sharers'],
-                      value: availableCount?.[id] || 0,
-                    },
-                  ]}
-                />
-              ))}
+              Object.keys(availableCount).map(id => {
+                const skillId = Number(id);
+                const metadata = SKILL_METADATA[skillId];
+
+                return (
+                  <CapacityCardAnalytics
+                    key={id}
+                    open={openCapacities}
+                    title={metadata ? pageContent[metadata.key] : ''}
+                    icon={metadata?.icon}
+                    headerColor={metadata?.headerColor || '#EFEFEF'}
+                    darkMode={darkMode}
+                    cards={[
+                      {
+                        titleCard: pageContent['analytics-bashboard-capacities-card-learners'],
+                        value: wantedCount?.[id] || 0,
+                      },
+                      {
+                        titleCard: pageContent['analytics-bashboard-capacities-card-sharers'],
+                        value: availableCount?.[id] || 0,
+                      },
+                    ]}
+                  />
+                );
+              })}
           </div>
         )}
       </div>
