@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import info_blue from '@/public/static/images/info_blue.svg';
 import Image from 'next/image';
-import { Children, useEffect, useRef, useState } from 'react';
+import { Children, useCallback, useEffect, useRef, useState } from 'react';
 
 interface RecommendationCarouselProps {
   title: string;
@@ -31,50 +31,61 @@ export default function RecommendationCarousel({
   const childrenArray = Children.toArray(children);
   const totalItems = childrenArray.length;
 
-  const updateScrollButtons = () => {
+  const updateScrollButtons = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
     }
-  };
+  }, []);
 
   useEffect(() => {
     updateScrollButtons();
     const container = scrollContainerRef.current;
     if (container) {
-      container.addEventListener('scroll', updateScrollButtons);
-      window.addEventListener('resize', updateScrollButtons);
+      // Use passive listener for better performance
+      container.addEventListener('scroll', updateScrollButtons, { passive: true });
+      
+      // Throttle resize events for better performance
+      let resizeTimeout: NodeJS.Timeout;
+      const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateScrollButtons, 100);
+      };
+      
+      window.addEventListener('resize', handleResize, { passive: true });
+      
       return () => {
         container.removeEventListener('scroll', updateScrollButtons);
-        window.removeEventListener('resize', updateScrollButtons);
+        window.removeEventListener('resize', handleResize);
+        clearTimeout(resizeTimeout);
       };
     }
-  }, [children, darkMode]);
+  }, [updateScrollButtons, totalItems]);
 
-  const scrollLeft = () => {
+  const scrollLeft = useCallback(() => {
     if (scrollContainerRef.current) {
       const cardWidth = 300; // Approximate card width + gap
       scrollContainerRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' });
       setCurrentIndex(prev => Math.max(0, prev - 1));
     }
-  };
+  }, []);
 
-  const scrollRight = () => {
+  const scrollRight = useCallback(() => {
     if (scrollContainerRef.current) {
       const cardWidth = 300;
       scrollContainerRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' });
       setCurrentIndex(prev => Math.min(totalItems - 1, prev + 1));
     }
-  };
+  }, [totalItems]);
 
-  const goToSlide = (index: number) => {
+  const goToSlide = useCallback((index: number) => {
     if (scrollContainerRef.current) {
       const cardWidth = 300;
       scrollContainerRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
       setCurrentIndex(index);
     }
-  };
+  }, []);
 
   // Allow rendering even with 0 items (shouldn't happen, but just in case)
   if (totalItems === 0) {
