@@ -348,7 +348,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   }`}
                 >
                   {(() => {
-                    return pageContent['edit-profile-consent-wikidata-before-link'].replace('$1',
+                    return pageContent['edit-profile-consent-wikidata-before-link'].replace(
+                      '$1',
                       <a
                         href="https://www.wikidata.org/wiki/Wikidata:Notability"
                         target="_blank"
@@ -1206,15 +1207,16 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   }`}
                 >
                   {(() => {
-                    return pageContent['edit-profile-consent-wikidata-item-before-link'].replace( '$1',
-                        <a
-                          href="https://www.wikidata.org/wiki/Wikidata:Notability"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
-                        >
-                          {pageContent['edit-profile-consent-wikidata-link']}
-                        </a>
+                    return pageContent['edit-profile-consent-wikidata-item-before-link'].replace(
+                      '$1',
+                      <a
+                        href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
+                      >
+                        {pageContent['edit-profile-consent-wikidata-link']}
+                      </a>
                     );
                   })()}
                 </span>

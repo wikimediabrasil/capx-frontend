@@ -167,8 +167,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
                   className={`text-center font-[Montserrat] text-[16px] font-normal not-italic leading-[normal] text-start ${
                     darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
-                >
-                </p>
+                ></p>
               </div>
             </div>
           ))}

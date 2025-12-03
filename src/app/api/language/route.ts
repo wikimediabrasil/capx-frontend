@@ -36,7 +36,12 @@ export async function GET(request: NextRequest) {
             if (defPlaceholders.size > 0) {
               const trPlaceholders = getPlaceholders(trVal);
               // If any required placeholder is missing in translation, use default
-              const missing = [...defPlaceholders].some(ph => !trPlaceholders.has(ph));
+              let missing = false;
+              defPlaceholders.forEach(ph => {
+                if (!trPlaceholders.has(ph)) {
+                  missing = true;
+                }
+              });
               compiledData[key] = missing ? defVal : trVal;
             } else {
               compiledData[key] = trVal;
