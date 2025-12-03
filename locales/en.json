@@ -628,5 +628,20 @@
   "recommendation-based-on-available-capacities": "Based on your available capacities",
   "recommendation-based-on-wanted-capacities": "Based on your wanted capacities",
   "recommendation-based-on-most-used-capacities": "Based on the most used capacities.",
-  "recommendation-based-on-capacities": "Based on your capacities"
+  "recommendation-based-on-capacities": "Based on your capacities",
+  "add": "Add",
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "organization-name-add": "Add Translation",
+  "organization-name-added": "Organization name added successfully",
+  "organization-name-already-exists": "A name for this language already exists",
+  "organization-name-delete-confirm": "Are you sure you want to delete this name?",
+  "organization-name-deleted": "Organization name deleted successfully",
+  "organization-name-fields-required": "Language and name are required",
+  "organization-name-placeholder": "Organization name",
+  "organization-name-updated": "Organization name updated successfully",
+  "organization-names-description": "Add translations of your organization name in different languages. The name will be displayed based on the user's selected language.",
+  "organization-names-none": "No translations added yet.",
+  "organization-names-title": "Organization Names (Translations)",
+  "select-language": "Select language"
 }

@@ -71,7 +71,10 @@ export default function OrganizationNamesSection({
     }
 
     try {
-      await createName(newLanguageCode, newName.trim());
+      await createName({
+        languageCode: newLanguageCode,
+        name: newName.trim(),
+      });
       setIsAdding(false);
       setNewLanguageCode('');
       setNewName('');
@@ -109,7 +112,11 @@ export default function OrganizationNamesSection({
     }
 
     try {
-      await updateName(id, newLanguageCode, newName.trim());
+      await updateName({
+        id,
+        languageCode: newLanguageCode,
+        name: newName.trim(),
+      });
       setEditingId(null);
       setNewLanguageCode('');
       setNewName('');
