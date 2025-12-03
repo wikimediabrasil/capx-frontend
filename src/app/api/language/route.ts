@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
 
       const compiledData: Record<string, any> = {};
       for (const key of Object.keys(defaultPageContent)) {
-        const defVal = (defaultPageContent as any)[key];
-        const trVal = (data as any)[key];
+        const defVal = defaultPageContent[key];
+        const trVal = data[key];
 
         if (typeof defVal === 'string') {
           const defPlaceholders = getPlaceholders(defVal);
@@ -36,25 +36,18 @@ export async function GET(request: NextRequest) {
             if (defPlaceholders.size > 0) {
               const trPlaceholders = getPlaceholders(trVal);
               // If any required placeholder is missing in translation, use default
-              let missing = false;
-              defPlaceholders.forEach(ph => {
-                if (!trPlaceholders.has(ph)) {
-                  missing = true;
-                }
-              });
+              const missing = Array.from(defPlaceholders).some(ph => !trPlaceholders.has(ph));
               compiledData[key] = missing ? defVal : trVal;
             } else {
               compiledData[key] = trVal;
             }
-          } else if (trVal !== undefined) {
-            // Non-string value provided in translation, keep default to be safe
-            compiledData[key] = defVal;
           } else {
+            // Non-string or missing translation, keep default to be safe
             compiledData[key] = defVal;
           }
         } else {
           // For non-string values, prefer translated when defined; else default
-          compiledData[key] = trVal !== undefined ? trVal : defVal;
+          compiledData[key] = trVal === undefined ? defVal : trVal;
         }
       }
 
