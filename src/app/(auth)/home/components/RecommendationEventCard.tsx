@@ -33,7 +33,7 @@ export default function RecommendationEventCard({
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
-  
+
   // Use hook to get translated organization name
   const { displayName: organizationName } = useOrganizationDisplayName({
     organizationId: recommendation.organization,

@@ -26,4 +26,3 @@ export default function OrganizationNameDisplay({
 
   return <>{displayName || fallback}</>;
 }
-

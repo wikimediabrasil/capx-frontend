@@ -3,23 +3,17 @@ export const dynamic = 'force-dynamic';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const authHeader = request.headers.get('authorization');
 
   try {
-    const response = await axios.get(
-      `${process.env.BASE_URL}/organization_name/${params.id}/`,
-      {
-        headers: {
-          Authorization: authHeader,
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const response = await axios.get(`${process.env.BASE_URL}/organization_name/${params.id}/`, {
+      headers: {
+        Authorization: authHeader,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
 
     return NextResponse.json(response.data);
   } catch (error: any) {
@@ -34,10 +28,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const authHeader = request.headers.get('authorization');
 
   try {
@@ -68,10 +59,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const authHeader = request.headers.get('authorization');
 
   try {
@@ -95,4 +83,3 @@ export async function DELETE(
     );
   }
 }
-

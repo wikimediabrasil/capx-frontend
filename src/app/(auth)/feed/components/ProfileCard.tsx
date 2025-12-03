@@ -92,9 +92,7 @@ export const ProfileCard = ({
   });
 
   // Use translated name for organizations, username for users
-  const displayName = isOrganization 
-    ? (translatedOrgName || username)
-    : username;
+  const displayName = isOrganization ? translatedOrgName || username : username;
 
   // Determine if this is a multi-type profile (both sharer and learner)
   const isMultiType = Array.isArray(type) && type.length > 1;

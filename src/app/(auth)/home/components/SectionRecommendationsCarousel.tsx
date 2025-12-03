@@ -16,7 +16,6 @@ export default function SectionRecommendationsCarousel() {
   const { darkMode } = useTheme();
   const { data, isLoading, error } = useRecommendations();
 
-
   if (isLoading) {
     return (
       <section

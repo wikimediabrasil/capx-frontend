@@ -32,11 +32,15 @@ export function useSavedItems() {
   const [count, setCount] = useState<number>(0);
 
   // Use React Query to cache saved items with automatic sharing
-  const { data: savedItems = [], isLoading, error } = useQuery<SavedItem[], Error>({
+  const {
+    data: savedItems = [],
+    isLoading,
+    error,
+  } = useQuery<SavedItem[], Error>({
     queryKey: ['savedItems', session?.user?.token],
     queryFn: async () => {
       if (!session?.user?.token) return [];
-      
+
       const data = await savedItemService.getSavedItems(session.user.token, {
         limit: 100,
         offset: 0,
@@ -68,7 +72,7 @@ export function useSavedItems() {
     const fetchProfileDetails = async () => {
       try {
         // Fetch all profiles in parallel instead of sequentially
-        const profilePromises = savedItems.map(async (item) => {
+        const profilePromises = savedItems.map(async item => {
           if (signal.aborted) return null;
 
           try {
@@ -218,11 +222,11 @@ export function useSavedItems() {
 
         if (success) {
           // Invalidate and refetch saved items
-          queryClient.setQueryData<SavedItem[]>(['savedItems', session.user.token], (old) => {
+          queryClient.setQueryData<SavedItem[]>(['savedItems', session.user.token], old => {
             if (!old) return [];
             return old.filter(item => item.id !== itemId);
           });
-          
+
           setAllProfiles(prevProfiles =>
             prevProfiles.filter(profile => profile.savedItemId !== itemId)
           );
@@ -251,11 +255,11 @@ export function useSavedItems() {
 
         if (newItem) {
           // Update React Query cache
-          queryClient.setQueryData<SavedItem[]>(['savedItems', session.user.token], (old) => {
+          queryClient.setQueryData<SavedItem[]>(['savedItems', session.user.token], old => {
             if (!old) return [newItem];
             return [...old, newItem];
           });
-          
+
           // Fetch profile details for the new item
           await fetchProfileDetails(newItem, session.user.token);
           return true;

@@ -49,11 +49,7 @@ function HeaderSection({
     token,
   });
 
-  const displayName = getOrganizationDisplayName(
-    organization?.display_name || '',
-    names,
-    language
-  );
+  const displayName = getOrganizationDisplayName(organization?.display_name || '', names, language);
 
   return (
     <div className="flex flex-col md:flex-row gap-6">

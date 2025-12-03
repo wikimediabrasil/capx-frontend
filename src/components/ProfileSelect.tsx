@@ -14,14 +14,14 @@ interface ProfileOption {
 }
 
 // Component to load translated name for an organization
-function OrganizationNameLoader({ 
-  orgId, 
-  defaultName, 
-  token, 
-  onNameLoaded 
-}: { 
-  orgId: number; 
-  defaultName: string; 
+function OrganizationNameLoader({
+  orgId,
+  defaultName,
+  token,
+  onNameLoaded,
+}: {
+  orgId: number;
+  defaultName: string;
   token?: string;
   onNameLoaded: (id: number, name: string) => void;
 }) {
@@ -70,12 +70,17 @@ export default function ProfileSelect() {
     [organizations, pageContent, translatedNames]
   );
 
-  const handleProfileChange = useCallback((selectedOption: { value: string; label: string }) => {
-    const selectedPath = profileOptions.find(option => option.value === selectedOption.value)?.path;
-    if (selectedPath) {
-      router.push(selectedPath);
-    }
-  }, [profileOptions, router]);
+  const handleProfileChange = useCallback(
+    (selectedOption: { value: string; label: string }) => {
+      const selectedPath = profileOptions.find(
+        option => option.value === selectedOption.value
+      )?.path;
+      if (selectedPath) {
+        router.push(selectedPath);
+      }
+    },
+    [profileOptions, router]
+  );
 
   return (
     <>

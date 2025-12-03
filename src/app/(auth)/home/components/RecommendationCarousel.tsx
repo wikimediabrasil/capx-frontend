@@ -45,16 +45,16 @@ export default function RecommendationCarousel({
     if (container) {
       // Use passive listener for better performance
       container.addEventListener('scroll', updateScrollButtons, { passive: true });
-      
+
       // Throttle resize events for better performance
       let resizeTimeout: NodeJS.Timeout;
       const handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(updateScrollButtons, 100);
       };
-      
+
       window.addEventListener('resize', handleResize, { passive: true });
-      
+
       return () => {
         container.removeEventListener('scroll', updateScrollButtons);
         window.removeEventListener('resize', handleResize);

@@ -70,7 +70,15 @@ export function useOrganizationNames({ organizationId, token }: UseOrganizationN
   });
 
   const updateName = useMutation({
-    mutationFn: async ({ id, languageCode, name }: { id: number; languageCode: string; name: string }) => {
+    mutationFn: async ({
+      id,
+      languageCode,
+      name,
+    }: {
+      id: number;
+      languageCode: string;
+      name: string;
+    }) => {
       if (!token) {
         throw new Error('Token is required');
       }
@@ -117,10 +125,10 @@ export function useOrganizationNames({ organizationId, token }: UseOrganizationN
     names: data || [],
     isLoading,
     error: error?.message || null,
-    fetchNames: () => queryClient.invalidateQueries({ queryKey: ['organizationNames', organizationId, token] }),
+    fetchNames: () =>
+      queryClient.invalidateQueries({ queryKey: ['organizationNames', organizationId, token] }),
     createName: createName.mutateAsync,
     updateName: updateName.mutateAsync,
     deleteName: deleteName.mutateAsync,
   };
 }
-

@@ -20,7 +20,9 @@ interface OrganizationNamesSectionProps {
   organizationId: number;
 }
 
-export default function OrganizationNamesSection({ organizationId }: OrganizationNamesSectionProps) {
+export default function OrganizationNamesSection({
+  organizationId,
+}: OrganizationNamesSectionProps) {
   const { darkMode } = useTheme();
   const { pageContent, language } = useApp();
   const { data: session } = useSession();
@@ -33,7 +35,9 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
   });
 
   const { fetchLanguages } = useLanguageSelection();
-  const [availableLanguages, setAvailableLanguages] = useState<Array<{ value: string; label: string }>>([]);
+  const [availableLanguages, setAvailableLanguages] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newLanguageCode, setNewLanguageCode] = useState('');
@@ -49,14 +53,18 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
 
   const handleAdd = async () => {
     if (!newLanguageCode || !newName.trim()) {
-      showSnackbar(pageContent['organization-name-fields-required'] || 'Language and name are required', 'error');
+      showSnackbar(
+        pageContent['organization-name-fields-required'] || 'Language and name are required',
+        'error'
+      );
       return;
     }
 
     // Check if language already exists
     if (names.some(n => n.language_code.toLowerCase() === newLanguageCode.toLowerCase())) {
       showSnackbar(
-        pageContent['organization-name-already-exists'] || 'A name for this language already exists',
+        pageContent['organization-name-already-exists'] ||
+          'A name for this language already exists',
         'error'
       );
       return;
@@ -78,17 +86,23 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
 
   const handleUpdate = async (id: number, currentLanguageCode: string, currentName: string) => {
     if (!newLanguageCode || !newName.trim()) {
-      showSnackbar(pageContent['organization-name-fields-required'] || 'Language and name are required', 'error');
+      showSnackbar(
+        pageContent['organization-name-fields-required'] || 'Language and name are required',
+        'error'
+      );
       return;
     }
 
     // Check if another name with the same language exists
     if (
       newLanguageCode.toLowerCase() !== currentLanguageCode.toLowerCase() &&
-      names.some(n => n.id !== id && n.language_code.toLowerCase() === newLanguageCode.toLowerCase())
+      names.some(
+        n => n.id !== id && n.language_code.toLowerCase() === newLanguageCode.toLowerCase()
+      )
     ) {
       showSnackbar(
-        pageContent['organization-name-already-exists'] || 'A name for this language already exists',
+        pageContent['organization-name-already-exists'] ||
+          'A name for this language already exists',
         'error'
       );
       return;
@@ -109,7 +123,12 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(pageContent['organization-name-delete-confirm'] || 'Are you sure you want to delete this name?')) {
+    if (
+      !confirm(
+        pageContent['organization-name-delete-confirm'] ||
+          'Are you sure you want to delete this name?'
+      )
+    ) {
       return;
     }
 
@@ -148,14 +167,16 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
             className="object-contain"
           />
         </div>
-        <h2 className={`font-[Montserrat] text-sm md:text-[24px] font-bold ${darkMode ? 'text-white' : 'text-[#053749]'}`}>
+        <h2
+          className={`font-[Montserrat] text-sm md:text-[24px] font-bold ${darkMode ? 'text-white' : 'text-[#053749]'}`}
+        >
           {pageContent['organization-names-title'] || 'Organization Names (Translations)'}
         </h2>
       </div>
 
       <p className={`text-xs md:text-base mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
         {pageContent['organization-names-description'] ||
-          'Add translations of your organization name in different languages. The name will be displayed based on the user\'s selected language.'}
+          "Add translations of your organization name in different languages. The name will be displayed based on the user's selected language."}
       </p>
 
       {/* Existing names */}
@@ -173,9 +194,7 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
             <div
               key={name.id}
               className={`flex items-center gap-2 p-3 rounded-md border ${
-                darkMode
-                  ? 'bg-capx-dark-box-bg border-gray-700'
-                  : 'bg-white border-gray-300'
+                darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-300'
               }`}
             >
               {editingId === name.id ? (
@@ -199,7 +218,9 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
                     type="text"
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
-                    placeholder={pageContent['organization-name-placeholder'] || 'Organization name'}
+                    placeholder={
+                      pageContent['organization-name-placeholder'] || 'Organization name'
+                    }
                     className={`flex-1 p-2 rounded-md border text-sm ${
                       darkMode
                         ? 'bg-transparent border-gray-600 text-white placeholder-gray-400'
@@ -229,8 +250,11 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
                 </>
               ) : (
                 <>
-                  <span className={`flex-1 text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    <span className="font-bold">{name.language_code.toUpperCase()}:</span> {name.name}
+                  <span
+                    className={`flex-1 text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}
+                  >
+                    <span className="font-bold">{name.language_code.toUpperCase()}:</span>{' '}
+                    {name.name}
                   </span>
                   <button
                     onClick={() => startEditing(name)}
@@ -264,9 +288,7 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
       {isAdding ? (
         <div
           className={`flex flex-col md:flex-row gap-2 p-3 rounded-md border ${
-            darkMode
-              ? 'bg-capx-dark-box-bg border-gray-700'
-              : 'bg-white border-gray-300'
+            darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-300'
           }`}
         >
           <select
@@ -280,7 +302,9 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
           >
             <option value="">{pageContent['select-language'] || 'Select language'}</option>
             {availableLanguages
-              .filter(lang => !names.some(n => n.language_code.toLowerCase() === lang.value.toLowerCase()))
+              .filter(
+                lang => !names.some(n => n.language_code.toLowerCase() === lang.value.toLowerCase())
+              )
               .map(lang => (
                 <option key={lang.value} value={lang.value}>
                   {lang.label}
@@ -328,16 +352,10 @@ export default function OrganizationNamesSection({ organizationId }: Organizatio
               : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
           }`}
         >
-          <Image
-            src={darkMode ? AddIconWhite : AddIcon}
-            alt="Add"
-            width={20}
-            height={20}
-          />
+          <Image src={darkMode ? AddIconWhite : AddIcon} alt="Add" width={20} height={20} />
           {pageContent['organization-name-add'] || 'Add Translation'}
         </button>
       )}
     </div>
   );
 }
-

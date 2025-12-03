@@ -14,7 +14,7 @@ interface UseOrganizationDisplayNameOptions {
 /**
  * Hook that fetches organization names and returns the translated display name
  * based on the user's current language.
- * 
+ *
  * @param organizationId - The organization ID
  * @param defaultName - The default display_name from the organization (fallback)
  * @param token - The authentication token
@@ -44,4 +44,3 @@ export function useOrganizationDisplayName({
     isLoading,
   };
 }
-

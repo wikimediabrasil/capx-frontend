@@ -371,9 +371,7 @@ export default function OrganizationProfileEditView({
           </div>
 
           {/* Organization Names Section */}
-          {organizationId && (
-            <OrganizationNamesSection organizationId={organizationId} />
-          )}
+          {organizationId && <OrganizationNamesSection organizationId={organizationId} />}
 
           {/* Report of Activities Section */}
           <div className="mt-6">

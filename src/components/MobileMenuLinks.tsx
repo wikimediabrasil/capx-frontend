@@ -56,9 +56,7 @@ function OrganizationSubMenuItem({
     <div
       onClick={() => handleProfileChange(`/organization_profile/${org.id}`)}
       className={`flex items-center justify-between px-2 py-3 border-t border-[#053749] pt-2 cursor-pointer ${
-        darkMode
-          ? 'text-capx-dark-text bg-capx-dark-bg'
-          : 'text-capx-light-text bg-capx-light-bg'
+        darkMode ? 'text-capx-dark-text bg-capx-dark-bg' : 'text-capx-light-text bg-capx-light-bg'
       }`}
     >
       <span className="font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]">
@@ -277,7 +275,7 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
               </div>
             ))}
             {isOrgManager &&
-              organizations.map((org) => (
+              organizations.map(org => (
                 <OrganizationSubMenuItem
                   key={`org-submenu-${org.id}`}
                   org={org}

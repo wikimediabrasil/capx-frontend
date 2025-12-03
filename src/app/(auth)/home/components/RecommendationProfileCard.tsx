@@ -57,17 +57,17 @@ export default function RecommendationProfileCard({
   const profileImage = recommendation.profile_image;
   const avatar = profileRecommendation?.avatar;
   const wikidataQid = profileRecommendation?.wikidata_qid;
-  
+
   // Get translated organization name if it's an organization
   const { displayName: translatedOrgName } = useOrganizationDisplayName({
     organizationId: isOrganization ? recommendation.id : undefined,
     defaultName: isOrganization ? recommendation.display_name || '' : '',
     token: session?.user?.token,
   });
-  
-  const displayName = isOrganization 
-    ? (translatedOrgName || recommendation.display_name || 'Organization')
-    : (recommendation.display_name || profileUsername);
+
+  const displayName = isOrganization
+    ? translatedOrgName || recommendation.display_name || 'Organization'
+    : recommendation.display_name || profileUsername;
 
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({

@@ -44,9 +44,7 @@ export const SavedItemCard = ({
   });
 
   // Use translated name for organizations, otherwise use username
-  const displayName = isOrganization 
-    ? (translatedOrgName || username)
-    : username;
+  const displayName = isOrganization ? translatedOrgName || username : username;
 
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({
