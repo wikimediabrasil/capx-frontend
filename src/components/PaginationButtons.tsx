@@ -158,8 +158,7 @@ export function PaginationButtons({
 
       {/* Current page information */}
       <div className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
-        {pageContent?.['pagination-page']} {currentPage} {pageContent?.['pagination-of']}{' '}
-        {totalPages}
+        {pageContent?.['pagination-of']?.replace('$1', currentPage.toString()).replace('$2', totalPages.toString())}
       </div>
     </div>
   );

@@ -168,10 +168,6 @@ export const NewsSection = ({ ids }: NewsProps) => {
                     darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
                 >
-                  {/* {dateFormatter.format(new Date(post.pub_date))}
-                  &nbsp;{pageContent['organization-profile-news-section-by']}
-                  &nbsp;
-                  {post.author.name} */}
                 </p>
               </div>
             </div>

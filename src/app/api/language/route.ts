@@ -17,7 +17,41 @@ export async function GET(request: NextRequest) {
       const filePath = path.join(process.cwd(), 'locales', `${lang}.json`);
       const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
-      const compiledData = { ...defaultPageContent, ...data };
+      // Build placeholder-aware compiled data: if default has placeholders
+      // that are missing in the translation, fall back to the English text
+      const getPlaceholders = (str: string): Set<string> => {
+        const dollar = str.match(/\$[A-Za-z0-9_-]+/g) || [];
+        const braces = str.match(/\{[A-Za-z0-9_-]+\}/g) || [];
+        return new Set([...dollar, ...braces]);
+      };
+
+      const compiledData: Record<string, any> = {};
+      for (const key of Object.keys(defaultPageContent)) {
+        const defVal = (defaultPageContent as any)[key];
+        const trVal = (data as any)[key];
+
+        if (typeof defVal === 'string') {
+          const defPlaceholders = getPlaceholders(defVal);
+          if (typeof trVal === 'string') {
+            if (defPlaceholders.size > 0) {
+              const trPlaceholders = getPlaceholders(trVal);
+              // If any required placeholder is missing in translation, use default
+              const missing = [...defPlaceholders].some(ph => !trPlaceholders.has(ph));
+              compiledData[key] = missing ? defVal : trVal;
+            } else {
+              compiledData[key] = trVal;
+            }
+          } else if (trVal !== undefined) {
+            // Non-string value provided in translation, keep default to be safe
+            compiledData[key] = defVal;
+          } else {
+            compiledData[key] = defVal;
+          }
+        } else {
+          // For non-string values, prefer translated when defined; else default
+          compiledData[key] = trVal !== undefined ? trVal : defVal;
+        }
+      }
 
       return NextResponse.json(compiledData);
     } else {
