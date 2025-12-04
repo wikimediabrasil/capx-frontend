@@ -35,7 +35,6 @@ jest.mock('@/contexts/CapacityCacheContext', () => ({
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 jest.mock('@/app/providers/SnackbarProvider');
-jest.mock('@tanstack/react-query');
 jest.mock('@/services/profileService');
 jest.mock('@/services/userService');
 jest.mock('next/image', () => ({
@@ -61,7 +60,7 @@ const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendatio
 describe('RecommendationCapacityCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockRouter = createMockRouter();
-  const mockQueryClient = createMockQueryClient();
+  let queryClient: QueryClient;
 
   const mockUserProfile = {
     id: 123,
@@ -75,6 +74,8 @@ describe('RecommendationCapacityCard', () => {
 
   beforeEach(() => {
     const { useRouter } = require('next/navigation');
+    const { userService } = require('@/services/userService');
+
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
 
@@ -89,11 +90,9 @@ describe('RecommendationCapacityCard', () => {
       })
     );
     (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
-    (useQuery as jest.Mock).mockReturnValue({
-      data: mockUserProfile,
-      isLoading: false,
-    });
-    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+
+    // Mock userService to return user profile data
+    userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
   });
 
   afterEach(cleanupMocks);
@@ -104,12 +103,15 @@ describe('RecommendationCapacityCard', () => {
       ...props,
     };
 
-    const queryClient = new QueryClient({
+    queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false, gcTime: 0, staleTime: 0 },
         mutations: { retry: false },
       },
     });
+
+    // Spy on invalidateQueries to test cache invalidation
+    jest.spyOn(queryClient, 'invalidateQueries');
 
     const QueryWrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -174,12 +176,19 @@ describe('RecommendationCapacityCard', () => {
   describe('Add to Profile functionality', () => {
     it('should add capacity to profile when Add to Profile button is clicked', async () => {
       const { profileService } = require('@/services/profileService');
-      profileService.updateProfile.mockResolvedValue({});
+      profileService.updateProfile = jest.fn().mockResolvedValue({});
 
       renderCard();
 
+      // Wait for component to finish loading and render
       await waitFor(() => {
         expect(screen.getByText('Learning')).toBeInTheDocument();
+      });
+
+      // Wait for button to be enabled (means userProfile is loaded)
+      await waitFor(() => {
+        const addButton = screen.getByText('Add to Profile');
+        expect(addButton).toBeEnabled();
       });
 
       const addButton = screen.getByText('Add to Profile');
@@ -205,12 +214,10 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should show "Added" button when capacity is already in wanted list', async () => {
-      (useQuery as jest.Mock).mockReturnValue({
-        data: {
-          ...mockUserProfile,
-          skills_wanted: [50],
-        },
-        isLoading: false,
+      const { userService } = require('@/services/userService');
+      userService.fetchUserProfile.mockResolvedValue({
+        ...mockUserProfile,
+        skills_wanted: [50],
       });
 
       renderCard();
@@ -225,12 +232,21 @@ describe('RecommendationCapacityCard', () => {
 
     it('should show error message when adding capacity fails', async () => {
       const { profileService } = require('@/services/profileService');
-      profileService.updateProfile.mockRejectedValue(new Error('Network error'));
+      const { userService } = require('@/services/userService');
+
+      // Setup mocks before rendering
+      profileService.updateProfile = jest.fn().mockRejectedValue(new Error('Network error'));
+      userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
 
       renderCard();
 
       await waitFor(() => {
-        expect(screen.getByText('Add to Profile')).toBeInTheDocument();
+        expect(screen.getByText('Learning')).toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        const addButton = screen.getByText('Add to Profile');
+        expect(addButton).toBeEnabled();
       });
 
       const addButton = screen.getByText('Add to Profile');
@@ -243,14 +259,21 @@ describe('RecommendationCapacityCard', () => {
 
     it('should disable button while adding capacity', async () => {
       const { profileService } = require('@/services/profileService');
-      profileService.updateProfile.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve({}), 100))
-      );
+      const { userService } = require('@/services/userService');
+      profileService.updateProfile = jest
+        .fn()
+        .mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({}), 100)));
+      userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
 
       renderCard();
 
       await waitFor(() => {
         expect(screen.getByText('Learning')).toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        const addButton = screen.getByText('Add to Profile');
+        expect(addButton).toBeEnabled();
       });
 
       const addButton = screen.getByText('Add to Profile');
@@ -263,14 +286,11 @@ describe('RecommendationCapacityCard', () => {
 
     it('should not add duplicate capacity', async () => {
       const { profileService } = require('@/services/profileService');
+      const { userService } = require('@/services/userService');
       profileService.updateProfile.mockResolvedValue({});
-
-      (useQuery as jest.Mock).mockReturnValue({
-        data: {
-          ...mockUserProfile,
-          skills_wanted: [50],
-        },
-        isLoading: false,
+      userService.fetchUserProfile.mockResolvedValue({
+        ...mockUserProfile,
+        skills_wanted: [50],
       });
 
       renderCard();
@@ -383,7 +403,9 @@ describe('RecommendationCapacityCard', () => {
   describe('Cache invalidation', () => {
     it('should invalidate user profile query after adding capacity', async () => {
       const { profileService } = require('@/services/profileService');
-      profileService.updateProfile.mockResolvedValue({});
+      const { userService } = require('@/services/userService');
+      profileService.updateProfile = jest.fn().mockResolvedValue({});
+      userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
 
       renderCard();
 
@@ -391,11 +413,16 @@ describe('RecommendationCapacityCard', () => {
         expect(screen.getByText('Learning')).toBeInTheDocument();
       });
 
+      await waitFor(() => {
+        const addButton = screen.getByText('Add to Profile');
+        expect(addButton).toBeEnabled();
+      });
+
       const addButton = screen.getByText('Add to Profile');
       fireEvent.click(addButton);
 
       await waitFor(() => {
-        expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
           queryKey: ['userProfile', '123', 'mock-token'],
         });
       });

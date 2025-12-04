@@ -14,7 +14,6 @@ import { useSession } from 'next-auth/react';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import LoadingSpinner from '@/components/LoadingSpinner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface RecommendationCapacityCardProps {
@@ -34,7 +33,6 @@ export default function RecommendationCapacityCard({
     useCapacityCache();
   const { showSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-  const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
 
   const capacityId = recommendation.id;
@@ -75,8 +73,6 @@ export default function RecommendationCapacityCard({
       } catch (error) {
         // Silently handle errors - component should still render
         console.error('Error preloading capacities:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
     loadCapacity();
@@ -178,18 +174,6 @@ export default function RecommendationCapacityCard({
   };
 
   const iconFilter = 'brightness(0) invert(1)';
-
-  if (isLoading) {
-    return (
-      <div
-        className={`flex h-full flex-col justify-center items-center p-4 mx-auto rounded-md w-[270px] md:w-[370px] border min-h-[250px] md:min-h-[300px] ${
-          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-        }`}
-      >
-        <LoadingSpinner />
-      </div>
-    );
-  }
 
   return (
     <div
