@@ -1,138 +1,138 @@
 import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
 import { SnackbarProvider, useSnackbar } from '@/app/providers/SnackbarProvider';
 
+// Mock organization data
+const createMockOrganizationData = () => ({
+  email: 'test@organization.com',
+  meta_page: 'https://meta.wikimedia.org/wiki/User:TestOrg',
+  website: 'https://testorg.com',
+  documents: [
+    { id: 1, url: 'https://commons.wikimedia.org/wiki/File:Doc1.pdf' },
+    { id: 0, url: 'https://commons.wikimedia.org/wiki/File:NewDoc.pdf' },
+  ],
+  projects: [
+    { id: 1, display_name: 'Existing Project', url: 'https://project1.com' },
+    { id: 0, display_name: 'New Project', url: 'https://newproject.com' },
+  ],
+  events: [
+    { id: 1, title: 'Conference 2024', date: '2024-12-01' },
+    { id: 0, title: 'New Workshop', date: '2024-12-15' },
+  ],
+  news: [
+    { id: 1, tag: 'Community Update' },
+    { id: 0, tag: 'Breaking News' },
+  ],
+  known_capacities: [1, 2, 3],
+  available_capacities: [4, 5],
+  wanted_capacities: [6, 7],
+});
+
+// Translation map for error messages
+const ERROR_TRANSLATIONS: Record<string, string> = {
+  'snackbar-edit-profile-organization-error': 'Error updating organization profile',
+  'snackbar-invalid-document-url': 'Invalid document URL format',
+};
+
+// Component failure error messages
+const COMPONENT_ERRORS: Record<string, string> = {
+  contacts: 'Invalid email format in contacts',
+  documents: 'snackbar-invalid-document-url',
+  projects: 'Project name cannot be empty',
+  capacities: 'Capacity cannot be in both known and available lists',
+};
+
+// General error messages by type
+const ERROR_TYPE_MESSAGES: Record<string, string> = {
+  validation: 'Validation error: Required fields are missing',
+  translation: 'snackbar-edit-profile-organization-error',
+  document: 'Document creation failed',
+  project: 'Project creation failed',
+};
+
+type ComponentFailureType =
+  | 'contacts'
+  | 'documents'
+  | 'projects'
+  | 'events'
+  | 'news'
+  | 'capacities';
+type ErrorType = 'general' | 'validation' | 'translation' | 'document' | 'project' | 'capacity';
+
+interface OrganizationFormProps {
+  shouldFail?: boolean;
+  errorType?: ErrorType;
+  componentFailure?: ComponentFailureType | null;
+}
+
+// Helper to check if error is a component-specific failure
+function checkComponentFailure(componentFailure: ComponentFailureType | null, shouldFail: boolean) {
+  if (!shouldFail || !componentFailure) {
+    return null;
+  }
+
+  const errorMessage = COMPONENT_ERRORS[componentFailure];
+  if (errorMessage) {
+    throw new Error(errorMessage);
+  }
+  return null;
+}
+
+// Helper to check if error is a general failure type
+function checkGeneralFailure(errorType: ErrorType, shouldFail: boolean) {
+  if (!shouldFail) {
+    return;
+  }
+
+  const errorMessage = ERROR_TYPE_MESSAGES[errorType] || 'Organization update failed';
+  throw new Error(errorMessage);
+}
+
+// Helper to process new items (documents, projects, events)
+function processNewItems(items: Array<{ id: number }>, itemType: string) {
+  const newItems = items.filter(item => item.id === 0);
+  if (newItems.length > 0) {
+    console.log(`Creating new ${itemType}:`, newItems);
+  }
+}
+
+// Helper to translate error messages
+function translateErrorMessage(errorMessage: string): string {
+  if (errorMessage.startsWith('snackbar-')) {
+    return ERROR_TRANSLATIONS[errorMessage] || 'Translation error';
+  }
+  return errorMessage;
+}
+
 describe('Organization Profile Form Submission', () => {
-  // Comprehensive form component that simulates organization profile editing
   const OrganizationFormComponent = ({
     shouldFail = false,
     errorType = 'general',
     componentFailure = null,
-  }: {
-    shouldFail?: boolean;
-    errorType?: 'general' | 'validation' | 'translation' | 'document' | 'project' | 'capacity';
-    componentFailure?:
-      | 'contacts'
-      | 'documents'
-      | 'projects'
-      | 'events'
-      | 'news'
-      | 'capacities'
-      | null;
-  }) => {
+  }: OrganizationFormProps) => {
     const { showSnackbar } = useSnackbar();
-
-    const mockOrganizationData = {
-      // Contacts
-      email: 'test@organization.com',
-      meta_page: 'https://meta.wikimedia.org/wiki/User:TestOrg',
-      website: 'https://testorg.com',
-
-      // Documents
-      documents: [
-        { id: 1, url: 'https://commons.wikimedia.org/wiki/File:Doc1.pdf' },
-        { id: 0, url: 'https://commons.wikimedia.org/wiki/File:NewDoc.pdf' }, // New document
-      ],
-
-      // Projects
-      projects: [
-        { id: 1, display_name: 'Existing Project', url: 'https://project1.com' },
-        { id: 0, display_name: 'New Project', url: 'https://newproject.com' }, // New project
-      ],
-
-      // Events
-      events: [
-        { id: 1, title: 'Conference 2024', date: '2024-12-01' },
-        { id: 0, title: 'New Workshop', date: '2024-12-15' }, // New event
-      ],
-
-      // News/Tags
-      news: [
-        { id: 1, tag: 'Community Update' },
-        { id: 0, tag: 'Breaking News' }, // New tag
-      ],
-
-      // Capacities
-      known_capacities: [1, 2, 3],
-      available_capacities: [4, 5],
-      wanted_capacities: [6, 7],
-    };
+    const mockOrganizationData = createMockOrganizationData();
 
     const handleSubmit = async () => {
       try {
-        // Simulate component-specific failures
-        if (componentFailure === 'contacts' && shouldFail) {
-          throw new Error('Invalid email format in contacts');
-        }
+        checkComponentFailure(componentFailure, shouldFail);
+        checkGeneralFailure(errorType, shouldFail);
 
-        if (componentFailure === 'documents' && shouldFail) {
-          throw new Error('snackbar-invalid-document-url');
-        }
-
-        if (componentFailure === 'projects' && shouldFail) {
-          throw new Error('Project name cannot be empty');
-        }
-
-        if (componentFailure === 'capacities' && shouldFail) {
-          throw new Error('Capacity cannot be in both known and available lists');
-        }
-
-        // General failure types
-        if (shouldFail) {
-          if (errorType === 'validation') {
-            throw new Error('Validation error: Required fields are missing');
-          } else if (errorType === 'translation') {
-            throw new Error('snackbar-edit-profile-organization-error');
-          } else if (errorType === 'document') {
-            throw new Error('Document creation failed');
-          } else if (errorType === 'project') {
-            throw new Error('Project creation failed');
-          } else {
-            throw new Error('Organization update failed');
-          }
-        }
-
-        // Simulate successful form processing
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Simulate creating new documents
-        const newDocuments = mockOrganizationData.documents.filter(doc => doc.id === 0);
-        if (newDocuments.length > 0) {
-          console.log('Creating new documents:', newDocuments);
-        }
-
-        // Simulate creating new projects
-        const newProjects = mockOrganizationData.projects.filter(project => project.id === 0);
-        if (newProjects.length > 0) {
-          console.log('Creating new projects:', newProjects);
-        }
-
-        // Simulate creating new events
-        const newEvents = mockOrganizationData.events.filter(event => event.id === 0);
-        if (newEvents.length > 0) {
-          console.log('Creating new events:', newEvents);
-        }
+        processNewItems(mockOrganizationData.documents, 'documents');
+        processNewItems(mockOrganizationData.projects, 'projects');
+        processNewItems(mockOrganizationData.events, 'events');
 
         showSnackbar('Organization profile updated successfully!', 'success');
       } catch (error: any) {
         const errorMessage = error.message || 'Unknown error';
-
-        // Check if it's a translation key
-        if (errorMessage.startsWith('snackbar-')) {
-          const translatedMessages: Record<string, string> = {
-            'snackbar-edit-profile-organization-error': 'Error updating organization profile',
-            'snackbar-invalid-document-url': 'Invalid document URL format',
-          };
-          const translatedMessage = translatedMessages[errorMessage] || 'Translation error';
-          showSnackbar(translatedMessage, 'error');
-        } else {
-          showSnackbar(errorMessage, 'error');
-        }
+        const translatedMessage = translateErrorMessage(errorMessage);
+        showSnackbar(translatedMessage, 'error');
       }
     };
 
     return (
       <div data-testid="organization-form">
-        {/* Contacts Section */}
         <div data-testid="contacts-section">
           <h3>Contacts</h3>
           <input type="email" value={mockOrganizationData.email} placeholder="Email" readOnly />
@@ -145,7 +145,6 @@ describe('Organization Profile Form Submission', () => {
           <input type="url" value={mockOrganizationData.website} placeholder="Website" readOnly />
         </div>
 
-        {/* Documents Section */}
         <div data-testid="documents-section">
           <h3>Documents ({mockOrganizationData.documents.length})</h3>
           {mockOrganizationData.documents.map((doc, index) => (
@@ -153,7 +152,6 @@ describe('Organization Profile Form Submission', () => {
           ))}
         </div>
 
-        {/* Projects Section */}
         <div data-testid="projects-section">
           <h3>Projects ({mockOrganizationData.projects.length})</h3>
           {mockOrganizationData.projects.map((project, index) => (
@@ -164,7 +162,6 @@ describe('Organization Profile Form Submission', () => {
           ))}
         </div>
 
-        {/* Events Section */}
         <div data-testid="events-section">
           <h3>Events ({mockOrganizationData.events.length})</h3>
           {mockOrganizationData.events.map((event, index) => (
@@ -175,7 +172,6 @@ describe('Organization Profile Form Submission', () => {
           ))}
         </div>
 
-        {/* News Section */}
         <div data-testid="news-section">
           <h3>News ({mockOrganizationData.news.length})</h3>
           {mockOrganizationData.news.map((news, index) => (
@@ -183,7 +179,6 @@ describe('Organization Profile Form Submission', () => {
           ))}
         </div>
 
-        {/* Capacities Section */}
         <div data-testid="capacities-section">
           <h3>Capacities</h3>
           <div>Known: {mockOrganizationData.known_capacities.join(', ')}</div>
@@ -205,7 +200,6 @@ describe('Organization Profile Form Submission', () => {
   it('shows success snackbar when organization profile is saved successfully', async () => {
     renderWithSnackbar(<OrganizationFormComponent />);
 
-    // Verify all sections are rendered
     expect(screen.getByTestId('contacts-section')).toBeInTheDocument();
     expect(screen.getByTestId('documents-section')).toBeInTheDocument();
     expect(screen.getByTestId('projects-section')).toBeInTheDocument();
@@ -345,42 +339,35 @@ describe('Organization Profile Form Submission', () => {
   it('renders all organization form sections correctly', async () => {
     renderWithSnackbar(<OrganizationFormComponent />);
 
-    // Contacts section
     expect(screen.getByDisplayValue('test@organization.com')).toBeInTheDocument();
     expect(
       screen.getByDisplayValue('https://meta.wikimedia.org/wiki/User:TestOrg')
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue('https://testorg.com')).toBeInTheDocument();
 
-    // Documents section
     expect(screen.getByText('Documents (2)')).toBeInTheDocument();
     expect(
       screen.getByDisplayValue('https://commons.wikimedia.org/wiki/File:Doc1.pdf')
     ).toBeInTheDocument();
 
-    // Projects section
     expect(screen.getByText('Projects (2)')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Existing Project')).toBeInTheDocument();
     expect(screen.getByDisplayValue('New Project')).toBeInTheDocument();
 
-    // Events section
     expect(screen.getByText('Events (2)')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Conference 2024')).toBeInTheDocument();
     expect(screen.getByDisplayValue('New Workshop')).toBeInTheDocument();
 
-    // News section
     expect(screen.getByText('News (2)')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Community Update')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Breaking News')).toBeInTheDocument();
 
-    // Capacities section
     expect(screen.getByText('Known: 1, 2, 3')).toBeInTheDocument();
     expect(screen.getByText('Available: 4, 5')).toBeInTheDocument();
     expect(screen.getByText('Wanted: 6, 7')).toBeInTheDocument();
   });
 
   it('displays snackbar messages with correct content', async () => {
-    // Test success message
     renderWithSnackbar(<OrganizationFormComponent />);
     const submitButton = screen.getByTestId('submit-button');
 
@@ -391,7 +378,6 @@ describe('Organization Profile Form Submission', () => {
     await waitFor(() => {
       const successMessage = screen.getByText('Organization profile updated successfully!');
       expect(successMessage).toBeInTheDocument();
-      // Just verify the snackbar container exists
       expect(successMessage.parentElement).toBeTruthy();
     });
   });
@@ -410,7 +396,6 @@ describe('Organization Profile Form Submission', () => {
       expect(screen.getByText('Organization profile updated successfully!')).toBeInTheDocument();
     });
 
-    // Fast-forward time by 3 seconds
     act(() => {
       jest.advanceTimersByTime(3000);
     });
