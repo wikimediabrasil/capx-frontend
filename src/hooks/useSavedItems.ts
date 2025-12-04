@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { savedItemService } from '@/services/savedItemsService';
 import { useSession } from 'next-auth/react';
 import { SavedItem } from '@/types/saved_item';
@@ -27,7 +27,6 @@ export interface SavedProfile {
 export function useSavedItems() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const abortControllerRef = useRef<AbortController | null>(null);
   const [allProfiles, setAllProfiles] = useState<SavedProfile[]>([]);
   const [count, setCount] = useState<number>(0);
 
@@ -62,20 +61,9 @@ export function useSavedItems() {
       return;
     }
 
-    // Cancel previous requests if component unmounts or token changes
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
-
     // Helper function to create user profile from saved item
-    const createUserProfile = (
-      userData: any,
-      item: SavedItem,
-      signal: AbortSignal
-    ): SavedProfile | null => {
-      if (!userData || signal.aborted) return null;
+    const createUserProfile = (userData: any, item: SavedItem): SavedProfile | null => {
+      if (!userData) return null;
       return {
         id: userData.user.id,
         username: userData.user.username,
@@ -94,12 +82,8 @@ export function useSavedItems() {
     };
 
     // Helper function to create organization profile from saved item
-    const createOrgProfile = (
-      orgData: any,
-      item: SavedItem,
-      signal: AbortSignal
-    ): SavedProfile | null => {
-      if (!orgData || signal.aborted) return null;
+    const createOrgProfile = (orgData: any, item: SavedItem): SavedProfile | null => {
+      if (!orgData) return null;
       return {
         id: orgData.id,
         username: orgData.display_name,
@@ -118,12 +102,11 @@ export function useSavedItems() {
 
     // Helper function to fetch a single profile
     const fetchSingleProfile = async (item: SavedItem): Promise<SavedProfile | null> => {
-      if (signal.aborted) return null;
-
       try {
         if (item.entity === 'user') {
           const userData = await userService.fetchUserProfile(item.entity_id, session.user.token);
-          return createUserProfile(userData, item, signal);
+          if (!userData) return null;
+          return createUserProfile(userData, item);
         }
 
         if (item.entity === 'org') {
@@ -131,7 +114,8 @@ export function useSavedItems() {
             session.user.token,
             item.entity_id
           );
-          return createOrgProfile(orgData, item, signal);
+          if (!orgData) return null;
+          return createOrgProfile(orgData, item);
         }
       } catch (err) {
         console.error('Error fetching profile details:', err);
@@ -144,25 +128,17 @@ export function useSavedItems() {
         // Fetch all profiles in parallel instead of sequentially
         const profilePromises = savedItems.map(fetchSingleProfile);
         const profiles = (await Promise.all(profilePromises)).filter(
-          (p): p is SavedProfile => p !== null && !signal.aborted
+          (p): p is SavedProfile => p !== null
         );
 
-        if (!signal.aborted) {
-          setAllProfiles(profiles);
-          setCount(profiles.length);
-        }
+        setAllProfiles(profiles);
+        setCount(profiles.length);
       } catch (err) {
         console.error('Error fetching all profile details:', err);
       }
     };
 
     fetchAllProfileDetails();
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
   }, [savedItems, session?.user?.token]);
 
   const fetchProfileDetails = useCallback(async (savedItem: SavedItem, token: string) => {
