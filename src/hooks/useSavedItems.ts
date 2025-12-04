@@ -69,64 +69,80 @@ export function useSavedItems() {
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
 
-    const fetchProfileDetails = async () => {
+    // Helper function to create user profile from saved item
+    const createUserProfile = (
+      userData: any,
+      item: SavedItem,
+      signal: AbortSignal
+    ): SavedProfile | null => {
+      if (!userData || signal.aborted) return null;
+      return {
+        id: userData.user.id,
+        username: userData.user.username,
+        type: item.relation || ProfileCapacityType.Learner,
+        capacities:
+          item.relation === ProfileCapacityType.Sharer
+            ? userData.skills_available
+            : userData.skills_wanted,
+        languages: userData.language,
+        territory: userData.territory?.[0]?.toString() || '',
+        avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
+        wikidataQid: userData.wikidata_qid,
+        isOrganization: false,
+        savedItemId: item.id,
+      };
+    };
+
+    // Helper function to create organization profile from saved item
+    const createOrgProfile = (
+      orgData: any,
+      item: SavedItem,
+      signal: AbortSignal
+    ): SavedProfile | null => {
+      if (!orgData || signal.aborted) return null;
+      return {
+        id: orgData.id,
+        username: orgData.display_name,
+        profile_image: orgData.profile_image,
+        type: item.relation,
+        avatar: undefined,
+        capacities:
+          item.relation === ProfileCapacityType.Learner
+            ? orgData.wanted_capacities
+            : orgData.available_capacities,
+        territory: orgData.territory[0],
+        isOrganization: true,
+        savedItemId: item.id,
+      };
+    };
+
+    // Helper function to fetch a single profile
+    const fetchSingleProfile = async (item: SavedItem): Promise<SavedProfile | null> => {
+      if (signal.aborted) return null;
+
+      try {
+        if (item.entity === 'user') {
+          const userData = await userService.fetchUserProfile(item.entity_id, session.user.token);
+          return createUserProfile(userData, item, signal);
+        }
+
+        if (item.entity === 'org') {
+          const orgData = await organizationProfileService.getOrganizationById(
+            session.user.token,
+            item.entity_id
+          );
+          return createOrgProfile(orgData, item, signal);
+        }
+      } catch (err) {
+        // Silently handle errors for individual items
+      }
+      return null;
+    };
+
+    const fetchAllProfileDetails = async () => {
       try {
         // Fetch all profiles in parallel instead of sequentially
-        const profilePromises = savedItems.map(async item => {
-          if (signal.aborted) return null;
-
-          try {
-            if (item.entity === 'user') {
-              const userData = await userService.fetchUserProfile(
-                item.entity_id,
-                session.user.token
-              );
-              if (userData && !signal.aborted) {
-                return {
-                  id: userData.user.id,
-                  username: userData.user.username,
-                  type: item.relation || ProfileCapacityType.Learner,
-                  capacities:
-                    item.relation === ProfileCapacityType.Sharer
-                      ? userData.skills_available
-                      : userData.skills_wanted,
-                  languages: userData.language,
-                  territory: userData.territory?.[0]?.toString() || '',
-                  avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
-                  wikidataQid: userData.wikidata_qid,
-                  isOrganization: false,
-                  savedItemId: item.id,
-                } as SavedProfile;
-              }
-            } else if (item.entity === 'org') {
-              const orgData = await organizationProfileService.getOrganizationById(
-                session.user.token,
-                item.entity_id
-              );
-              if (orgData && !signal.aborted) {
-                return {
-                  id: orgData.id,
-                  username: orgData.display_name,
-                  profile_image: orgData.profile_image,
-                  type: item.relation,
-                  avatar: undefined,
-                  capacities:
-                    item.relation === ProfileCapacityType.Learner
-                      ? orgData.wanted_capacities
-                      : orgData.available_capacities,
-                  territory: orgData.territory[0],
-                  isOrganization: true,
-                  savedItemId: item.id,
-                } as SavedProfile;
-              }
-            }
-          } catch (err) {
-            // Silently handle errors for individual items
-            return null;
-          }
-          return null;
-        });
-
+        const profilePromises = savedItems.map(fetchSingleProfile);
         const profiles = (await Promise.all(profilePromises)).filter(
           (p): p is SavedProfile => p !== null && !signal.aborted
         );
@@ -140,7 +156,7 @@ export function useSavedItems() {
       }
     };
 
-    fetchProfileDetails();
+    fetchAllProfileDetails();
 
     return () => {
       if (abortControllerRef.current) {
@@ -155,51 +171,52 @@ export function useSavedItems() {
 
       if (savedItem.entity === 'user') {
         const userData = await userService.fetchUserProfile(savedItem.entity_id, token);
-        if (userData) {
-          newProfile = {
-            id: userData.user.id,
-            username: userData.user.username,
-            type: savedItem.relation || ProfileCapacityType.Learner,
-            capacities:
-              savedItem.relation === ProfileCapacityType.Sharer
-                ? userData.skills_available
-                : userData.skills_wanted,
-            languages: userData.language,
-            territory: userData.territory?.[0]?.toString() || '',
-            avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
-            wikidataQid: userData.wikidata_qid,
-            isOrganization: false,
-            savedItemId: savedItem.id,
-          };
-        }
+        newProfile = userData
+          ? {
+              id: userData.user.id,
+              username: userData.user.username,
+              type: savedItem.relation || ProfileCapacityType.Learner,
+              capacities:
+                savedItem.relation === ProfileCapacityType.Sharer
+                  ? userData.skills_available
+                  : userData.skills_wanted,
+              languages: userData.language,
+              territory: userData.territory?.[0]?.toString() || '',
+              avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
+              wikidataQid: userData.wikidata_qid,
+              isOrganization: false,
+              savedItemId: savedItem.id,
+            }
+          : null;
       } else if (savedItem.entity === 'org') {
         const orgData = await organizationProfileService.getOrganizationById(
           token,
           savedItem.entity_id
         );
-        if (orgData) {
-          newProfile = {
-            id: orgData.id,
-            username: orgData.display_name,
-            profile_image: orgData.profile_image,
-            type: savedItem.relation,
-            capacities:
-              savedItem.relation === ProfileCapacityType.Learner
-                ? orgData.wanted_capacities
-                : orgData.available_capacities,
-            territory: orgData.territory[0],
-            avatar: undefined,
-            isOrganization: true,
-            savedItemId: savedItem.id,
-          };
-        }
+        newProfile = orgData
+          ? {
+              id: orgData.id,
+              username: orgData.display_name,
+              profile_image: orgData.profile_image,
+              type: savedItem.relation,
+              capacities:
+                savedItem.relation === ProfileCapacityType.Learner
+                  ? orgData.wanted_capacities
+                  : orgData.available_capacities,
+              territory: orgData.territory[0],
+              avatar: undefined,
+              isOrganization: true,
+              savedItemId: savedItem.id,
+            }
+          : null;
       }
 
       if (newProfile) {
-        setAllProfiles(prev => [...prev, newProfile!]);
+        setAllProfiles(prev => [...prev, newProfile]);
         setCount(prev => prev + 1);
       }
     } catch (error) {
+      // Log error but don't throw - individual item failures shouldn't break the whole process
       console.error('Error fetching profile details:', error);
     }
   }, []);

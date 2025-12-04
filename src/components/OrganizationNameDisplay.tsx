@@ -4,9 +4,9 @@ import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import { useSession } from 'next-auth/react';
 
 interface OrganizationNameDisplayProps {
-  organizationId: number;
-  defaultName: string;
-  fallback?: string;
+  readonly organizationId: number;
+  readonly defaultName: string;
+  readonly fallback?: string;
 }
 
 /**

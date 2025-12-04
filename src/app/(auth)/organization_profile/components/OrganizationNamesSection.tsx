@@ -17,14 +17,14 @@ import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 
 interface OrganizationNamesSectionProps {
-  organizationId: number;
+  readonly organizationId: number;
 }
 
 export default function OrganizationNamesSection({
   organizationId,
 }: OrganizationNamesSectionProps) {
   const { darkMode } = useTheme();
-  const { pageContent, language } = useApp();
+  const { pageContent } = useApp();
   const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();
   const token = session?.user?.token;
@@ -188,106 +188,106 @@ export default function OrganizationNamesSection({
 
       {/* Existing names */}
       <div className="space-y-3 mb-4">
-        {isLoading ? (
+        {isLoading && (
           <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
             {pageContent['loading'] || 'Loading...'}
           </p>
-        ) : names.length === 0 ? (
+        )}
+        {!isLoading && names.length === 0 && (
           <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
             {pageContent['organization-names-none'] || 'No translations added yet.'}
           </p>
-        ) : (
-          names.map(name => (
-            <div
-              key={name.id}
-              className={`flex items-center gap-2 p-3 rounded-md border ${
-                darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-300'
-              }`}
-            >
-              {editingId === name.id ? (
-                <>
-                  <select
-                    value={newLanguageCode}
-                    onChange={e => setNewLanguageCode(e.target.value)}
-                    className={`flex-1 p-2 rounded-md border text-sm ${
-                      darkMode
-                        ? 'bg-transparent border-gray-600 text-white'
-                        : 'border-gray-300 text-gray-900'
-                    }`}
-                  >
-                    {availableLanguages.map(lang => (
-                      <option key={lang.value} value={lang.value}>
-                        {lang.label}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={e => setNewName(e.target.value)}
-                    placeholder={
-                      pageContent['organization-name-placeholder'] || 'Organization name'
-                    }
-                    className={`flex-1 p-2 rounded-md border text-sm ${
-                      darkMode
-                        ? 'bg-transparent border-gray-600 text-white placeholder-gray-400'
-                        : 'border-gray-300 text-gray-900 placeholder-gray-500'
-                    }`}
-                  />
-                  <button
-                    onClick={() => handleUpdate(name.id, name.language_code, name.name)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${
-                      darkMode
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                    }`}
-                  >
-                    {pageContent['save'] || 'Save'}
-                  </button>
-                  <button
-                    onClick={cancelEditing}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${
-                      darkMode
-                        ? 'bg-gray-600 hover:bg-gray-700 text-white'
-                        : 'bg-gray-300 hover:bg-gray-400 text-gray-900'
-                    }`}
-                  >
-                    {pageContent['cancel'] || 'Cancel'}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span
-                    className={`flex-1 text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
-                    <span className="font-bold">{name.language_code.toUpperCase()}:</span>{' '}
-                    {name.name}
-                  </span>
-                  <button
-                    onClick={() => startEditing(name)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium ${
-                      darkMode
-                        ? 'bg-gray-600 hover:bg-gray-700 text-white'
-                        : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                    }`}
-                  >
-                    {pageContent['edit'] || 'Edit'}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(name.id)}
-                    className="p-2 rounded-md hover:opacity-80"
-                  >
-                    <Image
-                      src={darkMode ? CloseIconWhite : CloseIcon}
-                      alt="Delete"
-                      width={20}
-                      height={20}
+        )}
+        {!isLoading && names.length > 0 && (
+          <>
+            {names.map(name => (
+              <div
+                key={name.id}
+                className={`flex items-center gap-2 p-3 rounded-md border ${
+                  darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-300'
+                }`}
+              >
+                {editingId === name.id ? (
+                  <>
+                    <select
+                      value={newLanguageCode}
+                      onChange={e => setNewLanguageCode(e.target.value)}
+                      className={`flex-1 p-2 rounded-md border text-sm ${
+                        darkMode
+                          ? 'bg-transparent border-gray-600 text-white'
+                          : 'border-gray-300 text-gray-900'
+                      }`}
+                    >
+                      {availableLanguages.map(lang => (
+                        <option key={lang.value} value={lang.value}>
+                          {lang.label}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={e => setNewName(e.target.value)}
+                      placeholder={
+                        pageContent['organization-name-placeholder'] || 'Organization name'
+                      }
+                      className={`flex-1 p-2 rounded-md border text-sm ${
+                        darkMode
+                          ? 'bg-transparent border-gray-600 text-white placeholder-gray-400'
+                          : 'border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                     />
-                  </button>
-                </>
-              )}
-            </div>
-          ))
+                    <button
+                      onClick={() => handleUpdate(name.id, name.language_code, name.name)}
+                      className="px-3 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      {pageContent['save'] || 'Save'}
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      className={`px-3 py-2 rounded-md text-sm font-medium ${
+                        darkMode
+                          ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                          : 'bg-gray-300 hover:bg-gray-400 text-gray-900'
+                      }`}
+                    >
+                      {pageContent['cancel'] || 'Cancel'}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className={`flex-1 text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      <span className="font-bold">{name.language_code.toUpperCase()}:</span>{' '}
+                      {name.name}
+                    </span>
+                    <button
+                      onClick={() => startEditing(name)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium ${
+                        darkMode
+                          ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                      }`}
+                    >
+                      {pageContent['edit'] || 'Edit'}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(name.id)}
+                      className="p-2 rounded-md hover:opacity-80"
+                    >
+                      <Image
+                        src={darkMode ? CloseIconWhite : CloseIcon}
+                        alt="Delete"
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+          </>
         )}
       </div>
 
@@ -331,11 +331,7 @@ export default function OrganizationNamesSection({
           />
           <button
             onClick={handleAdd}
-            className={`px-4 py-2 rounded-md text-sm font-medium ${
-              darkMode
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
+            className="px-4 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
           >
             {pageContent['add'] || 'Add'}
           </button>

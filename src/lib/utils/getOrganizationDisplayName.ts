@@ -16,10 +16,10 @@ import { OrganizationName } from '@/types/organization';
 function normalizeLanguageCode(code: string): string {
   if (!code) return '';
   // Convert to lowercase and replace common variations
-  const normalized = code.toLowerCase().replace(/[_-]/g, '');
+  const normalized = code.toLowerCase().replaceAll(/[_-]/g, '');
 
   // Handle common variations
-  if (normalized === 'ptbr' || normalized === 'ptbr') {
+  if (normalized === 'ptbr') {
     return 'pt-br';
   }
 

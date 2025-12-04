@@ -13,13 +13,13 @@ import { useSession } from 'next-auth/react';
 import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 
 interface SavedItemCardProps {
-  id: string;
-  username: string;
-  profile_image?: string; // Only for organizations
-  avatar?: string;
-  wikidataQid?: string; // For people with Wikidata images
-  isOrganization?: boolean;
-  onDelete: () => void;
+  readonly id: string;
+  readonly username: string;
+  readonly profile_image?: string; // Only for organizations
+  readonly avatar?: string;
+  readonly wikidataQid?: string; // For people with Wikidata images
+  readonly isOrganization?: boolean;
+  readonly onDelete: () => void;
 }
 
 export const SavedItemCard = ({
@@ -38,7 +38,7 @@ export const SavedItemCard = ({
 
   // Get translated organization name if it's an organization
   const { displayName: translatedOrgName } = useOrganizationDisplayName({
-    organizationId: isOrganization ? parseInt(id, 10) : undefined,
+    organizationId: isOrganization ? Number.parseInt(id, 10) : undefined,
     defaultName: isOrganization ? username : '',
     token: session?.user?.token,
   });

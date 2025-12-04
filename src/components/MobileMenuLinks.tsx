@@ -31,8 +31,8 @@ interface SubMenuItem {
 }
 
 interface MobileMenuLinksProps {
-  session: Session | null;
-  handleMenuStatus: () => void;
+  readonly session: Session | null;
+  readonly handleMenuStatus: () => void;
 }
 
 // Component to render organization submenu item with translated name
@@ -41,9 +41,9 @@ function OrganizationSubMenuItem({
   handleProfileChange,
   darkMode,
 }: {
-  org: any;
-  handleProfileChange: (path: string) => void;
-  darkMode: boolean;
+  readonly org: any;
+  readonly handleProfileChange: (path: string) => void;
+  readonly darkMode: boolean;
 }) {
   const { data: session } = useSession();
   const { displayName } = useOrganizationDisplayName({
@@ -52,9 +52,23 @@ function OrganizationSubMenuItem({
     token: session?.user?.token,
   });
 
+  const handleClick = () => {
+    handleProfileChange(`/organization_profile/${org.id}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <div
-      onClick={() => handleProfileChange(`/organization_profile/${org.id}`)}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
       className={`flex items-center justify-between px-2 py-3 border-t border-[#053749] pt-2 cursor-pointer ${
         darkMode ? 'text-capx-dark-text bg-capx-dark-bg' : 'text-capx-light-text bg-capx-light-bg'
       }`}
