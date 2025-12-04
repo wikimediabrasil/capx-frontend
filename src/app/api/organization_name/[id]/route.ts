@@ -71,7 +71,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       },
     });
 
-    return NextResponse.json({ success: true }, { status: 204 });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('Error deleting organization name:', error.response?.data || error.message);
     return NextResponse.json(

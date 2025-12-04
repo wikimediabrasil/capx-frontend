@@ -29,7 +29,7 @@ export default function OrganizationNamesSection({
   const { showSnackbar } = useSnackbar();
   const token = session?.user?.token;
 
-  const { names, isLoading, createName, updateName, deleteName } = useOrganizationNames({
+  const { names, isLoading, createName, updateName, deleteName, fetchNames } = useOrganizationNames({
     organizationId,
     token,
   });
@@ -144,12 +144,19 @@ export default function OrganizationNamesSection({
 
     try {
       await deleteName(id);
+      // The query will be invalidated automatically by the mutation's onSuccess
       showSnackbar(
         pageContent['organization-name-deleted'] || 'Organization name deleted successfully',
         'success'
       );
     } catch (error: any) {
-      showSnackbar(error.message || 'Failed to delete organization name', 'error');
+      // Even if there's an error, the list might have been updated on the backend
+      // The onError handler in the mutation will still invalidate the query
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to delete organization name';
+      showSnackbar(errorMessage, 'error');
+      
+      // Force a refetch to ensure UI is in sync with backend
+      fetchNames();
     }
   };
 
@@ -242,7 +249,7 @@ export default function OrganizationNamesSection({
                     />
                     <button
                       onClick={() => handleUpdate(name.id, name.language_code, name.name)}
-                      className="px-3 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
+                      className="px-3 py-2 rounded-md text-sm font-medium bg-capx-secondary-purple hover:bg-capx-primary-green text-white"
                     >
                       {pageContent['save'] || 'Save'}
                     </button>
@@ -334,7 +341,7 @@ export default function OrganizationNamesSection({
           />
           <button
             onClick={handleAdd}
-            className="px-4 py-2 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white"
+            className="px-4 py-2 rounded-md text-sm font-medium bg-capx-secondary-purple hover:bg-capx-primary-green text-white"
           >
             {pageContent['add'] || 'Add'}
           </button>

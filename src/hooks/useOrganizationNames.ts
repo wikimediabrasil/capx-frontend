@@ -110,14 +110,23 @@ export function useOrganizationNames({ organizationId, token }: UseOrganizationN
         throw new Error('Token is required');
       }
 
-      await axios.delete(`/api/organization_name/${id}/`, {
+      const response = await axios.delete(`/api/organization_name/${id}/`, {
         headers: {
           Authorization: `Token ${token}`,
         },
       });
+      
+      return response.data;
     },
     onSuccess: () => {
+      // Invalidate and refetch to update the UI immediately
       queryClient.invalidateQueries({ queryKey: ['organizationNames', organizationId, token] });
+    },
+    onError: (error: any) => {
+      // Even if there's an error, try to invalidate to refresh the list
+      // This handles the case where the backend deleted but returned an error
+      queryClient.invalidateQueries({ queryKey: ['organizationNames', organizationId, token] });
+      throw error;
     },
   });
 
