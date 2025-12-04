@@ -308,8 +308,6 @@ export const ProfileCard = ({
                     }`}
                   >
                     {pageContent['profile-incomplete-description']}
-                    <br />
-                    {pageContent['profile-incomplete-description-2']}
                   </p>
                 </div>
               </div>

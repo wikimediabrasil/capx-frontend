@@ -167,12 +167,7 @@ export const NewsSection = ({ ids }: NewsProps) => {
                   className={`text-center font-[Montserrat] text-[16px] font-normal not-italic leading-[normal] text-start ${
                     darkMode ? 'text-[#F6F6F6]' : 'text-[#003649]'
                   }`}
-                >
-                  {/* {dateFormatter.format(new Date(post.pub_date))}
-                  &nbsp;{pageContent['organization-profile-news-section-by']}
-                  &nbsp;
-                  {post.author.name} */}
-                </p>
+                ></p>
               </div>
             </div>
           ))}
