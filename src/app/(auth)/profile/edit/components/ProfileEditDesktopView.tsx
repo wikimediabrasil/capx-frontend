@@ -352,8 +352,9 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   }`}
                 >
                   {(() => {
-                    return pageContent['edit-profile-consent-wikidata-before-link'].replace(
-                      '$1',
+                    const text = pageContent['edit-profile-consent-wikidata-before-link'] || '';
+                    const parts = text.split('$1');
+                    const link = (
                       <a
                         href="https://www.wikidata.org/wiki/Wikidata:Notability"
                         target="_blank"
@@ -365,6 +366,12 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                         {pageContent['edit-profile-consent-wikidata-link']}
                       </a>
                     );
+                    const nodes: (string | JSX.Element)[] = [];
+                    for (const [index, part] of parts.entries()) {
+                      if (index > 0) nodes.push(link);
+                      nodes.push(part);
+                    }
+                    return nodes;
                   })()}
                 </span>
                 {hasLetsConnectData && !formData?.automated_lets_connect && (
@@ -1184,8 +1191,9 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                 }`}
               >
                 {(() => {
-                  return pageContent['edit-profile-consent-wikidata-item-before-link'].replace(
-                    '$1',
+                  const text = pageContent['edit-profile-consent-wikidata-item-before-link'] || '';
+                  const parts = text.split('$1');
+                  const link = (
                     <a
                       href="https://www.wikidata.org/wiki/Wikidata:Notability"
                       target="_blank"
@@ -1197,6 +1205,12 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                       {pageContent['edit-profile-consent-wikidata-link']}
                     </a>
                   );
+                  const nodes: (string | JSX.Element)[] = [];
+                  for (const [index, part] of parts.entries()) {
+                    if (index > 0) nodes.push(link);
+                    nodes.push(part);
+                  }
+                  return nodes;
                 })()}
               </span>
             </div>

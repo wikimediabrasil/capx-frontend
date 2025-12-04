@@ -348,8 +348,9 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   }`}
                 >
                   {(() => {
-                    return pageContent['edit-profile-consent-wikidata-before-link'].replace(
-                      '$1',
+                    const text = pageContent['edit-profile-consent-wikidata-before-link'] || '';
+                    const parts = text.split('$1');
+                    const link = (
                       <a
                         href="https://www.wikidata.org/wiki/Wikidata:Notability"
                         target="_blank"
@@ -361,6 +362,12 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         {pageContent['edit-profile-consent-wikidata-link']}
                       </a>
                     );
+                    const nodes: (string | JSX.Element)[] = [];
+                    for (const [index, part] of parts.entries()) {
+                      if (index > 0) nodes.push(link);
+                      nodes.push(part);
+                    }
+                    return nodes;
                   })()}
                 </span>
               </div>
@@ -1207,8 +1214,9 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   }`}
                 >
                   {(() => {
-                    return pageContent['edit-profile-consent-wikidata-item-before-link'].replace(
-                      '$1',
+                    const text = pageContent['edit-profile-consent-wikidata-item-before-link'] || '';
+                    const parts = text.split('$1');
+                    const link = (
                       <a
                         href="https://www.wikidata.org/wiki/Wikidata:Notability"
                         target="_blank"
@@ -1218,6 +1226,12 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         {pageContent['edit-profile-consent-wikidata-link']}
                       </a>
                     );
+                    const nodes: (string | JSX.Element)[] = [];
+                    for (const [index, part] of parts.entries()) {
+                      if (index > 0) nodes.push(link);
+                      nodes.push(part);
+                    }
+                    return nodes;
                   })()}
                 </span>
               </div>
