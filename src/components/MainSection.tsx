@@ -26,7 +26,10 @@ export default function MainSection() {
   const template = cleanedTemplate.length > 0 ? cleanedTemplate : 'A space for exchanging $1';
   const hasTemplate = template.includes('$1');
   const [prefix, suffix] = hasTemplate ? template.split('$1') : [template + ' ', ''];
-  const words: string[] = (pageContent['body-home-section01-title-carousel']?.split(',') || [])
+  // Support multiple list separators: standard/Arabic/ideographic/full-width commas, semicolons,
+  // and the standalone Arabic conjunction "و" when used with surrounding spaces.
+  const carouselRaw = pageContent['body-home-section01-title-carousel'];
+  const words: string[] = (typeof carouselRaw === 'string' ? carouselRaw.split(/[,،、，;؛و]/g) : [])
     .map(w => w.trim())
     .filter(Boolean);
 
