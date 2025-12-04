@@ -1214,7 +1214,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   }`}
                 >
                   {(() => {
-                    const text = pageContent['edit-profile-consent-wikidata-item-before-link'] || '';
+                    const text = pageContent['edit-profile-consent-wikidata-item-before-link'];
                     const parts = text.split('$1');
                     const link = (
                       <a
