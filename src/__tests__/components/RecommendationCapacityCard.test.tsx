@@ -4,9 +4,9 @@ import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { CapacityCacheProvider, useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { fireEvent, screen, waitFor, act } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
-import { useQuery, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CapacityRecommendation } from '@/types/recommendation';
 import {
   renderWithProviders,
