@@ -115,7 +115,7 @@ export function useOrganizationNames({ organizationId, token }: UseOrganizationN
           Authorization: `Token ${token}`,
         },
       });
-      
+
       return response.data;
     },
     onSuccess: () => {

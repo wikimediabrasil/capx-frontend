@@ -29,10 +29,12 @@ export default function OrganizationNamesSection({
   const { showSnackbar } = useSnackbar();
   const token = session?.user?.token;
 
-  const { names, isLoading, createName, updateName, deleteName, fetchNames } = useOrganizationNames({
-    organizationId,
-    token,
-  });
+  const { names, isLoading, createName, updateName, deleteName, fetchNames } = useOrganizationNames(
+    {
+      organizationId,
+      token,
+    }
+  );
 
   const { fetchLanguages } = useLanguageSelection();
   const [availableLanguages, setAvailableLanguages] = useState<
@@ -152,9 +154,10 @@ export default function OrganizationNamesSection({
     } catch (error: any) {
       // Even if there's an error, the list might have been updated on the backend
       // The onError handler in the mutation will still invalidate the query
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to delete organization name';
+      const errorMessage =
+        error.response?.data?.error || error.message || 'Failed to delete organization name';
       showSnackbar(errorMessage, 'error');
-      
+
       // Force a refetch to ensure UI is in sync with backend
       fetchNames();
     }
