@@ -5,6 +5,27 @@ import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { Session } from 'next-auth';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+
+// Mock next-auth
+jest.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: {
+      user: {
+        id: '123',
+        token: 'test-token',
+        username: 'test-user',
+        first_login: false,
+        name: 'Test User',
+        email: 'test@example.com',
+        image: 'test-image.jpg',
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    },
+    status: 'authenticated',
+  }),
+  SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
 
 // Next.js Router's mock
 jest.mock('next/navigation', () => ({
@@ -106,10 +127,18 @@ describe('MobileMenuLinks', () => {
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0 },
+      },
+    });
+
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AppProvider>{component}</AppProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     );
   };
 

@@ -1,11 +1,12 @@
+import React from 'react';
 import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { CapacityCacheProvider, useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, act } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CapacityRecommendation } from '@/types/recommendation';
 import {
   renderWithProviders,
@@ -49,6 +50,8 @@ jest.mock('next/navigation');
 // Test data factory
 const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendation => ({
   id: 50,
+  skill_wikidata_item: 'Q123',
+  skill_type: 1,
   name: 'Learning',
   description: 'Learning capability',
   color: 'learning',
@@ -67,11 +70,24 @@ describe('RecommendationCapacityCard', () => {
     language: ['en'],
   };
 
+  // Create stable mock function that persists across ALL renders and tests
+  const mockPreloadCapacities = jest.fn().mockResolvedValue(undefined);
+
   beforeEach(() => {
     const { useRouter } = require('next/navigation');
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-    (useCapacityCache as jest.Mock).mockReturnValue(createMockCapacityCache());
+
+    // Reset but keep the same reference and ensure it resolves immediately
+    mockPreloadCapacities.mockClear();
+    mockPreloadCapacities.mockResolvedValue(undefined);
+
+    // Ensure mock is set up before any component renders
+    (useCapacityCache as jest.Mock).mockReturnValue(
+      createMockCapacityCache({
+        preloadCapacities: mockPreloadCapacities,
+      })
+    );
     (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
     (useQuery as jest.Mock).mockReturnValue({
       data: mockUserProfile,
@@ -88,7 +104,19 @@ describe('RecommendationCapacityCard', () => {
       ...props,
     };
 
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0, staleTime: 0 },
+        mutations: { retry: false },
+      },
+    });
+
+    const QueryWrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
     return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />, [
+      QueryWrapper,
       ThemeProvider,
       AppProvider,
       CapacityCacheProvider,
@@ -100,13 +128,15 @@ describe('RecommendationCapacityCard', () => {
       renderCard();
 
       await waitFor(() => {
-        const headings = screen.queryAllByText('Learning');
-        expect(headings.length).toBeGreaterThan(0);
+        expect(screen.getByText('Learning')).toBeInTheDocument();
       });
 
       expect(screen.getByText('Learning capability')).toBeInTheDocument();
       expect(screen.getByText('Add to Profile')).toBeInTheDocument();
       expect(screen.getByText('View')).toBeInTheDocument();
+
+      // Verify preloadCapacities was called
+      expect(mockPreloadCapacities).toHaveBeenCalled();
     });
 
     it('should render with hint message when provided', async () => {
@@ -135,7 +165,6 @@ describe('RecommendationCapacityCard', () => {
     it('should eventually show content after loading', async () => {
       renderCard();
 
-      // Wait for content to load
       await waitFor(() => {
         expect(screen.getByText('Add to Profile')).toBeInTheDocument();
       });
@@ -179,7 +208,7 @@ describe('RecommendationCapacityCard', () => {
       (useQuery as jest.Mock).mockReturnValue({
         data: {
           ...mockUserProfile,
-          skills_wanted: ['50'],
+          skills_wanted: [50],
         },
         isLoading: false,
       });
@@ -239,7 +268,7 @@ describe('RecommendationCapacityCard', () => {
       (useQuery as jest.Mock).mockReturnValue({
         data: {
           ...mockUserProfile,
-          skills_wanted: ['50'],
+          skills_wanted: [50],
         },
         isLoading: false,
       });

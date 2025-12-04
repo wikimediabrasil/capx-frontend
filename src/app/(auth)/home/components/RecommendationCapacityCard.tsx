@@ -68,13 +68,20 @@ export default function RecommendationCapacityCard({
   // Preload capacity data
   useEffect(() => {
     const loadCapacity = async () => {
-      if (capacityId) {
-        await preloadCapacities();
+      try {
+        if (capacityId) {
+          await preloadCapacities();
+        }
+      } catch (error) {
+        // Silently handle errors - component should still render
+        console.error('Error preloading capacities:', error);
+      } finally {
         setIsLoading(false);
       }
     };
     loadCapacity();
-  }, [capacityId, preloadCapacities]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [capacityId]); // preloadCapacities is stable from context, no need to include in deps
 
   const capacityName = useMemo(() => {
     if (typeof recommendation.name === 'string' && recommendation.name.trim().length > 0) {

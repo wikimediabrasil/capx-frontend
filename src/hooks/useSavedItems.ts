@@ -134,7 +134,7 @@ export function useSavedItems() {
           return createOrgProfile(orgData, item, signal);
         }
       } catch (err) {
-        // Silently handle errors for individual items
+        console.error('Error fetching profile details:', err);
       }
       return null;
     };
@@ -152,7 +152,7 @@ export function useSavedItems() {
           setCount(profiles.length);
         }
       } catch (err) {
-        // Error already handled by React Query
+        console.error('Error fetching all profile details:', err);
       }
     };
 

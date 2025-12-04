@@ -56,27 +56,18 @@ function OrganizationSubMenuItem({
     handleProfileChange(`/organization_profile/${org.id}`);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleClick();
-    }
-  };
-
   return (
-    <div
+    <button
       onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      className={`flex items-center justify-between px-2 py-3 border-t border-[#053749] pt-2 cursor-pointer ${
+      type="button"
+      className={`flex items-center justify-between w-full px-2 py-3 border-t border-[#053749] pt-2 cursor-pointer ${
         darkMode ? 'text-capx-dark-text bg-capx-dark-bg' : 'text-capx-light-text bg-capx-light-bg'
       }`}
     >
       <span className="font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]">
         {displayName || 'Organization'}
       </span>
-    </div>
+    </button>
   );
 }
 

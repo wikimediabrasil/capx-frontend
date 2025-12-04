@@ -51,17 +51,31 @@ export default function OrganizationNamesSection({
     loadLanguages();
   }, [fetchLanguages]);
 
-  const handleAdd = async () => {
+  // Helper function to validate form fields
+  const validateFields = (): boolean => {
     if (!newLanguageCode || !newName.trim()) {
       showSnackbar(
         pageContent['organization-name-fields-required'] || 'Language and name are required',
         'error'
       );
-      return;
+      return false;
     }
+    return true;
+  };
 
-    // Check if language already exists
-    if (names.some(n => n.language_code.toLowerCase() === newLanguageCode.toLowerCase())) {
+  // Helper function to check if language already exists
+  const isLanguageExists = (languageCode: string, excludeId?: number): boolean => {
+    return names.some(
+      n =>
+        n.language_code.toLowerCase() === languageCode.toLowerCase() &&
+        (excludeId === undefined || n.id !== excludeId)
+    );
+  };
+
+  const handleAdd = async () => {
+    if (!validateFields()) return;
+
+    if (isLanguageExists(newLanguageCode)) {
       showSnackbar(
         pageContent['organization-name-already-exists'] ||
           'A name for this language already exists',
@@ -88,21 +102,10 @@ export default function OrganizationNamesSection({
   };
 
   const handleUpdate = async (id: number, currentLanguageCode: string, currentName: string) => {
-    if (!newLanguageCode || !newName.trim()) {
-      showSnackbar(
-        pageContent['organization-name-fields-required'] || 'Language and name are required',
-        'error'
-      );
-      return;
-    }
+    if (!validateFields()) return;
 
-    // Check if another name with the same language exists
-    if (
-      newLanguageCode.toLowerCase() !== currentLanguageCode.toLowerCase() &&
-      names.some(
-        n => n.id !== id && n.language_code.toLowerCase() === newLanguageCode.toLowerCase()
-      )
-    ) {
+    const isLanguageChanged = newLanguageCode.toLowerCase() !== currentLanguageCode.toLowerCase();
+    if (isLanguageChanged && isLanguageExists(newLanguageCode, id)) {
       showSnackbar(
         pageContent['organization-name-already-exists'] ||
           'A name for this language already exists',
