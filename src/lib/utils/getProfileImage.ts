@@ -1,6 +1,7 @@
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 import { Avatar } from '@/types/avatar';
+
+const DEFAULT_AVATAR = '/static/images/person.svg';
 
 export const getProfileImage = (
   profileImage: string | null | undefined,
@@ -20,6 +21,6 @@ export const getProfileImage = (
     }
   }
 
-  // Fallback to the default icon
-  return NoAvatarIcon;
+  // Fallback to the default person icon
+  return DEFAULT_AVATAR;
 };

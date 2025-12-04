@@ -60,7 +60,6 @@ import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
 import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 import PersonIcon from '@/public/static/images/person_book.svg';
 import PersonIconWhite from '@/public/static/images/person_book_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
@@ -79,6 +78,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -169,7 +169,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
+  const [avatarUrl, setAvatarUrl] = useState<string>(DEFAULT_AVATAR);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
@@ -283,11 +283,16 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   ) : (
                     <Image
                       src={selectedAvatar.src || avatarUrl}
-                      alt="Selected avatar"
+                      alt={
+                        (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR
+                          ? pageContent['alt-profile-picture-default'] ||
+                            'Default user profile picture'
+                          : 'Selected avatar'
+                      }
                       fill
                       className="object-contain"
                       onError={e => {
-                        e.currentTarget.src = NoAvatarIcon;
+                        e.currentTarget.src = DEFAULT_AVATAR;
                       }}
                     />
                   )}

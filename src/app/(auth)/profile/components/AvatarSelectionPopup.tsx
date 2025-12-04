@@ -25,15 +25,13 @@ export default function AvatarSelectionPopup({
   const [tempSelectedId, setTempSelectedId] = useState<number | null>(selectedAvatarId);
   const { darkMode } = useTheme();
 
-  // Create virtual avatar for the "no avatar" option
-  const noAvatarOption = {
+  // Create virtual avatar for the default person option
+  const defaultPersonOption = {
     id: null as number | null,
-    avatar_url: darkMode
-      ? 'https://upload.wikimedia.org/wikipedia/commons/7/7a/CapX_-_No_avatar_white.svg'
-      : 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg',
+    avatar_url: '/static/images/person.svg',
   };
 
-  const allAvatars = [noAvatarOption, ...(avatars || [])];
+  const allAvatars = [defaultPersonOption, ...(avatars || [])];
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';

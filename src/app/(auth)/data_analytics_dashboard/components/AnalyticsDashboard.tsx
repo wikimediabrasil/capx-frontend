@@ -1,32 +1,32 @@
 'use client';
 
-import Image from 'next/image';
-import DataAnalytics from '@/public/static/images/data_analytics_dashboard_banner.svg';
 import Banner from '@/components/Banner';
-import LanguageIcon from '@/public/static/images/language.svg';
-import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import TerritoryIcon from '@/public/static/images/territory.svg';
-import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
-import CapxIcon from '@/public/static/images/capx_icon.svg';
-import capxIconWhite from '@/public/static/images/capx_icon_white.svg';
-import corporateFareWhite from '@/public/static/images/corporate_fare_white.svg';
-import communication from '@/public/static/images/communication.svg';
-import learner from '@/public/static/images/learner_icon_white.svg';
-import communities from '@/public/static/images/communities.svg';
-import socialSkills from '@/public/static/images/cheer.svg';
-import strategic from '@/public/static/images/chess_pawn.svg';
-import technology from '@/public/static/images/wifi_tethering.svg';
-import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down_light_mode.svg';
-import ArrowDownIconWhite from '@/public/static/images/keyboard_arrow_down.svg';
-import { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
+import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
-import { useTerritories } from '@/hooks/useTerritories';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
+import { useTerritories } from '@/hooks/useTerritories';
+import CapxIcon from '@/public/static/images/capx_icon.svg';
+import capxIconWhite from '@/public/static/images/capx_icon_white.svg';
+import socialSkills from '@/public/static/images/cheer.svg';
+import strategic from '@/public/static/images/chess_pawn.svg';
+import communication from '@/public/static/images/communication.svg';
+import communities from '@/public/static/images/communities.svg';
+import corporateFareWhite from '@/public/static/images/corporate_fare_white.svg';
+import DataAnalytics from '@/public/static/images/data_analytics_dashboard_banner.svg';
+import ArrowDownIconWhite from '@/public/static/images/keyboard_arrow_down.svg';
+import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down_light_mode.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import learner from '@/public/static/images/learner_icon_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import technology from '@/public/static/images/wifi_tethering.svg';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useState } from 'react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
-import LoadingState from '@/components/LoadingState';
 
 // Constants
 const SKILL_METADATA = {

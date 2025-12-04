@@ -23,7 +23,7 @@ import {
   addUniqueTerritory,
 } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+const DEFAULT_AVATAR = '/static/images/person.svg';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
@@ -170,11 +170,11 @@ export default function EditProfilePage() {
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<{
-    id: number | null;
+    id: number;
     src: string;
   }>({
     id: 0,
-    src: NoAvatarIcon,
+    src: DEFAULT_AVATAR,
   });
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
@@ -192,7 +192,6 @@ export default function EditProfilePage() {
     contact: '',
     display_name: '',
     language: [],
-    profile_image: '',
     pronoun: '',
     skills_available: [],
     skills_known: [],
@@ -204,21 +203,19 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar ? NoAvatarIcon : NoAvatarIcon);
+  const [avatarUrl, setAvatarUrl] = useState<string>(DEFAULT_AVATAR);
 
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [previousImageState, setPreviousImageState] = useState<{
     avatar: number | null;
-    profile_image: string;
     wikidata_qid: string;
     src: string;
   }>({
     avatar: null,
-    profile_image: '',
     wikidata_qid: '',
-    src: NoAvatarIcon,
+    src: DEFAULT_AVATAR,
   });
 
   // Move useMemo before any early returns to fix Rules of Hooks violation
@@ -277,7 +274,6 @@ export default function EditProfilePage() {
         ...profile,
         affiliation: ensureArray<string>(profile.affiliation),
         territory: profile.territory,
-        profile_image: profile.profile_image || '',
         wikidata_qid: profile.wikidata_qid || '',
         wikimedia_project: ensureArray<string>(profile.wikimedia_project),
         language: ensureArray<any>(profile.language),
@@ -287,39 +283,37 @@ export default function EditProfilePage() {
       });
       formPopulatedRef.current = true;
 
-      // Check if the user is using Wikidata
-      const isUsingWikidata = Boolean(profile.wikidata_qid);
+      // Check if the user is using Wikidata (avatar = null or 0)
+      const isUsingWikidata =
+        (profile.avatar === null || profile.avatar === 0) && Boolean(profile.wikidata_qid);
       setIsWikidataSelected(isUsingWikidata);
 
       if (isUsingWikidata) {
-        // If the user is using Wikidata, set the Wikidata image
+        // Avatar 0 means Wikidata image - we'll fetch it
         setSelectedAvatar({
-          id: -1,
-          src: profile.profile_image || NoAvatarIcon,
+          id: 0,
+          src: DEFAULT_AVATAR, // Will be replaced by fetched Wikidata image
         });
-      } else if (profile.avatar) {
-        // If the user is not using Wikidata, set the avatar
+      } else if (profile.avatar && profile.avatar > 0) {
+        // Regular avatar from the system
         const avatarData = avatars?.find(avatar => avatar.id === profile.avatar);
         setSelectedAvatar({
           id: profile.avatar,
-          src: avatarData?.avatar_url || NoAvatarIcon,
+          src: avatarData?.avatar_url || DEFAULT_AVATAR,
         });
       } else {
-        // If the user is not using Wikidata, set the default image
+        // No avatar set
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon,
+          src: DEFAULT_AVATAR,
         });
       }
 
       // Save the initial state
       setPreviousImageState({
-        avatar: profile.avatar || null,
-        profile_image: profile.profile_image || '',
+        avatar: profile.avatar ?? null,
         wikidata_qid: profile.wikidata_qid || '',
-        src: isUsingWikidata
-          ? profile.profile_image || NoAvatarIcon
-          : avatars?.find(a => a.id === profile.avatar)?.avatar_url || NoAvatarIcon,
+        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || DEFAULT_AVATAR,
       });
     }
   }, [profile, avatars]);
@@ -349,17 +343,10 @@ export default function EditProfilePage() {
         const wikidataImage = await fetchWikidataImage(profile.wikidata_qid);
         if (wikidataImage) {
           setSelectedAvatar({
-            id: -1,
+            id: 0,
             src: wikidataImage,
           });
-
-          if (!wikidataImageLoadedRef.current) {
-            setFormData(prev => ({
-              ...prev,
-              profile_image: wikidataImage,
-            }));
-            wikidataImageLoadedRef.current = true;
-          }
+          wikidataImageLoadedRef.current = true;
         }
       }
     };
@@ -522,25 +509,24 @@ export default function EditProfilePage() {
     }
   };
 
-  const handleAvatarSelect = (avatarId: number | null) => {
+  const handleAvatarSelect = (avatarId: number) => {
     setFormData(prev => ({
       ...prev,
       avatar: avatarId,
-      profile_image: '', // Clear Wikidata data
-      wikidata_qid: '', // Clear Wikidata data
+      wikidata_qid: '', // Clear Wikidata data when selecting a regular avatar
     }));
 
     setIsWikidataSelected(false);
 
-    // If avatarId is null, use the NoAvatar image
+    // If avatarId is 0, use the NoAvatar image
     const selectedAvatarUrl =
-      avatarId === null
+      avatarId === 0
         ? 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg'
         : avatars?.find(avatar => avatar.id === avatarId)?.avatar_url;
 
     setSelectedAvatar({
       id: avatarId,
-      src: selectedAvatarUrl || NoAvatarIcon,
+      src: selectedAvatarUrl || DEFAULT_AVATAR,
     });
   };
 
@@ -552,8 +538,7 @@ export default function EditProfilePage() {
       if (newWikidataSelected) {
         // Save the current state before fetching the Wikidata image
         setPreviousImageState({
-          avatar: formData.avatar || null,
-          profile_image: formData.profile_image || '',
+          avatar: formData.avatar ?? null,
           wikidata_qid: formData.wikidata_qid || '',
           src: selectedAvatar.src,
         });
@@ -569,16 +554,15 @@ export default function EditProfilePage() {
 
           // Update the state with the Wikidata image
           setSelectedAvatar({
-            id: -1,
-            src: wikidataImage || NoAvatarIcon,
+            id: 0,
+            src: wikidataImage || DEFAULT_AVATAR,
           });
 
-          // Update the formData with the Wikidata data
+          // Update the formData: set avatar = null to indicate Wikidata image
           const updatedFormData = {
             ...formData,
-            profile_image: wikidataImage || '',
             wikidata_qid: wikidataQid,
-            avatar: null, // Remove the avatar when using Wikidata
+            avatar: null, // avatar = null means "use Wikidata image"
           };
 
           setFormData(updatedFormData);
@@ -592,15 +576,14 @@ export default function EditProfilePage() {
         // Clear the Wikidata data and set the default image
         setSelectedAvatar({
           id: 0,
-          src: NoAvatarIcon,
+          src: DEFAULT_AVATAR,
         });
 
         // Update the formData removing the Wikidata data
         const restoredFormData = {
           ...formData,
-          profile_image: '',
           wikidata_qid: '',
-          avatar: null, // Important: use null instead of 0
+          avatar: null, // Keep avatar = null (no avatar selected)
         };
         setFormData(restoredFormData);
         setUnsavedData(restoredFormData);
@@ -612,7 +595,7 @@ export default function EditProfilePage() {
       // In case of error, restore the previous state
       setSelectedAvatar({
         id: previousImageState.avatar || 0,
-        src: previousImageState.src || NoAvatarIcon,
+        src: previousImageState.src || DEFAULT_AVATAR,
       });
     } finally {
       setIsImageLoading(false);
@@ -748,7 +731,7 @@ export default function EditProfilePage() {
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
-      src: selectedAvatar.src || NoAvatarIcon,
+      src: selectedAvatar.src || DEFAULT_AVATAR,
     },
     handleAvatarSelect,
     hasLetsConnectData: letsConnectData !== null,

@@ -1,13 +1,12 @@
 import BaseButton from '@/components/BaseButton';
 import { ProfileItem } from '@/components/ProfileItem';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAvatars } from '@/hooks/useAvatars';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import { useTerritories } from '@/hooks/useTerritories';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
@@ -18,8 +17,6 @@ import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import TargetIcon from '@/public/static/images/target.svg';
@@ -36,7 +33,7 @@ import { ProfileCapacityType } from '../types';
 interface ProfileCardProps {
   id: string;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   type: ProfileCapacityType | ProfileCapacityType[];
   capacities: (number | string)[];
   wantedCapacities?: (number | string)[];
@@ -44,6 +41,7 @@ interface ProfileCardProps {
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   pageContent?: Record<string, string>;
   isOrganization?: boolean;
   isSaved?: boolean;
@@ -91,6 +89,7 @@ export const ProfileCard = ({
   languages = [],
   territory,
   avatar,
+  wikidataQid,
   isOrganization = false,
   isSaved = false,
   onToggleSaved,
@@ -104,7 +103,14 @@ export const ProfileCard = ({
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
-  const { avatars } = useAvatars();
+
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image,
+    avatar,
+    wikidataQid,
+  });
 
   // Determine if this is a multi-type profile (both sharer and learner)
   const isMultiType = Array.isArray(type) && type.length > 1;
@@ -120,7 +126,7 @@ export const ProfileCard = ({
 
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
-  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
+  const defaultAvatar = DEFAULT_AVATAR;
   const bookmarkIcon = getBookmarkIcon(isSaved, darkMode);
   const profileButtonIcon = getProfileButtonIcon(isOrganization, darkMode);
 
@@ -207,34 +213,19 @@ export const ProfileCard = ({
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
-                  {profile_image || avatar ? (
-                    <Image
-                      src={
-                        isOrganization
-                          ? formatWikiImageUrl(profile_image || '')
-                          : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
-                      }
-                      alt={pageContent['alt-profile-picture'] || 'User profile picture'}
-                      fill
-                      className="object-contain rounded-[4px]"
-                      unoptimized
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Image
-                        src={defaultAvatar}
-                        alt={
-                          pageContent['alt-profile-picture-default'] ||
+                  <Image
+                    src={profileImageUrl || defaultAvatar}
+                    alt={
+                      !profileImageUrl || profileImageUrl === defaultAvatar
+                        ? pageContent['alt-profile-picture-default'] ||
                           'Default user profile picture'
-                        }
-                        fill
-                        className="object-contain rounded-[4px]"
-                        unoptimized
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
+                        : pageContent['alt-profile-picture'] || 'User profile picture'
+                    }
+                    fill
+                    className="object-contain rounded-[4px]"
+                    unoptimized
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
