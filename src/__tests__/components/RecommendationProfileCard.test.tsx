@@ -1,3 +1,4 @@
+import React from 'react';
 import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
@@ -6,6 +7,7 @@ import { useSavedItems } from '@/hooks/useSavedItems';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ProfileRecommendation, OrganizationRecommendation } from '@/types/recommendation';
 import {
   renderWithProviders,
@@ -14,6 +16,7 @@ import {
   createMockSnackbar,
   createMockSavedItems,
   createMockAvatars,
+  createMockRouter,
 } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
@@ -61,8 +64,11 @@ describe('RecommendationProfileCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockSavedItems = createMockSavedItems();
   const mockAvatars = createMockAvatars();
+  const mockRouter = createMockRouter();
 
   beforeEach(() => {
+    const { useRouter } = require('next/navigation');
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
     setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
     (useAvatars as jest.Mock).mockReturnValue(mockAvatars);
     (useSavedItems as jest.Mock).mockReturnValue(mockSavedItems);
@@ -77,7 +83,19 @@ describe('RecommendationProfileCard', () => {
       ...props,
     };
 
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+
+    const QueryWrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
     return renderWithProviders(<RecommendationProfileCard {...defaultProps} />, [
+      QueryWrapper,
       ThemeProvider,
       AppProvider,
     ]);
@@ -247,16 +265,12 @@ describe('RecommendationProfileCard', () => {
 
   describe('Navigation', () => {
     it('should navigate to profile page when View Profile is clicked for user', () => {
-      const originalLocation = window.location.href;
-
       renderCard();
 
       const viewButton = screen.getByText('View Profile');
       fireEvent.click(viewButton);
 
-      // Note: In a real implementation, you would use next/router mock
-      // Here we just verify the function was set up
-      expect(viewButton).toBeInTheDocument();
+      expect(mockRouter.push).toHaveBeenCalledWith('/profile/testuser');
     });
 
     it('should navigate to organization page when View Profile is clicked for organization', () => {

@@ -7,6 +7,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import axios from 'axios';
 import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Mock next-auth's mock
 jest.mock('next-auth/react', () => ({
@@ -132,10 +133,18 @@ describe('DesktopNavbar', () => {
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0 },
+      },
+    });
+
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AppProvider>{component}</AppProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     );
   };
 

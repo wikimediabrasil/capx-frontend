@@ -9,15 +9,17 @@ import DeleteIcon from '@/public/static/images/delete.svg';
 import { useRouter } from 'next/navigation';
 import { useProfileImage } from '@/hooks/useProfileImage';
 import BaseButton from '@/components/BaseButton';
+import { useSession } from 'next-auth/react';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 
 interface SavedItemCardProps {
-  id: string;
-  username: string;
-  profile_image?: string; // Only for organizations
-  avatar?: string;
-  wikidataQid?: string; // For people with Wikidata images
-  isOrganization?: boolean;
-  onDelete: () => void;
+  readonly id: string;
+  readonly username: string;
+  readonly profile_image?: string; // Only for organizations
+  readonly avatar?: string;
+  readonly wikidataQid?: string; // For people with Wikidata images
+  readonly isOrganization?: boolean;
+  readonly onDelete: () => void;
 }
 
 export const SavedItemCard = ({
@@ -32,6 +34,17 @@ export const SavedItemCard = ({
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const router = useRouter();
+  const { data: session } = useSession();
+
+  // Get translated organization name if it's an organization
+  const { displayName: translatedOrgName } = useOrganizationDisplayName({
+    organizationId: isOrganization ? Number.parseInt(id, 10) : undefined,
+    defaultName: isOrganization ? username : '',
+    token: session?.user?.token,
+  });
+
+  // Use translated name for organizations, otherwise use username
+  const displayName = isOrganization ? translatedOrgName || username : username;
 
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({
@@ -66,7 +79,7 @@ export const SavedItemCard = ({
                 darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
               }`}
             >
-              {username}
+              {displayName}
             </h5>
           </div>
 
@@ -157,7 +170,7 @@ export const SavedItemCard = ({
                   darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
                 }`}
               >
-                {username}
+                {displayName}
               </h5>
             </div>
 

@@ -16,16 +16,6 @@ export default function SectionRecommendationsCarousel() {
   const { darkMode } = useTheme();
   const { data, isLoading, error } = useRecommendations();
 
-  const handleSaveProfile = (id: number) => {
-    // TODO: Implement save profile functionality
-    console.log('Save profile:', id);
-  };
-
-  const handleAddCapacity = (id: number) => {
-    // TODO: Implement add capacity to profile functionality
-    console.log('Add capacity:', id);
-  };
-
   if (isLoading) {
     return (
       <section
@@ -61,7 +51,6 @@ export default function SectionRecommendationsCarousel() {
 
   // If there are no recommendations at all, show only the no recommendations section
   if (!hasAnyRecommendations) {
-    console.log('No recommendations to display');
     return <SectionNoCapacities />;
   }
 
@@ -133,7 +122,6 @@ export default function SectionRecommendationsCarousel() {
             <RecommendationProfileCard
               key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
-              onSave={handleSaveProfile}
               capacityType="available"
               hintMessage={
                 pageContent['recommendation-based-on-available-capacities'] ||
@@ -156,7 +144,6 @@ export default function SectionRecommendationsCarousel() {
             <RecommendationProfileCard
               key={`${'acronym' in profile ? 'org' : 'user'}-${profile.id}`}
               recommendation={profile}
-              onSave={handleSaveProfile}
               capacityType="wanted"
               hintMessage={
                 pageContent['recommendation-based-on-wanted-capacities'] ||
@@ -182,7 +169,6 @@ export default function SectionRecommendationsCarousel() {
             <RecommendationProfileCard
               key={profile.id}
               recommendation={profile}
-              onSave={handleSaveProfile}
               capacityType="available"
               hintMessage={
                 pageContent['recommendations-based-on-languages'] || 'Based on your languages'
