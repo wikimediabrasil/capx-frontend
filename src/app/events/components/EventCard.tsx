@@ -5,6 +5,8 @@ import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useOrganizationNames } from '@/hooks/useOrganizationNames';
+import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
 import { getLocaleFromLanguage } from '@/lib/utils/dateLocale';
 import AlarmLightIcon from '@/public/static/images/alarm.svg';
 import AlarmDarkIcon from '@/public/static/images/alarm_dark.svg';
@@ -54,6 +56,10 @@ export default function EventCard({
 
   const { getName: getCapacityName, updateLanguage, isLoaded } = useCapacityCache();
   const { organization } = useOrganization(token, event.organization);
+  const { names: organizationNames } = useOrganizationNames({
+    organizationId: organization?.id,
+    token,
+  });
 
   const [showAllCapacities, setShowAllCapacities] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
@@ -282,7 +288,11 @@ export default function EventCard({
                       : 'text-blue-600 hover:text-blue-800 visited:text-blue-800'
                   }`}
                 >
-                  {organization.display_name}
+                  {getOrganizationDisplayName(
+                    organization.display_name || '',
+                    organizationNames,
+                    language
+                  )}
                 </Link>
               </p>
             )}

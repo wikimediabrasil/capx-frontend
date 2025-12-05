@@ -1,7 +1,9 @@
+import React from 'react';
 import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { LanguageProficiency } from '@/types/language';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // useRouter's mock
 jest.mock('next/navigation', () => ({
@@ -139,10 +141,25 @@ const sharerProps = {
   territory: '1',
 };
 
+// Helper to create QueryClient wrapper
+const createTestWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
+
 describe('ProfileCard', () => {
   describe('Learner Profile', () => {
     it('should display profile information correctly', () => {
-      render(<ProfileCard {...learnerProps} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...learnerProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText('Test User')).toBeInTheDocument();
       expect(screen.getByText('learner')).toBeInTheDocument();
@@ -151,7 +168,8 @@ describe('ProfileCard', () => {
     });
 
     it('should display wanted capacities for learner', () => {
-      render(<ProfileCard {...learnerProps} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...learnerProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText('Wanted capacities')).toBeInTheDocument();
       expect(screen.getByText('Coding')).toBeInTheDocument();
@@ -159,7 +177,8 @@ describe('ProfileCard', () => {
     });
 
     it('should display languages correctly', () => {
-      render(<ProfileCard {...learnerProps} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...learnerProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText('Languages')).toBeInTheDocument();
       expect(screen.getByText('English')).toBeInTheDocument();
@@ -167,7 +186,8 @@ describe('ProfileCard', () => {
     });
 
     it('should display territory correctly', () => {
-      render(<ProfileCard {...learnerProps} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...learnerProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText('Territory')).toBeInTheDocument();
       expect(screen.getByText('Brazil')).toBeInTheDocument();
@@ -176,14 +196,16 @@ describe('ProfileCard', () => {
 
   describe('Sharer Profile', () => {
     it('should display profile information correctly', () => {
-      render(<ProfileCard {...sharerProps} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...sharerProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText('Test User')).toBeInTheDocument();
       expect(screen.getByText('sharer')).toBeInTheDocument();
     });
 
     it('should display available capacities for sharer', () => {
-      render(<ProfileCard {...sharerProps} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...sharerProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText('Available capacities')).toBeInTheDocument();
       expect(screen.getByText('Teaching')).toBeInTheDocument();
@@ -192,7 +214,8 @@ describe('ProfileCard', () => {
 
     it('should handle bookmark toggle', () => {
       const onToggleSaved = jest.fn();
-      render(<ProfileCard {...sharerProps} onToggleSaved={onToggleSaved} />);
+      const Wrapper = createTestWrapper();
+      render(<ProfileCard {...sharerProps} onToggleSaved={onToggleSaved} />, { wrapper: Wrapper });
 
       const bookmarkButton = screen.getByLabelText('Save this profile to your saved list');
       fireEvent.click(bookmarkButton);
@@ -203,7 +226,8 @@ describe('ProfileCard', () => {
 
   describe('Layout Structure', () => {
     it('should have correct grid layout', () => {
-      const { container } = render(<ProfileCard {...defaultProps} />);
+      const Wrapper = createTestWrapper();
+      const { container } = render(<ProfileCard {...defaultProps} />, { wrapper: Wrapper });
 
       const article = container.querySelector('[role="article"]');
       expect(article).toHaveClass('md:grid', 'md:grid-cols-[350px_1fr]', 'md:gap-8');

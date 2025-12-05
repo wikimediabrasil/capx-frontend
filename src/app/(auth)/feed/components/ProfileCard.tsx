@@ -7,6 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useProfileImage } from '@/hooks/useProfileImage';
 import { useTerritories } from '@/hooks/useTerritories';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
@@ -82,6 +83,16 @@ export const ProfileCard = ({
     avatar,
     wikidataQid,
   });
+
+  // Get translated organization name if it's an organization
+  const { displayName: translatedOrgName } = useOrganizationDisplayName({
+    organizationId: isOrganization ? Number(id) : undefined,
+    defaultName: isOrganization ? username : '',
+    token,
+  });
+
+  // Use translated name for organizations, username for users
+  const displayName = isOrganization ? translatedOrgName || username : username;
 
   // Determine if this is a multi-type profile (both sharer and learner)
   const isMultiType = Array.isArray(type) && type.length > 1;
@@ -237,7 +248,7 @@ export const ProfileCard = ({
                   darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
                 }`}
               >
-                {username}
+                {displayName}
               </h5>
             </div>
 
