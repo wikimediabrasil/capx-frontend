@@ -21,7 +21,8 @@ import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recom
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -54,9 +55,19 @@ export default function RecommendationProfileCard({
   const profileUsername = profileRecommendation?.username;
 
   const profileImage = recommendation.profile_image;
-  const displayName = recommendation.display_name || profileUsername;
   const avatar = profileRecommendation?.avatar;
   const wikidataQid = profileRecommendation?.wikidata_qid;
+
+  // Get translated organization name if it's an organization
+  const { displayName: translatedOrgName } = useOrganizationDisplayName({
+    organizationId: isOrganization ? recommendation.id : undefined,
+    defaultName: isOrganization ? recommendation.display_name || '' : '',
+    token: session?.user?.token,
+  });
+
+  const displayName = isOrganization
+    ? translatedOrgName || recommendation.display_name || 'Organization'
+    : recommendation.display_name || profileUsername;
 
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({
@@ -66,13 +77,13 @@ export default function RecommendationProfileCard({
     wikidataQid: wikidataQid || undefined,
   });
 
-  const handleViewProfile = () => {
+  const handleViewProfile = useCallback(() => {
     if (isOrganization) {
-      window.location.href = `/organization_profile/${recommendation.id}`;
+      router.push(`/organization_profile/${recommendation.id}`);
     } else if (profileUsername) {
-      window.location.href = `/profile/${profileUsername}`;
+      router.push(`/profile/${profileUsername}`);
     }
-  };
+  }, [isOrganization, recommendation.id, profileUsername, router]);
 
   // Check if profile is saved
   const isSaved =

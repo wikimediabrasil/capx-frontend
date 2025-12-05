@@ -15,11 +15,10 @@ import LocationLightIcon from '@/public/static/images/location_on.svg';
 import LocationDarkIcon from '@/public/static/images/location_on_dark.svg';
 import { useRouter } from 'next/navigation';
 import { getLocaleFromLanguage } from '@/lib/utils/dateLocale';
-import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { organizationProfileService } from '@/services/organizationProfileService';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 
 interface RecommendationEventCardProps {
   recommendation: EventRecommendation;
@@ -34,30 +33,13 @@ export default function RecommendationEventCard({
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
-  const [organizationName, setOrganizationName] = useState<string | null>(
-    recommendation.organization_name || null
-  );
 
-  // Fetch organization name if we have organization ID but no name
-  useEffect(() => {
-    const fetchOrganizationName = async () => {
-      if (recommendation.organization && !organizationName && session?.user?.token) {
-        try {
-          const orgData = await organizationProfileService.getOrganizationById(
-            session.user.token,
-            recommendation.organization
-          );
-          if (orgData?.display_name) {
-            setOrganizationName(orgData.display_name);
-          }
-        } catch (error) {
-          console.error('Error fetching organization name:', error);
-        }
-      }
-    };
-
-    fetchOrganizationName();
-  }, [recommendation.organization, organizationName, session?.user?.token]);
+  // Use hook to get translated organization name
+  const { displayName: organizationName } = useOrganizationDisplayName({
+    organizationId: recommendation.organization,
+    defaultName: recommendation.organization_name || '',
+    token: session?.user?.token,
+  });
 
   const handleViewEvent = () => {
     if (recommendation.url) {
@@ -148,13 +130,13 @@ export default function RecommendationEventCard({
           >
             {recommendation.name}
           </h3>
-          {organizationName && (
+          {(organizationName || recommendation.organization_name) && (
             <p
               className={`text-[12px] md:text-[16px] mb-2 truncate ${
                 darkMode ? 'text-gray-300' : 'text-[#053749]'
               }`}
             >
-              by: {organizationName}
+              by: {organizationName || recommendation.organization_name}
             </p>
           )}
         </div>

@@ -72,7 +72,7 @@ export default function SavedProfilesPage() {
             <div
               className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-white' : 'bg-red-100 text-red-800'}`}
             >
-              {error}
+              {error instanceof Error ? error.message : String(error)}
             </div>
           ) : count > 0 ? (
             <div className="w-full mx-auto space-y-6">

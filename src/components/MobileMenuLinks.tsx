@@ -12,6 +12,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { Session } from 'next-auth';
 import { useApp } from '@/contexts/AppContext';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
+import { useSession } from 'next-auth/react';
 
 interface MenuItem {
   title: string;
@@ -29,8 +31,44 @@ interface SubMenuItem {
 }
 
 interface MobileMenuLinksProps {
-  session: Session | null;
-  handleMenuStatus: () => void;
+  readonly session: Session | null;
+  readonly handleMenuStatus: () => void;
+}
+
+// Component to render organization submenu item with translated name
+function OrganizationSubMenuItem({
+  org,
+  handleProfileChange,
+  darkMode,
+}: {
+  readonly org: any;
+  readonly handleProfileChange: (path: string) => void;
+  readonly darkMode: boolean;
+}) {
+  const { data: session } = useSession();
+  const { displayName } = useOrganizationDisplayName({
+    organizationId: org.id,
+    defaultName: org.display_name,
+    token: session?.user?.token,
+  });
+
+  const handleClick = () => {
+    handleProfileChange(`/organization_profile/${org.id}`);
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      type="button"
+      className={`flex items-center justify-between w-full px-2 py-3 border-t border-[#053749] pt-2 cursor-pointer ${
+        darkMode ? 'text-capx-dark-text bg-capx-dark-bg' : 'text-capx-light-text bg-capx-light-bg'
+      }`}
+    >
+      <span className="font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]">
+        {displayName || 'Organization'}
+      </span>
+    </button>
+  );
 }
 
 export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMenuLinksProps) {
@@ -55,13 +93,6 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
       to: '/profile',
       action: () => handleProfileChange('/profile'),
     },
-    ...(isOrgManager
-      ? organizations.map(org => ({
-          title: org.display_name || 'Organization',
-          to: `/organization_profile/${org.id}`,
-          action: () => handleProfileChange(`/organization_profile/${org.id}`),
-        }))
-      : []),
   ];
 
   const menuDataLoggedIn: MenuItem[] = [
@@ -248,6 +279,15 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
                 </span>
               </div>
             ))}
+            {isOrgManager &&
+              organizations.map(org => (
+                <OrganizationSubMenuItem
+                  key={`org-submenu-${org.id}`}
+                  org={org}
+                  handleProfileChange={handleProfileChange}
+                  darkMode={darkMode}
+                />
+              ))}
           </div>
         )}
       </div>

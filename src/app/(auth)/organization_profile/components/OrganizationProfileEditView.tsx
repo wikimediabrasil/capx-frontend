@@ -44,6 +44,7 @@ import { useRouter } from 'next/navigation';
 import DocumentFormItem from './DocumentFormItem';
 import NewsFormItem from './NewsFormItem';
 import ProjectsFormItem from './ProjectsFormItem';
+import OrganizationNamesSection from './OrganizationNamesSection';
 
 export default function OrganizationProfileEditView({
   handleSubmit,
@@ -80,6 +81,7 @@ export default function OrganizationProfileEditView({
   handleChooseEvent,
   handleViewAllEvents,
   territories,
+  organizationId,
 }) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -367,6 +369,9 @@ export default function OrganizationProfileEditView({
               </div>
             </div>
           </div>
+
+          {/* Organization Names Section */}
+          {organizationId && <OrganizationNamesSection organizationId={organizationId} />}
 
           {/* Report of Activities Section */}
           <div className="mt-6">

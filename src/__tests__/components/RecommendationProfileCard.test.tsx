@@ -1,19 +1,21 @@
 import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useSavedItems } from '@/hooks/useSavedItems';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
-import { ProfileRecommendation, OrganizationRecommendation } from '@/types/recommendation';
+import React from 'react';
 import {
+  cleanupMocks,
+  createMockAvatars,
+  createMockRouter,
+  createMockSavedItems,
+  createMockSnackbar,
   renderWithProviders,
   setupCommonMocks,
-  cleanupMocks,
-  createMockSnackbar,
-  createMockSavedItems,
-  createMockAvatars,
 } from '../helpers/recommendationTestHelpers';
 
 // Mock dependencies
@@ -99,6 +101,7 @@ describe('RecommendationProfileCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockSavedItems = createMockSavedItems();
   const mockAvatars = createMockAvatars();
+  const mockRouter = createMockRouter();
 
   beforeEach(() => {
     setupAllMocks(mockSnackbar, mockSavedItems, mockAvatars);

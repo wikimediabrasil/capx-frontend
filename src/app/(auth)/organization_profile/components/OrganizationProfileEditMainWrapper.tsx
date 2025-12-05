@@ -1242,6 +1242,7 @@ export default function EditOrganizationProfilePage() {
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
         territories={territories || {}}
+        organizationId={Number(organizationId)}
       />
 
       {showEventModal && editingEventRef.current && (
