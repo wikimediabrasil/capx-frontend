@@ -70,7 +70,6 @@
 	"edit-profile-choose-avatar": "아바타 선택",
 	"edit-profile-use-wikidata-photograph": "위키데이터 항목 이미지 사용",
 	"edit-profile-consent-wikidata-link": "위키데이터 등재 기준 정책",
-	"edit-profile-consent-wikidata-after-link": ".",
 	"edit-profile-delete-profile": "프로필 삭제",
 	"edit-profile-cancel": "편집 취소",
 	"edit-profile-choose-an-option": "옵션 선택",
@@ -83,7 +82,6 @@
 	"edit-profile-loading-news": "뉴스를 불러오는 중...",
 	"edit-profile-insert-item": "항목 넣기",
 	"edit-profile-wikidata-item": "위키데이터 항목",
-	"edit-profile-consent-wikidata-item-after-link": ".",
 	"edit-profile-insert-project": "프로젝트 삽입",
 	"edit-profile-insert-link": "문서 URL 삽입",
 	"edit-profile-delete-profile-confirm": "예, 내 CapX 프로필을 삭제합니다.",
@@ -192,6 +190,5 @@
 	"filters-territory": "지역",
 	"aria-language-input": "언어 선택",
 	"pagination-previous": "이전",
-	"pagination-next": "다음",
-	"pagination-page": "문서"
+	"pagination-next": "다음"
 }

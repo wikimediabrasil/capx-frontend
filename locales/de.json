@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Albertoleoncio",
 			"Brettchenweber",
 			"DraconicDark",
 			"Langusto",
@@ -29,7 +30,7 @@
 	"navbar-user-profile": "Benutzerprofil",
 	"navbar-link-messages": "Nachrichten",
 	"body-home-section01-title-carousel": "Kapazität, Wissen, Fähigkeiten, Dienstleistungen",
-	"body-home-section01-description": "Vernetze sich mit Gleichgesinnten, lerne und tausche deine Fähigkeiten auf einer Plattform aus, die von und für die Wikimedia-Bewegung entwickelt wurde.",
+	"body-home-section01-description": "Vernetze dich mit Gleichgesinnten, lerne und tausche deine Fähigkeiten auf einer Plattform aus, die von und für die Wikimedia-Bewegung entwickelt wurde.",
 	"body-home-section01-button": "Mach mit beim Austausch!",
 	"body-home-section01-about-button": "Über CapX",
 	"body-home-main-section-carrousel-description": "Teile über globale Projekte mit Auswirkungen.",
@@ -87,7 +88,6 @@
 	"organization-profile-view-event": "Veranstaltung anzeigen",
 	"organization-profile-view-document": "Dokument anzeigen",
 	"organization-profile-no-image-available": "Kein Bild verfügbar",
-	"organization-profile-news-section-by": "von",
 	"organization-list-alt-banner": "Seite mit der Organisationsliste der Bannerbilder",
 	"organization-list-banner-page": "Organisationsliste",
 	"footer-link-documentation": "Dokumentation",
