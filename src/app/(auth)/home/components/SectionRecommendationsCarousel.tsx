@@ -1,20 +1,91 @@
 'use client';
 
+import { useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
 import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations';
 import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
 import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
 import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
+import RecommendationKnownAndAvailableCapacityCard from '@/app/(auth)/home/components/RecommendationKnownAndAvailableCapacityCard';
 import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
 import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
 import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRecommendations } from '@/hooks/useRecommendations';
+import { userService } from '@/services/userService';
 
 export default function SectionRecommendationsCarousel() {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const { data, isLoading, error } = useRecommendations();
+  const { data: session } = useSession();
+
+  // Fetch user profile to filter recommendations
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile', session?.user?.id, session?.user?.token],
+    queryFn: async () => {
+      if (!session?.user?.token || !session?.user?.id) {
+        return null;
+      }
+      return userService.fetchUserProfile(Number(session.user.id), session.user.token);
+    },
+    enabled: !!session?.user?.token && !!session?.user?.id,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+  });
+
+  // Extract user's current capacities
+  const userKnownCapacities = useMemo(() => {
+    if (!userProfile) return [];
+    return (userProfile.skills_known || [])
+      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
+      .filter(c => !isNaN(c)) as number[];
+  }, [userProfile]);
+
+  const userAvailableCapacities = useMemo(() => {
+    if (!userProfile) return [];
+    return (userProfile.skills_available || [])
+      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
+      .filter(c => !isNaN(c)) as number[];
+  }, [userProfile]);
+
+  const userWantedCapacities = useMemo(() => {
+    if (!userProfile) return [];
+    return (userProfile.skills_wanted || [])
+      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
+      .filter(c => !isNaN(c)) as number[];
+  }, [userProfile]);
+
+  // Filter new_skills for each carousel - split into two mutually exclusive lists
+  const { capacitiesToShare, capacitiesToLearn } = useMemo(() => {
+    if (!data?.new_skills) return { capacitiesToShare: [], capacitiesToLearn: [] };
+
+    const toShare: typeof data.new_skills = [];
+    const toLearn: typeof data.new_skills = [];
+
+    data.new_skills.forEach((capacity, index) => {
+      const isInKnown = userKnownCapacities.includes(capacity.id);
+      const isInAvailable = userAvailableCapacities.includes(capacity.id);
+      const isInWanted = userWantedCapacities.includes(capacity.id);
+
+      // Skip if already in any list
+      if (isInKnown || isInAvailable || isInWanted) {
+        return;
+      }
+
+      // Alternate between the two carousels to distribute capacities evenly
+      // Even indices go to "to share", odd indices go to "to learn"
+      if (index % 2 === 0) {
+        toShare.push(capacity);
+      } else {
+        toLearn.push(capacity);
+      }
+    });
+
+    return { capacitiesToShare: toShare, capacitiesToLearn: toLearn };
+  }, [data?.new_skills, userKnownCapacities, userAvailableCapacities, userWantedCapacities]);
 
   if (isLoading) {
     return (
@@ -61,15 +132,35 @@ export default function SectionRecommendationsCarousel() {
   if (showOnlyNewSkills) {
     const newSkillsContent = (
       <div className="flex flex-col items-center justify-center w-full gap-8 md:gap-16">
-        {data.new_skills && data.new_skills.length > 0 && (
+        {/* Known and Available Capacities carousel */}
+        {capacitiesToShare.length > 0 && (
+          <RecommendationCarousel
+            title={pageContent['recommendations-known-available-skills'] || 'Recommended Capacities to Share'}
+            tooltipText={pageContent['recommendations-known-available-skills-tooltip']}
+          >
+            {capacitiesToShare.map(capacity => (
+              <RecommendationKnownAndAvailableCapacityCard
+                key={capacity.id}
+                recommendation={capacity}
+                userProfile={userProfile}
+                hintMessage={
+                  pageContent['recommendations-based-on-most-used-capacities'] || 'Based on the most used capacities in the network'
+                }
+              />
+            ))}
+          </RecommendationCarousel>
+        )}
+
+        {capacitiesToLearn.length > 0 && (
           <RecommendationCarousel
             title={pageContent['recommendations-new-skills'] || 'Recommended Capacities'}
             tooltipText={pageContent['recommendations-new-skills-tooltip']}
           >
-            {data.new_skills.map(capacity => (
+            {capacitiesToLearn.map(capacity => (
               <RecommendationCapacityCard
                 key={capacity.id}
                 recommendation={capacity}
+                userProfile={userProfile}
                 hintMessage={
                   pageContent['recommendation-based-on-capacities'] || 'Based on your capacities'
                 }
@@ -180,15 +271,36 @@ export default function SectionRecommendationsCarousel() {
         )}
       </RecommendationCarousel>
 
-      {data.new_skills && data.new_skills.length > 0 && (
+      {/* Known and Available Capacities carousel */}
+      {capacitiesToShare.length > 0 && (
+        <RecommendationCarousel
+          title={pageContent['recommendations-known-available-skills'] || 'Recommended Capacities to Share'}
+          tooltipText={pageContent['recommendations-known-available-skills-tooltip']}
+        >
+          {capacitiesToShare.map(capacity => (
+            <RecommendationKnownAndAvailableCapacityCard
+              key={capacity.id}
+              recommendation={capacity}
+              userProfile={userProfile}
+              hintMessage={
+                pageContent['recommendation-based-on-most-used-capacities'] ||
+                'Based on the most used capacities in the network'
+              }
+            />
+          ))}
+        </RecommendationCarousel>
+      )}
+
+      {capacitiesToLearn.length > 0 && (
         <RecommendationCarousel
           title={pageContent['recommendations-new-skills'] || 'Recommended Capacities'}
           tooltipText={pageContent['recommendations-new-skills-tooltip']}
         >
-          {data.new_skills.map(capacity => (
+          {capacitiesToLearn.map(capacity => (
             <RecommendationCapacityCard
               key={capacity.id}
               recommendation={capacity}
+              userProfile={userProfile}
               hintMessage={
                 pageContent['recommendation-based-on-most-used-capacities'] ||
                 'Based on the most used capacities in the network'

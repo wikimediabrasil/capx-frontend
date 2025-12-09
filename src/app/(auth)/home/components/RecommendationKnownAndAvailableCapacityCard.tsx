@@ -16,17 +16,17 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useQueryClient } from '@tanstack/react-query';
 import { UserProfile } from '@/types/profile';
 
-interface RecommendationCapacityCardProps {
+interface RecommendationKnownAndAvailableCapacityCardProps {
   recommendation: CapacityRecommendation;
   hintMessage?: string;
   userProfile?: UserProfile | null;
 }
 
-export default function RecommendationCapacityCard({
+export default function RecommendationKnownAndAvailableCapacityCard({
   recommendation,
   hintMessage,
   userProfile: userProfileProp,
-}: RecommendationCapacityCardProps) {
+}: RecommendationKnownAndAvailableCapacityCardProps) {
   const { pageContent } = useApp();
   const { darkMode } = useTheme();
   const { data: session } = useSession();
@@ -43,17 +43,24 @@ export default function RecommendationCapacityCard({
   // Use userProfile from props if available, otherwise get from cache
   const userProfile = userProfileProp || queryClient.getQueryData<UserProfile>(['userProfile', session?.user?.id, session?.user?.token]);
 
-  // Check if capacity is already in user's wanted list
-  const userWantedCapacities = useMemo(() => {
+  // Check if capacity is already in user's known and available lists
+  const userKnownCapacities = useMemo(() => {
     if (!userProfile) return [];
-    return (userProfile.skills_wanted || [])
+    return (userProfile.skills_known || [])
+      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
+      .filter(c => !isNaN(c)) as number[];
+  }, [userProfile]);
+
+  const userAvailableCapacities = useMemo(() => {
+    if (!userProfile) return [];
+    return (userProfile.skills_available || [])
       .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
       .filter(c => !isNaN(c)) as number[];
   }, [userProfile]);
 
   const isAdded = useMemo(() => {
-    return userWantedCapacities.includes(capacityId);
-  }, [userWantedCapacities, capacityId]);
+    return userKnownCapacities.includes(capacityId) && userAvailableCapacities.includes(capacityId);
+  }, [userKnownCapacities, userAvailableCapacities, capacityId]);
 
   // Preload capacity data
   useEffect(() => {
@@ -106,50 +113,51 @@ export default function RecommendationCapacityCard({
 
     setIsAdding(true);
     try {
-      // Get current wanted capacities and convert to numbers for comparison
-      const currentWanted = userWantedCapacities;
+      // Get current known and available capacities
+      const currentKnown = userKnownCapacities;
+      const currentAvailable = userAvailableCapacities;
 
-      // Add capacity if not already present
-      if (!currentWanted.includes(capacityId)) {
-        // Convert back to strings for the API (as UserProfile expects string[])
-        const updatedWanted = [...currentWanted, capacityId].map(c => c.toString());
+      // Prepare update payload - include language field as it's required by the backend
+      const updatePayload: any = {
+        skills_known: currentKnown.includes(capacityId)
+          ? currentKnown.map(c => c.toString())
+          : [...currentKnown, capacityId].map(c => c.toString()),
+        skills_available: currentAvailable.includes(capacityId)
+          ? currentAvailable.map(c => c.toString())
+          : [...currentAvailable, capacityId].map(c => c.toString()),
+      };
 
-        // Prepare update payload - include language field as it's required by the backend
-        const updatePayload: any = {
-          skills_wanted: updatedWanted,
-        };
-
-        // Include language field if it exists in the current profile (required by backend)
-        if (userProfile.language && Array.isArray(userProfile.language)) {
-          updatePayload.language = userProfile.language;
-        }
-
-        // Start fade-out animation
-        setIsRemoving(true);
-
-        // Wait for animation to complete before updating cache
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        // Optimistically update the cache AFTER animation
-        queryClient.setQueryData(['userProfile', session.user.id, session.user.token], {
-          ...userProfile,
-          skills_wanted: updatedWanted,
-        });
-
-        // Update profile on the server (non-blocking)
-        profileService.updateProfile(Number(session.user.id), updatePayload, {
-          headers: {
-            Authorization: `Token ${session.user.token}`,
-          },
-        }).catch(error => {
-          console.error('Error updating profile on server:', error);
-        });
-
-        showSnackbar(
-          pageContent['capacity-added-success'] || 'Capacity added to profile',
-          'success'
-        );
+      // Include language field if it exists in the current profile (required by backend)
+      if (userProfile.language && Array.isArray(userProfile.language)) {
+        updatePayload.language = userProfile.language;
       }
+
+      // Start fade-out animation
+      setIsRemoving(true);
+
+      // Wait for animation to complete before updating cache
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Optimistically update the cache AFTER animation
+      queryClient.setQueryData(['userProfile', session.user.id, session.user.token], {
+        ...userProfile,
+        skills_known: updatePayload.skills_known,
+        skills_available: updatePayload.skills_available,
+      });
+
+      // Update profile on the server (non-blocking)
+      profileService.updateProfile(Number(session.user.id), updatePayload, {
+        headers: {
+          Authorization: `Token ${session.user.token}`,
+        },
+      }).catch(error => {
+        console.error('Error updating profile on server:', error);
+      });
+
+      showSnackbar(
+        pageContent['capacity-added-success'] || 'Capacity added to profile',
+        'success'
+      );
     } catch (error: any) {
       console.error('Error adding capacity to profile:', error);
       const errorMessage =
