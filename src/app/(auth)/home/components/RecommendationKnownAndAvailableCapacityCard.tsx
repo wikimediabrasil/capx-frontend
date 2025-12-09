@@ -41,7 +41,9 @@ export default function RecommendationKnownAndAvailableCapacityCard({
   const capacityId = recommendation.id;
 
   // Use userProfile from props if available, otherwise get from cache
-  const userProfile = userProfileProp || queryClient.getQueryData<UserProfile>(['userProfile', session?.user?.id, session?.user?.token]);
+  const userProfile =
+    userProfileProp ||
+    queryClient.getQueryData<UserProfile>(['userProfile', session?.user?.id, session?.user?.token]);
 
   // Check if capacity is already in user's known and available lists
   const userKnownCapacities = useMemo(() => {
@@ -146,18 +148,17 @@ export default function RecommendationKnownAndAvailableCapacityCard({
       });
 
       // Update profile on the server (non-blocking)
-      profileService.updateProfile(Number(session.user.id), updatePayload, {
-        headers: {
-          Authorization: `Token ${session.user.token}`,
-        },
-      }).catch(error => {
-        console.error('Error updating profile on server:', error);
-      });
+      profileService
+        .updateProfile(Number(session.user.id), updatePayload, {
+          headers: {
+            Authorization: `Token ${session.user.token}`,
+          },
+        })
+        .catch(error => {
+          console.error('Error updating profile on server:', error);
+        });
 
-      showSnackbar(
-        pageContent['capacity-added-success'] || 'Capacity added to profile',
-        'success'
-      );
+      showSnackbar(pageContent['capacity-added-success'] || 'Capacity added to profile', 'success');
     } catch (error: any) {
       console.error('Error adding capacity to profile:', error);
       const errorMessage =

@@ -135,7 +135,10 @@ export default function SectionRecommendationsCarousel() {
         {/* Known and Available Capacities carousel */}
         {capacitiesToShare.length > 0 && (
           <RecommendationCarousel
-            title={pageContent['recommendations-known-available-skills'] || 'Recommended Capacities to Share'}
+            title={
+              pageContent['recommendations-known-available-skills'] ||
+              'Recommended Capacities to Share'
+            }
             tooltipText={pageContent['recommendations-known-available-skills-tooltip']}
           >
             {capacitiesToShare.map(capacity => (
@@ -144,7 +147,8 @@ export default function SectionRecommendationsCarousel() {
                 recommendation={capacity}
                 userProfile={userProfile}
                 hintMessage={
-                  pageContent['recommendations-based-on-most-used-capacities'] || 'Based on the most used capacities in the network'
+                  pageContent['recommendations-based-on-most-used-capacities'] ||
+                  'Based on the most used capacities in the network'
                 }
               />
             ))}
@@ -274,7 +278,10 @@ export default function SectionRecommendationsCarousel() {
       {/* Known and Available Capacities carousel */}
       {capacitiesToShare.length > 0 && (
         <RecommendationCarousel
-          title={pageContent['recommendations-known-available-skills'] || 'Recommended Capacities to Share'}
+          title={
+            pageContent['recommendations-known-available-skills'] ||
+            'Recommended Capacities to Share'
+          }
           tooltipText={pageContent['recommendations-known-available-skills-tooltip']}
         >
           {capacitiesToShare.map(capacity => (
