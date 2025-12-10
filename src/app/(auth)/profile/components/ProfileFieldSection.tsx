@@ -1,0 +1,47 @@
+'use client';
+
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
+import { ReactNode } from 'react';
+
+interface ProfileFieldSectionProps {
+  icon: string;
+  iconAlt?: string;
+  title: string;
+  children: ReactNode;
+  iconSize?: { mobile: number; desktop: number };
+}
+
+export default function ProfileFieldSection({
+  icon,
+  iconAlt = 'Icon',
+  title,
+  children,
+  iconSize = { mobile: 20, desktop: 42 },
+}: ProfileFieldSectionProps) {
+  const { darkMode } = useTheme();
+  const { isMobile } = useApp();
+
+  return (
+    <div className="flex flex-col gap-2 md:gap-4">
+      <div className="flex items-center gap-2">
+        <Image
+          src={icon}
+          alt={iconAlt}
+          width={isMobile ? iconSize.mobile : iconSize.desktop}
+          height={isMobile ? iconSize.mobile : iconSize.desktop}
+          className="object-cover"
+        />
+        <h2
+          className={`font-[Montserrat] font-bold ${
+            isMobile ? 'text-[14px]' : 'text-[24px]'
+          } ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}
+        >
+          {title}
+        </h2>
+      </div>
+      {children}
+    </div>
+  );
+}
