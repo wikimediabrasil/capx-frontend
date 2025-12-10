@@ -6,6 +6,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import AddIconWhite from '@/public/static/images/add.svg';
@@ -90,6 +91,13 @@ export default function OrganizationProfileEditView({
   const { avatars } = useAvatars();
   const router = useRouter();
 
+  // Load user profile image correctly
+  const { profileImageUrl: userProfileImageUrl, isLoading: isUserImageLoading } = useProfileImage({
+    isOrganization: false,
+    avatar: userProfile?.avatar,
+    wikidataQid: userProfile?.wikidata_qid,
+  });
+
   // Helper function to import known capacities to available
   const handleImportKnownCapacities = () => {
     const knownCapacities = formData?.known_capacities || [];
@@ -132,7 +140,10 @@ export default function OrganizationProfileEditView({
                 </div>
                 <div className="relative w-[75px] h-[75px]">
                   <Image
-                    src={getProfileImage(undefined, userProfile?.avatar, avatars)}
+                    src={
+                      userProfileImageUrl ||
+                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                    }
                     alt="Avatar"
                     fill
                     sizes="75px"
@@ -220,7 +231,10 @@ export default function OrganizationProfileEditView({
               <div className="w-1/2 flex-1">
                 <div className="relative w-[114px] h-[114px] mb-6">
                   <Image
-                    src={getProfileImage(undefined, userProfile?.avatar, avatars)}
+                    src={
+                      userProfileImageUrl ||
+                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                    }
                     alt="User Profile Image"
                     fill
                     sizes="114px"
