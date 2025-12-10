@@ -5,10 +5,10 @@ import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 
 interface ProfileSimpleFieldProps {
-  icon: string;
-  title: string;
-  value: string;
-  emptyText?: string;
+  readonly icon: string;
+  readonly title: string;
+  readonly value: string;
+  readonly emptyText?: string;
 }
 
 export default function ProfileSimpleField({

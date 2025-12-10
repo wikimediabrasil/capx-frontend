@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { ReactNode } from 'react';
 
 interface RecommendationsSectionProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 export default function RecommendationsSection({ children }: RecommendationsSectionProps) {

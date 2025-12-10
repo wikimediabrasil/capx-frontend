@@ -8,9 +8,9 @@ import { UserProfile } from '@/types/user';
 import { useApp } from '@/contexts/AppContext';
 
 interface CapacityRecommendationsCarouselsProps {
-  capacitiesToShare: CapacityRecommendation[];
-  capacitiesToLearn: CapacityRecommendation[];
-  userProfile: UserProfile | null | undefined;
+  readonly capacitiesToShare: ReadonlyArray<CapacityRecommendation>;
+  readonly capacitiesToLearn: ReadonlyArray<CapacityRecommendation>;
+  readonly userProfile: UserProfile | null | undefined;
 }
 
 export default function CapacityRecommendationsCarousels({

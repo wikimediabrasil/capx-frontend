@@ -5,9 +5,9 @@ import { UserProfile } from '@/types/user';
 import RecommendationCapacityCardBase from './RecommendationCapacityCardBase';
 
 interface RecommendationKnownAndAvailableCapacityCardProps {
-  recommendation: CapacityRecommendation;
-  hintMessage?: string;
-  userProfile?: UserProfile | null;
+  readonly recommendation: CapacityRecommendation;
+  readonly hintMessage?: string;
+  readonly userProfile?: UserProfile | null;
 }
 
 export default function RecommendationKnownAndAvailableCapacityCard({

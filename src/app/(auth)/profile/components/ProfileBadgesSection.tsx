@@ -9,7 +9,7 @@ import { useApp } from '@/contexts/AppContext';
 import { Badge } from '@/types/badge';
 
 interface ProfileBadgesSectionProps {
-  badges: Badge[];
+  readonly badges: Badge[];
 }
 
 export default function ProfileBadgesSection({ badges }: ProfileBadgesSectionProps) {

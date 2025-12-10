@@ -109,9 +109,9 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
     return isSameUser;
   };
 
-  const containerClass = isMobile
-    ? `relative w-full overflow-x-hidden ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`
-    : `relative w-full overflow-x-hidden ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`;
+  const containerClass = `relative w-full overflow-x-hidden ${
+    darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'
+  }`;
 
   const sectionClass = isMobile
     ? 'w-full max-w-screen-xl mx-auto px-4 py-8 mt-[80px]'

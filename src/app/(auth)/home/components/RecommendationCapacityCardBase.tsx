@@ -20,10 +20,10 @@ import { useUserCapacities } from '@/hooks/useUserCapacities';
 type CapacityType = 'wanted' | 'known-and-available';
 
 interface RecommendationCapacityCardBaseProps {
-  recommendation: CapacityRecommendation;
-  hintMessage?: string;
-  userProfile?: UserProfile | null;
-  capacityType: CapacityType;
+  readonly recommendation: CapacityRecommendation;
+  readonly hintMessage?: string;
+  readonly userProfile?: UserProfile | null;
+  readonly capacityType: CapacityType;
 }
 
 export default function RecommendationCapacityCardBase({

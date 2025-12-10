@@ -7,7 +7,7 @@ import CakeIcon from '@/public/static/images/cake.svg';
 import CakeIconWhite from '@/public/static/images/cake_white.svg';
 
 interface ProfileWikiBirthdaySectionProps {
-  wikiBirthday: string | null;
+  readonly wikiBirthday: string | null;
 }
 
 export default function ProfileWikiBirthdaySection({

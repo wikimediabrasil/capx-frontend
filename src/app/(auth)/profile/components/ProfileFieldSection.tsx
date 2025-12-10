@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { ReactNode } from 'react';
 
 interface ProfileFieldSectionProps {
-  icon: string;
-  iconAlt?: string;
-  title: string;
-  children: ReactNode;
-  iconSize?: { mobile: number; desktop: number };
+  readonly icon: string;
+  readonly iconAlt?: string;
+  readonly title: string;
+  readonly children: ReactNode;
+  readonly iconSize?: { readonly mobile: number; readonly desktop: number };
 }
 
 export default function ProfileFieldSection({

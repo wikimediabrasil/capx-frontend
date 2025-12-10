@@ -4,8 +4,8 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface ProfileItemsListProps {
-  items: Array<{ id: number | string; label: string }>;
-  emptyMessage?: string;
+  readonly items: ReadonlyArray<{ readonly id: number | string; readonly label: string }>;
+  readonly emptyMessage?: string;
 }
 
 export default function ProfileItemsList({ items, emptyMessage }: ProfileItemsListProps) {

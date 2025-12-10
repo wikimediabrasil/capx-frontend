@@ -8,7 +8,7 @@ import ContactImage from '@/public/static/images/capx_contact_person.svg';
 import ContactImageDesktop from '@/public/static/images/capx_contact_person_desktop.svg';
 
 interface ProfileContactSectionProps {
-  username: string;
+  readonly username: string;
 }
 
 export default function ProfileContactSection({ username }: ProfileContactSectionProps) {

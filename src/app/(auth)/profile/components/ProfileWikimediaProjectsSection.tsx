@@ -7,9 +7,9 @@ import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
 
 interface ProfileWikimediaProjectsSectionProps {
-  projects: number[];
-  projectImages: { [key: number]: string };
-  projectNames: { [key: number]: string };
+  readonly projects: ReadonlyArray<number>;
+  readonly projectImages: { readonly [key: number]: string };
+  readonly projectNames: { readonly [key: number]: string };
 }
 
 export default function ProfileWikimediaProjectsSection({

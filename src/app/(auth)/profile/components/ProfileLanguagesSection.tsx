@@ -8,9 +8,9 @@ import { useApp } from '@/contexts/AppContext';
 import { LanguageProficiency } from '@/types/language';
 
 interface ProfileLanguagesSectionProps {
-  languages: LanguageProficiency[];
-  languagesMap: { [key: number]: string };
-  getProficiencyLabel: (proficiency: string) => string;
+  readonly languages: ReadonlyArray<LanguageProficiency>;
+  readonly languagesMap: { readonly [key: number]: string };
+  readonly getProficiencyLabel: (proficiency: string) => string;
 }
 
 export default function ProfileLanguagesSection({
@@ -30,9 +30,9 @@ export default function ProfileLanguagesSection({
     >
       {languages && languages.length > 0 ? (
         <div className="flex flex-wrap gap-2">
-          {languages.map((lang, index) => (
+          {languages.map(lang => (
             <div
-              key={index}
+              key={`${lang.id}-${lang.proficiency}`}
               className={`rounded-[4px] px-[4px] py-[6px] ${
                 darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
               }`}
