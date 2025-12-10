@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import { DEFAULT_AVATAR } from '@/constants/images';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE } from '@/constants/images';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
@@ -47,14 +47,15 @@ export const SavedItemCard = ({
   const displayName = isOrganization ? translatedOrgName || username : username;
 
   // Use custom hook for profile image loading
-  const { profileImageUrl } = useProfileImage({
+  const { profileImageUrl, isLoading: isImageLoading } = useProfileImage({
     isOrganization,
     profile_image,
     avatar,
     wikidataQid,
   });
 
-  const defaultAvatar = DEFAULT_AVATAR;
+  // Use white avatar in dark mode for contrast against dark background
+  const defaultAvatar = darkMode ? DEFAULT_AVATAR_WHITE : DEFAULT_AVATAR;
 
   return (
     <div
@@ -86,18 +87,33 @@ export const SavedItemCard = ({
           {/* Profile image */}
           <div className="rounded-lg p-4 mb-3">
             <div className="relative w-full h-[120px] flex justify-center">
-              <Image
-                src={profileImageUrl || defaultAvatar}
-                alt={
-                  !profileImageUrl || profileImageUrl === defaultAvatar
-                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
-                    : username
-                }
-                width={120}
-                height={120}
-                className="object-contain"
-                unoptimized
-              />
+              {isImageLoading ? (
+                <div className="relative w-[120px] h-[120px]">
+                  <div
+                    className={`absolute inset-0 rounded-full ${
+                      darkMode ? 'bg-gray-700' : 'bg-gray-300'
+                    }`}
+                  />
+                  <div
+                    className={`absolute inset-0 rounded-full animate-pulse ${
+                      darkMode ? 'bg-gray-600' : 'bg-gray-200'
+                    }`}
+                  />
+                </div>
+              ) : (
+                <Image
+                  src={profileImageUrl || defaultAvatar}
+                  alt={
+                    !profileImageUrl || profileImageUrl === defaultAvatar
+                      ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                      : username
+                  }
+                  width={120}
+                  height={120}
+                  className="object-contain"
+                  unoptimized
+                />
+              )}
             </div>
           </div>
 
@@ -139,18 +155,26 @@ export const SavedItemCard = ({
           {/* Left side - Profile Image */}
           <div className="rounded-lg p-4 flex justify-center items-center">
             <div className="relative w-full h-[160px] flex justify-center">
-              <Image
-                src={profileImageUrl || defaultAvatar}
-                alt={
-                  !profileImageUrl || profileImageUrl === defaultAvatar
-                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
-                    : username
-                }
-                width={160}
-                height={160}
-                className="object-contain"
-                unoptimized
-              />
+              {isImageLoading ? (
+                <div
+                  className={`w-[160px] h-[160px] rounded-full animate-pulse ${
+                    darkMode ? 'bg-gray-700' : 'bg-gray-200'
+                  }`}
+                />
+              ) : (
+                <Image
+                  src={profileImageUrl || defaultAvatar}
+                  alt={
+                    !profileImageUrl || profileImageUrl === defaultAvatar
+                      ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                      : username
+                  }
+                  width={160}
+                  height={160}
+                  className="object-contain"
+                  unoptimized
+                />
+              )}
             </div>
           </div>
 

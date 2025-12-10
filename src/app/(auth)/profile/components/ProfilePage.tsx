@@ -69,7 +69,7 @@ const ProfileItemsComponent = ({
       <>
         <div className="flex flex-row gap-2 items-center">
           <div className="relative h-[20px] w-[20px]">
-            <Image src={icon} alt={title} fill className="object-cover" />
+            <Image src={icon} alt={title || 'Icon'} fill className="object-cover" />
           </div>
           <h2
             className={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
@@ -99,7 +99,7 @@ const ProfileItemsComponent = ({
     <>
       <div className="flex flex-row gap-2 items-center">
         <div className="relative h-[48px] w-[48px]">
-          <Image src={icon} alt={title} fill className="object-cover" />
+          <Image src={icon} alt={title || 'Icon'} fill className="object-cover" />
         </div>
         <h2
           className={`font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] ${

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { savedItemService } from '@/services/savedItemsService';
 import { useSession } from 'next-auth/react';
 import { SavedItem } from '@/types/saved_item';
@@ -133,62 +133,6 @@ export function useSavedItems() {
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
   });
-
-  const fetchProfileDetails = useCallback(async (savedItem: SavedItem, token: string) => {
-    try {
-      let newProfile: SavedProfile | null = null;
-
-      if (savedItem.entity === 'user') {
-        const userData = await userService.fetchUserProfile(savedItem.entity_id, token);
-        newProfile = userData
-          ? {
-              id: userData.user.id,
-              username: userData.user.username,
-              type: savedItem.relation || ProfileCapacityType.Learner,
-              capacities:
-                savedItem.relation === ProfileCapacityType.Sharer
-                  ? userData.skills_available
-                  : userData.skills_wanted,
-              languages: userData.language,
-              territory: userData.territory?.[0]?.toString() || '',
-              avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
-              wikidataQid: userData.wikidata_qid,
-              isOrganization: false,
-              savedItemId: savedItem.id,
-            }
-          : null;
-      } else if (savedItem.entity === 'org') {
-        const orgData = await organizationProfileService.getOrganizationById(
-          token,
-          savedItem.entity_id
-        );
-        newProfile = orgData
-          ? {
-              id: orgData.id,
-              username: orgData.display_name,
-              profile_image: orgData.profile_image,
-              type: savedItem.relation,
-              capacities:
-                savedItem.relation === ProfileCapacityType.Learner
-                  ? orgData.wanted_capacities
-                  : orgData.available_capacities,
-              territory: orgData.territory[0],
-              avatar: undefined,
-              isOrganization: true,
-              savedItemId: savedItem.id,
-            }
-          : null;
-      }
-
-      if (newProfile) {
-        setAllProfiles(prev => [...prev, newProfile]);
-        setCount(prev => prev + 1);
-      }
-    } catch (error) {
-      // Log error but don't throw - individual item failures shouldn't break the whole process
-      console.error('Error fetching profile details:', error);
-    }
-  }, []);
 
   const paginatedProfiles = useCallback(
     (page: number, itemsPerPage: number) => {

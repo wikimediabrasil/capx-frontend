@@ -8,6 +8,7 @@ import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -78,7 +79,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileEditDesktopViewProps {
   selectedAvatar: any;
@@ -283,7 +283,8 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                       <Image
                         src={selectedAvatar.src}
                         alt={
-                          selectedAvatar.src === DEFAULT_AVATAR
+                          selectedAvatar.src === DEFAULT_AVATAR ||
+                          selectedAvatar.src === DEFAULT_AVATAR_WHITE
                             ? pageContent['alt-profile-picture-default'] ||
                               'Default user profile picture'
                             : 'Selected avatar'
@@ -291,6 +292,7 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                         fill
                         className="object-contain"
                         onError={e => {
+                          // Since background is always light (bg-gray-100), always use dark avatar
                           e.currentTarget.src = DEFAULT_AVATAR;
                         }}
                       />
@@ -368,8 +370,8 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     );
                     const nodes: (string | JSX.Element)[] = [];
                     for (const [index, part] of parts.entries()) {
-                      if (index > 0) nodes.push(link);
-                      nodes.push(part);
+                      if (index > 0) nodes.push(<span key={`wikidata-link-${index}`}>{link}</span>);
+                      nodes.push(<span key={`wikidata-part-${index}`}>{part}</span>);
                     }
                     return nodes;
                   })()}
@@ -1207,8 +1209,8 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   );
                   const nodes: (string | JSX.Element)[] = [];
                   for (const [index, part] of parts.entries()) {
-                    if (index > 0) nodes.push(link);
-                    nodes.push(part);
+                    if (index > 0) nodes.push(<span key={`link-${index}`}>{link}</span>);
+                    nodes.push(<span key={`part-${index}`}>{part}</span>);
                   }
                   return nodes;
                 })()}

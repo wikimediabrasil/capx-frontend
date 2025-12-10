@@ -14,7 +14,7 @@ import { useSession } from 'next-auth/react';
 import { profileService } from '@/services/profileService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useQueryClient } from '@tanstack/react-query';
-import { UserProfile } from '@/types/profile';
+import { UserProfile } from '@/types/user';
 
 interface RecommendationKnownAndAvailableCapacityCardProps {
   recommendation: CapacityRecommendation;
