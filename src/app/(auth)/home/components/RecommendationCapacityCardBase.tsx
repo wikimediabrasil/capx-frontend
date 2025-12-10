@@ -15,6 +15,7 @@ import { profileService } from '@/services/profileService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useQueryClient } from '@tanstack/react-query';
 import { UserProfile } from '@/types/user';
+import { useUserCapacities } from '@/hooks/useUserCapacities';
 
 type CapacityType = 'wanted' | 'known-and-available';
 
@@ -48,27 +49,9 @@ export default function RecommendationCapacityCardBase({
     userProfileProp ||
     queryClient.getQueryData<UserProfile>(['userProfile', session?.user?.id, session?.user?.token]);
 
-  // Get user capacities based on type
-  const userKnownCapacities = useMemo(() => {
-    if (!userProfile) return [];
-    return (userProfile.skills_known || [])
-      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
-      .filter(c => !isNaN(c)) as number[];
-  }, [userProfile]);
-
-  const userAvailableCapacities = useMemo(() => {
-    if (!userProfile) return [];
-    return (userProfile.skills_available || [])
-      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
-      .filter(c => !isNaN(c)) as number[];
-  }, [userProfile]);
-
-  const userWantedCapacities = useMemo(() => {
-    if (!userProfile) return [];
-    return (userProfile.skills_wanted || [])
-      .map(c => (typeof c === 'string' ? parseInt(c, 10) : c))
-      .filter(c => !isNaN(c)) as number[];
-  }, [userProfile]);
+  // Get user capacities using custom hook
+  const { userKnownCapacities, userAvailableCapacities, userWantedCapacities } =
+    useUserCapacities(userProfile);
 
   // Check if capacity is already added based on type
   const isAdded = useMemo(() => {
