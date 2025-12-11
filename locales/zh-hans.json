@@ -10,6 +10,7 @@
 			"Huajing",
 			"Kcx36",
 			"Peterxy12",
+			"TeaSummer",
 			"Xuanxuan1231",
 			"人间百态",
 			"坑触可",
@@ -337,5 +338,6 @@
 	"add-to-profile": "添加到简介",
 	"view-event": "查看活动",
 	"view-profile": "查看简介",
-	"recommendations-events-title": "您可能喜欢的活动"
+	"recommendations-events-title": "您可能喜欢的活动",
+	"cancel": "取消"
 }
