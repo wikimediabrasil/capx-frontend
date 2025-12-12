@@ -6041,7 +6041,7 @@ __metadata:
     jest-environment-jsdom: "npm:^29.7.0"
     lodash: "npm:^4.17.21"
     next: "npm:14.2.32"
-    next-auth: "npm:^4.24.7"
+    next-auth: "npm:^4.24.12"
     path: "npm:^0.12.7"
     postcss: "npm:^8"
     prettier: "npm:3.5.3"
@@ -6462,10 +6462,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "cookie@npm:0.5.0"
-  checksum: 10c0/c01ca3ef8d7b8187bae434434582288681273b5a9ed27521d4d7f9f7928fe0c920df0decd9f9d3bbd2d14ac432b8c8cf42b98b3bdd5bfe0e6edddeebebe8b61d
+"cookie@npm:^0.7.0":
+  version: 0.7.2
+  resolution: "cookie@npm:0.7.2"
+  checksum: 10c0/9596e8ccdbf1a3a88ae02cf5ee80c1c50959423e1022e4e60b91dd87c622af1da309253d8abdb258fb5e3eacb4f08e579dc58b4897b8087574eee0fd35dfa5d2
   languageName: node
   linkType: hard
 
@@ -11811,13 +11811,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next-auth@npm:^4.24.7":
-  version: 4.24.7
-  resolution: "next-auth@npm:4.24.7"
+"next-auth@npm:^4.24.12":
+  version: 4.24.13
+  resolution: "next-auth@npm:4.24.13"
   dependencies:
     "@babel/runtime": "npm:^7.20.13"
     "@panva/hkdf": "npm:^1.0.2"
-    cookie: "npm:^0.5.0"
+    cookie: "npm:^0.7.0"
     jose: "npm:^4.15.5"
     oauth: "npm:^0.9.15"
     openid-client: "npm:^5.4.0"
@@ -11825,14 +11825,17 @@ __metadata:
     preact-render-to-string: "npm:^5.1.19"
     uuid: "npm:^8.3.2"
   peerDependencies:
-    next: ^12.2.5 || ^13 || ^14
-    nodemailer: ^6.6.5
-    react: ^17.0.2 || ^18
-    react-dom: ^17.0.2 || ^18
+    "@auth/core": 0.34.3
+    next: ^12.2.5 || ^13 || ^14 || ^15 || ^16
+    nodemailer: ^7.0.7
+    react: ^17.0.2 || ^18 || ^19
+    react-dom: ^17.0.2 || ^18 || ^19
   peerDependenciesMeta:
+    "@auth/core":
+      optional: true
     nodemailer:
       optional: true
-  checksum: 10c0/40c5f51e02141615069d422431a4906c38f6050b29f654ecc99a92fd3c974958535eb7c5f7bbc3dfd2e5996825d7c4f20d8ca68f372e2f9aad2131701cb95b7d
+  checksum: 10c0/33a03d71951c30007aacfdb589afabd361440c95635068e4270108bfcdd155cf76b0ab3f82fa99d8c747888f250f0e6c675a8c4f9a2d80ad7f5bcacd8542a5c6
   languageName: node
   linkType: hard
 
