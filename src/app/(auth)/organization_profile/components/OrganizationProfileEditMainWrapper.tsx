@@ -2,6 +2,7 @@
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
+import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -23,7 +24,6 @@ import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import { ensureArray } from '@/lib/utils/safeDataAccess';
 import { sanitizeContactUrls } from '@/lib/utils/sanitizeUrl';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import { Contacts } from '@/types/contacts';
 import { OrganizationDocument } from '@/types/document';
 import { Event } from '@/types/event';
@@ -172,7 +172,9 @@ export default function EditOrganizationProfilePage() {
           return {
             value: `org_${org.id}`,
             label: org.display_name || '',
-            image: org.profile_image ? formatWikiImageUrl(org.profile_image) : DEFAULT_AVATAR,
+            image: org.profile_image
+              ? formatWikiImageUrl(org.profile_image)
+              : getDefaultOrganizationLogo(darkMode),
           };
         })
         .filter((item): item is NonNullable<typeof item> => item !== null);

@@ -45,6 +45,8 @@ export default function LoadingStateWithFallback({ fullScreen = false }: { fullS
           src={darkMode ? CapxLogoWhite : CapxLogo}
           alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
           className="animate-pulse-fade object-contain"
+          width={64}
+          height={64}
           style={{ width: 'auto', height: 'auto' }}
           priority
         />

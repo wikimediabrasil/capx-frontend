@@ -1,4 +1,4 @@
-const DEFAULT_AVATAR = '/static/images/person.svg';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { WikimediaDocument } from '@/types/document';
 import { WikimediaImage } from '@/types/wikidataImage';
 

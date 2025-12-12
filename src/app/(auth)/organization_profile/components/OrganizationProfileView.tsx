@@ -4,8 +4,12 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import LoadingState from '@/components/LoadingState';
 import { ProfileItem } from '@/components/ProfileItem';
+import { getDefaultOrganizationLogo } from '@/constants/images';
+import { useApp } from '@/contexts/AppContext';
+import { useOrganizationNames } from '@/hooks/useOrganizationNames';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconWhite from '@/public/static/images/edit_white.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
@@ -14,7 +18,6 @@ import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
 import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import ReportActivityIcon from '@/public/static/images/report_of_activities.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
@@ -29,9 +32,6 @@ import { DocumentsList } from './DocumentsList';
 import EventsSection from './EventsSection';
 import { NewsSection } from './NewsSection';
 import ProjectsList from './ProjectsList';
-import { useOrganizationNames } from '@/hooks/useOrganizationNames';
-import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
-import { useApp } from '@/contexts/AppContext';
 
 function HeaderSection({
   pageContent,
@@ -87,7 +87,10 @@ function HeaderSection({
           <div className="relative h-[78px] w-full md:h-[326px] md:w-[595px] bg-[#EFEFEF] rounded-md md:rounded-[16px] flex items-center justify-center">
             {organization?.profile_image ? (
               <Image
-                src={formatWikiImageUrl(organization.profile_image) || DEFAULT_AVATAR}
+                src={
+                  formatWikiImageUrl(organization.profile_image) ||
+                  getDefaultOrganizationLogo(darkMode)
+                }
                 alt="Organization logo"
                 className="object-contain p-4 md:p-24"
                 fill

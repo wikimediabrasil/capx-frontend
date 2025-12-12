@@ -69,8 +69,10 @@ export default function VideoSection() {
             <Image
               src={tabletIllusttration}
               alt={pageContent['alt-tablet-illustration'] || 'Tablet showing video content'}
-              layout="responsive"
+              width={600}
+              height={400}
               className="w-full h-auto"
+              style={{ width: '100%', height: 'auto' }}
             />
 
             <div className="absolute inset-0 flex items-center justify-center">
@@ -184,8 +186,15 @@ export default function VideoSection() {
 
       <div className="w-full mb-8 flex justify-center items-center mt-6">
         <div className="w-[35%] flex justify-around items-center mr-6">
-          <div className="relative w-[335px] h-[450px] sm:w-w-[251px] sm:h-[338px]">
-            <Image src={CapxPencilIllustration} alt="Capx pencil illustration" />
+          <div className="relative w-[335px] sm:w-[251px]">
+            <Image
+              src={CapxPencilIllustration}
+              alt="Capx pencil illustration"
+              width={335}
+              height={450}
+              className="w-full"
+              style={{ height: 'auto' }}
+            />
           </div>
         </div>
         <div className="w-[65%] flex justify-center items-center relative">
@@ -193,7 +202,7 @@ export default function VideoSection() {
             <Image
               src={tabletIllusttration}
               alt="Tablet illustration"
-              layout="fill"
+              fill
               style={{ objectFit: 'contain' }}
               className="absolute inset-0"
             />

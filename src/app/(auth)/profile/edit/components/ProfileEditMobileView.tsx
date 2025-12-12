@@ -8,6 +8,7 @@ import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -78,7 +79,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileEditMobileViewProps {
   selectedAvatar: any;
@@ -169,7 +169,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
-  const [avatarUrl, setAvatarUrl] = useState<string>(DEFAULT_AVATAR);
+  const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
@@ -192,6 +192,13 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
       })();
     }
   }, [profile?.avatar, getAvatarById]); // Include getAvatarById in the dependency array
+
+  // Update default avatar when dark mode changes
+  useEffect(() => {
+    if (!profile?.avatar || profile.avatar === 0) {
+      setAvatarUrl(getDefaultAvatar(darkMode));
+    }
+  }, [darkMode, profile?.avatar]);
 
   const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
 
@@ -284,7 +291,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     <Image
                       src={selectedAvatar.src || avatarUrl}
                       alt={
-                        (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR
+                        (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR ||
+                        (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR_WHITE
                           ? pageContent['alt-profile-picture-default'] ||
                             'Default user profile picture'
                           : 'Selected avatar'
@@ -292,7 +300,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       fill
                       className="object-contain"
                       onError={e => {
-                        e.currentTarget.src = DEFAULT_AVATAR;
+                        e.currentTarget.src = getDefaultAvatar(darkMode);
                       }}
                     />
                   )}

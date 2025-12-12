@@ -43,7 +43,7 @@ export default function MiniBio({
         <div className="flex items-center gap-2">
           <Image
             src={darkMode ? PersonBookIconWhite : PersonBookIcon}
-            alt={pageContent['edit-profile-mini-bio']}
+            alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
             width={20}
             height={20}
           />
@@ -96,7 +96,7 @@ export default function MiniBio({
       <div className="flex items-center gap-2">
         <Image
           src={darkMode ? PersonBookIconWhite : PersonBookIcon}
-          alt={pageContent['edit-profile-mini-bio']}
+          alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
           width={42}
           height={42}
         />

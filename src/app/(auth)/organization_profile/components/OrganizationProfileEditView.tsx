@@ -1,10 +1,12 @@
 import EventsList from '@/app/events/components/EventsList';
 import BaseButton from '@/components/BaseButton';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useProfileImage } from '@/hooks/useProfileImage';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { getProfileImage } from '@/lib/utils/getProfileImage';
 import AddIconWhite from '@/public/static/images/add.svg';
@@ -26,7 +28,6 @@ import ExpandAllIcon from '@/public/static/images/expand_all.svg';
 import ExpandAllIconWhite from '@/public/static/images/expand_all_white.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import ReportIcon from '@/public/static/images/report.svg';
 import ReportIconWhite from '@/public/static/images/report_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
@@ -43,8 +44,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import DocumentFormItem from './DocumentFormItem';
 import NewsFormItem from './NewsFormItem';
-import ProjectsFormItem from './ProjectsFormItem';
 import OrganizationNamesSection from './OrganizationNamesSection';
+import ProjectsFormItem from './ProjectsFormItem';
 
 export default function OrganizationProfileEditView({
   handleSubmit,
@@ -90,6 +91,13 @@ export default function OrganizationProfileEditView({
   const { avatars } = useAvatars();
   const router = useRouter();
 
+  // Load user profile image correctly
+  const { profileImageUrl: userProfileImageUrl, isLoading: isUserImageLoading } = useProfileImage({
+    isOrganization: false,
+    avatar: userProfile?.avatar,
+    wikidataQid: userProfile?.wikidata_qid,
+  });
+
   // Helper function to import known capacities to available
   const handleImportKnownCapacities = () => {
     const knownCapacities = formData?.known_capacities || [];
@@ -132,7 +140,10 @@ export default function OrganizationProfileEditView({
                 </div>
                 <div className="relative w-[75px] h-[75px]">
                   <Image
-                    src={getProfileImage(undefined, userProfile?.avatar, avatars)}
+                    src={
+                      userProfileImageUrl ||
+                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                    }
                     alt="Avatar"
                     fill
                     sizes="75px"
@@ -220,7 +231,10 @@ export default function OrganizationProfileEditView({
               <div className="w-1/2 flex-1">
                 <div className="relative w-[114px] h-[114px] mb-6">
                   <Image
-                    src={getProfileImage(undefined, userProfile?.avatar, avatars)}
+                    src={
+                      userProfileImageUrl ||
+                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                    }
                     alt="User Profile Image"
                     fill
                     sizes="114px"
@@ -346,7 +360,7 @@ export default function OrganizationProfileEditView({
                       sizes="(max-width: 768px) 100vw, 600px"
                       onError={e => {
                         console.error('Erro ao carregar preview:', e);
-                        e.currentTarget.src = DEFAULT_AVATAR;
+                        e.currentTarget.src = getDefaultOrganizationLogo(darkMode);
                       }}
                       priority
                       loading="eager"
@@ -355,7 +369,7 @@ export default function OrganizationProfileEditView({
                 ) : (
                   <div className="flex flex-col items-center justify-center">
                     <Image
-                      src={DEFAULT_AVATAR}
+                      src={getDefaultOrganizationLogo(darkMode)}
                       alt="Sem imagem"
                       width={60}
                       height={60}

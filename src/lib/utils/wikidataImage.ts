@@ -2,6 +2,10 @@
  * Utility functions for fetching and managing Wikidata images
  */
 
+// In-memory cache for Wikidata images with 30-minute TTL
+const wikidataImageCache = new Map<string, { url: string | null; timestamp: number }>();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
 /**
  * Fetches the image URL from a Wikidata item using SPARQL query
  * @param qid - Wikidata QID (e.g., "Q107707826")
@@ -9,6 +13,12 @@
  */
 export const fetchWikidataImage = async (qid: string): Promise<string | null> => {
   try {
+    // Check cache first
+    const cached = wikidataImageCache.get(qid);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.url;
+    }
+
     const sparqlQuery = `
       SELECT ?image WHERE {
         wd:${qid} wdt:P18 ?image.
@@ -20,12 +30,19 @@ export const fetchWikidataImage = async (qid: string): Promise<string | null> =>
     );
     const data = await response.json();
 
+    let imageUrl: string | null = null;
     if (data?.results?.bindings?.length > 0) {
-      return data.results.bindings[0].image.value;
+      imageUrl = data.results.bindings[0].image.value;
     }
-    return null;
+
+    // Cache the result
+    wikidataImageCache.set(qid, { url: imageUrl, timestamp: Date.now() });
+
+    return imageUrl;
   } catch (error) {
     console.error('Error fetching Wikidata image:', error);
+    // Cache null result to avoid repeated failed requests
+    wikidataImageCache.set(qid, { url: null, timestamp: Date.now() });
     return null;
   }
 };

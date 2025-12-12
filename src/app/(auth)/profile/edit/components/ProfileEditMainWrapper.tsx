@@ -1,12 +1,15 @@
 'use client';
 
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
+import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
+import { DEFAULT_AVATAR, getDefaultAvatar } from '@/constants/images';
 import { useProfileEdit } from '@/contexts/ProfileEditContext';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { useAvatars } from '@/hooks/useAvatars';
@@ -23,13 +26,11 @@ import {
   addUniqueTerritory,
 } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
-const DEFAULT_AVATAR = '/static/images/person.svg';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
 import ProfileEditDesktopView from './ProfileEditDesktopView';
 import ProfileEditMobileView from './ProfileEditMobileView';
-import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
@@ -100,6 +101,7 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const { isMobile, pageContent, language } = useApp();
+  const { darkMode } = useTheme();
   const { avatars, getAvatarById } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
@@ -174,6 +176,7 @@ export default function EditProfilePage() {
     src: string;
   }>({
     id: 0,
+    // Always use dark avatar since the background is always light (bg-gray-100) in edit mode
     src: DEFAULT_AVATAR,
   });
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
@@ -203,7 +206,7 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [avatarUrl, setAvatarUrl] = useState<string>(DEFAULT_AVATAR);
+  const [, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
 
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
@@ -215,7 +218,7 @@ export default function EditProfilePage() {
   }>({
     avatar: null,
     wikidata_qid: '',
-    src: DEFAULT_AVATAR,
+    src: getDefaultAvatar(darkMode),
   });
 
   // Move useMemo before any early returns to fix Rules of Hooks violation
@@ -313,7 +316,7 @@ export default function EditProfilePage() {
       setPreviousImageState({
         avatar: profile.avatar ?? null,
         wikidata_qid: profile.wikidata_qid || '',
-        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || DEFAULT_AVATAR,
+        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || getDefaultAvatar(darkMode),
       });
     }
   }, [profile, avatars]);
