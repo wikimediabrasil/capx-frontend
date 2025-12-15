@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Asteralee",
 			"Ayub Abdulla",
 			"Beta16",
 			"Dream Indigo",
@@ -401,5 +402,8 @@
 	"home-carousel-suggestions-title-no-capacities": "Completa il tuo profilo",
 	"home-carousel-suggestions-description-no-capacities-button": "Modifica profilo",
 	"save": "Salva",
-	"recommendations-events-title": "Eventi che potrebbero interessarti"
+	"recommendations-events-title": "Eventi che potrebbero interessarti",
+	"add": "Aggiungi",
+	"cancel": "Annulla",
+	"edit": "Modifica"
 }
