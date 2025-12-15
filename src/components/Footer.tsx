@@ -85,7 +85,14 @@ export default function Footer() {
       ) : (
         <section className="flex flex-row items-center justify-around sm:flex-nowrap w-full h-fit sm:h-16 px-6 pb-14 sm:pb-0 sm:py-0 font-medium text-sm my-16 max-w-screen-xl mx-auto">
           <div className="flex items-center justify-center">
-            <Image src={LogoDesktop} alt="Capx Logo" className="w-16 h-16" priority />
+            <Image
+              src={LogoDesktop}
+              alt="Capx Logo"
+              width={64}
+              height={64}
+              className="w-16 h-16"
+              priority
+            />
           </div>
           <div className="flex flex-row items-center justify-center">{linksComponent}</div>
           <div className="flex justify-center items-center gap-[24px]">

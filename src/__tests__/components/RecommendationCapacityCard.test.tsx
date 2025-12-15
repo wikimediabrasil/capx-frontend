@@ -40,8 +40,10 @@ jest.mock('@/services/userService');
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
+    // Remove Next.js specific props that are not valid HTML attributes
+    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />;
+    return <img {...imgProps} />;
   },
 }));
 jest.mock('next/navigation');
@@ -217,11 +219,10 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should show "Added" button when capacity is already in wanted list', async () => {
-      const { userService } = require('@/services/userService');
-      userService.fetchUserProfile.mockResolvedValue({
+      const profileWithCapacity = {
         ...mockUserProfile,
-        skills_wanted: [50],
-      });
+        skills_wanted: ['50'], // Capacity ID 50 is already in the list
+      };
 
       renderCapacityCard();
 
@@ -233,21 +234,34 @@ describe('RecommendationCapacityCard', () => {
       expect(addedButton.closest('button')).toBeDisabled();
     });
 
-    it('should show error message when adding capacity fails', async () => {
+    it('should show success message with optimistic update even if server fails', async () => {
       const { profileService } = require('@/services/profileService');
-      const { userService } = require('@/services/userService');
 
-      // Setup mocks before rendering
+      // Setup mocks - server update fails but UI shows success (optimistic update)
       profileService.updateProfile = jest.fn().mockRejectedValue(new Error('Network error'));
-      userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       renderCapacityCard();
 
       await clickAddToProfileButton();
 
+      // Should show success (optimistic update) even though server fails
       await waitFor(() => {
-        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith('Network error', 'error');
+        expect(mockSnackbar.showSnackbar).toHaveBeenCalledWith(
+          'Capacity added to profile',
+          'success'
+        );
       });
+
+      // Server error should be logged but not shown to user
+      await waitFor(() => {
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Error updating profile on server:',
+          expect.any(Error)
+        );
+      });
+
+      consoleSpy.mockRestore();
     });
 
     it('should disable button while adding capacity', async () => {
@@ -278,12 +292,7 @@ describe('RecommendationCapacityCard', () => {
 
     it('should not add duplicate capacity', async () => {
       const { profileService } = require('@/services/profileService');
-      const { userService } = require('@/services/userService');
-      profileService.updateProfile.mockResolvedValue({});
-      userService.fetchUserProfile.mockResolvedValue({
-        ...mockUserProfile,
-        skills_wanted: [50],
-      });
+      profileService.updateProfile = jest.fn().mockResolvedValue({});
 
       renderCapacityCard();
 
@@ -388,8 +397,8 @@ describe('RecommendationCapacityCard', () => {
     });
   });
 
-  describe('Cache invalidation', () => {
-    it('should invalidate user profile query after adding capacity', async () => {
+  describe('Cache management', () => {
+    it('should update query cache after adding capacity', async () => {
       const { profileService } = require('@/services/profileService');
       const { userService } = require('@/services/userService');
       profileService.updateProfile = jest.fn().mockResolvedValue({});
@@ -409,11 +418,18 @@ describe('RecommendationCapacityCard', () => {
       const addButton = screen.getByText('Add to Profile');
       fireEvent.click(addButton);
 
-      await waitFor(() => {
-        expect(queryClient.invalidateQueries).toHaveBeenCalledWith({
-          queryKey: ['userProfile', '123', 'mock-token'],
-        });
-      });
+      // Should update cache optimistically with setQueryData
+      await waitFor(
+        () => {
+          expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(
+            ['userProfile', '123', 'mock-token'],
+            expect.objectContaining({
+              skills_wanted: expect.arrayContaining(['50']),
+            })
+          );
+        },
+        { timeout: 1000 }
+      );
     });
   });
 });
