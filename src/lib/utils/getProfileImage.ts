@@ -1,12 +1,12 @@
+import { getDefaultAvatar } from '@/constants/images';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { Avatar } from '@/types/avatar';
-
-const DEFAULT_AVATAR = '/static/images/person.svg';
 
 export const getProfileImage = (
   profileImage: string | null | undefined,
   avatarId: number | null | undefined,
-  avatars?: Avatar[]
+  avatars?: Avatar[],
+  darkMode: boolean = false
 ): string => {
   // If there is a profile image, normalize Wikimedia URLs to a direct/thumbnail URL
   if (profileImage && profileImage.trim()) {
@@ -22,5 +22,5 @@ export const getProfileImage = (
   }
 
   // Fallback to the default person icon
-  return DEFAULT_AVATAR;
+  return getDefaultAvatar(darkMode);
 };

@@ -4,23 +4,23 @@ import { CapacityRecommendation } from '@/types/recommendation';
 import { UserProfile } from '@/types/user';
 import RecommendationCapacityCardBase from './RecommendationCapacityCardBase';
 
-interface RecommendationCapacityCardProps {
-  recommendation: CapacityRecommendation;
-  hintMessage?: string;
-  userProfile?: UserProfile | null;
+interface RecommendationKnownAndAvailableCapacityCardProps {
+  readonly recommendation: CapacityRecommendation;
+  readonly hintMessage?: string;
+  readonly userProfile?: UserProfile | null;
 }
 
-export default function RecommendationCapacityCard({
+export default function RecommendationKnownAndAvailableCapacityCard({
   recommendation,
   hintMessage,
   userProfile,
-}: RecommendationCapacityCardProps) {
+}: RecommendationKnownAndAvailableCapacityCardProps) {
   return (
     <RecommendationCapacityCardBase
       recommendation={recommendation}
       hintMessage={hintMessage}
       userProfile={userProfile}
-      capacityType="wanted"
+      capacityType="known-and-available"
     />
   );
 }
