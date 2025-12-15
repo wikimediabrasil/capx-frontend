@@ -84,10 +84,18 @@
 	"pagination-first": "انتقل إلى الصفحة الأولى",
 	"pagination-go-to-page": "انتقل إلى الصفحة {page}",
 	"pagination-last": "انتقل إلى الصفحة الأخيرة",
+	"pagination-of": "$1 من $2",
 	"saved-profiles-filters-button": "المرشحات",
 	"snackbar-edit-profile-organization-add-event-success": "تمت إضافة الحدث بنجاح",
 	"snackbar-edit-profile-organization-create-event-success": "تم إنشاء الحدث بنجاح",
 	"snackbar-edit-profile-organization-remove-event-success": "تمت إزالة الحدث بنجاح",
 	"snackbar-edit-profile-organization-save-event-failed": "خطأ في حفظ الحدث",
-	"snackbar-edit-profile-organization-update-event-success": "تم تحديث الحدث بنجاح"
+	"snackbar-edit-profile-organization-update-event-success": "تم تحديث الحدث بنجاح",
+	"add": "أضف",
+	"cancel": "إلغاء",
+	"edit": "عدل",
+	"organization-name-add": "أضف ترجمة",
+	"organization-name-fields-required": "اللغة والاسم مطلوب",
+	"organization-name-placeholder": "اسم المنظمة",
+	"select-language": "اختر لغة"
 }
