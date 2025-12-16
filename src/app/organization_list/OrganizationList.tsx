@@ -9,12 +9,11 @@ import { SearchFilterSection } from '@/components/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizations } from '@/hooks/useOrganizationProfile';
-import { Capacity } from '@/types/capacity';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useEffect, useMemo, useState } from 'react';
 
 import Banner from '@/components/Banner';
 import LoadingState from '@/components/LoadingState';
-import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import OrgListBanner from '@/public/static/images/organization_list.svg';
 
 // Removed duplicated components - now using shared components
@@ -27,6 +26,11 @@ export default function OrganizationList() {
   const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
   const [activeFilters, setActiveFilters] = useState({
     capacities: [] as Skill[],
     profileCapacityTypes: [
@@ -35,23 +39,47 @@ export default function OrganizationList() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
+    name: undefined as string | undefined,
   });
-  const [showSkillModal, setShowSkillModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const offset = (currentPage - 1) * itemsPerPage;
+
+  // Always fetch all organizations for client-side filtering and pagination
+  const hasSearch = !!debouncedSearchTerm;
+  const fetchLimit = 1000;
+  const fetchOffset = 0;
+
+  // Track when user is typing (before debounce finishes)
+  useEffect(() => {
+    if (searchTerm !== debouncedSearchTerm) {
+      setIsSearching(true);
+    } else {
+      setIsSearching(false);
+    }
+  }, [searchTerm, debouncedSearchTerm]);
 
   // Get all organizations (fetch more data for frontend pagination)
+  // Don't send name filter to backend as it doesn't support it
   const {
     organizations: allOrganizations,
     count: allOrganizationsCount,
     isLoading: isAllOrganizationsLoading,
-  } = useOrganizations(1000, 0, {
+  } = useOrganizations(fetchLimit, fetchOffset, {
     // Fetch more data for proper sorting
-    ...activeFilters,
+    capacities: activeFilters.capacities,
     profileCapacityTypes: [],
+    territories: activeFilters.territories,
+    languages: activeFilters.languages,
+    // Don't send name - backend doesn't support it
   });
+
+  // Mark as loaded once data is fetched
+  useEffect(() => {
+    if (!isAllOrganizationsLoading && allOrganizations) {
+      setHasLoadedOnce(true);
+    }
+  }, [isAllOrganizationsLoading, allOrganizations]);
 
   const totalRecords = allOrganizationsCount;
 
@@ -141,7 +169,7 @@ export default function OrganizationList() {
     });
 
     // Sort profiles by priority (organizations with capacities first, then incomplete ones)
-    return organizationProfiles.sort((a, b) => {
+    const sortedProfiles = organizationProfiles.sort((a, b) => {
       // First sort by priority
       if (a.priority !== b.priority) {
         return a.priority - b.priority;
@@ -149,40 +177,37 @@ export default function OrganizationList() {
       // Then sort by username alphabetically within the same priority
       return a.username.localeCompare(b.username);
     });
-  }, [allOrganizations]);
 
-  // Apply pagination to sorted profiles
+    // Filter by search term if present (client-side filtering)
+    if (debouncedSearchTerm) {
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      return sortedProfiles.filter(profile =>
+        profile.username.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return sortedProfiles;
+  }, [allOrganizations, debouncedSearchTerm]);
+
+  // Apply pagination to sorted and filtered profiles (always client-side)
   const filteredProfiles = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return allProfiles.slice(startIndex, endIndex);
   }, [allProfiles, currentPage, itemsPerPage]);
 
-  // Calculate total of pages based on sorted profiles
-  const numberOfPages = Math.ceil(allProfiles.length / itemsPerPage);
+  // Calculate total of pages based on filtered profiles
+  const numberOfPages = useMemo(() => {
+    return Math.ceil(allProfiles.length / itemsPerPage);
+  }, [allProfiles.length, itemsPerPage]);
 
-  // Reset to first page when filters change
+  // Reset to first page when search term or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilters]);
+  }, [debouncedSearchTerm, activeFilters.capacities, activeFilters.territories]);
 
-  // Helper function to update active filters
-  const updateActiveFilters = (updater: (prev: typeof activeFilters) => typeof activeFilters) => {
-    setActiveFilters(updater);
-  };
-
-  const handleCapacitySelect = (capacities: Capacity[]) => {
-    updateActiveFilters(prev => ({
-      ...prev,
-      capacities: addUniqueCapacities(prev.capacities, capacities),
-    }));
-  };
-
-  const handleRemoveCapacity = (capacityCode: number) => {
-    updateActiveFilters(prev => ({
-      ...prev,
-      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
-    }));
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
   };
 
   const handleApplyFilters = (newFilters: FilterState) => {
@@ -198,7 +223,13 @@ export default function OrganizationList() {
     }
   };
 
-  if (isAllOrganizationsLoading || isLoadingTranslations || isLanguageChanging) {
+  // Only show full loading on initial load, not during search
+  const shouldShowFullLoading =
+    (!hasLoadedOnce && isAllOrganizationsLoading) ||
+    isLoadingTranslations ||
+    isLanguageChanging;
+
+  if (shouldShowFullLoading) {
     return <LoadingState fullScreen={true} />;
   }
 
@@ -212,12 +243,10 @@ export default function OrganizationList() {
       <div className="container mx-auto px-4 mt-6">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           <SearchFilterSection
-            activeFilters={activeFilters}
-            showSkillModal={showSkillModal}
-            onRemoveCapacity={handleRemoveCapacity}
-            onShowSkillModal={setShowSkillModal}
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
             onShowFilters={setShowFilters}
-            onCapacitySelect={handleCapacitySelect}
+            searchPlaceholder={pageContent['filters-search-by-organization']}
           />
 
           <ProfileListWithEmpty profiles={filteredProfiles} />

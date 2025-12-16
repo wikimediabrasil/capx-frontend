@@ -7,10 +7,9 @@ import { PaginationButtons } from '@/components/PaginationButtons';
 import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
 import { SearchFilterSection } from '@/components/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
-import { useCapacity } from '@/hooks/useCapacityDetails';
-import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAllUsers } from '@/hooks/useUserProfile';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
@@ -27,12 +26,15 @@ export default function FeedPage() {
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const searchParams = useSearchParams();
-  const capacityCode = searchParams?.get('capacityId');
 
   // Use shared language sync logic
   const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+
   const [activeFilters, setActiveFilters] = useState<FilterState>({
     capacities: [] as Skill[],
     profileCapacityTypes: [
@@ -44,41 +46,21 @@ export default function FeedPage() {
     name: undefined,
     affiliations: [] as string[],
   });
-  const [showSkillModal, setShowSkillModal] = useState(false);
+
+  // Update activeFilters with debounced search term
+  useEffect(() => {
+    setActiveFilters(prev => ({
+      ...prev,
+      name: debouncedSearchTerm || undefined,
+    }));
+  }, [debouncedSearchTerm]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerList = 5;
   const itemsPerPage = 10;
   const offset = (currentPage - 1) * itemsPerList;
 
-  const { capacity } = useCapacity(capacityCode);
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
-
-  // Get data from capacityById
-  useEffect(() => {
-    if (capacity) {
-      try {
-        const capacityExists = activeFilters.capacities.some(
-          cap => cap.code == Number(capacity.code)
-        );
-
-        if (!capacityExists) {
-          setActiveFilters(prev => ({
-            ...prev,
-            capacities: [
-              ...prev.capacities,
-              {
-                code: Number(capacity.code),
-                name: capacity.name,
-              },
-            ],
-          }));
-        }
-      } catch (error) {
-        console.error('Error parsing capacity from URL:', error);
-      }
-    }
-  }, [capacity, activeFilters.capacities]);
 
   const shouldFetchLearnerUsers = activeFilters.profileCapacityTypes.includes(
     ProfileCapacityType.Learner
@@ -117,6 +99,13 @@ export default function FeedPage() {
       : undefined,
     ordering: '-last_update',
   });
+
+  // Mark as loaded once data is fetched
+  useEffect(() => {
+    if (!isUsersLearnerLoading && !isUsersSharerLoading) {
+      setHasLoadedOnce(true);
+    }
+  }, [isUsersLearnerLoading, isUsersSharerLoading]);
 
   // Total of records according to the profileFilter
   const totalRecords =
@@ -184,31 +173,8 @@ export default function FeedPage() {
     setCurrentPage(1);
   }, [activeFilters]);
 
-  const { handleCapacitySelect } = useFilterCapacitySelection(
-    activeFilters.capacities,
-    newCapacities => {
-      setActiveFilters(prev => ({
-        ...prev,
-        capacities: newCapacities,
-      }));
-    }
-  );
-
-  const handleRemoveCapacity = (capacityCode: number) => {
-    setActiveFilters(prev => ({
-      ...prev,
-      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
-    }));
-
-    const urlCapacityId = searchParams?.get('capacityId');
-
-    // If the capacity removed is the same as the URL, update the URL
-    if (
-      (urlCapacityId && urlCapacityId.toString() == capacityCode.toString()) ||
-      (urlCapacityId && urlCapacityId.toString() == capacity?.code?.toString())
-    ) {
-      router.replace('/feed', { scroll: false });
-    }
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
   };
 
   const handleApplyFilters = (newFilters: FilterState) => {
@@ -224,12 +190,13 @@ export default function FeedPage() {
     }
   };
 
-  if (
-    isUsersLearnerLoading ||
-    isUsersSharerLoading ||
+  // Only show full loading on initial load, not during search
+  const shouldShowFullLoading =
+    (!hasLoadedOnce && (isUsersLearnerLoading || isUsersSharerLoading)) ||
     isLoadingTranslations ||
-    isLanguageChanging
-  ) {
+    isLanguageChanging;
+
+  if (shouldShowFullLoading) {
     return <LoadingState fullScreen={true} />;
   }
 
@@ -270,12 +237,9 @@ export default function FeedPage() {
       <div className="container mx-auto px-4 w-full max-w-full">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           <SearchFilterSection
-            activeFilters={activeFilters.capacities ? activeFilters : { capacities: [] }}
-            showSkillModal={showSkillModal}
-            onRemoveCapacity={handleRemoveCapacity}
-            onShowSkillModal={setShowSkillModal}
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
             onShowFilters={setShowFilters}
-            onCapacitySelect={handleCapacitySelect}
           />
 
           <ProfileListWithEmpty profiles={filteredProfiles} onToggleSaved={handleToggleSaved} />
