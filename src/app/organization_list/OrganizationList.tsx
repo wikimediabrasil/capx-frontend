@@ -31,7 +31,7 @@ export default function OrganizationList() {
   const [isSearching, setIsSearching] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
-  const [activeFilters, setActiveFilters] = useState({
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
     capacities: [] as Skill[],
     profileCapacityTypes: [
       ProfileCapacityType.Learner,
@@ -39,7 +39,6 @@ export default function OrganizationList() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    name: undefined as string | undefined,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -181,9 +180,7 @@ export default function OrganizationList() {
     // Filter by search term if present (client-side filtering)
     if (debouncedSearchTerm) {
       const searchLower = debouncedSearchTerm.toLowerCase();
-      return sortedProfiles.filter(profile =>
-        profile.username.toLowerCase().includes(searchLower)
-      );
+      return sortedProfiles.filter(profile => profile.username.toLowerCase().includes(searchLower));
     }
 
     return sortedProfiles;
@@ -225,9 +222,7 @@ export default function OrganizationList() {
 
   // Only show full loading on initial load, not during search
   const shouldShowFullLoading =
-    (!hasLoadedOnce && isAllOrganizationsLoading) ||
-    isLoadingTranslations ||
-    isLanguageChanging;
+    (!hasLoadedOnce && isAllOrganizationsLoading) || isLoadingTranslations || isLanguageChanging;
 
   if (shouldShowFullLoading) {
     return <LoadingState fullScreen={true} />;

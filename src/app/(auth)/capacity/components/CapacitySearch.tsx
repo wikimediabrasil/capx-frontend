@@ -72,8 +72,7 @@ export function CapacitySearch({
 }: CapacitySearchProps) {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
-  const { getName, getDescription, getWdCode, getRootCapacities, getChildren } =
-    useCapacityCache();
+  const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityCache();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -288,9 +287,7 @@ export function CapacitySearch({
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: capacity.color }}
                   />
-                  <span
-                    className={`text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}
-                  >
+                  <span className={`text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {getName(capacity.code) || capacity.name}
                   </span>
                 </div>

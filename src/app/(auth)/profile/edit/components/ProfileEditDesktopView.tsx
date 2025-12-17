@@ -4,7 +4,7 @@ import BadgesCarousel from '@/components/BadgesCarousel';
 import BadgeSelectionModal from '@/components/BadgeSelectionModal';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
@@ -1447,12 +1447,25 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
           </div>
         </div>
       </section>
-      <CapacitySelectionModal
-        isOpen={showCapacityModal}
-        onClose={() => setShowCapacityModal(false)}
-        onSelect={handleCapacitySelect}
-        title={`Choose ${selectedCapacityType} capacity`}
-      />
+      {showCapacityModal && (
+        <Popup
+          onClose={() => setShowCapacityModal(false)}
+          title={`Choose ${selectedCapacityType} capacity`}
+        >
+          <div className="p-4">
+            <CapacitySearch
+              onSelect={capacities => {
+                handleCapacitySelect(capacities as any);
+                setShowCapacityModal(false);
+              }}
+              selectedCapacities={[]}
+              allowMultipleSelection={true}
+              showSelectedChips={false}
+              compact={true}
+            />
+          </div>
+        </Popup>
+      )}
 
       {showBadgeModal && (
         <BadgeSelectionModal
