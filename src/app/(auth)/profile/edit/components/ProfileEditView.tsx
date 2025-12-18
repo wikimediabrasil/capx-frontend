@@ -1,10 +1,10 @@
 'use client';
 
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import BadgesCarousel from '@/components/BadgesCarousel';
 import BadgeSelectionModal from '@/components/BadgeSelectionModal';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
-import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
@@ -14,6 +14,7 @@ import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import {
+  addAffiliationToFormData,
   addLanguageToFormData,
   addProjectToFormData,
   addTerritoryToFormData,
@@ -21,10 +22,7 @@ import {
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import {
-  default as AccountCircleIconWhite,
-  default as LetsConnectIconWhite,
-} from '@/public/static/images/account_circle_white.svg';
+import { default as AccountCircleIconWhite, default as LetsConnectIconWhite } from '@/public/static/images/account_circle_white.svg';
 import AddIcon from '@/public/static/images/add.svg';
 import AddIconDark from '@/public/static/images/add_dark.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
@@ -42,10 +40,8 @@ import CheckBoxFilledIcon from '@/public/static/images/check_box.svg';
 import CheckBoxFilledIconWhite from '@/public/static/images/check_box_light.svg';
 import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
 import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
-import {
-  default as CloseIcon,
-  default as CloseIconWhite,
-} from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
@@ -56,6 +52,8 @@ import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg'
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import LetsConectBanner from '@/public/static/images/lets_connect.svg';
+import LetsConect from '@/public/static/images/lets_connect_desktop.svg';
+import LetsConectTextDesktop from '@/public/static/images/lets_connect_text_desktop.svg';
 import LetsConectText from '@/public/static/images/lets_connect_text_img.svg';
 import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
 import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
@@ -80,12 +78,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
 
-interface ProfileEditMobileViewProps {
+interface ProfileEditViewProps {
   selectedAvatar: any;
   handleAvatarSelect: (avatarId: number | null) => void;
   showAvatarPopup: boolean;
-  handleWikidataClick: (newWikidataSelected: boolean) => void;
   setShowAvatarPopup: (show: boolean) => void;
+  handleWikidataClick: (newWikidataSelected: boolean) => void;
   isWikidataSelected: boolean;
   showCapacityModal: boolean;
   setShowCapacityModal: (show: boolean) => void;
@@ -99,7 +97,6 @@ interface ProfileEditMobileViewProps {
   handleSubmit: () => void;
   handleCancel: () => void;
   handleDeleteProfile: () => void;
-  handleDeleteProject: (index: number) => void;
   formData: Partial<Profile>;
   setFormData: (data: Partial<Profile>) => void;
   territories: Record<string, string>;
@@ -120,7 +117,7 @@ interface ProfileEditMobileViewProps {
   isLetsConnectLoading: boolean;
 }
 
-export default function ProfileEditMobileView(props: ProfileEditMobileViewProps) {
+export default function ProfileEditView(props: ProfileEditViewProps) {
   const {
     selectedAvatar,
     handleAvatarSelect,
@@ -140,7 +137,6 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
     handleSubmit,
     handleCancel,
     handleDeleteProfile,
-    handleDeleteProject,
     formData,
     setFormData,
     territories,
@@ -174,11 +170,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
   const getAvatarById = useAvatars();
+  const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
+
   // Use effect to load the avatar once when the component mounts
   useEffect(() => {
-    // Only attempt to load if we have a numeric avatar ID
     if (typeof profile?.avatar === 'number' && profile.avatar > 0) {
-      // Use an immediate function to load avatar
       (async () => {
         try {
           const avatarId = profile.avatar as number;
@@ -191,7 +187,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
         }
       })();
     }
-  }, [profile?.avatar, getAvatarById]); // Include getAvatarById in the dependency array
+  }, [profile?.avatar, getAvatarById]);
 
   // Update default avatar when dark mode changes
   useEffect(() => {
@@ -199,8 +195,6 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
       setAvatarUrl(getDefaultAvatar(darkMode));
     }
   }, [darkMode, profile?.avatar]);
-
-  const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
 
   // Close project selector when clicking outside
   useEffect(() => {
@@ -229,22 +223,22 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
         }`}
       >
         <section
-          className={`w-full max-w-screen-xl mx-auto px-4 py-8 ${
+          className={`w-full max-w-screen-xl mx-auto px-4 md:px-12 py-8 ${
             isMobile ? 'mt-[80px]' : 'mt-[64px]'
           }`}
         >
           <div className={`flex flex-col gap-6 ${isMobile ? '' : 'mx-[80px]'} mx-auto`}>
-            {/* Header */}
+            {/* Header - Responsive */}
             <div className="flex flex-col gap-2">
               <h1
-                className={`font-[Montserrat] text-[16px] not-italic font-normal leading-[29px] ${
+                className={`font-[Montserrat] text-[16px] md:text-[48px] not-italic font-normal leading-[29px] ${
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
                 {pageContent['edit-profile-welcome']}
               </h1>
-              <div className="flex items-center gap-[6px]">
-                <div className="relative w-[24px] h-[24px]">
+              <div className="flex items-center gap-[6px] md:py-6">
+                <div className="relative w-[24px] h-[24px] md:w-[48px] md:h-[48px]">
                   <Image
                     src={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
                     alt="User circle icon"
@@ -256,299 +250,347 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 <span
                   className={`text-start ${
                     darkMode ? 'text-white' : 'text-[#053749]'
-                  } font-[Montserrat] text-[20px] font-extrabold`}
+                  } font-[Montserrat] text-[20px] md:text-[24px] font-extrabold`}
                 >
                   {username}
                 </span>
               </div>
             </div>
 
-            {/* Image Profile Section */}
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-row gap-1 items-center">
-                <div className="relative w-[20px] h-[20px]">
-                  <Image
-                    src={darkMode ? AccountBoxIconWhite : AccountBoxIcon}
-                    alt="Account box icon"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </div>
-                <h2
-                  className={`${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  } font-[Montserrat] text-[16px] font-bold`}
-                >
-                  {pageContent['edit-profile-image-title']}
-                </h2>
-              </div>
-
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <div className="w-32 h-32 mx-auto mb-4 relative">
-                  {isImageLoading ? (
-                    <LoadingImage />
-                  ) : (
-                    <Image
-                      src={selectedAvatar.src || avatarUrl}
-                      alt={
-                        (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR ||
-                        (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR_WHITE
-                          ? pageContent['alt-profile-picture-default'] ||
-                            'Default user profile picture'
-                          : 'Selected avatar'
-                      }
-                      fill
-                      className="object-contain"
-                      onError={e => {
-                        e.currentTarget.src = getDefaultAvatar(darkMode);
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
-
+            {/* Action Buttons - Mobile shows first, Desktop shows later */}
+            <div className="flex flex-col md:hidden gap-[10px]">
               <BaseButton
-                onClick={() => setShowAvatarPopup(true)}
-                label={pageContent['edit-profile-choose-avatar']}
-                customClass={`w-full flex px-[13px] py-[6px] pb-[6px] items-center rounded-[4px] ${
-                  darkMode ? 'bg-capx-light-bg text-[#053749]' : 'bg-[#053749] text-[#F6F6F6]'
-                } font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0`}
-                imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
-                imageAlt="Change circle icon"
+                onClick={handleSubmit}
+                label={pageContent['edit-profile-save']}
+                customClass="w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
+                imageUrl={SaveIcon}
+                imageAlt="Save icon"
                 imageWidth={20}
                 imageHeight={20}
               />
+              <BaseButton
+                onClick={() => router.back()}
+                label={pageContent['edit-profile-cancel']}
+                customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] text-[14px] border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
+                  darkMode
+                    ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
+                    : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
+                }`}
+                imageUrl={darkMode ? CancelIconWhite : CancelIcon}
+                imageAlt="Cancel icon"
+                imageWidth={20}
+                imageHeight={20}
+              />
+              <BaseButton
+                onClick={() => setShowDeleteProfilePopup(true)}
+                label={pageContent['edit-profile-delete-profile']}
+                customClass={`w-full flex justify-between items-center px-[13px] py-[6px] pb-[6px] text-[14px] rounded-[4px] font-[Montserrat] font-extrabold text-capx-dark-box-bg mb-0 mt-2 bg-[#D43831] text-white`}
+                imageUrl={DeleteIcon}
+                imageAlt="Delete icon"
+                imageWidth={20}
+                imageHeight={20}
+              />
+            </div>
 
-              {showAvatarPopup && (
-                <AvatarSelectionPopup
-                  onClose={() => setShowAvatarPopup(false)}
-                  onSelect={handleAvatarSelect}
-                  selectedAvatarId={selectedAvatar.id}
-                  onUpdate={refetch}
-                />
-              )}
+            {/* Desktop Action Buttons - only show on desktop */}
+            <div className="hidden md:flex flex-row gap-6 mt-0 w-3/4">
+              <BaseButton
+                onClick={handleSubmit}
+                label={pageContent['edit-profile-save']}
+                customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
+                imageUrl={SaveIcon}
+                imageAlt="Save icon"
+                imageWidth={30}
+                imageHeight={30}
+              />
+              <BaseButton
+                onClick={() => router.back()}
+                label={pageContent['edit-profile-cancel']}
+                customClass={`w-full flex items-center text-[24px] px-8 py-4 border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
+                  darkMode
+                    ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
+                    : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
+                }`}
+                imageUrl={darkMode ? CancelIconWhite : CancelIcon}
+                imageAlt="Cancel icon"
+                imageWidth={30}
+                imageHeight={30}
+              />
+            </div>
 
-              <div className="flex flex-col items-center gap-2">
-                <BaseButton
-                  onClick={() => handleWikidataClick(!isWikidataSelected)}
-                  label={pageContent['edit-profile-use-wikidata-photograph']}
-                  customClass={`w-full flex justify-between items-start px-[13px] py-[6px] font-extrabold rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] text-left ${
-                    darkMode
-                      ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
-                      : 'border-[#053749]'
-                  } border`}
-                  imageUrl={
-                    isWikidataSelected
-                      ? darkMode
-                        ? CheckBoxFilledIconWhite
-                        : CheckBoxFilledIcon
-                      : darkMode
-                        ? CheckIconWhite
-                        : CheckIcon
-                  }
-                  imageAlt="Check icon"
-                  imageWidth={20}
-                  imageHeight={20}
-                />
-                <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {(() => {
-                    const text = pageContent['edit-profile-consent-wikidata-before-link'] || '';
-                    const parts = text.split('$1');
-                    const link = (
-                      <a
-                        href="https://www.wikidata.org/wiki/Wikidata:Notability"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`underline ${
-                          darkMode ? 'text-blue-300' : 'text-blue-600'
-                        } hover:opacity-80`}
-                      >
-                        {pageContent['edit-profile-consent-wikidata-link']}
-                      </a>
-                    );
-                    const nodes: (string | JSX.Element)[] = [];
-                    for (const [index, part] of parts.entries()) {
-                      if (index > 0) nodes.push(link);
-                      nodes.push(part);
-                    }
-                    return nodes;
-                  })()}
-                </span>
-              </div>
-              {hasLetsConnectData && !formData?.automated_lets_connect && (
-                <BaseButton
-                  onClick={() => setShowLetsConnectPopup(true)}
-                  label={pageContent['edit-profile-use-letsconnect']}
-                  customClass={`w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`}
-                  imageUrl={LetsConnectIconWhite}
-                  imageAlt="LetsConnect icon"
-                  imageWidth={20}
-                  imageHeight={20}
-                  disabled={isLetsConnectLoading}
-                />
-              )}
-              <div className="flex flex-col gap-[10px]">
-                {/* Action Buttons */}
-                <div className="flex flex-col gap-[10px] mt-0">
-                  <BaseButton
-                    onClick={handleSubmit}
-                    label={pageContent['edit-profile-save']}
-                    customClass="w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
-                    imageUrl={SaveIcon}
-                    imageAlt="Save icon"
-                    imageWidth={20}
-                    imageHeight={20}
-                  />
-                  <BaseButton
-                    onClick={() => router.back()}
-                    label={pageContent['edit-profile-cancel']}
-                    customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] text-[14px] border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
-                      darkMode
-                        ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
-                        : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
-                    }`}
-                    imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-                    imageAlt="Cancel icon"
-                    imageWidth={20}
-                    imageHeight={20}
-                  />
-                  <BaseButton
-                    onClick={() => setShowDeleteProfilePopup(true)}
-                    label={pageContent['edit-profile-delete-profile']}
-                    customClass={`w-full flex justify-between items-center px-[13px] py-[6px] pb-[6px] text-[14px] rounded-[4px] font-[Montserrat] font-extrabold text-capx-dark-box-bg mb-0 mt-2 bg-[#D43831] text-white`}
-                    imageUrl={DeleteIcon}
-                    imageAlt="Delete icon"
-                    imageWidth={20}
-                    imageHeight={20}
-                  />
-
-                  <div className="flex items-center gap-2">
+            {/* Image Profile Section - Responsive layout */}
+            <div className="flex flex-col md:flex-row gap-4 md:gap-12 md:w-4/5">
+              <div className="flex flex-col gap-4 w-full md:w-1/2">
+                <div className="flex flex-row gap-1 items-center">
+                  <div className="relative w-[20px] h-[20px] md:w-[48px] md:h-[48px]">
                     <Image
-                      src={darkMode ? BadgesIconWhite : BadgesIcon}
-                      alt="Badges icon"
-                      width={20}
-                      height={20}
+                      src={darkMode ? AccountBoxIconWhite : AccountBoxIcon}
+                      alt="Account box icon"
+                      fill
+                      style={{ objectFit: 'cover' }}
                     />
-                    <h2
-                      className={`font-[Montserrat] text-[14px] font-bold ${
-                        darkMode ? 'text-white' : 'text-[#053749]'
-                      }`}
-                    >
-                      {pageContent['body-profile-badges-title']}
-                    </h2>
                   </div>
-
-                  {isBadgesLoading && (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex flex-col gap-2">
-                        <div className="w-full h-[48px] bg-gray-200 rounded-md mb-2"></div>
-                      </div>
-                    </div>
-                  )}
-
-                  {displayedBadges.length > 0 && !isBadgesLoading ? (
-                    <BadgesCarousel badges={displayedBadges} showFullDescription={false} />
-                  ) : (
-                    !isBadgesLoading && (
-                      <span
-                        className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
-                          darkMode ? 'text-white' : 'text-[#053749]'
-                        }`}
-                      >
-                        {pageContent['body-profile-badges-no-badges']}
-                      </span>
-                    )
-                  )}
-
-                  {userBadges.length > 0 && (
-                    <BaseButton
-                      onClick={() => setShowBadgeModal(true)}
-                      label={pageContent['body-profile-badges-edit-your-badges']}
-                      customClass={`w-full flex ${
-                        darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                      } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
-                      imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
-                      imageAlt={pageContent['body-profile-badges-edit-your-badges']}
-                      imageWidth={20}
-                      imageHeight={20}
-                    />
-                  )}
-
-                  <div className="flex flex-col ">
-                    <BaseButton
-                      onClick={() => router.push('/profile/badges')}
-                      label={pageContent['body-profile-badges-see-all']}
-                      customClass={`w-full flex mb-2 border ${
-                        darkMode ? 'border-white text-white' : 'border-[#053749] text-[#053749]'
-                      } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
-                      imageUrl={darkMode ? ExpandIconWhite : ExpandIcon}
-                      imageAlt="View all badges"
-                      imageWidth={20}
-                      imageHeight={20}
-                    />
-
-                    <span
-                      className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
-                        darkMode ? 'text-white' : 'text-[#053749]'
-                      }`}
-                    >
-                      {pageContent['body-profile-badges-description']}
-                    </span>
-                  </div>
-
-                  {showDeleteProfilePopup && (
-                    <Popup
-                      title={pageContent['edit-profile-delete-profile']}
-                      image={capxPersonIcon}
-                      onClose={() => setShowDeleteProfilePopup(false)}
-                      onContinue={handleDeleteProfile}
-                      continueButtonLabel={pageContent['edit-profile-delete-profile-confirm']}
-                      closeButtonLabel={pageContent['edit-profile-delete-profile-cancel']}
-                    />
-                  )}
+                  <h2
+                    className={`${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    } font-[Montserrat] text-[16px] md:text-[24px] font-bold`}
+                  >
+                    {pageContent['edit-profile-image-title']}
+                  </h2>
                 </div>
-                <div className="flex flex-row gap-2 mt-4">
-                  <Image
-                    src={darkMode ? PersonIconWhite : PersonIcon}
-                    alt="Person icon"
-                    width={16}
-                    height={16}
-                    style={{ objectFit: 'cover' }}
-                  />
-                  <div className="flex flex-row gap-1 items-center">
-                    <h2
-                      className={`font-[Montserrat] text-[14px] font-bold ${
-                        darkMode ? 'text-white' : 'text-[#053749]'
-                      }`}
-                    >
-                      {pageContent['edit-profile-mini-bio']}
-                    </h2>
+
+                <div className="bg-gray-100 p-4 rounded-lg md:h-full md:flex md:items-center md:justify-center">
+                  <div className="w-32 h-32 md:w-64 md:h-64 mx-auto mb-4 md:mb-0 relative flex items-center justify-center">
+                    {isImageLoading ? (
+                      <LoadingImage />
+                    ) : (
+                      <Image
+                        src={selectedAvatar.src || avatarUrl}
+                        alt={
+                          (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR ||
+                          (selectedAvatar.src || avatarUrl) === DEFAULT_AVATAR_WHITE
+                            ? pageContent['alt-profile-picture-default'] ||
+                              'Default user profile picture'
+                            : 'Selected avatar'
+                        }
+                        fill
+                        className="object-contain"
+                        onError={e => {
+                          e.currentTarget.src = getDefaultAvatar(darkMode);
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
-                <div className="flex w-full px-[4px] py-[6px] flex-col items-start gap-[14px] rounded-[4px] border-[1px] border-[solid] border-capx-light-bg">
-                  <textarea
-                    value={formData.about || ''}
-                    onChange={e => setFormData({ ...formData, about: e.target.value })}
-                    placeholder={pageContent['edit-profile-mini-bio-placeholder']}
-                    className={`w-full font-[Montserrat] text-[13px] not-italic font-normal leading-[normal] bg-transparent resize-none min-h-[100px] rounded-[4px] border-[1px] border-[solid] border-[#053749] py-2 px-2 scrollbar-hide ${
-                      darkMode
-                        ? 'text-white placeholder-gray-400'
-                        : 'text-[#053749] placeholder-[#829BA4]'
-                    }`}
-                  />
-                </div>
+              </div>
+
+              <div className="flex flex-col items-start gap-2 md:gap-4 w-full md:w-1/2 md:mt-12">
+                <BaseButton
+                  onClick={() => setShowAvatarPopup(true)}
+                  label={pageContent['edit-profile-choose-avatar']}
+                  customClass={`w-full flex px-[13px] py-[6px] pb-[6px] md:px-8 md:py-4 items-center rounded-[4px] md:rounded-[8px] ${
+                    darkMode ? 'bg-capx-light-bg text-[#053749]' : 'bg-[#053749] text-[#F6F6F6]'
+                  } font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0`}
+                  imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
+                  imageAlt="Change circle icon"
+                  imageWidth={isMobile ? 20 : 30}
+                  imageHeight={isMobile ? 20 : 30}
+                />
+
                 <span
-                  className={`font-[Montserrat] text-[12px] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
+                    darkMode ? 'text-white' : 'text-[#053749]'
+                  } hidden md:block`}
+                >
+                  {pageContent['edit-profile-choose-avatar-tooltip']}
+                </span>
+
+                {showAvatarPopup && (
+                  <AvatarSelectionPopup
+                    onClose={() => setShowAvatarPopup(false)}
+                    onSelect={handleAvatarSelect}
+                    selectedAvatarId={selectedAvatar.id}
+                    onUpdate={refetch}
+                  />
+                )}
+
+                <div className="flex flex-col items-center gap-2 w-full">
+                  <BaseButton
+                    onClick={() => handleWikidataClick(!isWikidataSelected)}
+                    label={pageContent['edit-profile-use-wikidata-photograph']}
+                    customClass={`w-full flex justify-between items-start px-[13px] py-[6px] md:items-center md:px-8 md:py-4 font-extrabold rounded-[4px] md:rounded-[8px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none mb-0 pb-[6px] text-left ${
+                      darkMode
+                        ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
+                        : 'border-[#053749]'
+                    } border`}
+                    imageUrl={
+                      isWikidataSelected
+                        ? darkMode
+                          ? CheckBoxFilledIconWhite
+                          : CheckBoxFilledIcon
+                        : darkMode
+                          ? CheckIconWhite
+                          : CheckIcon
+                    }
+                    imageAlt="Check icon"
+                    imageWidth={isMobile ? 20 : 30}
+                    imageHeight={isMobile ? 20 : 30}
+                  />
+                  <span
+                    className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {(() => {
+                      const text = pageContent['edit-profile-consent-wikidata-before-link'] || '';
+                      const parts = text.split('$1');
+                      const link = (
+                        <a
+                          href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`underline ${
+                            darkMode ? 'text-blue-300' : 'text-blue-600'
+                          } hover:opacity-80`}
+                        >
+                          {pageContent['edit-profile-consent-wikidata-link']}
+                        </a>
+                      );
+                      const nodes: (string | JSX.Element)[] = [];
+                      for (const [index, part] of parts.entries()) {
+                        if (index > 0) nodes.push(link);
+                        nodes.push(part);
+                      }
+                      return nodes;
+                    })()}
+                  </span>
+                </div>
+                {hasLetsConnectData && !formData?.automated_lets_connect && (
+                  <BaseButton
+                    onClick={() => setShowLetsConnectPopup(true)}
+                    label={pageContent['edit-profile-use-letsconnect']}
+                    customClass={`w-full flex items-center px-[13px] py-[6px] text-[14px] md:text-[24px] pb-[6px] md:px-8 md:py-4 bg-[#851970] text-white rounded-md py-3 font-bold !mb-0`}
+                    imageUrl={LetsConnectIconWhite}
+                    imageAlt="LetsConnect icon"
+                    imageWidth={isMobile ? 20 : 30}
+                    imageHeight={isMobile ? 20 : 30}
+                    disabled={isLetsConnectLoading}
+                  />
+                )}
+
+                {/* Delete button - only show on desktop */}
+                <BaseButton
+                  onClick={() => setShowDeleteProfilePopup(true)}
+                  label={pageContent['edit-profile-delete-profile']}
+                  customClass={`w-full hidden md:flex justify-between items-center px-8 py-4 rounded-[8px] font-[Montserrat] text-[24px] font-extrabold text-capx-dark-box-bg mb-0 mt-4 bg-[#D43831] text-white`}
+                  imageUrl={DeleteIcon}
+                  imageAlt="Delete icon"
+                  imageWidth={30}
+                  imageHeight={30}
+                />
+
+                {showDeleteProfilePopup && (
+                  <Popup
+                    title={pageContent['edit-profile-delete-profile']}
+                    image={capxPersonIcon}
+                    onClose={() => setShowDeleteProfilePopup(false)}
+                    onContinue={handleDeleteProfile}
+                    continueButtonLabel={pageContent['edit-profile-delete-profile-confirm']}
+                    closeButtonLabel={pageContent['edit-profile-delete-profile-cancel']}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Badges Section */}
+            <div className="flex items-center gap-2 mt-4 mb-4">
+              <Image
+                src={darkMode ? BadgesIconWhite : BadgesIcon}
+                alt="Badges icon"
+                width={isMobile ? 20 : 48}
+                height={isMobile ? 20 : 48}
+              />
+              <h2
+                className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
+                  darkMode ? 'text-white' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['body-profile-badges-title']}
+              </h2>
+            </div>
+
+            {isBadgesLoading && (
+              <div className="flex flex-col gap-2">
+                <div className="w-full h-[48px] bg-gray-200 rounded-md mb-2"></div>
+              </div>
+            )}
+
+            {displayedBadges.length > 0 && !isBadgesLoading ? (
+              <BadgesCarousel badges={displayedBadges} showFullDescription={false} />
+            ) : (
+              !isBadgesLoading && (
+                <span
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-mini-bio-tooltip']}
+                  {pageContent['body-profile-badges-no-badges']}
                 </span>
+              )
+            )}
+
+            {userBadges.length > 0 && (
+              <BaseButton
+                onClick={() => setShowBadgeModal(true)}
+                label={pageContent['body-profile-badges-edit-your-badges']}
+                customClass={`w-full md:w-fit flex ${
+                  darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
+                } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px] mt-4 md:mb-4`}
+                imageUrl={darkMode ? ChangeCircleIconWhite : ChangeCircleIcon}
+                imageAlt={pageContent['body-profile-badges-edit-your-badges']}
+                imageWidth={isMobile ? 20 : 30}
+                imageHeight={isMobile ? 20 : 30}
+              />
+            )}
+            <div className="flex flex-col gap-2">
+              <BaseButton
+                onClick={() => router.push('/profile/badges')}
+                label={pageContent['body-profile-badges-see-all']}
+                customClass={`w-full md:w-fit flex mb-2 md:mb-4 border ${
+                  darkMode ? 'border-white text-white' : 'border-[#053749] text-[#053749]'
+                } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
+                imageUrl={darkMode ? ExpandIconWhite : ExpandIcon}
+                imageAlt="View all badges"
+                imageWidth={isMobile ? 20 : 30}
+                imageHeight={isMobile ? 20 : 30}
+              />
+
+              <span
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
+                  darkMode ? 'text-white' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['body-profile-badges-description']}
+              </span>
+            </div>
+
+            {/* Mini Bio Section */}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-row gap-2 items-center">
+                <Image
+                  src={darkMode ? PersonIconWhite : PersonIcon}
+                  alt="Person icon"
+                  width={isMobile ? 16 : 48}
+                  height={isMobile ? 16 : 48}
+                  style={{ objectFit: 'cover' }}
+                />
+                <h2
+                  className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
+                    darkMode ? 'text-white' : 'text-[#053749]'
+                  }`}
+                >
+                  {pageContent['edit-profile-mini-bio']}
+                </h2>
               </div>
+              <div className="flex w-full px-[4px] py-[6px] md:px-3 md:py-4 flex-col items-start gap-[14px] rounded-[4px] md:rounded-[16px] border-[1px] border-[solid] border-capx-light-bg">
+                <textarea
+                  value={formData.about || ''}
+                  onChange={e => setFormData({ ...formData, about: e.target.value })}
+                  placeholder={pageContent['edit-profile-mini-bio-placeholder']}
+                  className={`w-full font-[Montserrat] text-[13px] md:text-[24px] not-italic font-normal leading-[normal] bg-transparent resize-none min-h-[100px] rounded-[4px] md:rounded-[16px] border-[1px] border-[solid] border-[#053749] py-2 px-2 md:px-8 md:py-4 scrollbar-hide ${
+                    darkMode
+                      ? 'text-white placeholder-gray-400'
+                      : 'text-[#053749] placeholder-[#829BA4]'
+                  }`}
+                />
+              </div>
+              <span
+                className={`font-[Montserrat] text-[12px] md:text-[20px] not-italic font-normal leading-[15px] md:leading-normal ${
+                  darkMode ? 'text-white' : 'text-[#053749]'
+                }`}
+              >
+                {pageContent['edit-profile-mini-bio-tooltip']}
+              </span>
             </div>
 
             {/* Capacities Sections */}
@@ -559,11 +601,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   <Image
                     src={darkMode ? NeurologyIconWhite : NeurologyIcon}
                     alt="Neurology icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -571,20 +613,20 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   </h2>
                 </div>
                 <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] ${
+                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
                     darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } flex w-full px-[4px] py-[6px] items-start gap-[12px]`}
+                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
                 >
                   {formData?.skills_known?.map((capacity, index) => (
                     <div key={index} className="flex items-center gap-1 rounded-md">
                       <BaseButton
                         onClick={() => handleRemoveCapacity('known', index)}
                         label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
-                        imageUrl={CloseIcon}
+                        customClass="rounded-[4px] border-[1px] md:border-2 border-[solid] !mb-0 border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
+                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Close icon"
-                        imageWidth={16}
-                        imageHeight={16}
+                        imageWidth={isMobile ? 16 : 24}
+                        imageHeight={isMobile ? 16 : 24}
                       />
                     </div>
                   ))}
@@ -592,16 +634,16 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 <BaseButton
                   onClick={() => handleAddCapacity('known')}
                   label={pageContent['edit-profile-add-capacities']}
-                  customClass={`w-full flex ${
+                  customClass={`w-full md:w-fit flex ${
                     darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                  } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                  } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
                   imageUrl={darkMode ? AddIconDark : AddIcon}
                   imageAlt="Add capacity"
-                  imageWidth={20}
-                  imageHeight={20}
+                  imageWidth={isMobile ? 20 : 30}
+                  imageHeight={isMobile ? 20 : 30}
                 />
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
@@ -615,11 +657,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   <Image
                     src={darkMode ? EmojiIconWhite : EmojiIcon}
                     alt="Available capacities icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -627,35 +669,35 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   </h2>
                 </div>
                 <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] ${
+                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
                     darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } flex w-full px-[4px] py-[6px] items-start gap-[12px]`}
+                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
                 >
                   {formData?.skills_available?.map((capacity, index) => (
                     <div key={index} className="flex items-center gap-1 rounded-md">
                       <BaseButton
                         onClick={() => handleRemoveCapacity('available', index)}
                         label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#05A300)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
-                        imageUrl={CloseIcon}
+                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#05A300)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
+                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Close icon"
-                        imageWidth={16}
-                        imageHeight={16}
+                        imageWidth={isMobile ? 16 : 24}
+                        imageHeight={isMobile ? 16 : 24}
                       />
                     </div>
                   ))}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col md:flex-row gap-2">
                   <BaseButton
                     onClick={() => handleAddCapacity('available')}
                     label={pageContent['edit-profile-add-capacities']}
-                    customClass={`w-full flex ${
+                    customClass={`w-full md:w-fit flex ${
                       darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                    } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                    } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
                     imageUrl={darkMode ? AddIconDark : AddIcon}
                     imageAlt="Add capacity"
-                    imageWidth={20}
-                    imageHeight={20}
+                    imageWidth={isMobile ? 20 : 30}
+                    imageHeight={isMobile ? 20 : 30}
                   />
                   <BaseButton
                     onClick={() => {
@@ -670,23 +712,25 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       pageContent['edit-profile-import-known-capacities'] ||
                       'Import Known Capacities'
                     }
-                    customClass={`w-full flex ${
+                    customClass={`w-full md:w-fit flex ${
                       darkMode
                         ? 'bg-transparent border-white text-white border-2'
                         : 'bg-transparent border-[#053749] text-[#053749] border-2'
-                    } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                    } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
                     imageUrl={darkMode ? AddIconDark : AddIcon}
                     imageAlt="Import known capacities"
-                    imageWidth={20}
-                    imageHeight={20}
+                    imageWidth={isMobile ? 20 : 30}
+                    imageHeight={isMobile ? 20 : 30}
                   />
                 </div>
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  From your known capacities, choose those you are available to share.
+                  {isMobile
+                    ? 'From your known capacities, choose those you are available to share.'
+                    : pageContent['edit-profile-available-capacities']}
                 </span>
               </div>
 
@@ -696,11 +740,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   <Image
                     src={darkMode ? TargetIconWhite : TargetIcon}
                     alt="Wanted capacities icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -708,20 +752,20 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   </h2>
                 </div>
                 <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] ${
+                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
                     darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } flex w-full px-[4px] py-[6px] items-start gap-[12px]`}
+                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
                 >
                   {formData?.skills_wanted?.map((capacity, index) => (
                     <div key={index} className="flex items-center gap-1 rounded-md">
                       <BaseButton
                         onClick={() => handleRemoveCapacity('wanted', index)}
                         label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#D43831)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
-                        imageUrl={CloseIcon}
+                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#D43831)] flex p-[4px] pb-[4px] md:px-2 md:py-2 md:pb-2 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
+                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Close icon"
-                        imageWidth={16}
-                        imageHeight={16}
+                        imageWidth={isMobile ? 16 : 24}
+                        imageHeight={isMobile ? 16 : 24}
                       />
                     </div>
                   ))}
@@ -729,33 +773,34 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 <BaseButton
                   onClick={() => handleAddCapacity('wanted')}
                   label={pageContent['edit-profile-add-capacities']}
-                  customClass={`w-full flex ${
+                  customClass={`w-full md:w-fit flex ${
                     darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                  } rounded-md py-2 font-[Montserrat] text-[12px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                  } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
                   imageUrl={darkMode ? AddIconDark : AddIcon}
                   imageAlt="Add capacity"
-                  imageWidth={20}
-                  imageHeight={20}
+                  imageWidth={isMobile ? 20 : 30}
+                  imageHeight={isMobile ? 20 : 30}
                 />
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {pageContent['edit-profile-wanted-capacities']}
                 </span>
               </div>
+
               {/* Languages Section */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
                   <Image
                     src={darkMode ? LanguageIconWhite : LanguageIcon}
                     alt="Language icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -772,7 +817,9 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                       }`}
                     >
-                      <span className="font-[Montserrat] text-[12px]">{languages[lang.id]}</span>
+                      <span className="font-[Montserrat] text-[12px] md:text-[24px]">
+                        {languages[lang.id]}
+                      </span>
                       <select
                         value={lang.proficiency}
                         onChange={e => {
@@ -786,7 +833,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                             language: newLanguages,
                           });
                         }}
-                        className={`ml-2 p-1 rounded border ${
+                        className={`ml-2 p-1 rounded border text-[12px] md:text-[24px] ${
                           darkMode
                             ? 'bg-transparent border-white text-white'
                             : 'border-[#053749] text-[#829BA4]'
@@ -864,8 +911,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
                           alt="Remove language"
-                          width={16}
-                          height={16}
+                          width={isMobile ? 16 : 24}
+                          height={isMobile ? 16 : 24}
                         />
                       </button>
                     </div>
@@ -883,7 +930,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         setFormData(addLanguageToFormData(formData, languageId, '3', languageName));
                       }
                     }}
-                    className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
+                    className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50'
                         : 'border-[#053749] text-[#829BA4]'
@@ -911,31 +958,32 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     <Image
                       src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
                       alt="Select"
-                      width={20}
-                      height={20}
+                      width={isMobile ? 20 : 24}
+                      height={isMobile ? 20 : 24}
                     />
                   </div>
                 </div>
               </div>
 
               <span
-                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
                 {pageContent['edit-profile-language-tooltip']}
               </span>
+
               {/* Alternative Wikimedia Account */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
                   <Image
                     src={darkMode ? WikiIconWhite : WikiIcon}
                     alt="Alternative account icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[12px] font-bold ${
+                    className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -952,31 +1000,32 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       wiki_alt: e.target.value,
                     })
                   }
-                  className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] ${
+                  className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] ${
                     darkMode
                       ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                       : 'border-[#053749] text-[#829BA4]'
                   } border`}
                 />
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] md:text-[24px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {pageContent['edit-profile-share-username']}
                 </span>
               </div>
+
               {/* Affiliation Section */}
               <div className="flex flex-col gap-4 mt-4">
                 <div className="flex items-center gap-2">
                   <Image
                     src={darkMode ? AffiliationIconWhite : AffiliationIcon}
                     alt="Affiliation icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[12px] font-bold ${
+                    className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -993,7 +1042,9 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                       }`}
                     >
-                      <span className="font-[Montserrat] text-[12px]">{affiliations[affId]}</span>
+                      <span className="font-[Montserrat] text-[12px] md:text-[24px]">
+                        {affiliations[affId]}
+                      </span>
                       <button
                         onClick={() => {
                           const newAffiliations = formData.affiliation?.filter(
@@ -1009,8 +1060,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
                           alt="Remove affiliation"
-                          width={16}
-                          height={16}
+                          width={isMobile ? 16 : 24}
+                          height={isMobile ? 16 : 24}
                         />
                       </button>
                     </div>
@@ -1022,15 +1073,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   <select
                     value=""
                     onChange={e => {
-                      const value = e.target.value;
-                      if (value && !formData.affiliation?.includes(value)) {
-                        setFormData({
-                          ...formData,
-                          affiliation: [...(formData.affiliation || []), value],
-                        });
+                      if (e.target.value) {
+                        setFormData(addAffiliationToFormData(formData, e.target.value));
                       }
                     }}
-                    className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
+                    className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                         : 'border-[#053749] text-[#829BA4]'
@@ -1058,32 +1105,32 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     <Image
                       src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
                       alt="Select"
-                      width={20}
-                      height={20}
+                      width={isMobile ? 20 : 24}
+                      height={isMobile ? 20 : 24}
                     />
                   </div>
                 </div>
 
-                {/* Tooltip */}
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {pageContent['body-profile-section-affiliation-dropdown-menu']}
                 </span>
               </div>
+
               {/* Territory */}
               <div className="flex flex-col gap-4 mt-4">
                 <div className="flex items-center gap-2">
                   <Image
                     src={darkMode ? TerritoryIconWhite : TerritoryIcon}
                     alt="Territory icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -1100,7 +1147,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                       }`}
                     >
-                      <span className="font-[Montserrat] text-[12px]">
+                      <span className="font-[Montserrat] text-[12px] md:text-[24px]">
                         {territories[territoryId]}
                       </span>
                       <button
@@ -1116,8 +1163,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
                           alt="Remove territory"
-                          width={16}
-                          height={16}
+                          width={isMobile ? 16 : 24}
+                          height={isMobile ? 16 : 24}
                         />
                       </button>
                     </div>
@@ -1134,7 +1181,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         setFormData(addTerritoryToFormData(formData, selected));
                       }
                     }}
-                    className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] appearance-none ${
+                    className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50'
                         : 'border-[#053749] text-[#829BA4]'
@@ -1162,42 +1209,43 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     <Image
                       src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
                       alt="Select"
-                      width={20}
-                      height={20}
+                      width={isMobile ? 20 : 24}
+                      height={isMobile ? 20 : 24}
                     />
                   </div>
                 </div>
 
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {pageContent['edit-profile-territory']}
                 </span>
               </div>
+
               {/* Wikidata Item */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
                   <Image
                     src={darkMode ? BarCodeIconWhite : BarCodeIcon}
                     alt="Wikidata item icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 24}
+                    height={isMobile ? 20 : 24}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
                     {pageContent['edit-profile-wikidata-item']}
                   </h2>
                 </div>
-                <div className="flex items-center gap-2 py-[6px] ">
+                <div className="flex items-center gap-2 py-[6px]">
                   <BaseButton
                     onClick={() => handleWikidataClick(!isWikidataSelected)}
                     label={pageContent['edit-profile-use-wikidata-item']}
-                    customClass={`w-full flex justify-between items-start px-[13px] py-[6px] rounded-[4px] font-[Montserrat] text-[12px] appearance-none mb-0 pb-[6px] text-left ${
+                    customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none mb-0 pb-[6px] ${
                       darkMode
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                         : 'border-[#053749] text-[#829BA4]'
@@ -1212,12 +1260,12 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                           : CheckIcon
                     }
                     imageAlt="Check icon"
-                    imageWidth={20}
-                    imageHeight={20}
+                    imageWidth={isMobile ? 20 : 24}
+                    imageHeight={isMobile ? 20 : 24}
                   />
                 </div>
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
@@ -1236,8 +1284,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     );
                     const nodes: (string | JSX.Element)[] = [];
                     for (const [index, part] of parts.entries()) {
-                      if (index > 0) nodes.push(link);
-                      nodes.push(part);
+                      if (index > 0) nodes.push(<span key={`link-${index}`}>{link}</span>);
+                      nodes.push(<span key={`part-${index}`}>{part}</span>);
                     }
                     return nodes;
                   })()}
@@ -1250,11 +1298,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                   <Image
                     src={darkMode ? WikiIconWhite : WikiIcon}
                     alt="Wikimedia projects icon"
-                    width={20}
-                    height={20}
+                    width={isMobile ? 20 : 48}
+                    height={isMobile ? 20 : 48}
                   />
                   <h2
-                    className={`font-[Montserrat] text-[14px] font-bold ${
+                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
                       darkMode ? 'text-white' : 'text-[#053749]'
                     }`}
                   >
@@ -1264,9 +1312,9 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
 
                 {/* Display selected projects as tags with delete button */}
                 <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] ${
+                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
                     darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } w-full px-[4px] py-[6px] items-start gap-[12px]`}
+                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
                 >
                   {formData?.wikimedia_project?.map((projectId, index) => (
                     <div key={index} className="flex items-center gap-1 rounded-md">
@@ -1280,11 +1328,11 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                           });
                         }}
                         label={wikimediaProjects[projectId] || projectId}
-                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] justify-center items-center gap-[4px] font-[Montserrat] text-[12px] not-italic font-normal leading-[normal]"
+                        customClass="rounded-[4px] md:rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
                         imageUrl={darkMode ? CloseIconWhite : CloseIcon}
                         imageAlt="Remove project"
-                        imageWidth={16}
-                        imageHeight={16}
+                        imageWidth={isMobile ? 16 : 24}
+                        imageHeight={isMobile ? 16 : 24}
                       />
                     </div>
                   ))}
@@ -1309,7 +1357,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                           setFilteredProjects([]);
                         }
                       }}
-                      className={`w-full px-4 py-2 rounded-[4px] font-[Montserrat] text-[12px] ${
+                      className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] ${
                         darkMode
                           ? 'bg-transparent border-white text-white placeholder-gray-400'
                           : 'border-[#053749] text-[#053749]'
@@ -1322,7 +1370,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
 
                     {/* Dropdown with filtered projects */}
                     <div
-                      className={`absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-[4px] border ${
+                      className={`absolute top-full left-0 right-0 mt-1 max-h-40 md:max-h-60 overflow-y-auto rounded-[4px] md:rounded-[16px] border ${
                         darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
                       } z-50 shadow-lg`}
                     >
@@ -1335,7 +1383,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                               setShowProjectSelector(false);
                               setFilteredProjects([]);
                             }}
-                            className={`w-full px-4 py-2 text-left font-[Montserrat] text-[12px] hover:bg-opacity-80 transition-colors ${
+                            className={`w-full px-4 py-2 md:py-3 text-left font-[Montserrat] text-[12px] md:text-[20px] hover:bg-opacity-80 transition-colors ${
                               darkMode
                                 ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]'
                                 : 'text-[#053749] hover:bg-gray-100'
@@ -1346,7 +1394,7 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                         ))
                       ) : (
                         <div
-                          className={`px-4 py-2 font-[Montserrat] text-[12px] ${
+                          className={`px-4 py-2 md:py-3 font-[Montserrat] text-[12px] md:text-[18px] ${
                             darkMode ? 'text-gray-400' : 'text-gray-500'
                           }`}
                         >
@@ -1369,8 +1417,8 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                       <Image
                         src={darkMode ? CloseIconWhite : CloseIcon}
                         alt="Close"
-                        width={16}
-                        height={16}
+                        width={isMobile ? 16 : 20}
+                        height={isMobile ? 16 : 20}
                       />
                     </button>
                   </div>
@@ -1382,16 +1430,16 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     setFilteredProjects(Object.entries(wikimediaProjects));
                   }}
                   label={pageContent['edit-profile-add-projects']}
-                  customClass={`w-full flex ${
+                  customClass={`w-full md:w-1/4 flex ${
                     darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                  } rounded-md py-2 font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                  } rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
                   imageUrl={darkMode ? AddIconDark : AddIcon}
                   imageAlt="Add project"
-                  imageWidth={20}
-                  imageHeight={20}
+                  imageWidth={isMobile ? 20 : 30}
+                  imageHeight={isMobile ? 20 : 30}
                 />
                 <span
-                  className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] ${
+                  className={`text-[12px] md:text-[20px] md:text-[24px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
@@ -1399,8 +1447,10 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 </span>
               </div>
             </div>
+
+            {/* Let's Connect Section */}
             <div className="flex flex-col">
-              <div className="w-[300px] h-auto">
+              <div className="w-[300px] md:w-[580px] h-auto">
                 <Image
                   src={darkMode ? LetsConectTitleLight : LetsConectTitle}
                   alt="Let's Connect"
@@ -1409,21 +1459,23 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                 />
               </div>
               <p
-                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] mb-4  ${
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mb-4  ${
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
                 {pageContent['lets-connect-edit-user-info-1']}
               </p>
-              <div className="bg-[#EFEFEF] pb-[#6px] rounded-2 mb-4">
+              <div className={`${isMobile ? 'bg-[#EFEFEF] pb-[6px] rounded-2 mb-4' : ''}`}>
                 <Banner
-                  image={LetsConectBanner}
+                  image={isMobile ? LetsConectBanner : LetsConect}
                   alt={pageContent['lets-connect-alt-banner']}
                   title={{
                     mobile: LetsConectText,
+                    desktop: LetsConectTextDesktop,
                   }}
                   customClass={{
                     background: 'bg-[#EFEFEF]',
+                    wrapper: isMobile ? '' : 'mb-0',
                   }}
                 />
               </div>
@@ -1434,48 +1486,50 @@ export default function ProfileEditMobileView(props: ProfileEditMobileViewProps)
                     ? pageContent['lets-connect-form-user-button-update-profile']
                     : pageContent['lets-connect-form-user-edit']
                 }
-                customClass={`w-full flex mx-auto ${
+                customClass={`w-full md:w-1/2 flex ${
                   darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                } rounded-md py-2 font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] items-center gap-[4px]`}
+                } rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
                 imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
                 imageAlt="Add project"
-                imageWidth={20}
-                imageHeight={20}
+                imageWidth={isMobile ? 20 : 30}
+                imageHeight={isMobile ? 20 : 30}
               />
               <p
-                className={`text-[12px] font-[Montserrat] not-italic font-normal leading-[15px] mt-4 ${
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mt-4  ${
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
                 {pageContent['lets-connect-edit-user-info-2']}
               </p>
             </div>
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-[10px] mt-0">
+
+            {/* Action Buttons - Bottom (Mobile and Desktop) */}
+            <div className="flex flex-col md:flex-row gap-[10px] md:gap-6 mt-6">
               <BaseButton
                 onClick={handleSubmit}
                 label={pageContent['edit-profile-save']}
-                customClass="w-full flex items-center px-[13px] py-[6px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
+                customClass="w-full flex items-center px-[13px] py-[6px] pb-[6px] md:text-[24px] md:px-8 md:py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
                 imageUrl={SaveIcon}
                 imageAlt="Save icon"
-                imageWidth={20}
-                imageHeight={20}
+                imageWidth={isMobile ? 20 : 30}
+                imageHeight={isMobile ? 20 : 30}
               />
               <BaseButton
                 onClick={() => router.back()}
                 label={pageContent['edit-profile-cancel']}
-                customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] border ${
+                customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] md:text-[24px] md:px-8 md:py-4 border ${
                   darkMode ? 'border-white text-white' : 'border-[#053749] text-[#053749]'
                 } rounded-md py-3 font-bold mb-0`}
                 imageUrl={darkMode ? CancelIconWhite : CancelIcon}
                 imageAlt="Cancel icon"
-                imageWidth={20}
-                imageHeight={20}
+                imageWidth={isMobile ? 20 : 30}
+                imageHeight={isMobile ? 20 : 30}
               />
             </div>
           </div>
         </section>
       </div>
+
       {showCapacityModal && (
         <Popup
           onClose={() => setShowCapacityModal(false)}
