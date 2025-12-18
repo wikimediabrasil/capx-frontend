@@ -8,6 +8,9 @@ import BaseButton from '@/components/BaseButton';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
+import { ActionButtons } from './ProfileEditView/ActionButtons';
+import { CapacitySection } from './ProfileEditView/CapacitySection';
+import { FormSelect } from './ProfileEditView/FormSelect';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
@@ -258,65 +261,19 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             </div>
 
             {/* Action Buttons - Mobile shows first, Desktop shows later */}
-            <div className="flex flex-col md:hidden gap-[10px]">
-              <BaseButton
-                onClick={handleSubmit}
-                label={pageContent['edit-profile-save']}
-                customClass="w-full flex items-center px-[13px] py-[6px] text-[14px] pb-[6px] bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
-                imageUrl={SaveIcon}
-                imageAlt="Save icon"
-                imageWidth={20}
-                imageHeight={20}
-              />
-              <BaseButton
-                onClick={() => router.back()}
-                label={pageContent['edit-profile-cancel']}
-                customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] text-[14px] border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
-                  darkMode
-                    ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
-                    : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
-                }`}
-                imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-                imageAlt="Cancel icon"
-                imageWidth={20}
-                imageHeight={20}
-              />
-              <BaseButton
-                onClick={() => setShowDeleteProfilePopup(true)}
-                label={pageContent['edit-profile-delete-profile']}
-                customClass={`w-full flex justify-between items-center px-[13px] py-[6px] pb-[6px] text-[14px] rounded-[4px] font-[Montserrat] font-extrabold text-capx-dark-box-bg mb-0 mt-2 bg-[#D43831] text-white`}
-                imageUrl={DeleteIcon}
-                imageAlt="Delete icon"
-                imageWidth={20}
-                imageHeight={20}
-              />
-            </div>
+            <ActionButtons
+              onSave={handleSubmit}
+              onCancel={() => router.back()}
+              onDelete={() => setShowDeleteProfilePopup(true)}
+              variant="mobile-top"
+            />
 
             {/* Desktop Action Buttons - only show on desktop */}
-            <div className="hidden md:flex flex-row gap-6 mt-0 w-3/4">
-              <BaseButton
-                onClick={handleSubmit}
-                label={pageContent['edit-profile-save']}
-                customClass="w-full flex items-center text-[24px] px-8 py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
-                imageUrl={SaveIcon}
-                imageAlt="Save icon"
-                imageWidth={30}
-                imageHeight={30}
-              />
-              <BaseButton
-                onClick={() => router.back()}
-                label={pageContent['edit-profile-cancel']}
-                customClass={`w-full flex items-center text-[24px] px-8 py-4 border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
-                  darkMode
-                    ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
-                    : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
-                }`}
-                imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-                imageAlt="Cancel icon"
-                imageWidth={30}
-                imageHeight={30}
-              />
-            </div>
+            <ActionButtons
+              onSave={handleSubmit}
+              onCancel={() => router.back()}
+              variant="desktop-top"
+            />
 
             {/* Image Profile Section - Responsive layout */}
             <div className="flex flex-col md:flex-row gap-4 md:gap-12 md:w-4/5">
@@ -596,199 +553,56 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             {/* Capacities Sections */}
             <div className="space-y-6">
               {/* Known Capacities */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? NeurologyIconWhite : NeurologyIcon}
-                    alt="Neurology icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-known-capacity']}
-                  </h2>
-                </div>
-                <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
-                    darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
-                >
-                  {formData?.skills_known?.map((capacity, index) => (
-                    <div key={index} className="flex items-center gap-1 rounded-md">
-                      <BaseButton
-                        onClick={() => handleRemoveCapacity('known', index)}
-                        label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] md:border-2 border-[solid] !mb-0 border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
-                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                        imageAlt="Close icon"
-                        imageWidth={isMobile ? 16 : 24}
-                        imageHeight={isMobile ? 16 : 24}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <BaseButton
-                  onClick={() => handleAddCapacity('known')}
-                  label={pageContent['edit-profile-add-capacities']}
-                  customClass={`w-full md:w-fit flex ${
-                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                  } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                  imageUrl={darkMode ? AddIconDark : AddIcon}
-                  imageAlt="Add capacity"
-                  imageWidth={isMobile ? 20 : 30}
-                  imageHeight={isMobile ? 20 : 30}
-                />
-                <span
-                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['edit-profile-select-skills']}
-                </span>
-              </div>
+              <CapacitySection
+                type="known"
+                title={pageContent['body-profile-section-title-known-capacity']}
+                icon={NeurologyIcon}
+                iconDark={NeurologyIconWhite}
+                capacities={formData?.skills_known || []}
+                getCapacityName={getCapacityName}
+                onRemove={handleRemoveCapacity}
+                onAdd={handleAddCapacity}
+                helpText={pageContent['edit-profile-select-skills']}
+              />
 
               {/* Available Capacities */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? EmojiIconWhite : EmojiIcon}
-                    alt="Available capacities icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-available-capacity']}
-                  </h2>
-                </div>
-                <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
-                    darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
-                >
-                  {formData?.skills_available?.map((capacity, index) => (
-                    <div key={index} className="flex items-center gap-1 rounded-md">
-                      <BaseButton
-                        onClick={() => handleRemoveCapacity('available', index)}
-                        label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#05A300)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
-                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                        imageAlt="Close icon"
-                        imageWidth={isMobile ? 16 : 24}
-                        imageHeight={isMobile ? 16 : 24}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col md:flex-row gap-2">
-                  <BaseButton
-                    onClick={() => handleAddCapacity('available')}
-                    label={pageContent['edit-profile-add-capacities']}
-                    customClass={`w-full md:w-fit flex ${
-                      darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                    } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                    imageUrl={darkMode ? AddIconDark : AddIcon}
-                    imageAlt="Add capacity"
-                    imageWidth={isMobile ? 20 : 30}
-                    imageHeight={isMobile ? 20 : 30}
-                  />
-                  <BaseButton
-                    onClick={() => {
-                      const knownCapacities = formData?.skills_known || [];
-                      const availableCapacities = formData?.skills_available || [];
-                      const newAvailable = Array.from(
-                        new Set([...availableCapacities, ...knownCapacities])
-                      );
-                      setFormData({ ...formData, skills_available: newAvailable });
-                    }}
-                    label={
-                      pageContent['edit-profile-import-known-capacities'] ||
-                      'Import Known Capacities'
-                    }
-                    customClass={`w-full md:w-fit flex ${
-                      darkMode
-                        ? 'bg-transparent border-white text-white border-2'
-                        : 'bg-transparent border-[#053749] text-[#053749] border-2'
-                    } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                    imageUrl={darkMode ? AddIconDark : AddIcon}
-                    imageAlt="Import known capacities"
-                    imageWidth={isMobile ? 20 : 30}
-                    imageHeight={isMobile ? 20 : 30}
-                  />
-                </div>
-                <span
-                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {isMobile
+              <CapacitySection
+                type="available"
+                title={pageContent['body-profile-section-title-available-capacity']}
+                icon={EmojiIcon}
+                iconDark={EmojiIconWhite}
+                capacities={formData?.skills_available || []}
+                getCapacityName={getCapacityName}
+                onRemove={handleRemoveCapacity}
+                onAdd={handleAddCapacity}
+                helpText={
+                  isMobile
                     ? 'From your known capacities, choose those you are available to share.'
-                    : pageContent['edit-profile-available-capacities']}
-                </span>
-              </div>
+                    : pageContent['edit-profile-available-capacities']
+                }
+                showImportButton={true}
+                onImport={() => {
+                  const knownCapacities = formData?.skills_known || [];
+                  const availableCapacities = formData?.skills_available || [];
+                  const newAvailable = Array.from(
+                    new Set([...availableCapacities, ...knownCapacities])
+                  );
+                  setFormData({ ...formData, skills_available: newAvailable });
+                }}
+              />
 
               {/* Wanted Capacities */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? TargetIconWhite : TargetIcon}
-                    alt="Wanted capacities icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-wanted-capacity']}
-                  </h2>
-                </div>
-                <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
-                    darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
-                >
-                  {formData?.skills_wanted?.map((capacity, index) => (
-                    <div key={index} className="flex items-center gap-1 rounded-md">
-                      <BaseButton
-                        onClick={() => handleRemoveCapacity('wanted', index)}
-                        label={getCapacityName(capacity)}
-                        customClass="rounded-[4px] border-[1px] border-[solid] !mb-0 border-[var(--Links-light-link,#D43831)] flex p-[4px] pb-[4px] md:px-2 md:py-2 md:pb-2 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
-                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                        imageAlt="Close icon"
-                        imageWidth={isMobile ? 16 : 24}
-                        imageHeight={isMobile ? 16 : 24}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <BaseButton
-                  onClick={() => handleAddCapacity('wanted')}
-                  label={pageContent['edit-profile-add-capacities']}
-                  customClass={`w-full md:w-fit flex ${
-                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                  } rounded-md py-2 font-[Montserrat] text-[12px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                  imageUrl={darkMode ? AddIconDark : AddIcon}
-                  imageAlt="Add capacity"
-                  imageWidth={isMobile ? 20 : 30}
-                  imageHeight={isMobile ? 20 : 30}
-                />
-                <span
-                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['edit-profile-wanted-capacities']}
-                </span>
-              </div>
+              <CapacitySection
+                type="wanted"
+                title={pageContent['body-profile-section-title-wanted-capacity']}
+                icon={TargetIcon}
+                iconDark={TargetIconWhite}
+                capacities={formData?.skills_wanted || []}
+                getCapacityName={getCapacityName}
+                onRemove={handleRemoveCapacity}
+                onAdd={handleAddCapacity}
+                helpText={pageContent['edit-profile-wanted-capacities']}
+              />
 
               {/* Languages Section */}
               <div className="flex flex-col gap-4">
@@ -1504,28 +1318,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             </div>
 
             {/* Action Buttons - Bottom (Mobile and Desktop) */}
-            <div className="flex flex-col md:flex-row gap-[10px] md:gap-6 mt-6">
-              <BaseButton
-                onClick={handleSubmit}
-                label={pageContent['edit-profile-save']}
-                customClass="w-full flex items-center px-[13px] py-[6px] pb-[6px] md:text-[24px] md:px-8 md:py-4 bg-[#851970] text-white rounded-md py-3 font-bold mb-0"
-                imageUrl={SaveIcon}
-                imageAlt="Save icon"
-                imageWidth={isMobile ? 20 : 30}
-                imageHeight={isMobile ? 20 : 30}
-              />
-              <BaseButton
-                onClick={() => router.back()}
-                label={pageContent['edit-profile-cancel']}
-                customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] md:text-[24px] md:px-8 md:py-4 border ${
-                  darkMode ? 'border-white text-white' : 'border-[#053749] text-[#053749]'
-                } rounded-md py-3 font-bold mb-0`}
-                imageUrl={darkMode ? CancelIconWhite : CancelIcon}
-                imageAlt="Cancel icon"
-                imageWidth={isMobile ? 20 : 30}
-                imageHeight={isMobile ? 20 : 30}
-              />
-            </div>
+            <ActionButtons onSave={handleSubmit} onCancel={() => router.back()} variant="bottom" />
           </div>
         </section>
       </div>
