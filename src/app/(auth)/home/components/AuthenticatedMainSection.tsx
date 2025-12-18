@@ -165,6 +165,13 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             >
               {pageContent['body-home-section01-description']}
             </p>
+            <p
+            className={
+                (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+                ' font-[Montserrat] text-[20px] not-italic font-normal leading-[normal]'
+              }>
+              {pageContent['body-home-section01-description-unified-login-info']}
+            </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full items-start mt-[24px]">
               <div className="flex items-center h-full">
                 <BaseButton
