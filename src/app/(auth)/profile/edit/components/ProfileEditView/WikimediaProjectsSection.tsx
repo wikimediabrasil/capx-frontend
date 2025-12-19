@@ -84,7 +84,10 @@ export function WikimediaProjectsSection({
         className={`flex flex-wrap gap-2 ${RESPONSIVE_BORDER_RADIUS.small} ${getBgColorClass(darkMode)} w-full ${RESPONSIVE_PADDING.small} items-start gap-[12px]`}
       >
         {formData?.wikimedia_project?.map((projectId, index) => (
-          <div key={index} className="flex items-center gap-1 rounded-md">
+          <div
+            key={`wikimedia-project-${projectId}-${index}`}
+            className="flex items-center gap-1 rounded-md"
+          >
             <BaseButton
               onClick={() => {
                 const newProjects = [...(formData.wikimedia_project || [])];

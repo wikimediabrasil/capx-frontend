@@ -260,18 +260,18 @@ export function CapacitySearch({
       />
 
       <div className={`mt-4 w-full ${compact ? 'space-y-2' : 'grid gap-4'}`}>
-        {isLoading ? (
-          <LoadingState />
-        ) : compact ? (
+        {isLoading && <LoadingState />}
+        {!isLoading && compact && (
           // Compact view for filters
-          processedResults.map(capacity => {
-            const isSelected = isCapacitySelected(capacity.code);
-            return (
-              <button
-                key={capacity.code}
-                type="button"
-                onClick={() => handleCapacityClick(capacity)}
-                className={`
+          <>
+            {processedResults.map(capacity => {
+              const isSelected = isCapacitySelected(capacity.code);
+              return (
+                <button
+                  key={capacity.code}
+                  type="button"
+                  onClick={() => handleCapacityClick(capacity)}
+                  className={`
                   w-full flex items-center justify-between px-3 py-2 rounded-lg
                   text-left transition-all
                   ${
@@ -281,75 +281,81 @@ export function CapacitySearch({
                   }
                   ${isSelected ? 'ring-2 ring-capx-primary-green' : ''}
                 `}
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: capacity.color }}
-                  />
-                  <span className={`text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {getName(capacity.code) || capacity.name}
-                  </span>
-                </div>
-                {isSelected && (
-                  <div className="w-5 h-5 bg-capx-primary-green rounded-full flex items-center justify-center flex-shrink-0 ml-2">
-                    <span className="text-white text-xs font-bold">✓</span>
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: capacity.color }}
+                    />
+                    <span
+                      className={`text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {getName(capacity.code) || capacity.name}
+                    </span>
                   </div>
-                )}
-              </button>
-            );
-          })
-        ) : (
+                  {isSelected && (
+                    <div className="w-5 h-5 bg-capx-primary-green rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                      <span className="text-white text-xs font-bold">✓</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </>
+        )}
+        {!isLoading && !compact && (
           // Full card view for capacity page
-          processedResults.map(capacity => {
-            const isSelected = isCapacitySelected(capacity.code);
-            const content = (
-              <>
-                <CapacityCard
-                  {...capacity}
-                  name={getName(capacity.code) || capacity.name}
-                  level={capacity.level}
-                  isExpanded={false}
-                  onExpand={() => {}}
-                  isRoot={false}
-                  hasChildren={false}
-                  color={capacity.color}
-                  icon={capacity.icon}
-                  parentCapacity={capacity.parentCapacity}
-                  description={getDescription(capacity.code)}
-                  wd_code={getWdCode(capacity.code)}
-                />
-                {isSelected && allowMultipleSelection && (
-                  <div className="absolute top-2 right-2 w-6 h-6 bg-capx-primary-green rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">✓</span>
-                  </div>
-                )}
-              </>
-            );
+          <>
+            {processedResults.map(capacity => {
+              const isSelected = isCapacitySelected(capacity.code);
+              const content = (
+                <>
+                  <CapacityCard
+                    {...capacity}
+                    name={getName(capacity.code) || capacity.name}
+                    level={capacity.level}
+                    isExpanded={false}
+                    onExpand={() => {}}
+                    isRoot={false}
+                    hasChildren={false}
+                    color={capacity.color}
+                    icon={capacity.icon}
+                    parentCapacity={capacity.parentCapacity}
+                    description={getDescription(capacity.code)}
+                    wd_code={getWdCode(capacity.code)}
+                  />
+                  {isSelected && allowMultipleSelection && (
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-capx-primary-green rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">✓</span>
+                    </div>
+                  )}
+                </>
+              );
 
-            if (onSelect) {
-              return (
-                <button
-                  key={capacity.code}
-                  type="button"
-                  onClick={() => handleCapacityClick(capacity)}
-                  className={`
+              if (onSelect) {
+                return (
+                  <button
+                    key={capacity.code}
+                    type="button"
+                    onClick={() => handleCapacityClick(capacity)}
+                    className={`
                     w-full cursor-pointer transition-all relative text-left p-0 bg-transparent border-0
                     hover:scale-[1.02]
                     ${isSelected ? 'ring-2 ring-capx-primary-green rounded-lg' : ''}
                   `}
-                >
-                  {content}
-                </button>
-              );
-            }
+                  >
+                    {content}
+                  </button>
+                );
+              }
 
-            return (
-              <div key={capacity.code} className="w-full relative">
-                {content}
-              </div>
-            );
-          })
+              return (
+                <div key={capacity.code} className="w-full relative">
+                  {content}
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
     </div>

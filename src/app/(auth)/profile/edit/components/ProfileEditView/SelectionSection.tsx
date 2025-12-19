@@ -57,7 +57,7 @@ export function SelectionSection({
       <div className="flex flex-wrap gap-2">
         {selectedItems?.map((itemId, index) => (
           <div
-            key={index}
+            key={`selection-${itemId}-${index}`}
             className={`flex items-center gap-2 p-2 rounded ${
               darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
             }`}

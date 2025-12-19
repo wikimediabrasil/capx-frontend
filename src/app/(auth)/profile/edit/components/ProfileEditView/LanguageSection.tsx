@@ -69,7 +69,7 @@ export function LanguageSection({
       <div className="flex flex-wrap gap-2">
         {formData.language?.map((lang, index) => (
           <div
-            key={index}
+            key={`language-${lang.id}-${index}`}
             className={`flex items-center gap-2 p-2 rounded ${
               darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
             }`}

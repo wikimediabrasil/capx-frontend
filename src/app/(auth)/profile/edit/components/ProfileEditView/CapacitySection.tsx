@@ -68,12 +68,12 @@ export function CapacitySection({
         className={`flex flex-wrap gap-2 ${RESPONSIVE_BORDER_RADIUS.small} ${getBgColorClass(darkMode)} w-full ${RESPONSIVE_PADDING.small} items-start gap-[12px]`}
       >
         {capacities?.map((capacity, index) => {
-          const borderColorClass =
-            type === 'known'
-              ? 'border-[#0070B9]'
-              : type === 'available'
-                ? 'border-[#05A300]'
-                : 'border-[#D43831]';
+          let borderColorClass = 'border-[#D43831]'; // wanted - default
+          if (type === 'known') {
+            borderColorClass = 'border-[#0070B9]';
+          } else if (type === 'available') {
+            borderColorClass = 'border-[#05A300]';
+          }
 
           const borderWidthClass = type === 'known' ? 'md:border-2' : '';
           const paddingClass = type === 'wanted' ? 'md:px-2 md:py-2 md:pb-2' : 'md:py-4 md:px-4';
