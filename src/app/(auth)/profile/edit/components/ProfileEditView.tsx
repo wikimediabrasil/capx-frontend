@@ -153,6 +153,22 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
   const getAvatarById = useAvatars();
 
+  // Theme and responsive classes
+  const bgColor = darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]';
+  const topMargin = isMobile ? 'mt-[80px]' : 'mt-[64px]';
+  const contentMargin = isMobile ? '' : 'mx-[80px]';
+  const titleColor = darkMode ? 'text-white' : 'text-[#053749]';
+  const accountIcon = darkMode ? AccountCircleIconWhite : AccountCircleIcon;
+  const letsConnectBanner = isMobile ? LetsConectBanner : LetsConect;
+  const letsConnectTitleImage = darkMode ? LetsConectTitleLight : LetsConectTitle;
+  const letsConnectBgClass = isMobile ? 'bg-[#EFEFEF] pb-[6px] rounded-2 mb-4' : '';
+  const letsConnectButtonClass = darkMode
+    ? 'bg-capx-light-box-bg text-[#04222F]'
+    : 'bg-[#053749] text-white';
+  const letsConnectTextColor = darkMode ? 'text-white' : 'text-[#053749]';
+  const userCheckIconSrc = darkMode ? UserCheckIconDark : UserCheckIcon;
+  const iconSize = isMobile ? 20 : 30;
+
   // Use effect to load the avatar once when the component mounts
   useEffect(() => {
     if (typeof profile?.avatar === 'number' && profile.avatar > 0) {
@@ -179,30 +195,20 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
 
   return (
     <>
-      <div
-        className={`relative w-full overflow-x-hidden min-h-screen ${
-          darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
-        }`}
-      >
-        <section
-          className={`w-full max-w-screen-xl mx-auto px-4 md:px-12 py-8 ${
-            isMobile ? 'mt-[80px]' : 'mt-[64px]'
-          }`}
-        >
-          <div className={`flex flex-col gap-6 ${isMobile ? '' : 'mx-[80px]'} mx-auto`}>
+      <div className={`relative w-full overflow-x-hidden min-h-screen ${bgColor}`}>
+        <section className={`w-full max-w-screen-xl mx-auto px-4 md:px-12 py-8 ${topMargin}`}>
+          <div className={`flex flex-col gap-6 ${contentMargin} mx-auto`}>
             {/* Header - Responsive */}
             <div className="flex flex-col gap-2">
               <h1
-                className={`font-[Montserrat] text-[16px] md:text-[48px] not-italic font-normal leading-[29px] ${
-                  darkMode ? 'text-white' : 'text-[#053749]'
-                }`}
+                className={`font-[Montserrat] text-[16px] md:text-[48px] not-italic font-normal leading-[29px] ${titleColor}`}
               >
                 {pageContent['edit-profile-welcome']}
               </h1>
               <div className="flex items-center gap-[6px] md:py-6">
                 <div className="relative w-[24px] h-[24px] md:w-[48px] md:h-[48px]">
                   <Image
-                    src={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
+                    src={accountIcon}
                     alt="User circle icon"
                     fill
                     style={{ objectFit: 'cover' }}
@@ -210,9 +216,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 </div>
 
                 <span
-                  className={`text-start ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  } font-[Montserrat] text-[20px] md:text-[24px] font-extrabold`}
+                  className={`text-start ${titleColor} font-[Montserrat] text-[20px] md:text-[24px] font-extrabold`}
                 >
                   {username}
                 </span>
@@ -493,22 +497,20 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             <div className="flex flex-col">
               <div className="w-[300px] md:w-[580px] h-auto">
                 <Image
-                  src={darkMode ? LetsConectTitleLight : LetsConectTitle}
+                  src={letsConnectTitleImage}
                   alt="Let's Connect"
                   className="w-full h-auto"
                   priority
                 />
               </div>
               <p
-                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mb-4  ${
-                  darkMode ? 'text-white' : 'text-[#053749]'
-                }`}
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mb-4 ${letsConnectTextColor}`}
               >
                 {pageContent['lets-connect-edit-user-info-1']}
               </p>
-              <div className={`${isMobile ? 'bg-[#EFEFEF] pb-[6px] rounded-2 mb-4' : ''}`}>
+              <div className={letsConnectBgClass}>
                 <Banner
-                  image={isMobile ? LetsConectBanner : LetsConect}
+                  image={letsConnectBanner}
                   alt={pageContent['lets-connect-alt-banner']}
                   title={{
                     mobile: LetsConectText,
@@ -527,18 +529,14 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                     ? pageContent['lets-connect-form-user-button-update-profile']
                     : pageContent['lets-connect-form-user-edit']
                 }
-                customClass={`w-full md:w-1/2 flex ${
-                  darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                } rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                imageUrl={darkMode ? UserCheckIconDark : UserCheckIcon}
+                customClass={`w-full md:w-1/2 flex ${letsConnectButtonClass} rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
+                imageUrl={userCheckIconSrc}
                 imageAlt="Add project"
-                imageWidth={isMobile ? 20 : 30}
-                imageHeight={isMobile ? 20 : 30}
+                imageWidth={iconSize}
+                imageHeight={iconSize}
               />
               <p
-                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mt-4  ${
-                  darkMode ? 'text-white' : 'text-[#053749]'
-                }`}
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mt-4 ${letsConnectTextColor}`}
               >
                 {pageContent['lets-connect-edit-user-info-2']}
               </p>
