@@ -2,7 +2,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import { ResponsiveIcon } from './ResponsiveIcon';
-import { getSelectStyles, RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
+import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
 
 interface FormSelectProps {
   value: string;
@@ -13,7 +13,10 @@ interface FormSelectProps {
 
 export function FormSelect({ value, onChange, options, placeholder }: FormSelectProps) {
   const { darkMode } = useTheme();
-  const selectStyles = getSelectStyles(darkMode);
+  const selectStyles = {
+    backgroundColor: darkMode ? '#053749' : 'white',
+    color: darkMode ? 'white' : '#053749',
+  };
 
   return (
     <div className="relative">

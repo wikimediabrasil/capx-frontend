@@ -6,11 +6,10 @@ import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import Popup from '@/components/Popup';
-import { getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useAvatars } from '@/hooks/useAvatars';
+import { useAvatarManagement } from './ProfileEditView/useAvatarManagement';
 import {
   addAffiliationToFormData,
   addLanguageToFormData,
@@ -54,7 +53,7 @@ import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ActionButtons } from './ProfileEditView/ActionButtons';
 import { AvatarImageSection } from './ProfileEditView/AvatarImageSection';
 import { BadgesSection } from './ProfileEditView/BadgesSection';
@@ -62,7 +61,6 @@ import { CapacitySection } from './ProfileEditView/CapacitySection';
 import { LanguageSection } from './ProfileEditView/LanguageSection';
 import { MiniBioSection } from './ProfileEditView/MiniBioSection';
 import { SelectionSection } from './ProfileEditView/SelectionSection';
-import { getCheckboxIcon } from './ProfileEditView/utils';
 import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
 
 interface ProfileEditViewProps {
@@ -147,11 +145,10 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
   const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
-  const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
-  const getAvatarById = useAvatars();
+  const avatarUrl = useAvatarManagement(profile);
 
   // Theme and responsive classes
   const bgColor = darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]';
@@ -168,30 +165,13 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
   const letsConnectTextColor = darkMode ? 'text-white' : 'text-[#053749]';
   const userCheckIconSrc = darkMode ? UserCheckIconDark : UserCheckIcon;
   const iconSize = isMobile ? 20 : 30;
-
-  // Use effect to load the avatar once when the component mounts
-  useEffect(() => {
-    if (typeof profile?.avatar === 'number' && profile.avatar > 0) {
-      (async () => {
-        try {
-          const avatarId = profile.avatar as number;
-          const avatarData = await getAvatarById.getAvatarById(avatarId);
-          if (avatarData?.avatar_url) {
-            setAvatarUrl(avatarData.avatar_url);
-          }
-        } catch (error) {
-          console.error('Error fetching avatar:', error);
-        }
-      })();
-    }
-  }, [profile?.avatar, getAvatarById]);
-
-  // Update default avatar when dark mode changes
-  useEffect(() => {
-    if (!profile?.avatar || profile.avatar === 0) {
-      setAvatarUrl(getDefaultAvatar(darkMode));
-    }
-  }, [darkMode, profile?.avatar]);
+  const checkboxIcon = isWikidataSelected
+    ? darkMode
+      ? CheckBoxFilledIconWhite
+      : CheckBoxFilledIcon
+    : darkMode
+      ? CheckIconWhite
+      : CheckIcon;
 
   return (
     <>
@@ -445,12 +425,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                         : 'border-[#053749] text-[#829BA4]'
                     } border`}
-                    imageUrl={getCheckboxIcon(isWikidataSelected, darkMode, {
-                      checkedLight: CheckBoxFilledIcon,
-                      checkedDark: CheckBoxFilledIconWhite,
-                      uncheckedLight: CheckIcon,
-                      uncheckedDark: CheckIconWhite,
-                    })}
+                    imageUrl={checkboxIcon}
                     imageAlt="Check icon"
                     imageWidth={isMobile ? 20 : 24}
                     imageHeight={isMobile ? 20 : 24}

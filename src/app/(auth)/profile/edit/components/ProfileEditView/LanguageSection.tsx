@@ -10,7 +10,7 @@ import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_wh
 import { Profile } from '@/types/profile';
 import { FormSelect } from './FormSelect';
 import { ResponsiveIcon } from './ResponsiveIcon';
-import { getSelectStyles, RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
+import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
 
 interface LanguageSectionProps {
   readonly formData: Partial<Profile>;
@@ -44,7 +44,10 @@ export function LanguageSection({
 }: LanguageSectionProps) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
-  const selectStyles = getSelectStyles(darkMode);
+  const selectStyles = {
+    backgroundColor: darkMode ? '#053749' : 'white',
+    color: darkMode ? 'white' : '#053749',
+  };
 
   return (
     <div className="flex flex-col gap-4">

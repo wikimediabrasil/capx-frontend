@@ -5,7 +5,6 @@ import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
-import { getThemedIcon, getBorderButtonClasses } from './utils';
 
 interface ActionButtonsProps {
   onSave: () => void;
@@ -42,7 +41,10 @@ const getCancelButtonClass = (variant: ActionButtonsProps['variant'], darkMode: 
     variant === 'desktop-top'
       ? 'text-[24px] px-8 py-4'
       : 'px-[13px] py-[6px] pb-[6px] text-[14px] md:text-[24px] md:px-8 md:py-4';
-  return `${baseClass} ${responsiveClass} ${getBorderButtonClasses(darkMode)}`;
+  const borderColorClass = darkMode
+    ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
+    : 'bg-[#F6F6F6] border-[#053749] text-[#053749]';
+  return `${baseClass} ${responsiveClass} ${borderColorClass}`;
 };
 
 export function ActionButtons({ onSave, onCancel, onDelete, variant }: ActionButtonsProps) {
@@ -70,7 +72,7 @@ export function ActionButtons({ onSave, onCancel, onDelete, variant }: ActionBut
         onClick={onCancel}
         label={pageContent['edit-profile-cancel']}
         customClass={cancelClass}
-        imageUrl={getThemedIcon(CancelIcon, CancelIconWhite, darkMode)}
+        imageUrl={darkMode ? CancelIconWhite : CancelIcon}
         imageAlt="Cancel icon"
         imageWidth={buttonSize}
         imageHeight={buttonSize}

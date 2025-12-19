@@ -16,7 +16,6 @@ import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light
 import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
-import { getCheckboxIcon } from './utils';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 
 const getAvatarAltText = (src: string, pageContent: any): string => {
@@ -108,6 +107,13 @@ export function AvatarImageSection({
   const showLetsConnectBtn = hasLetsConnectData && !formData?.automated_lets_connect;
   const wikidataText = pageContent['edit-profile-consent-wikidata-before-link'] || '';
   const wikidataLinkText = pageContent['edit-profile-consent-wikidata-link'];
+  const checkboxIcon = isWikidataSelected
+    ? darkMode
+      ? CheckBoxFilledIconWhite
+      : CheckBoxFilledIcon
+    : darkMode
+      ? CheckIconWhite
+      : CheckIcon;
 
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-12 md:w-4/5">
@@ -175,12 +181,7 @@ export function AvatarImageSection({
             onClick={() => handleWikidataClick(!isWikidataSelected)}
             label={pageContent['edit-profile-use-wikidata-photograph']}
             customClass={`w-full flex justify-between items-start px-[13px] py-[6px] md:items-center md:px-8 md:py-4 font-extrabold rounded-[4px] md:rounded-[8px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none mb-0 pb-[6px] text-left ${wikidataBtnClass} border`}
-            imageUrl={getCheckboxIcon(isWikidataSelected, darkMode, {
-              checkedLight: CheckBoxFilledIcon,
-              checkedDark: CheckBoxFilledIconWhite,
-              uncheckedLight: CheckIcon,
-              uncheckedDark: CheckIconWhite,
-            })}
+            imageUrl={checkboxIcon}
             imageAlt="Check icon"
             imageWidth={iconSize}
             imageHeight={iconSize}

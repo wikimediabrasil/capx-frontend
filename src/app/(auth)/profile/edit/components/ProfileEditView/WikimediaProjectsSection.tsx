@@ -11,14 +11,7 @@ import AddIconDark from '@/public/static/images/add_dark.svg';
 import BaseButton from '@/components/BaseButton';
 import { Profile } from '@/types/profile';
 import { ResponsiveIcon } from './ResponsiveIcon';
-import {
-  getResponsiveSize,
-  getButtonColorClasses,
-  getBgColorClass,
-  RESPONSIVE_TEXT_SIZES,
-  RESPONSIVE_BORDER_RADIUS,
-  RESPONSIVE_PADDING,
-} from './utils';
+import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS, RESPONSIVE_PADDING } from './utils';
 
 interface WikimediaProjectsSectionProps {
   readonly formData: Partial<Profile>;
@@ -40,6 +33,14 @@ export function WikimediaProjectsSection({
   const { isMobile, pageContent } = useApp();
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
+
+  // Pre-computed variables
+  const bgColor = darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]';
+  const buttonColorClass = darkMode
+    ? 'bg-capx-light-box-bg text-[#04222F]'
+    : 'bg-[#053749] text-white';
+  const closeIconSize = isMobile ? 16 : 24;
+  const addIconSize = isMobile ? 20 : 30;
 
   // Close project selector when clicking outside
   useEffect(() => {
@@ -81,7 +82,7 @@ export function WikimediaProjectsSection({
 
       {/* Display selected projects as tags with delete button */}
       <div
-        className={`flex flex-wrap gap-2 ${RESPONSIVE_BORDER_RADIUS.small} ${getBgColorClass(darkMode)} w-full ${RESPONSIVE_PADDING.small} items-start gap-[12px]`}
+        className={`flex flex-wrap gap-2 ${RESPONSIVE_BORDER_RADIUS.small} ${bgColor} w-full ${RESPONSIVE_PADDING.small} items-start gap-[12px]`}
       >
         {formData?.wikimedia_project?.map((projectId, index) => (
           <div
@@ -101,8 +102,8 @@ export function WikimediaProjectsSection({
               customClass="rounded-[4px] md:rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
               imageUrl={darkMode ? CloseIconWhite : CloseIcon}
               imageAlt="Remove project"
-              imageWidth={getResponsiveSize(16, 24, isMobile)}
-              imageHeight={getResponsiveSize(16, 24, isMobile)}
+              imageWidth={closeIconSize}
+              imageHeight={closeIconSize}
             />
           </div>
         ))}
@@ -199,11 +200,11 @@ export function WikimediaProjectsSection({
           setFilteredProjects(Object.entries(wikimediaProjects));
         }}
         label={pageContent['edit-profile-add-projects']}
-        customClass={`w-full md:w-1/4 flex ${getButtonColorClasses(darkMode)} rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
+        customClass={`w-full md:w-1/4 flex ${buttonColorClass} rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
         imageUrl={darkMode ? AddIconDark : AddIcon}
         imageAlt="Add project"
-        imageWidth={getResponsiveSize(20, 30, isMobile)}
-        imageHeight={getResponsiveSize(20, 30, isMobile)}
+        imageWidth={addIconSize}
+        imageHeight={addIconSize}
       />
       <span
         className={`${RESPONSIVE_TEXT_SIZES.small} md:text-[24px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
