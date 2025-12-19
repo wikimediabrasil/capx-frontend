@@ -1,19 +1,19 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
+import BaseButton from '@/components/BaseButton';
+import ProgressBar from '@/components/ProgressBar';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useBadges } from '@/contexts/BadgesContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import { useProfile } from '@/hooks/useProfile';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
 import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
-import BaseButton from '@/components/BaseButton';
 import { useSession } from 'next-auth/react';
-import { useProfile } from '@/hooks/useProfile';
-const DEFAULT_AVATAR = '/static/images/person.svg';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { useBadges } from '@/contexts/BadgesContext';
-import ProgressBar from '@/components/ProgressBar';
 
 export default function BadgesPage() {
   const { darkMode } = useTheme();
@@ -27,7 +27,7 @@ export default function BadgesPage() {
   const { profile } = useProfile(token, Number(userId));
 
   const { getAvatarById } = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || DEFAULT_AVATAR);
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || getDefaultAvatar(darkMode));
   const { allBadges, userBadges } = useBadges();
   const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 
@@ -87,7 +87,7 @@ export default function BadgesPage() {
               <Image
                 src={avatarUrl}
                 alt={
-                  avatarUrl === DEFAULT_AVATAR
+                  avatarUrl === DEFAULT_AVATAR || avatarUrl === DEFAULT_AVATAR_WHITE
                     ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
                     : 'Selected avatar'
                 }

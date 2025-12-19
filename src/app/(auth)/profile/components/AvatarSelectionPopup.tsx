@@ -1,11 +1,12 @@
-import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
-import { useState, useEffect } from 'react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { CompactLoading } from '@/components/LoadingStateWithFallback';
+import { getDefaultAvatar } from '@/constants/images';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface AvatarSelectionPopupProps {
   onClose: () => void;
@@ -28,7 +29,7 @@ export default function AvatarSelectionPopup({
   // Create virtual avatar for the default person option
   const defaultPersonOption = {
     id: null as number | null,
-    avatar_url: '/static/images/person.svg',
+    avatar_url: getDefaultAvatar(darkMode),
   };
 
   const allAvatars = [defaultPersonOption, ...(avatars || [])];

@@ -10,6 +10,7 @@
 			"Huajing",
 			"Kcx36",
 			"Peterxy12",
+			"Plana",
 			"TeaSummer",
 			"Xuanxuan1231",
 			"人间百态",
@@ -339,5 +340,9 @@
 	"view-event": "查看活动",
 	"view-profile": "查看简介",
 	"recommendations-events-title": "您可能喜欢的活动",
-	"cancel": "取消"
+	"add": "添加",
+	"cancel": "取消",
+	"organization-name-placeholder": "组织名称",
+	"organization-name-updated": "成功更新组织名称",
+	"organization-names-none": "还没有新增翻译。"
 }
