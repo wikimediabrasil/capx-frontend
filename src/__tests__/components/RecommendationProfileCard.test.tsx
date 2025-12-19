@@ -63,8 +63,11 @@ const createMockOrganizationRecommendation = (overrides = {}): OrganizationRecom
 function setupAllMocks(
   mockSnackbar: ReturnType<typeof createMockSnackbar>,
   mockSavedItems: ReturnType<typeof createMockSavedItems>,
-  mockAvatars: ReturnType<typeof createMockAvatars>
+  mockAvatars: ReturnType<typeof createMockAvatars>,
+  mockRouter: ReturnType<typeof createMockRouter>
 ) {
+  const { useRouter } = require('next/navigation');
+  (useRouter as jest.Mock).mockReturnValue(mockRouter);
   setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
   (useAvatars as jest.Mock).mockReturnValue(mockAvatars);
   (useSavedItems as jest.Mock).mockReturnValue(mockSavedItems);
@@ -104,7 +107,7 @@ describe('RecommendationProfileCard', () => {
   const mockRouter = createMockRouter();
 
   beforeEach(() => {
-    setupAllMocks(mockSnackbar, mockSavedItems, mockAvatars);
+    setupAllMocks(mockSnackbar, mockSavedItems, mockAvatars, mockRouter);
   });
 
   afterEach(cleanupMocks);

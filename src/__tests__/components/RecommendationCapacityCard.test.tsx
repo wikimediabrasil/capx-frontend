@@ -35,7 +35,16 @@ jest.mock('@/contexts/CapacityCacheContext', () => ({
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 jest.mock('@/app/providers/SnackbarProvider');
-jest.mock('@/services/profileService');
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useQuery: jest.fn(),
+  useQueryClient: jest.fn(),
+}));
+jest.mock('@/services/profileService', () => ({
+  profileService: {
+    updateProfile: jest.fn(),
+  },
+}));
 jest.mock('@/services/userService');
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -82,6 +91,15 @@ function setupAllMocks(
     data: mockUserProfile,
     isLoading: false,
   });
+
+  // Setup queryClient.getQueryData to return user profile
+  mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
+    if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
+      return mockUserProfile;
+    }
+    return undefined;
+  });
+
   (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
 }
 
@@ -127,6 +145,7 @@ describe('RecommendationCapacityCard', () => {
   const mockPreloadCapacities = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
+    jest.clearAllMocks();
     setupAllMocks(mockSnackbar, mockRouter, mockQueryClient, mockUserProfile);
   });
 

@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
 import { Session } from 'next-auth';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /**
  * Shared test utilities and helpers
@@ -41,10 +42,20 @@ export const createMockPageContent = (overrides?: Record<string, string>) => ({
 
 // Render with Providers
 export const renderWithProviders = (component: React.ReactNode) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
   return render(
-    <ThemeProvider>
-      <AppProvider>{component}</AppProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AppProvider>{component}</AppProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
