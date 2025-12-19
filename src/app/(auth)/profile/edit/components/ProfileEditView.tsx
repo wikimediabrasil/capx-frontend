@@ -26,12 +26,8 @@ import {
   default as AccountCircleIconWhite,
   default as LetsConnectIconWhite,
 } from '@/public/static/images/account_circle_white.svg';
-import AddIcon from '@/public/static/images/add.svg';
-import AddIconDark from '@/public/static/images/add_dark.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
-import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
-import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
 import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
 import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
@@ -41,8 +37,6 @@ import CheckBoxFilledIcon from '@/public/static/images/check_box.svg';
 import CheckBoxFilledIconWhite from '@/public/static/images/check_box_light.svg';
 import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
 import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
-import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
@@ -50,8 +44,6 @@ import ExpandIcon from '@/public/static/images/expand_all.svg';
 import ExpandIconWhite from '@/public/static/images/expand_all_white.svg';
 import BadgesIcon from '@/public/static/images/icons/badges_icon.svg';
 import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg';
-import LanguageIcon from '@/public/static/images/language.svg';
-import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import LetsConectBanner from '@/public/static/images/lets_connect.svg';
 import LetsConect from '@/public/static/images/lets_connect_desktop.svg';
 import LetsConectTextDesktop from '@/public/static/images/lets_connect_text_desktop.svg';
@@ -81,8 +73,8 @@ import { ActionButtons } from './ProfileEditView/ActionButtons';
 import { CapacitySection } from './ProfileEditView/CapacitySection';
 import { LanguageSection } from './ProfileEditView/LanguageSection';
 import { SelectionSection } from './ProfileEditView/SelectionSection';
-import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
 import { getCheckboxIcon } from './ProfileEditView/utils';
+import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
 
 interface ProfileEditViewProps {
   readonly selectedAvatar: any;
@@ -813,6 +805,8 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
         <Popup
           onClose={() => setShowCapacityModal(false)}
           title={`Choose ${selectedCapacityType} capacity`}
+          minHeight="min-h-[200px] md:min-h-[250px]"
+          contentScrollable={true}
         >
           <div className="p-4">
             <CapacitySearch
