@@ -67,20 +67,28 @@ export function CapacitySection({
       <div
         className={`flex flex-wrap gap-2 ${RESPONSIVE_BORDER_RADIUS.small} ${getBgColorClass(darkMode)} w-full ${RESPONSIVE_PADDING.small} items-start gap-[12px]`}
       >
-        {capacities?.map((capacity, index) => (
-          <div key={index} className="flex items-center gap-1 rounded-md">
-            <BaseButton
-              onClick={() => onRemove(type, index)}
-              label={getCapacityName(capacity)}
-              customClass={`rounded-[4px] border-[1px] ${type === 'known' ? 'md:border-2' : ''} border-[solid] !mb-0 flex p-[4px] pb-[4px] ${type === 'wanted' ? 'md:px-2 md:py-2 md:pb-2' : 'md:py-4 md:px-4'} justify-center items-center gap-[4px] font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} not-italic font-normal leading-[normal]`}
-              style={{ borderColor: CAPACITY_BORDER_COLORS[type] }}
-              imageUrl={getThemedIcon(CloseIcon, CloseIconWhite, darkMode)}
-              imageAlt="Close icon"
-              imageWidth={getResponsiveSize(16, 24, isMobile)}
-              imageHeight={getResponsiveSize(16, 24, isMobile)}
-            />
-          </div>
-        ))}
+        {capacities?.map((capacity, index) => {
+          const borderColorClass =
+            type === 'known'
+              ? 'border-[#0070B9]'
+              : type === 'available'
+                ? 'border-[#05A300]'
+                : 'border-[#D43831]';
+
+          return (
+            <div key={index} className="flex items-center gap-1 rounded-md">
+              <BaseButton
+                onClick={() => onRemove(type, index)}
+                label={getCapacityName(capacity)}
+                customClass={`rounded-[4px] border-[1px] ${type === 'known' ? 'md:border-2' : ''} border-[solid] ${borderColorClass} !mb-0 flex p-[4px] pb-[4px] ${type === 'wanted' ? 'md:px-2 md:py-2 md:pb-2' : 'md:py-4 md:px-4'} justify-center items-center gap-[4px] font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} not-italic font-normal leading-[normal]`}
+                imageUrl={getThemedIcon(CloseIcon, CloseIconWhite, darkMode)}
+                imageAlt="Close icon"
+                imageWidth={getResponsiveSize(16, 24, isMobile)}
+                imageHeight={getResponsiveSize(16, 24, isMobile)}
+              />
+            </div>
+          );
+        })}
       </div>
       <div className="flex flex-col md:flex-row gap-2">
         <BaseButton

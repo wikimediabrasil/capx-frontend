@@ -67,6 +67,13 @@ export const CAPACITY_BORDER_COLORS = {
 } as const;
 
 /**
+ * Gets the border color style string for capacity type
+ */
+export const getCapacityBorderStyle = (type: 'known' | 'available' | 'wanted') => {
+  return `border-[${CAPACITY_BORDER_COLORS[type]}]`;
+};
+
+/**
  * Common responsive text sizes
  */
 export const RESPONSIVE_TEXT_SIZES = {
@@ -90,3 +97,23 @@ export const RESPONSIVE_BORDER_RADIUS = {
   small: 'rounded-[4px] md:rounded-[16px]',
   button: 'rounded-md',
 } as const;
+
+/**
+ * Gets the appropriate checkbox icon based on selection and dark mode state
+ * Eliminates nested ternary operations
+ */
+export const getCheckboxIcon = (
+  isSelected: boolean,
+  darkMode: boolean,
+  icons: {
+    checkedLight: string;
+    checkedDark: string;
+    uncheckedLight: string;
+    uncheckedDark: string;
+  }
+) => {
+  if (isSelected) {
+    return darkMode ? icons.checkedDark : icons.checkedLight;
+  }
+  return darkMode ? icons.uncheckedDark : icons.uncheckedLight;
+};

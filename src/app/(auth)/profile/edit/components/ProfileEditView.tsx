@@ -8,9 +8,6 @@ import BaseButton from '@/components/BaseButton';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
-import { ActionButtons } from './ProfileEditView/ActionButtons';
-import { CapacitySection } from './ProfileEditView/CapacitySection';
-import { FormSelect } from './ProfileEditView/FormSelect';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
@@ -37,8 +34,6 @@ import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
 import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
-import CancelIcon from '@/public/static/images/cancel.svg';
-import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
 import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
 import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
@@ -67,7 +62,6 @@ import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
 import PersonIcon from '@/public/static/images/person_book.svg';
 import PersonIconWhite from '@/public/static/images/person_book_white.svg';
-import SaveIcon from '@/public/static/images/save_as.svg';
 import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
@@ -83,44 +77,50 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
+import { ActionButtons } from './ProfileEditView/ActionButtons';
+import { CapacitySection } from './ProfileEditView/CapacitySection';
+import { LanguageSection } from './ProfileEditView/LanguageSection';
+import { SelectionSection } from './ProfileEditView/SelectionSection';
+import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
+import { getCheckboxIcon } from './ProfileEditView/utils';
 
 interface ProfileEditViewProps {
-  selectedAvatar: any;
-  handleAvatarSelect: (avatarId: number | null) => void;
-  showAvatarPopup: boolean;
-  setShowAvatarPopup: (show: boolean) => void;
-  handleWikidataClick: (newWikidataSelected: boolean) => void;
-  isWikidataSelected: boolean;
-  showCapacityModal: boolean;
-  setShowCapacityModal: (show: boolean) => void;
-  handleCapacitySelect: (capacities: Capacity[]) => void;
-  selectedCapacityType: 'known' | 'available' | 'wanted';
-  handleAddCapacity: (type: 'known' | 'available' | 'wanted') => void;
-  handleRemoveCapacity: (type: 'known' | 'available' | 'wanted', index: number) => void;
-  handleRemoveLanguage: (index: number) => void;
-  getCapacityName: (id: number) => string;
-  handleAddProject: () => void;
-  handleSubmit: () => void;
-  handleCancel: () => void;
-  handleDeleteProfile: () => void;
-  formData: Partial<Profile>;
-  setFormData: (data: Partial<Profile>) => void;
-  territories: Record<string, string>;
-  languages: Record<string, string>;
-  affiliations: Record<string, string>;
-  wikimediaProjects: Record<string, string>;
-  profile: Profile;
-  avatars: any[] | undefined;
-  refetch: () => Promise<any>;
-  goTo: (path: string) => void;
-  isImageLoading: boolean;
-  hasLetsConnectAccount: boolean;
-  hasLetsConnectData: boolean;
-  setIsImageLoading: (loading: boolean) => void;
-  showLetsConnectPopup: boolean;
-  setShowLetsConnectPopup: (show: boolean) => void;
-  handleLetsConnectImport: () => void;
-  isLetsConnectLoading: boolean;
+  readonly selectedAvatar: any;
+  readonly handleAvatarSelect: (avatarId: number | null) => void;
+  readonly showAvatarPopup: boolean;
+  readonly setShowAvatarPopup: (show: boolean) => void;
+  readonly handleWikidataClick: (newWikidataSelected: boolean) => void;
+  readonly isWikidataSelected: boolean;
+  readonly showCapacityModal: boolean;
+  readonly setShowCapacityModal: (show: boolean) => void;
+  readonly handleCapacitySelect: (capacities: Capacity[]) => void;
+  readonly selectedCapacityType: 'known' | 'available' | 'wanted';
+  readonly handleAddCapacity: (type: 'known' | 'available' | 'wanted') => void;
+  readonly handleRemoveCapacity: (type: 'known' | 'available' | 'wanted', index: number) => void;
+  readonly handleRemoveLanguage: (index: number) => void;
+  readonly getCapacityName: (id: number) => string;
+  readonly handleAddProject: () => void;
+  readonly handleSubmit: () => void;
+  readonly handleCancel: () => void;
+  readonly handleDeleteProfile: () => void;
+  readonly formData: Partial<Profile>;
+  readonly setFormData: (data: Partial<Profile>) => void;
+  readonly territories: Record<string, string>;
+  readonly languages: Record<string, string>;
+  readonly affiliations: Record<string, string>;
+  readonly wikimediaProjects: Record<string, string>;
+  readonly profile: Profile;
+  readonly avatars: any[] | undefined;
+  readonly refetch: () => Promise<any>;
+  readonly goTo: (path: string) => void;
+  readonly isImageLoading: boolean;
+  readonly hasLetsConnectAccount: boolean;
+  readonly hasLetsConnectData: boolean;
+  readonly setIsImageLoading: (loading: boolean) => void;
+  readonly showLetsConnectPopup: boolean;
+  readonly setShowLetsConnectPopup: (show: boolean) => void;
+  readonly handleLetsConnectImport: () => void;
+  readonly isLetsConnectLoading: boolean;
 }
 
 export default function ProfileEditView(props: ProfileEditViewProps) {
@@ -139,9 +139,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     handleRemoveCapacity,
     handleRemoveLanguage,
     getCapacityName,
-    handleAddProject,
     handleSubmit,
-    handleCancel,
     handleDeleteProfile,
     formData,
     setFormData,
@@ -149,14 +147,12 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     languages,
     affiliations,
     wikimediaProjects,
-    avatars,
     profile,
     refetch,
     goTo,
     isImageLoading,
     hasLetsConnectData,
     hasLetsConnectAccount,
-    setIsImageLoading,
     showLetsConnectPopup,
     setShowLetsConnectPopup,
     handleLetsConnectImport,
@@ -169,14 +165,12 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
   const { isMobile, pageContent } = useApp();
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
-  const [showProjectSelector, setShowProjectSelector] = useState(false);
   const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
   const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
   const getAvatarById = useAvatars();
-  const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
 
   // Use effect to load the avatar once when the component mounts
   useEffect(() => {
@@ -201,25 +195,6 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
       setAvatarUrl(getDefaultAvatar(darkMode));
     }
   }, [darkMode, profile?.avatar]);
-
-  // Close project selector when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (showProjectSelector && !target.closest('.project-selector')) {
-        setShowProjectSelector(false);
-        setFilteredProjects([]);
-      }
-    };
-
-    if (showProjectSelector) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showProjectSelector]);
 
   return (
     <>
@@ -363,15 +338,12 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                         ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
                         : 'border-[#053749]'
                     } border`}
-                    imageUrl={
-                      isWikidataSelected
-                        ? darkMode
-                          ? CheckBoxFilledIconWhite
-                          : CheckBoxFilledIcon
-                        : darkMode
-                          ? CheckIconWhite
-                          : CheckIcon
-                    }
+                    imageUrl={getCheckboxIcon(isWikidataSelected, darkMode, {
+                      checkedLight: CheckBoxFilledIcon,
+                      checkedDark: CheckBoxFilledIconWhite,
+                      uncheckedLight: CheckIcon,
+                      uncheckedDark: CheckIconWhite,
+                    })}
                     imageAlt="Check icon"
                     imageWidth={isMobile ? 20 : 30}
                     imageHeight={isMobile ? 20 : 30}
@@ -608,179 +580,13 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
               />
 
               {/* Languages Section */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? LanguageIconWhite : LanguageIcon}
-                    alt="Language icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-languages-title']}
-                  </h2>
-                </div>
-
-                {/* Language List */}
-                <div className="flex flex-wrap gap-2">
-                  {formData.language?.map((lang, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-2 p-2 rounded ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span className="font-[Montserrat] text-[12px] md:text-[24px]">
-                        {languages[lang.id]}
-                      </span>
-                      <select
-                        value={lang.proficiency}
-                        onChange={e => {
-                          const newLanguages = [...(formData.language || [])];
-                          newLanguages[index] = {
-                            ...newLanguages[index],
-                            proficiency: e.target.value,
-                          };
-                          setFormData({
-                            ...formData,
-                            language: newLanguages,
-                          });
-                        }}
-                        className={`ml-2 p-1 rounded border text-[12px] md:text-[24px] ${
-                          darkMode
-                            ? 'bg-transparent border-white text-white'
-                            : 'border-[#053749] text-[#829BA4]'
-                        }`}
-                        style={{
-                          backgroundColor: darkMode ? '#053749' : 'white',
-                          color: darkMode ? 'white' : '#053749',
-                        }}
-                      >
-                        <option
-                          value="0"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-not-proficient']}
-                        </option>
-                        <option
-                          value="1"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-basic']}
-                        </option>
-                        <option
-                          value="2"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-intermediate']}
-                        </option>
-                        <option
-                          value="3"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-advanced']}
-                        </option>
-                        <option
-                          value="4"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-almost-native']}
-                        </option>
-                        <option
-                          value="5"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-professional']}
-                        </option>
-                        <option
-                          value="n"
-                          style={{
-                            backgroundColor: darkMode ? '#053749' : 'white',
-                            color: darkMode ? 'white' : '#053749',
-                          }}
-                        >
-                          {pageContent['profiency-level-native']}
-                        </option>
-                      </select>
-                      <button onClick={() => handleRemoveLanguage(index)} className="ml-2">
-                        <Image
-                          src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt="Remove language"
-                          width={isMobile ? 16 : 24}
-                          height={isMobile ? 16 : 24}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Add Language Select */}
-                <div className="relative">
-                  <select
-                    value=""
-                    onChange={e => {
-                      if (e.target.value) {
-                        const languageId = Number(e.target.value);
-                        const languageName = languages[e.target.value];
-                        setFormData(addLanguageToFormData(formData, languageId, '3', languageName));
-                      }
-                    }}
-                    className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none ${
-                      darkMode
-                        ? 'bg-transparent border-white text-white opacity-50'
-                        : 'border-[#053749] text-[#829BA4]'
-                    } border`}
-                    style={{
-                      backgroundColor: darkMode ? '#053749' : 'white',
-                      color: darkMode ? 'white' : '#053749',
-                    }}
-                  >
-                    <option value="">{pageContent['edit-profile-add-language']}</option>
-                    {Object.entries(languages).map(([id, name]) => (
-                      <option
-                        key={id}
-                        value={id}
-                        style={{
-                          backgroundColor: darkMode ? '#053749' : 'white',
-                          color: darkMode ? 'white' : '#053749',
-                        }}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Image
-                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                      alt="Select"
-                      width={isMobile ? 20 : 24}
-                      height={isMobile ? 20 : 24}
-                    />
-                  </div>
-                </div>
-              </div>
+              <LanguageSection
+                formData={formData}
+                setFormData={setFormData}
+                languages={languages}
+                handleRemoveLanguage={handleRemoveLanguage}
+                addLanguageToFormData={addLanguageToFormData}
+              />
 
               <span
                 className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
@@ -833,213 +639,40 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
               </div>
 
               {/* Affiliation Section */}
-              <div className="flex flex-col gap-4 mt-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? AffiliationIconWhite : AffiliationIcon}
-                    alt="Affiliation icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-affiliation']}
-                  </h2>
-                </div>
-
-                {/* Lista de Afiliações Selecionadas */}
-                <div className="flex flex-wrap gap-2">
-                  {formData.affiliation?.map((affId, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-2 p-2 rounded ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span className="font-[Montserrat] text-[12px] md:text-[24px]">
-                        {affiliations[affId]}
-                      </span>
-                      <button
-                        onClick={() => {
-                          const newAffiliations = formData.affiliation?.filter(
-                            (_, i) => i !== index
-                          );
-                          setFormData({
-                            ...formData,
-                            affiliation: newAffiliations,
-                          });
-                        }}
-                        className="ml-2"
-                      >
-                        <Image
-                          src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt="Remove affiliation"
-                          width={isMobile ? 16 : 24}
-                          height={isMobile ? 16 : 24}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Dropdown para adicionar nova afiliação */}
-                <div className="relative">
-                  <select
-                    value=""
-                    onChange={e => {
-                      if (e.target.value) {
-                        setFormData(addAffiliationToFormData(formData, e.target.value));
-                      }
-                    }}
-                    className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none ${
-                      darkMode
-                        ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
-                        : 'border-[#053749] text-[#829BA4]'
-                    } border`}
-                    style={{
-                      backgroundColor: darkMode ? '#053749' : 'white',
-                      color: darkMode ? 'white' : '#053749',
-                    }}
-                  >
-                    <option value="">{pageContent['edit-profile-insert-item']}</option>
-                    {Object.entries(affiliations).map(([id, name]) => (
-                      <option
-                        key={id}
-                        value={id}
-                        style={{
-                          backgroundColor: darkMode ? '#053749' : 'white',
-                          color: darkMode ? 'white' : '#053749',
-                        }}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Image
-                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                      alt="Select"
-                      width={isMobile ? 20 : 24}
-                      height={isMobile ? 20 : 24}
-                    />
-                  </div>
-                </div>
-
-                <span
-                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['body-profile-section-affiliation-dropdown-menu']}
-                </span>
-              </div>
+              <SelectionSection
+                title={pageContent['body-profile-section-title-affiliation']}
+                icon={AffiliationIcon}
+                iconDark={AffiliationIconWhite}
+                selectedItems={formData.affiliation || []}
+                availableOptions={affiliations}
+                onRemove={index => {
+                  const newAffiliations = formData.affiliation?.filter((_, i) => i !== index);
+                  setFormData({ ...formData, affiliation: newAffiliations });
+                }}
+                onAdd={value => {
+                  setFormData(addAffiliationToFormData(formData, value));
+                }}
+                helpText={pageContent['body-profile-section-affiliation-dropdown-menu']}
+                placeholder={pageContent['edit-profile-insert-item']}
+              />
 
               {/* Territory */}
-              <div className="flex flex-col gap-4 mt-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                    alt="Territory icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-section-title-territory']}
-                  </h2>
-                </div>
-
-                {/* Territory List */}
-                <div className="flex flex-wrap gap-2">
-                  {formData.territory?.map((territoryId, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-2 p-2 rounded ${
-                        darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
-                      }`}
-                    >
-                      <span className="font-[Montserrat] text-[12px] md:text-[24px]">
-                        {territories[territoryId]}
-                      </span>
-                      <button
-                        onClick={() => {
-                          const newTerritories = formData.territory?.filter((_, i) => i !== index);
-                          setFormData({
-                            ...formData,
-                            territory: newTerritories,
-                          });
-                        }}
-                        className="ml-2"
-                      >
-                        <Image
-                          src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt="Remove territory"
-                          width={isMobile ? 16 : 24}
-                          height={isMobile ? 16 : 24}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Add Territory Select */}
-                <div className="relative">
-                  <select
-                    value=""
-                    onChange={e => {
-                      const selected = e.target.value;
-                      if (selected) {
-                        setFormData(addTerritoryToFormData(formData, selected));
-                      }
-                    }}
-                    className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none ${
-                      darkMode
-                        ? 'bg-transparent border-white text-white opacity-50'
-                        : 'border-[#053749] text-[#829BA4]'
-                    } border`}
-                    style={{
-                      backgroundColor: darkMode ? '#053749' : 'white',
-                      color: darkMode ? 'white' : '#053749',
-                    }}
-                  >
-                    <option value="">{pageContent['edit-profile-insert-item']}</option>
-                    {Object.entries(territories).map(([id, name]) => (
-                      <option
-                        key={id}
-                        value={id}
-                        style={{
-                          backgroundColor: darkMode ? '#053749' : 'white',
-                          color: darkMode ? 'white' : '#053749',
-                        }}
-                      >
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <Image
-                      src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-                      alt="Select"
-                      width={isMobile ? 20 : 24}
-                      height={isMobile ? 20 : 24}
-                    />
-                  </div>
-                </div>
-
-                <span
-                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['edit-profile-territory']}
-                </span>
-              </div>
+              <SelectionSection
+                title={pageContent['body-profile-section-title-territory']}
+                icon={TerritoryIcon}
+                iconDark={TerritoryIconWhite}
+                selectedItems={formData.territory || []}
+                availableOptions={territories}
+                onRemove={index => {
+                  const newTerritories = formData.territory?.filter((_, i) => i !== index);
+                  setFormData({ ...formData, territory: newTerritories });
+                }}
+                onAdd={value => {
+                  setFormData(addTerritoryToFormData(formData, value));
+                }}
+                helpText={pageContent['edit-profile-territory']}
+                placeholder={pageContent['edit-profile-insert-item']}
+              />
 
               {/* Wikidata Item */}
               <div className="flex flex-col gap-4">
@@ -1067,15 +700,12 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                         ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
                         : 'border-[#053749] text-[#829BA4]'
                     } border`}
-                    imageUrl={
-                      isWikidataSelected
-                        ? darkMode
-                          ? CheckBoxFilledIconWhite
-                          : CheckBoxFilledIcon
-                        : darkMode
-                          ? CheckIconWhite
-                          : CheckIcon
-                    }
+                    imageUrl={getCheckboxIcon(isWikidataSelected, darkMode, {
+                      checkedLight: CheckBoxFilledIcon,
+                      checkedDark: CheckBoxFilledIconWhite,
+                      uncheckedLight: CheckIcon,
+                      uncheckedDark: CheckIconWhite,
+                    })}
                     imageAlt="Check icon"
                     imageWidth={isMobile ? 20 : 24}
                     imageHeight={isMobile ? 20 : 24}
@@ -1110,159 +740,12 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
               </div>
 
               {/* Wikimedia Projects */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? WikiIconWhite : WikiIcon}
-                    alt="Wikimedia projects icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-wikimedia-projects-title']}
-                  </h2>
-                </div>
-
-                {/* Display selected projects as tags with delete button */}
-                <div
-                  className={`flex flex-wrap gap-2 rounded-[4px] md:rounded-[16px] ${
-                    darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'
-                  } w-full px-[4px] py-[6px] md:px-3 md:py-6 items-start gap-[12px]`}
-                >
-                  {formData?.wikimedia_project?.map((projectId, index) => (
-                    <div key={index} className="flex items-center gap-1 rounded-md">
-                      <BaseButton
-                        onClick={() => {
-                          const newProjects = [...(formData.wikimedia_project || [])];
-                          newProjects.splice(index, 1);
-                          setFormData({
-                            ...formData,
-                            wikimedia_project: newProjects,
-                          });
-                        }}
-                        label={wikimediaProjects[projectId] || projectId}
-                        customClass="rounded-[4px] md:rounded-[16px] border-[1px] border-[solid] border-[var(--Links-light-link,#0070B9)] flex p-[4px] pb-[4px] md:py-4 md:px-4 justify-center items-center gap-[4px] font-[Montserrat] text-[12px] md:text-[24px] not-italic font-normal leading-[normal]"
-                        imageUrl={darkMode ? CloseIconWhite : CloseIcon}
-                        imageAlt="Remove project"
-                        imageWidth={isMobile ? 16 : 24}
-                        imageHeight={isMobile ? 16 : 24}
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Selector for adding new projects - only shown when button is clicked */}
-                {showProjectSelector && (
-                  <div className="relative project-selector">
-                    <input
-                      type="text"
-                      placeholder={pageContent['edit-profile-insert-project']}
-                      onChange={e => {
-                        const searchTerm = e.target.value.toLowerCase();
-                        const filteredProjects = Object.entries(wikimediaProjects).filter(
-                          ([id, name]) => name.toLowerCase().includes(searchTerm)
-                        );
-                        setFilteredProjects(filteredProjects);
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Escape') {
-                          setShowProjectSelector(false);
-                          setFilteredProjects([]);
-                        }
-                      }}
-                      className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] ${
-                        darkMode
-                          ? 'bg-transparent border-white text-white placeholder-gray-400'
-                          : 'border-[#053749] text-[#053749]'
-                      } border`}
-                      style={{
-                        backgroundColor: darkMode ? '#053749' : 'white',
-                      }}
-                      autoFocus
-                    />
-
-                    {/* Dropdown with filtered projects */}
-                    <div
-                      className={`absolute top-full left-0 right-0 mt-1 max-h-40 md:max-h-60 overflow-y-auto rounded-[4px] md:rounded-[16px] border ${
-                        darkMode ? 'bg-[#053749] border-white' : 'bg-white border-[#053749]'
-                      } z-50 shadow-lg`}
-                    >
-                      {filteredProjects.length > 0 ? (
-                        filteredProjects.map(([id, name]) => (
-                          <button
-                            key={id}
-                            onClick={() => {
-                              setFormData(addProjectToFormData(formData, id));
-                              setShowProjectSelector(false);
-                              setFilteredProjects([]);
-                            }}
-                            className={`w-full px-4 py-2 md:py-3 text-left font-[Montserrat] text-[12px] md:text-[20px] hover:bg-opacity-80 transition-colors ${
-                              darkMode
-                                ? 'text-white hover:bg-white hover:bg-opacity-10 hover:text-[#053749]'
-                                : 'text-[#053749] hover:bg-gray-100'
-                            }`}
-                          >
-                            {name}
-                          </button>
-                        ))
-                      ) : (
-                        <div
-                          className={`px-4 py-2 md:py-3 font-[Montserrat] text-[12px] md:text-[18px] ${
-                            darkMode ? 'text-gray-400' : 'text-gray-500'
-                          }`}
-                        >
-                          {pageContent['edit-profile-no-projects-found'] ||
-                            'Nenhum projeto encontrado'}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Close button */}
-                    <button
-                      onClick={() => {
-                        setShowProjectSelector(false);
-                        setFilteredProjects([]);
-                      }}
-                      className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full ${
-                        darkMode ? 'hover:bg-white hover:bg-opacity-10' : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      <Image
-                        src={darkMode ? CloseIconWhite : CloseIcon}
-                        alt="Close"
-                        width={isMobile ? 16 : 20}
-                        height={isMobile ? 16 : 20}
-                      />
-                    </button>
-                  </div>
-                )}
-
-                <BaseButton
-                  onClick={() => {
-                    setShowProjectSelector(true);
-                    setFilteredProjects(Object.entries(wikimediaProjects));
-                  }}
-                  label={pageContent['edit-profile-add-projects']}
-                  customClass={`w-full md:w-1/4 flex ${
-                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                  } rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                  imageUrl={darkMode ? AddIconDark : AddIcon}
-                  imageAlt="Add project"
-                  imageWidth={isMobile ? 20 : 30}
-                  imageHeight={isMobile ? 20 : 30}
-                />
-                <span
-                  className={`text-[12px] md:text-[20px] md:text-[24px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['edit-profile-wikimedia-projects']}
-                </span>
-              </div>
+              <WikimediaProjectsSection
+                formData={formData}
+                setFormData={setFormData}
+                wikimediaProjects={wikimediaProjects}
+                addProjectToFormData={addProjectToFormData}
+              />
             </div>
 
             {/* Let's Connect Section */}
