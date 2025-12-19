@@ -22,10 +22,7 @@ import {
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import {
-  default as AccountCircleIconWhite,
-  default as LetsConnectIconWhite,
-} from '@/public/static/images/account_circle_white.svg';
+import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
@@ -50,6 +47,7 @@ import LetsConectTextDesktop from '@/public/static/images/lets_connect_text_desk
 import LetsConectText from '@/public/static/images/lets_connect_text_img.svg';
 import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
 import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
+import LetsConnectIconWhite from '@/public/static/images/lets_connect_white.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
 import PersonIcon from '@/public/static/images/person_book.svg';

@@ -21,7 +21,10 @@ const getContainerClass = (variant: ActionButtonsProps['variant']) => {
 };
 
 const getButtonSize = (variant: ActionButtonsProps['variant'], isMobile: boolean) => {
-  return variant === 'desktop-top' ? 30 : isMobile ? 20 : 30;
+  if (variant === 'desktop-top') {
+    return 30;
+  }
+  return isMobile ? 20 : 30;
 };
 
 const getSaveButtonClass = (variant: ActionButtonsProps['variant']) => {

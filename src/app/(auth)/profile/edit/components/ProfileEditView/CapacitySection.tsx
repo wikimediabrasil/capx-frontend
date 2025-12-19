@@ -75,12 +75,18 @@ export function CapacitySection({
                 ? 'border-[#05A300]'
                 : 'border-[#D43831]';
 
+          const borderWidthClass = type === 'known' ? 'md:border-2' : '';
+          const paddingClass = type === 'wanted' ? 'md:px-2 md:py-2 md:pb-2' : 'md:py-4 md:px-4';
+
           return (
-            <div key={index} className="flex items-center gap-1 rounded-md">
+            <div
+              key={`${type}-${capacity}-${index}`}
+              className="flex items-center gap-1 rounded-md"
+            >
               <BaseButton
                 onClick={() => onRemove(type, index)}
                 label={getCapacityName(capacity)}
-                customClass={`rounded-[4px] border-[1px] ${type === 'known' ? 'md:border-2' : ''} border-[solid] ${borderColorClass} !mb-0 flex p-[4px] pb-[4px] ${type === 'wanted' ? 'md:px-2 md:py-2 md:pb-2' : 'md:py-4 md:px-4'} justify-center items-center gap-[4px] font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} not-italic font-normal leading-[normal]`}
+                customClass={`rounded-[4px] border-[1px] ${borderWidthClass} border-[solid] ${borderColorClass} !mb-0 flex p-[4px] pb-[4px] ${paddingClass} justify-center items-center gap-[4px] font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} not-italic font-normal leading-[normal]`}
                 imageUrl={getThemedIcon(CloseIcon, CloseIconWhite, darkMode)}
                 imageAlt="Close icon"
                 imageWidth={getResponsiveSize(16, 24, isMobile)}

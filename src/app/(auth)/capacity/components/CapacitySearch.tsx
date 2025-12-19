@@ -303,28 +303,8 @@ export function CapacitySearch({
           // Full card view for capacity page
           processedResults.map(capacity => {
             const isSelected = isCapacitySelected(capacity.code);
-            return (
-              <div
-                key={capacity.code}
-                className={`
-                  w-full cursor-pointer transition-all relative
-                  ${onSelect ? 'hover:scale-[1.02]' : ''}
-                  ${isSelected ? 'ring-2 ring-capx-primary-green rounded-lg' : ''}
-                `}
-                onClick={() => onSelect && handleCapacityClick(capacity)}
-                role={onSelect ? 'button' : undefined}
-                tabIndex={onSelect ? 0 : undefined}
-                onKeyDown={
-                  onSelect
-                    ? e => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleCapacityClick(capacity);
-                        }
-                      }
-                    : undefined
-                }
-              >
+            const content = (
+              <>
                 <CapacityCard
                   {...capacity}
                   name={getName(capacity.code) || capacity.name}
@@ -344,6 +324,29 @@ export function CapacitySearch({
                     <span className="text-white text-sm font-bold">✓</span>
                   </div>
                 )}
+              </>
+            );
+
+            if (onSelect) {
+              return (
+                <button
+                  key={capacity.code}
+                  type="button"
+                  onClick={() => handleCapacityClick(capacity)}
+                  className={`
+                    w-full cursor-pointer transition-all relative text-left p-0 bg-transparent border-0
+                    hover:scale-[1.02]
+                    ${isSelected ? 'ring-2 ring-capx-primary-green rounded-lg' : ''}
+                  `}
+                >
+                  {content}
+                </button>
+              );
+            }
+
+            return (
+              <div key={capacity.code} className="w-full relative">
+                {content}
               </div>
             );
           })
