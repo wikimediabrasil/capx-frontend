@@ -4,7 +4,17 @@ export type MentorshipFormat = 'in-person' | 'online' | 'hybrid';
 
 export type MentorshipRole = 'mentor' | 'mentee';
 
-export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'multiselect' | 'time' | 'date' | 'datetime';
+export type FormFieldType =
+  | 'text'
+  | 'email'
+  | 'tel'
+  | 'number'
+  | 'textarea'
+  | 'select'
+  | 'multiselect'
+  | 'time'
+  | 'date'
+  | 'datetime';
 
 export interface FormFieldOption {
   label: string;
@@ -51,4 +61,3 @@ export interface MentorshipProgram {
     mentee?: MentorshipForm;
   };
 }
-

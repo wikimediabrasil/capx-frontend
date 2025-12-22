@@ -29,10 +29,7 @@ export default function RoleSelectionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div
@@ -46,21 +43,14 @@ export default function RoleSelectionModal({
           <div className="flex justify-center mb-4">
             <div className="relative w-20 h-20">
               {program.logo && program.logo.trim() !== '' && program.logo !== null ? (
-                <Image
-                  src={program.logo}
-                  alt={program.name}
-                  fill
-                  className="object-contain"
-                />
+                <Image src={program.logo} alt={program.name} fill className="object-contain" />
               ) : (
                 <div
                   className={`w-full h-full rounded-lg flex items-center justify-center ${
                     darkMode ? 'bg-gray-700' : 'bg-gray-200'
                   }`}
                 >
-                  <span className="text-xl font-bold text-gray-500">
-                    {program.name.charAt(0)}
-                  </span>
+                  <span className="text-xl font-bold text-gray-500">{program.name.charAt(0)}</span>
                 </div>
               )}
             </div>
@@ -76,11 +66,7 @@ export default function RoleSelectionModal({
           </h2>
 
           {/* Instruction */}
-          <p
-            className={`text-sm text-center mb-6 ${
-              darkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}
-          >
+          <p className={`text-sm text-center mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             {pageContent['mentorship-role-instruction'] ||
               'Please indicate whether you would like to participate as a mentor or as a mentee.'}
           </p>
@@ -91,8 +77,6 @@ export default function RoleSelectionModal({
               onClick={() => onSelect('mentor', program)}
               customClass="w-full px-4 py-3 rounded-lg text-base font-extrabold bg-[#053749] hover:bg-[#04222F] text-white flex items-center justify-center gap-2"
               label={pageContent['mentor'] || 'Mentor'}
-              imageUrl={MentorIcon}
-              imageAlt="Mentor icon"
               imageWidth={24}
               imageHeight={24}
             />
@@ -104,8 +88,6 @@ export default function RoleSelectionModal({
                   : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
               }`}
               label={pageContent['mentee'] || 'Mentee'}
-              imageUrl={MenteeIcon}
-              imageAlt="Mentee icon"
               imageWidth={24}
               imageHeight={24}
             />
@@ -126,4 +108,3 @@ export default function RoleSelectionModal({
     </div>
   );
 }
-

@@ -83,7 +83,8 @@ const mockPrograms: MentorshipProgram[] = [
             label: 'What can you teach?',
             type: 'textarea',
             required: true,
-            placeholder: "Describe what skills, knowledge or experience you can share with mentees. Include specific topics, tools, or methodologies you're comfortable teaching.",
+            placeholder:
+              "Describe what skills, knowledge or experience you can share with mentees. Include specific topics, tools, or methodologies you're comfortable teaching.",
           },
           {
             id: 'availability_start',
@@ -376,18 +377,16 @@ export default function MentorshipPage() {
     setSearchTerm(e.target.value);
   };
 
-  const filteredPrograms = programs.filter(program =>
-    program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    program.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    program.location.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPrograms = programs.filter(
+    program =>
+      program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      program.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      program.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSubscribe = (programId: number, role: 'mentor' | 'mentee') => {
     const program = programs.find(p => p.id === programId);
-    showSnackbar(
-      `Successfully subscribed to ${program?.name} as ${role}`,
-      'success'
-    );
+    showSnackbar(`Successfully subscribed to ${program?.name} as ${role}`, 'success');
     console.log('Subscribe:', { programId, role });
   };
 
@@ -407,23 +406,16 @@ export default function MentorshipPage() {
       />
 
       {/* Main Content */}
-      <div
-        className={`w-full py-8 md:py-12 ${
-          darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'
-        }`}
-      >
+      <div className={`w-full py-8 md:py-12 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}>
         <div className="container mx-auto px-4 max-w-screen-xl">
           {/* Search Bar */}
           <SearchBar
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
             onFilterClick={() => setShowFilters(!showFilters)}
-            searchPlaceholder={
-              pageContent['search-by-mentorships'] || 'Search by mentorships'
-            }
+            searchPlaceholder={pageContent['search-by-mentorships'] || 'Search by mentorships'}
             filterAriaLabel={
-              pageContent['filter-mentorship-programs'] ||
-              'Filter mentorship programs'
+              pageContent['filter-mentorship-programs'] || 'Filter mentorship programs'
             }
           />
 
@@ -440,15 +432,8 @@ export default function MentorshipPage() {
               ))}
             </div>
           ) : (
-            <div
-              className={`text-center py-12 ${
-                darkMode ? 'text-gray-300' : 'text-gray-600'
-              }`}
-            >
-              <p>
-                {pageContent['no-mentorship-programs-found'] ||
-                  'No mentorship programs found'}
-              </p>
+            <div className={`text-center py-12 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p>{pageContent['no-mentorship-programs-found'] || 'No mentorship programs found'}</p>
             </div>
           )}
         </div>
@@ -456,4 +441,3 @@ export default function MentorshipPage() {
     </section>
   );
 }
-

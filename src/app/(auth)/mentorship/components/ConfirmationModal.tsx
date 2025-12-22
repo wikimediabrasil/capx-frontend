@@ -28,10 +28,7 @@ export default function ConfirmationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div
@@ -45,12 +42,7 @@ export default function ConfirmationModal({
           {programLogo && programLogo.trim() !== '' && (
             <div className="flex justify-center mb-4">
               <div className="relative w-20 h-20">
-                <Image
-                  src={programLogo}
-                  alt={programName}
-                  fill
-                  className="object-contain"
-                />
+                <Image src={programLogo} alt={programName} fill className="object-contain" />
               </div>
             </div>
           )}
@@ -65,11 +57,7 @@ export default function ConfirmationModal({
           </h2>
 
           {/* Message */}
-          <p
-            className={`text-sm text-center mb-6 ${
-              darkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}
-          >
+          <p className={`text-sm text-center mb-6 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             {pageContent['mentorship-application-forwarded'] ||
               "I've forwarded your application to the mentorship program. They will contact you directly soon."}
           </p>
@@ -89,4 +77,3 @@ export default function ConfirmationModal({
     </div>
   );
 }
-

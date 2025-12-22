@@ -205,9 +205,7 @@ export default function DynamicForm({
                   <span
                     key={index}
                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
-                      darkMode
-                        ? 'bg-gray-700 text-white'
-                        : 'bg-gray-100 text-gray-700'
+                      darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700'
                     }`}
                   >
                     {field.options?.find(opt => opt.value === selectedValue)?.label ||
@@ -332,15 +330,14 @@ export default function DynamicForm({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div
         className={`relative w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
-          darkMode ? 'bg-capx-dark-box-bg border border-gray-700' : 'bg-white border border-gray-200'
+          darkMode
+            ? 'bg-capx-dark-box-bg border border-gray-700'
+            : 'bg-white border border-gray-200'
         }`}
       >
         {/* Modal Content */}
@@ -349,12 +346,7 @@ export default function DynamicForm({
           {programLogo && programLogo.trim() !== '' && (
             <div className="flex justify-center mb-4">
               <div className="relative w-20 h-20">
-                <Image
-                  src={programLogo}
-                  alt={programName}
-                  fill
-                  className="object-contain"
-                />
+                <Image src={programLogo} alt={programName} fill className="object-contain" />
               </div>
             </div>
           )}
@@ -404,4 +396,3 @@ export default function DynamicForm({
     </div>
   );
 }
-

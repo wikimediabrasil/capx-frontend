@@ -76,27 +76,18 @@ export default function MentorshipProgramCard({
     <>
       <div
         className={`flex flex-col p-4 md:p-6 rounded-lg border ${
-          darkMode
-            ? 'bg-capx-dark-box-bg border-gray-700'
-            : 'bg-white border-gray-200'
+          darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-200'
         }`}
       >
         {/* Logo */}
         <div className="mb-4">
           <div className="relative w-20 h-20 md:w-24 md:h-24">
             {program.logo && program.logo.trim() !== '' ? (
-              <Image
-                src={program.logo}
-                alt={program.name}
-                fill
-                className="object-contain"
-              />
+              <Image src={program.logo} alt={program.name} fill className="object-contain" />
             ) : (
               <div
                 className={`w-full h-full rounded-lg flex items-center justify-center border-2 ${
-                  darkMode
-                    ? 'bg-gray-700 border-gray-600'
-                    : 'bg-gray-50 border-gray-300'
+                  darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'
                 }`}
               >
                 <span
@@ -122,15 +113,11 @@ export default function MentorshipProgramCard({
                 className="object-contain"
               />
             </div>
-            <span
-              className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
-            >
+            <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {program.location}
             </span>
           </div>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}
-          >
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
             {program.status}
           </span>
         </div>
@@ -161,9 +148,7 @@ export default function MentorshipProgramCard({
                 />
               </svg>
             </div>
-            <span
-              className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
-            >
+            <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {formatLabel}
             </span>
           </div>
@@ -197,9 +182,7 @@ export default function MentorshipProgramCard({
                     </span>
                   ))}
                   {program.capacities.length > 2 && (
-                    <span
-                      className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
+                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       ...
                     </span>
                   )}
@@ -237,9 +220,7 @@ export default function MentorshipProgramCard({
                     </span>
                   ))}
                   {program.languages.length > 2 && (
-                    <span
-                      className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
-                    >
+                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       ...
                     </span>
                   )}
@@ -278,9 +259,7 @@ export default function MentorshipProgramCard({
                 />
               </svg>
             </div>
-            <span
-              className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
-            >
+            <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {program.subscribers} Subscribers
             </span>
           </div>
@@ -337,4 +316,3 @@ export default function MentorshipProgramCard({
     </>
   );
 }
-
