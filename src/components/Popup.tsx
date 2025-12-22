@@ -17,6 +17,8 @@ interface PopupProps {
   titleClassName?: string;
   closeButtonClassName?: string;
   footerClassName?: string;
+  minHeight?: string;
+  contentScrollable?: boolean;
 }
 
 const Popup = ({
@@ -32,6 +34,8 @@ const Popup = ({
   titleClassName,
   closeButtonClassName,
   footerClassName,
+  minHeight = 'min-h-[300px] md:min-h-[400px]',
+  contentScrollable = false,
 }: PopupProps) => {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
@@ -79,16 +83,18 @@ const Popup = ({
             aria-hidden="true"
           />
           <div
-            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 
+            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
             w-[90%] md:w-[880px] xl:w-[1024px]
-            min-h-[300px] md:min-h-[400px] max-h-[90vh]
-            rounded-3xl shadow-xl overflow-hidden ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}`}
+            ${minHeight} max-h-[90vh]
+            rounded-3xl shadow-xl ${contentScrollable ? 'overflow-hidden' : 'overflow-hidden'} ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="popup-title"
             aria-describedby="popup-content"
           >
-            <div className="flex flex-col h-full p-4 md:p-8">
+            <div
+              className={`flex flex-col h-full p-4 md:p-8 ${contentScrollable ? 'max-h-[90vh]' : ''}`}
+            >
               {/* Header */}
               <div className="flex-none">
                 <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
@@ -119,7 +125,7 @@ const Popup = ({
 
               {/* Content */}
               <div
-                className={`flex-grow flex items-center justify-center ${
+                className={`flex-grow ${contentScrollable ? 'overflow-y-auto' : 'flex items-center justify-center'} ${
                   children ? 'my-4 md:my-6' : 'my-2'
                 }`}
               >
