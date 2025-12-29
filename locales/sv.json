@@ -4,6 +4,7 @@
 			"Alicia Fagerving (WMSE)",
 			"Gkyziridis",
 			"Sabelöga",
+			"Stefan2255",
 			"Yupik"
 		]
 	},
@@ -76,8 +77,13 @@
 	"lets-connect-form-area-human-rights": "Mänskliga rättigheter",
 	"filters-territory": "Territorium",
 	"aria-language-input": "Välj ett språk",
+	"recommendations-new-skills": "Rekommenderade färdigheter att lära sig",
+	"recommendations-based-on-most-used-capacities": "Baserat på de mest använda färdigheter i nätverket",
 	"view-event": "Se evenemang",
 	"view-profile": "Se profil",
+	"recommendations-new-skills-tooltip": "Upptäck populära färdigheter i nätverket som du kan lägga till i din lista över önskade färdigheter.",
+	"recommendations-known-available-skills": "Rekommenderade färdigheter att dela",
+	"recommendations-known-available-skills-tooltip": "Upptäck populära färdigheter i nätverket som du kan lägga till som både kända och tillgängliga färdigheter att dela med andra.",
 	"organization-names-none": "Det finns inga översättningar än.",
 	"select-language": "Välj språk"
 }
