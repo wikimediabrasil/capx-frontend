@@ -29,8 +29,7 @@ import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
-import ProfileEditDesktopView from './ProfileEditDesktopView';
-import ProfileEditMobileView from './ProfileEditMobileView';
+import ProfileEditView from './ProfileEditView';
 
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
@@ -769,37 +768,13 @@ export default function EditProfilePage() {
     setShowLetsConnectPopup,
     handleLetsConnectImport,
     isLetsConnectLoading,
+    isImageLoading,
+    setIsImageLoading,
   };
-
-  // When showing debug information, include loading state
-  if (isMobile) {
-    return (
-      <>
-        <ProfileEditMobileView {...ViewProps} />
-        {process.env.NODE_ENV === 'development' && (
-          <>
-            <DebugPanel
-              data={{
-                capacityIds,
-                capacitiesLoading: !isCapacityCacheLoaded,
-              }}
-              title="Debug: Capacity IDs"
-            />
-            <CapacityDebug
-              capacityIds={capacityIds}
-              knownSkills={formData.skills_known}
-              availableSkills={formData.skills_available}
-              wantedSkills={formData.skills_wanted}
-            />
-          </>
-        )}
-      </>
-    );
-  }
 
   return (
     <>
-      <ProfileEditDesktopView {...ViewProps} />
+      <ProfileEditView {...ViewProps} />
       {process.env.NODE_ENV === 'development' && (
         <>
           <DebugPanel

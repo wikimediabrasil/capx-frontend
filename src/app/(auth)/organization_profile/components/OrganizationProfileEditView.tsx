@@ -1,6 +1,7 @@
 import EventsList from '@/app/events/components/EventsList';
 import BaseButton from '@/components/BaseButton';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
+import Popup from '@/components/Popup';
 import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -989,15 +990,30 @@ export default function OrganizationProfileEditView({
           </div>
         </div>
       </section>
-      <CapacitySelectionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSelect={handleCapacitySelect}
-        title={pageContent['edit-profile-select-capacities']?.replace(
-          '$1',
-          pageContent[currentCapacityType]
-        )}
-      />
+      {isModalOpen && (
+        <Popup
+          onClose={() => setIsModalOpen(false)}
+          title={
+            pageContent['edit-profile-select-capacities']?.replace(
+              '$1',
+              pageContent[currentCapacityType]
+            ) || 'Select capacities'
+          }
+        >
+          <div className="p-4">
+            <CapacitySearch
+              onSelect={capacities => {
+                handleCapacitySelect(capacities as any);
+                setIsModalOpen(false);
+              }}
+              selectedCapacities={[]}
+              allowMultipleSelection={true}
+              showSelectedChips={false}
+              compact={true}
+            />
+          </div>
+        </Popup>
+      )}
     </div>
   );
 }

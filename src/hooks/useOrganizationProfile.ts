@@ -155,6 +155,9 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
             activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Sharer) ?? undefined,
           has_capacities_wanted:
             activeFilters?.profileCapacityTypes.includes(ProfileCapacityType.Learner) ?? undefined,
+          ...(activeFilters?.name && {
+            name: activeFilters.name,
+          }),
         };
 
         const data = await organizationProfileService.getOrganizations(filters);
@@ -176,6 +179,7 @@ export function useOrganizations(limit?: number, offset?: number, activeFilters?
     JSON.stringify(activeFilters?.capacities),
     JSON.stringify(activeFilters?.territories),
     JSON.stringify(activeFilters?.profileCapacityTypes),
+    activeFilters?.name,
   ]);
 
   return { organizations, isLoading, error, count };
