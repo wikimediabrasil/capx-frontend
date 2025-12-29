@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Epiphanus Jidechukwu",
+			"Sayvhior",
 			"Tochiprecious",
 			"Vivian1234"
 		]
@@ -170,7 +171,7 @@
 	"edit-profile-territory": "Gwa ebe ị nọ site na mpaghara ma ọ bụ mba.",
 	"edit-profile-display-links": "Mee ka obodo mara ihe nzukọ gị na-arụ ọrụ na ya. Kesaa ihe ruru njikọ Wikimedia anọ na foto ndị yiri ya na Commons.",
 	"edit-profile-wikidata-item": "Ihe Wikidata",
-	"edit-profile-consent-wikidata-item-before-link": "Site na ịpị ebe a, ekwere m na ihe Wikidata m ga-egosipụta na profaịlụ CapX m. Ngwá ọrụ ahụ ga-ele anya na Wikidata maka QID metụtara aha njirimara gị ma gosipụta ya ma ọ bụrụ na achọta ya. Iji nwee ihe na Wikidata, mmadụ ga-ezute $ 1.",
+	"edit-profile-consent-wikidata-item-before-link": "Site na ịpị ebe a, ekwenyere m ka ihe Wikidata m gosipụta na profaịlụ CapX m. Ngwaọrụ a ga-achọ na Wikidata maka QID metụtara aha njirimara gị ma gosi ya ma ọ bụrụ na achọtara ya. Iji nwee ihe na Wikidata, mmadụ ga-emerịrị $1 .",
 	"edit-profile-wikimedia-projects": "Tinye ọrụ Wikimedia ị nwere mmasị na ya.",
 	"edit-profile-insert-project": "Tinye ọrụ",
 	"edit-profile-insert-link": "Tinye URL akwụkwọ",

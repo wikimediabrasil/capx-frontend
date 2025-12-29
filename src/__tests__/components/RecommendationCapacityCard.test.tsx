@@ -80,12 +80,13 @@ function setupAllMocks(
   mockSnackbar: ReturnType<typeof createMockSnackbar>,
   mockRouter: ReturnType<typeof createMockRouter>,
   mockQueryClient: ReturnType<typeof createMockQueryClient>,
-  mockUserProfile: ReturnType<typeof createMockUserProfile>
+  mockUserProfile: ReturnType<typeof createMockUserProfile>,
+  mockCapacityCache: ReturnType<typeof createMockCapacityCache>
 ) {
   const { useRouter } = require('next/navigation');
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
   setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-  (useCapacityCache as jest.Mock).mockReturnValue(createMockCapacityCache());
+  (useCapacityCache as jest.Mock).mockReturnValue(mockCapacityCache);
   (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
   (useQuery as jest.Mock).mockReturnValue({
     data: mockUserProfile,
@@ -140,13 +141,11 @@ describe('RecommendationCapacityCard', () => {
   const mockRouter = createMockRouter();
   const mockQueryClient = createMockQueryClient();
   const mockUserProfile = createMockUserProfile();
-
-  // Create stable mock function that persists across ALL renders and tests
-  const mockPreloadCapacities = jest.fn().mockResolvedValue(undefined);
+  const mockCapacityCache = createMockCapacityCache();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    setupAllMocks(mockSnackbar, mockRouter, mockQueryClient, mockUserProfile);
+    setupAllMocks(mockSnackbar, mockRouter, mockQueryClient, mockUserProfile, mockCapacityCache);
   });
 
   afterEach(cleanupMocks);
@@ -162,7 +161,7 @@ describe('RecommendationCapacityCard', () => {
       expect(screen.getByText('View')).toBeInTheDocument();
 
       // Verify preloadCapacities was called
-      expect(mockPreloadCapacities).toHaveBeenCalled();
+      expect(mockCapacityCache.preloadCapacities).toHaveBeenCalled();
     });
 
     it('should render with hint message when provided', async () => {
@@ -243,6 +242,14 @@ describe('RecommendationCapacityCard', () => {
         skills_wanted: ['50'], // Capacity ID 50 is already in the list
       };
 
+      // Update the mock to return the profile with the capacity
+      mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
+        if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
+          return profileWithCapacity;
+        }
+        return undefined;
+      });
+
       renderCapacityCard();
 
       await waitFor(() => {
@@ -312,6 +319,19 @@ describe('RecommendationCapacityCard', () => {
     it('should not add duplicate capacity', async () => {
       const { profileService } = require('@/services/profileService');
       profileService.updateProfile = jest.fn().mockResolvedValue({});
+
+      const profileWithCapacity = {
+        ...mockUserProfile,
+        skills_wanted: ['50'], // Capacity ID 50 is already in the list
+      };
+
+      // Update the mock to return the profile with the capacity
+      mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
+        if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
+          return profileWithCapacity;
+        }
+        return undefined;
+      });
 
       renderCapacityCard();
 

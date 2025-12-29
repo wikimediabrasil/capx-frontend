@@ -868,18 +868,20 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   }}
                 >
                   <option value="">{pageContent['edit-profile-add-language']}</option>
-                  {Object.entries(languagesData).map(([id, name]) => (
-                    <option
-                      key={id}
-                      value={id}
-                      style={{
-                        backgroundColor: darkMode ? '#053749' : 'white',
-                        color: darkMode ? 'white' : '#053749',
-                      }}
-                    >
-                      {name}
-                    </option>
-                  ))}
+                  {Object.entries(languagesData)
+                    .sort((a, b) => a[1].localeCompare(b[1]))
+                    .map(([id, name]) => (
+                      <option
+                        key={id}
+                        value={id}
+                        style={{
+                          backgroundColor: darkMode ? '#053749' : 'white',
+                          color: darkMode ? 'white' : '#053749',
+                        }}
+                      >
+                        {name}
+                      </option>
+                    ))}
                 </select>
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   <Image
