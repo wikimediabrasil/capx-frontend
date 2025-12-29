@@ -343,7 +343,7 @@
   "message-form-email-not-available": "Email is not available. Talk page will be used instead.",
   "message-form-email-receiver-not-emailable": "This user cannot receive emails. Talk page will be used instead.",
   "message-form-email-sender-not-configured": "Email is not available. You need to configure email in your Meta-Wiki preferences.",
-  "message-form-email-unavailable": "unavailable",
+  "message-form-email-unavailable": "email unavailable",
   "message-form-method-unavailable": "unavailable",
   "message-form-user-checking": "Checking user. Wait a moment.",
   "message-form-user-not-found": "User not found",
