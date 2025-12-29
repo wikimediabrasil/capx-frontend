@@ -1,9 +1,13 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import NewsFormItem from '@/app/(auth)/organization_profile/components/NewsFormItem';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
 import * as AppContext from '@/contexts/AppContext';
+import {
+  renderWithProviders,
+  createMockAppContext,
+  createMockThemeContext,
+  createMockPageContent,
+} from '../utils/test-helpers';
 
 // Mock contexts
 jest.mock('@/contexts/AppContext', () => ({
@@ -28,9 +32,9 @@ describe('NewsFormItem', () => {
   const mockUseApp = AppContext.useApp as jest.MockedFunction<typeof AppContext.useApp>;
   const mockUseTheme = ThemeContext.useTheme as jest.MockedFunction<typeof ThemeContext.useTheme>;
 
-  const mockPageContent = {
+  const mockPageContent = createMockPageContent({
     'organization-profile-add-a-diff-tag': 'Add a news tag',
-  };
+  });
 
   const mockNews = {
     id: 1,
@@ -47,32 +51,9 @@ describe('NewsFormItem', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    mockUseApp.mockReturnValue({
-      isMobile: false,
-      pageContent: mockPageContent,
-      language: 'en',
-      mobileMenuStatus: false,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      session: null,
-      setSession: jest.fn(),
-    });
-
-    mockUseTheme.mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    mockUseApp.mockReturnValue(createMockAppContext({ pageContent: mockPageContent }));
+    mockUseTheme.mockReturnValue(createMockThemeContext(false));
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
-  };
 
   it('renders news form item with tag input', () => {
     renderWithProviders(<NewsFormItem {...mockProps} />);
@@ -113,23 +94,21 @@ describe('NewsFormItem', () => {
     expect(deleteIcon).toBeInTheDocument();
   });
 
-  it('applies dark mode styling', () => {
-    mockUseTheme.mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
-
+  const testThemeStyling = (darkMode: boolean, expectedClasses: string[]) => {
+    mockUseTheme.mockReturnValue(createMockThemeContext(darkMode));
     renderWithProviders(<NewsFormItem {...mockProps} />);
-
     const tagInput = screen.getByDisplayValue('Breaking News');
-    expect(tagInput).toHaveClass('text-white', 'placeholder-gray-400');
+    expectedClasses.forEach(className => {
+      expect(tagInput).toHaveClass(className);
+    });
+  };
+
+  it('applies dark mode styling', () => {
+    testThemeStyling(true, ['text-white', 'placeholder-gray-400']);
   });
 
   it('applies light mode styling', () => {
-    renderWithProviders(<NewsFormItem {...mockProps} />);
-
-    const tagInput = screen.getByDisplayValue('Breaking News');
-    expect(tagInput).toHaveClass('text-[#829BA4]', 'placeholder-[#829BA4]');
+    testThemeStyling(false, ['text-[#829BA4]', 'placeholder-[#829BA4]']);
   });
 
   it('handles empty tag', () => {
@@ -154,10 +133,9 @@ describe('NewsFormItem', () => {
 
   describe('mobile view', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      mockUseApp.mockReturnValue(
+        createMockAppContext({ isMobile: true, pageContent: mockPageContent })
+      );
     });
 
     it('renders mobile layout correctly', () => {
@@ -198,13 +176,8 @@ describe('NewsFormItem', () => {
   });
 
   it('uses dark mode delete icon when dark mode is enabled', () => {
-    mockUseTheme.mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
-
+    mockUseTheme.mockReturnValue(createMockThemeContext(true));
     renderWithProviders(<NewsFormItem {...mockProps} />);
-
     const deleteIcon = screen.getByAltText('Delete icon');
     expect(deleteIcon).toBeInTheDocument();
     // The component should use CancelIconWhite when darkMode is true
@@ -234,19 +207,13 @@ describe('NewsFormItem', () => {
 
   it('maintains tag value after re-render', () => {
     const { rerender } = renderWithProviders(<NewsFormItem {...mockProps} />);
-
     expect(screen.getByDisplayValue('Breaking News')).toBeInTheDocument();
 
     const updatedNews = { ...mockNews, tag: 'Updated Tag' };
     const updatedProps = { ...mockProps, news: updatedNews };
 
-    rerender(
-      <ThemeProvider>
-        <AppProvider>
-          <NewsFormItem {...updatedProps} />
-        </AppProvider>
-      </ThemeProvider>
-    );
+    // Use a simple rerender instead of wrapping in providers again
+    rerender(<NewsFormItem {...updatedProps} />);
 
     expect(screen.getByDisplayValue('Updated Tag')).toBeInTheDocument();
     expect(screen.queryByDisplayValue('Breaking News')).not.toBeInTheDocument();

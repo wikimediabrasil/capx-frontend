@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Common test wrapper component
 export const createTestWrapper = (
@@ -68,7 +69,29 @@ export const renderWithProviders = (
   ui: React.ReactElement,
   additionalProviders?: React.ComponentType<any>[]
 ) => {
-  const Wrapper = createTestWrapper(additionalProviders);
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  const Wrapper = ({ children }: { children: React.ReactNode }) => {
+    let wrappedChildren = children;
+
+    // Wrap with additional providers (from innermost to outermost)
+    if (additionalProviders) {
+      // Reverse to apply providers in correct order
+      [...additionalProviders].reverse().forEach(Provider => {
+        wrappedChildren = <Provider>{wrappedChildren}</Provider>;
+      });
+    }
+
+    // Wrap with QueryClientProvider
+    return <QueryClientProvider client={queryClient}>{wrappedChildren}</QueryClientProvider>;
+  };
+
   return render(ui, { wrapper: Wrapper });
 };
 
@@ -112,6 +135,7 @@ export const createMockRouter = (overrides = {}) => ({
 
 // Mock factory for QueryClient
 export const createMockQueryClient = () => ({
+  getQueryData: jest.fn(),
   setQueryData: jest.fn(),
   invalidateQueries: jest.fn(),
 });
