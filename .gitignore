@@ -42,5 +42,9 @@ next-env.d.ts
 .idea
 *storybook.log
 
+# performance profiling
+/performance-reports/
+auth-state.json
+
 # jscpd duplication reports
 /jscpd-report
