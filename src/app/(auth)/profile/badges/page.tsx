@@ -1,19 +1,19 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
+import BaseButton from '@/components/BaseButton';
+import ProgressBar from '@/components/ProgressBar';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useBadges } from '@/contexts/BadgesContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import { useProfile } from '@/hooks/useProfile';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
 import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
-import BaseButton from '@/components/BaseButton';
 import { useSession } from 'next-auth/react';
-import { useProfile } from '@/hooks/useProfile';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { useBadges } from '@/contexts/BadgesContext';
-import ProgressBar from '@/components/ProgressBar';
 
 export default function BadgesPage() {
   const { darkMode } = useTheme();
@@ -27,8 +27,9 @@ export default function BadgesPage() {
   const { profile } = useProfile(token, Number(userId));
 
   const { getAvatarById } = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || NoAvatarIcon);
-  const { userBadges } = useBadges();
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || getDefaultAvatar(darkMode));
+  const { allBadges, userBadges } = useBadges();
+  const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 
   useEffect(() => {
     const fetchAvatar = async () => {
@@ -83,7 +84,16 @@ export default function BadgesPage() {
         <div className="flex flex-col gap-4">
           <div className="bg-gray-100 p-4 rounded-lg">
             <div className="w-32 h-32 mx-auto mb-4 relative">
-              <Image src={avatarUrl} alt="Selected avatar" fill className="object-contain" />
+              <Image
+                src={avatarUrl}
+                alt={
+                  avatarUrl === DEFAULT_AVATAR || avatarUrl === DEFAULT_AVATAR_WHITE
+                    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+                    : 'Selected avatar'
+                }
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
 
@@ -103,45 +113,68 @@ export default function BadgesPage() {
           />
         </div>
 
-        {/* Grid of badges */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {userBadges.map(badge => (
-            <div
-              key={badge.id}
-              className={`
-                p-4 
-                rounded-lg 
-                ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
-                flex flex-col 
-                items-center 
-                text-center
-              `}
-            >
-              <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
-                <Image src={badge.picture} alt={badge.name} fill className="object-contain" />
-              </div>
-              <h3
-                className={`
-                text-base md:text-lg 
-                font-bold 
-                mb-2
-                ${darkMode ? 'text-white' : 'text-[#053749]'}
-              `}
-              >
-                {badge.name}
-              </h3>
-              <p
-                className={`
-                text-sm md:text-base 
-                mb-3
-                ${darkMode ? 'text-gray-300' : 'text-gray-600'}
-              `}
-              >
-                {badge.description}
-              </p>
-              <ProgressBar progress={badge.progress || 0} darkMode={darkMode} />
-            </div>
-          ))}
+        {/* All badges grid; applies P&B to the ones not owned */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {allBadges
+            .map(badge => {
+              const progress = userBadgeById.get(badge.id)?.progress ?? 0;
+              return { badge, progress };
+            })
+            .sort((a, b) => b.progress - a.progress)
+            .map(({ badge, progress }) => {
+              const isUnlocked = Number(progress) >= 100;
+
+              return (
+                <div
+                  key={badge.id}
+                  className={`
+                  p-4
+                  rounded-lg
+                  ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#F6F6F6]'}
+                  flex flex-col
+                  items-center
+                  text-center
+                  h-full
+                  justify-between
+                `}
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 mb-4">
+                      <Image
+                        src={badge.picture}
+                        alt={badge.name}
+                        fill
+                        className={`object-contain ${!isUnlocked ? 'grayscale opacity-60' : ''}`}
+                      />
+                    </div>
+                    <h3
+                      className={`
+                    text-base md:text-lg
+                    font-bold
+                    mb-2
+                    ${darkMode ? 'text-white' : 'text-[#053749]'}
+                    ${!isUnlocked ? 'opacity-60' : ''}
+                  `}
+                    >
+                      {badge.name}
+                    </h3>
+                    <p
+                      className={`
+                    text-sm md:text-base
+                    mb-3
+                    ${darkMode ? 'text-gray-300' : 'text-gray-600'}
+                    ${!isUnlocked ? 'opacity-60' : ''}
+                  `}
+                    >
+                      {badge.description}
+                    </p>
+                  </div>
+                  <div className="w-full mt-auto">
+                    <ProgressBar progress={progress} darkMode={darkMode} />
+                  </div>
+                </div>
+              );
+            })}
         </div>
       </div>
     </main>

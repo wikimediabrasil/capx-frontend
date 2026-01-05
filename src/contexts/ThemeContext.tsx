@@ -70,12 +70,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [darkMode, mounted]);
 
-  // Render a placeholder during hydration on the client
-  // to avoid hydration differences
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <ThemeContext.Provider value={{ darkMode, setDarkMode: setDarkModeWithLog }}>
       {children}

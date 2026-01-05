@@ -2,6 +2,7 @@ import axios from 'axios';
 import { UserProfile } from '@/types/user';
 
 export interface UserFilters {
+  name?: string;
   username?: string;
   language?: string[];
   territory?: string[];
@@ -17,6 +18,7 @@ export interface FetchAllUsersParams {
   limit?: number;
   offset?: number;
   filters?: UserFilters;
+  ordering?: string;
 }
 
 export const userService = {
@@ -31,6 +33,20 @@ export const userService = {
     } catch (error) {
       console.error(`Error fetching user profile with ID ${userId}:`, error);
       return null;
+    }
+  },
+  async checkUserExists(username: string, token: string): Promise<boolean> {
+    if (!token || !username || username.trim().length < 1) return false;
+
+    try {
+      const response = await axios.get(`/api/users/`, {
+        params: { username },
+        headers: { Authorization: `Token ${token}` },
+      });
+      return response.data.count > 0;
+    } catch (error) {
+      console.error(`Error checking if user exists with username ${username}:`, error);
+      return false;
     }
   },
   async fetchAllUsers(queryParams: FetchAllUsersParams) {
@@ -75,10 +91,17 @@ export const userService = {
     if (queryParams?.offset) {
       params.append('offset', queryParams.offset.toString());
     }
-    1;
+
+    if (queryParams?.filters?.name) {
+      params.append('name', queryParams.filters.name);
+    }
 
     if (queryParams?.filters?.username) {
       params.append('username', queryParams.filters.username);
+    }
+
+    if (queryParams?.ordering) {
+      params.append('ordering', queryParams.ordering);
     }
 
     try {

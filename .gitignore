@@ -45,3 +45,6 @@ next-env.d.ts
 # performance profiling
 /performance-reports/
 auth-state.json
+
+# jscpd duplication reports
+/jscpd-report

@@ -40,13 +40,13 @@ export function SearchBar({
   const { pageContent } = useApp();
 
   return (
-    <div className="flex gap-2 mb-6">
+    <div className="flex gap-2 mb-6 w-full min-w-0">
       {/* Search Field Container */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-w-0">
         {showCapacitiesSearch ? (
           <div
             className={`
-            flex flex-col rounded-lg border
+            flex flex-col rounded-lg border w-full min-w-0
             ${
               darkMode
                 ? 'bg-capx-dark-box-bg border-gray-700 text-white'
@@ -67,7 +67,7 @@ export function SearchBar({
             {/* Container for the selected capacities and the input */}
             <div
               className={`
-              flex flex-wrap items-start gap-2 p-3 pr-12
+              flex flex-wrap items-start gap-2 p-3 pr-12 w-full min-w-0
               ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}
             `}
             >
@@ -76,7 +76,7 @@ export function SearchBar({
                 <span
                   key={index}
                   className={`
-                    inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px]
+                    inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px] shrink-0
                     ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}
                   `}
                 >
@@ -98,7 +98,7 @@ export function SearchBar({
               ))}
 
               {/* Search Input */}
-              <div className="flex-1 min-w-[120px]">
+              <div className="flex-1 min-w-[120px] max-w-full">
                 <input
                   readOnly
                   type="text"
@@ -148,7 +148,7 @@ export function SearchBar({
       <button
         onClick={onFilterClick}
         className={`
-          p-3 rounded-lg border
+          p-3 rounded-lg border flex-shrink-0
           ${
             darkMode
               ? 'bg-capx-dark-box-bg border-gray-700 hover:bg-gray-700'

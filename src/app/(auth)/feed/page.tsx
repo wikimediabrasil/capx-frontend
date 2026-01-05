@@ -41,7 +41,7 @@ export default function FeedPage() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
-    username: undefined,
+    name: undefined,
     affiliations: [] as string[],
   });
   const [showSkillModal, setShowSkillModal] = useState(false);
@@ -96,6 +96,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Learner],
         }
       : undefined,
+    ordering: '-last_update',
   });
 
   const shouldFetchSharerUsers = activeFilters.profileCapacityTypes.includes(
@@ -114,6 +115,7 @@ export default function FeedPage() {
           profileCapacityTypes: [ProfileCapacityType.Sharer],
         }
       : undefined,
+    ordering: '-last_update',
   });
 
   // Total of records according to the profileFilter
@@ -145,10 +147,12 @@ export default function FeedPage() {
         (user, index, self) => index === self.findIndex(u => u.user.id === user.user.id)
       );
 
-      return createUnifiedProfiles(uniqueUsers).map(profile => ({
-        ...profile,
-        isSaved: isProfileSaved(profile.id),
-      }));
+      return createUnifiedProfiles(uniqueUsers)
+        .map(profile => ({
+          ...profile,
+          isSaved: isProfileSaved(profile.id),
+        }))
+        .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
     } else {
       // When only one type is selected, use the original logic
       const wantedUserProfiles = activeFilters.profileCapacityTypes.includes(
@@ -262,8 +266,8 @@ export default function FeedPage() {
   };
 
   return (
-    <div className="w-full flex flex-col items-center pt-24 md:pt-8">
-      <div className="container mx-auto px-4">
+    <div className="w-full flex flex-col items-center pt-24 md:pt-8 overflow-x-hidden">
+      <div className="container mx-auto px-4 w-full max-w-full">
         <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
           <SearchFilterSection
             activeFilters={activeFilters.capacities ? activeFilters : { capacities: [] }}

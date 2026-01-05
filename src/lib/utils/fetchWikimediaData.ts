@@ -1,4 +1,4 @@
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { WikimediaDocument } from '@/types/document';
 import { WikimediaImage } from '@/types/wikidataImage';
 
@@ -120,7 +120,7 @@ export const fetchWikimediaData = async (url: string): Promise<WikimediaDocument
 };
 
 export const formatWikiImageUrl = (url: string | undefined): string => {
-  if (!url || url.trim() === '') return NoAvatarIcon;
+  if (!url || url.trim() === '') return DEFAULT_AVATAR;
 
   if (url.includes('upload.wikimedia.org')) {
     return url;

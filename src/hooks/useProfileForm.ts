@@ -93,7 +93,9 @@ export function useProfileForm(initialData: any, session: any) {
           Authorization: `Token ${session.sessionData.user.token}`,
         },
         data: {
-          userId: formData.userData.user.id,
+          user: {
+            id: formData.userData.user.id,
+          },
         },
       });
       setIsModalOpen(false);

@@ -16,12 +16,12 @@ export function PaginationButtons({
   onPageChange,
 }: PaginationButtonsProps) {
   const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const { pageContent, isMobile } = useApp();
 
   // Function to generate array of pages to be shown
   const getPageNumbers = (): PageItem[] => {
     const pages: PageItem[] = [];
-    const maxVisiblePages = 7; // Maximum number of visible buttons
+    const maxVisiblePages = isMobile ? 3 : 7; // Less pages on mobile to fit in one line
     const halfVisible = Math.floor(maxVisiblePages / 2);
 
     let startPage = Math.max(1, currentPage - halfVisible);
@@ -53,7 +53,7 @@ export function PaginationButtons({
   };
 
   const buttonStyle = `
-    px-3 py-2 rounded-lg transition-colors text-sm font-medium
+    ${isMobile ? 'px-2 py-1.5 text-xs' : 'px-3 py-2 text-sm'} rounded-lg transition-colors font-medium
     ${
       darkMode
         ? 'text-gray-200 hover:bg-gray-600 hover:text-white disabled:bg-gray-800 disabled:text-gray-500 border border-gray-600'
@@ -71,8 +71,8 @@ export function PaginationButtons({
   `;
 
   return (
-    <div className="flex flex-col items-center gap-4 mt-6 mb-8">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-center gap-4 mt-6 mb-8 w-full max-w-full px-4">
+      <div className="flex items-center gap-1 md:gap-2 justify-center max-w-full overflow-x-auto">
         {/* First page button */}
         <SimpleButton
           type="button"
@@ -97,7 +97,7 @@ export function PaginationButtons({
 
         {/* Numbers of pages */}
         <div
-          className="flex items-center gap-1 mx-2"
+          className={`flex items-center ${isMobile ? 'gap-0.5 mx-1' : 'gap-1 mx-2'}`}
           role="group"
           aria-label={pageContent?.['pagination-pages'] || 'Page numbers'}
         >
@@ -158,8 +158,9 @@ export function PaginationButtons({
 
       {/* Current page information */}
       <div className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
-        {pageContent?.['pagination-page']} {currentPage} {pageContent?.['pagination-of']}{' '}
-        {totalPages}
+        {pageContent?.['pagination-of']
+          ?.replace('$1', currentPage.toString())
+          .replace('$2', totalPages.toString())}
       </div>
     </div>
   );

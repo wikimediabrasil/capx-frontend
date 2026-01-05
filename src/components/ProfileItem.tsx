@@ -12,7 +12,7 @@ const CAPACITY_STYLES = {
     textColor: 'text-white',
   },
   available: {
-    backgroundColor: 'bg-[#05A300]',
+    backgroundColor: 'bg-[#075F36]',
     textColor: 'text-white',
   },
   wanted: {
@@ -46,6 +46,8 @@ interface ProfileItemProps {
   showEmptyDataText?: boolean;
   customClass?: string;
   getItemName: (id: string | number) => string;
+  itemCustomClass?: string;
+  useDefaultStyle?: boolean;
 }
 
 export function ProfileItem({
@@ -55,15 +57,37 @@ export function ProfileItem({
   showEmptyDataText = true,
   customClass = '',
   getItemName,
-}: ProfileItemProps) {
+  itemCustomClass = '',
+  useDefaultStyle = true,
+}: Readonly<ProfileItemProps>) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
   const [isExpanded, setIsExpanded] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [needsToggle, setNeedsToggle] = useState(false);
   const noDataMessage = pageContent['empty-field'];
   const [localNames, setLocalNames] = useState<{ [key: string]: string }>({});
   const timeoutRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
+
+  // Helper function to handle timeout logic for setting local names
+  function handleTimeoutForItem(
+    id: number | string,
+    getItemName: (id: string | number) => string,
+    pageContent: Record<string, string>,
+    setLocalNames: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>,
+    timeoutRefs: React.MutableRefObject<{ [key: string]: NodeJS.Timeout }>
+  ) {
+    const idStr = id.toString();
+    const currentName = getItemName(id);
+    if (
+      currentName !== 'loading' &&
+      currentName !== pageContent['loading'] &&
+      currentName !== 'Loading...'
+    ) {
+      setLocalNames(prev => ({ ...prev, [idStr]: currentName }));
+    } else {
+      const fallbackName = FALLBACK_NAMES[idStr] || `Capacity ${id}`;
+      setLocalNames(prev => ({ ...prev, [idStr]: fallbackName }));
+    }
+  }
 
   // Set up local names state with fallbacks after timeout
   useEffect(() => {
@@ -90,19 +114,7 @@ export function ProfileItem({
 
         // Otherwise, set a timeout to use fallback
         timeoutRefs.current[idStr] = setTimeout(() => {
-          // After timeout, check if we have a real name now
-          const currentName = getItemName(id);
-          if (
-            currentName !== 'loading' &&
-            currentName !== pageContent['loading'] &&
-            currentName !== 'Loading...'
-          ) {
-            setLocalNames(prev => ({ ...prev, [idStr]: currentName }));
-          } else {
-            // Use fallback name if available, otherwise keep the generic one
-            const fallbackName = FALLBACK_NAMES[idStr] || `Capacity ${id}`;
-            setLocalNames(prev => ({ ...prev, [idStr]: fallbackName }));
-          }
+          handleTimeoutForItem(id, getItemName, pageContent, setLocalNames, timeoutRefs);
         }, 1500); // 1.5 second timeout before fallback
       });
     }
@@ -115,36 +127,7 @@ export function ProfileItem({
     };
   }, [items, getItemName, pageContent]);
 
-  // Check items overflow to show or hide expand button
-  useEffect(() => {
-    const checkOverflow = () => {
-      const container = containerRef.current;
-      if (!container || items.length === 0) return;
-
-      container.style.height = 'auto';
-      container.style.overflow = 'visible';
-
-      const naturalHeight = container.getBoundingClientRect().height;
-      const firstItem = container.querySelector('.capacity-item');
-      const singleLineHeight = firstItem ? firstItem.getBoundingClientRect().height : 0;
-
-      container.style.removeProperty('height');
-      container.style.removeProperty('overflow');
-
-      const tolerance = 10;
-      setNeedsToggle(naturalHeight > singleLineHeight + tolerance);
-    };
-
-    const timer = setTimeout(checkOverflow, 0);
-    window.addEventListener('resize', checkOverflow);
-    const secondTimer = setTimeout(checkOverflow, 500);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(secondTimer);
-      window.removeEventListener('resize', checkOverflow);
-    };
-  }, [items]);
+  const needsToggle = items.length > 8;
 
   if (!showEmptyDataText && items.length == 0) return null;
 
@@ -203,7 +186,7 @@ export function ProfileItem({
           <div className="relative h-5 w-5 md:h-[42px] md:w-[42px]">
             <Image
               src={icon}
-              alt={pageContent['alt-capacity']?.replace('{capacityType}', title) || `${title} icon`}
+              alt={title + '' + pageContent['alt-capacity'] || `${title} icon`}
               className="object-contain"
               fill
             />
@@ -230,44 +213,66 @@ export function ProfileItem({
         `}
       >
         {/* Items Container */}
-        <div
-          ref={containerRef}
-          className={`
-            flex flex-wrap gap-2 flex-1
-            ${!isExpanded && needsToggle ? 'max-h-[38px] overflow-hidden' : ''}
-            transition-all duration-300
-          `}
-        >
-          {items.length > 0
-            ? items.map((item, index) => {
+        <div className="flex flex-wrap gap-2 flex-1">
+          {items.length > 0 ? (
+            <>
+              {/* Only show the first 8 items */}
+              {(isExpanded || !needsToggle ? items : items.slice(0, 8)).map((item, index) => {
                 const name = getDisplayName(item);
                 return (
                   <div
-                    key={index}
-                    className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}
-                `}
+                    key={item.toString()}
+                    className={[
+                      'capacity-item',
+                      'rounded-[8px]',
+                      'inline-flex',
+                      'px-[4px]',
+                      'py-[6px]',
+                      'items-center',
+                      'gap-[8px]',
+                      useDefaultStyle ? capacityStyle.backgroundColor : '',
+                      useDefaultStyle ? capacityStyle.textColor : '',
+                    ].join(' ')}
                   >
-                    <p
-                      className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
+                    <h2
+                      className={
+                        useDefaultStyle
+                          ? `font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`
+                          : itemCustomClass
+                      }
                     >
                       {name}
-                    </p>
+                    </h2>
                   </div>
                 );
-              })
-            : showEmptyDataText && (
-                <p
-                  className={`
-            ${customClass}
-            font-normal
-            text-sm
-            ${darkMode ? 'text-white' : 'text-[#053749]'}
-            md:text-[24px]
-          `}
+              })}
+
+              {/* Show total of hidden items */}
+              {!isExpanded && needsToggle && items.length > 8 && (
+                <div
+                  className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}`}
                 >
-                  {noDataMessage}
-                </p>
+                  <p
+                    className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
+                  >
+                    +{items.length - 8} {pageContent['profile-item-more'] || 'more'}
+                  </p>
+                </div>
               )}
+            </>
+          ) : showEmptyDataText ? (
+            <p
+              className={`
+                ${customClass}
+                font-normal
+                text-sm
+                ${darkMode ? 'text-white' : 'text-[#053749]'}
+                md:text-[24px]
+              `}
+            >
+              {noDataMessage}
+            </p>
+          ) : null}
         </div>
 
         {/* Expand/hide button */}

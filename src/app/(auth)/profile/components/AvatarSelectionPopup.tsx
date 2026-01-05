@@ -1,11 +1,12 @@
-import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
-import { useState, useEffect } from 'react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { CompactLoading } from '@/components/LoadingStateWithFallback';
+import { getDefaultAvatar } from '@/constants/images';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useAvatars } from '@/hooks/useAvatars';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface AvatarSelectionPopupProps {
   onClose: () => void;
@@ -25,15 +26,13 @@ export default function AvatarSelectionPopup({
   const [tempSelectedId, setTempSelectedId] = useState<number | null>(selectedAvatarId);
   const { darkMode } = useTheme();
 
-  // Create virtual avatar for the "no avatar" option
-  const noAvatarOption = {
+  // Create virtual avatar for the default person option
+  const defaultPersonOption = {
     id: null as number | null,
-    avatar_url: darkMode
-      ? 'https://upload.wikimedia.org/wikipedia/commons/7/7a/CapX_-_No_avatar_white.svg'
-      : 'https://upload.wikimedia.org/wikipedia/commons/6/60/CapX_-_No_avatar.svg',
+    avatar_url: getDefaultAvatar(darkMode),
   };
 
-  const allAvatars = [noAvatarOption, ...(avatars || [])];
+  const allAvatars = [defaultPersonOption, ...(avatars || [])];
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';

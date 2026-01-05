@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { savedItemService } from '@/services/savedItemsService';
 import { useSession } from 'next-auth/react';
 import { SavedItem } from '@/types/saved_item';
@@ -8,164 +8,131 @@ import { userService } from '@/services/userService';
 import { organizationProfileService } from '@/services/organizationProfileService';
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { LanguageProficiency } from '@/types/language';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export interface SavedProfile {
   id: number;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   type: string;
   capacities?: string[];
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   isOrganization: boolean;
   savedItemId: number;
 }
 
 export function useSavedItems() {
   const { data: session } = useSession();
-  const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
-  const [allProfiles, setAllProfiles] = useState<SavedProfile[]>([]);
-  const [count, setCount] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!session?.user?.token) {
-      setIsLoading(false);
-      return;
-    }
+  // Use React Query to cache saved items with automatic sharing
+  const {
+    data: savedItems = [],
+    isLoading: isLoadingSavedItems,
+    error: savedItemsError,
+  } = useQuery<SavedItem[], Error>({
+    queryKey: ['savedItems', session?.user?.token],
+    queryFn: async () => {
+      if (!session?.user?.token) return [];
 
-    setIsLoading(true);
+      const data = await savedItemService.getSavedItems(session.user.token, {
+        limit: 100,
+        offset: 0,
+      });
+      return data.results || [];
+    },
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-    const fetchSavedItems = async () => {
-      try {
-        const data = await savedItemService.getSavedItems(session.user.token, {
-          limit: 100,
-          offset: 0,
-        });
-
-        setSavedItems(data.results);
-
-        const profiles: SavedProfile[] = [];
-
-        for (const item of data.results) {
-          try {
-            if (item.entity === 'user') {
-              const userData = await userService.fetchUserProfile(
-                item.entity_id,
-                session.user.token
-              );
-              if (userData) {
-                profiles.push({
-                  id: userData.user.id,
-                  username: userData.user.username,
-                  profile_image: userData.profile_image || '',
-                  type: item.relation || ProfileCapacityType.Learner,
-                  capacities:
-                    item.relation === ProfileCapacityType.Sharer
-                      ? userData.skills_available
-                      : userData.skills_wanted,
-                  languages: userData.language,
-                  territory: userData.territory?.[0]?.toString() || '',
-                  avatar: userData.avatar?.toString(),
-                  isOrganization: false,
-                  savedItemId: item.id,
-                });
-              }
-            } else if (item.entity === 'org') {
-              const orgData = await organizationProfileService.getOrganizationById(
-                session.user.token,
-                item.entity_id
-              );
-              if (orgData) {
-                profiles.push({
-                  id: orgData.id,
-                  username: orgData.display_name,
-                  profile_image: orgData.profile_image,
-                  type: item.relation,
-                  avatar: orgData.profile_image || undefined,
-                  capacities:
-                    item.relation === ProfileCapacityType.Learner
-                      ? orgData.wanted_capacities
-                      : orgData.available_capacities,
-                  territory: orgData.territory[0],
-                  isOrganization: true,
-                  savedItemId: item.id,
-                });
-              }
-            }
-          } catch (err) {
-            console.error(`Error fetching details for saved item ${item.id}:`, err);
-          }
-        }
-
-        setAllProfiles(profiles);
-        setCount(profiles.length);
-      } catch (err) {
-        console.error('Error fetching saved items:', err);
-        setError('Failed to fetch saved items');
-      } finally {
-        setIsLoading(false);
-      }
+  // Helper function to create user profile from saved item
+  const createUserProfile = useCallback((userData: any, item: SavedItem): SavedProfile | null => {
+    if (!userData) return null;
+    return {
+      id: userData.user.id,
+      username: userData.user.username,
+      type: item.relation || ProfileCapacityType.Learner,
+      capacities:
+        item.relation === ProfileCapacityType.Sharer
+          ? userData.skills_available
+          : userData.skills_wanted,
+      languages: userData.language,
+      territory: userData.territory?.[0]?.toString() || '',
+      avatar: userData.avatar != null ? userData.avatar.toString() : undefined,
+      wikidataQid: userData.wikidata_qid,
+      isOrganization: false,
+      savedItemId: item.id,
     };
-
-    fetchSavedItems();
-  }, [session?.user?.token]);
-
-  const fetchProfileDetails = useCallback(async (savedItem: SavedItem, token: string) => {
-    try {
-      if (savedItem.entity === 'user') {
-        const userData = await userService.fetchUserProfile(savedItem.entity_id, token);
-        if (userData) {
-          const newProfile: SavedProfile = {
-            id: userData.user.id,
-            username: userData.user.username,
-            profile_image: userData.profile_image || '',
-            type: savedItem.relation || ProfileCapacityType.Learner,
-            capacities:
-              savedItem.relation === ProfileCapacityType.Sharer
-                ? userData.skills_available
-                : userData.skills_wanted,
-            languages: userData.language,
-            territory: userData.territory?.[0]?.toString() || '',
-            avatar: userData.avatar?.toString(),
-            isOrganization: false,
-            savedItemId: savedItem.id,
-          };
-
-          setAllProfiles(prev => [...prev, newProfile]);
-          setCount(prev => prev + 1);
-        }
-      } else if (savedItem.entity === 'org') {
-        const orgData = await organizationProfileService.getOrganizationById(
-          token,
-          savedItem.entity_id
-        );
-        if (orgData) {
-          const newProfile: SavedProfile = {
-            id: orgData.id,
-            username: orgData.display_name,
-            profile_image: orgData.profile_image,
-            type: savedItem.relation,
-            capacities:
-              savedItem.relation === ProfileCapacityType.Learner
-                ? orgData.wanted_capacities
-                : orgData.available_capacities,
-            territory: orgData.territory[0],
-            avatar: orgData.profile_image || undefined,
-            isOrganization: true,
-            savedItemId: savedItem.id,
-          };
-
-          setAllProfiles(prev => [...prev, newProfile]);
-          setCount(prev => prev + 1);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching profile details:', error);
-    }
   }, []);
+
+  // Helper function to create organization profile from saved item
+  const createOrgProfile = useCallback((orgData: any, item: SavedItem): SavedProfile | null => {
+    if (!orgData) return null;
+    return {
+      id: orgData.id,
+      username: orgData.display_name,
+      profile_image: orgData.profile_image,
+      type: item.relation,
+      avatar: undefined,
+      capacities:
+        item.relation === ProfileCapacityType.Learner
+          ? orgData.wanted_capacities
+          : orgData.available_capacities,
+      territory: orgData.territory[0],
+      isOrganization: true,
+      savedItemId: item.id,
+    };
+  }, []);
+
+  // Use React Query for profile details to avoid useEffect loop
+  const { data: allProfiles = [], isLoading: isLoadingProfiles } = useQuery<SavedProfile[], Error>({
+    queryKey: ['savedItemProfiles', savedItems.map(i => i.id).join(','), session?.user?.token],
+    queryFn: async () => {
+      if (!session?.user?.token || !savedItems.length) {
+        return [];
+      }
+
+      // Helper function to fetch a single profile
+      const fetchSingleProfile = async (item: SavedItem): Promise<SavedProfile | null> => {
+        try {
+          if (item.entity === 'user') {
+            const userData = await userService.fetchUserProfile(item.entity_id, session.user.token);
+            if (!userData) return null;
+            return createUserProfile(userData, item);
+          }
+
+          if (item.entity === 'org') {
+            const orgData = await organizationProfileService.getOrganizationById(
+              session.user.token,
+              item.entity_id
+            );
+            if (!orgData) return null;
+            return createOrgProfile(orgData, item);
+          }
+        } catch (err) {
+          console.error('Error fetching profile details:', err);
+        }
+        return null;
+      };
+
+      // Fetch all profiles in parallel
+      const profilePromises = savedItems.map(fetchSingleProfile);
+      const profiles = (await Promise.all(profilePromises)).filter(
+        (p): p is SavedProfile => p !== null
+      );
+
+      return profiles;
+    },
+    enabled: !!session?.user?.token && savedItems.length > 0,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+  });
 
   const paginatedProfiles = useCallback(
     (page: number, itemsPerPage: number) => {
@@ -184,11 +151,15 @@ export function useSavedItems() {
         const success = await savedItemService.deleteSavedItem(session.user.token, itemId);
 
         if (success) {
-          setSavedItems(prevItems => prevItems.filter(item => item.id !== itemId));
-          setAllProfiles(prevProfiles =>
-            prevProfiles.filter(profile => profile.savedItemId !== itemId)
-          );
-          setCount(prevCount => prevCount - 1);
+          // Update React Query cache - remove the deleted item
+          queryClient.setQueryData<SavedItem[]>(['savedItems', session.user.token], old => {
+            if (!old) return [];
+            return old.filter(item => item.id !== itemId);
+          });
+
+          // Invalidate profile details to trigger refetch
+          queryClient.invalidateQueries({ queryKey: ['savedItemProfiles'] });
+
           return true;
         }
         return false;
@@ -197,7 +168,7 @@ export function useSavedItems() {
         return false;
       }
     },
-    [session?.user?.token]
+    [session?.user?.token, queryClient]
   );
 
   const createSavedItem = useCallback(
@@ -212,8 +183,15 @@ export function useSavedItems() {
         });
 
         if (newItem) {
-          setSavedItems(prevItems => [...prevItems, newItem]);
-          await fetchProfileDetails(newItem, session.user.token);
+          // Update React Query cache - add the new item
+          queryClient.setQueryData<SavedItem[]>(['savedItems', session.user.token], old => {
+            if (!old) return [newItem];
+            return [...old, newItem];
+          });
+
+          // Invalidate profile details to trigger refetch with the new item
+          queryClient.invalidateQueries({ queryKey: ['savedItemProfiles'] });
+
           return true;
         }
         return false;
@@ -222,7 +200,7 @@ export function useSavedItems() {
         return false;
       }
     },
-    [session?.user?.token, fetchProfileDetails]
+    [session?.user?.token, queryClient]
   );
 
   const isProfileSaved = useCallback(
@@ -247,9 +225,9 @@ export function useSavedItems() {
   return {
     savedItems,
     paginatedProfiles,
-    isLoading,
-    error,
-    count,
+    isLoading: isLoadingSavedItems || isLoadingProfiles,
+    error: savedItemsError,
+    count: allProfiles.length,
     deleteSavedItem,
     createSavedItem,
     isProfileSaved,

@@ -1,42 +1,40 @@
-import React, { useEffect } from 'react';
-import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
+import BaseButton from '@/components/BaseButton';
+import { ProfileItem } from '@/components/ProfileItem';
+import { DEFAULT_AVATAR } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
-import { ProfileCapacityType } from '../types';
-import LanguageIcon from '@/public/static/images/language.svg';
-import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import EmojiIcon from '@/public/static/images/emoji_objects.svg';
-import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
-import TargetIcon from '@/public/static/images/target.svg';
-import TargetIconWhite from '@/public/static/images/target_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
-import NoAvatarIconWhite from '@/public/static/images/no_avatar_white.svg';
-import TerritoryIcon from '@/public/static/images/territory.svg';
-import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useProfileImage } from '@/hooks/useProfileImage';
+import { useTerritories } from '@/hooks/useTerritories';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
-import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
-import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
-import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
-import { ProfileItem } from '@/components/ProfileItem';
-import { useRouter } from 'next/navigation';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTerritories } from '@/hooks/useTerritories';
-import { useLanguage } from '@/hooks/useLanguage';
-import { useSession } from 'next-auth/react';
-import { useAvatars } from '@/hooks/useAvatars';
-import { getProfileImage } from '@/lib/utils/getProfileImage';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
+import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
+import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import { LanguageProficiency } from '@/types/language';
-import BaseButton from '@/components/BaseButton';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { ProfileCapacityType } from '../types';
 
 interface ProfileCardProps {
   id: string;
   username: string;
-  profile_image: string;
+  profile_image?: string; // Only for organizations
   type: ProfileCapacityType | ProfileCapacityType[];
   capacities: (number | string)[];
   wantedCapacities?: (number | string)[];
@@ -44,11 +42,41 @@ interface ProfileCardProps {
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
+  wikidataQid?: string; // For people with Wikidata images
   pageContent?: Record<string, string>;
   isOrganization?: boolean;
   isSaved?: boolean;
   onToggleSaved?: () => void;
   hasIncompleteProfile?: boolean;
+}
+
+// Helper functions
+function getTypeBadgeColors(type: string, darkMode: boolean) {
+  const isLearner = type === 'learner';
+  if (darkMode) {
+    return isLearner ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
+  }
+  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#05A300] border-[#05A300]';
+}
+
+function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
+  if (isSaved) {
+    return darkMode ? BookmarkFilledWhite : BookmarkFilled;
+  }
+  return darkMode ? BookmarkWhite : Bookmark;
+}
+
+function getProfileButtonIcon(isOrganization: boolean, darkMode: boolean) {
+  if (isOrganization) {
+    return darkMode ? UserCircleIconWhite : UserCircleIcon;
+  }
+  return darkMode ? AccountCircleWhite : AccountCircle;
+}
+
+function getProfileRoute(isOrganization: boolean, id: string, username: string) {
+  return isOrganization
+    ? `/organization_profile/${id}`
+    : `/profile/${encodeURIComponent(username)}`;
 }
 
 export const ProfileCard = ({
@@ -62,6 +90,7 @@ export const ProfileCard = ({
   languages = [],
   territory,
   avatar,
+  wikidataQid,
   isOrganization = false,
   isSaved = false,
   onToggleSaved,
@@ -75,7 +104,24 @@ export const ProfileCard = ({
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
   const { territories: availableTerritories } = useTerritories(token);
-  const { avatars } = useAvatars();
+
+  // Use custom hook for profile image loading
+  const { profileImageUrl } = useProfileImage({
+    isOrganization,
+    profile_image,
+    avatar,
+    wikidataQid,
+  });
+
+  // Get translated organization name if it's an organization
+  const { displayName: translatedOrgName } = useOrganizationDisplayName({
+    organizationId: isOrganization ? Number(id) : undefined,
+    defaultName: isOrganization ? username : '',
+    token,
+  });
+
+  // Use translated name for organizations, username for users
+  const displayName = isOrganization ? translatedOrgName || username : username;
 
   // Determine if this is a multi-type profile (both sharer and learner)
   const isMultiType = Array.isArray(type) && type.length > 1;
@@ -91,29 +137,27 @@ export const ProfileCard = ({
 
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
+  const defaultAvatar = DEFAULT_AVATAR;
+  const bookmarkIcon = getBookmarkIcon(isSaved, darkMode);
+  const profileButtonIcon = getProfileButtonIcon(isOrganization, darkMode);
 
-  const typeBadgeColorLightMode =
+  const learnerLabel = pageContent['profile-learner'] || 'Learner';
+  const sharerLabel = pageContent['profile-sharer'] || 'Sharer';
+  const typeBadgeBaseClass =
+    'md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border';
+  const capacityItemClass = 'font-[Montserrat] text-[14px] not-italic leading-[normal]';
+
+  const capacitiesTitleSingle =
     primaryType === 'learner'
-      ? 'text-purple-800 border-purple-800'
-      : 'text-[#05A300] border-[#05A300]';
-
-  const typeBadgeColorDarkMode =
-    primaryType === 'learner'
-      ? 'text-purple-200 border-purple-200'
-      : 'text-[#05A300] border-[#05A300]';
-
-  const defaultAvatar = darkMode ? NoAvatarIconWhite : NoAvatarIcon;
-
-  const bookmarkIcon = isSaved
-    ? darkMode
-      ? BookmarkFilledWhite
-      : BookmarkFilled
-    : darkMode
-      ? BookmarkWhite
-      : Bookmark;
+      ? pageContent['body-profile-wanted-capacities-title']
+      : pageContent['body-profile-available-capacities-title'];
 
   const toggleSaved = () => {
     onToggleSaved && onToggleSaved();
+  };
+
+  const navigateToProfile = () => {
+    router.push(getProfileRoute(isOrganization, id, username));
   };
 
   return (
@@ -146,34 +190,32 @@ export const ProfileCard = ({
                   // Show both badges for multi-type profiles
                   <>
                     <span
-                      className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+                      className={`${typeBadgeBaseClass} ${
                         darkMode
                           ? 'text-purple-200 border-purple-200'
                           : 'text-purple-800 border-purple-800'
                       }`}
                     >
-                      {pageContent['profile-learner']}
+                      {learnerLabel}
                     </span>
                     <span
-                      className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+                      className={`${typeBadgeBaseClass} ${
                         darkMode
                           ? 'text-[#05A300] border-[#05A300]'
                           : 'text-[#05A300] border-[#05A300]'
                       }`}
                     >
-                      {pageContent['profile-sharer']}
+                      {sharerLabel}
                     </span>
                   </>
                 ) : (
                   <span
-                    className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-                      darkMode ? typeBadgeColorDarkMode : typeBadgeColorLightMode
-                    }`}
+                    className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}
                   >
                     {primaryType === 'learner'
-                      ? pageContent['profile-learner']
+                      ? learnerLabel
                       : primaryType === 'sharer'
-                        ? pageContent['profile-sharer']
+                        ? sharerLabel
                         : ''}
                   </span>
                 )}
@@ -182,34 +224,19 @@ export const ProfileCard = ({
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
                 <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
-                  {profile_image || avatar ? (
-                    <Image
-                      src={
-                        isOrganization
-                          ? formatWikiImageUrl(profile_image || '')
-                          : getProfileImage(profile_image, avatar ? Number(avatar) : null, avatars)
-                      }
-                      alt={pageContent['alt-profile-picture'] || 'User profile picture'}
-                      fill
-                      className="object-contain rounded-[4px]"
-                      unoptimized
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Image
-                        src={defaultAvatar}
-                        alt={
-                          pageContent['alt-profile-picture-default'] ||
+                  <Image
+                    src={profileImageUrl || defaultAvatar}
+                    alt={
+                      !profileImageUrl || profileImageUrl === defaultAvatar
+                        ? pageContent['alt-profile-picture-default'] ||
                           'Default user profile picture'
-                        }
-                        fill
-                        className="object-contain rounded-[4px]"
-                        unoptimized
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
+                        : pageContent['alt-profile-picture'] || 'User profile picture'
+                    }
+                    fill
+                    className="object-contain rounded-[4px]"
+                    unoptimized
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
@@ -221,7 +248,7 @@ export const ProfileCard = ({
                   darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
                 }`}
               >
-                {username}
+                {displayName}
               </h5>
             </div>
 
@@ -234,21 +261,8 @@ export const ProfileCard = ({
                     ? 'text-capx-light-bg border-capx-light-bg'
                     : 'text-capx-dark-box-bg border-capx-dark-box-bg'
                 }`}
-                onClick={() => {
-                  const routePath = isOrganization
-                    ? `/organization_profile/${id}`
-                    : `/profile/${encodeURIComponent(username)}`;
-                  router.push(routePath);
-                }}
-                imageUrl={
-                  isOrganization
-                    ? darkMode
-                      ? UserCircleIconWhite
-                      : UserCircleIcon
-                    : darkMode
-                      ? AccountCircleWhite
-                      : AccountCircle
-                }
+                onClick={navigateToProfile}
+                imageUrl={profileButtonIcon}
                 imageAlt={pageContent['alt-view-profile-user'] || 'View user profile'}
                 imageWidth={40}
                 imageHeight={40}
@@ -263,7 +277,11 @@ export const ProfileCard = ({
                       ? 'text-capx-light-bg border-capx-light-bg'
                       : 'text-capx-dark-box-bg border-capx-dark-box-bg'
                   }`}
-                  label={isSaved ? 'Saved' : 'Save profile'}
+                  label={
+                    isSaved
+                      ? pageContent['saved-profiles-saved-profile']
+                      : pageContent['edit-profile-save']
+                  }
                   onClick={toggleSaved}
                   aria-label={
                     isSaved
@@ -296,8 +314,6 @@ export const ProfileCard = ({
                     }`}
                   >
                     {pageContent['profile-incomplete-description']}
-                    <br />
-                    {pageContent['profile-incomplete-description-2']}
                   </p>
                 </div>
               </div>
@@ -311,7 +327,7 @@ export const ProfileCard = ({
                     items={wantedCapacities}
                     showEmptyDataText={false}
                     getItemName={id => getName(Number(id))}
-                    customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
+                    customClass={capacityItemClass}
                   />
                 )}
                 {availableCapacities && availableCapacities.length > 0 && (
@@ -321,7 +337,7 @@ export const ProfileCard = ({
                     items={availableCapacities}
                     showEmptyDataText={false}
                     getItemName={id => getName(Number(id))}
-                    customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
+                    customClass={capacityItemClass}
                   />
                 )}
                 {/* Show message if no capacities are available */}
@@ -341,15 +357,11 @@ export const ProfileCard = ({
             ) : (
               <ProfileItem
                 icon={primaryType === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon}
-                title={
-                  primaryType === 'learner'
-                    ? pageContent['body-profile-wanted-capacities-title']
-                    : pageContent['body-profile-available-capacities-title']
-                }
+                title={capacitiesTitleSingle}
                 items={capacities}
                 showEmptyDataText={false}
                 getItemName={id => getName(Number(id))}
-                customClass={`font-[Montserrat] text-[14px] not-italic leading-[normal]`}
+                customClass={capacityItemClass}
               />
             )}
 
@@ -380,12 +392,7 @@ export const ProfileCard = ({
                 className={`inline-flex items-center justify-center p-1.5 rounded-full ${
                   darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
                 }`}
-                onClick={() => {
-                  const routePath = isOrganization
-                    ? `/organization_profile/${id}`
-                    : `/profile/${encodeURIComponent(username)}`;
-                  router.push(routePath);
-                }}
+                onClick={navigateToProfile}
               >
                 <Image
                   src={darkMode ? AccountCircleWhite : AccountCircle}

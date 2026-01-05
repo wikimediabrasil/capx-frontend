@@ -1,12 +1,17 @@
 import DesktopNavbar from '@/components/DesktopNavbar';
-import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import axios from 'axios';
-import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import {
+  createMockOrganization,
+  createMockPageContent,
+  createMockSession,
+  nullSession,
+  renderWithProviders,
+  setupAxiosMock,
+} from '../utils/test-helpers';
 
 // Mock next-auth's mock
 jest.mock('next-auth/react', () => ({
@@ -45,19 +50,7 @@ jest.mock('@/contexts/ThemeContext', () => ({
 
 // axios's mock
 jest.mock('axios');
-(axios.get as jest.Mock).mockImplementation((url: string) => {
-  if (url.includes('/languages')) {
-    return Promise.resolve({
-      data: ['pt-BR', 'en', 'es'],
-    });
-  }
-  return Promise.resolve({
-    data: {
-      'sign-in-button': 'Entrar',
-      'sign-out-button': 'Sair',
-    },
-  });
-});
+setupAxiosMock(axios);
 
 // LanguageSelect's mock
 jest.mock('../../components/LanguageSelect', () => ({
@@ -65,21 +58,13 @@ jest.mock('../../components/LanguageSelect', () => ({
   default: () => <div data-testid="language-select-mock">Language Select</div>,
 }));
 
-const mockPageContent = {
-  'sign-in-button': 'Login',
-  'sign-out-button': 'Logout',
-  'navbar-link-home': 'Home',
-  'navbar-link-capacities': 'Capacities',
-  'navbar-link-reports': 'Reports',
-  'navbar-link-feed': 'Feed',
-  'navbar-link-saved': 'Saved',
-  'navbar-link-report-bug': 'Report Bug',
-};
+const mockPageContent = createMockPageContent();
 
 //  Mocking AppContext
 jest.mock('@/contexts/AppContext', () => ({
   ...jest.requireActual('@/contexts/AppContext'),
   useApp: () => ({
+    isMobile: true,
     pageContent: {
       'sign-in-button': 'Login',
       'sign-out-button': 'Logout',
@@ -90,7 +75,6 @@ jest.mock('@/contexts/AppContext', () => ({
       'navbar-link-saved': 'Saved',
       'navbar-link-report-bug': 'Report Bug',
     },
-    isMobile: true,
     mobileMenuStatus: true,
     setMobileMenuStatus: jest.fn(),
     language: 'en',
@@ -117,10 +101,7 @@ describe('DesktopNavbar', () => {
 
     // useOrganization's mock
     (useOrganization as jest.Mock).mockReturnValue({
-      organizations: [
-        { id: 1, display_name: 'Org 1' },
-        { id: 2, display_name: 'Org 2' },
-      ],
+      organizations: [createMockOrganization(1, 'Org 1'), createMockOrganization(2, 'Org 2')],
       isOrgManager: true,
     });
 
@@ -131,28 +112,7 @@ describe('DesktopNavbar', () => {
     });
   });
 
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
-  };
-
-  // Session Mocks
-  const nullSession: Session | null = null;
-  const validSession: Session = {
-    user: {
-      id: '123',
-      token: 'test-token',
-      username: 'test-user',
-      first_login: false,
-      name: 'Test User',
-      email: 'test@example.com',
-      image: 'test-image.jpg',
-    },
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-  };
+  const validSession = createMockSession();
 
   it('renders logo correctly', () => {
     renderWithProviders(
@@ -201,9 +161,13 @@ describe('DesktopNavbar', () => {
     expect(logoutButton).toBeInTheDocument();
   });
 
-  it('applies dark mode styles', () => {
+  const testThemeStyles = (
+    darkMode: boolean,
+    expectedBgClass: string,
+    expectedTextClass: string
+  ) => {
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
+      darkMode,
       setDarkMode: jest.fn(),
     });
 
@@ -212,23 +176,16 @@ describe('DesktopNavbar', () => {
     );
 
     const navbar = container.firstChild as HTMLElement;
-    expect(navbar.className).toContain('bg-capx-dark-box-bg');
-    expect(navbar.className).toContain('text-capx-dark-text');
+    expect(navbar.className).toContain(expectedBgClass);
+    expect(navbar.className).toContain(expectedTextClass);
+  };
+
+  it('applies dark mode styles', () => {
+    testThemeStyles(true, 'bg-capx-dark-box-bg', 'text-capx-dark-text');
   });
 
   it('applies light mode styles', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
-
-    const { container } = renderWithProviders(
-      <DesktopNavbar session={nullSession} language="en" setLanguage={() => {}} />
-    );
-
-    const navbar = container.firstChild as HTMLElement;
-    expect(navbar.className).toContain('bg-capx-light-bg');
-    expect(navbar.className).toContain('text-capx-light-text');
+    testThemeStyles(false, 'bg-capx-light-bg', 'text-capx-light-text');
   });
 
   afterEach(() => {

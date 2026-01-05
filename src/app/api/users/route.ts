@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -14,6 +16,7 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit') || undefined,
       offset: searchParams.get('offset') || undefined,
       user__username: searchParams.get('username') || undefined,
+      name: searchParams.get('name') || undefined,
       territory: searchParams.get('territory') || undefined,
       languageproficiency__language: searchParams.get('language') || undefined,
       skills_wanted: searchParams.get('skills_wanted') || undefined,
@@ -22,6 +25,7 @@ export async function GET(request: NextRequest) {
       has_skills_wanted: searchParams.get('has_skills_wanted') === 'true' ? true : undefined,
       has_skills_available: searchParams.get('has_skills_available') === 'true' ? true : undefined,
       affiliation: searchParams.get('affiliation') || undefined,
+      ordering: searchParams.get('ordering') || undefined,
     };
 
     const cleanParams = Object.fromEntries(

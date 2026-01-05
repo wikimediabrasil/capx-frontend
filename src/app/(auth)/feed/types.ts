@@ -17,7 +17,7 @@ export interface FilterState {
   profileCapacityTypes: ProfileCapacityType[];
   territories: string[];
   languages: string[];
-  username?: string;
+  name?: string;
   affiliations?: string[];
 }
 
@@ -53,9 +53,9 @@ export const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapac
       availableCapacities: user.skills_available,
       type,
       languages: user.language,
-      profile_image: user.profile_image,
       territory: user.territory?.[0],
       avatar: user.avatar,
+      wikidataQid: user.wikidata_qid,
       isOrganization: false,
     });
   });
@@ -79,9 +79,9 @@ export const createUnifiedProfiles = (users: UserProfile[]) => {
         availableCapacities: user.skills_available,
         type: [ProfileCapacityType.Learner, ProfileCapacityType.Sharer],
         languages: user.language,
-        profile_image: user.profile_image,
         territory: user.territory?.[0],
         avatar: user.avatar,
+        wikidataQid: user.wikidata_qid,
         isOrganization: false,
       });
     } else if (hasWanted) {
@@ -94,9 +94,9 @@ export const createUnifiedProfiles = (users: UserProfile[]) => {
         availableCapacities: [],
         type: ProfileCapacityType.Learner,
         languages: user.language,
-        profile_image: user.profile_image,
         territory: user.territory?.[0],
         avatar: user.avatar,
+        wikidataQid: user.wikidata_qid,
         isOrganization: false,
       });
     } else if (hasAvailable) {
@@ -109,9 +109,9 @@ export const createUnifiedProfiles = (users: UserProfile[]) => {
         availableCapacities: user.skills_available,
         type: ProfileCapacityType.Sharer,
         languages: user.language,
-        profile_image: user.profile_image,
         territory: user.territory?.[0],
         avatar: user.avatar,
+        wikidataQid: user.wikidata_qid,
         isOrganization: false,
       });
     }

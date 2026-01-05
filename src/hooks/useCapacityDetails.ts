@@ -141,8 +141,8 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
       return results;
     },
     enabled: !!token && uniqueCapacityIds.length > 0,
-    staleTime: 1000 * 60 * 30, // 30 minutes (increased from 5 minutes)
-    gcTime: 1000 * 60 * 60 * 2, // 2 hours (increased from 1 hour)
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchOnWindowFocus: false, // Avoid refetching when window gains focus
     refetchOnMount: false, // Only fetch once per session
   });
@@ -296,7 +296,7 @@ export function useCapacity(capacityId?: string | null, language: string = 'en')
       }
     },
     enabled,
-    staleTime: 1000 * 60 * 60, // 1 hora
+    staleTime: 1000 * 60 * 60 * 24, // 24 horas
     gcTime: 1000 * 60 * 60 * 24, // 24 horas
   });
 

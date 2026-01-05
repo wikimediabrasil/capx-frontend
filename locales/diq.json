@@ -9,7 +9,6 @@
 	"navbar-link-capacities": "Rehber",
 	"navbar-link-events": "Fealiyeti",
 	"navbar-link-home": "Keye",
-	"body-home-section01-title-text": "Yo heruna pêvırnayışi",
 	"body-home-section01-title-carousel": "Kapasite, zanayış, tecrubey, servisi",
 	"body-home-section01-button": "Tewrê Capacity Exchange bıbe!",
 	"body-loggedin-home-main-section-button01": "Keşıf",
@@ -57,13 +56,9 @@
 	"delete-confirmation-event-title": "Sername",
 	"delete-confirmation-confirm": "Bestere",
 	"lets-connect-info-popup-cancel": "Bıtexelne",
-	"statistics-users-title": "Karberi",
-	"statistics-messages-title": "Mesaci",
-	"statistics-new-label": "newe",
 	"date-picker-today": "Ewro",
 	"date-picker-date": "Tarix",
 	"aria-language-input": "Yew zıwan weçine",
 	"pagination-previous": "Verên",
-	"pagination-next": "Bahdoyên",
-	"pagination-page": "Pele"
+	"pagination-next": "Bahdoyên"
 }

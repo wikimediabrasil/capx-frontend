@@ -8,6 +8,7 @@ import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -60,7 +61,6 @@ import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
 import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import NoAvatarIcon from '@/public/static/images/no_avatar.svg';
 import PersonIcon from '@/public/static/images/person_book.svg';
 import PersonIconWhite from '@/public/static/images/person_book_white.svg';
 import SaveIcon from '@/public/static/images/save_as.svg';
@@ -77,7 +77,7 @@ import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AvatarSelectionPopup from '../../components/AvatarSelectionPopup';
 
 interface ProfileEditDesktopViewProps {
@@ -282,11 +282,18 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     ) : (
                       <Image
                         src={selectedAvatar.src}
-                        alt="Selected avatar"
+                        alt={
+                          selectedAvatar.src === DEFAULT_AVATAR ||
+                          selectedAvatar.src === DEFAULT_AVATAR_WHITE
+                            ? pageContent['alt-profile-picture-default'] ||
+                              'Default user profile picture'
+                            : 'Selected avatar'
+                        }
                         fill
                         className="object-contain"
                         onError={e => {
-                          e.currentTarget.src = NoAvatarIcon;
+                          // Since background is always light (bg-gray-100), always use dark avatar
+                          e.currentTarget.src = DEFAULT_AVATAR;
                         }}
                       />
                     )}
@@ -346,18 +353,28 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  {pageContent['edit-profile-consent-wikidata-before-link']}{' '}
-                  <a
-                    href="https://www.wikidata.org/wiki/Wikidata:Notability"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`underline ${
-                      darkMode ? 'text-blue-300' : 'text-blue-600'
-                    } hover:opacity-80`}
-                  >
-                    {pageContent['edit-profile-consent-wikidata-link']}
-                  </a>
-                  {pageContent['edit-profile-consent-wikidata-after-link']}
+                  {(() => {
+                    const text = pageContent['edit-profile-consent-wikidata-before-link'] || '';
+                    const parts = text.split('$1');
+                    const link = (
+                      <a
+                        href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`underline ${
+                          darkMode ? 'text-blue-300' : 'text-blue-600'
+                        } hover:opacity-80`}
+                      >
+                        {pageContent['edit-profile-consent-wikidata-link']}
+                      </a>
+                    );
+                    const nodes: (string | JSX.Element)[] = [];
+                    for (const [index, part] of parts.entries()) {
+                      if (index > 0) nodes.push(<span key={`wikidata-link-${index}`}>{link}</span>);
+                      nodes.push(<span key={`wikidata-part-${index}`}>{part}</span>);
+                    }
+                    return nodes;
+                  })()}
                 </span>
                 {hasLetsConnectData && !formData?.automated_lets_connect && (
                   <BaseButton
@@ -602,17 +619,41 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   </div>
                 ))}
               </div>
-              <BaseButton
-                onClick={() => handleAddCapacity('available')}
-                label={pageContent['edit-profile-add-capacities']}
-                customClass={`w-fit flex ${
-                  darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
-                } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
-                imageUrl={darkMode ? AddIconDark : AddIcon}
-                imageAlt="Add capacity"
-                imageWidth={30}
-                imageHeight={30}
-              />
+              <div className="flex gap-2">
+                <BaseButton
+                  onClick={() => handleAddCapacity('available')}
+                  label={pageContent['edit-profile-add-capacities']}
+                  customClass={`w-fit flex ${
+                    darkMode ? 'bg-capx-light-box-bg text-[#04222F]' : 'bg-[#053749] text-white'
+                  } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+                  imageUrl={darkMode ? AddIconDark : AddIcon}
+                  imageAlt="Add capacity"
+                  imageWidth={30}
+                  imageHeight={30}
+                />
+                <BaseButton
+                  onClick={() => {
+                    const knownCapacities = formData?.skills_known || [];
+                    const availableCapacities = formData?.skills_available || [];
+                    const newAvailable = Array.from(
+                      new Set([...availableCapacities, ...knownCapacities])
+                    );
+                    setFormData({ ...formData, skills_available: newAvailable });
+                  }}
+                  label={
+                    pageContent['edit-profile-import-known-capacities'] || 'Import Known Capacities'
+                  }
+                  customClass={`w-fit flex ${
+                    darkMode
+                      ? 'bg-transparent border-white text-white border-2'
+                      : 'bg-transparent border-[#053749] text-[#053749] border-2'
+                  } rounded-md py-2 font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal] mb-0 px-8 py-4 items-center gap-[4px]`}
+                  imageUrl={darkMode ? AddIconDark : AddIcon}
+                  imageAlt="Import known capacities"
+                  imageWidth={30}
+                  imageHeight={30}
+                />
+              </div>
               <span
                 className={`text-[20px] font-[Montserrat] not-italic font-normal leading-normal ${
                   darkMode ? 'text-white' : 'text-[#053749]'
@@ -827,18 +868,20 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   }}
                 >
                   <option value="">{pageContent['edit-profile-add-language']}</option>
-                  {Object.entries(languagesData).map(([id, name]) => (
-                    <option
-                      key={id}
-                      value={id}
-                      style={{
-                        backgroundColor: darkMode ? '#053749' : 'white',
-                        color: darkMode ? 'white' : '#053749',
-                      }}
-                    >
-                      {name}
-                    </option>
-                  ))}
+                  {Object.entries(languagesData)
+                    .sort((a, b) => a[1].localeCompare(b[1]))
+                    .map(([id, name]) => (
+                      <option
+                        key={id}
+                        value={id}
+                        style={{
+                          backgroundColor: darkMode ? '#053749' : 'white',
+                          color: darkMode ? 'white' : '#053749',
+                        }}
+                      >
+                        {name}
+                      </option>
+                    ))}
                 </select>
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   <Image
@@ -1151,18 +1194,28 @@ export default function ProfileEditDesktopView(props: ProfileEditDesktopViewProp
                   darkMode ? 'text-white' : 'text-[#053749]'
                 }`}
               >
-                {pageContent['edit-profile-consent-wikidata-item-before-link']}{' '}
-                <a
-                  href="https://www.wikidata.org/wiki/Wikidata:Notability"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`underline ${
-                    darkMode ? 'text-blue-300' : 'text-blue-600'
-                  } hover:opacity-80`}
-                >
-                  {pageContent['edit-profile-consent-wikidata-link']}
-                </a>
-                {pageContent['edit-profile-consent-wikidata-item-after-link']}
+                {(() => {
+                  const text = pageContent['edit-profile-consent-wikidata-item-before-link'] || '';
+                  const parts = text.split('$1');
+                  const link = (
+                    <a
+                      href="https://www.wikidata.org/wiki/Wikidata:Notability"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`underline ${
+                        darkMode ? 'text-blue-300' : 'text-blue-600'
+                      } hover:opacity-80`}
+                    >
+                      {pageContent['edit-profile-consent-wikidata-link']}
+                    </a>
+                  );
+                  const nodes: (string | JSX.Element)[] = [];
+                  for (const [index, part] of parts.entries()) {
+                    if (index > 0) nodes.push(<span key={`link-${index}`}>{link}</span>);
+                    nodes.push(<span key={`part-${index}`}>{part}</span>);
+                  }
+                  return nodes;
+                })()}
               </span>
             </div>
 

@@ -194,7 +194,7 @@ describe('CapacitySelectionModal', () => {
       getMetabaseCode: jest.fn(code => `M${code}`),
       getWdCode: jest.fn(code => `Q${code}`),
       isLoadingTranslations: false,
-      updateLanguage: jest.fn(),
+      updateLanguage: jest.fn().mockResolvedValue(undefined),
       isFallbackTranslation: jest.fn(() => false),
     });
 

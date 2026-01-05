@@ -9,7 +9,7 @@ function OAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const [loginStatus, setLoginStatus] = useState<string | null>('Iniciando...');
+  const [loginStatus, setLoginStatus] = useState<string | null>('Starting...');
   const isCheckingTokenRef = useRef(false); // Ref to control the execution of checkToken
   const isHandlingLoginRef = useRef(false); // Ref to control the execution of handleLogin
   const oauth_verifier = searchParams?.get('oauth_verifier');
@@ -17,6 +17,9 @@ function OAuthContent() {
 
   useEffect(() => {
     if (status === 'authenticated' && session) {
+      // Set login timestamp when authentication is successful
+      localStorage.setItem('login_timestamp', Date.now().toString());
+      // Clean up OAuth tokens after successful authentication
       localStorage.removeItem('oauth_token');
       localStorage.removeItem('oauth_token_secret');
     }
@@ -44,7 +47,7 @@ function OAuthContent() {
         throw new Error('Missing OAuth tokens');
       }
 
-      setLoginStatus('Finalizando Login...');
+      setLoginStatus('Completing login...');
       const result = await signIn('credentials', {
         oauth_token,
         oauth_token_secret,
@@ -56,7 +59,7 @@ function OAuthContent() {
       });
       if (result?.error) {
         console.error('Login error:', result.error);
-        setLoginStatus('Erro: ' + result.error);
+        setLoginStatus('Error: ' + result.error);
         router.push('/');
       }
     } catch (error) {
@@ -121,11 +124,11 @@ function OAuthContent() {
               await handleLogin();
             } else {
               // Already authenticated, redirect to home
-              setLoginStatus('Login já realizado! Redirecionando...');
+              setLoginStatus('Already logged in! Redirecting...');
               router.push('/home');
             }
           } else {
-            let protocol = result.extra === 'capx-test.toolforge.org' ? 'https' : 'http';
+            let protocol = result.extra.includes('toolforge.org') ? 'https' : 'http';
             router.push(
               `${protocol}://${result.extra}/oauth?oauth_token=${oauth_token_request}&oauth_verifier=${oauth_verifier}`
             );

@@ -114,6 +114,31 @@ const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
             </div>
           </div>
         )}
+
+        {submission.error_message && isExpanded && (
+          <div className="mt-4 md:mt-12">
+            <h4
+              className={`text-[12px] md:text-[24px] font-[Montserrat] font-bold ${
+                darkMode ? 'text-[#FFFFFF]' : 'text-[#507380]'
+              }`}
+            >
+              {pageContent['message-form-notes'] || 'Notes'}
+            </h4>
+            <div
+              className={`mt-1 p-3 rounded-md border-l-4 ${
+                darkMode ? 'bg-[#04222F] border-yellow-500' : 'bg-[#FFF9E6] border-yellow-600'
+              }`}
+            >
+              <p
+                className={`text-[12px] md:text-[24px] font-light px-2 ${
+                  darkMode ? 'text-[#FFFFFF]' : 'text-[#053749]'
+                }`}
+              >
+                ⚠️ {submission.error_message}
+              </p>
+            </div>
+          </div>
+        )}
         <div className="mt-4 md:mt-12 flex justify-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}

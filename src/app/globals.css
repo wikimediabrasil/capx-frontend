@@ -2,32 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Screen reader only - properly hide content visually but keep it accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  color: transparent !important;
+  background-color: transparent !important;
+}
+
 /* Specifying ChunkFive as custom font */
 @font-face {
-  font-family: "ChunkFive Ex";
-  src: url("../../public/static/fonts/Chunkfive.ttf");
+  font-family: 'ChunkFive Ex';
+  src: url('../../public/static/fonts/Chunkfive.ttf');
   font-weight: 400;
   font-style: regular;
 }
 
 /* Specifying Montserrat as custom font */
 @font-face {
-  font-family: "Montserrat";
-  src: url("../../public/static/fonts/Montserrat-Regular.ttf");
+  font-family: 'Montserrat';
+  src: url('../../public/static/fonts/Montserrat-Regular.ttf');
   font-weight: 400;
   font-style: regular;
 }
 
 @font-face {
-  font-family: "Montserrat";
-  src: url("../../public/static/fonts/Montserrat-Medium.ttf");
+  font-family: 'Montserrat';
+  src: url('../../public/static/fonts/Montserrat-Medium.ttf');
   font-weight: 500;
   font-style: medium;
 }
 
 @font-face {
-  font-family: "Montserrat";
-  src: url("../../public/static/fonts/Montserrat-ExtraBold.ttf");
+  font-family: 'Montserrat';
+  src: url('../../public/static/fonts/Montserrat-ExtraBold.ttf');
   font-weight: 800;
   font-style: extrabold;
 }

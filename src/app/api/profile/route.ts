@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -88,7 +90,8 @@ export async function OPTIONS(request: NextRequest) {
     const { user, ...formFields } = response.data.actions.PUT;
 
     return NextResponse.json(formFields);
-  } catch (error) {
+  } catch (error: any) {
+    console.error('OPTIONS request error:', error?.response?.data ?? error?.message ?? error);
     return NextResponse.json({ error: 'Failed to fetch options' }, { status: 500 });
   }
 }
@@ -99,21 +102,25 @@ export async function DELETE(request: NextRequest) {
   const userId = body.user.id;
 
   try {
-    const response = await axios.delete(process.env.BASE_URL + '/profile/' + userId, {
+    const response = await axios.delete(`${process.env.BASE_URL}/profile/${userId}/`, {
       headers: {
         Authorization: authHeader,
       },
     });
 
-    if (response.status === 200) {
-      return NextResponse.json(response.data);
+    if (response.status === 200 || response.status === 204) {
+      return NextResponse.json({ success: true });
     } else {
       return NextResponse.json(
         { error: 'Failed to delete user profile' },
         { status: response.status }
       );
     }
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete user profile' }, { status: 500 });
+  } catch (error: any) {
+    console.error('DELETE request error:', error?.response?.data ?? error?.message ?? error);
+    return NextResponse.json(
+      { error: 'Failed to delete user profile', details: error?.message ?? String(error) },
+      { status: 500 }
+    );
   }
 }
