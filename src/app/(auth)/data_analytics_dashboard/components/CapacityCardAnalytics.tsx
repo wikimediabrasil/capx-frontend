@@ -80,8 +80,7 @@ export default function CapacityCardAnalytics({
                 >
                   {card.titleCard}
                 </h2>
-                <span className="text-3x1 font-bold break-words" 
-                  style={{ color: textColor }}>
+                <span className="text-3x1 font-bold break-words" style={{ color: textColor }}>
                   {card.value}
                 </span>
               </div>
