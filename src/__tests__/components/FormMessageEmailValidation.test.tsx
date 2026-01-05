@@ -1,4 +1,5 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MessageService } from '@/services/messageService';
 import { useSession } from 'next-auth/react';
 
@@ -14,21 +15,25 @@ jest.mock('next/navigation', () => ({
 const mockedMessageService = MessageService as jest.Mocked<typeof MessageService>;
 const mockedUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
+interface EmailStatus {
+  sender_emailable: boolean;
+  receiver_emailable: boolean;
+  can_send_email: boolean;
+}
+
+interface EmailValidationProps {
+  receiverUsername: string;
+  senderUsername: string;
+  token: string;
+}
+
 // Test component that simulates the email validation logic
 const EmailValidationComponent = ({
   receiverUsername,
   senderUsername,
   token,
-}: {
-  receiverUsername: string;
-  senderUsername: string;
-  token: string;
-}) => {
-  const [emailStatus, setEmailStatus] = React.useState<{
-    sender_emailable: boolean;
-    receiver_emailable: boolean;
-    can_send_email: boolean;
-  } | null>(null);
+}: EmailValidationProps) => {
+  const [emailStatus, setEmailStatus] = React.useState<EmailStatus | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -73,7 +78,43 @@ const EmailValidationComponent = ({
   );
 };
 
-import React from 'react';
+// Helper function to get email error message
+function getEmailErrorMessage(emailCheck: EmailStatus): string {
+  if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
+    return 'Neither you nor the receiver have email enabled';
+  }
+  if (!emailCheck.sender_emailable) {
+    return 'You do not have email enabled';
+  }
+  if (!emailCheck.receiver_emailable) {
+    return 'The receiver does not accept emails';
+  }
+  return '';
+}
+
+// Helper to create mock email status
+function createMockEmailStatus(
+  senderEmailable: boolean,
+  receiverEmailable: boolean,
+  canSendEmail: boolean
+): EmailStatus {
+  return {
+    sender_emailable: senderEmailable,
+    receiver_emailable: receiverEmailable,
+    can_send_email: canSendEmail,
+  };
+}
+
+// Helper to render component with default props
+function renderEmailValidation(overrides?: Partial<EmailValidationProps>) {
+  const defaultProps: EmailValidationProps = {
+    receiverUsername: 'TestReceiver',
+    senderUsername: 'TestSender',
+    token: 'test-token',
+  };
+
+  return render(<EmailValidationComponent {...defaultProps} {...overrides} />);
+}
 
 describe('FormMessage Email Validation', () => {
   beforeEach(() => {
@@ -92,28 +133,13 @@ describe('FormMessage Email Validation', () => {
 
   describe('Email availability checking', () => {
     it('should show loading state while checking email', async () => {
-      mockedMessageService.checkEmailable.mockImplementation(
-        () =>
-          new Promise(resolve =>
-            setTimeout(
-              () =>
-                resolve({
-                  sender_emailable: true,
-                  receiver_emailable: true,
-                  can_send_email: true,
-                }),
-              100
-            )
-          )
-      );
+      const delayedResponse = new Promise<EmailStatus>(resolve => {
+        const mockStatus = createMockEmailStatus(true, true, true);
+        setTimeout(() => resolve(mockStatus), 100);
+      });
+      mockedMessageService.checkEmailable.mockImplementation(() => delayedResponse);
 
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
-      );
+      renderEmailValidation();
 
       expect(screen.getByTestId('loading')).toBeInTheDocument();
 
@@ -123,19 +149,11 @@ describe('FormMessage Email Validation', () => {
     });
 
     it('should display available status when both users have email', async () => {
-      mockedMessageService.checkEmailable.mockResolvedValueOnce({
-        sender_emailable: true,
-        receiver_emailable: true,
-        can_send_email: true,
-      });
-
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
+      mockedMessageService.checkEmailable.mockResolvedValueOnce(
+        createMockEmailStatus(true, true, true)
       );
+
+      renderEmailValidation();
 
       await waitFor(() => {
         expect(screen.getByTestId('sender-status')).toHaveTextContent('Sender: Available');
@@ -145,19 +163,11 @@ describe('FormMessage Email Validation', () => {
     });
 
     it('should display unavailable when sender does not have email', async () => {
-      mockedMessageService.checkEmailable.mockResolvedValueOnce({
-        sender_emailable: false,
-        receiver_emailable: true,
-        can_send_email: false,
-      });
-
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
+      mockedMessageService.checkEmailable.mockResolvedValueOnce(
+        createMockEmailStatus(false, true, false)
       );
+
+      renderEmailValidation();
 
       await waitFor(() => {
         expect(screen.getByTestId('sender-status')).toHaveTextContent('Sender: Unavailable');
@@ -167,19 +177,11 @@ describe('FormMessage Email Validation', () => {
     });
 
     it('should display unavailable when receiver does not have email', async () => {
-      mockedMessageService.checkEmailable.mockResolvedValueOnce({
-        sender_emailable: true,
-        receiver_emailable: false,
-        can_send_email: false,
-      });
-
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
+      mockedMessageService.checkEmailable.mockResolvedValueOnce(
+        createMockEmailStatus(true, false, false)
       );
+
+      renderEmailValidation();
 
       await waitFor(() => {
         expect(screen.getByTestId('sender-status')).toHaveTextContent('Sender: Available');
@@ -189,19 +191,11 @@ describe('FormMessage Email Validation', () => {
     });
 
     it('should display unavailable when both do not have email', async () => {
-      mockedMessageService.checkEmailable.mockResolvedValueOnce({
-        sender_emailable: false,
-        receiver_emailable: false,
-        can_send_email: false,
-      });
-
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
+      mockedMessageService.checkEmailable.mockResolvedValueOnce(
+        createMockEmailStatus(false, false, false)
       );
+
+      renderEmailValidation();
 
       await waitFor(() => {
         expect(screen.getByTestId('sender-status')).toHaveTextContent('Sender: Unavailable');
@@ -213,13 +207,7 @@ describe('FormMessage Email Validation', () => {
     it('should handle API errors gracefully', async () => {
       mockedMessageService.checkEmailable.mockRejectedValueOnce(new Error('Network error'));
 
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
-      );
+      renderEmailValidation();
 
       await waitFor(() => {
         expect(screen.getByTestId('error')).toHaveTextContent('Failed to check email');
@@ -227,13 +215,7 @@ describe('FormMessage Email Validation', () => {
     });
 
     it('should not check email for usernames shorter than 3 characters', async () => {
-      render(
-        <EmailValidationComponent
-          receiverUsername="AB"
-          senderUsername="TestSender"
-          token="test-token"
-        />
-      );
+      renderEmailValidation({ receiverUsername: 'AB' });
 
       await waitFor(() => {
         expect(mockedMessageService.checkEmailable).not.toHaveBeenCalled();
@@ -241,19 +223,11 @@ describe('FormMessage Email Validation', () => {
     });
 
     it('should pass sender username to API', async () => {
-      mockedMessageService.checkEmailable.mockResolvedValueOnce({
-        sender_emailable: true,
-        receiver_emailable: true,
-        can_send_email: true,
-      });
-
-      render(
-        <EmailValidationComponent
-          receiverUsername="TestReceiver"
-          senderUsername="TestSender"
-          token="test-token"
-        />
+      mockedMessageService.checkEmailable.mockResolvedValueOnce(
+        createMockEmailStatus(true, true, true)
       );
+
+      renderEmailValidation();
 
       await waitFor(() => {
         expect(mockedMessageService.checkEmailable).toHaveBeenCalledWith(
@@ -267,66 +241,20 @@ describe('FormMessage Email Validation', () => {
 
   describe('Error messages', () => {
     it('should generate correct message when sender has no email', () => {
-      const emailCheck = {
-        sender_emailable: false,
-        receiver_emailable: true,
-        can_send_email: false,
-      };
-
-      const getMessage = () => {
-        if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
-          return 'Neither you nor the receiver have email enabled';
-        } else if (!emailCheck.sender_emailable) {
-          return 'You do not have email enabled';
-        } else if (!emailCheck.receiver_emailable) {
-          return 'The receiver does not accept emails';
-        }
-        return '';
-      };
-
-      expect(getMessage()).toBe('You do not have email enabled');
+      const emailCheck = createMockEmailStatus(false, true, false);
+      expect(getEmailErrorMessage(emailCheck)).toBe('You do not have email enabled');
     });
 
     it('should generate correct message when receiver has no email', () => {
-      const emailCheck = {
-        sender_emailable: true,
-        receiver_emailable: false,
-        can_send_email: false,
-      };
-
-      const getMessage = () => {
-        if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
-          return 'Neither you nor the receiver have email enabled';
-        } else if (!emailCheck.sender_emailable) {
-          return 'You do not have email enabled';
-        } else if (!emailCheck.receiver_emailable) {
-          return 'The receiver does not accept emails';
-        }
-        return '';
-      };
-
-      expect(getMessage()).toBe('The receiver does not accept emails');
+      const emailCheck = createMockEmailStatus(true, false, false);
+      expect(getEmailErrorMessage(emailCheck)).toBe('The receiver does not accept emails');
     });
 
     it('should generate correct message when both have no email', () => {
-      const emailCheck = {
-        sender_emailable: false,
-        receiver_emailable: false,
-        can_send_email: false,
-      };
-
-      const getMessage = () => {
-        if (!emailCheck.sender_emailable && !emailCheck.receiver_emailable) {
-          return 'Neither you nor the receiver have email enabled';
-        } else if (!emailCheck.sender_emailable) {
-          return 'You do not have email enabled';
-        } else if (!emailCheck.receiver_emailable) {
-          return 'The receiver does not accept emails';
-        }
-        return '';
-      };
-
-      expect(getMessage()).toBe('Neither you nor the receiver have email enabled');
+      const emailCheck = createMockEmailStatus(false, false, false);
+      expect(getEmailErrorMessage(emailCheck)).toBe(
+        'Neither you nor the receiver have email enabled'
+      );
     });
   });
 });

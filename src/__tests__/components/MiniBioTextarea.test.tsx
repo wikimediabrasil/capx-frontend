@@ -1,7 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
+import { screen, fireEvent } from '@testing-library/react';
 import MiniBioTextarea from '@/components/MiniBioTextarea';
+import { renderWithProviders } from '../utils/test-helpers';
 
 // Mock do ThemeContext
 const mockThemeContext = {
@@ -29,18 +28,11 @@ jest.mock('@/contexts/AppContext', () => ({
   AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-const renderWithProviders = (component: React.ReactElement) => {
-  return render(
-    <AppProvider>
-      <ThemeProvider>{component}</ThemeProvider>
-    </AppProvider>
-  );
-};
-
 describe('MiniBioTextarea', () => {
+  const defaultOnChange = jest.fn();
   const defaultProps = {
     value: '',
-    onChange: jest.fn(),
+    onChange: defaultOnChange,
     placeholder: 'Digite sua minibio...',
   };
 
@@ -49,179 +41,136 @@ describe('MiniBioTextarea', () => {
     mockThemeContext.darkMode = false;
   });
 
-  it('renders correctly', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
+  const renderTextarea = (props: any = {}) => {
+    return renderWithProviders(<MiniBioTextarea {...defaultProps} {...props} />);
+  };
 
-    expect(screen.getByPlaceholderText('Digite sua minibio...')).toBeInTheDocument();
+  const getTextarea = () => screen.getByPlaceholderText('Digite sua minibio...');
+
+  const testCharacterCount = (value: string, maxLength = 2000) => {
+    const charCount = value.length;
+    const remaining = maxLength - charCount;
+    const isExceeded = charCount > maxLength;
+
+    renderTextarea({ value, maxLength });
+
+    expect(screen.getByText(`${charCount} / ${maxLength}`)).toBeInTheDocument();
+
+    if (isExceeded) {
+      expect(screen.getByText(`${charCount - maxLength} caracteres excedidos`)).toBeInTheDocument();
+    } else {
+      expect(screen.getByText(`${remaining} caracteres restantes`)).toBeInTheDocument();
+    }
+  };
+
+  it('renders correctly', () => {
+    renderTextarea();
+    expect(getTextarea()).toBeInTheDocument();
     expect(screen.getByText('0 / 2000')).toBeInTheDocument();
     expect(screen.getByText('2000 caracteres restantes')).toBeInTheDocument();
   });
 
   it('displays the correct character count', () => {
-    const text = 'Texto de teste';
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={text} />);
-
-    expect(screen.getByText(`${text.length} / 2000`)).toBeInTheDocument();
-    expect(screen.getByText(`${2000 - text.length} caracteres restantes`)).toBeInTheDocument();
+    testCharacterCount('Texto de teste');
   });
 
   it('calls onChange when the user types', () => {
-    const onChange = jest.fn();
-    renderWithProviders(<MiniBioTextarea {...defaultProps} onChange={onChange} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    fireEvent.change(textarea, { target: { value: 'Novo texto' } });
-
-    expect(onChange).toHaveBeenCalledWith('Novo texto');
+    renderTextarea();
+    fireEvent.change(getTextarea(), { target: { value: 'Novo texto' } });
+    expect(defaultOnChange).toHaveBeenCalledWith('Novo texto');
   });
 
   it('respects the maximum character limit', () => {
-    const longText = 'a'.repeat(2001);
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={longText} />);
-
-    expect(screen.getByText('2001 / 2000')).toBeInTheDocument();
-    expect(screen.getByText('1 caracteres excedidos')).toBeInTheDocument();
+    testCharacterCount('a'.repeat(2001));
   });
 
   it('changes the text color when the limit is exceeded', () => {
-    const longText = 'a'.repeat(2001);
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={longText} />);
-
-    const exceededText = screen.getByText('1 caracteres excedidos');
-    expect(exceededText).toHaveClass('text-red-500');
+    renderTextarea({ value: 'a'.repeat(2001) });
+    expect(screen.getByText('1 caracteres excedidos')).toHaveClass('text-red-500');
   });
 
   it('changes the text color when it is close to the limit', () => {
-    const nearLimitText = 'a'.repeat(1900);
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={nearLimitText} />);
-
-    const remainingText = screen.getByText('100 caracteres restantes');
-    expect(remainingText).toHaveClass('text-yellow-600');
+    renderTextarea({ value: 'a'.repeat(1900) });
+    expect(screen.getByText('100 caracteres restantes')).toHaveClass('text-yellow-600');
   });
 
   it('accepts a custom character limit', () => {
-    const customMaxLength = 1000;
-    renderWithProviders(<MiniBioTextarea {...defaultProps} maxLength={customMaxLength} />);
-
-    expect(screen.getByText(`0 / ${customMaxLength}`)).toBeInTheDocument();
-    expect(screen.getByText(`${customMaxLength} caracteres restantes`)).toBeInTheDocument();
+    testCharacterCount('', 1000);
   });
 
   it('applies custom CSS classes', () => {
-    const customClass = 'custom-class';
-    renderWithProviders(<MiniBioTextarea {...defaultProps} className={customClass} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass(customClass);
+    renderTextarea({ className: 'custom-class' });
+    expect(getTextarea()).toHaveClass('custom-class');
   });
 
   it('disables the textarea when disabled is true', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} disabled={true} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toBeDisabled();
+    renderTextarea({ disabled: true });
+    expect(getTextarea()).toBeDisabled();
   });
 
   it('works correctly with text in different languages', () => {
-    const unicodeText = 'Texto com acentos: áéíóú çãõ ñ';
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={unicodeText} />);
-
-    expect(screen.getByText(`${unicodeText.length} / 2000`)).toBeInTheDocument();
-    expect(
-      screen.getByText(`${2000 - unicodeText.length} caracteres restantes`)
-    ).toBeInTheDocument();
+    testCharacterCount('Texto com acentos: áéíóú çãõ ñ');
   });
 
   it('works correctly with emojis', () => {
-    const emojiText = 'Texto com emojis 😀🎉🚀';
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={emojiText} />);
-
-    expect(screen.getByText(`${emojiText.length} / 2000`)).toBeInTheDocument();
-    expect(screen.getByText(`${2000 - emojiText.length} caracteres restantes`)).toBeInTheDocument();
+    testCharacterCount('Texto com emojis 😀🎉🚀');
   });
 
   it('works correctly with spaces', () => {
-    const textWithSpaces = 'Texto com   espaços   múltiplos';
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={textWithSpaces} />);
-
-    expect(screen.getByText(`${textWithSpaces.length} / 2000`)).toBeInTheDocument();
-    expect(
-      screen.getByText(`${2000 - textWithSpaces.length} caracteres restantes`)
-    ).toBeInTheDocument();
+    testCharacterCount('Texto com   espaços   múltiplos');
   });
 
   it('works correctly with line breaks', () => {
-    const textWithNewlines = 'Linha 1\nLinha 2\nLinha 3';
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={textWithNewlines} />);
-
-    expect(screen.getByText(`${textWithNewlines.length} / 2000`)).toBeInTheDocument();
-    expect(
-      screen.getByText(`${2000 - textWithNewlines.length} caracteres restantes`)
-    ).toBeInTheDocument();
+    testCharacterCount('Linha 1\nLinha 2\nLinha 3');
   });
 
-  it('has a minimum height defined', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
+  const testStyle = (styleOrClass: any, expected?: any) => {
+    renderTextarea();
+    const textarea = getTextarea();
+    if (expected) {
+      expect(textarea).toHaveStyle(styleOrClass);
+    } else {
+      expect(textarea).toHaveClass(styleOrClass);
+    }
+  };
 
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveStyle({ minHeight: '100px' });
+  it('has a minimum height defined', () => {
+    testStyle({ minHeight: '100px' }, true);
   });
 
   it('has correct padding applied', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveStyle({ padding: '8px 12px' });
+    testStyle({ padding: '8px 12px' }, true);
   });
 
   it('has border radius applied', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass('rounded-[4px]');
+    testStyle('rounded-[4px]');
   });
 
   it('has border applied', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
+    renderTextarea();
+    const textarea = getTextarea();
     expect(textarea).toHaveClass('border-[1px]');
     expect(textarea).toHaveClass('border-[solid]');
   });
 
   it('has red border when the limit is exceeded', () => {
-    const longText = 'a'.repeat(2001);
-    renderWithProviders(<MiniBioTextarea {...defaultProps} value={longText} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass('border-red-500');
+    renderTextarea({ value: 'a'.repeat(2001) });
+    expect(getTextarea()).toHaveClass('border-red-500');
   });
 
   it('has Montserrat font applied', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass('font-[Montserrat]');
+    testStyle('font-[Montserrat]');
   });
 
   it('has transparent background', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass('bg-transparent');
+    testStyle('bg-transparent');
   });
 
   it('has resize none', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass('resize-none');
+    testStyle('resize-none');
   });
 
   it('has minibio-textarea class for custom scrollbar styling', () => {
-    renderWithProviders(<MiniBioTextarea {...defaultProps} />);
-
-    const textarea = screen.getByPlaceholderText('Digite sua minibio...');
-    expect(textarea).toHaveClass('minibio-textarea');
+    testStyle('minibio-textarea');
   });
 });
