@@ -38,7 +38,7 @@ export default function CapacityCardAnalytics({
     <div className="flex flex-col">
       {/* Conteúdo */}
       {open && (
-        <div className="w-full max-w-md mx-auto mt-4">
+        <div className="w-full max-w-4xl mx-auto mt-4">
           {/* Subcabeçalho */}
           <div
             className="p-3 rounded-md flex items-center gap-2 mb-2"
@@ -80,7 +80,8 @@ export default function CapacityCardAnalytics({
                 >
                   {card.titleCard}
                 </h2>
-                <span className="text-3xl font-bold" style={{ color: textColor }}>
+                <span className="text-3x1 font-bold break-words" 
+                  style={{ color: textColor }}>
                   {card.value}
                 </span>
               </div>
