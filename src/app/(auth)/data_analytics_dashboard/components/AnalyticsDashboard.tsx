@@ -211,7 +211,9 @@ export default function AnalyticsDashboardPage() {
   const [visibleLanguagesCount, setVisibleLanguagesCount] = useState(8);
 
   const sortedTerritories = getTopItems(territories, data?.territory_user_counts, 8);
-  const sortedLanguages = getTopItems(languages, data?.language_user_counts).filter(lang => lang.count > 0);
+  const sortedLanguages = getTopItems(languages, data?.language_user_counts).filter(
+    lang => lang.count > 0
+  );
   const visibleLanguages = sortedLanguages.slice(0, visibleLanguagesCount);
 
   const handleLoadMoreLanguages = () => {
