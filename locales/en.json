@@ -630,5 +630,21 @@
   "organization-names-description": "Add translations of your organization name in different languages. The name will be displayed based on the user's selected language.",
   "organization-names-none": "No translations added yet.",
   "organization-names-title": "Organization Names (Translations)",
-  "select-language": "Select language"
+  "select-language": "Select language",
+  "mentorship-programs": "Mentorship Programs",
+  "search-by-mentorships": "Search by mentorships",
+  "filter-mentorship-programs": "Filter mentorship programs",
+  "subscribe": "Subscribe",
+  "learn-more": "Learn more",
+  "select-your-role": "Select Your Role",
+  "mentorship-role-instruction": "Please indicate whether you would like to participate as a mentor or as a mentee.",
+  "mentor": "Mentor",
+  "mentee": "Mentee",
+  "close-tab": "Close tab",
+  "no-mentorship-programs-found": "No mentorship programs found",
+  "congratulations": "Congratulations!",
+  "mentorship-application-forwarded": "I've forwarded your application to the mentorship program. They will contact you directly soon.",
+  "more-mentorships": "More mentorships",
+  "close": "Close",
+  "mentorship-programs-alt": "Mentorship Programs"
 }
