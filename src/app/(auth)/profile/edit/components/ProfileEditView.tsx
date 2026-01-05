@@ -8,8 +8,6 @@ import LetsConnectPopup from '@/components/LetsConnectPopup';
 import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useAvatarManagement } from './ProfileEditView/useAvatarManagement';
 import {
   addAffiliationToFormData,
   addLanguageToFormData,
@@ -17,37 +15,17 @@ import {
   addTerritoryToFormData,
 } from '@/lib/utils/formDataUtils';
 
-import AccountCircleIcon from '@/public/static/images/account_circle.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
-import BarCodeIcon from '@/public/static/images/barcode.svg';
-import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
-
-import CheckBoxFilledIcon from '@/public/static/images/check_box.svg';
-import CheckBoxFilledIconWhite from '@/public/static/images/check_box_light.svg';
-import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
-import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
-
-import LetsConectBanner from '@/public/static/images/lets_connect.svg';
-import LetsConect from '@/public/static/images/lets_connect_desktop.svg';
-import LetsConectTextDesktop from '@/public/static/images/lets_connect_text_desktop.svg';
-import LetsConectText from '@/public/static/images/lets_connect_text_img.svg';
-import LetsConectTitle from '@/public/static/images/lets_connect_title.svg';
-import LetsConectTitleLight from '@/public/static/images/lets_connect_title_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-
 import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
-import UserCheckIcon from '@/public/static/images/user_check.svg';
-import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
-import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
-import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+
 import { Capacity } from '@/types/capacity';
 import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
@@ -55,13 +33,18 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ActionButtons } from './ProfileEditView/ActionButtons';
+import { AlternativeAccountSection } from './ProfileEditView/AlternativeAccountSection';
 import { AvatarImageSection } from './ProfileEditView/AvatarImageSection';
 import { BadgesSection } from './ProfileEditView/BadgesSection';
 import { CapacitySection } from './ProfileEditView/CapacitySection';
 import { LanguageSection } from './ProfileEditView/LanguageSection';
 import { MiniBioSection } from './ProfileEditView/MiniBioSection';
 import { SelectionSection } from './ProfileEditView/SelectionSection';
+import { WikidataItemSection } from './ProfileEditView/WikidataItemSection';
 import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
+import { useAvatarManagement } from './ProfileEditView/useAvatarManagement';
+import { useThemeConfig } from './ProfileEditView/useThemeConfig';
+import { getUserCheckIcon } from './ProfileEditView/themeHelpers';
 
 interface ProfileEditViewProps {
   readonly selectedAvatar: any;
@@ -140,7 +123,6 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
 
   const router = useRouter();
   const { data: session } = useSession();
-  const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
@@ -150,28 +132,48 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
   const avatarUrl = useAvatarManagement(profile);
 
-  // Theme and responsive classes
-  const bgColor = darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]';
-  const topMargin = isMobile ? 'mt-[80px]' : 'mt-[64px]';
-  const contentMargin = isMobile ? '' : 'mx-[80px]';
-  const titleColor = darkMode ? 'text-white' : 'text-[#053749]';
-  const accountIcon = darkMode ? AccountCircleIconWhite : AccountCircleIcon;
-  const letsConnectBanner = isMobile ? LetsConectBanner : LetsConect;
-  const letsConnectTitleImage = darkMode ? LetsConectTitleLight : LetsConectTitle;
-  const letsConnectBgClass = isMobile ? 'bg-[#EFEFEF] pb-[6px] rounded-2 mb-4' : '';
-  const letsConnectButtonClass = darkMode
-    ? 'bg-capx-light-box-bg text-[#04222F]'
-    : 'bg-[#053749] text-white';
-  const letsConnectTextColor = darkMode ? 'text-white' : 'text-[#053749]';
-  const userCheckIconSrc = darkMode ? UserCheckIconDark : UserCheckIcon;
-  const iconSize = isMobile ? 20 : 30;
-  const checkboxIcon = isWikidataSelected
-    ? darkMode
-      ? CheckBoxFilledIconWhite
-      : CheckBoxFilledIcon
-    : darkMode
-      ? CheckIconWhite
-      : CheckIcon;
+  // Theme configuration (consolidated)
+  const {
+    bgColor,
+    topMargin,
+    contentMargin,
+    titleColor,
+    accountIcon,
+    iconSize,
+    letsConnect,
+    darkMode,
+  } = useThemeConfig();
+
+  // Icon selections
+  const userCheckIconSrc = getUserCheckIcon(darkMode);
+
+  // Named event handlers (extracted from inline)
+  const handleNavigateBack = () => router.back();
+  const handleShowDeletePopup = () => setShowDeleteProfilePopup(true);
+  const handleNavigateToLetsConnect = () => goTo('/profile/lets_connect');
+  const handleWikiAltChange = (value: string) => {
+    setFormData({ ...formData, wiki_alt: value });
+  };
+  const handleImportKnownCapacities = () => {
+    const knownCapacities = formData?.skills_known || [];
+    const availableCapacities = formData?.skills_available || [];
+    const newAvailable = Array.from(new Set([...availableCapacities, ...knownCapacities]));
+    setFormData({ ...formData, skills_available: newAvailable });
+  };
+  const handleAffiliationRemove = (index: number) => {
+    const newAffiliations = formData.affiliation?.filter((_, i) => i !== index);
+    setFormData({ ...formData, affiliation: newAffiliations });
+  };
+  const handleAffiliationAdd = (value: string) => {
+    setFormData(addAffiliationToFormData(formData, value));
+  };
+  const handleTerritoryRemove = (index: number) => {
+    const newTerritories = formData.territory?.filter((_, i) => i !== index);
+    setFormData({ ...formData, territory: newTerritories });
+  };
+  const handleTerritoryAdd = (value: string) => {
+    setFormData(addTerritoryToFormData(formData, value));
+  };
 
   return (
     <>
@@ -206,15 +208,15 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             {/* Action Buttons - Mobile shows first, Desktop shows later */}
             <ActionButtons
               onSave={handleSubmit}
-              onCancel={() => router.back()}
-              onDelete={() => setShowDeleteProfilePopup(true)}
+              onCancel={handleNavigateBack}
+              onDelete={handleShowDeletePopup}
               variant="mobile-top"
             />
 
             {/* Desktop Action Buttons - only show on desktop */}
             <ActionButtons
               onSave={handleSubmit}
-              onCancel={() => router.back()}
+              onCancel={handleNavigateBack}
               variant="desktop-top"
             />
 
@@ -281,14 +283,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                     : pageContent['edit-profile-available-capacities']
                 }
                 showImportButton={true}
-                onImport={() => {
-                  const knownCapacities = formData?.skills_known || [];
-                  const availableCapacities = formData?.skills_available || [];
-                  const newAvailable = Array.from(
-                    new Set([...availableCapacities, ...knownCapacities])
-                  );
-                  setFormData({ ...formData, skills_available: newAvailable });
-                }}
+                onImport={handleImportKnownCapacities}
               />
 
               {/* Wanted Capacities */}
@@ -322,46 +317,10 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
               </span>
 
               {/* Alternative Wikimedia Account */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? WikiIconWhite : WikiIcon}
-                    alt="Alternative account icon"
-                    width={isMobile ? 20 : 48}
-                    height={isMobile ? 20 : 48}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['body-profile-box-title-alt-wiki-acc']}
-                  </h2>
-                </div>
-                <input
-                  type="text"
-                  placeholder={pageContent['edit-profile-insert-item']}
-                  value={formData.wiki_alt}
-                  onChange={e =>
-                    setFormData({
-                      ...formData,
-                      wiki_alt: e.target.value,
-                    })
-                  }
-                  className={`w-full px-4 py-2 rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] ${
-                    darkMode
-                      ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
-                      : 'border-[#053749] text-[#829BA4]'
-                  } border`}
-                />
-                <span
-                  className={`text-[12px] md:text-[20px] md:text-[24px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {pageContent['edit-profile-share-username']}
-                </span>
-              </div>
+              <AlternativeAccountSection
+                wikiAlt={formData.wiki_alt}
+                onChange={handleWikiAltChange}
+              />
 
               {/* Affiliation Section */}
               <SelectionSection
@@ -370,13 +329,8 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 iconDark={AffiliationIconWhite}
                 selectedItems={formData.affiliation || []}
                 availableOptions={affiliations}
-                onRemove={index => {
-                  const newAffiliations = formData.affiliation?.filter((_, i) => i !== index);
-                  setFormData({ ...formData, affiliation: newAffiliations });
-                }}
-                onAdd={value => {
-                  setFormData(addAffiliationToFormData(formData, value));
-                }}
+                onRemove={handleAffiliationRemove}
+                onAdd={handleAffiliationAdd}
                 helpText={pageContent['body-profile-section-affiliation-dropdown-menu']}
                 placeholder={pageContent['edit-profile-insert-item']}
               />
@@ -388,76 +342,17 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 iconDark={TerritoryIconWhite}
                 selectedItems={formData.territory || []}
                 availableOptions={territories}
-                onRemove={index => {
-                  const newTerritories = formData.territory?.filter((_, i) => i !== index);
-                  setFormData({ ...formData, territory: newTerritories });
-                }}
-                onAdd={value => {
-                  setFormData(addTerritoryToFormData(formData, value));
-                }}
+                onRemove={handleTerritoryRemove}
+                onAdd={handleTerritoryAdd}
                 helpText={pageContent['edit-profile-territory']}
                 placeholder={pageContent['edit-profile-insert-item']}
               />
 
               {/* Wikidata Item */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={darkMode ? BarCodeIconWhite : BarCodeIcon}
-                    alt="Wikidata item icon"
-                    width={isMobile ? 20 : 24}
-                    height={isMobile ? 20 : 24}
-                  />
-                  <h2
-                    className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    }`}
-                  >
-                    {pageContent['edit-profile-wikidata-item']}
-                  </h2>
-                </div>
-                <div className="flex items-center gap-2 py-[6px]">
-                  <BaseButton
-                    onClick={() => handleWikidataClick(!isWikidataSelected)}
-                    label={pageContent['edit-profile-use-wikidata-item']}
-                    customClass={`w-full flex justify-between items-center px-[13px] py-[6px] rounded-[4px] md:rounded-[16px] font-[Montserrat] text-[12px] md:text-[24px] appearance-none mb-0 pb-[6px] ${
-                      darkMode
-                        ? 'bg-transparent border-white text-white opacity-50 placeholder-gray-400'
-                        : 'border-[#053749] text-[#829BA4]'
-                    } border`}
-                    imageUrl={checkboxIcon}
-                    imageAlt="Check icon"
-                    imageWidth={isMobile ? 20 : 24}
-                    imageHeight={isMobile ? 20 : 24}
-                  />
-                </div>
-                <span
-                  className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {(() => {
-                    const text = pageContent['edit-profile-consent-wikidata-item-before-link'];
-                    const parts = text.split('$1');
-                    const link = (
-                      <a
-                        href="https://www.wikidata.org/wiki/Wikidata:Notability"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
-                      >
-                        {pageContent['edit-profile-consent-wikidata-link']}
-                      </a>
-                    );
-                    const nodes: (string | JSX.Element)[] = [];
-                    for (const [index, part] of parts.entries()) {
-                      if (index > 0) nodes.push(<span key={`link-${index}`}>{link}</span>);
-                      nodes.push(<span key={`part-${index}`}>{part}</span>);
-                    }
-                    return nodes;
-                  })()}
-                </span>
-              </div>
+              <WikidataItemSection
+                isWikidataSelected={isWikidataSelected}
+                handleWikidataClick={handleWikidataClick}
+              />
 
               {/* Wikimedia Projects */}
               <WikimediaProjectsSection
@@ -472,24 +367,24 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             <div className="flex flex-col">
               <div className="w-[300px] md:w-[580px] h-auto">
                 <Image
-                  src={letsConnectTitleImage}
+                  src={letsConnect.titleImage}
                   alt="Let's Connect"
                   className="w-full h-auto"
                   priority
                 />
               </div>
               <p
-                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mb-4 ${letsConnectTextColor}`}
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mb-4 ${letsConnect.textColor}`}
               >
                 {pageContent['lets-connect-edit-user-info-1']}
               </p>
-              <div className={letsConnectBgClass}>
+              <div className={letsConnect.bgClass}>
                 <Banner
-                  image={letsConnectBanner}
+                  image={letsConnect.banner}
                   alt={pageContent['lets-connect-alt-banner']}
                   title={{
-                    mobile: LetsConectText,
-                    desktop: LetsConectTextDesktop,
+                    mobile: letsConnect.titleImageMobile,
+                    desktop: letsConnect.titleImageDesktop,
                   }}
                   customClass={{
                     background: 'bg-[#EFEFEF]',
@@ -498,27 +393,27 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 />
               </div>
               <BaseButton
-                onClick={() => goTo('/profile/lets_connect')}
+                onClick={handleNavigateToLetsConnect}
                 label={
                   hasLetsConnectAccount
                     ? pageContent['lets-connect-form-user-button-update-profile']
                     : pageContent['lets-connect-form-user-edit']
                 }
-                customClass={`w-full md:w-1/2 flex ${letsConnectButtonClass} rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                imageUrl={userCheckIconSrc}
+                customClass={`w-full md:w-1/2 flex ${letsConnect.buttonClass} rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
+                imageUrl={userCheckIconSrc.src}
                 imageAlt="Add project"
                 imageWidth={iconSize}
                 imageHeight={iconSize}
               />
               <p
-                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mt-4 ${letsConnectTextColor}`}
+                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mt-4 ${letsConnect.textColor}`}
               >
                 {pageContent['lets-connect-edit-user-info-2']}
               </p>
             </div>
 
             {/* Action Buttons - Bottom (Mobile and Desktop) */}
-            <ActionButtons onSave={handleSubmit} onCancel={() => router.back()} variant="bottom" />
+            <ActionButtons onSave={handleSubmit} onCancel={handleNavigateBack} variant="bottom" />
           </div>
         </section>
       </div>

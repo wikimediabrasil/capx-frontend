@@ -43,3 +43,38 @@ export const RESPONSIVE_BORDER_RADIUS = {
   small: 'rounded-[4px] md:rounded-[16px]',
   button: 'rounded-md',
 } as const;
+
+/**
+ * Common responsive icon sizes
+ */
+export const ICON_SIZES = {
+  mobile: 20,
+  desktop: 30,
+  mobileLarge: 24,
+  desktopLarge: 48,
+} as const;
+
+/**
+ * Theme-based color classes
+ */
+export const THEME_COLORS = {
+  titleLight: 'text-[#053749]',
+  titleDark: 'text-white',
+  bgLight: 'bg-white text-[#053749]',
+  bgDark: 'bg-[#053749] text-white',
+  textLight: 'text-[#053749]',
+  textDark: 'text-white',
+  borderLight: 'border-[#053749]',
+  borderDark: 'border-white',
+  placeholderLight: 'text-[#829BA4]',
+  placeholderDark: 'text-white opacity-50 placeholder-gray-400',
+} as const;
+
+/**
+ * Common responsive margin/spacing
+ */
+export const RESPONSIVE_SPACING = {
+  topMarginMobile: 'mt-[80px]',
+  topMarginDesktop: 'mt-[64px]',
+  contentMarginDesktop: 'mx-[80px]',
+} as const;

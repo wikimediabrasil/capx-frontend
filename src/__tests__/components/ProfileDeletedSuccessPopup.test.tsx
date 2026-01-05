@@ -48,6 +48,12 @@ jest.mock('@/contexts/ThemeContext', () => ({
 describe('ProfileDeletedSuccessPopup', () => {
   setupTimers();
 
+  // Mock HTMLDialogElement methods (not implemented in JSDOM)
+  beforeAll(() => {
+    HTMLDialogElement.prototype.showModal = jest.fn();
+    HTMLDialogElement.prototype.close = jest.fn();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
@@ -161,8 +167,7 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
-    const image = screen.getByRole('img');
-    expect(image).toHaveAttribute('alt', 'Success illustration');
+    const image = screen.getByAltText('Success illustration');
     expect(image).toBeInTheDocument();
   });
 
@@ -173,9 +178,8 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
-    const image = screen.getByRole('img');
+    const image = screen.getByAltText('Success illustration');
     expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('alt', 'Success illustration');
   });
 
   it('should switch icon based on theme mode', () => {
@@ -188,7 +192,7 @@ describe('ProfileDeletedSuccessPopup', () => {
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
-    let image = screen.getByRole('img');
+    let image = screen.getByAltText('Success illustration');
     expect(image).toBeInTheDocument();
 
     // Change to dark mode
@@ -202,16 +206,19 @@ describe('ProfileDeletedSuccessPopup', () => {
       </ThemeProvider>
     );
 
-    image = screen.getByRole('img');
+    image = screen.getByAltText('Success illustration');
     expect(image).toBeInTheDocument();
   });
 
   it('should have accessible dialog attributes', () => {
     const onClose = jest.fn();
 
-    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
+    const { container } = renderWithThemeApp(
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
+    );
 
-    const dialog = screen.getByRole('dialog');
+    const dialog = container.querySelector('dialog');
+    expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAttribute('aria-labelledby', 'popup-title');
     expect(dialog).toHaveAttribute('aria-describedby', 'popup-content');
