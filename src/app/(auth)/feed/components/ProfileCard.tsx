@@ -56,7 +56,7 @@ function getTypeBadgeColors(type: string, darkMode: boolean) {
   if (darkMode) {
     return isLearner ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
   }
-  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#05A300] border-[#05A300]';
+  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#166534] border-[#166534]';
 }
 
 function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
@@ -202,7 +202,7 @@ export const ProfileCard = ({
                       className={`${typeBadgeBaseClass} ${
                         darkMode
                           ? 'text-[#05A300] border-[#05A300]'
-                          : 'text-[#05A300] border-[#05A300]'
+                          : 'text-[#166534] border-[#166534]'
                       }`}
                     >
                       {sharerLabel}
