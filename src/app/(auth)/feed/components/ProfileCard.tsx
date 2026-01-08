@@ -1,6 +1,6 @@
 import BaseButton from '@/components/BaseButton';
 import { ProfileItem } from '@/components/ProfileItem';
-import { DEFAULT_AVATAR } from '@/constants/images';
+import { getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -125,7 +125,7 @@ export const ProfileCard = ({
       ? 'text-purple-200 border-purple-200'
       : 'text-[#05A300] border-[#05A300]';
 
-  const defaultAvatar = DEFAULT_AVATAR;
+  const defaultAvatar = getDefaultAvatar(darkMode);
 
   const capacityItemClass = 'font-[Montserrat] text-[14px] not-italic leading-[normal]';
 
