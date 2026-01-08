@@ -56,7 +56,7 @@ function getTypeBadgeColors(type: string, darkMode: boolean) {
   if (darkMode) {
     return isLearner ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
   }
-  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#05A300] border-[#05A300]';
+  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#166534] border-[#166534]';
 }
 
 function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
@@ -173,7 +173,7 @@ export const ProfileCard = ({
         <div role="article" className="md:grid md:grid-cols-[350px_1fr] md:gap-8">
           {/*  Right Column - Profile Info */}
           <div>
-            <div className={`rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-[#EFEFEF]'}`}>
+            <div className={`rounded-lg p-4 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`}>
               {/* Type Badge(s) */}
               <div className="flex justify-start mb-4 gap-2 flex-wrap">
                 {hasIncompleteProfile ? (
@@ -202,7 +202,7 @@ export const ProfileCard = ({
                       className={`${typeBadgeBaseClass} ${
                         darkMode
                           ? 'text-[#05A300] border-[#05A300]'
-                          : 'text-[#05A300] border-[#05A300]'
+                          : 'text-[#166534] border-[#166534]'
                       }`}
                     >
                       {sharerLabel}
@@ -223,7 +223,11 @@ export const ProfileCard = ({
 
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
-                <div className="relative w-[100px] h-[100px] md:w-[200px] md:h-[200px]">
+                <div
+                  className={`relative w-[100px] h-[100px] md:w-[200px] md:h-[200px] ${
+                    darkMode ? 'bg-[#EFEFEF]' : ''
+                  } rounded-[4px]`}
+                >
                   <Image
                     src={profileImageUrl || defaultAvatar}
                     alt={
