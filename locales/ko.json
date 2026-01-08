@@ -120,7 +120,6 @@
 	"filters-select-alt-icon": "아이콘 선택",
 	"filters-title": "필터",
 	"filters-username": "사용자 이름",
-	"filters-username-alt-icon": "사용자 이름 아이콘",
 	"filters-search-by-username": "사용자 이름으로 검색",
 	"feed-no-data-message": "데이터가 없습니다",
 	"snackbar-edit-profile-success": "프로필이 성공적으로 업데이트되었습니다!",
@@ -217,5 +216,17 @@
 	"pagination-previous": "이전",
 	"pagination-next": "다음",
 	"organization-name-placeholder": "단체 이름",
-	"select-language": "언어 선택"
+	"select-language": "언어 선택",
+	"mentorship-programs": "멘토링 프로그램",
+	"search-by-mentorships": "멘토링별 검색",
+	"subscribe": "구독",
+	"learn-more": "더 알아보기",
+	"select-your-role": "내 역할 선택",
+	"mentor": "멘토",
+	"mentee": "멘티",
+	"close-tab": "탭 닫기",
+	"no-mentorship-programs-found": "멘토링 프로그램을 찾을 수 없습니다",
+	"congratulations": "축하합니다!",
+	"close": "닫기",
+	"mentorship-programs-alt": "멘토링 프로그램"
 }
