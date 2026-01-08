@@ -223,9 +223,11 @@ export const ProfileCard = ({
 
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
-                <div className={`relative w-[100px] h-[100px] md:w-[200px] md:h-[200px] ${
-                  darkMode ? 'bg-[#EFEFEF]' : ''
-                } rounded-[4px]`}>
+                <div
+                  className={`relative w-[100px] h-[100px] md:w-[200px] md:h-[200px] ${
+                    darkMode ? 'bg-[#EFEFEF]' : ''
+                  } rounded-[4px]`}
+                >
                   <Image
                     src={profileImageUrl || defaultAvatar}
                     alt={
