@@ -17,6 +17,13 @@ import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useMemo, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { profileService } from '@/services/profileService';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { UserProfile } from '@/types/user';
+import { useUserCapacities } from '@/hooks/useUserCapacities';
+import { userService } from '@/services/userService';
 
 interface CapacityCardProps {
   code: number;
@@ -83,6 +90,92 @@ const getSearchCardBackgroundColor = (
   if (color) {
     return getCapacityColor(color);
   }
+  return '#507380';
+};
+
+// Helper function to get button label based on state
+const getButtonLabel = (
+  isAdded: boolean,
+  isAdding: boolean,
+  isLoading: boolean,
+  addedText: string,
+  loadingText: string,
+  defaultText: string
+): string => {
+  if (isAdded) return addedText;
+  if (isAdding || isLoading) return loadingText;
+  return defaultText;
+};
+
+// Helper function to get button disabled state
+const isButtonDisabled = (
+  isAdding: boolean,
+  isAdded: boolean,
+  hasToken: boolean,
+  isLoading: boolean,
+  hasError: boolean,
+  hasProfile: boolean
+): boolean => {
+  return isAdding || isAdded || !hasToken || isLoading || hasError || !hasProfile;
+};
+
+// Helper function to get card shadow classes
+const getCardShadowClass = (isInfoVisible: boolean): string => {
+  return isInfoVisible ? 'shadow-md' : '';
+};
+
+// Helper function to get button shadow classes
+const getButtonShadowClass = (isInfoVisible: boolean): string => {
+  return isInfoVisible ? '' : 'shadow-sm hover:shadow-md';
+};
+
+// Helper function to get button border radius classes
+const getButtonBorderRadius = (isMobile: boolean | undefined, isInfoVisible: boolean): string => {
+  if (isMobile) {
+    return isInfoVisible ? 'rounded-t-[4px]' : 'rounded-[4px]';
+  }
+  return isInfoVisible ? 'rounded-t-lg' : 'rounded-lg';
+};
+
+// Helper function to get card border radius classes
+const getCardBorderRadius = (isMobile: boolean | undefined): string => {
+  return isMobile ? 'rounded-[4px]' : 'rounded-lg';
+};
+
+// Helper function to determine button background color for expanded content
+const getExpandedButtonBackgroundColor = (
+  isRoot: boolean | undefined,
+  level: number | undefined,
+  color: string,
+  parentCapacity?: Capacity
+): string => {
+  // For root capacities (level 1), don't try to access bgColorClass
+  if (isRoot || level === 1) {
+    return getCapacityColor(color || 'technology');
+  }
+
+  // For third level (level 3) capacities, try to get root color from parent hierarchy
+  if (level === 3) {
+    if (parentCapacity?.parentCapacity?.color) {
+      return parentCapacity.parentCapacity.color;
+    }
+    if (parentCapacity?.color) {
+      return parentCapacity.color;
+    }
+    return '#507380';
+  }
+
+  // For second level capacities (direct children of root)
+  if (level === 2 && parentCapacity?.color && parentCapacity.color !== '') {
+    return getCapacityColor(parentCapacity.color);
+  }
+
+  // If we have our own color
+  if (color && color !== '') {
+    return getCapacityColor(color);
+  }
+
+  // Fallback
   return '#507380';
 };
 
@@ -167,6 +260,29 @@ export function CapacityCard({
   const { darkMode } = useTheme();
   const { isFallbackTranslation } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);
+  const { data: session } = useSession();
+  const { showSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
+  const [isAddingKnown, setIsAddingKnown] = useState(false);
+  const [isAddingWanted, setIsAddingWanted] = useState(false);
+
+  // Fetch user profile - will use cache if available, fetch if not
+  const {
+    data: userProfile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useQuery({
+    queryKey: ['userProfile', session?.user?.id, session?.user?.token],
+    queryFn: () =>
+      userService.fetchUserProfile(Number(session?.user?.id), session?.user?.token || ''),
+    enabled: !!session?.user?.token && !!session?.user?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Get user capacities using custom hook
+  const { userKnownCapacities, userAvailableCapacities, userWantedCapacities } =
+    useUserCapacities(userProfile);
 
   // Check if this capacity is using fallback translation
   const isUsingFallback = isFallbackTranslation(code);
@@ -211,51 +327,170 @@ export function CapacityCard({
     }
   };
 
+  // Check if capacity is already added
+  const isAddedToKnown = useMemo(
+    () => userKnownCapacities.includes(code) && userAvailableCapacities.includes(code),
+    [userKnownCapacities, userAvailableCapacities, code]
+  );
+
+  const isAddedToWanted = useMemo(
+    () => userWantedCapacities.includes(code),
+    [userWantedCapacities, code]
+  );
+
+  // Handler to add capacity to known list
+  const handleAddToKnown = async () => {
+    // Check if user is not logged in
+    if (!session?.user?.token || !session?.user?.id) {
+      showSnackbar(pageContent['login-required'] || 'Please log in to add capacities', 'error');
+      return;
+    }
+
+    // Check if no user profile (should not happen if button is properly disabled)
+    if (!userProfile) {
+      return;
+    }
+
+    // Check if already adding or already added
+    if (isAddingKnown || isAddedToKnown) {
+      return;
+    }
+
+    setIsAddingKnown(true);
+    try {
+      const currentKnown = userKnownCapacities;
+      const currentAvailable = userAvailableCapacities;
+
+      const updatePayload: any = {
+        skills_known: currentKnown.includes(code)
+          ? currentKnown.map(c => c.toString())
+          : [...currentKnown, code].map(c => c.toString()),
+        skills_available: currentAvailable.includes(code)
+          ? currentAvailable.map(c => c.toString())
+          : [...currentAvailable, code].map(c => c.toString()),
+      };
+
+      // Include language field if it exists (required by backend)
+      if (userProfile.language && Array.isArray(userProfile.language)) {
+        updatePayload.language = userProfile.language;
+      }
+
+      // Optimistically update cache
+      const updatedProfile: UserProfile = {
+        ...userProfile,
+        skills_known: updatePayload.skills_known,
+        skills_available: updatePayload.skills_available,
+      };
+
+      queryClient.setQueryData(
+        ['userProfile', session.user.id, session.user.token],
+        updatedProfile
+      );
+
+      // Show success immediately (optimistic UI)
+      showSnackbar(pageContent['capacity-added-known'] || 'Capacity added to known', 'success');
+
+      // Update on server (non-blocking)
+      profileService
+        .updateProfile(Number(session.user.id), updatePayload, {
+          headers: {
+            Authorization: `Token ${session.user.token}`,
+          },
+        })
+        .catch(error => {
+          console.error('Error updating profile on server:', error);
+          // Optionally revert the optimistic update on error
+          queryClient.invalidateQueries({
+            queryKey: ['userProfile', session.user.id, session.user.token],
+          });
+        });
+    } catch (error: any) {
+      console.error('Error adding capacity to known:', error);
+      showSnackbar(pageContent['error'] || 'Error adding capacity', 'error');
+    } finally {
+      setIsAddingKnown(false);
+    }
+  };
+
+  // Handler to add capacity to wanted list
+  const handleAddToWanted = async () => {
+    // Check if user is not logged in
+    if (!session?.user?.token || !session?.user?.id) {
+      showSnackbar(pageContent['login-required'] || 'Please log in to add capacities', 'error');
+      return;
+    }
+
+    // Check if no user profile (should not happen if button is properly disabled)
+    if (!userProfile) {
+      return;
+    }
+
+    // Check if already adding or already added
+    if (isAddingWanted || isAddedToWanted) {
+      return;
+    }
+
+    setIsAddingWanted(true);
+    try {
+      const currentWanted = userWantedCapacities;
+
+      const updatePayload: any = {
+        skills_wanted: currentWanted.includes(code)
+          ? currentWanted.map(c => c.toString())
+          : [...currentWanted, code].map(c => c.toString()),
+      };
+
+      // Include language field if it exists (required by backend)
+      if (userProfile.language && Array.isArray(userProfile.language)) {
+        updatePayload.language = userProfile.language;
+      }
+
+      // Optimistically update cache
+      const updatedProfile: UserProfile = {
+        ...userProfile,
+        skills_wanted: updatePayload.skills_wanted,
+      };
+
+      queryClient.setQueryData(
+        ['userProfile', session.user.id, session.user.token],
+        updatedProfile
+      );
+
+      // Show success immediately (optimistic UI)
+      showSnackbar(pageContent['capacity-added-wanted'] || 'Capacity added to wanted', 'success');
+
+      // Update on server (non-blocking)
+      profileService
+        .updateProfile(Number(session.user.id), updatePayload, {
+          headers: {
+            Authorization: `Token ${session.user.token}`,
+          },
+        })
+        .catch(error => {
+          console.error('Error updating profile on server:', error);
+          // Optionally revert the optimistic update on error
+          queryClient.invalidateQueries({
+            queryKey: ['userProfile', session.user.id, session.user.token],
+          });
+        });
+    } catch (error: any) {
+      console.error('Error adding capacity to wanted:', error);
+      showSnackbar(pageContent['error'] || 'Error adding capacity', 'error');
+    } finally {
+      setIsAddingWanted(false);
+    }
+  };
+
   const renderExpandedContent = () => {
     if (!isInfoVisible) return null;
 
-    // Determine the background color of the button
-    const getButtonBackgroundColor = () => {
-      // For root capacities (level 1), don't try to access bgColorClass
-      if (isRoot || level === 1) {
-        return getCapacityColor(color || 'technology');
-      }
-
-      // For non-root capacities, we can safely check level and other properties
-
-      // For third level (level 3) capacities, try to get root color from parent hierarchy
-      if (level === 3) {
-        if (parentCapacity?.parentCapacity?.color) {
-          return parentCapacity.parentCapacity.color; // Get root color from grandparent
-        }
-        if (parentCapacity?.color) {
-          return parentCapacity.color; // Get color from parent
-        }
-        return '#507380'; // Fallback dark color
-      }
-
-      // For second level capacities (direct children of root)
-      if (level === 2 && parentCapacity?.color && parentCapacity.color !== '') {
-        return getCapacityColor(parentCapacity.color);
-      }
-
-      // If we have our own color
-      if (color && color !== '') {
-        return getCapacityColor(color);
-      }
-
-      // Fallback - always use a color that will be visible
-      return '#507380'; // Black fallback
-    };
-
-    const buttonBgColor = getButtonBackgroundColor();
+    const buttonBgColor = getExpandedButtonBackgroundColor(isRoot, level, color, parentCapacity);
 
     return (
-      <button
+      <div
         className={`flex flex-col gap-6 mt-6 mb-16 ${isRoot ? 'px-1 sm:px-3' : 'px-1 sm:px-2'} ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}
         onClick={e => e.stopPropagation()}
         onKeyDown={e => e.stopPropagation()}
-        tabIndex={-1}
       >
         <div
           className={`flex flex-row text-start gap-2 sm:gap-6 overflow-hidden ${isRoot || isMobile ? 'w-full' : 'max-w-md'}`}
@@ -334,22 +569,84 @@ export function CapacityCard({
           />
         )}
 
-        <div
-          className="rounded-lg w-fit"
-          style={{
-            backgroundColor: buttonBgColor,
-            display: 'inline-block',
-          }}
-        >
-          <BaseButton
-            label={pageContent['capacity-card-explore-capacity'] || 'Explore capacity'}
-            customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
-              isMobile ? 'text-[16px]' : 'text-[24px]'
-            }`}
-            onClick={() => router.push(`/feed?capacityId=${code}`)}
-          />
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-fit">
+          <div
+            className="rounded-lg w-full sm:w-fit"
+            style={{
+              backgroundColor: buttonBgColor,
+              display: 'inline-block',
+            }}
+          >
+            <BaseButton
+              label={getButtonLabel(
+                isAddedToKnown,
+                isAddingKnown,
+                isProfileLoading,
+                pageContent['capacity-card-added-to-known'] || '✓ Added to Known',
+                pageContent['loading'] || 'Loading...',
+                pageContent['capacity-card-add-to-known'] || 'Add to Known'
+              )}
+              customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
+                isMobile ? 'text-[16px]' : 'text-[24px]'
+              } ${isAddedToKnown ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleAddToKnown}
+              disabled={isButtonDisabled(
+                isAddingKnown,
+                isAddedToKnown,
+                Boolean(session?.user?.token),
+                isProfileLoading,
+                isProfileError,
+                Boolean(userProfile)
+              )}
+            />
+          </div>
+          <div
+            className="rounded-lg w-full sm:w-fit"
+            style={{
+              backgroundColor: buttonBgColor,
+              display: 'inline-block',
+            }}
+          >
+            <BaseButton
+              label={getButtonLabel(
+                isAddedToWanted,
+                isAddingWanted,
+                isProfileLoading,
+                pageContent['capacity-card-added-to-wanted'] || '✓ Added to Wanted',
+                pageContent['loading'] || 'Loading...',
+                pageContent['capacity-card-add-to-wanted'] || 'Add to Wanted'
+              )}
+              customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
+                isMobile ? 'text-[16px]' : 'text-[24px]'
+              } ${isAddedToWanted ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleAddToWanted}
+              disabled={isButtonDisabled(
+                isAddingWanted,
+                isAddedToWanted,
+                Boolean(session?.user?.token),
+                isProfileLoading,
+                isProfileError,
+                Boolean(userProfile)
+              )}
+            />
+          </div>
         </div>
-      </button>
+
+        {/* Informational tooltip */}
+        <div className={`mt-4 pt-3 border-t ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+          <p
+            className={`text-xs ${isMobile ? 'text-[12px]' : 'text-[14px]'} ${
+              darkMode ? 'text-gray-300' : 'text-gray-600'
+            } text-left leading-relaxed`}
+          >
+            ℹ️{' '}
+            {pageContent['capacity-card-profile-info'] ||
+              'This will be added to your personal profile.'}{' '}
+            {pageContent['capacity-card-org-profile-info'] ||
+              'To add capacities to an organization profile, please visit the organization profile edit page.'}
+          </p>
+        </div>
+      </div>
     );
   };
 
@@ -466,8 +763,9 @@ export function CapacityCard({
 
     return (
       <button
+        type="button"
         onClick={handleInfoClick}
-        className={`p-1 flex-shrink-0 ${isSearch ? 'mr-12' : ''} opacity-100 z-10`}
+        className={`p-1 flex-shrink-0 ${isSearch ? 'mr-12' : ''} opacity-100 z-10 cursor-pointer bg-transparent border-none`}
         aria-label={pageContent['capacity-card-info'] || 'Information'}
         style={{ visibility: 'visible' }}
       >
@@ -493,11 +791,13 @@ export function CapacityCard({
 
     return (
       <button
+        type="button"
         onClick={e => {
           e.stopPropagation();
           onExpand();
         }}
-        className="p-2 flex-shrink-0 opacity-100"
+        className="p-2 flex-shrink-0 opacity-100 cursor-pointer bg-transparent border-none"
+        aria-label={pageContent['capacity-card-expand-capacity'] || 'Expand capacity'}
       >
         <div
           style={{ width: `${size}px`, height: `${size}px` }}
@@ -627,14 +927,16 @@ const SearchCard: React.FC<SearchCardProps> = ({
   renderExpandedContent,
 }) => {
   const backgroundColor = getSearchCardBackgroundColor(level, color, parentCapacity);
+  const cardShadow = getCardShadowClass(isInfoVisible);
+  const cardRadius = getCardBorderRadius(isMobile);
+  const buttonShadow = getButtonShadowClass(isInfoVisible);
+  const buttonRadius = getButtonBorderRadius(isMobile, isInfoVisible);
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${cardShadow} ${cardRadius}`}>
       <button
         onClick={handleCardClick}
-        className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
-        ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
-        cursor-pointer hover:brightness-95 transition-all`}
+        className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor }}
         tabIndex={0}
         onKeyDown={handleCardKeyDown}
@@ -666,17 +968,17 @@ const SearchCard: React.FC<SearchCardProps> = ({
             </div>
           </div>
         </div>
-
-        {isInfoVisible && (
-          <button
-            className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
-            onClick={e => e.stopPropagation()}
-            onKeyDown={e => e.stopPropagation()}
-          >
-            {renderExpandedContent()}
-          </button>
-        )}
       </button>
+
+      {isInfoVisible && (
+        <div
+          className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+          onClick={e => e.stopPropagation()}
+          onKeyDown={e => e.stopPropagation()}
+        >
+          {renderExpandedContent()}
+        </div>
+      )}
     </div>
   );
 };
@@ -721,13 +1023,16 @@ const RootCard: React.FC<RootCardProps> = ({
   renderExpandedContent,
   childrenContainerRef,
 }) => {
+  const cardShadow = getCardShadowClass(isInfoVisible);
+  const cardRadius = getCardBorderRadius(isMobile);
+  const buttonShadow = getButtonShadowClass(isInfoVisible);
+  const buttonRadius = getButtonBorderRadius(isMobile, isInfoVisible);
+
   return (
-    <div className="w-full">
+    <div className={`w-full ${cardShadow} ${cardRadius}`}>
       <button
         onClick={handleCardClick}
-        className={`flex flex-col w-full shadow-sm hover:shadow-md transition-shadow
-        ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}
-        cursor-pointer hover:brightness-95 transition-all`}
+        className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor: getCapacityColor(color) }}
         tabIndex={0}
         onKeyDown={handleCardKeyDown}
@@ -775,16 +1080,18 @@ const RootCard: React.FC<RootCardProps> = ({
             </div>
           </div>
         </div>
-
-        {isInfoVisible && (
-          <button
-            className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
-            onClick={e => e.stopPropagation()}
-          >
-            {renderExpandedContent()}
-          </button>
-        )}
       </button>
+
+      {isInfoVisible && (
+        <div
+          className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
+          onClick={e => e.stopPropagation()}
+          onKeyDown={e => e.stopPropagation()}
+        >
+          {renderExpandedContent()}
+        </div>
+      )}
+
       {isExpanded && (
         <div ref={childrenContainerRef} className={`mt-4 w-full overflow-x-auto scrollbar-hide`}>
           <div
@@ -898,14 +1205,13 @@ const ChildCard: React.FC<ChildCardProps> = ({
       </button>
 
       {isInfoVisible && (
-        <button
+        <div
           className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
           onClick={e => e.stopPropagation()}
           onKeyDown={e => e.stopPropagation()}
-          tabIndex={-1}
         >
           {renderExpandedContent()}
-        </button>
+        </div>
       )}
     </div>
   );

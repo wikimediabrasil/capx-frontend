@@ -4,7 +4,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { FilterState } from '../types';
 
 import BaseButton from '@/components/BaseButton';
 
@@ -12,27 +11,21 @@ import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
 import CapxIconWhite from '@/public/static/images/capx_icon_white.svg';
-import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import LearnerIcon from '@/public/static/images/learner_icon.svg';
 import LearnerIconWhite from '@/public/static/images/learner_icon_white.svg';
-
-import SearchIcon from '@/public/static/images/search_icon.svg';
-import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import SharerIcon from '@/public/static/images/sharer_icon.svg';
 import SharerIconWhite from '@/public/static/images/sharer_icon_white.svg';
 
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTerritories } from '@/hooks/useTerritories';
-import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import UserIcon from '@/public/static/images/account_circle.svg';
 import UserIconWhite from '@/public/static/images/account_circle_white.svg';
-import { Capacity } from '@/types/capacity';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import { useSession } from 'next-auth/react';
-import React from 'react';
-import { ProfileCapacityType, Skill } from '../types';
+import { FilterState, ProfileCapacityType, Skill } from '../types';
 import { AffiliationSelector } from './AffiliationSelector';
 import { CheckboxButton } from './CheckboxButton';
 import { LanguageSelector } from './LanguageSelector';
@@ -139,21 +132,12 @@ export function Filters({
   const { languages } = useLanguage(token);
   const { territories } = useTerritories(token);
   const { affiliations } = useAffiliation(token);
-  const [searchCapacity, setSearchCapacity] = useState('');
   const [filters, setFilters] = useState(initialFilters);
-  const [showSkillModal, setShowSkillModal] = useState(false);
 
-  const handleCapacitySelect = (capacities: Capacity[]) => {
+  const handleCapacitySelect = (capacities: Array<{ code: number; name: string }>) => {
     setFilters(prev => ({
       ...prev,
-      capacities: addUniqueCapacities(prev.capacities, capacities),
-    }));
-  };
-
-  const handleRemoveCapacity = (capacityCode: number) => {
-    setFilters(prev => ({
-      ...prev,
-      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
+      capacities,
     }));
   };
 
@@ -165,7 +149,6 @@ export function Filters({
     setFilters({
       ...initialFilters,
     });
-    setSearchCapacity('');
   };
 
   const handleProfileCapacityTypeToggle = (type: ProfileCapacityType) => {
@@ -229,45 +212,25 @@ export function Filters({
           <div className="p-4 space-y-6">
             {/* Capacities */}
             <div className="space-y-2">
-              <FilterSectionHeader
-                icon={CapxIcon}
-                iconWhite={CapxIconWhite}
-                title={pageContent['filters-capacities']}
-                darkMode={darkMode}
-              />
-              <div className="relative">
-                <input
-                  type="text"
-                  readOnly
-                  value={searchCapacity}
-                  onFocus={() => setShowSkillModal(true)}
-                  placeholder={pageContent['filters-search-by-capacities']}
-                  className={getInputClasses(darkMode)}
+              <div className="flex items-center gap-2">
+                <Image
+                  src={darkMode ? CapxIconWhite : CapxIcon}
+                  alt={pageContent['filters-capacities-alt-icon']}
+                  width={24}
+                  height={24}
                 />
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  <Image
-                    src={darkMode ? SearchIconWhite : SearchIcon}
-                    alt={pageContent['filters-search-icon']}
-                    width={20}
-                    height={20}
-                  />
-                </div>
+                <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
+                  {pageContent['filters-capacities']}
+                </h2>
               </div>
-
-              <SelectedCapacitiesList
-                capacities={filters.capacities || []}
-                onRemove={handleRemoveCapacity}
-                darkMode={darkMode}
-                removeIconAlt={pageContent['filters-remove-item-alt-icon']}
+              <CapacitySearch
+                onSelect={handleCapacitySelect}
+                selectedCapacities={filters.capacities}
+                allowMultipleSelection={true}
+                showSelectedChips={true}
+                compact={true}
               />
             </div>
-
-            <CapacitySelectionModal
-              isOpen={showSkillModal}
-              onClose={() => setShowSkillModal(false)}
-              onSelect={handleCapacitySelect}
-              title={pageContent['select-capacity']}
-            />
 
             {/* Divider */}
             <div className={getDividerClasses(darkMode)} />

@@ -22,5 +22,5 @@ export const getProfileImage = (
   }
 
   // Fallback to the default person icon
-  return getDefaultAvatar(darkMode);
+  return getDefaultAvatar();
 };

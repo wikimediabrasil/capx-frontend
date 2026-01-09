@@ -5,6 +5,7 @@ import { useCapacityList } from '@/hooks/useCapacityList';
 import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import React from 'react';
 
 // Next.js App Router's mock
@@ -98,7 +99,9 @@ describe('CapacitySearch', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <CapacityCacheProvider>{ui}</CapacityCacheProvider>
+          <SnackbarProvider>
+            <CapacityCacheProvider>{ui}</CapacityCacheProvider>
+          </SnackbarProvider>
         </ThemeProvider>
       </QueryClientProvider>
     );

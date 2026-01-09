@@ -29,8 +29,7 @@ import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
-import ProfileEditDesktopView from './ProfileEditDesktopView';
-import ProfileEditMobileView from './ProfileEditMobileView';
+import ProfileEditView from './ProfileEditView';
 
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
@@ -206,7 +205,7 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
+  const [, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
@@ -218,7 +217,7 @@ export default function EditProfilePage() {
   }>({
     avatar: null,
     wikidata_qid: '',
-    src: getDefaultAvatar(darkMode),
+    src: getDefaultAvatar(),
   });
 
   // Move useMemo before any early returns to fix Rules of Hooks violation
@@ -316,7 +315,7 @@ export default function EditProfilePage() {
       setPreviousImageState({
         avatar: profile.avatar ?? null,
         wikidata_qid: profile.wikidata_qid || '',
-        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || getDefaultAvatar(darkMode),
+        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || getDefaultAvatar(),
       });
     }
   }, [profile, avatars]);
@@ -769,37 +768,13 @@ export default function EditProfilePage() {
     setShowLetsConnectPopup,
     handleLetsConnectImport,
     isLetsConnectLoading,
+    isImageLoading,
+    setIsImageLoading,
   };
-
-  // When showing debug information, include loading state
-  if (isMobile) {
-    return (
-      <>
-        <ProfileEditMobileView {...ViewProps} />
-        {process.env.NODE_ENV === 'development' && (
-          <>
-            <DebugPanel
-              data={{
-                capacityIds,
-                capacitiesLoading: !isCapacityCacheLoaded,
-              }}
-              title="Debug: Capacity IDs"
-            />
-            <CapacityDebug
-              capacityIds={capacityIds}
-              knownSkills={formData.skills_known}
-              availableSkills={formData.skills_available}
-              wantedSkills={formData.skills_wanted}
-            />
-          </>
-        )}
-      </>
-    );
-  }
 
   return (
     <>
-      <ProfileEditDesktopView {...ViewProps} />
+      <ProfileEditView {...ViewProps} />
       {process.env.NODE_ENV === 'development' && (
         <>
           <DebugPanel

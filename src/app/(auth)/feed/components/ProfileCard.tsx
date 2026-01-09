@@ -1,13 +1,13 @@
 import BaseButton from '@/components/BaseButton';
 import { ProfileItem } from '@/components/ProfileItem';
-import { DEFAULT_AVATAR } from '@/constants/images';
+import { getDefaultAvatar } from '@/constants/images';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import { useProfileImage } from '@/hooks/useProfileImage';
 import { useTerritories } from '@/hooks/useTerritories';
-import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import Bookmark from '@/public/static/images/bookmark.svg';
@@ -137,7 +137,6 @@ export const ProfileCard = ({
 
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
-  const defaultAvatar = DEFAULT_AVATAR;
   const bookmarkIcon = getBookmarkIcon(isSaved, darkMode);
   const profileButtonIcon = getProfileButtonIcon(isOrganization, darkMode);
 
@@ -145,6 +144,9 @@ export const ProfileCard = ({
   const sharerLabel = pageContent['profile-sharer'] || 'Sharer';
   const typeBadgeBaseClass =
     'md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border';
+
+  const defaultAvatar = getDefaultAvatar();
+
   const capacityItemClass = 'font-[Montserrat] text-[14px] not-italic leading-[normal]';
 
   const capacitiesTitleSingle =
@@ -158,6 +160,123 @@ export const ProfileCard = ({
 
   const navigateToProfile = () => {
     router.push(getProfileRoute(isOrganization, id, username));
+  };
+
+  const renderTypeBadges = () => {
+    if (hasIncompleteProfile) {
+      return (
+        <span
+          className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
+            darkMode ? 'text-orange-200 border-orange-200' : 'text-orange-600 border-orange-600'
+          }`}
+        >
+          {pageContent['profile-incomplete']}
+        </span>
+      );
+    }
+
+    if (isMultiType) {
+      return (
+        <>
+          <span
+            className={`${typeBadgeBaseClass} ${
+              darkMode ? 'text-purple-200 border-purple-200' : 'text-purple-800 border-purple-800'
+            }`}
+          >
+            {learnerLabel}
+          </span>
+          <span
+            className={`${typeBadgeBaseClass} ${
+              darkMode ? 'text-[#05A300] border-[#05A300]' : 'text-[#166534] border-[#166534]'
+            }`}
+          >
+            {sharerLabel}
+          </span>
+        </>
+      );
+    }
+
+    let typeLabel = '';
+    if (primaryType === 'learner') {
+      typeLabel = learnerLabel;
+    } else if (primaryType === 'sharer') {
+      typeLabel = sharerLabel;
+    }
+
+    return (
+      <span className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}>
+        {typeLabel}
+      </span>
+    );
+  };
+
+  const renderCapacitiesSection = () => {
+    if (hasIncompleteProfile) {
+      return (
+        <div className="flex items-center justify-center h-full min-h-[120px] md:min-h-[300px]">
+          <div className="text-center max-w-md">
+            <p
+              className={`font-[Montserrat] md:text-[18px] text-[14px] leading-relaxed ${
+                darkMode ? 'text-orange-200' : 'text-orange-600'
+              }`}
+            >
+              {pageContent['profile-incomplete-description']}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (isMultiType) {
+      return (
+        <div className="flex flex-col gap-4">
+          {wantedCapacities && wantedCapacities.length > 0 && (
+            <ProfileItem
+              icon={wantedCapacitiesIcon}
+              title={pageContent['body-profile-wanted-capacities-title']}
+              items={wantedCapacities}
+              showEmptyDataText={false}
+              getItemName={id => getName(Number(id))}
+              customClass={capacityItemClass}
+            />
+          )}
+          {availableCapacities && availableCapacities.length > 0 && (
+            <ProfileItem
+              icon={availableCapacitiesIcon}
+              title={pageContent['body-profile-available-capacities-title']}
+              items={availableCapacities}
+              showEmptyDataText={false}
+              getItemName={id => getName(Number(id))}
+              customClass={capacityItemClass}
+            />
+          )}
+          {/* Show message if no capacities are available */}
+          {(!wantedCapacities || wantedCapacities.length === 0) &&
+            (!availableCapacities || availableCapacities.length === 0) && (
+              <div className="text-center py-4">
+                <p
+                  className={`font-[Montserrat] text-[14px] ${
+                    darkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
+                  No capacities available
+                </p>
+              </div>
+            )}
+        </div>
+      );
+    }
+
+    return (
+      <ProfileItem
+        icon={primaryType === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon}
+        title={capacitiesTitleSingle}
+        items={capacities}
+        showEmptyDataText={false}
+        getItemName={id => getName(Number(id))}
+        customClass={capacityItemClass}
+      />
+    );
   };
 
   return (
@@ -175,51 +294,7 @@ export const ProfileCard = ({
           <div>
             <div className={`rounded-lg p-4 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`}>
               {/* Type Badge(s) */}
-              <div className="flex justify-start mb-4 gap-2 flex-wrap">
-                {hasIncompleteProfile ? (
-                  <span
-                    className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-                      darkMode
-                        ? 'text-orange-200 border-orange-200'
-                        : 'text-orange-600 border-orange-600'
-                    }`}
-                  >
-                    {pageContent['profile-incomplete']}
-                  </span>
-                ) : isMultiType ? (
-                  // Show both badges for multi-type profiles
-                  <>
-                    <span
-                      className={`${typeBadgeBaseClass} ${
-                        darkMode
-                          ? 'text-purple-200 border-purple-200'
-                          : 'text-purple-800 border-purple-800'
-                      }`}
-                    >
-                      {learnerLabel}
-                    </span>
-                    <span
-                      className={`${typeBadgeBaseClass} ${
-                        darkMode
-                          ? 'text-[#05A300] border-[#05A300]'
-                          : 'text-[#166534] border-[#166534]'
-                      }`}
-                    >
-                      {sharerLabel}
-                    </span>
-                  </>
-                ) : (
-                  <span
-                    className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}
-                  >
-                    {primaryType === 'learner'
-                      ? learnerLabel
-                      : primaryType === 'sharer'
-                        ? sharerLabel
-                        : ''}
-                  </span>
-                )}
-              </div>
+              <div className="flex justify-start mb-4 gap-2 flex-wrap">{renderTypeBadges()}</div>
 
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
@@ -309,65 +384,7 @@ export const ProfileCard = ({
           {/* Right Column - Info */}
           <div className="mt-4 md:mt-0 flex flex-col gap-4">
             {/* Available or Wanted Capacities */}
-            {hasIncompleteProfile ? (
-              <div className="flex items-center justify-center h-full min-h-[120px] md:min-h-[300px]">
-                <div className="text-center max-w-md">
-                  <p
-                    className={`font-[Montserrat] md:text-[18px] text-[14px] leading-relaxed ${
-                      darkMode ? 'text-orange-200' : 'text-orange-600'
-                    }`}
-                  >
-                    {pageContent['profile-incomplete-description']}
-                  </p>
-                </div>
-              </div>
-            ) : isMultiType ? (
-              // Show both wanted and available capacities for multi-type profiles
-              <div className="flex flex-col gap-4">
-                {wantedCapacities && wantedCapacities.length > 0 && (
-                  <ProfileItem
-                    icon={wantedCapacitiesIcon}
-                    title={pageContent['body-profile-wanted-capacities-title']}
-                    items={wantedCapacities}
-                    showEmptyDataText={false}
-                    getItemName={id => getName(Number(id))}
-                    customClass={capacityItemClass}
-                  />
-                )}
-                {availableCapacities && availableCapacities.length > 0 && (
-                  <ProfileItem
-                    icon={availableCapacitiesIcon}
-                    title={pageContent['body-profile-available-capacities-title']}
-                    items={availableCapacities}
-                    showEmptyDataText={false}
-                    getItemName={id => getName(Number(id))}
-                    customClass={capacityItemClass}
-                  />
-                )}
-                {/* Show message if no capacities are available */}
-                {(!wantedCapacities || wantedCapacities.length === 0) &&
-                  (!availableCapacities || availableCapacities.length === 0) && (
-                    <div className="text-center py-4">
-                      <p
-                        className={`font-[Montserrat] text-[14px] ${
-                          darkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}
-                      >
-                        No capacities available
-                      </p>
-                    </div>
-                  )}
-              </div>
-            ) : (
-              <ProfileItem
-                icon={primaryType === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon}
-                title={capacitiesTitleSingle}
-                items={capacities}
-                showEmptyDataText={false}
-                getItemName={id => getName(Number(id))}
-                customClass={capacityItemClass}
-              />
-            )}
+            {renderCapacitiesSection()}
 
             {/* Languages */}
             <ProfileItem
