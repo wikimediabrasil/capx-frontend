@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
+import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import React from 'react';
 
 // Mock ResizeObserver
@@ -192,7 +193,9 @@ describe('CapacityListMainWrapper', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <CapacityCacheProvider>{ui}</CapacityCacheProvider>
+          <SnackbarProvider>
+            <CapacityCacheProvider>{ui}</CapacityCacheProvider>
+          </SnackbarProvider>
         </ThemeProvider>
       </QueryClientProvider>
     );

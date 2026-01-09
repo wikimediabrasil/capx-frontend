@@ -3,7 +3,8 @@ import Image from 'next/image';
 
 interface BaseButtonProps {
   label: string | React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   customClass?: string;
   imageUrl?: string;
@@ -15,6 +16,7 @@ interface BaseButtonProps {
 export default function BaseButton({
   label,
   onClick,
+  type = 'button',
   disabled = false,
   customClass = '',
   imageUrl,
@@ -29,7 +31,12 @@ export default function BaseButton({
   const justifyClass = imageUrl ? 'justify-between pb-4' : 'justify-center';
 
   return (
-    <button onClick={onClick} disabled={disabled} className={`${buttonClass} ${justifyClass}`}>
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`${buttonClass} ${justifyClass}`}
+    >
       <span>{label}</span>
       {imageUrl && (
         <div className="relative" style={{ width: `${imageWidth}px`, height: `${imageHeight}px` }}>

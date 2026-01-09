@@ -42,6 +42,130 @@ interface ProfileOption {
   image: any | string;
 }
 
+// Helper function to fetch tags data
+const fetchTagsDataHelper = async (
+  tagIds: number[],
+  fetchSingleTag: (id: number) => Promise<tagDiff | undefined>,
+  showSnackbar: (message: string, type?: 'error' | 'success') => void,
+  pageContent: Record<string, string>
+): Promise<tagDiff[]> => {
+  try {
+    const validTagIds = tagIds.filter(id => id !== null && id !== undefined);
+
+    if (validTagIds.length === 0) {
+      return [];
+    }
+
+    const tagPromises = validTagIds.map(tagId => fetchSingleTag(tagId));
+    const tagsResults = await Promise.all(tagPromises);
+
+    const validTags = tagsResults
+      .filter((tag): tag is NonNullable<typeof tag> => tag !== undefined && tag !== null)
+      .map(tagData => ({
+        id: tagData.id,
+        tag: tagData.tag,
+        created_at: tagData.created_at || new Date().toISOString(),
+        updated_at: tagData.updated_at || new Date().toISOString(),
+      }));
+
+    return validTags;
+  } catch (error) {
+    showSnackbar(pageContent['snackbar-edit-profile-organization-fetch-tags-failed'], 'error');
+    console.error('Error fetching tags:', error);
+    return [];
+  }
+};
+
+// Helper function to initialize documents
+const initializeDocuments = (
+  organization: Organization,
+  documents: OrganizationDocument[] | undefined
+): { id: number; url: string }[] => {
+  if (!organization.documents || organization.documents.length === 0 || !documents) {
+    return [];
+  }
+
+  return organization.documents.map(docId => ({
+    id: docId,
+    url: documents?.find(d => d.id === docId)?.url || '',
+  }));
+};
+
+// Helper function to initialize contacts
+const initializeContacts = (organization: Organization): Contacts => {
+  return {
+    id: organization.id?.toString() || '',
+    email: organization.email || '',
+    meta_page: organization.meta_page || '',
+    website: organization.website || '',
+  };
+};
+
+// Helper function to parse event field values
+const parseEventFieldValue = (field: keyof Event, value: string): any => {
+  if (field === 'related_skills') {
+    try {
+      const parsedValue = JSON.parse(value);
+      return Array.isArray(parsedValue) ? parsedValue : [];
+    } catch (e) {
+      console.error('Failed to parse related_skills JSON:', e);
+      return [];
+    }
+  }
+  return value;
+};
+
+// Helper function to parse modal event field values (includes time handling)
+const parseModalEventFieldValue = (field: keyof Event, value: string): any => {
+  // Handle time fields
+  if (field === 'time_begin' || field === 'time_end') {
+    if (value && !value.includes('T')) {
+      return new Date(value).toISOString();
+    }
+    return value;
+  }
+
+  // Handle related_skills
+  if (field === 'related_skills') {
+    try {
+      const parsedValue = JSON.parse(value);
+      return Array.isArray(parsedValue) ? parsedValue : [];
+    } catch (e) {
+      console.error('Failed to parse related_skills JSON in handleModalEventChange:', e);
+      return [];
+    }
+  }
+
+  return value;
+};
+
+// Helper function to update event at index
+const updateEventAtIndex = <T extends Record<string, any>>(
+  prev: T[],
+  index: number,
+  field: string,
+  value: any
+): T[] => {
+  if (!Array.isArray(prev)) {
+    console.error('prev is not an array in updateEventAtIndex:', prev);
+    return prev;
+  }
+
+  const updated = [...prev];
+
+  if (!updated[index]) {
+    console.error(`Index ${index} out of range:`, updated);
+    return prev;
+  }
+
+  updated[index] = {
+    ...updated[index],
+    [field]: value,
+  };
+
+  return updated;
+};
+
 export default function EditOrganizationProfilePage() {
   const router = useRouter();
   const params = useParams();
@@ -327,7 +451,11 @@ export default function EditOrganizationProfilePage() {
 
   // Use effect to initialize the form data
   useEffect(() => {
-    if (organization && !isInitialized) {
+    if (!organization || isInitialized) {
+      return;
+    }
+
+    const initializeFormData = async () => {
       setFormData({
         display_name: organization.display_name || '',
         report: organization.report || '',
@@ -357,70 +485,36 @@ export default function EditOrganizationProfilePage() {
         choose_events: Array.isArray(organization.choose_events) ? organization.choose_events : [],
       });
 
-      // Initialize projects data
-      if (
+      // Initialize tags data
+      const shouldFetchTags =
         organization.tag_diff &&
         Array.isArray(organization.tag_diff) &&
-        organization.tag_diff.length > 0
-      ) {
-        const fetchTagsData = async () => {
-          try {
-            // Ensure tag_diff is an array and has valid values
-            const validTagIds =
-              organization.tag_diff?.filter(id => id !== null && id !== undefined) || [];
+        organization.tag_diff.length > 0;
 
-            if (validTagIds.length === 0) {
-              setDiffTagsData([]);
-              return;
-            }
-
-            const tagPromises = validTagIds.map(tagId => fetchSingleTag(tagId));
-
-            const tagsResults = await Promise.all(tagPromises);
-            const validTags = tagsResults
-              .filter((tag): tag is NonNullable<typeof tag> => tag !== undefined && tag !== null)
-              .map(tagData => ({
-                id: tagData.id,
-                tag: tagData.tag,
-                created_at: tagData.created_at || new Date().toISOString(),
-                updated_at: tagData.updated_at || new Date().toISOString(),
-              }));
-            setDiffTagsData(validTags);
-          } catch (error) {
-            showSnackbar(
-              pageContent['snackbar-edit-profile-organization-fetch-tags-failed'],
-              'error'
-            );
-            console.error('Error fetching tags:', error);
-            setDiffTagsData([]);
-          }
-        };
-
-        fetchTagsData();
+      if (shouldFetchTags) {
+        const tags = await fetchTagsDataHelper(
+          organization.tag_diff || [],
+          fetchSingleTag,
+          showSnackbar,
+          pageContent
+        );
+        setDiffTagsData(tags);
       } else {
         setDiffTagsData([]);
       }
 
       // Initialize documents data
-      if (organization.documents && organization.documents.length > 0 && documents) {
-        const existingDocuments = organization.documents.map(docId => ({
-          id: docId,
-          url: documents?.find(d => d.id === docId)?.url || '',
-        }));
-        setDocumentsData(existingDocuments);
-      }
+      const documentsData = initializeDocuments(organization, documents);
+      setDocumentsData(documentsData);
 
       // Initialize contacts data
-      if (organization) {
-        setContactsData({
-          id: organization.id?.toString() || '',
-          email: organization.email || '',
-          meta_page: organization.meta_page || '',
-          website: organization.website || '',
-        });
-      }
+      const contactsData = initializeContacts(organization);
+      setContactsData(contactsData);
+
       setIsInitialized(true);
-    }
+    };
+
+    initializeFormData();
   }, [
     organization,
     isInitialized,
@@ -886,55 +980,19 @@ export default function EditOrganizationProfilePage() {
         return;
       }
 
-      // Use functional updates to prevent unnecessary re-renders
-      setEventsData(prev => {
-        // Additional array check
-        if (!Array.isArray(prev)) {
-          console.error('prev is not an array in handleEventChange:', prev);
-          return prev;
-        }
+      // Parse the field value
+      const parsedValue = parseEventFieldValue(field, value);
 
-        const updated = [...prev];
+      // Update events data using helper
+      setEventsData(prev => updateEventAtIndex(prev, index, field, parsedValue));
 
-        if (!updated[index]) {
-          console.error(`Index ${index} out of range of events:`, updated);
-          return prev;
-        }
-
-        // Special treatment for fields that may need conversion
-        if (field === 'related_skills') {
-          try {
-            // If the value is a JSON string, parse it
-            const parsedValue = JSON.parse(value);
-            updated[index] = {
-              ...updated[index],
-              [field]: Array.isArray(parsedValue) ? parsedValue : [],
-            };
-          } catch (e) {
-            // If it's not a valid JSON, use empty array and log the error
-            console.error('Failed to parse related_skills JSON:', e);
-            updated[index] = {
-              ...updated[index],
-              [field]: [],
-            };
-          }
-        } else {
-          // For other fields, assign directly
-          updated[index] = {
-            ...updated[index],
-            [field]: value,
-          };
-        }
-
-        return updated;
-      });
-
-      // Batch state updates by using a timeout
-      if (eventsData[index] && eventsData[index].id) {
+      // Mark event as edited
+      const eventId = eventsData[index]?.id;
+      if (eventId) {
         setTimeout(() => {
           setEditedEvents(prev => ({
             ...prev,
-            [eventsData[index].id]: true,
+            [eventId]: true,
           }));
         }, 0);
       }
@@ -949,27 +1007,8 @@ export default function EditOrganizationProfilePage() {
   const handleModalEventChange = useCallback((index: number, field: keyof Event, value: string) => {
     if (!editingEventRef.current) return;
 
-    let updatedValue: any = value;
-
-    // Special treatment for specific fields
-    if (field === 'time_begin' || field === 'time_end') {
-      // Don't convert if it's already an ISO string
-      if (value && !value.includes('T')) {
-        updatedValue = new Date(value).toISOString();
-      } else {
-        updatedValue = value;
-      }
-    } else if (field === 'related_skills') {
-      try {
-        // If the value is a JSON string, parse it
-        const parsedValue = JSON.parse(value);
-        updatedValue = Array.isArray(parsedValue) ? parsedValue : [];
-      } catch (e) {
-        // If it's not a valid JSON, use empty array and log the error
-        console.error('Failed to parse related_skills JSON in handleModalEventChange:', e);
-        updatedValue = [];
-      }
-    }
+    // Parse the field value using helper
+    const updatedValue = parseModalEventFieldValue(field, value);
 
     // Update the ref directly to avoid triggering re-renders
     editingEventRef.current = {

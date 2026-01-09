@@ -1,6 +1,6 @@
 {
   "name": "capx-frontend",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -81,7 +81,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
     "prettier": "3.5.3",
-    "storybook": "^8.4.5",
+    "storybook": "^8.6.15",
     "tailwindcss": "^3.3.0",
     "ts-node": "^10.9.2",
     "webpack": "^5.103.0"
@@ -90,5 +90,5 @@
     "glob": "^10.5.0",
     "js-yaml": "^4.1.1"
   },
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.12.0"
 }
