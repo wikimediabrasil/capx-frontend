@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Adamw",
+			"Avengium",
 			"HylianAngel",
 			"Jemily1",
 			"Vlasta x",
@@ -162,10 +163,8 @@
 	"filters-sharers": "Usuarios que la ofrecen:",
 	"filters-search-by-capacities": "Búsqueda por capacidades",
 	"filters-capacities": "Capacidades",
-	"filters-capacities-alt-icon": "Icono de capacidades",
 	"filters-show-results": "Mostrar resultados",
 	"filters-clear-all": "Borrar todo",
-	"filters-exchange-with-alt-icon": "Intercambio con icono",
 	"filters-search-icon": "Buscar icono",
 	"filters-back-icon": "Icono de respaldo",
 	"filters-remove-item-alt-icon": "Eliminar el icono de los elementos",
@@ -178,5 +177,10 @@
 	"filters-username": "Nombre de usuario",
 	"lets-connect-success-popup-title": "¡Bien hecho!",
 	"filters-territory": "Territorio",
-	"aria-language-input": "Elige un idioma"
+	"aria-language-input": "Elige un idioma",
+	"recommendations-new-skills": "Capacidades recomendadas para aprender",
+	"recommendations-based-on-most-used-capacities": "Basado en las capacidades más utilizadas en la red",
+	"recommendations-new-skills-tooltip": "Descubre capacidades populares en la red que puedes agregar a tu lista de habilidades deseadas.",
+	"recommendations-known-available-skills": "Capacidades recomendadas para compartir",
+	"recommendations-known-available-skills-tooltip": "Descubre capacidades populares en la red que puedes agregar como habilidades conocidas y disponibles para compartir con otros."
 }

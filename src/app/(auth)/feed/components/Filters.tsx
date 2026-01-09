@@ -4,7 +4,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { FilterState } from '../types';
 
 import BaseButton from '@/components/BaseButton';
 
@@ -23,9 +22,10 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTerritories } from '@/hooks/useTerritories';
 import UserIcon from '@/public/static/images/account_circle.svg';
 import UserIconWhite from '@/public/static/images/account_circle_white.svg';
+import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import { useSession } from 'next-auth/react';
-import React from 'react';
-import { ProfileCapacityType } from '../types';
+import { FilterState, ProfileCapacityType, Skill } from '../types';
 import { AffiliationSelector } from './AffiliationSelector';
 import { CheckboxButton } from './CheckboxButton';
 import { LanguageSelector } from './LanguageSelector';
@@ -36,6 +36,87 @@ interface FiltersProps {
   onClose: () => void;
   onApplyFilters: (filters: any) => void;
   initialFilters: FilterState;
+}
+
+// Helper function to get divider styles
+function getDividerClasses(darkMode: boolean): string {
+  return `border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`;
+}
+
+// Helper function to get input field styles
+function getInputClasses(darkMode: boolean): string {
+  return `w-full p-2 rounded-lg border ${
+    darkMode
+      ? 'bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400'
+      : 'bg-white border-gray-300 placeholder-gray-500'
+  }`;
+}
+
+// Component: Filter Section Header
+interface FilterSectionHeaderProps {
+  readonly icon: any;
+  readonly iconWhite: any;
+  readonly title: string;
+  readonly darkMode: boolean;
+}
+
+function FilterSectionHeader({
+  icon,
+  iconWhite,
+  title,
+  darkMode,
+}: Readonly<FilterSectionHeaderProps>) {
+  return (
+    <div className="flex items-center gap-2">
+      <Image src={darkMode ? iconWhite : icon} alt={`${title} icon`} width={24} height={24} />
+      <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>{title}</h2>
+    </div>
+  );
+}
+
+// Component: Selected Capacities List
+interface SelectedCapacitiesListProps {
+  readonly capacities: Skill[];
+  readonly onRemove: (code: number) => void;
+  readonly darkMode: boolean;
+  readonly removeIconAlt: string;
+}
+
+function SelectedCapacitiesList({
+  capacities,
+  onRemove,
+  darkMode,
+  removeIconAlt,
+}: Readonly<SelectedCapacitiesListProps>) {
+  if (capacities.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {capacities.map((capacity, index) => (
+        <div
+          key={index}
+          className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[150px] shrink-0 ${
+            darkMode ? 'bg-gray-700' : 'bg-gray-100'
+          }`}
+        >
+          <span className="truncate" title={capacity.name}>
+            {capacity.name}
+          </span>
+          <button
+            onClick={() => onRemove(capacity.code)}
+            className="hover:opacity-80 flex-shrink-0"
+          >
+            <Image
+              src={darkMode ? CloseIconWhite : CloseIcon}
+              alt={removeIconAlt}
+              width={16}
+              height={16}
+            />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function Filters({
@@ -152,21 +233,16 @@ export function Filters({
             </div>
 
             {/* Divider */}
-            <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+            <div className={getDividerClasses(darkMode)} />
 
             {/* Exchange with */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={darkMode ? CapxIconWhite : CapxIcon}
-                  alt={pageContent['filters-exchange-with-alt-icon']}
-                  width={24}
-                  height={24}
-                />
-                <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
-                  {pageContent['filters-exchange-with']}
-                </h2>
-              </div>
+              <FilterSectionHeader
+                icon={CapxIcon}
+                iconWhite={CapxIconWhite}
+                title={pageContent['filters-exchange-with']}
+                darkMode={darkMode}
+              />
               <div className="space-y-2">
                 <CheckboxButton
                   icon={LearnerIcon}
@@ -190,41 +266,29 @@ export function Filters({
             </div>
 
             {/* Divider */}
-            <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+            <div className={getDividerClasses(darkMode)} />
 
             {/* Username Filter - Only for user profiles */}
             {!isOnlyOrganization && (
               <>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={darkMode ? UserIconWhite : UserIcon}
-                      alt={pageContent['filters-username-alt-icon']}
-                      width={24}
-                      height={24}
-                    />
-                    <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
-                      {pageContent['filters-username']}
-                    </h2>
-                  </div>
+                  <FilterSectionHeader
+                    icon={UserIcon}
+                    iconWhite={UserIconWhite}
+                    title={pageContent['filters-username']}
+                    darkMode={darkMode}
+                  />
                   <input
                     type="text"
                     value={filters.name || ''}
                     onChange={e => handleNameChange(e.target.value)}
                     placeholder={pageContent['filters-search-by-username']}
-                    className={`
-                      w-full p-2 rounded-lg border
-                      ${
-                        darkMode
-                          ? 'bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400'
-                          : 'bg-white border-gray-300 placeholder-gray-500'
-                      }
-                    `}
+                    className={getInputClasses(darkMode)}
                   />
                 </div>
 
                 {/* Divider */}
-                <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                <div className={getDividerClasses(darkMode)} />
               </>
             )}
 
@@ -244,7 +308,7 @@ export function Filters({
             />
 
             {/* Divider */}
-            <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+            <div className={getDividerClasses(darkMode)} />
 
             {/* Affiliations - Only for user profiles */}
             {!isOnlyOrganization && (
@@ -264,14 +328,14 @@ export function Filters({
                 />
 
                 {/* Divider */}
-                <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                <div className={getDividerClasses(darkMode)} />
               </>
             )}
 
             {!isOnlyOrganization && (
               <>
                 {/* Divider */}
-                <div className={`border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                <div className={getDividerClasses(darkMode)} />
 
                 {/* Languages */}
                 <LanguageSelector
