@@ -14,6 +14,12 @@ interface CapacitySearchProps {
   onSearchStart?: () => void;
   onSearchEnd?: () => void;
   onSearch?: (term: string) => void;
+  // Selection props
+  onSelect?: (capacities: Array<{ code: number; name: string }>) => void;
+  selectedCapacities?: Array<{ code: number; name: string }>;
+  allowMultipleSelection?: boolean;
+  showSelectedChips?: boolean;
+  compact?: boolean; // Use compact view for filters
 }
 
 // simple debounce
@@ -54,7 +60,16 @@ function useDebounce<Args extends unknown[], Return>(
   return { debouncedFunction, cancel };
 }
 
-export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: CapacitySearchProps) {
+export function CapacitySearch({
+  onSearchStart,
+  onSearchEnd,
+  onSearch,
+  onSelect,
+  selectedCapacities = [],
+  allowMultipleSelection = false,
+  showSelectedChips = true,
+  compact = false,
+}: CapacitySearchProps) {
   const { isMobile, pageContent } = useApp();
   const { darkMode } = useTheme();
   const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityCache();
@@ -142,6 +157,47 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
     }
   }, [searchTerm, onSearch]);
 
+  // Handle capacity selection
+  const handleCapacityClick = useCallback(
+    (capacity: any) => {
+      if (!onSelect) return;
+
+      const selectedCapacity = { code: capacity.code, name: capacity.name };
+      const isAlreadySelected = selectedCapacities.some(c => c.code === capacity.code);
+
+      if (allowMultipleSelection) {
+        if (isAlreadySelected) {
+          // Remove from selection
+          onSelect(selectedCapacities.filter(c => c.code !== capacity.code));
+        } else {
+          // Add to selection
+          onSelect([...selectedCapacities, selectedCapacity]);
+        }
+      } else {
+        // Single selection - replace
+        onSelect([selectedCapacity]);
+      }
+    },
+    [onSelect, selectedCapacities, allowMultipleSelection]
+  );
+
+  // Handle removing a selected capacity
+  const handleRemoveCapacity = useCallback(
+    (capacityCode: number) => {
+      if (!onSelect) return;
+      onSelect(selectedCapacities.filter(c => c.code !== capacityCode));
+    },
+    [onSelect, selectedCapacities]
+  );
+
+  // Check if a capacity is selected
+  const isCapacitySelected = useCallback(
+    (capacityCode: number) => {
+      return selectedCapacities.some(c => c.code === capacityCode);
+    },
+    [selectedCapacities]
+  );
+
   // Process the results to ensure correct levels and consistent colors
   const processedResults = searchResults.map(capacity => {
     // Use the level already defined by the cache, because the unified cache already has this information
@@ -164,44 +220,142 @@ export function CapacitySearch({ onSearchStart, onSearchEnd, onSearch }: Capacit
 
   return (
     <div className="w-full">
+      {/* Selected Capacities Chips */}
+      {showSelectedChips && selectedCapacities.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {selectedCapacities.map(capacity => (
+            <div
+              key={capacity.code}
+              className={`
+                inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm
+                ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-800'}
+              `}
+            >
+              <span>{capacity.name}</span>
+              <button
+                onClick={() => handleRemoveCapacity(capacity.code)}
+                className="hover:opacity-70 transition-opacity"
+                aria-label="Remove capacity"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <BaseInput
         type="text"
         value={searchTerm}
         onChange={e => {
           setSearchTerm(e.target.value);
         }}
-        placeholder={pageContent['capacity-search-placeholder']}
-        className={`w-full py-6 px-3 rounded-[16px] opacity-50 ${
+        placeholder={pageContent['capacity-search-placeholder'] || 'Search capacities...'}
+        className={`w-full ${compact ? '' : 'py-6 px-3'} rounded-[16px] opacity-50 ${
           darkMode ? 'text-white border-white' : 'text-capx-dark-box-bg border-capx-dark-box-bg '
-        } ${isMobile ? 'text-[12px]' : 'text-[24px]'}`}
+        } ${!compact && isMobile ? 'text-[12px]' : ''} ${!compact && !isMobile ? 'text-[24px]' : ''}`}
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
+        size={compact ? 'small' : 'large'}
       />
 
-      <div className="grid gap-4 mt-4 w-full">
-        {isLoading ? (
-          <LoadingState />
-        ) : (
-          processedResults.map(capacity => {
-            return (
-              <div key={capacity.code} className="w-full">
-                <CapacityCard
-                  {...capacity}
-                  name={getName(capacity.code) || capacity.name}
-                  level={capacity.level}
-                  isExpanded={false}
-                  onExpand={() => {}}
-                  isRoot={false}
-                  hasChildren={false}
-                  color={capacity.color}
-                  icon={capacity.icon}
-                  parentCapacity={capacity.parentCapacity}
-                  description={getDescription(capacity.code)}
-                  wd_code={getWdCode(capacity.code)}
-                />
-              </div>
-            );
-          })
+      <div className={`mt-4 w-full ${compact ? 'space-y-2' : 'grid gap-4'}`}>
+        {isLoading && <LoadingState />}
+        {!isLoading && compact && (
+          // Compact view for filters
+          <>
+            {processedResults.map(capacity => {
+              const isSelected = isCapacitySelected(capacity.code);
+              return (
+                <button
+                  key={capacity.code}
+                  type="button"
+                  onClick={() => handleCapacityClick(capacity)}
+                  className={`
+                  w-full flex items-center justify-between px-3 py-2 rounded-lg
+                  text-left transition-all
+                  ${
+                    darkMode
+                      ? 'bg-capx-dark-box-bg hover:bg-gray-700'
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }
+                  ${isSelected ? 'ring-2 ring-capx-primary-green' : ''}
+                `}
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: capacity.color }}
+                    />
+                    <span
+                      className={`text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      {getName(capacity.code) || capacity.name}
+                    </span>
+                  </div>
+                  {isSelected && (
+                    <div className="w-5 h-5 bg-capx-primary-green rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                      <span className="text-white text-xs font-bold">✓</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </>
+        )}
+        {!isLoading && !compact && (
+          // Full card view for capacity page
+          <>
+            {processedResults.map(capacity => {
+              const isSelected = isCapacitySelected(capacity.code);
+              const content = (
+                <>
+                  <CapacityCard
+                    {...capacity}
+                    name={getName(capacity.code) || capacity.name}
+                    level={capacity.level}
+                    isExpanded={false}
+                    onExpand={() => {}}
+                    isRoot={false}
+                    hasChildren={false}
+                    color={capacity.color}
+                    icon={capacity.icon}
+                    parentCapacity={capacity.parentCapacity}
+                    description={getDescription(capacity.code)}
+                    wd_code={getWdCode(capacity.code)}
+                  />
+                  {isSelected && allowMultipleSelection && (
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-capx-primary-green rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">✓</span>
+                    </div>
+                  )}
+                </>
+              );
+
+              if (onSelect) {
+                return (
+                  <button
+                    key={capacity.code}
+                    type="button"
+                    onClick={() => handleCapacityClick(capacity)}
+                    className={`
+                    w-full cursor-pointer transition-all relative text-left p-0 bg-transparent border-0
+                    hover:scale-[1.02]
+                    ${isSelected ? 'ring-2 ring-capx-primary-green rounded-lg' : ''}
+                  `}
+                  >
+                    {content}
+                  </button>
+                );
+              }
+
+              return (
+                <div key={capacity.code} className="w-full relative">
+                  {content}
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
     </div>

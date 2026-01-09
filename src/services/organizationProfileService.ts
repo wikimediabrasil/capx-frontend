@@ -9,6 +9,7 @@ export interface OrganizationFilters {
   offset?: number;
   has_capacities_wanted?: boolean;
   has_capacities_available?: boolean;
+  name?: string;
 }
 
 export const organizationProfileService = {
@@ -44,6 +45,9 @@ export const organizationProfileService = {
     if (filters.offset) {
       params.append('offset', filters.offset.toString());
     }
+
+    // Note: Backend doesn't support name/display_name filtering
+    // Filtering is done client-side in OrganizationList component
 
     try {
       const response = await axios.get('/api/organizations/', {

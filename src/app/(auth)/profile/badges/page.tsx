@@ -27,7 +27,7 @@ export default function BadgesPage() {
   const { profile } = useProfile(token, Number(userId));
 
   const { getAvatarById } = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || getDefaultAvatar(darkMode));
+  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || getDefaultAvatar());
   const { allBadges, userBadges } = useBadges();
   const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 

@@ -29,7 +29,7 @@ export default function AvatarSelectionPopup({
   // Create virtual avatar for the default person option
   const defaultPersonOption = {
     id: null as number | null,
-    avatar_url: getDefaultAvatar(darkMode),
+    avatar_url: getDefaultAvatar(),
   };
 
   const allAvatars = [defaultPersonOption, ...(avatars || [])];

@@ -22,9 +22,9 @@ describe('getProfileImage', () => {
     expect(result).toBe(DEFAULT_AVATAR);
   });
 
-  it('should return white avatar in dark mode when no image or avatar is available', () => {
+  it('should return default avatar in dark mode when no image or avatar is available', () => {
     const result = getProfileImage(null, null, mockAvatars, true);
-    expect(result).toBe(DEFAULT_AVATAR_WHITE);
+    expect(result).toBe(DEFAULT_AVATAR);
   });
 
   it('should handle empty strings in profile image', () => {
@@ -39,6 +39,6 @@ describe('getProfileImage', () => {
 
   it('should handle invalid avatar id in dark mode', () => {
     const result = getProfileImage(null, 999, mockAvatars, true);
-    expect(result).toBe(DEFAULT_AVATAR_WHITE);
+    expect(result).toBe(DEFAULT_AVATAR);
   });
 });

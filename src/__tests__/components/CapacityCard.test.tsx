@@ -11,6 +11,18 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
+jest.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: {
+      user: {
+        id: '123',
+        token: 'test-token',
+      },
+    },
+    status: 'authenticated',
+  }),
+}));
+
 jest.mock('@/contexts/AppContext', () => ({
   useApp: () => ({
     isMobile: false,
@@ -18,6 +30,13 @@ jest.mock('@/contexts/AppContext', () => ({
       'capacity-card-expand-capacity': 'Expand capacity',
       'capacity-card-explore-capacity': 'Explore capacity',
       'capacity-card-info': 'Information',
+      'capacity-card-add-to-known': 'Add to Known',
+      'capacity-card-add-to-wanted': 'Add to Wanted',
+      'capacity-added-known': 'Capacity added to known',
+      'capacity-added-wanted': 'Capacity added to wanted',
+      'capacity-card-profile-info': 'This will be added to your personal profile.',
+      'capacity-card-org-profile-info': 'To add capacities to an organization profile, please visit the organization profile edit page.',
+      loading: 'Loading...',
     },
   }),
 }));
@@ -35,6 +54,65 @@ jest.mock('@/contexts/ThemeContext', () => ({
     setDarkMode: jest.fn(),
   }),
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+jest.mock('@/app/providers/SnackbarProvider', () => ({
+  useSnackbar: () => ({
+    showSnackbar: jest.fn(),
+  }),
+}));
+
+jest.mock('@/hooks/useUserCapacities', () => ({
+  useUserCapacities: () => ({
+    userKnownCapacities: [],
+    userAvailableCapacities: [],
+    userWantedCapacities: [],
+  }),
+}));
+
+jest.mock('@/services/userService', () => ({
+  userService: {
+    fetchUserProfile: jest.fn(() => Promise.resolve({
+      id: 123,
+      skills_known: [],
+      skills_available: [],
+      skills_wanted: [],
+      language: ['en'],
+    })),
+  },
+}));
+
+jest.mock('@/services/profileService', () => ({
+  profileService: {
+    updateProfile: jest.fn(() => Promise.resolve({})),
+  },
+}));
+
+const mockQueryClient = {
+  getQueryData: jest.fn(() => ({
+    id: 123,
+    skills_known: [],
+    skills_available: [],
+    skills_wanted: [],
+    language: ['en'],
+  })),
+  setQueryData: jest.fn(),
+  invalidateQueries: jest.fn(),
+};
+
+jest.mock('@tanstack/react-query', () => ({
+  useQuery: jest.fn(() => ({
+    data: {
+      id: 123,
+      skills_known: [],
+      skills_available: [],
+      skills_wanted: [],
+      language: ['en'],
+    },
+    isLoading: false,
+    isError: false,
+  })),
+  useQueryClient: jest.fn(() => mockQueryClient),
 }));
 
 describe('CapacityCard', () => {
@@ -77,7 +155,10 @@ describe('CapacityCard', () => {
 
     expect(await screen.findByText('Test description')).toBeInTheDocument();
     expect(screen.getByText('WD123')).toBeInTheDocument();
-    expect(screen.getByText('Explore capacity')).toBeInTheDocument();
+    expect(screen.getByText('Add to Known')).toBeInTheDocument();
+    expect(screen.getByText('Add to Wanted')).toBeInTheDocument();
+    expect(screen.getByText(/This will be added to your personal profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/organization profile edit page/i)).toBeInTheDocument();
   });
 
   it('renders non-root capacity card correctly', () => {
