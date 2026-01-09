@@ -7,10 +7,9 @@ import { PaginationButtons } from '@/components/PaginationButtons';
 import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
 import { SearchFilterSection } from '@/components/SearchFilterSection';
 import { useApp } from '@/contexts/AppContext';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAllUsers } from '@/hooks/useUserProfile';
-import { useDebounce } from '@/hooks/useDebounce';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
 import {
@@ -23,9 +22,7 @@ import {
 
 export default function FeedPage() {
   const { pageContent } = useApp();
-  const router = useRouter();
   const { showSnackbar } = useSnackbar();
-  const searchParams = useSearchParams();
 
   // Use shared language sync logic
   const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();

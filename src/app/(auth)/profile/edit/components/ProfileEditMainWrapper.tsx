@@ -205,7 +205,7 @@ export default function EditProfilePage() {
     wikidata_qid: '',
     wikimedia_project: [],
   });
-  const [, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
+  const [, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
   // TODO: Remove this after Lets Connect Integration is complete
   const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
@@ -217,7 +217,7 @@ export default function EditProfilePage() {
   }>({
     avatar: null,
     wikidata_qid: '',
-    src: getDefaultAvatar(darkMode),
+    src: getDefaultAvatar(),
   });
 
   // Move useMemo before any early returns to fix Rules of Hooks violation
@@ -315,7 +315,7 @@ export default function EditProfilePage() {
       setPreviousImageState({
         avatar: profile.avatar ?? null,
         wikidata_qid: profile.wikidata_qid || '',
-        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || getDefaultAvatar(darkMode),
+        src: avatars?.find(a => a.id === profile.avatar)?.avatar_url || getDefaultAvatar(),
       });
     }
   }, [profile, avatars]);

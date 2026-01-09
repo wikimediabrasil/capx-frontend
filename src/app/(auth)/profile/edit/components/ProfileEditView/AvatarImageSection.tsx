@@ -1,22 +1,22 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
-import AvatarSelectionPopup from '../../../components/AvatarSelectionPopup';
+import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
+import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
+import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
 import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
 import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
 import CheckBoxFilledIcon from '@/public/static/images/check_box.svg';
 import CheckBoxFilledIconWhite from '@/public/static/images/check_box_light.svg';
 import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
 import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
-import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
-import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
+import Image from 'next/image';
+import AvatarSelectionPopup from '../../../components/AvatarSelectionPopup';
 
 const getAvatarAltText = (src: string, pageContent: any): string => {
   const isDefaultAvatar = src === DEFAULT_AVATAR || src === DEFAULT_AVATAR_WHITE;
@@ -142,7 +142,7 @@ export function AvatarImageSection({
                 fill
                 className="object-contain"
                 onError={e => {
-                  e.currentTarget.src = getDefaultAvatar(darkMode);
+                  e.currentTarget.src = getDefaultAvatar();
                 }}
               />
             )}

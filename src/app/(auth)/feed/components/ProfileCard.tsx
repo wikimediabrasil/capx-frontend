@@ -145,7 +145,7 @@ export const ProfileCard = ({
   const typeBadgeBaseClass =
     'md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border';
 
-  const defaultAvatar = getDefaultAvatar(darkMode);
+  const defaultAvatar = getDefaultAvatar();
 
   const capacityItemClass = 'font-[Montserrat] text-[14px] not-italic leading-[normal]';
 

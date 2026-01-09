@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { getDefaultAvatar } from '@/constants/images';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
-import { getDefaultAvatar } from '@/constants/images';
+import { useEffect, useState } from 'react';
 
 /**
  * Custom hook to manage avatar state and loading
@@ -10,7 +10,7 @@ import { getDefaultAvatar } from '@/constants/images';
 export function useAvatarManagement(profile: any) {
   const { darkMode } = useTheme();
   const getAvatarById = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar(darkMode));
+  const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
   // Load avatar when profile changes
   useEffect(() => {
@@ -32,7 +32,7 @@ export function useAvatarManagement(profile: any) {
   // Update default avatar when dark mode changes
   useEffect(() => {
     if (!profile?.avatar || profile.avatar === 0) {
-      setAvatarUrl(getDefaultAvatar(darkMode));
+      setAvatarUrl(getDefaultAvatar());
     }
   }, [darkMode, profile?.avatar]);
 

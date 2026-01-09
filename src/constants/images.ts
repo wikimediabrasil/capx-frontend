@@ -10,8 +10,8 @@ export const DEFAULT_ORGANIZATION_LOGO_WHITE = '/static/images/person_white.svg'
 /**
  * Returns the default avatar based on dark mode
  */
-export const getDefaultAvatar = (darkMode: boolean = false): string => {
-  return darkMode ? DEFAULT_AVATAR_WHITE : DEFAULT_AVATAR;
+export const getDefaultAvatar = (): string => {
+  return DEFAULT_AVATAR;
 };
 
 /**
