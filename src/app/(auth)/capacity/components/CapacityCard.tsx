@@ -93,6 +93,92 @@ const getSearchCardBackgroundColor = (
   return '#507380';
 };
 
+// Helper function to get button label based on state
+const getButtonLabel = (
+  isAdded: boolean,
+  isAdding: boolean,
+  isLoading: boolean,
+  addedText: string,
+  loadingText: string,
+  defaultText: string
+): string => {
+  if (isAdded) return addedText;
+  if (isAdding || isLoading) return loadingText;
+  return defaultText;
+};
+
+// Helper function to get button disabled state
+const isButtonDisabled = (
+  isAdding: boolean,
+  isAdded: boolean,
+  hasToken: boolean,
+  isLoading: boolean,
+  hasError: boolean,
+  hasProfile: boolean
+): boolean => {
+  return isAdding || isAdded || !hasToken || isLoading || hasError || !hasProfile;
+};
+
+// Helper function to get card shadow classes
+const getCardShadowClass = (isInfoVisible: boolean): string => {
+  return isInfoVisible ? 'shadow-md' : '';
+};
+
+// Helper function to get button shadow classes
+const getButtonShadowClass = (isInfoVisible: boolean): string => {
+  return isInfoVisible ? '' : 'shadow-sm hover:shadow-md';
+};
+
+// Helper function to get button border radius classes
+const getButtonBorderRadius = (isMobile: boolean | undefined, isInfoVisible: boolean): string => {
+  if (isMobile) {
+    return isInfoVisible ? 'rounded-t-[4px]' : 'rounded-[4px]';
+  }
+  return isInfoVisible ? 'rounded-t-lg' : 'rounded-lg';
+};
+
+// Helper function to get card border radius classes
+const getCardBorderRadius = (isMobile: boolean | undefined): string => {
+  return isMobile ? 'rounded-[4px]' : 'rounded-lg';
+};
+
+// Helper function to determine button background color for expanded content
+const getExpandedButtonBackgroundColor = (
+  isRoot: boolean | undefined,
+  level: number | undefined,
+  color: string,
+  parentCapacity?: Capacity
+): string => {
+  // For root capacities (level 1), don't try to access bgColorClass
+  if (isRoot || level === 1) {
+    return getCapacityColor(color || 'technology');
+  }
+
+  // For third level (level 3) capacities, try to get root color from parent hierarchy
+  if (level === 3) {
+    if (parentCapacity?.parentCapacity?.color) {
+      return parentCapacity.parentCapacity.color;
+    }
+    if (parentCapacity?.color) {
+      return parentCapacity.color;
+    }
+    return '#507380';
+  }
+
+  // For second level capacities (direct children of root)
+  if (level === 2 && parentCapacity?.color && parentCapacity.color !== '') {
+    return getCapacityColor(parentCapacity.color);
+  }
+
+  // If we have our own color
+  if (color && color !== '') {
+    return getCapacityColor(color);
+  }
+
+  // Fallback
+  return '#507380';
+};
+
 // Helper function to get text styling classes
 const getTextClasses = (isRoot?: boolean, isMobile?: boolean, displayNameLength?: number) => {
   let textBreakClass;
@@ -187,7 +273,8 @@ export function CapacityCard({
     isError: isProfileError,
   } = useQuery({
     queryKey: ['userProfile', session?.user?.id, session?.user?.token],
-    queryFn: () => userService.fetchUserProfile(session?.user?.token),
+    queryFn: () =>
+      userService.fetchUserProfile(Number(session?.user?.id), session?.user?.token || ''),
     enabled: !!session?.user?.token && !!session?.user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -397,41 +484,7 @@ export function CapacityCard({
   const renderExpandedContent = () => {
     if (!isInfoVisible) return null;
 
-    // Determine the background color of the button
-    const getButtonBackgroundColor = () => {
-      // For root capacities (level 1), don't try to access bgColorClass
-      if (isRoot || level === 1) {
-        return getCapacityColor(color || 'technology');
-      }
-
-      // For non-root capacities, we can safely check level and other properties
-
-      // For third level (level 3) capacities, try to get root color from parent hierarchy
-      if (level === 3) {
-        if (parentCapacity?.parentCapacity?.color) {
-          return parentCapacity.parentCapacity.color; // Get root color from grandparent
-        }
-        if (parentCapacity?.color) {
-          return parentCapacity.color; // Get color from parent
-        }
-        return '#507380'; // Fallback dark color
-      }
-
-      // For second level capacities (direct children of root)
-      if (level === 2 && parentCapacity?.color && parentCapacity.color !== '') {
-        return getCapacityColor(parentCapacity.color);
-      }
-
-      // If we have our own color
-      if (color && color !== '') {
-        return getCapacityColor(color);
-      }
-
-      // Fallback - always use a color that will be visible
-      return '#507380'; // Black fallback
-    };
-
-    const buttonBgColor = getButtonBackgroundColor();
+    const buttonBgColor = getExpandedButtonBackgroundColor(isRoot, level, color, parentCapacity);
 
     return (
       <div
@@ -525,25 +578,26 @@ export function CapacityCard({
             }}
           >
             <BaseButton
-              label={
-                isAddedToKnown
-                  ? pageContent['capacity-card-added-to-known'] || '✓ Added to Known'
-                  : isAddingKnown || isProfileLoading
-                    ? pageContent['loading'] || 'Loading...'
-                    : pageContent['capacity-card-add-to-known'] || 'Add to Known'
-              }
+              label={getButtonLabel(
+                isAddedToKnown,
+                isAddingKnown,
+                isProfileLoading,
+                pageContent['capacity-card-added-to-known'] || '✓ Added to Known',
+                pageContent['loading'] || 'Loading...',
+                pageContent['capacity-card-add-to-known'] || 'Add to Known'
+              )}
               customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
                 isMobile ? 'text-[16px]' : 'text-[24px]'
               } ${isAddedToKnown ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handleAddToKnown}
-              disabled={
-                isAddingKnown ||
-                isAddedToKnown ||
-                !session?.user?.token ||
-                isProfileLoading ||
-                isProfileError ||
-                !userProfile
-              }
+              disabled={isButtonDisabled(
+                isAddingKnown,
+                isAddedToKnown,
+                Boolean(session?.user?.token),
+                isProfileLoading,
+                isProfileError,
+                Boolean(userProfile)
+              )}
             />
           </div>
           <div
@@ -554,25 +608,26 @@ export function CapacityCard({
             }}
           >
             <BaseButton
-              label={
-                isAddedToWanted
-                  ? pageContent['capacity-card-added-to-wanted'] || '✓ Added to Wanted'
-                  : isAddingWanted || isProfileLoading
-                    ? pageContent['loading'] || 'Loading...'
-                    : pageContent['capacity-card-add-to-wanted'] || 'Add to Wanted'
-              }
+              label={getButtonLabel(
+                isAddedToWanted,
+                isAddingWanted,
+                isProfileLoading,
+                pageContent['capacity-card-added-to-wanted'] || '✓ Added to Wanted',
+                pageContent['loading'] || 'Loading...',
+                pageContent['capacity-card-add-to-wanted'] || 'Add to Wanted'
+              )}
               customClass={`flex justify-center items-center gap-2 px-3 py-3 text-[#F6F6F6] font-extrabold rounded-[4px] text-center not-italic leading-[normal] ${
                 isMobile ? 'text-[16px]' : 'text-[24px]'
               } ${isAddedToWanted ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handleAddToWanted}
-              disabled={
-                isAddingWanted ||
-                isAddedToWanted ||
-                !session?.user?.token ||
-                isProfileLoading ||
-                isProfileError ||
-                !userProfile
-              }
+              disabled={isButtonDisabled(
+                isAddingWanted,
+                isAddedToWanted,
+                Boolean(session?.user?.token),
+                isProfileLoading,
+                isProfileError,
+                Boolean(userProfile)
+              )}
             />
           </div>
         </div>
@@ -584,9 +639,11 @@ export function CapacityCard({
               darkMode ? 'text-gray-300' : 'text-gray-600'
             } text-left leading-relaxed`}
           >
-            ℹ️ {pageContent['capacity-card-profile-info'] || 'This will be added to your personal profile.'}
-            {' '}
-            {pageContent['capacity-card-org-profile-info'] || 'To add capacities to an organization profile, please visit the organization profile edit page.'}
+            ℹ️{' '}
+            {pageContent['capacity-card-profile-info'] ||
+              'This will be added to your personal profile.'}{' '}
+            {pageContent['capacity-card-org-profile-info'] ||
+              'To add capacities to an organization profile, please visit the organization profile edit page.'}
           </p>
         </div>
       </div>
@@ -705,17 +762,10 @@ export function CapacityCard({
     const filterStyle = getIconFilter(isRoot, parentCapacity);
 
     return (
-      <div
+      <button
+        type="button"
         onClick={handleInfoClick}
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleInfoClick(e as any);
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        className={`p-1 flex-shrink-0 ${isSearch ? 'mr-12' : ''} opacity-100 z-10 cursor-pointer`}
+        className={`p-1 flex-shrink-0 ${isSearch ? 'mr-12' : ''} opacity-100 z-10 cursor-pointer bg-transparent border-none`}
         aria-label={pageContent['capacity-card-info'] || 'Information'}
         style={{ visibility: 'visible' }}
       >
@@ -731,7 +781,7 @@ export function CapacityCard({
             }}
           />
         </div>
-      </div>
+      </button>
     );
   };
 
@@ -740,21 +790,14 @@ export function CapacityCard({
     const filterStyle = getIconFilter(isRoot, parentCapacity);
 
     return (
-      <div
+      <button
+        type="button"
         onClick={e => {
           e.stopPropagation();
           onExpand();
         }}
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            e.stopPropagation();
-            onExpand();
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        className="p-2 flex-shrink-0 opacity-100 cursor-pointer"
+        className="p-2 flex-shrink-0 opacity-100 cursor-pointer bg-transparent border-none"
+        aria-label={pageContent['capacity-card-expand-capacity'] || 'Expand capacity'}
       >
         <div
           style={{ width: `${size}px`, height: `${size}px` }}
@@ -771,7 +814,7 @@ export function CapacityCard({
             }}
           />
         </div>
-      </div>
+      </button>
     );
   };
 
@@ -884,14 +927,16 @@ const SearchCard: React.FC<SearchCardProps> = ({
   renderExpandedContent,
 }) => {
   const backgroundColor = getSearchCardBackgroundColor(level, color, parentCapacity);
+  const cardShadow = getCardShadowClass(isInfoVisible);
+  const cardRadius = getCardBorderRadius(isMobile);
+  const buttonShadow = getButtonShadowClass(isInfoVisible);
+  const buttonRadius = getButtonBorderRadius(isMobile, isInfoVisible);
 
   return (
-    <div className={`w-full ${isInfoVisible ? 'shadow-md' : ''} ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}`}>
+    <div className={`w-full ${cardShadow} ${cardRadius}`}>
       <button
         onClick={handleCardClick}
-        className={`flex flex-col w-full ${!isInfoVisible ? 'shadow-sm hover:shadow-md' : ''} transition-shadow
-        ${isMobile ? (isInfoVisible ? 'rounded-t-[4px]' : 'rounded-[4px]') : (isInfoVisible ? 'rounded-t-lg' : 'rounded-lg')}
-        cursor-pointer hover:brightness-95 transition-all`}
+        className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor }}
         tabIndex={0}
         onKeyDown={handleCardKeyDown}
@@ -978,13 +1023,16 @@ const RootCard: React.FC<RootCardProps> = ({
   renderExpandedContent,
   childrenContainerRef,
 }) => {
+  const cardShadow = getCardShadowClass(isInfoVisible);
+  const cardRadius = getCardBorderRadius(isMobile);
+  const buttonShadow = getButtonShadowClass(isInfoVisible);
+  const buttonRadius = getButtonBorderRadius(isMobile, isInfoVisible);
+
   return (
-    <div className={`w-full ${isInfoVisible ? 'shadow-md' : ''} ${isMobile ? 'rounded-[4px]' : 'rounded-lg'}`}>
+    <div className={`w-full ${cardShadow} ${cardRadius}`}>
       <button
         onClick={handleCardClick}
-        className={`flex flex-col w-full ${!isInfoVisible ? 'shadow-sm hover:shadow-md' : ''} transition-shadow
-        ${isMobile ? (isInfoVisible ? 'rounded-t-[4px]' : 'rounded-[4px]') : (isInfoVisible ? 'rounded-t-lg' : 'rounded-lg')}
-        cursor-pointer hover:brightness-95 transition-all`}
+        className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor: getCapacityColor(color) }}
         tabIndex={0}
         onKeyDown={handleCardKeyDown}
@@ -1038,6 +1086,7 @@ const RootCard: React.FC<RootCardProps> = ({
         <div
           className={`${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'} rounded-b-lg ${isMobile ? 'p-2 sm:p-4' : 'p-8'} w-full overflow-hidden`}
           onClick={e => e.stopPropagation()}
+          onKeyDown={e => e.stopPropagation()}
         >
           {renderExpandedContent()}
         </div>

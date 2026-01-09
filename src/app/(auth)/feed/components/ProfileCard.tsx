@@ -167,9 +167,7 @@ export const ProfileCard = ({
       return (
         <span
           className={`md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border ${
-            darkMode
-              ? 'text-orange-200 border-orange-200'
-              : 'text-orange-600 border-orange-600'
+            darkMode ? 'text-orange-200 border-orange-200' : 'text-orange-600 border-orange-600'
           }`}
         >
           {pageContent['profile-incomplete']}
@@ -182,18 +180,14 @@ export const ProfileCard = ({
         <>
           <span
             className={`${typeBadgeBaseClass} ${
-              darkMode
-                ? 'text-purple-200 border-purple-200'
-                : 'text-purple-800 border-purple-800'
+              darkMode ? 'text-purple-200 border-purple-200' : 'text-purple-800 border-purple-800'
             }`}
           >
             {learnerLabel}
           </span>
           <span
             className={`${typeBadgeBaseClass} ${
-              darkMode
-                ? 'text-[#05A300] border-[#05A300]'
-                : 'text-[#166534] border-[#166534]'
+              darkMode ? 'text-[#05A300] border-[#05A300]' : 'text-[#166534] border-[#166534]'
             }`}
           >
             {sharerLabel}
@@ -210,9 +204,7 @@ export const ProfileCard = ({
     }
 
     return (
-      <span
-        className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}
-      >
+      <span className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}>
         {typeLabel}
       </span>
     );
@@ -302,9 +294,7 @@ export const ProfileCard = ({
           <div>
             <div className={`rounded-lg p-4 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`}>
               {/* Type Badge(s) */}
-              <div className="flex justify-start mb-4 gap-2 flex-wrap">
-                {renderTypeBadges()}
-              </div>
+              <div className="flex justify-start mb-4 gap-2 flex-wrap">{renderTypeBadges()}</div>
 
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
