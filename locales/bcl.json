@@ -181,7 +181,7 @@
 	"filters-capacities": "Kapasidad",
 	"filters-show-results": "Ipahiling an mga resulta",
 	"filters-clear-all": "Haleon gabos",
-	"filters-search-icon": "Icon nin paghanap",
+	"filters-capacities-alt-icon": "Icon nin mga kapasidad",
 	"filters-back-icon": "Icon nin pabalik",
 	"filters-remove-item-alt-icon": "Icon nin halea an bagay",
 	"filters-select-alt-icon": "Icon nin pagpili",
@@ -386,6 +386,5 @@
 	"alt-filter": "Mga opsyon nin saraan",
 	"alt-edit-event": "Liwaton an pangyayari",
 	"alt-delete": "Puraon an bagay",
-	"alt-delete-event": "Buraon an pangyayari",
-	"alt-delete-profile": "Buraon an profile"
+	"alt-delete-event": "Buraon an pangyayari"
 }
