@@ -18,7 +18,7 @@ export const fetchAllCapacities = async (token: string): Promise<Capacities[]> =
 export const capacityService = {
   async fetchCapacities(
     queryData: QueryData,
-    language: string = 'en'
+    _language: string = 'en'
   ): Promise<CapacityResponse[]> {
     try {
       const response = await axios.get('/api/capacity', {
@@ -55,7 +55,7 @@ export const capacityService = {
   async fetchCapacityById(
     id: string,
     config?: AxiosRequestConfig,
-    language: string = 'en'
+    _language: string = 'en'
   ): Promise<CapacityResponse> {
     try {
       const response = await axios.get(`/api/capacity/${id}`, config);
@@ -69,7 +69,7 @@ export const capacityService = {
   async searchCapacities(
     search: string,
     config?: AxiosRequestConfig,
-    language: string = 'en'
+    _language: string = 'en'
   ): Promise<CapacityResponse[]> {
     try {
       const response = await axios.get('/api/capacity/search', {

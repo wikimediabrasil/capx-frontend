@@ -334,13 +334,7 @@ export function CapacityDescriptionProvider({
 
   // Get metabase_code from cache
   const getMetabaseCode = useCallback((code: number): string => {
-    const result = globalDescriptionStore.metabaseCodes[code] || cachedMetabaseCodes[code] || '';
-
-    // Debug for any level 2 capacity (codes 11-49 typically)
-    if (code >= 11 && code <= 49) {
-    }
-
-    return result;
+    return globalDescriptionStore.metabaseCodes[code] || cachedMetabaseCodes[code] || '';
   }, []);
 
   // Get name from cache

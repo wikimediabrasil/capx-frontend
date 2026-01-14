@@ -33,7 +33,7 @@ export function SearchBar({
   onRemoveCapacity,
   onCapacityInputFocus,
   capacitiesPlaceholder = '',
-  removeItemAltText = '',
+  removeItemAltText: _removeItemAltText = '',
   showCapacitiesSearch = false,
 }: SearchBarProps) {
   const { darkMode } = useTheme();

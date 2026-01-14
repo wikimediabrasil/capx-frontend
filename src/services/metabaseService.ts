@@ -152,13 +152,13 @@ export function extractDatesFromPageContent(
     /(\d{4})-(\d{1,2})-(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{4})-(\d{1,2})-(\d{1,2})/gi,
 
     // Numeric format with separators: "19/07/2025 - 20/07/2025", "19.07.2025 to 20.07.2025"
-    /(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/gi,
+    /(\d{1,2})[/.](\d{1,2})[/.](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[/.](\d{1,2})[/.](\d{4})/gi,
 
     // American format: "07/19/2025 - 07/20/2025", "07-19-2025 to 07-20-2025"
-    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/gi,
+    /(\d{1,2})[/-](\d{1,2})[/-](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[/-](\d{1,2})[/-](\d{4})/gi,
 
     // Consecutive dates: "19-20/07/2025", "19-20.07.2025", "19-20/07/25"
-    /(\d{1,2})-(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{2,4})/gi,
+    /(\d{1,2})-(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})/gi,
 
     // Simple format with year: "19-20 2025", "19 to 20 2025"
     /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\d{4})/gi,
@@ -171,10 +171,10 @@ export function extractDatesFromPageContent(
     /(\d{4})-(\d{1,2})-(\d{1,2})/gi,
 
     // Single numeric date: "19/07/2025", "19.07.2025"
-    /(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/gi,
+    /(\d{1,2})[/.](\d{1,2})[/.](\d{4})/gi,
 
     // Single American date: "07/19/2025", "07-19-2025"
-    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/gi,
+    /(\d{1,2})[/-](\d{1,2})[/-](\d{4})/gi,
   ];
 
   // Month name to number mapping (English and Portuguese)
@@ -570,7 +570,7 @@ async function fetchWikimediaPageData(url: string): Promise<{
 } | null> {
   try {
     // Extract domain and page title from URL
-    const urlMatch = url.match(/https?:\/\/([^\/]{1,100})\/wiki\/(.{1,200})/i);
+    const urlMatch = url.match(/https?:[/][/]([^/]{1,100})[/]wiki[/](.{1,200})/i);
     if (!urlMatch) return null;
 
     const [, domain, pageTitle] = urlMatch;

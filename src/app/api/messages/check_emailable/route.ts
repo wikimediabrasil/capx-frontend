@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   console.log('[check_emailable] OPTIONS request received');
   return new NextResponse(null, {
     status: 200,

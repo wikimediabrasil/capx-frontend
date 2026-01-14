@@ -17,7 +17,7 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-export default [
+const config = [
   // Ignore patterns (replaces .eslintignore)
   {
     ignores: [
@@ -148,3 +148,5 @@ export default [
     },
   },
 ];
+
+export default config;

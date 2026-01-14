@@ -82,7 +82,7 @@ interface SelectedCapacitiesListProps {
   readonly removeIconAlt: string;
 }
 
-function SelectedCapacitiesList({
+function _SelectedCapacitiesList({
   capacities,
   onRemove,
   darkMode,

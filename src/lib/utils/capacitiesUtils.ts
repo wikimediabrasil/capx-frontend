@@ -65,7 +65,7 @@ export const fetchCapacitiesWithFallback = async (
     // Step 1: Try Metabase first (it already handles language fallback to English)
     try {
       metabaseResults = (await fetchMetabase(formattedCodes, language)) || [];
-    } catch (metabaseError) {
+    } catch {
       // Continue with Wikidata if Metabase fails completely
     }
 
@@ -110,7 +110,7 @@ export const fetchCapacitiesWithFallback = async (
           });
 
           return mergedResults;
-        } catch (wikidataError) {
+        } catch {
           // If Wikidata fails, just use Metabase results as-is
         }
       }
@@ -128,7 +128,7 @@ export const fetchCapacitiesWithFallback = async (
         ...result,
         metabase_code: '', // Wikidata doesn't have metabase_code
       }));
-    } catch (wikidataError) {
+    } catch {
       // Return empty array if both fail
     }
 
@@ -281,7 +281,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           if (batchResults && batchResults.length > 0) {
             batchedResults.push(...batchResults);
           }
-        } catch (error) {
+        } catch {
           // Continue with next batch instead of failing completely
         }
       }
@@ -297,65 +297,61 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       ?item wbt:P67/wbt:P1 ?value.
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
-    try {
-      // Use environment-specific URL for server-side requests
-      const baseUrl = getCurrentAppUrl();
-      const response = await axios.get(`${baseUrl}/api/metabase-sparql`, {
-        params: {
-          format: 'json',
-          query: mbQueryText,
-        },
+    // Use environment-specific URL for server-side requests
+    const baseUrl = getCurrentAppUrl();
+    const response = await axios.get(`${baseUrl}/api/metabase-sparql`, {
+      params: {
+        format: 'json',
+        query: mbQueryText,
+      },
+    });
+
+    // Check if response has expected structure
+    if (!response.data || !response.data.results || !response.data.results.bindings) {
+      return [];
+    }
+
+    // Process the raw results to a consistent format
+    const results = (response.data.results.bindings || [])
+      .filter(
+        (mbItem: any) =>
+          mbItem.item &&
+          mbItem.item.value &&
+          mbItem.itemLabel &&
+          mbItem.itemLabel.value &&
+          mbItem.value
+      )
+      .map((mbItem: any) => {
+        // Extract the Metabase ID from the item URI
+        const itemUri = mbItem.item.value;
+        const metabaseCode = itemUri.split('/').slice(-1)[0];
+
+        // Check the language of the returned label
+        const labelLanguage = mbItem.itemLabel?.['xml:lang'] || mbItem.itemLabel?.lang || 'en';
+        const descriptionLanguage =
+          mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
+
+        // If we requested a specific language but got English back, it's a fallback
+        const isLabelFallback = language !== 'en' && labelLanguage === 'en';
+        const isDescriptionFallback = language !== 'en' && descriptionLanguage === 'en';
+
+        const result = {
+          wd_code: mbItem.value.value,
+          name: mbItem.itemLabel.value,
+          description: mbItem.itemDescription?.value || '',
+          item: mbItem.item.value,
+          metabase_code: metabaseCode,
+          // Track if this result is using English fallback
+          isFallbackTranslation: isLabelFallback || isDescriptionFallback,
+        };
+
+        return result;
       });
 
-      // Check if response has expected structure
-      if (!response.data || !response.data.results || !response.data.results.bindings) {
-        return [];
-      }
+    // Language fallback detection is now handled above using SPARQL response metadata
 
-      // Process the raw results to a consistent format
-      const results = (response.data.results.bindings || [])
-        .filter(
-          (mbItem: any) =>
-            mbItem.item &&
-            mbItem.item.value &&
-            mbItem.itemLabel &&
-            mbItem.itemLabel.value &&
-            mbItem.value
-        )
-        .map((mbItem: any) => {
-          // Extract the Metabase ID from the item URI
-          const itemUri = mbItem.item.value;
-          const metabaseCode = itemUri.split('/').slice(-1)[0];
-
-          // Check the language of the returned label
-          const labelLanguage = mbItem.itemLabel?.['xml:lang'] || mbItem.itemLabel?.lang || 'en';
-          const descriptionLanguage =
-            mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
-
-          // If we requested a specific language but got English back, it's a fallback
-          const isLabelFallback = language !== 'en' && labelLanguage === 'en';
-          const isDescriptionFallback = language !== 'en' && descriptionLanguage === 'en';
-
-          const result = {
-            wd_code: mbItem.value.value,
-            name: mbItem.itemLabel.value,
-            description: mbItem.itemDescription?.value || '',
-            item: mbItem.item.value,
-            metabase_code: metabaseCode,
-            // Track if this result is using English fallback
-            isFallbackTranslation: isLabelFallback || isDescriptionFallback,
-          };
-
-          return result;
-        });
-
-      // Language fallback detection is now handled above using SPARQL response metadata
-
-      return results;
-    } catch (requestError) {
-      throw requestError; // Re-throw to be caught by outer catch
-    }
-  } catch (error) {
+    return results;
+  } catch {
     // Silently handle errors
 
     return [];
