@@ -43,7 +43,8 @@
     "react-simple-typewriter": "^5.0.1",
     "styled-components": "^5",
     "typescript": "5.7.2",
-    "url": "^0.11.4"
+    "url": "^0.11.4",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
