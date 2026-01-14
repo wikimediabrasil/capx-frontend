@@ -1,6 +1,17 @@
 'use client';
-import { setDocumentLocale } from '@/lib/utils/dateLocale';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+import { useAppStore } from '@/stores/appStore';
+import { createContext, useContext, useEffect, useMemo } from 'react';
+
+/**
+ * AppContext - Compatibility layer for Zustand migration
+ *
+ * This context now delegates to the Zustand store internally.
+ * All existing consumers continue to work without changes.
+ *
+ * For new code, consider using the Zustand store directly:
+ * import { useAppStore, useIsMobile, useLanguage } from '@/stores';
+ */
 
 interface AppContextType {
   isMobile: boolean;
@@ -16,102 +27,45 @@ interface AppContextType {
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const isClient = typeof window !== 'undefined';
-
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileMenuStatus, setMobileMenuStatus] = useState(false);
+  // Get all state and actions from Zustand store
+  const store = useAppStore();
 
-  // Check language on localStorage. If not found, use "en" as default
-  const initialLanguage = isClient ? localStorage.getItem('language') || 'en' : 'en';
-  const [language, setLanguage] = useState(initialLanguage);
-
-  const [pageContent, setPageContent] = useState({
-    'capacity-card-explore-capacity': 'Explore capacity',
-    'capacity-card-expand-capacity': 'Expand',
-    'capacity-card-info': 'Information',
-    'capacity-banner-title': 'Exchange Everything',
-    'capacity-search-no-results': 'No results found',
-    'capacity-visualization-title': 'Interactive Capacity Visualization',
-    'capacity-visualization-description':
-      'Click on main capacities to expand/collapse and focus • Click on icons to see details and automatically center • Use mouse to zoom and drag • Click "Return to initial view" to reset focus',
-    'capacity-visualization-reset-button': 'Return to initial view',
-  });
-  const [session, setSession] = useState(null);
-
-  // Check and load language from localStorage on mount,
-  // handle initial mobile detection and window resize
+  // Initialize store on mount (handles resize listener, localStorage, etc.)
+  // Note: We use the store's hydrate function directly without including store in deps
+  // to avoid infinite re-renders when hydrate updates state
   useEffect(() => {
-    if (!isClient) return;
-
-    try {
-      const savedLanguage = localStorage.getItem('language');
-
-      if (savedLanguage && savedLanguage !== language) {
-        setLanguage(savedLanguage); // Update state if language is different
-      }
-
-      const checkIsMobile = () => {
-        const isMobileView = window.innerWidth <= 768;
-        setIsMobile(isMobileView);
-        if (!isMobileView) {
-          setMobileMenuStatus(false);
-        }
-      };
-
-      // Check on mount
-      checkIsMobile();
-
-      // Add resize listener
-      window.addEventListener('resize', checkIsMobile);
-
-      setMounted(true);
-
-      return () => {
-        window.removeEventListener('resize', checkIsMobile);
-      };
-    } catch (error) {
-      console.error('Error initializing AppContext:', error);
-      setMounted(true); // Ensure we still render the app even if there's an error
-    }
+    const cleanup = useAppStore.getState().hydrate();
+    return cleanup;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Save language to localStorage and set document locale when it changes
-  useEffect(() => {
-    if (!isClient || !mounted) return;
-
-    try {
-      if (language) {
-        localStorage.setItem('language', language);
-        // Set locale in the document to affect native calendars
-        setDocumentLocale(language);
-      }
-    } catch (error) {
-      console.error('Error saving language to localStorage:', error);
-    }
-  }, [language, mounted]);
-
-  // To avoid hydration errors, we render the children directly
-  // before mounting
-  // Memoize value object
+  // Memoize value object to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
-      isMobile,
-      mobileMenuStatus,
-      setMobileMenuStatus,
-      language,
-      setLanguage,
-      pageContent,
-      setPageContent,
-      session,
-      setSession,
+      isMobile: store.isMobile,
+      mobileMenuStatus: store.mobileMenuStatus,
+      setMobileMenuStatus: store.setMobileMenuStatus,
+      language: store.language,
+      setLanguage: store.setLanguage,
+      pageContent: store.pageContent,
+      setPageContent: store.setPageContent,
+      session: store.session,
+      setSession: store.setSession,
     }),
-    [isMobile, mobileMenuStatus, language, pageContent, session]
+    [
+      store.isMobile,
+      store.mobileMenuStatus,
+      store.setMobileMenuStatus,
+      store.language,
+      store.setLanguage,
+      store.pageContent,
+      store.setPageContent,
+      store.session,
+      store.setSession,
+    ]
   );
 
-  // Always provide the context to avoid consumers running outside the provider
-  // During initial mount, values update after effects run
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 

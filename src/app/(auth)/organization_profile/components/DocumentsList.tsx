@@ -1,5 +1,5 @@
-import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile } from '@/stores';
 import { DocumentCard } from './DocumentCard';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
@@ -15,7 +15,7 @@ interface DocumentsListProps {
 
 export const DocumentsList = ({ title, items = [], token }: DocumentsListProps) => {
   const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+  const isMobile = useIsMobile();
   const [renderedDocuments, setRenderedDocuments] = useState(items.length);
 
   const updateRenderedDocumentsCount = () => {

@@ -1,8 +1,8 @@
 'use client';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/stores';
 import React, { useEffect, useState } from 'react';
 
 /**
@@ -25,7 +25,7 @@ export function LanguageChangeHandler({ children }: { children: React.ReactNode 
 }
 
 function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
-  const { language } = useApp();
+  const language = useLanguage();
   const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
   const { darkMode } = useTheme();
 

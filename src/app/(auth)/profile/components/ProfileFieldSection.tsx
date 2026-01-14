@@ -1,7 +1,7 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile } from '@/stores';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 
@@ -21,7 +21,7 @@ export default function ProfileFieldSection({
   iconSize = { mobile: 20, desktop: 42 },
 }: ProfileFieldSectionProps) {
   const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex flex-col gap-2 md:gap-4">

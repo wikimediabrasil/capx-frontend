@@ -1,7 +1,7 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useLanguage } from '@/stores';
 import { useEffect, useState } from 'react';
 
 /**
@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
  * Reduces duplicated language sync logic across components
  */
 export const useLanguageSync = () => {
-  const { language: appLanguage } = useApp();
+  const appLanguage = useLanguage();
   const {
     isLoaded: isCacheLoaded,
     isLoadingTranslations,

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile } from '@/stores';
 
 import BaseButton from '@/components/BaseButton';
 
@@ -29,7 +29,7 @@ export default function ActionButtons({
 }: ActionButtonsProps) {
   const router = useRouter();
   const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+  const isMobile = useIsMobile();
   const defaultBack = () => {
     router.back();
   };
