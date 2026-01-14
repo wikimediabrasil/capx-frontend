@@ -5,20 +5,19 @@ import { AppProvider } from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
 import { renderWithThemeApp, createMockTheme, setupTimers, mockConsoleError } from '../test-utils';
 
-// Mock AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    pageContent: {
-      'profile-deleted-title': 'Profile successfully deleted',
-      'profile-deleted-message': 'Your profile has been permanently deleted from CapX.',
-      'profile-deleted-submessage':
-        'Thank you for being part of our community. You can create a new account at any time.',
-      'profile-deleted-ok-button': 'OK',
-      'alt-illustration': 'Success illustration',
-    },
-    isMobile: false,
-  }),
+const mockPageContent = {
+  'profile-deleted-title': 'Profile successfully deleted',
+  'profile-deleted-message': 'Your profile has been permanently deleted from CapX.',
+  'profile-deleted-submessage':
+    'Thank you for being part of our community. You can create a new account at any time.',
+  'profile-deleted-ok-button': 'OK',
+  'alt-illustration': 'Success illustration',
+};
+
+// Mock Zustand stores
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  usePageContent: () => mockPageContent,
 }));
 
 // Mock Next.js Router

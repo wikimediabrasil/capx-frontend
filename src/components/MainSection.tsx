@@ -1,4 +1,4 @@
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile, usePageContent } from '@/stores';
 import { useTheme } from '@/contexts/ThemeContext';
 import CommonsLogo from '@/public/static/images/commons_logo.svg';
 import MainImage from '@/public/static/images/main_image.svg';
@@ -15,7 +15,8 @@ import AuthButton from './AuthButton';
 import BaseButton from './BaseButton';
 
 export default function MainSection() {
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const { darkMode } = useTheme();
   const { data: session } = useSession();
 

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import MainSection from '@/components/MainSection';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
-import * as AppContext from '@/contexts/AppContext';
+import * as stores from '@/stores';
 import * as ThemeContext from '@/contexts/ThemeContext';
 import { useSession } from 'next-auth/react';
 
@@ -11,9 +11,10 @@ jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
 
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: jest.fn(),
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useIsMobile: jest.fn(),
+  usePageContent: jest.fn(),
 }));
 
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -37,10 +38,8 @@ describe('MainSection', () => {
       status: 'unauthenticated',
     });
 
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      isMobile: false,
-      pageContent: mockPageContent,
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
 
     (ThemeContext.useTheme as jest.Mock).mockReturnValue({
       darkMode: false,
@@ -79,10 +78,8 @@ describe('MainSection', () => {
         'Berhubung dengan rekan sejawat, belajar, dan berbagi keterampilan dalam platform yang dibuat untuk dan oleh Gerakan Wikimedia. Kami mendorong kolaborasi dan pertukaran pengetahuan antar komunitas.',
     };
 
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      isMobile: false,
-      pageContent: longContent,
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(longContent);
 
     renderWithProviders(<MainSection />);
 
@@ -92,10 +89,8 @@ describe('MainSection', () => {
   });
 
   it('renders mobile version with correct styles', () => {
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      isMobile: true,
-      pageContent: mockPageContent,
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
 
     renderWithProviders(<MainSection />);
 

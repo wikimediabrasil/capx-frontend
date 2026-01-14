@@ -1,4 +1,4 @@
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 import { useTheme } from '@/contexts/ThemeContext';
 import Image, { StaticImageData } from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
@@ -38,7 +38,7 @@ const Popup = ({
   contentScrollable = false,
 }: PopupProps) => {
   const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const [isOpen, setIsOpen] = useState(true);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const noop = () => {};

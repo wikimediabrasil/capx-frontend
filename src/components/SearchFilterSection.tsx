@@ -1,6 +1,6 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 import React from 'react';
 import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 
@@ -23,7 +23,7 @@ export const SearchFilterSection: React.FC<SearchFilterSectionProps> = ({
   searchPlaceholder,
   filterAriaLabel,
 }) => {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   return (
     <SearchBar

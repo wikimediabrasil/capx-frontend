@@ -1,7 +1,7 @@
 'use client';
 
 import { InputHTMLAttributes, forwardRef } from 'react';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 import Image from 'next/image';
 
 interface BaseInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
@@ -27,7 +27,7 @@ const BaseInput = forwardRef<HTMLInputElement, BaseInputProps>(
     },
     ref
   ) => {
-    const { pageContent } = useApp();
+    const pageContent = usePageContent();
 
     // Size-based styles
     const sizeStyles = {

@@ -1,5 +1,5 @@
-import * as AppContext from '@/contexts/AppContext';
 import * as ThemeContext from '@/contexts/ThemeContext';
+import * as stores from '@/stores';
 import '@testing-library/jest-dom';
 import { fireEvent, screen } from '@testing-library/react';
 import DarkModeButton from '../../components/DarkModeButton';
@@ -33,10 +33,10 @@ jest.mock('@/contexts/ThemeContext', () => ({
   useTheme: jest.fn(),
 }));
 
-// useApp's mock
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: jest.fn(),
+// Zustand stores mock
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  usePageContent: jest.fn(),
 }));
 
 describe('DarkModeButton', () => {
@@ -51,7 +51,7 @@ describe('DarkModeButton', () => {
     (ThemeContext.useTheme as jest.Mock).mockReturnValue(
       createMockThemeContext(false, { setDarkMode: mockSetDarkMode })
     );
-    (AppContext.useApp as jest.Mock).mockReturnValue({ pageContent: mockPageContent });
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   it('renders dark mode button', () => {
@@ -88,7 +88,7 @@ describe('DarkModeButton', () => {
       'alt-dark-mode': 'Mudar para modo escuro',
     });
 
-    (AppContext.useApp as jest.Mock).mockReturnValue({ pageContent: customPageContent });
+    (stores.usePageContent as jest.Mock).mockReturnValue(customPageContent);
     renderWithProviders(<DarkModeButton />);
     expect(screen.getByAltText('Mudar para modo escuro')).toBeInTheDocument();
   });

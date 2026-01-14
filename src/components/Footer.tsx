@@ -3,11 +3,12 @@ import Image from 'next/image';
 import LogoMobile from '@/public/static/images/capx_detailed_logo.svg';
 import LogoMobileWhite from '@/public/static/images/capx_detailed_logo_white.svg';
 import LogoDesktop from '@/public/static/images/capx_minimalistic_logo.svg';
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile, usePageContent } from '@/stores';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function Footer() {
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const { darkMode } = useTheme();
 
   const footerLinks = [
