@@ -8,7 +8,6 @@ import AvatarSelectionPopup from '../../app/(auth)/profile/components/AvatarSele
 jest.mock('next/image', () => ({
   __esModule: true,
   default: ({ src, alt, fill, ...props }: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} {...props} />;
   },
 }));

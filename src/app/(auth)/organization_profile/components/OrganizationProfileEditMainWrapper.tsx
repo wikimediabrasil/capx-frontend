@@ -922,7 +922,7 @@ export default function EditOrganizationProfilePage() {
         setLoadingChooseEvent(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [organization, updateOrganization, pageContent]
   );
 
