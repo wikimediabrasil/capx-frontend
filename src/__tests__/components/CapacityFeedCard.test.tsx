@@ -100,9 +100,16 @@ const mockPageContent = {
   'filters-search-by-capacities': 'Search by capacities',
 };
 
-// AppContext's mock
+// Zustand stores mock
+jest.mock('@/stores', () => ({
+  usePageContent: () => mockPageContent,
+  useIsMobile: () => false,
+  useLanguage: () => 'en',
+}));
+
+// Also mock AppContext for components not yet migrated
 jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({ pageContent: mockPageContent }),
+  useApp: () => ({ pageContent: mockPageContent, isMobile: false, language: 'en' }),
   AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 

@@ -4,7 +4,7 @@ import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { DEFAULT_AVATAR } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent, useLanguage } from '@/stores';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useProfileImage } from '@/hooks/useProfileImage';
 import { useSavedItems } from '@/hooks/useSavedItems';
@@ -39,7 +39,8 @@ export default function RecommendationProfileCard({
   capacityType = 'available',
   hintMessage,
 }: RecommendationProfileCardProps) {
-  const { pageContent, language } = useApp();
+  const pageContent = usePageContent();
+  const language = useLanguage();
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();

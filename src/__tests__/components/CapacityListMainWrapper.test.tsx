@@ -80,17 +80,26 @@ jest.mock('@/hooks/useCapacitiesQuery', () => ({
   }),
 }));
 
+const mockPageContent = {
+  'body-capacity-title': 'Capacities',
+  'body-capacity-subtitle': 'Explore capacities',
+  'capacity-card-expand-capacity': 'Expand capacity',
+  'capacity-card-explore-capacity': 'Explore capacity',
+  'capacity-card-info': 'Information',
+  'capacity-search-placeholder': 'Search capacities',
+  loading: 'Loading...',
+};
+
+jest.mock('@/stores', () => ({
+  usePageContent: () => mockPageContent,
+  useLanguage: () => 'en',
+  useIsMobile: () => false,
+}));
+
+// Also mock AppContext for components not yet migrated (e.g. LoadingStateWithFallback)
 jest.mock('@/contexts/AppContext', () => ({
   useApp: () => ({
-    pageContent: {
-      'body-capacity-title': 'Capacities',
-      'body-capacity-subtitle': 'Explore capacities',
-      'capacity-card-expand-capacity': 'Expand capacity',
-      'capacity-card-explore-capacity': 'Explore capacity',
-      'capacity-card-info': 'Information',
-      'capacity-search-placeholder': 'Search capacities',
-      loading: 'Loading...',
-    },
+    pageContent: mockPageContent,
     language: 'en',
     isMobile: false,
   }),

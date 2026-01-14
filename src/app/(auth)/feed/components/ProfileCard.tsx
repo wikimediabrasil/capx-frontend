@@ -1,7 +1,7 @@
 import BaseButton from '@/components/BaseButton';
 import { ProfileItem } from '@/components/ProfileItem';
 import { getDefaultAvatar } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -97,7 +97,7 @@ export const ProfileCard = ({
   hasIncompleteProfile = false,
 }: ProfileCardProps) => {
   const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const router = useRouter();
   const { getName, preloadCapacities } = useCapacityCache();
   const { data: session } = useSession();

@@ -2,7 +2,7 @@
 
 import BaseInput from '@/components/BaseInput';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile, usePageContent } from '@/stores';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import SearchIcon from '@/public/static/images/search.svg';
@@ -70,7 +70,8 @@ export function CapacitySearch({
   showSelectedChips = true,
   compact = false,
 }: CapacitySearchProps) {
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const { darkMode } = useTheme();
   const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityCache();
   const [searchTerm, setSearchTerm] = useState('');

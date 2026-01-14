@@ -41,17 +41,15 @@ jest.mock('@/contexts/CapacityCacheContext', () => ({
   CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({
-    isMobile: false,
-    language: 'en',
-    pageContent: {
-      'capacity-search-placeholder': 'Search capacities',
-      'capacity-card-expand-capacity': 'Expand capacity',
-      'capacity-card-explore-capacity': 'Explore capacity',
-      'capacity-card-info': 'Information',
-    },
+jest.mock('@/stores', () => ({
+  useIsMobile: () => false,
+  usePageContent: () => ({
+    'capacity-search-placeholder': 'Search capacities',
+    'capacity-card-expand-capacity': 'Expand capacity',
+    'capacity-card-explore-capacity': 'Explore capacity',
+    'capacity-card-info': 'Information',
   }),
+  useLanguage: () => 'en',
 }));
 
 // ThemeContext mock

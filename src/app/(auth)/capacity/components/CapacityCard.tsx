@@ -1,6 +1,6 @@
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile, usePageContent, useLanguage } from '@/stores';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
@@ -256,7 +256,9 @@ export function CapacityCard({
   onToggleInfo,
 }: CapacityCardProps) {
   const router = useRouter();
-  const { isMobile, pageContent, language } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const language = useLanguage();
   const { darkMode } = useTheme();
   const { isFallbackTranslation } = useCapacityCache();
   const [showInfo, setShowInfo] = useState(false);

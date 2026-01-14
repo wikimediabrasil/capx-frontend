@@ -23,22 +23,21 @@ jest.mock('next-auth/react', () => ({
   }),
 }));
 
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({
-    isMobile: false,
-    pageContent: {
-      'capacity-card-expand-capacity': 'Expand capacity',
-      'capacity-card-explore-capacity': 'Explore capacity',
-      'capacity-card-info': 'Information',
-      'capacity-card-add-to-known': 'Add to Known',
-      'capacity-card-add-to-wanted': 'Add to Wanted',
-      'capacity-added-known': 'Capacity added to known',
-      'capacity-added-wanted': 'Capacity added to wanted',
-      'capacity-card-profile-info': 'This will be added to your personal profile.',
-      'capacity-card-org-profile-info': 'To add capacities to an organization profile, please visit the organization profile edit page.',
-      loading: 'Loading...',
-    },
+jest.mock('@/stores', () => ({
+  useIsMobile: () => false,
+  usePageContent: () => ({
+    'capacity-card-expand-capacity': 'Expand capacity',
+    'capacity-card-explore-capacity': 'Explore capacity',
+    'capacity-card-info': 'Information',
+    'capacity-card-add-to-known': 'Add to Known',
+    'capacity-card-add-to-wanted': 'Add to Wanted',
+    'capacity-added-known': 'Capacity added to known',
+    'capacity-added-wanted': 'Capacity added to wanted',
+    'capacity-card-profile-info': 'This will be added to your personal profile.',
+    'capacity-card-org-profile-info': 'To add capacities to an organization profile, please visit the organization profile edit page.',
+    loading: 'Loading...',
   }),
+  useLanguage: () => 'en',
 }));
 
 jest.mock('@/contexts/CapacityCacheContext', () => ({

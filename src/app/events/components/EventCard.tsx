@@ -1,7 +1,7 @@
 import BaseButton from '@/components/BaseButton';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile, usePageContent, useLanguage } from '@/stores';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
@@ -49,7 +49,9 @@ export default function EventCard({
   isLoading,
   error,
 }: EventCardProps) {
-  const { isMobile, pageContent, language } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const language = useLanguage();
   const { data: session } = useSession();
   const { darkMode } = useTheme();
   const token = session?.user?.token;
