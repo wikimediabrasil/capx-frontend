@@ -1,8 +1,10 @@
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
 import { useApp } from '@/contexts/AppContext';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
@@ -12,18 +14,15 @@ import InfoFilledIcon from '@/public/static/images/info_filled.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
 import MetabaseIcon from '@/public/static/images/metabase_black.svg';
 import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
+import { profileService } from '@/services/profileService';
+import { userService } from '@/services/userService';
 import { Capacity } from '@/types/capacity';
+import { UserProfile } from '@/types/user';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useMemo, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { profileService } from '@/services/profileService';
-import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { UserProfile } from '@/types/user';
-import { useUserCapacities } from '@/hooks/useUserCapacities';
-import { userService } from '@/services/userService';
 
 interface CapacityCardProps {
   code: number;
@@ -251,11 +250,9 @@ export function CapacityCard({
   isSearch,
   onInfoClick,
   level,
-  rootColor,
   isInfoExpanded,
   onToggleInfo,
 }: CapacityCardProps) {
-  const router = useRouter();
   const { isMobile, pageContent, language } = useApp();
   const { darkMode } = useTheme();
   const { isFallbackTranslation } = useCapacityCache();
@@ -1142,7 +1139,6 @@ const ChildCard: React.FC<ChildCardProps> = ({
   color,
   icon,
   handleCardClick,
-  handleCardKeyDown,
   renderIcon,
   renderInfoButton,
   renderArrowButton,

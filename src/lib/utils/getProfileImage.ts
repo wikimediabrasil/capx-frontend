@@ -5,11 +5,10 @@ import { Avatar } from '@/types/avatar';
 export const getProfileImage = (
   profileImage: string | null | undefined,
   avatarId: number | null | undefined,
-  avatars?: Avatar[],
-  _darkMode: boolean = false
+  avatars?: Avatar[]
 ): string => {
   // If there is a profile image, normalize Wikimedia URLs to a direct/thumbnail URL
-  if (profileImage && profileImage.trim()) {
+  if (profileImage?.trim()) {
     return formatWikiImageUrl(profileImage.trim());
   }
 

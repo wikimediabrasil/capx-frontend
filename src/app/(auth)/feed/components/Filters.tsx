@@ -22,10 +22,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTerritories } from '@/hooks/useTerritories';
 import UserIcon from '@/public/static/images/account_circle.svg';
 import UserIconWhite from '@/public/static/images/account_circle_white.svg';
-import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import { useSession } from 'next-auth/react';
-import { FilterState, ProfileCapacityType, Skill } from '../types';
+import { FilterState, ProfileCapacityType } from '../types';
 import { AffiliationSelector } from './AffiliationSelector';
 import { CheckboxButton } from './CheckboxButton';
 import { LanguageSelector } from './LanguageSelector';
@@ -70,51 +68,6 @@ function FilterSectionHeader({
     <div className="flex items-center gap-2">
       <Image src={darkMode ? iconWhite : icon} alt={`${title} icon`} width={24} height={24} />
       <h2 className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>{title}</h2>
-    </div>
-  );
-}
-
-// Component: Selected Capacities List
-interface SelectedCapacitiesListProps {
-  readonly capacities: Skill[];
-  readonly onRemove: (code: number) => void;
-  readonly darkMode: boolean;
-  readonly removeIconAlt: string;
-}
-
-function _SelectedCapacitiesList({
-  capacities,
-  onRemove,
-  darkMode,
-  removeIconAlt,
-}: Readonly<SelectedCapacitiesListProps>) {
-  if (capacities.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {capacities.map((capacity, index) => (
-        <div
-          key={index}
-          className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[150px] shrink-0 ${
-            darkMode ? 'bg-gray-700' : 'bg-gray-100'
-          }`}
-        >
-          <span className="truncate" title={capacity.name}>
-            {capacity.name}
-          </span>
-          <button
-            onClick={() => onRemove(capacity.code)}
-            className="hover:opacity-80 flex-shrink-0"
-          >
-            <Image
-              src={darkMode ? CloseIconWhite : CloseIcon}
-              alt={removeIconAlt}
-              width={16}
-              height={16}
-            />
-          </button>
-        </div>
-      ))}
     </div>
   );
 }
