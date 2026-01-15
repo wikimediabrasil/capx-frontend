@@ -175,13 +175,10 @@ export const CapacityCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         // Fetch root capacities
-        const rootCapacities = await capacityService.fetchCapacities(
-          {
-            params: { language: newLanguage },
-            headers: { Authorization: `Token ${session.user.token}` },
-          },
-          newLanguage
-        );
+        const rootCapacities = await capacityService.fetchCapacities({
+          params: { language: newLanguage },
+          headers: { Authorization: `Token ${session.user.token}` },
+        });
 
         if (!rootCapacities || rootCapacities.length === 0) {
           setIsLoadingTranslations(false);

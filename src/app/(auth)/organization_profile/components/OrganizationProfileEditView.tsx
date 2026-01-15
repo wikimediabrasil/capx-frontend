@@ -143,7 +143,7 @@ export default function OrganizationProfileEditView({
                   <Image
                     src={
                       userProfileImageUrl ||
-                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                      getProfileImage(undefined, userProfile?.avatar, avatars)
                     }
                     alt="Avatar"
                     fill
@@ -234,7 +234,7 @@ export default function OrganizationProfileEditView({
                   <Image
                     src={
                       userProfileImageUrl ||
-                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                      getProfileImage(undefined, userProfile?.avatar, avatars)
                     }
                     alt="User Profile Image"
                     fill
