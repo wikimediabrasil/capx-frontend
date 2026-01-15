@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { CAPACITY_CACHE_KEYS } from '@/hooks/useCapacitiesQuery';
+import { CAPACITY_CACHE_KEYS as _CAPACITY_CACHE_KEYS } from '@/hooks/useCapacitiesQuery';
 import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 
 /**

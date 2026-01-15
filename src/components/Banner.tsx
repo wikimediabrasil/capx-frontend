@@ -21,7 +21,7 @@ interface BannerProps {
 }
 
 export default function Banner({ image, title, alt, customClass = {} }: BannerProps) {
-  const isResponsiveImage = (value: any): value is ResponsiveImageTitle =>
+  const _isResponsiveImage = (value: any): value is ResponsiveImageTitle =>
     value && typeof value === 'object' && 'mobile' in value;
 
   return (

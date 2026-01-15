@@ -33,7 +33,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
 
-  const [searchCapacity, setSearchCapacity] = useState('');
+  const [searchCapacity, _setSearchCapacity] = useState('');
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
 

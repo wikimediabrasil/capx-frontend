@@ -116,7 +116,7 @@ export const ProfileSimpleField: React.FC<ProfileSimpleFieldProps> = ({ icon, ti
   const { darkMode } = useTheme();
   const { isMobile } = useApp();
 
-  const iconSize = isMobile ? 20 : 48;
+  const _iconSize = isMobile ? 20 : 48;
   const titleSize = isMobile ? 'text-[14px]' : 'text-[24px]';
   const contentSize = isMobile ? 'text-[14px]' : 'text-[24px]';
 

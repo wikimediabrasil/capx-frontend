@@ -19,7 +19,7 @@ export default function VideoSection() {
     'https://upload.wikimedia.org/wikipedia/commons/5/59/Meet_the_Capacity_Exchange.webm';
 
   const captionsUrl = '/static/captions/capacity-exchange.vtt';
-  const transcriptUrl = '/static/captions/capacity-exchange.txt';
+  const _transcriptUrl = '/static/captions/capacity-exchange.txt';
 
   const handleOpenPopup = () => setIsPopupOpen(true);
   const handleClosePopup = () => setIsPopupOpen(false);

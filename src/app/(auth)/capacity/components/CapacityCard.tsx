@@ -226,7 +226,7 @@ const renderIconByType = (
   renderIcon: (size: number, iconSrc: string) => React.ReactNode,
   isRoot?: boolean,
   isMobile?: boolean,
-  parentCapacity?: Capacity
+  _parentCapacity?: Capacity
 ) => {
   if (icon && isRoot) {
     return isMobile ? renderIcon(32, icon) : renderIcon(48, icon);

@@ -42,13 +42,13 @@ export default function D3TreeVisualization({
   const svgRef = useRef<SVGSVGElement>(null);
   const zoomRef = useRef<any>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [selectedNodeCoords, setSelectedNodeCoords] = useState<{ x: number; y: number } | null>(
+  const [_selectedNodeCoords, setSelectedNodeCoords] = useState<{ x: number; y: number } | null>(
     null
   );
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
   const { darkMode, setDarkMode } = useTheme();
-  const { language, pageContent } = useApp();
+  const { language: _language, pageContent } = useApp();
   const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when theme changes
 
   // Listen for system theme changes
@@ -268,11 +268,11 @@ export default function D3TreeVisualization({
       bottom: isMobile ? 0 : 20,
       left: 50,
     };
-    const innerWidth = isMobile ? 1200 : width - margin.left - margin.right; // Force fixed width on mobile
-    const innerHeight = height - margin.top - margin.bottom;
+    const _innerWidth = isMobile ? 1200 : width - margin.left - margin.right; // Force fixed width on mobile
+    const _innerHeight = height - margin.top - margin.bottom;
 
     // Adjust SVG width for vertical root layout
-    const adjustedWidth = Math.max(width, 400); // Fixed width for a column
+    const _adjustedWidth = Math.max(width, 400); // Fixed width for a column
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
@@ -318,7 +318,7 @@ export default function D3TreeVisualization({
         // Process children if expanded
         if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
           // Calculate spacing based on child names length
-          const childNames = node.children.map((c: any) => c.data.name);
+          const _childNames = node.children.map((c: any) => c.data.name);
           const minChildSpacing = 50; // Reduced minimum spacing between children
           const spacingPerChildChar = 2; // Reduced additional spacing per character
 
@@ -361,7 +361,7 @@ export default function D3TreeVisualization({
             // Process grandchildren if expanded
             if (expandedNodes.has(child.data.id) && child.children && child.children.length > 0) {
               // Calculate spacing based on grandchild names length
-              const grandChildNames = child.children.map((gc: any) => gc.data.name);
+              const _grandChildNames = child.children.map((gc: any) => gc.data.name);
               const minGrandChildSpacing = 40; // Reduced minimum spacing between grandchildren
               const spacingPerGrandChildChar = 1; // Reduced additional spacing per character
 
@@ -413,7 +413,7 @@ export default function D3TreeVisualization({
     });
 
     // Add links (connections) - using smooth curves instead of straight lines
-    const link = container
+    const _link = container
       .selectAll('.link')
       .data(allLinks)
       .enter()
@@ -432,7 +432,7 @@ export default function D3TreeVisualization({
         return `M ${d.source.x} ${d.source.y} Q ${controlX} ${controlY} ${d.target.x} ${d.target.y}`;
       })
       .style('fill', 'none')
-      .style('stroke', (d: any) => {
+      .style('stroke', (_d: any) => {
         const linkColor = darkMode ? '#9ca3af' : '#9ca3af'; // More visible in both themes
         return linkColor;
       })
@@ -489,7 +489,7 @@ export default function D3TreeVisualization({
           toggleNode(d.data.id, false); // isRoot = false for child capacities
         }
       })
-      .on('mouseover', function (event: any, d: any) {
+      .on('mouseover', function (_event: any, _d: any) {
         d3.select(this)
           .select('circle')
           .transition()
@@ -503,7 +503,7 @@ export default function D3TreeVisualization({
             return isMobile ? 12 : 8; // Smaller grandchildren on mobile
           });
       })
-      .on('mouseout', function (event: any, d: any) {
+      .on('mouseout', function (_event: any, _d: any) {
         d3.select(this)
           .select('circle')
           .transition()
@@ -622,7 +622,7 @@ export default function D3TreeVisualization({
         if (d.depth === 0) return `${nodeFontSize}px`;
         return isMobile ? '24px' : '18px';
       })
-      .style('fill', (d: any) => {
+      .style('fill', (_d: any) => {
         const textColor = darkMode ? '#ffffff' : '#000000'; // More contrast
         return textColor;
       })
@@ -747,7 +747,7 @@ export default function D3TreeVisualization({
   };
 
   const adjustedWidth = calculateAdjustedWidth();
-  const adjustedHeight = calculateAdjustedHeight();
+  const _adjustedHeight = calculateAdjustedHeight();
 
   return (
     <div className="w-full">

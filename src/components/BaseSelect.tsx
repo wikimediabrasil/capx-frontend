@@ -4,7 +4,7 @@ import ArrowDropDownCircle from '../../public/static/images/arrow_drop_down_circ
 import ArrowDropDownCircleWhite from '../../public/static/images/arrow_drop_down_circle_white.svg';
 import Image from 'next/image';
 
-interface Option {
+interface _Option {
   value: string;
   label: string;
 }
@@ -34,7 +34,7 @@ const DropdownIndicator = (isMobile: boolean, darkMode: boolean, pageContent: an
   />
 );
 
-const PADDING = {
+const _PADDING = {
   mobile: {
     x: '!px-4', // 16px
     y: '!py-2', // 8px
@@ -90,7 +90,7 @@ const customStyles = (darkMode: boolean) => ({
 export default function BaseSelect({
   name,
   options,
-  defaultValue,
+  defaultValue: _defaultValue,
   value,
   onChange,
   ariaLabel,
