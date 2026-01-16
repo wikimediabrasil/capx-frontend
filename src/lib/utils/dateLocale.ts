@@ -176,7 +176,7 @@ export function applyLocaleToDateInput(element: HTMLInputElement, language: stri
 
     // Temporarily change the type to force re-rendering
     element.type = 'text';
-    element.offsetHeight; // Trigger reflow
+    void element.offsetHeight; // Trigger reflow
     element.type = currentType;
     element.value = currentValue;
 

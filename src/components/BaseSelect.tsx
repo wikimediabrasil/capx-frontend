@@ -138,15 +138,11 @@ export default function BaseSelect({
           indicatorSeparator: () => 'hidden',
           dropdownIndicator: () =>
             `flex items-center ${isMobile ? '!w-[20px] !h-[20px]' : '!w-[40px] !h-[40px]'}`,
-          option: ({ isSelected }) =>
+          option: () =>
             `${
-              isSelected
-                ? darkMode
-                  ? 'bg-capx-dark-bg text-capx-light-text'
-                  : 'bg-capx-light-bg text-capx-dark-text'
-                : darkMode
-                  ? 'bg-capx-dark-bg text-capx-light-text'
-                  : 'bg-capx-light-bg text-capx-dark-text'
+              darkMode
+                ? 'bg-capx-dark-bg text-capx-light-text'
+                : 'bg-capx-light-bg text-capx-dark-text'
             } p-4 font-bold hover:bg-capx-light-bg hover:text-capx-dark-text`,
           menu: () =>
             `rounded-lg shadow-lg border-2 ${

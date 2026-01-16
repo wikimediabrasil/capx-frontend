@@ -432,10 +432,7 @@ export default function D3TreeVisualization({
         return `M ${d.source.x} ${d.source.y} Q ${controlX} ${controlY} ${d.target.x} ${d.target.y}`;
       })
       .style('fill', 'none')
-      .style('stroke', (_d: any) => {
-        const linkColor = darkMode ? '#9ca3af' : '#9ca3af'; // More visible in both themes
-        return linkColor;
-      })
+      .style('stroke', '#9ca3af') // More visible in both themes
       .style('stroke-width', '2px')
       .style('stroke-linecap', 'round') // Rounded ends
       .style('opacity', (d: any) => {
@@ -818,7 +815,7 @@ export default function D3TreeVisualization({
         {/* D3 Visualization */}
         <div className="flex-1 relative">
           <div
-            className={`w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar${isMobile ? ' overflow-x-auto' : ' overflow-x-auto'}`}
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar overflow-x-auto"
             style={{
               overflowY: 'hidden',
               height: svgHeight,

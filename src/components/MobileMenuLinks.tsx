@@ -211,13 +211,7 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
         >
           <span
             className={`font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] ${
-              isExpanded
-                ? darkMode
-                  ? 'text-white'
-                  : 'text-[#053749]'
-                : darkMode
-                  ? 'text-white'
-                  : 'text-[#053749]'
+              darkMode ? 'text-white' : 'text-[#053749]'
             }`}
           >
             {item.title}
