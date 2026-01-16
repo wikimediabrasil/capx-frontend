@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import BaseButton from '@/components/BaseButton';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';

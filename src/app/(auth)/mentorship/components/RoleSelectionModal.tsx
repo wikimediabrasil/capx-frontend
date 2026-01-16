@@ -5,8 +5,6 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
-import MentorIcon from '@/public/static/images/mentor.svg';
-import MenteeIcon from '@/public/static/images/mentee.svg';
 
 interface RoleSelectionModalProps {
   isOpen: boolean;

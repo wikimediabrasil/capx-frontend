@@ -73,7 +73,7 @@ export function ProfileItem({
     getItemName: (id: string | number) => string,
     pageContent: Record<string, string>,
     setLocalNames: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>,
-    timeoutRefs: React.MutableRefObject<{ [key: string]: NodeJS.Timeout }>
+    _timeoutRefs: React.MutableRefObject<{ [key: string]: NodeJS.Timeout }>
   ) {
     const idStr = id.toString();
     const currentName = getItemName(id);
@@ -217,7 +217,7 @@ export function ProfileItem({
           {items.length > 0 ? (
             <>
               {/* Only show the first 8 items */}
-              {(isExpanded || !needsToggle ? items : items.slice(0, 8)).map((item, index) => {
+              {(isExpanded || !needsToggle ? items : items.slice(0, 8)).map((item, _index) => {
                 const name = getDisplayName(item);
                 return (
                   <div

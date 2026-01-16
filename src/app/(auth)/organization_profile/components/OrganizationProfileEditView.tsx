@@ -60,7 +60,7 @@ export default function OrganizationProfileEditView({
   contactsData,
   setContactsData,
   documentsData,
-  setDocumentsData,
+  setDocumentsData: _setDocumentsData,
   isModalOpen,
   setIsModalOpen,
   currentCapacityType,
@@ -74,11 +74,11 @@ export default function OrganizationProfileEditView({
   handleDiffTagChange,
   handleAddDiffTag,
   eventsData,
-  handleEventChange,
+  handleEventChange: _handleEventChange,
   handleAddEvent,
   handleDeleteDocument,
   handleDocumentChange,
-  capacities,
+  capacities: _capacities,
   handleEditEvent,
   handleChooseEvent,
   handleViewAllEvents,
@@ -93,7 +93,7 @@ export default function OrganizationProfileEditView({
   const router = useRouter();
 
   // Load user profile image correctly
-  const { profileImageUrl: userProfileImageUrl, isLoading: isUserImageLoading } = useProfileImage({
+  const { profileImageUrl: userProfileImageUrl, isLoading: _isUserImageLoading } = useProfileImage({
     isOrganization: false,
     avatar: userProfile?.avatar,
     wikidataQid: userProfile?.wikidata_qid,
@@ -143,7 +143,7 @@ export default function OrganizationProfileEditView({
                   <Image
                     src={
                       userProfileImageUrl ||
-                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                      getProfileImage(undefined, userProfile?.avatar, avatars)
                     }
                     alt="Avatar"
                     fill
@@ -234,7 +234,7 @@ export default function OrganizationProfileEditView({
                   <Image
                     src={
                       userProfileImageUrl ||
-                      getProfileImage(undefined, userProfile?.avatar, avatars, darkMode)
+                      getProfileImage(undefined, userProfile?.avatar, avatars)
                     }
                     alt="User Profile Image"
                     fill
@@ -448,7 +448,7 @@ export default function OrganizationProfileEditView({
                 helpText: pageContent['edit-profile-wanted-capacities'],
                 showImport: false,
               },
-            ].map(({ type, icon, title, borderColor, helpText, showImport }) => {
+            ].map(({ type, icon, title, borderColor: _borderColor, helpText, showImport }) => {
               let capacityField = '';
               if (type === 'known') {
                 capacityField = 'known_capacities';

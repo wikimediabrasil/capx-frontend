@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { LetsConnectService } from '@/services/letsConnectService';
 import { LetsConnect } from '@/types/lets_connect';
 import { LetsConnectProfile } from '@/types/profile';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
 export function useLetsConnect() {
   const { data: session } = useSession();
@@ -42,8 +42,8 @@ export function useLetsConnect() {
       }
       setLetsConnectData(response);
       return response;
-    } catch (err) {
-      setError('Failed to fetch LetsConnect data');
+    } catch (error) {
+      setError('Failed to fetch LetsConnect data, error: ' + error);
       return null;
     } finally {
       setIsLoading(false);

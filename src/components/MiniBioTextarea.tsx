@@ -82,7 +82,7 @@ export default function MiniBioTextarea({
           }
 
           .minibio-textarea::-webkit-scrollbar-thumb:hover {
-            background: ${darkMode ? '#6B7280' : '#6B7280'};
+            background: #6b7280;
           }
 
           .minibio-textarea::-webkit-scrollbar-corner {

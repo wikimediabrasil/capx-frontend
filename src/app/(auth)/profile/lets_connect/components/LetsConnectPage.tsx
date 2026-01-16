@@ -9,7 +9,6 @@ import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
-import { useProfile } from '@/hooks/useProfile';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import EditIcon from '@/public/static/images/edit.svg';
@@ -24,7 +23,6 @@ import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_w
 import UserCheckIcon from '@/public/static/images/user_check.svg';
 import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
 import { LetsConnect } from '@/types/lets_connect';
-import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -74,7 +72,7 @@ export default function LetsConnectPage() {
   const infoPopupText = pageContent['lets-connect-info-popup-message']?.split(/\$\d/);
 
   // Function to translate values to english using the en.json file
-  const translateToEnglish = (value: string, type: 'role' | 'gender' | 'area'): string => {
+  const translateToEnglish = (value: string, _type: 'role' | 'gender' | 'area'): string => {
     // Map the keys of pageContent to the keys of en.json
     const keyMapping: Record<string, string> = {
       // Role mappings

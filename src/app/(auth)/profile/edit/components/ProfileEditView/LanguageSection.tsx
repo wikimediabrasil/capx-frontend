@@ -8,7 +8,6 @@ import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import { Profile } from '@/types/profile';
-import { FormSelect } from './FormSelect';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
 

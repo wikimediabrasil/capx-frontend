@@ -38,7 +38,7 @@ export default function MentorshipProgramCard({
     setShowRoleModal(true);
   };
 
-  const handleRoleSelect = (role: 'mentor' | 'mentee', program: MentorshipProgram) => {
+  const handleRoleSelect = (role: 'mentor' | 'mentee', _program: MentorshipProgram) => {
     setShowRoleModal(false);
     setSelectedRole(role);
     setShowForm(true);

@@ -1,3 +1,5 @@
+import { JSX } from 'react';
+
 /**
  * Text parsing and rendering helper functions for ProfileEditView
  * Handles complex text transformations like inserting links into translated text

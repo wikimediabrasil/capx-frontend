@@ -5,7 +5,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import BaseButton from '@/components/BaseButton';
 import { EventRecommendation } from '@/types/recommendation';
-import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
 import CalendarLightIcon from '@/public/static/images/calendar_month.svg';
 import CalendarDarkIcon from '@/public/static/images/calendar_month_dark.svg';

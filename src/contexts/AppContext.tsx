@@ -1,6 +1,6 @@
 'use client';
 import { setDocumentLocale } from '@/lib/utils/dateLocale';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AppContextType {
   isMobile: boolean;

@@ -76,7 +76,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   try {
-    const response = await axios.delete(`${process.env.BASE_URL}/events/${id}/`, {
+    await axios.delete(`${process.env.BASE_URL}/events/${id}/`, {
       headers: {
         Authorization: authHeader,
         'Content-Type': 'application/json',

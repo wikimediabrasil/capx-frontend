@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    if (!codeList.data.hasOwnProperty(tagId)) {
+    if (!Object.hasOwn(codeList.data, tagId)) {
       return NextResponse.json({ error: 'No item for this tag id.' }, { status: 404 });
     }
 

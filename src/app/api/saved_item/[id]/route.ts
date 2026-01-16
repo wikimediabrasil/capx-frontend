@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params: _params }: { params: { id: string } }
+) {
   try {
     const authHeader = request.headers.get('authorization');
     const id = request.nextUrl.pathname.split('/').pop();

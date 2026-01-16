@@ -34,7 +34,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
     ...(profile ?? {}),
   };
 
-  const hasSkillsOrLanguages =
+  const _hasSkillsOrLanguages =
     (Array.isArray(fd.language) && fd.language.length > 0) ||
     (Array.isArray(fd.skills_known) && fd.skills_known.length > 0) ||
     (Array.isArray(fd.skills_available) && fd.skills_available.length > 0) ||

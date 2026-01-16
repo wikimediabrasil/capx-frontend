@@ -4,7 +4,7 @@ import MobileMenu from './MobileMenu';
 import CapXLogo from '../../public/static/images/capx_minimalistic_logo.svg';
 import Image from 'next/image';
 import NextLink from 'next/link';
-import AuthButton from './AuthButton';
+import _AuthButton from './AuthButton';
 import LanguageSelect from './LanguageSelect';
 import DarkModeButton from './DarkModeButton';
 import BurgerMenu from '@/public/static/images/burger_menu.svg';

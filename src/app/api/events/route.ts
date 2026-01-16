@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       timeout: 30000, // 30 seconds timeout
-      validateStatus: function (status) {
+      validateStatus: function () {
         return true; // Don't throw for any status code, we'll handle it manually
       },
     });
