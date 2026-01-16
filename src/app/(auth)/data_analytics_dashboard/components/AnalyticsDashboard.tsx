@@ -109,7 +109,7 @@ function StatCard({ title, value, subtitle, subtitleColor, darkMode }: Readonly<
         {title}
       </p>
       <p className={`font-[Montserrat] text-[36px] md:text-[96px] font-bold ${textColor}`}>
-        {formatNumber(value)}
+        {value}
       </p>
       <p
         className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal md:leading-[29px] ${subtitleColor}`}
@@ -211,7 +211,9 @@ export default function AnalyticsDashboardPage() {
   const [visibleLanguagesCount, setVisibleLanguagesCount] = useState(8);
 
   const sortedTerritories = getTopItems(territories, data?.territory_user_counts, 8);
-  const sortedLanguages = getTopItems(languages, data?.language_user_counts);
+  const sortedLanguages = getTopItems(languages, data?.language_user_counts).filter(
+    lang => lang.count > 0
+  );
   const visibleLanguages = sortedLanguages.slice(0, visibleLanguagesCount);
 
   const handleLoadMoreLanguages = () => {

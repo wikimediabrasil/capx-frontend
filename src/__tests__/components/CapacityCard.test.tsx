@@ -35,7 +35,8 @@ jest.mock('@/contexts/AppContext', () => ({
       'capacity-added-known': 'Capacity added to known',
       'capacity-added-wanted': 'Capacity added to wanted',
       'capacity-card-profile-info': 'This will be added to your personal profile.',
-      'capacity-card-org-profile-info': 'To add capacities to an organization profile, please visit the organization profile edit page.',
+      'capacity-card-org-profile-info':
+        'To add capacities to an organization profile, please visit the organization profile edit page.',
       loading: 'Loading...',
     },
   }),
@@ -72,13 +73,15 @@ jest.mock('@/hooks/useUserCapacities', () => ({
 
 jest.mock('@/services/userService', () => ({
   userService: {
-    fetchUserProfile: jest.fn(() => Promise.resolve({
-      id: 123,
-      skills_known: [],
-      skills_available: [],
-      skills_wanted: [],
-      language: ['en'],
-    })),
+    fetchUserProfile: jest.fn(() =>
+      Promise.resolve({
+        id: 123,
+        skills_known: [],
+        skills_available: [],
+        skills_wanted: [],
+        language: ['en'],
+      })
+    ),
   },
 }));
 
