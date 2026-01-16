@@ -4,15 +4,16 @@ import { useApp } from '@/contexts/AppContext';
 import { useSession } from 'next-auth/react';
 import Footer from './Footer';
 import { useTheme } from '@/contexts/ThemeContext';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { useState, useEffect } from 'react';
 
 interface BaseWrapperProps {
   children: React.ReactNode;
 }
 
-function ErrorFallback({ error }: { error: Error }) {
+function ErrorFallback({ error }: FallbackProps) {
   const { pageContent } = useApp();
+  const errorMessage = error instanceof Error ? error.message : String(error);
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
@@ -21,7 +22,7 @@ function ErrorFallback({ error }: { error: Error }) {
         </h2>
         <p className="text-gray-700 mb-4">{pageContent['error-fallback-description']}</p>
         <div className="text-sm text-left bg-gray-100 p-3 rounded mb-4 overflow-auto max-h-32">
-          <pre>{error.message}</pre>
+          <pre>{errorMessage}</pre>
         </div>
         <button
           onClick={() => window.location.reload()}
