@@ -1,14 +1,14 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import Image from 'next/image';
 import AuthButton from '@/components/AuthButton';
 import BaseButton from '@/components/BaseButton';
 import BaseWrapper from '@/components/BaseWrapper';
-import { useRouter } from 'next/navigation';
-import ConnectIllustration from '@/public/static/images/connect_wikimedians_illustration.svg';
+import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import ConnectIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
+import ConnectIllustration from '@/public/static/images/connect_wikimedians_illustration.svg';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 function SignInRequiredContent() {
   const { isMobile, pageContent } = useApp();
@@ -103,7 +103,7 @@ function SignInRequiredContent() {
 
           <div className="flex flex-row items-center gap-4">
             <AuthButton
-              message={pageContent['sign-in-button'] || 'Login'}
+              message={pageContent['sign-in-button'] || 'Log in'}
               customClass="px-8 py-4"
             />
             <BaseButton
