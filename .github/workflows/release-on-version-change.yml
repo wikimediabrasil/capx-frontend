@@ -18,10 +18,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Read versions from package.json
+        run: |
+          YARN_VERSION=$(jq -r '.packageManager' package.json | cut -d'@' -f2)
+          NODE_VERSION=$(jq -r '.engines.node' package.json)
+          echo "YARN_VERSION=$YARN_VERSION" >> $GITHUB_ENV
+          echo "NODE_VERSION=$NODE_VERSION" >> $GITHUB_ENV
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Check if version field changed
         id: check_version_change
@@ -58,6 +65,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Read versions from package.json
+        run: |
+          YARN_VERSION=$(jq -r '.packageManager' package.json | cut -d'@' -f2)
+          NODE_MAJOR=$(jq -r '.engines.node' package.json | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+          echo "YARN_VERSION=$YARN_VERSION" >> $GITHUB_ENV
+          echo "NODE_MAJOR=$NODE_MAJOR" >> $GITHUB_ENV
+
       - name: Run deployment script
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
@@ -65,12 +79,15 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
+          envs: YARN_VERSION,NODE_MAJOR
           request_pty: true
           script_stop: true
           script: |
             become capx git -C '$HOME/www/js' fetch origin
             become capx git -C '$HOME/www/js' reset --hard origin/main
             become capx git -C '$HOME/www/js' pull origin main
-            become capx webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install --pure-lockfile
-            become capx webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build
+            become capx webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- npx corepack enable --install-directory '$HOME/.local/bin'
+            become capx webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- corepack prepare yarn@${YARN_VERSION} --activate
+            become capx webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- yarn --cwd '$HOME/www/js' install
+            become capx webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- yarn --cwd '$HOME/www/js' build
             become capx webservice restart
