@@ -658,5 +658,8 @@
   "mentorship-application-forwarded": "I've forwarded your application to the mentorship program. They will contact you directly soon.",
   "more-mentorships": "More mentorships",
   "close": "Close",
-  "mentorship-programs-alt": "Mentorship Programs"
+  "mentorship-programs-alt": "Mentorship Programs",
+  "sign-in-required-title": "Sign in to continue",
+  "sign-in-required-description": "You need to be logged in to access this page. Join CapX to connect with Wikimedians and exchange capacities.",
+  "sign-in-required-go-home": "Go to home page"
 }
