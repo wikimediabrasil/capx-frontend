@@ -111,11 +111,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         <div className="flex justify-between gap-4 mt-4">
           <button
             onClick={onClose}
-            className={`flex-1 py-3 rounded-lg border font-extrabold text-capx-font-size-mobile-lg sm:text-capx-font-size-mobile-lg md:text-capx-font-size-desktop-lg lg:text-capx-font-size-desktop-lg transition ${
-              darkMode
-                ? 'bg-white text-capx-dark-box-bg border-capx-dark-box-bg'
-                : 'bg-white text-capx-dark-box-bg border-capx-dark-box-bg'
-            }`}
+            className="flex-1 py-3 rounded-lg border font-extrabold text-capx-font-size-mobile-lg sm:text-capx-font-size-mobile-lg md:text-capx-font-size-desktop-lg lg:text-capx-font-size-desktop-lg transition bg-white text-capx-dark-box-bg border-capx-dark-box-bg"
           >
             {pageContent['delete-confirmation-close-tab'] || 'Close tab'}
           </button>

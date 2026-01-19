@@ -70,7 +70,7 @@ export function EventsSearch({
   const {
     events,
     isLoading: isEventsLoading,
-    error: eventsError,
+    error: _eventsError,
   } = useEvents(session?.user?.token, 100, 0, organizationId);
 
   // Store the last search term to avoid duplicate requests

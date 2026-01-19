@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { capacityService } from '@/services/capacityService';
 import { CAPACITY_CACHE_KEYS } from './useCapacities';
-import { CapacityResponse } from '@/types/capacity';
+import { CapacityResponse as _CapacityResponse } from '@/types/capacity';
 
 interface CapacityProfileData {
   description: string;
@@ -26,7 +26,7 @@ export function useCapacityProfile(selectedCapacityId: string, language: string 
     queryFn: async () => {
       if (!selectedCapacityId || !token) return null;
 
-      const queryData = {
+      const _queryData = {
         params: { language },
         headers: {
           Authorization: `Token ${token}`,
@@ -51,7 +51,7 @@ export function useCapacityProfile(selectedCapacityId: string, language: string 
   });
 
   // Função para forçar a atualização dos dados
-  const refreshCapacityData = (newLanguage: string = language) => {
+  const refreshCapacityData = (_newLanguage: string = language) => {
     return refetch();
   };
 

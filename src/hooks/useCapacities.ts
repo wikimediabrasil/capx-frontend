@@ -72,12 +72,10 @@ export function prefetchAllCapacityData(
   return queryClient.prefetchQuery({
     queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
-      const rootCapacities = await capacityService.fetchCapacities(
-        {
-          headers: { Authorization: `Token ${token}` },
-        },
-        language
-      );
+      const rootCapacities = await capacityService.fetchCapacities({
+        params: { language },
+        headers: { Authorization: `Token ${token}` },
+      });
 
       // 2. For each root capacity, prefetch its children
       const childrenPromises = rootCapacities.map(async rootCapacity => {
@@ -253,12 +251,10 @@ export function useCapacities(language: string = 'en') {
     queryKey: CAPACITY_CACHE_KEYS.root(language),
     queryFn: async () => {
       if (!token) return [];
-      return capacityService.fetchCapacities(
-        {
-          headers: { Authorization: `Token ${token}` },
-        },
-        language
-      );
+      return capacityService.fetchCapacities({
+        params: { language },
+        headers: { Authorization: `Token ${token}` },
+      });
     },
     enabled: !!token,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours

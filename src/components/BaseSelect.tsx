@@ -4,7 +4,7 @@ import ArrowDropDownCircle from '../../public/static/images/arrow_drop_down_circ
 import ArrowDropDownCircleWhite from '../../public/static/images/arrow_drop_down_circle_white.svg';
 import Image from 'next/image';
 
-interface Option {
+interface _Option {
   value: string;
   label: string;
 }
@@ -34,7 +34,7 @@ const DropdownIndicator = (isMobile: boolean, darkMode: boolean, pageContent: an
   />
 );
 
-const PADDING = {
+const _PADDING = {
   mobile: {
     x: '!px-4', // 16px
     y: '!py-2', // 8px
@@ -90,7 +90,7 @@ const customStyles = (darkMode: boolean) => ({
 export default function BaseSelect({
   name,
   options,
-  defaultValue,
+  defaultValue: _defaultValue,
   value,
   onChange,
   ariaLabel,
@@ -138,15 +138,11 @@ export default function BaseSelect({
           indicatorSeparator: () => 'hidden',
           dropdownIndicator: () =>
             `flex items-center ${isMobile ? '!w-[20px] !h-[20px]' : '!w-[40px] !h-[40px]'}`,
-          option: ({ isSelected }) =>
+          option: () =>
             `${
-              isSelected
-                ? darkMode
-                  ? 'bg-capx-dark-bg text-capx-light-text'
-                  : 'bg-capx-light-bg text-capx-dark-text'
-                : darkMode
-                  ? 'bg-capx-dark-bg text-capx-light-text'
-                  : 'bg-capx-light-bg text-capx-dark-text'
+              darkMode
+                ? 'bg-capx-dark-bg text-capx-light-text'
+                : 'bg-capx-light-bg text-capx-dark-text'
             } p-4 font-bold hover:bg-capx-light-bg hover:text-capx-dark-text`,
           menu: () =>
             `rounded-lg shadow-lg border-2 ${

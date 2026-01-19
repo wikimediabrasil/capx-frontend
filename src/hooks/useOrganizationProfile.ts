@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { FilterState, ProfileCapacityType } from '@/app/(auth)/feed/types';
 import {
   OrganizationFilters,
   organizationProfileService,
 } from '@/services/organizationProfileService';
 import { Organization } from '@/types/organization';
-import { useSession } from 'next-auth/react';
-import { FilterState } from '@/app/(auth)/feed/types';
-import { ProfileCapacityType } from '@/app/(auth)/feed/types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export function useOrganization(token?: string, specificOrgId?: number) {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -16,17 +14,13 @@ export function useOrganization(token?: string, specificOrgId?: number) {
   const [error, setError] = useState<string | null>(null);
   const [managedOrganizationIds, setManagedOrganizationIds] = useState<number[]>([]);
   const [isPermissionsLoaded, setIsPermissionsLoaded] = useState(false);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
-
-  // Store references to already fetched data to avoid refetches
-  const orgCacheRef = useRef<Map<number, { data: Organization; timestamp: number }>>(new Map());
 
   const fetchUserProfile = useCallback(async (token: string) => {
     try {
       const userProfile = await organizationProfileService.getUserProfile(token);
       return userProfile.is_manager;
-    } catch (err) {
-      console.error('Error fetching user profile:', err);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
       return [];
     }
   }, []);
@@ -37,8 +31,8 @@ export function useOrganization(token?: string, specificOrgId?: number) {
         orgIds.map(id => organizationProfileService.getOrganizationById(token, id))
       );
       return orgsData.filter(Boolean); // Remove any null values
-    } catch (err) {
-      console.error('Error fetching organizations:', err);
+    } catch (error) {
+      console.error('Error fetching organizations:', error);
       return [];
     }
   }, []);

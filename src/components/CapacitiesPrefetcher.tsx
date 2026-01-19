@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
@@ -29,7 +29,12 @@ export const CapacitiesPrefetcher = () => {
 };
 
 const CapacitiesPrefetcherInternal = () => {
-  const { updateLanguage, isLoaded, language, isLoadingTranslations } = useCapacityCache();
+  const {
+    updateLanguage,
+    isLoaded,
+    language: _language,
+    isLoadingTranslations,
+  } = useCapacityCache();
   const { data: session } = useSession();
   const { language: appLanguage } = useApp();
   const pathname = usePathname();

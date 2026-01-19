@@ -21,7 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`);
 
     // If the ID doesn't exist in the code list, return a generic capacity instead of an error
-    if (!codeList.data.hasOwnProperty(id)) {
+    if (!Object.hasOwn(codeList.data, id)) {
       return NextResponse.json({
         code: id,
         wd_code: null,

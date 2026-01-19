@@ -52,7 +52,7 @@ export default function FormMessage() {
   const [showInfoMethodPopup, setShowInfoMethodPopup] = useState(false);
   const [showNoEmailErrorPopup, setShowNoEmailErrorPopup] = useState(false);
   const [showUserNotFoundPopup, setShowUserNotFoundPopup] = useState(false);
-  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [_isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailCheckMessage, setEmailCheckMessage] = useState<string>('');
   const [receiverEmailStatus, setReceiverEmailStatus] = useState<
     'unknown' | 'checking' | 'available' | 'unavailable'

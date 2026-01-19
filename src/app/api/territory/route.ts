@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       },
     });
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch territories' }, { status: 500 });
   }
 }

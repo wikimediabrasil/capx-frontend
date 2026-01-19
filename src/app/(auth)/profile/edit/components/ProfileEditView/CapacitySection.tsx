@@ -6,12 +6,7 @@ import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.
 import AddIcon from '@/public/static/images/add.svg';
 import AddIconDark from '@/public/static/images/add_dark.svg';
 import { ResponsiveIcon } from './ResponsiveIcon';
-import {
-  CAPACITY_BORDER_COLORS,
-  RESPONSIVE_TEXT_SIZES,
-  RESPONSIVE_PADDING,
-  RESPONSIVE_BORDER_RADIUS,
-} from './utils';
+import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_PADDING, RESPONSIVE_BORDER_RADIUS } from './utils';
 
 interface CapacitySectionProps {
   type: 'known' | 'available' | 'wanted';

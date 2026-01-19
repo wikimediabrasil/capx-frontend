@@ -115,9 +115,7 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
             </h4>
             <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
               <span
-                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                  darkMode ? 'bg-[#053749] text-[#FFFFFF]' : 'bg-[#053749] text-[#FFFFFF]'
-                }`}
+                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${'bg-[#053749] text-[#FFFFFF]'}`}
               >
                 {submission.bug_type}
               </span>
@@ -136,9 +134,7 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
             </h4>
             <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
               <span
-                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                  darkMode ? 'bg-[#053749] text-[#FFFFFF]' : 'bg-[#053749] text-[#FFFFFF]'
-                }`}
+                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${'bg-[#053749] text-[#FFFFFF]'}`}
               >
                 {formatDateLocale(submission.created_at, language)}
               </span>
@@ -157,9 +153,7 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
             </h4>
             <div className={`mt-1 p-3 rounded-md ${darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]'}`}>
               <span
-                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${
-                  darkMode ? 'bg-[#053749] text-[#FFFFFF]' : 'bg-[#053749] text-[#FFFFFF]'
-                }`}
+                className={`text-[12px] md:text-[24px] font-light px-2 py-1 rounded-md ${'bg-[#053749] text-[#FFFFFF]'}`}
               >
                 {formatDateLocale(submission.updated_at, language)}
               </span>

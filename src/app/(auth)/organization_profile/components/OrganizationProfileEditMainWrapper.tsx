@@ -172,7 +172,7 @@ export default function EditOrganizationProfilePage() {
   const organizationId = params?.id as string;
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const { isMobile, pageContent, language } = useApp();
+  const { pageContent, language } = useApp();
   const [isInitialized, setIsInitialized] = useState(false);
   const { darkMode } = useTheme();
   const { showSnackbar } = useSnackbar();
@@ -180,7 +180,7 @@ export default function EditOrganizationProfilePage() {
   const { avatars } = useAvatars();
   const capacityCache = useCapacityCache();
   const { isLoadingTranslations } = capacityCache;
-  const { territories, loading: territoriesLoading } = useTerritories(token);
+  const { territories } = useTerritories(token);
 
   /* State Management*/
 
@@ -189,20 +189,20 @@ export default function EditOrganizationProfilePage() {
   const projectsLoaded = useRef(false);
 
   // State for existing and new projects
-  const [projectId, setProjectId] = useState<number>(0);
+  const [projectId] = useState<number>(0);
 
   // State for diff tags
   const [diffTagsData, setDiffTagsData] = useState<tagDiff[]>([]);
 
   // State for events
   const [showEventModal, setShowEventModal] = useState(false);
-  const [currentEditingEvent, setCurrentEditingEvent] = useState<Event | null>(null);
-  const [editedEvents, setEditedEvents] = useState<{
+  const [, setCurrentEditingEvent] = useState<Event | null>(null);
+  const [, setEditedEvents] = useState<{
     [key: number]: boolean;
   }>({});
   const [eventsData, setEventsData] = useState<Event[]>([]);
   const eventsLoaded = useRef(false);
-  const [loadingChooseEvent, setLoadingChooseEvent] = useState(false);
+  const [, setLoadingChooseEvent] = useState(false);
 
   // State for capacities
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -212,36 +212,23 @@ export default function EditOrganizationProfilePage() {
   /* Setters */
 
   // Documents setters
-  const {
-    documents,
-    loading: isDocumentsLoading,
-    error: documentsError,
-    createDocument,
-    deleteDocument,
-    fetchSingleDocument,
-  } = useDocument(token);
+  const { documents, createDocument } = useDocument(token);
 
   // Organization setters
   const {
     organization,
     organizations,
     isLoading: isOrganizationLoading,
-    error: organizationError,
-    refetch,
     updateOrganization,
   } = useOrganization(token, Number(organizationId));
 
   // Projects setters
-  const {
-    projects,
-    isLoading: isProjectsLoading,
-    error: projectsError,
-  } = useProjects(organization?.projects, token);
+  const { projects, isLoading: isProjectsLoading } = useProjects(organization?.projects, token);
 
-  const { createProject, updateProject, deleteProject } = useProject(projectId, token);
+  const { createProject, deleteProject } = useProject(projectId, token);
 
   // Tags setters
-  const { tagDiff, loading, fetchTags, fetchSingleTag, createTag, deleteTag } = useTagDiff(token);
+  const { tagDiff, fetchSingleTag, createTag } = useTagDiff(token);
 
   // Documents setters
   const [documentsData, setDocumentsData] = useState<OrganizationDocument[]>([]);
@@ -250,7 +237,6 @@ export default function EditOrganizationProfilePage() {
   const {
     events,
     isLoading: isEventsLoading,
-    error: eventsError,
     fetchEventsByIds,
     createEvent,
     updateEvent,
@@ -303,7 +289,7 @@ export default function EditOrganizationProfilePage() {
         })
         .filter((item): item is NonNullable<typeof item> => item !== null);
 
-      const options: ProfileOption[] = [
+      const _options: ProfileOption[] = [
         {
           value: 'user',
           label: userProfile.display_name || session?.user?.name || '',
@@ -922,7 +908,7 @@ export default function EditOrganizationProfilePage() {
         setLoadingChooseEvent(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [organization, updateOrganization, pageContent]
   );
 

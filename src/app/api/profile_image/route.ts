@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         `https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srlimit=10&format=json&srsearch=${query}`
       );
 
-      if (!queryResponse.data.hasOwnProperty('query')) {
+      if (!Object.hasOwn(queryResponse.data, 'query')) {
         return NextResponse.json({ message: 'No images found' }, { status: 404 });
       }
 

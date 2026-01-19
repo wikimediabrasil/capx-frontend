@@ -31,7 +31,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       headers: { Authorization: authHeader },
     });
     return NextResponse.json(response.data);
-  } catch (error: any) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete document' }, { status: 500 });
   }
 }

@@ -103,7 +103,7 @@ export default function OrganizationNamesSection({
     }
   };
 
-  const handleUpdate = async (id: number, currentLanguageCode: string, currentName: string) => {
+  const handleUpdate = async (id: number, currentLanguageCode: string, _currentName: string) => {
     if (!validateFields()) return;
 
     const isLanguageChanged = newLanguageCode.toLowerCase() !== currentLanguageCode.toLowerCase();

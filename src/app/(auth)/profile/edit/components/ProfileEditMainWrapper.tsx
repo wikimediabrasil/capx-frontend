@@ -99,8 +99,8 @@ const fetchWikidataImage = async (qid: string) => {
 export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
-  const { isMobile, pageContent, language } = useApp();
-  const { darkMode } = useTheme();
+  const { pageContent, language } = useApp();
+  useTheme();
   const { avatars, getAvatarById } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
@@ -143,14 +143,10 @@ export default function EditProfilePage() {
     refetch,
     deleteProfile,
   } = useProfile(token, userId);
-  const { territories, loading: territoriesLoading } = useTerritories(token);
-  const { languages, loading: languagesLoading } = useLanguage(token);
+  const { territories } = useTerritories(token);
+  const { languages } = useLanguage(token);
   const { affiliations } = useAffiliation(token);
-  const {
-    wikimediaProjects,
-    error: wikimediaProjectsError,
-    retry: retryWikimediaProjects,
-  } = useWikimediaProject(token);
+  const { wikimediaProjects, error: wikimediaProjectsError } = useWikimediaProject(token);
 
   // Log wikimedia project error for debugging
   useEffect(() => {
@@ -166,7 +162,6 @@ export default function EditProfilePage() {
     getRootCapacities,
     isLoaded: isCapacityCacheLoaded,
     isLoadingTranslations,
-    updateLanguage,
   } = capacityCache;
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
@@ -184,7 +179,7 @@ export default function EditProfilePage() {
     'known' | 'available' | 'wanted'
   >('known');
   const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
   const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const { hasLetsConnectAccount } = useLetsConnectExists();
@@ -703,7 +698,6 @@ export default function EditProfilePage() {
 
       // Prepare the new data
       const newAffiliations = letsConnectAffiliation.map(affiliation => affiliation.id.toString());
-      const newTerritories = letsConnectTerritoryId ? [letsConnectTerritoryId] : [];
       const newLanguages = letsConnectLanguages;
       const newSkillsKnown = letsConnectAvailableCapacities.map(capacity => capacity.id);
       const newSkillsAvailable = letsConnectAvailableCapacities.map(capacity => capacity.id);

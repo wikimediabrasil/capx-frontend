@@ -33,7 +33,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
 
-  const [searchCapacity, setSearchCapacity] = useState('');
+  const [searchCapacity, _setSearchCapacity] = useState('');
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
   const [showCapacityModal, setShowCapacityModal] = useState(false);
 
@@ -323,9 +323,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.All
-                        ? darkMode
-                          ? 'border-blue-600'
-                          : 'border-blue-600'
+                        ? 'border-blue-600'
                         : darkMode
                           ? 'border-gray-700'
                           : 'border-gray-300'
@@ -366,9 +364,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.Online
-                        ? darkMode
-                          ? 'border-blue-600'
-                          : 'border-blue-600'
+                        ? 'border-blue-600'
                         : darkMode
                           ? 'border-gray-700'
                           : 'border-gray-300'
@@ -409,9 +405,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.InPerson
-                        ? darkMode
-                          ? 'border-blue-600'
-                          : 'border-blue-600'
+                        ? 'border-blue-600'
                         : darkMode
                           ? 'border-gray-700'
                           : 'border-gray-300'
@@ -452,9 +446,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     w-full p-3 border rounded-lg flex items-center
                     ${
                       filters.locationType === EventLocationType.Hybrid
-                        ? darkMode
-                          ? 'border-blue-600'
-                          : 'border-blue-600'
+                        ? 'border-blue-600'
                         : darkMode
                           ? 'border-gray-700'
                           : 'border-gray-300'
@@ -508,11 +500,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
           <BaseButton
             label={pageContent['filters-show-results'] || 'Show results'}
             onClick={handleApply}
-            customClass={`flex-1 px-4 py-3 rounded-lg font-medium ${
-              darkMode
-                ? 'bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black'
-                : 'bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black'
-            }`}
+            customClass="flex-1 px-4 py-3 rounded-lg font-medium bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-black"
           />
         </div>
       </div>
