@@ -451,6 +451,8 @@
 	"snackbar-edit-profile-organization-remove-event-success": "イベントは正常に削除されました",
 	"snackbar-edit-profile-organization-save-event-failed": "イベントの保存中にエラーが発生しました",
 	"snackbar-edit-profile-organization-update-event-success": "イベントは正常に更新されました",
+	"capacity-visualization-description": "主な技能をクリックして開く／折りたたむ • 詳細を表示するにはアイコンをクリックして中央に表示 • 拡大やドラッグはマウスで操作 • フォーカスをリセットするには「初期の表示に戻す」をクリック",
+	"capacity-visualization-reset-button": "初期の表示に戻す",
 	"analytics-bashboard-alt-banner": "バナー画像のデータ分析ページ",
 	"analytics-bashboard-total-users-sub": "参加者合計",
 	"analytics-bashboard-total-messages-sub": "やりとりしたメッセージの件数",
@@ -461,6 +463,7 @@
 	"analytics-bashboard-capacities-card-learners": "学習者",
 	"analytics-bashboard-capacities-card-sharers": "共有",
 	"analytics-bashboard-capacities-load-more": "結果をもっと読み込む",
+	"home-carousel-suggestions-description-no-capacities": "仲間から習得したい、仲間にシェアしたい技能を選択すると、詳細を見たくなるプロフィール類を抽出して表示します。",
 	"add": "追加",
 	"cancel": "中止",
 	"edit": "編集",
@@ -475,5 +478,13 @@
 	"organization-names-description": "組織名の翻訳を複数の言語で追加します。組織名は利用者設定で選んだ言語で表示。",
 	"organization-names-none": "翻訳はまだ追加されていません。",
 	"organization-names-title": "組織名 (翻訳)",
-	"select-language": "言語を選択"
+	"select-language": "言語を選択",
+	"subscribe": "購読",
+	"learn-more": "詳細",
+	"select-your-role": "役割を選択",
+	"mentorship-role-instruction": "メンターとして活動に参加を希望されるかどうか指定願います。",
+	"no-mentorship-programs-found": "該当する指導役制度がありません",
+	"congratulations": "おめでとうございます！",
+	"mentorship-application-forwarded": "ご応募は指導役制度に転送しました。まもなく先方から直接、ご連絡があるはずです。",
+	"mentorship-programs-alt": "指導役制度"
 }

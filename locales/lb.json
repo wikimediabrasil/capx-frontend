@@ -119,6 +119,7 @@
 	"filters-username": "Benotzernumm",
 	"feed-no-data-message": "Keng Donnéeë fonnt",
 	"profile-incomplete": "Onvollstännegt Profil",
+	"profile-incomplete-popup-button-edit": "Profil änneren",
 	"snackbar-edit-profile-failed-generic": "Feeler beim Aktualiséiere vum Profil. Iwwerpréift wgl. Är Donnéeën a probéiert nach eng Kéier.",
 	"snackbar-edit-profile-organization-success": "Erfollegräich gespäichert",
 	"snackbar-edit-profile-organization-delete-event-success": "Evenement erfollegräich geläscht",

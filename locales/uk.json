@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Movses",
 			"Tohaomg",
 			"Ата"
 		]
@@ -240,7 +241,7 @@
 	"message-form-email-not-available": "Електронна пошта недоступна. Замість неї буде використано сторінку обговорення.",
 	"message-form-email-receiver-not-emailable": "Цей користувач не може отримувати електронні листи. Замість цього буде використано сторінку обговорення.",
 	"message-form-email-sender-not-configured": "Електронна пошта недоступна. Вам потрібно налаштувати електронну пошту у ваших налаштуваннях на Мета-вікі.",
-	"message-form-email-unavailable": "недоступне",
+	"message-form-email-unavailable": "електронна пошта недоступна",
 	"message-form-method-unavailable": "недоступне",
 	"message-form-user-checking": "Перевірка користувача. Зачекайте хвилинку.",
 	"message-form-user-not-found": "Користувача не знайдено",

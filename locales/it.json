@@ -242,6 +242,8 @@
 	"feed-no-data-description": "Prova a regolare i filtri o torna più tardi",
 	"profile-incomplete": "Profilo incompleto",
 	"profile-incomplete-description": "Questa organizzazione non ha ancora definito le sue competenze disponibili o desiderate.",
+	"profile-incomplete-popup-title": "Completa il tuo profilo",
+	"profile-incomplete-popup-button-edit": "Modifica profilo",
 	"snackbar-edit-profile-success": "Profilo aggiornato con successo!",
 	"snackbar-edit-profile-failed-generic": "Errore durante l'aggiornamento del profilo. Controlla i tuoi dati e riprova.",
 	"snackbar-capacity-validation-available-without-known": "Le competenze disponibili devono essere selezionate tra quelle conosciute. Aggiungi prima la competenza a quelle note.",
