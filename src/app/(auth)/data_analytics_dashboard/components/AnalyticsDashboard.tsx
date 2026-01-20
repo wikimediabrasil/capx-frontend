@@ -4,6 +4,7 @@ import Banner from '@/components/Banner';
 import LoadingState from '@/components/LoadingState';
 import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAggregatedTerritoryData } from '@/hooks/useAggregatedTerritoryData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
@@ -27,6 +28,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
+import D3ChoroplethMap from './D3ChoroplethMap';
 
 // Constants
 const SKILL_METADATA = {
@@ -204,6 +206,11 @@ export default function AnalyticsDashboardPage() {
   const { data } = useStatistics();
   const { territories } = useTerritories(token);
   const { languages } = useLanguage(token);
+  const {
+    languagesByTerritory,
+    capacitiesByTerritory,
+    isLoading: isAggregatedDataLoading,
+  } = useAggregatedTerritoryData(token);
 
   const [openLanguages, setOpenLanguages] = useState(false);
   const [openTerritories, setOpenTerritories] = useState(false);
@@ -259,6 +266,24 @@ export default function AnalyticsDashboardPage() {
           subtitleColor="text-[#0070B9]"
           darkMode={darkMode}
         />
+      </div>
+
+      {/* World Map Section - Territory Map */}
+      <div className="flex flex-col w-full gap-4 mt-[40px]">
+        <div className={`w-full rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}>
+          <D3ChoroplethMap
+            languageUserCounts={data?.language_user_counts}
+            languages={languages}
+            skillAvailableCounts={data?.skill_available_user_counts}
+            skillWantedCounts={data?.skill_wanted_user_counts}
+            territoryUserCounts={data?.territory_user_counts}
+            territories={territories}
+            languagesByTerritory={languagesByTerritory}
+            capacitiesByTerritory={capacitiesByTerritory}
+            isAggregatedDataLoading={isAggregatedDataLoading}
+            totalUsers={data?.total_users}
+          />
+        </div>
       </div>
 
       {/* Language Dropdown */}
