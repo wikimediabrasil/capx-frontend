@@ -36,12 +36,15 @@ export default function AnalyticsCallToActionSection() {
   // Build statistics array
   const statistics: StatisticItem[] = [
     {
-      text: pageContent['home-analytics-cta-text'] || 'There are {count} languages available on capx today',
+      text:
+        pageContent['home-analytics-cta-text'] ||
+        'There are {count} languages available on capx today',
       value: languagesWithUsers,
       key: 'languages',
     },
     {
-      text: pageContent['home-analytics-cta-territories'] || 'People from {count} territories on capx',
+      text:
+        pageContent['home-analytics-cta-territories'] || 'People from {count} territories on capx',
       value: territoriesWithUsers,
       key: 'territories',
     },
@@ -51,17 +54,21 @@ export default function AnalyticsCallToActionSection() {
       key: 'users',
     },
     {
-      text: pageContent['home-analytics-cta-total-organizations'] || '{count} organizations on capx',
+      text:
+        pageContent['home-analytics-cta-total-organizations'] || '{count} organizations on capx',
       value: data?.total_organizations || 0,
       key: 'organizations',
     },
     {
-      text: pageContent['home-analytics-cta-total-capacities'] || '{count} capacities available on capx',
+      text:
+        pageContent['home-analytics-cta-total-capacities'] ||
+        '{count} capacities available on capx',
       value: data?.total_capacities || 0,
       key: 'capacities',
     },
     {
-      text: pageContent['home-analytics-cta-total-messages'] || '{count} messages exchanged on capx',
+      text:
+        pageContent['home-analytics-cta-total-messages'] || '{count} messages exchanged on capx',
       value: data?.total_messages || 0,
       key: 'messages',
     },
@@ -80,7 +87,7 @@ export default function AnalyticsCallToActionSection() {
     const interval = setInterval(() => {
       // Fade out
       setIsVisible(false);
-      
+
       // After fade out completes, change index and fade in
       timeoutRef.current = setTimeout(() => {
         setCurrentIndex(prevIndex => (prevIndex + 1) % statistics.length);
@@ -164,5 +171,3 @@ export default function AnalyticsCallToActionSection() {
     </section>
   );
 }
-
-
