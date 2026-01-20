@@ -55,6 +55,18 @@ const CAPACITY_NAMES: Record<string, string> = {
   '106': 'Technology',
 };
 
+// Unique colors for each Wikimedia territory when selected (using system colors)
+const TERRITORY_COLORS: Record<string, string> = {
+  SSA: '#D43831',    // capx-primary-orange - Sub-Saharan Africa
+  NWE: '#27AE60',    // technology green - Northern & Western Europe
+  ESEAP: '#851d6a',  // capx-secondary-purple - East, Southeast Asia & Pacific
+  LAC: '#02AE8C',    // capx-primary-green - Latin America & Caribbean
+  CEECA: '#D43420',  // capx-primary-red - Central & Eastern Europe & Central Asia
+  SA: '#f0c626',     // capx-primary-yellow - South Asia
+  MENA: '#BE0078',   // communication magenta - Middle East & North Africa
+  NA: '#717171',     // capx-secondary-grey - North America
+};
+
 // Normalize territory name for matching
 function normalizeTerritoryName(name: string): string {
   return name
@@ -384,8 +396,9 @@ export default function D3ChoroplethMap({
       const isSelected = selectedTerritory?.id === territory.id;
       const isHovered = hoveredTerritory?.id === territory.id;
 
+      // Use unique territory color when selected
       if (isSelected) {
-        return darkMode ? '#FFFFFF' : '#333333';
+        return TERRITORY_COLORS[territory.id] || (darkMode ? '#FFFFFF' : '#333333');
       }
 
       const count = getTerritoryCount(territory);
@@ -400,7 +413,7 @@ export default function D3ChoroplethMap({
     [darkMode, selectedTerritory, hoveredTerritory, getTerritoryCount, colorScale]
   );
 
-  // Render map
+  // Render map structure (only when geoData, dimensions, or darkMode changes)
   useEffect(() => {
     if (!svgRef.current || !geoData) return;
 
@@ -422,7 +435,7 @@ export default function D3ChoroplethMap({
       .translate([width / 2, height / 2]);
 
     const pathGenerator = d3.geoPath().projection(projection);
-    const g = svg.append('g');
+    const g = svg.append('g').attr('class', 'map-group');
 
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
@@ -436,15 +449,34 @@ export default function D3ChoroplethMap({
       .data(geoData.features)
       .enter()
       .append('path')
+      .attr('class', 'country-path')
       .attr('d', pathGenerator as any)
-      .attr('fill', (d: any) => {
+      .attr('stroke', borderColor)
+      .attr('stroke-width', 0.3)
+      .style('cursor', 'pointer');
+  }, [geoData, dimensions, darkMode, isMobile]);
+
+  // Update colors separately (without re-rendering the entire map)
+  useEffect(() => {
+    if (!svgRef.current || !geoData) return;
+
+    const svg = d3.select(svgRef.current);
+
+    svg.selectAll('.country-path')
+      .attr('fill', function(d: any) {
         const countryCode = d.id || d.properties?.iso_a3;
         const territory = getTerritoryByCountry(countryCode);
         return getTerritoryColor(territory);
-      })
-      .attr('stroke', borderColor)
-      .attr('stroke-width', 0.3)
-      .style('cursor', 'pointer')
+      });
+  }, [geoData, getTerritoryColor]);
+
+  // Handle mouse events (separate effect to avoid re-binding on every render)
+  useEffect(() => {
+    if (!svgRef.current || !geoData) return;
+
+    const svg = d3.select(svgRef.current);
+
+    svg.selectAll('.country-path')
       .on('mouseover', function (event, d: any) {
         const countryCode = d.id || d.properties?.iso_a3;
         const territory = getTerritoryByCountry(countryCode);
@@ -456,15 +488,16 @@ export default function D3ChoroplethMap({
         setHoveredTerritory(null);
       })
       .on('click', (event, d: any) => {
+        event.stopPropagation();
         const countryCode = d.id || d.properties?.iso_a3;
         const territory = getTerritoryByCountry(countryCode);
         if (territory) {
-          setSelectedTerritory(
-            selectedTerritory?.id === territory.id ? null : territory
+          setSelectedTerritory(prev =>
+            prev?.id === territory.id ? null : territory
           );
         }
       });
-  }, [geoData, dimensions, darkMode, getTerritoryColor, isMobile]);
+  }, [geoData]);
 
   // Get view mode title
   const getViewModeTitle = () => {
@@ -695,12 +728,16 @@ export default function D3ChoroplethMap({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {WIKIMEDIA_TERRITORIES.map((territory) => {
             const count = getTerritoryCount(territory);
+            const isSelected = selectedTerritory?.id === territory.id;
+            const swatchColor = isSelected
+              ? TERRITORY_COLORS[territory.id] || colorScale(count)
+              : colorScale(count);
             return (
               <button
                 key={territory.id}
                 onClick={() => setSelectedTerritory(selectedTerritory?.id === territory.id ? null : territory)}
                 className={`flex items-center gap-2 p-2 rounded transition-all text-left ${
-                  selectedTerritory?.id === territory.id
+                  isSelected
                     ? darkMode
                       ? 'bg-white/20 ring-2 ring-white'
                       : 'bg-gray-200 ring-2 ring-gray-400'
@@ -709,19 +746,19 @@ export default function D3ChoroplethMap({
               >
                 <div
                   className="w-4 h-4 rounded-sm flex-shrink-0"
-                  style={{ backgroundColor: colorScale(count) }}
+                  style={{ backgroundColor: swatchColor }}
                 />
                 <div className="flex flex-col min-w-0">
                   <span
                     className={`font-[Montserrat] text-xs truncate ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}
                     title={territory.fullName}
                   >
-                    {territory.name}
+                    {territory.fullName}
                   </span>
                   <span
                     className={`font-[Montserrat] text-[10px] ${darkMode ? 'text-white/50' : 'text-gray-400'}`}
                   >
-                    {count.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'users'}
+                    {territory.name} · {count.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'users'}
                   </span>
                 </div>
               </button>
@@ -735,6 +772,10 @@ export default function D3ChoroplethMap({
         const currentTerritory = (selectedTerritory || hoveredTerritory)!;
         const topLanguages = getTopLanguagesForTerritory(currentTerritory);
         const topCapacities = getTopCapacitiesForTerritory(currentTerritory);
+        const isCurrentSelected = selectedTerritory?.id === currentTerritory.id;
+        const infoSwatchColor = isCurrentSelected
+          ? TERRITORY_COLORS[currentTerritory.id] || colorScale(getTerritoryCount(currentTerritory))
+          : colorScale(getTerritoryCount(currentTerritory));
 
         return (
           <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
@@ -742,7 +783,7 @@ export default function D3ChoroplethMap({
               <div
                 className="w-6 h-6 rounded"
                 style={{
-                  backgroundColor: colorScale(getTerritoryCount(currentTerritory)),
+                  backgroundColor: infoSwatchColor,
                 }}
               />
               <h3 className={`font-[Montserrat] text-lg font-bold ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
