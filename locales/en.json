@@ -619,7 +619,7 @@
   "recommendations-same-language-tooltip": "Recommendations of profiles according the languages that you selected on your profile.",
   "home-analytics-cta-text": "{count}+ languages are spoken on CapX.",
   "home-analytics-cta-button": "View Statistics",
-  "home-analytics-cta-territories": "{count} territories are represented on CapX.",
+  "home-analytics-cta-territories": "{territoryname} is represented by {count} users on CapX.",
   "home-analytics-cta-total-users": "CapX's network has {count} users today.",
   "home-analytics-cta-total-organizations": "{count} organizations are active on CapX today.",
   "home-analytics-cta-total-capacities": "There are {count} capacities for you to choose from on CapX.",
