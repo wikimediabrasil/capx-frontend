@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
+import AnalyticsCallToActionSection from './AnalyticsCallToActionSection';
 
 interface AuthenticatedMainSectionProps {
   pageContent: any;
@@ -92,6 +93,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             </div>
           </div>
         </section>
+        <AnalyticsCallToActionSection />
         <SectionRecommendationsCarousel />
 
         <section
@@ -200,6 +202,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             />
           </div>
         </div>
+        <AnalyticsCallToActionSection />
         <SectionRecommendationsCarousel />
 
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
