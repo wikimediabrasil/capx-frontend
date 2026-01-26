@@ -1,8 +1,3 @@
-import { Profile } from './profile';
-import { Organization } from './organization';
-import { Event } from './event';
-import { Capacity } from './capacity';
-
 export interface ProfileRecommendation {
   id: number;
   display_name?: string;

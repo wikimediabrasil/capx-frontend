@@ -88,7 +88,7 @@ export function formatDateForLanguage(date: Date, language: string): string {
       month: '2-digit',
       day: '2-digit',
     });
-  } catch (error) {
+  } catch {
     // Fallback to default format if the locale is not supported
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -113,7 +113,7 @@ export function formatDateTimeForLanguage(date: Date, language: string): string 
       minute: '2-digit',
       hour12: locale.startsWith('en-'), // Use 12h format only for English
     });
-  } catch (error) {
+  } catch {
     // Fallback to default format if the locale is not supported
     return date.toLocaleString('en-US', {
       year: 'numeric',
@@ -176,7 +176,7 @@ export function applyLocaleToDateInput(element: HTMLInputElement, language: stri
 
     // Temporarily change the type to force re-rendering
     element.type = 'text';
-    element.offsetHeight; // Trigger reflow
+    void element.offsetHeight; // Trigger reflow
     element.type = currentType;
     element.value = currentValue;
 

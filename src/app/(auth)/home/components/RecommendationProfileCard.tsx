@@ -35,11 +35,11 @@ interface RecommendationProfileCardProps {
 
 export default function RecommendationProfileCard({
   recommendation,
-  onSave,
+  onSave: _onSave,
   capacityType = 'available',
   hintMessage,
 }: RecommendationProfileCardProps) {
-  const { pageContent, language } = useApp();
+  const { pageContent } = useApp();
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
@@ -48,9 +48,6 @@ export default function RecommendationProfileCard({
   const [isSaving, setIsSaving] = useState(false);
 
   const isOrganization = 'acronym' in recommendation;
-  const organizationRecommendation = isOrganization
-    ? (recommendation as OrganizationRecommendation)
-    : null;
   const profileRecommendation = !isOrganization ? (recommendation as ProfileRecommendation) : null;
   const profileUsername = profileRecommendation?.username;
 

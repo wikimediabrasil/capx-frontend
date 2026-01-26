@@ -19,7 +19,7 @@ import OrgListBanner from '@/public/static/images/organization_list.svg';
 // Removed duplicated components - now using shared components
 
 export default function OrganizationList() {
-  const { darkMode } = useTheme();
+  const { darkMode: _darkMode } = useTheme();
   const { pageContent } = useApp();
 
   // Use shared language sync logic
@@ -28,7 +28,7 @@ export default function OrganizationList() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [isSearching, setIsSearching] = useState(false);
+  const [_isSearching, setIsSearching] = useState(false);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   const [activeFilters, setActiveFilters] = useState<FilterState>({
@@ -45,7 +45,7 @@ export default function OrganizationList() {
   const itemsPerPage = 10;
 
   // Always fetch all organizations for client-side filtering and pagination
-  const hasSearch = !!debouncedSearchTerm;
+  const _hasSearch = !!debouncedSearchTerm;
   const fetchLimit = 1000;
   const fetchOffset = 0;
 
@@ -80,7 +80,7 @@ export default function OrganizationList() {
     }
   }, [isAllOrganizationsLoading, allOrganizations]);
 
-  const totalRecords = allOrganizationsCount;
+  const _totalRecords = allOrganizationsCount;
 
   // Helper function to create organization profile object
   const createOrganizationProfile = (

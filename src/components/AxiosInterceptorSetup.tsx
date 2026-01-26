@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import setupAxiosInterceptor from '@/lib/axios-interceptor';
 
 export default function AxiosInterceptorSetup() {
-  const [isClient, setIsClient] = useState(false);
+  const [_isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);

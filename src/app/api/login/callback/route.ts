@@ -121,7 +121,7 @@ export async function POST(request: Request) {
       try {
         const result = await existingLock;
         return NextResponse.json(result);
-      } catch (error) {
+      } catch {
         executionLocks.delete(cacheKey);
       }
     }

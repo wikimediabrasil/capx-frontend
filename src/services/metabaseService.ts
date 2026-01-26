@@ -7,7 +7,7 @@ const METABASE_ENDPOINT = 'https://metabase.wikibase.cloud/query/sparql';
  */
 
 export async function fetchEventDataByQID(qid: string): Promise<Partial<Event> | null> {
-  if (!qid || !qid.startsWith('Q')) {
+  if (!qid?.startsWith('Q')) {
     console.error('Invalid QID:', qid);
     return null;
   }
@@ -56,7 +56,7 @@ export async function fetchEventDataByQID(qid: string): Promise<Partial<Event> |
     const data = await response.json();
 
     // If there are no results, return null
-    if (!data.results || !data.results.bindings || data.results.bindings.length === 0) {
+    if (!data.results?.bindings?.length) {
       return null;
     }
 
@@ -117,310 +117,386 @@ export function extractYearFromText(text: string): number | undefined {
   if (!text) return undefined;
 
   // Search for year patterns (2020-2030)
-  const yearMatch = text.match(/\b(202[0-9]|203[0-9])\b/);
+  const yearMatch = /\b(202\d|203\d)\b/.exec(text);
   if (yearMatch) {
-    const year = parseInt(yearMatch[1]);
+    const year = Number.parseInt(yearMatch[1], 10);
     return year;
   }
 
   return undefined;
 }
 
+// Month name to number mapping (English and Portuguese)
+const MONTH_MAP: Record<string, string> = {
+  // English
+  january: '01',
+  jan: '01',
+  february: '02',
+  feb: '02',
+  march: '03',
+  mar: '03',
+  april: '04',
+  apr: '04',
+  may: '05',
+  june: '06',
+  jun: '06',
+  july: '07',
+  jul: '07',
+  august: '08',
+  aug: '08',
+  september: '09',
+  sep: '09',
+  sept: '09',
+  october: '10',
+  oct: '10',
+  november: '11',
+  nov: '11',
+  december: '12',
+  dec: '12',
+
+  // Portuguese
+  janeiro: '01',
+  fevereiro: '02',
+  fev: '02',
+  março: '03',
+  abril: '04',
+  abr: '04',
+  maio: '05',
+  mai: '05',
+  junho: '06',
+  julho: '07',
+  agosto: '08',
+  ago: '08',
+  setembro: '09',
+  set: '09',
+  outubro: '10',
+  out: '10',
+  novembro: '11',
+  dezembro: '12',
+  dez: '12',
+};
+
+function getMonthNumber(monthName: string): string | null {
+  return MONTH_MAP[monthName.toLowerCase()] || null;
+}
+
+interface DateComponents {
+  startYear: string;
+  startMonth: string;
+  startDay: string;
+  endYear: string;
+  endMonth: string;
+  endDay: string;
+}
+
+type DatePatternHandler = (match: RegExpMatchArray) => DateComponents | null;
+
+function isValidDateComponents(components: DateComponents): boolean {
+  const startYearNum = Number.parseInt(components.startYear, 10);
+  const startMonthNum = Number.parseInt(components.startMonth, 10);
+  const startDayNum = Number.parseInt(components.startDay, 10);
+  const endYearNum = Number.parseInt(components.endYear, 10);
+  const endMonthNum = Number.parseInt(components.endMonth, 10);
+  const endDayNum = Number.parseInt(components.endDay, 10);
+
+  return (
+    startYearNum >= 2020 &&
+    startYearNum <= 2030 &&
+    startMonthNum >= 1 &&
+    startMonthNum <= 12 &&
+    startDayNum >= 1 &&
+    startDayNum <= 31 &&
+    endYearNum >= 2020 &&
+    endYearNum <= 2030 &&
+    endMonthNum >= 1 &&
+    endMonthNum <= 12 &&
+    endDayNum >= 1 &&
+    endDayNum <= 31
+  );
+}
+
+function formatDateComponents(components: DateComponents): {
+  time_begin: string;
+  time_end: string;
+} {
+  const startDate = `${components.startYear}-${components.startMonth.padStart(2, '0')}-${components.startDay.padStart(2, '0')}T00:00:00.000Z`;
+  const endDate = `${components.endYear}-${components.endMonth.padStart(2, '0')}-${components.endDay.padStart(2, '0')}T23:59:59.000Z`;
+  return { time_begin: startDate, time_end: endDate };
+}
+
+// Pattern handlers
+const handlePortugueseRangeWithYear: DatePatternHandler = match => {
+  const [, startDayStr, endDayStr, monthName, yearStr] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: monthNum,
+    startDay: startDayStr,
+    endYear: yearStr,
+    endMonth: monthNum,
+    endDay: endDayStr,
+  };
+};
+
+const handlePortugueseRangeWithoutYear: DatePatternHandler = match => {
+  const [, startDayStr, endDayStr, monthName] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  const currentYear = new Date().getFullYear().toString();
+  return {
+    startYear: currentYear,
+    startMonth: monthNum,
+    startDay: startDayStr,
+    endYear: currentYear,
+    endMonth: monthNum,
+    endDay: endDayStr,
+  };
+};
+
+const handlePortugueseSingleMonth: DatePatternHandler = match => {
+  const [, monthName, yearStr] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: monthNum,
+    startDay: '01',
+    endYear: yearStr,
+    endMonth: monthNum,
+    endDay: '01',
+  };
+};
+
+const handleMonthRange1: DatePatternHandler = match => {
+  const [, monthName, startDayStr, endDayStr, yearStr] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: monthNum,
+    startDay: startDayStr,
+    endYear: yearStr,
+    endMonth: monthNum,
+    endDay: endDayStr,
+  };
+};
+
+const handleMonthRange2: DatePatternHandler = match => {
+  const [, startDayStr, endDayStr, monthName, yearStr] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: monthNum,
+    startDay: startDayStr,
+    endYear: yearStr,
+    endMonth: monthNum,
+    endDay: endDayStr,
+  };
+};
+
+const handleMonthRange3: DatePatternHandler = match => {
+  const [, startMonthName, startDayStr, endMonthName, endDayStr, yearStr] = match;
+  const startMonthNum = getMonthNumber(startMonthName);
+  const endMonthNum = getMonthNumber(endMonthName);
+  if (!startMonthNum || !endMonthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: startMonthNum,
+    startDay: startDayStr,
+    endYear: yearStr,
+    endMonth: endMonthNum,
+    endDay: endDayStr,
+  };
+};
+
+const handleMonthRange4: DatePatternHandler = match => {
+  const [, startMonthName, startDayStr, startYearStr, endMonthName, endDayStr, endYearStr] = match;
+  const startMonthNum = getMonthNumber(startMonthName);
+  const endMonthNum = getMonthNumber(endMonthName);
+  if (!startMonthNum || !endMonthNum) return null;
+  return {
+    startYear: startYearStr,
+    startMonth: startMonthNum,
+    startDay: startDayStr,
+    endYear: endYearStr,
+    endMonth: endMonthNum,
+    endDay: endDayStr,
+  };
+};
+
+const handleISORange: DatePatternHandler = match => {
+  const [, startYear, startMonth, startDay, endYear, endMonth, endDay] = match;
+  return { startYear, startMonth, startDay, endYear, endMonth, endDay };
+};
+
+const handleEuropeanRange: DatePatternHandler = match => {
+  const [, startDay, startMonth, startYear, endDay, endMonth, endYear] = match;
+  return { startYear, startMonth, startDay, endYear, endMonth, endDay };
+};
+
+const handleAmericanRange: DatePatternHandler = match => {
+  const [, startMonth, startDay, startYear, endMonth, endDay, endYear] = match;
+  return { startYear, startMonth, startDay, endYear, endMonth, endDay };
+};
+
+const handleConsecutiveDays: DatePatternHandler = match => {
+  const [, startDay, endDay, startMonth, startYear] = match;
+  let year = startYear;
+  if (year.length === 2) {
+    const yearNum = Number.parseInt(year, 10);
+    year = yearNum > 50 ? `19${year}` : `20${year}`;
+  }
+  return {
+    startYear: year,
+    startMonth,
+    startDay,
+    endYear: year,
+    endMonth: startMonth,
+    endDay,
+  };
+};
+
+const handleSimpleRange: DatePatternHandler = match => {
+  const [, startDay, endDay, startYear] = match;
+  return {
+    startYear,
+    startMonth: '01',
+    startDay,
+    endYear: startYear,
+    endMonth: '01',
+    endDay,
+  };
+};
+
+const handleSingleMonth1: DatePatternHandler = match => {
+  const [, monthName, dayStr, yearStr] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: monthNum,
+    startDay: dayStr,
+    endYear: yearStr,
+    endMonth: monthNum,
+    endDay: dayStr,
+  };
+};
+
+const handleSingleMonth2: DatePatternHandler = match => {
+  const [, dayStr, monthName, yearStr] = match;
+  const monthNum = getMonthNumber(monthName);
+  if (!monthNum) return null;
+  return {
+    startYear: yearStr,
+    startMonth: monthNum,
+    startDay: dayStr,
+    endYear: yearStr,
+    endMonth: monthNum,
+    endDay: dayStr,
+  };
+};
+
+const handleISOSingle: DatePatternHandler = match => {
+  const [, startYear, startMonth, startDay] = match;
+  return {
+    startYear,
+    startMonth,
+    startDay,
+    endYear: startYear,
+    endMonth: startMonth,
+    endDay: startDay,
+  };
+};
+
+const handleEuropeanSingle: DatePatternHandler = match => {
+  const [, startDay, startMonth, startYear] = match;
+  return {
+    startYear,
+    startMonth,
+    startDay,
+    endYear: startYear,
+    endMonth: startMonth,
+    endDay: startDay,
+  };
+};
+
+const handleAmericanSingle: DatePatternHandler = match => {
+  const [, startMonth, startDay, startYear] = match;
+  return {
+    startYear,
+    startMonth,
+    startDay,
+    endYear: startYear,
+    endMonth: startMonth,
+    endDay: startDay,
+  };
+};
+
+const PATTERNS: Array<{ pattern: RegExp; handler: DatePatternHandler }> = [
+  {
+    pattern: /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
+    handler: handlePortugueseRangeWithYear,
+  },
+  {
+    pattern: /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w{3,12})/gi,
+    handler: handlePortugueseRangeWithoutYear,
+  },
+  { pattern: /(\w{3,12})\s+de\s+(\d{4})/gi, handler: handlePortugueseSingleMonth },
+  {
+    pattern: /(\w{3,12})\s+(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2}),?\s*(\d{4})/gi,
+    handler: handleMonthRange1,
+  },
+  {
+    pattern: /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\w{3,12})\s+(\d{4})/gi,
+    handler: handleMonthRange2,
+  },
+  {
+    pattern: /(\w{3,12})\s+(\d{1,2})\s+to\s+(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
+    handler: handleMonthRange3,
+  },
+  {
+    pattern:
+      /(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})\s*(?:to|até|a|-|–)\s*(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
+    handler: handleMonthRange4,
+  },
+  {
+    pattern: /(\d{4})-(\d{1,2})-(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{4})-(\d{1,2})-(\d{1,2})/gi,
+    handler: handleISORange,
+  },
+  {
+    pattern:
+      /(\d{1,2})[/.](\d{1,2})[/.](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[/.](\d{1,2})[/.](\d{4})/gi,
+    handler: handleEuropeanRange,
+  },
+  {
+    pattern:
+      /(\d{1,2})[/-](\d{1,2})[/-](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[/-](\d{1,2})[/-](\d{4})/gi,
+    handler: handleAmericanRange,
+  },
+  { pattern: /(\d{1,2})-(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})/gi, handler: handleConsecutiveDays },
+  { pattern: /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\d{4})/gi, handler: handleSimpleRange },
+  { pattern: /(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi, handler: handleSingleMonth1 },
+  { pattern: /(\d{1,2})\s+(\w{3,12})\s+(\d{4})/gi, handler: handleSingleMonth2 },
+  { pattern: /(\d{4})-(\d{1,2})-(\d{1,2})/gi, handler: handleISOSingle },
+  { pattern: /(\d{1,2})[/.](\d{1,2})[/.](\d{4})/gi, handler: handleEuropeanSingle },
+  { pattern: /(\d{1,2})[/-](\d{1,2})[/-](\d{4})/gi, handler: handleAmericanSingle },
+];
+
 export function extractDatesFromPageContent(
   pageContent: string
 ): { time_begin: string; time_end?: string } | undefined {
   if (!pageContent) return undefined;
 
-  // Enhanced patterns for different date formats, including Portuguese
-  const patterns = [
-    // Portuguese formats: "19 e 20 de julho de 2025", "19 a 20 de julho de 2025"
-    /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
-    /(\d{1,2})\s+(?:e|a)\s+(\d{1,2})\s+de\s+(\w{3,12})/gi,
-
-    // Portuguese with month names: "julho de 2025"
-    /(\w{3,12})\s+de\s+(\d{4})/gi,
-
-    // Month names with ranges: "July 19-20, 2025", "19-20 July 2025", "July 19 to July 20, 2025"
-    /(\w{3,12})\s+(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2}),?\s*(\d{4})/gi,
-    /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\w{3,12})\s+(\d{4})/gi,
-    /(\w{3,12})\s+(\d{1,2})\s+to\s+(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
-
-    // Full month names: "July 19, 2025 to July 20, 2025"
-    /(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})\s*(?:to|até|a|-|–)\s*(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
-
-    // ISO format: "2025-07-19" to "2025-07-20", "2025-07-19 - 2025-07-20"
-    /(\d{4})-(\d{1,2})-(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{4})-(\d{1,2})-(\d{1,2})/gi,
-
-    // Numeric format with separators: "19/07/2025 - 20/07/2025", "19.07.2025 to 20.07.2025"
-    /(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/gi,
-
-    // American format: "07/19/2025 - 07/20/2025", "07-19-2025 to 07-20-2025"
-    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s*(?:to|até|a|-|–)\s*(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/gi,
-
-    // Consecutive dates: "19-20/07/2025", "19-20.07.2025", "19-20/07/25"
-    /(\d{1,2})-(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{2,4})/gi,
-
-    // Simple format with year: "19-20 2025", "19 to 20 2025"
-    /(\d{1,2})\s*(?:to|até|a|-|–)\s*(\d{1,2})\s+(\d{4})/gi,
-
-    // Single month name: "July 19, 2025", "19 July 2025"
-    /(\w{3,12})\s+(\d{1,2}),?\s*(\d{4})/gi,
-    /(\d{1,2})\s+(\w{3,12})\s+(\d{4})/gi,
-
-    // Single ISO date: "2025-07-19"
-    /(\d{4})-(\d{1,2})-(\d{1,2})/gi,
-
-    // Single numeric date: "19/07/2025", "19.07.2025"
-    /(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/gi,
-
-    // Single American date: "07/19/2025", "07-19-2025"
-    /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/gi,
-  ];
-
-  // Month name to number mapping (English and Portuguese)
-  const monthMap: Record<string, string> = {
-    // English
-    january: '01',
-    jan: '01',
-    february: '02',
-    feb: '02',
-    march: '03',
-    mar: '03',
-    april: '04',
-    apr: '04',
-    may: '05',
-    june: '06',
-    jun: '06',
-    july: '07',
-    jul: '07',
-    august: '08',
-    aug: '08',
-    september: '09',
-    sep: '09',
-    sept: '09',
-    october: '10',
-    oct: '10',
-    november: '11',
-    nov: '11',
-    december: '12',
-    dec: '12',
-
-    // Portuguese
-    janeiro: '01',
-    fevereiro: '02',
-    fev: '02',
-    março: '03',
-    abril: '04',
-    abr: '04',
-    maio: '05',
-    mai: '05',
-    junho: '06',
-    julho: '07',
-    agosto: '08',
-    ago: '08',
-    setembro: '09',
-    set: '09',
-    outubro: '10',
-    out: '10',
-    novembro: '11',
-    dezembro: '12',
-    dez: '12',
-  };
-
-  // Helper function to convert month name to number
-  const getMonthNumber = (monthName: string): string | null => {
-    const month = monthName.toLowerCase();
-    return monthMap[month] || null;
-  };
-
-  // Try each pattern
-  for (let i = 0; i < patterns.length; i++) {
-    const pattern = patterns[i];
+  for (const { pattern, handler } of PATTERNS) {
     const matches = Array.from(pageContent.matchAll(pattern));
 
     for (const match of matches) {
       try {
-        let startYear: string = '';
-        let startMonth: string = '';
-        let startDay: string = '';
-        let endYear: string = '';
-        let endMonth: string = '';
-        let endDay: string = '';
-
-        if (i === 0) {
-          // Pattern 1: "19 e 20 de julho de 2025" (portuguese)
-          const [, startDayStr, endDayStr, monthName, yearStr] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = startDayStr;
-            endDay = endDayStr;
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 1) {
-          // Pattern 2: "19 e 20 de julho" (portuguese without year)
-          const [, startDayStr, endDayStr, monthName] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = startDayStr;
-            endDay = endDayStr;
-            // Assume current year if not specified
-            const currentYear = new Date().getFullYear();
-            startYear = endYear = currentYear.toString();
-          }
-        } else if (i === 2) {
-          // Pattern 3: "julho de 2025" (portuguese single month)
-          const [, monthName, yearStr] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = endDay = '01';
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 3) {
-          // Pattern 4: "July 19-20, 2025"
-          const [, monthName, startDayStr, endDayStr, yearStr] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = startDayStr;
-            endDay = endDayStr;
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 4) {
-          // Pattern 5: "19-20 July 2025"
-          const [, startDayStr, endDayStr, monthName, yearStr] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = startDayStr;
-            endDay = endDayStr;
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 5) {
-          // Pattern 6: "July 19 to August 20, 2025"
-          const [, startMonthName, startDayStr, endMonthName, endDayStr, yearStr] = match;
-          const startMonthNum = getMonthNumber(startMonthName);
-          const endMonthNum = getMonthNumber(endMonthName);
-          if (startMonthNum && endMonthNum) {
-            startMonth = startMonthNum;
-            endMonth = endMonthNum;
-            startDay = startDayStr;
-            endDay = endDayStr;
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 6) {
-          // Pattern 7: "July 19, 2025 to August 20, 2025"
-          const [, startMonthName, startDayStr, startYearStr, endMonthName, endDayStr, endYearStr] =
-            match;
-          const startMonthNum = getMonthNumber(startMonthName);
-          const endMonthNum = getMonthNumber(endMonthName);
-          if (startMonthNum && endMonthNum) {
-            startMonth = startMonthNum;
-            endMonth = endMonthNum;
-            startDay = startDayStr;
-            endDay = endDayStr;
-            startYear = startYearStr;
-            endYear = endYearStr;
-          }
-        } else if (i === 7) {
-          // Pattern 8: ISO "YYYY-MM-DD to YYYY-MM-DD"
-          [, startYear, startMonth, startDay, endYear, endMonth, endDay] = match;
-        } else if (i === 8) {
-          // Pattern 9: "DD/MM/YYYY to DD/MM/YYYY" (european format)
-          [, startDay, startMonth, startYear, endDay, endMonth, endYear] = match;
-        } else if (i === 9) {
-          // Pattern 10: "MM/DD/YYYY to MM/DD/YYYY" (american format)
-          [, startMonth, startDay, startYear, endMonth, endDay, endYear] = match;
-        } else if (i === 10) {
-          // Pattern 11: "DD-DD/MM/YYYY" (consecutive days)
-          [, startDay, endDay, startMonth, startYear] = match;
-          endYear = startYear;
-          endMonth = startMonth;
-
-          // Convert 2-digit year to 4-digit year if necessary
-          if (startYear.length === 2) {
-            const year = parseInt(startYear);
-            startYear = endYear = year > 50 ? `19${year}` : `20${year}`;
-          }
-        } else if (i === 11) {
-          // Pattern 12: "DD to DD YYYY" (simple format)
-          [, startDay, endDay, startYear] = match;
-          endYear = startYear;
-          // Assume current month or January if not specified
-          startMonth = endMonth = '01';
-        } else if (i === 12) {
-          // Pattern 13: "July 19, 2025" (single month name)
-          const [, monthName, dayStr, yearStr] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = endDay = dayStr;
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 13) {
-          // Pattern 14: "19 July 2025" (day month year)
-          const [, dayStr, monthName, yearStr] = match;
-          const monthNum = getMonthNumber(monthName);
-          if (monthNum) {
-            startMonth = endMonth = monthNum;
-            startDay = endDay = dayStr;
-            startYear = endYear = yearStr;
-          }
-        } else if (i === 14) {
-          // Pattern 15: "YYYY-MM-DD" (ISO single)
-          [, startYear, startMonth, startDay] = match;
-          endYear = startYear;
-          endMonth = startMonth;
-          endDay = startDay;
-        } else if (i === 15) {
-          // Pattern 16: "DD/MM/YYYY" (european single)
-          [, startDay, startMonth, startYear] = match;
-          endYear = startYear;
-          endMonth = startMonth;
-          endDay = startDay;
-        } else if (i === 16) {
-          // Pattern 17: "MM/DD/YYYY" (american single)
-          [, startMonth, startDay, startYear] = match;
-          endYear = startYear;
-          endMonth = startMonth;
-          endDay = startDay;
-        }
-
-        // Check if we have all required components
-        if (startYear && startMonth && startDay && endYear && endMonth && endDay) {
-          // Check if the values are valid
-          const startYearNum = parseInt(startYear);
-          const startMonthNum = parseInt(startMonth);
-          const startDayNum = parseInt(startDay);
-          const endYearNum = parseInt(endYear);
-          const endMonthNum = parseInt(endMonth);
-          const endDayNum = parseInt(endDay);
-
-          // Basic validity checks
-          if (
-            startYearNum >= 2020 &&
-            startYearNum <= 2030 &&
-            startMonthNum >= 1 &&
-            startMonthNum <= 12 &&
-            startDayNum >= 1 &&
-            startDayNum <= 31 &&
-            endYearNum >= 2020 &&
-            endYearNum <= 2030 &&
-            endMonthNum >= 1 &&
-            endMonthNum <= 12 &&
-            endDayNum >= 1 &&
-            endDayNum <= 31
-          ) {
-            const startDate = `${startYear}-${startMonth.padStart(2, '0')}-${startDay.padStart(2, '0')}T00:00:00.000Z`;
-            const endDate = `${endYear}-${endMonth.padStart(2, '0')}-${endDay.padStart(2, '0')}T23:59:59.000Z`;
-
-            return {
-              time_begin: startDate,
-              time_end: endDate,
-            };
-          }
+        const components = handler(match);
+        if (components && isValidDateComponents(components)) {
+          return formatDateComponents(components);
         }
       } catch (error) {
         console.error('❌ Error processing date match:', error, match);
@@ -430,10 +506,9 @@ export function extractDatesFromPageContent(
   }
 
   // Fallback: try to extract at least the year and create default dates
-  const yearMatch = pageContent.match(/\b(202[0-9]|203[0-9])\b/);
+  const yearMatch = /\b(202\d|203\d)\b/.exec(pageContent);
   if (yearMatch) {
     const year = yearMatch[1];
-
     return {
       time_begin: `${year}-01-01T00:00:00.000Z`,
       time_end: `${year}-12-31T23:59:59.000Z`,
@@ -468,9 +543,10 @@ export function extractWikimediaTitleFromURL(url: string): string | undefined {
             const decodedTitle = decodeURIComponent(cleanTitle);
             // Replace underscores with spaces
             return decodedTitle.replace(/_/g, ' ');
-          } catch (decodeError) {
+          } catch (error) {
+            console.error('Error extracting title from URL:', error);
             // If decoding fails, use the original with underscores replaced
-            return titleMatch.replace(/_/g, ' ');
+            return titleMatch?.replace(/_/g, ' ') || undefined;
           }
         }
       }
@@ -496,7 +572,7 @@ export function extractQIDFromURL(url: string): string | undefined {
 
     for (const pattern of patterns) {
       const match = url.match(pattern);
-      if (match && match[1]) {
+      if (match?.[1]) {
         return match[1];
       }
     }
@@ -547,7 +623,7 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
 
     const data = await response.json();
 
-    if (!data.results || !data.results.bindings || data.results.bindings.length === 0) {
+    if (!data.results?.bindings?.length) {
       return null;
     }
 
@@ -570,10 +646,11 @@ async function fetchWikimediaPageData(url: string): Promise<{
 } | null> {
   try {
     // Extract domain and page title from URL
-    const urlMatch = url.match(/https?:\/\/([^\/]{1,100})\/wiki\/(.{1,200})/i);
+    const urlMatch = new RegExp(/https?:[/][/]([^/]{1,100})[/]wiki[/](.{1,200})/i).exec(url);
     if (!urlMatch) return null;
 
-    const [, domain, pageTitle] = urlMatch;
+    const domain = urlMatch?.[1];
+    const pageTitle = urlMatch?.[2];
     const cleanTitle = pageTitle.replace(/_/g, ' ');
 
     // Multiple API calls to get comprehensive data
@@ -670,21 +747,23 @@ function extractInfoboxFromWikitext(wikitext: string): any {
       ];
 
       for (const pattern of datePatterns) {
-        const match = infoboxText.match(pattern.regex);
-        if (match && match[1]) {
+        const match = new RegExp(pattern.regex).exec(infoboxText);
+        if (match?.[1]) {
           data[pattern.key] = match[1].trim();
         }
       }
 
       // Extract location from infobox
-      const locationMatch = infoboxText.match(/\|\s*location\s*=\s*([^|\n]+)/i);
-      if (locationMatch && locationMatch[1]) {
+      const locationMatch = new RegExp(/\|\s*location\s*=\s*([^|\n]+)/i).exec(infoboxText);
+      if (locationMatch?.[1]) {
         data.location = locationMatch[1].trim();
       }
 
       // Extract description/summary from infobox
-      const summaryMatch = infoboxText.match(/\|\s*(summary|description)\s*=\s*([^|\n]+)/i);
-      if (summaryMatch && summaryMatch[2]) {
+      const summaryMatch = new RegExp(/\|\s*(summary|description)\s*=\s*([^|\n]+)/i).exec(
+        infoboxText
+      );
+      if (summaryMatch?.[2]) {
         data.description = summaryMatch[2].trim();
       }
     }
@@ -706,7 +785,7 @@ function extractInfoboxFromWikitext(wikitext: string): any {
       ];
 
       for (const pattern of datePatterns) {
-        const match = wikitext.match(pattern);
+        const match = new RegExp(pattern).exec(wikitext);
         if (match) {
           data.dates = match[0];
           break;
@@ -723,8 +802,8 @@ function extractInfoboxFromWikitext(wikitext: string): any {
       ];
 
       for (const pattern of locationPatterns) {
-        const match = wikitext.match(pattern);
-        if (match && match[1]) {
+        const match = new RegExp(pattern).exec(wikitext);
+        if (match?.[1]) {
           data.location = match[1].trim();
           break;
         }
@@ -775,6 +854,123 @@ function extractDescriptionFromContent(content: string): string {
   return '';
 }
 
+/**
+ * Processes infobox data to extract event information
+ */
+function processInfoboxData(infobox: any, eventData: Partial<Event>): void {
+  if (infobox.description) {
+    eventData.description = infobox.description;
+  }
+
+  const infoboxDateText = [
+    infobox.date,
+    infobox.dates,
+    infobox.start_date,
+    infobox.end_date,
+    infobox.when,
+    infobox.time,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  if (infoboxDateText) {
+    const dateInfo = extractDatesFromPageContent(infoboxDateText);
+    if (dateInfo) {
+      eventData.time_begin = dateInfo.time_begin;
+      if (dateInfo.time_end) {
+        eventData.time_end = dateInfo.time_end;
+      }
+    }
+  }
+
+  if (infobox.location) {
+    eventData.type_of_location = 'in-person';
+  }
+}
+
+/**
+ * Processes page content to extract missing event information
+ */
+function processPageContent(content: string, eventData: Partial<Event>): void {
+  if (!eventData.description) {
+    const description = extractDescriptionFromContent(content);
+    if (description) {
+      eventData.description = description;
+    }
+  }
+
+  if (!eventData.time_begin) {
+    const dateInfo = extractDatesFromPageContent(content);
+    if (dateInfo) {
+      eventData.time_begin = dateInfo.time_begin;
+      if (dateInfo.time_end) {
+        eventData.time_end = dateInfo.time_end;
+      }
+    }
+  }
+}
+
+/**
+ * Determines event type, name, and location based on page title and year
+ */
+function determineEventTypeAndLocation(
+  pageTitle: string,
+  extractedYear: number | undefined,
+  eventData: Partial<Event>
+): void {
+  if (!extractedYear) return;
+
+  const lowerPageTitle = pageTitle.toLowerCase();
+
+  if (lowerPageTitle.includes('wikicon')) {
+    eventData.name = `WikiCon Brasil ${extractedYear}`;
+    if (!eventData.type_of_location) {
+      eventData.type_of_location = 'hybrid';
+    }
+  } else if (lowerPageTitle.includes('wikimania')) {
+    eventData.name = `Wikimania ${extractedYear}`;
+    if (!eventData.type_of_location) {
+      eventData.type_of_location = 'in-person';
+    }
+  } else {
+    if (!eventData.type_of_location) {
+      eventData.type_of_location = 'hybrid';
+    }
+  }
+}
+
+/**
+ * Creates fallback event data when main processing fails
+ */
+function createFallbackEventData(pageTitle: string, url: string): Partial<Event> | null {
+  const lowerPageTitle = pageTitle.toLowerCase();
+  const extractedYear = extractYearFromText(pageTitle) || extractYearFromText(url);
+
+  if (lowerPageTitle.includes('wikicon') && extractedYear) {
+    return {
+      name: `WikiCon Brasil ${extractedYear}`,
+      description: '',
+      time_begin: '',
+      time_end: '',
+      type_of_location: 'hybrid',
+      url: url,
+    };
+  }
+
+  if (extractedYear) {
+    return {
+      name: pageTitle,
+      description: '',
+      time_begin: '',
+      time_end: '',
+      type_of_location: 'hybrid',
+      url: url,
+    };
+  }
+
+  return null;
+}
+
 export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial<Event> | null> {
   const pageTitle = extractWikimediaTitleFromURL(url);
 
@@ -784,137 +980,36 @@ export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial
   }
 
   try {
-    // Fetch comprehensive page data
     const pageData = await fetchWikimediaPageData(url);
 
-    // If we found a Wikidata QID, use the SPARQL endpoint for structured data
     if (pageData?.wikidata_qid) {
       const wikidataResult = await fetchEventDataByQID(pageData.wikidata_qid);
       if (wikidataResult) {
-        // Ensure the URL is set to the original Wikimedia URL
         wikidataResult.url = url;
         return wikidataResult;
       }
     }
 
-    // Create basic data for events based on the page title
-    const lowerPageTitle = pageTitle.toLowerCase();
     const extractedYear = extractYearFromText(pageTitle) || extractYearFromText(url);
-
     const eventData: Partial<Event> = {
       name: pageTitle,
       url: url,
     };
 
-    // Try to extract dates from infobox first (more structured)
     if (pageData?.infobox) {
-      // Extract description from infobox
-      if (pageData.infobox.description) {
-        eventData.description = pageData.infobox.description;
-      }
-
-      // Extract dates from infobox
-      const infoboxDateText = [
-        pageData.infobox.date,
-        pageData.infobox.dates,
-        pageData.infobox.start_date,
-        pageData.infobox.end_date,
-        pageData.infobox.when,
-        pageData.infobox.time,
-      ]
-        .filter(Boolean)
-        .join(' ');
-
-      if (infoboxDateText) {
-        const dateInfo = extractDatesFromPageContent(infoboxDateText);
-        if (dateInfo) {
-          eventData.time_begin = dateInfo.time_begin;
-          if (dateInfo.time_end) {
-            eventData.time_end = dateInfo.time_end;
-          }
-        }
-      }
-
-      // Set location type based on infobox location
-      if (pageData.infobox.location) {
-        eventData.type_of_location = 'in-person';
-      }
+      processInfoboxData(pageData.infobox, eventData);
     }
 
-    // Fallback to page content if infobox didn't provide enough data
     if (pageData?.content && (!eventData.description || !eventData.time_begin)) {
-      // Extract description from page content if not found in infobox
-      if (!eventData.description) {
-        const description = extractDescriptionFromContent(pageData.content);
-        if (description) {
-          eventData.description = description;
-        }
-      }
-
-      // Try to extract dates from page content if not found in infobox
-      if (!eventData.time_begin) {
-        const dateInfo = extractDatesFromPageContent(pageData.content);
-        if (dateInfo) {
-          eventData.time_begin = dateInfo.time_begin;
-          if (dateInfo.time_end) {
-            eventData.time_end = dateInfo.time_end;
-          }
-        }
-      }
+      processPageContent(pageData.content, eventData);
     }
 
-    if (extractedYear) {
-      // Identify event type and define a cleaner name
-      if (lowerPageTitle.includes('wikicon')) {
-        eventData.name = `WikiCon Brasil ${extractedYear}`;
-        if (!eventData.type_of_location) {
-          eventData.type_of_location = 'hybrid';
-        }
-      } else if (lowerPageTitle.includes('wikimania')) {
-        eventData.name = `Wikimania ${extractedYear}`;
-        if (!eventData.type_of_location) {
-          eventData.type_of_location = 'in-person';
-        }
-      } else {
-        if (!eventData.type_of_location) {
-          eventData.type_of_location = 'hybrid';
-        }
-      }
-    }
+    determineEventTypeAndLocation(pageTitle, extractedYear, eventData);
 
     return eventData;
   } catch (error) {
     console.error('Error fetching event data from Wikimedia:', error);
-
-    // Fallback for known events
-    const lowerPageTitle = pageTitle.toLowerCase();
-    const extractedYear = extractYearFromText(pageTitle) || extractYearFromText(url);
-
-    // Wikicon
-    if (lowerPageTitle.includes('wikicon') && extractedYear) {
-      return {
-        name: `WikiCon Brasil ${extractedYear}`,
-        description: '',
-        time_begin: '',
-        time_end: '',
-        type_of_location: 'hybrid',
-        url: url,
-      };
-    }
-
-    // Fallback genérico para outros eventos com ano identificado
-    if (extractedYear) {
-      return {
-        name: pageTitle,
-        description: '',
-        time_begin: '',
-        time_end: '',
-        type_of_location: 'hybrid',
-        url: url,
-      };
-    }
-
-    return null;
+    return createFallbackEventData(pageTitle, url);
   }
 }
 
@@ -929,8 +1024,8 @@ async function fetchLearnWikiPageContent(
 ): Promise<{ title?: string; description?: string; dates?: string } | null> {
   try {
     // Extract course code from URL
-    const courseMatch = url.match(/course-v1:([^/]{1,100})/i);
-    if (!courseMatch || !courseMatch[1]) {
+    const courseMatch = new RegExp(/course-v1:([^/]{1,100})/i).exec(url);
+    if (!courseMatch?.[1]) {
       return null;
     }
 
@@ -968,7 +1063,7 @@ async function fetchLearnWikiPageContent(
 }
 
 export async function fetchEventDataByLearnWikiURL(url: string): Promise<Partial<Event> | null> {
-  if (!url || !url.includes('learn.wiki')) return null;
+  if (!url?.includes('learn.wiki')) return null;
 
   try {
     // Extract course information from URL (no CORS issues)
@@ -997,7 +1092,7 @@ export async function fetchEventDataByLearnWikiURL(url: string): Promise<Partial
         }
       } else {
         // If structured extraction fails, try to parse as simple date
-        const simpleDateMatch = pageData.dates.match(/(\d{4})-(\d{2})-(\d{2})/);
+        const simpleDateMatch = new RegExp(/(\d{4})-(\d{2})-(\d{2})/).exec(pageData.dates);
         if (simpleDateMatch) {
           const [, year, month, day] = simpleDateMatch;
           const startDate = `${year}-${month}-${day}T00:00:00.000Z`;
@@ -1032,8 +1127,8 @@ export function isValidEventURL(url: string): boolean {
     { name: 'Wikidata', pattern: /^https?:\/\/www\.wikidata\.org\/(wiki|entity)\/Q\d+/i },
   ];
 
-  for (const { name, pattern } of validPatterns) {
-    const matches = pattern.test(url);
+  for (const { pattern } of validPatterns) {
+    const matches = new RegExp(pattern).exec(url);
     if (matches) {
       return true;
     }

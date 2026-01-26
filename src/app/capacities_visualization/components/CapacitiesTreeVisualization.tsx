@@ -201,7 +201,6 @@ export default function CapacitiesTreeVisualization() {
         abortControllerRef.current.abort();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     rootCapacitiesCodes,
     language,

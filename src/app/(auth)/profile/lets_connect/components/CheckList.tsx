@@ -118,9 +118,7 @@ export default function Checklist({
 
       {description && (
         <p
-          className={`text-[10px] md:text-[18px] text-start font-[Montserrat] ${
-            darkMode ? 'text-[#829BA4]' : 'text-[#829BA4]'
-          }`}
+          className={`text-[10px] md:text-[18px] text-start font-[Montserrat] ${'text-[#829BA4]'}`}
         >
           {description}
         </p>

@@ -10,7 +10,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/');
+    redirect('/sign-in-required');
   }
 
   return (

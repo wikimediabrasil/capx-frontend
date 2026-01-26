@@ -10,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
+import AnalyticsCallToActionSection from './AnalyticsCallToActionSection';
 
 interface AuthenticatedMainSectionProps {
   pageContent: any;
@@ -34,7 +35,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
     ...(profile ?? {}),
   };
 
-  const hasSkillsOrLanguages =
+  const _hasSkillsOrLanguages =
     (Array.isArray(fd.language) && fd.language.length > 0) ||
     (Array.isArray(fd.skills_known) && fd.skills_known.length > 0) ||
     (Array.isArray(fd.skills_available) && fd.skills_available.length > 0) ||
@@ -92,6 +93,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             </div>
           </div>
         </section>
+        <AnalyticsCallToActionSection />
         <SectionRecommendationsCarousel />
 
         <section
@@ -200,6 +202,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             />
           </div>
         </div>
+        <AnalyticsCallToActionSection />
         <SectionRecommendationsCarousel />
 
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">

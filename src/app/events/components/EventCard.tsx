@@ -54,7 +54,7 @@ export default function EventCard({
   const { darkMode } = useTheme();
   const token = session?.user?.token;
 
-  const { getName: getCapacityName, updateLanguage, isLoaded } = useCapacityCache();
+  const { getName: getCapacityName, updateLanguage, isLoaded: _isLoaded } = useCapacityCache();
   const { organization } = useOrganization(token, event.organization);
   const { names: organizationNames } = useOrganizationNames({
     organizationId: organization?.id,

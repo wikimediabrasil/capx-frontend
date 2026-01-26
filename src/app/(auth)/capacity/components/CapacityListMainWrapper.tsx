@@ -162,8 +162,8 @@ function CapacityListContent() {
 
   // Exclusive expansion state
   const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
+  const [_expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
 
-  const [expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
   const { pageContent } = useApp();
 
   // Data hooks
