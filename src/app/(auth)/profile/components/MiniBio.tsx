@@ -10,6 +10,7 @@ interface MiniBioProps {
   onAboutChange?: (value: string) => void;
   isEditing?: boolean;
   maxLength?: number;
+  showTooltip?: boolean;
 }
 
 export default function MiniBio({
@@ -17,6 +18,7 @@ export default function MiniBio({
   onAboutChange,
   isEditing = false,
   maxLength = 2000,
+  showTooltip = false,
 }: MiniBioProps) {
   const { darkMode } = useTheme();
   const { isMobile, pageContent } = useApp();
@@ -85,6 +87,16 @@ export default function MiniBio({
             </p>
           </div>
         )}
+
+        {showTooltip && (
+          <span
+            className={`font-[Montserrat] text-[12px] not-italic font-normal leading-[15px] ${
+              darkMode ? 'text-white' : 'text-[#053749]'
+            }`}
+          >
+            {pageContent['edit-profile-mini-bio-tooltip']}
+          </span>
+        )}
       </div>
     );
   }
@@ -137,6 +149,16 @@ export default function MiniBio({
             {renderText(about)}
           </p>
         </div>
+      )}
+
+      {showTooltip && (
+        <span
+          className={`font-[Montserrat] text-[20px] not-italic font-normal leading-normal ${
+            darkMode ? 'text-white' : 'text-[#053749]'
+          }`}
+        >
+          {pageContent['edit-profile-mini-bio-tooltip']}
+        </span>
       )}
     </div>
   );

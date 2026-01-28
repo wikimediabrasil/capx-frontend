@@ -514,7 +514,7 @@
   "capacity-list-something-went-wrong": "Something went wrong",
   "capacity-list-an-error": "An error occurred while loading capacities. Please try again later.",
   "edit-profile-mini-bio-exceeded-chars": "$1 characters exceeded",
-  "edit-profile-mini-bio-remaining-chars": "$1 characters remaining",
+  "edit-profile-mini-bio-remaining-chars": "characters remaining",
   "capacity-card-capacity-prefix": "Capacity",
   "capacity-card-visit-metabase": "Visit the capacity item page on Metabase",
   "capacity-card-visit-wikidata": "Visit the capacity item page on Wikidata",
