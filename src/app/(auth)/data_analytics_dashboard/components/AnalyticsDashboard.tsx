@@ -6,6 +6,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAggregatedTerritoryData } from '@/hooks/useAggregatedTerritoryData';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSkills } from '@/hooks/useSkills';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
@@ -26,9 +27,9 @@ import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import technology from '@/public/static/images/wifi_tethering.svg';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
-import D3ChoroplethMap from './D3ChoroplethMap';
+import SVGWorldMap from './SVGWorldMap';
 
 // Constants
 const SKILL_METADATA = {
@@ -206,11 +207,24 @@ export default function AnalyticsDashboardPage() {
   const { data } = useStatistics();
   const { territories } = useTerritories(token);
   const { languages } = useLanguage(token);
+  const { skills } = useSkills();
   const {
     languagesByTerritory,
     capacitiesByTerritory,
     isLoading: isAggregatedDataLoading,
   } = useAggregatedTerritoryData(token);
+
+  // Transform skills array to Record<string, string> for capacities mapping
+  const capacities = useMemo(() => {
+    if (!skills || !Array.isArray(skills)) return {};
+    return skills.reduce(
+      (acc: Record<string, string>, skill: { code: number; name: string }) => {
+        acc[String(skill.code)] = skill.name;
+        return acc;
+      },
+      {}
+    );
+  }, [skills]);
 
   const [openLanguages, setOpenLanguages] = useState(false);
   const [openTerritories, setOpenTerritories] = useState(false);
@@ -269,15 +283,39 @@ export default function AnalyticsDashboardPage() {
       </div>
 
       {/* World Map Section - Territory Map */}
-      <div className="flex flex-col w-full gap-4 mt-[40px]">
+      <div className="flex flex-col px-4 w-full gap-4 mt-[40px]">
+        <div className="flex items-center gap-2">
+          <Image
+            src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+            alt="Globe icon"
+            width={20}
+            height={20}
+            className="block md:hidden"
+          />
+          <Image
+            src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+            alt="Globe icon"
+            width={48}
+            height={48}
+            className="hidden md:block"
+          />
+          <h2
+            className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${
+              darkMode ? 'text-white' : 'text-[#053749]'
+            }`}
+          >
+            {pageContent['analytics-map-header-title'] || 'Wikimedians through the globe'}
+          </h2>
+        </div>
         <div className={`w-full rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}>
-          <D3ChoroplethMap
+          <SVGWorldMap
             languageUserCounts={data?.language_user_counts}
             languages={languages}
             skillAvailableCounts={data?.skill_available_user_counts}
             skillWantedCounts={data?.skill_wanted_user_counts}
             territoryUserCounts={data?.territory_user_counts}
             territories={territories}
+            capacities={capacities}
             languagesByTerritory={languagesByTerritory}
             capacitiesByTerritory={capacitiesByTerritory}
             isAggregatedDataLoading={isAggregatedDataLoading}

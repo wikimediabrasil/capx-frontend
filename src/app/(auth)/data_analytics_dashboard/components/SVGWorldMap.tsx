@@ -6,12 +6,13 @@ import {
   getCapacityTotalsByWikimediaTerritory,
   getLanguageTotalsByWikimediaTerritory,
 } from '@/hooks/useAggregatedTerritoryData';
-import * as d3 from 'd3';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   WIKIMEDIA_TERRITORIES,
   WikimediaTerritory,
   getTerritoryByCountry,
+  ISO_ALPHA2_TO_ALPHA3,
+  buildApiTerritoryToWikimediaMap,
 } from './wikimediaTerritories';
 
 interface AggregatedLanguageData {
@@ -24,7 +25,7 @@ interface AggregatedCapacityData {
   };
 }
 
-interface D3ChoroplethMapProps {
+interface SVGWorldMapProps {
   languageUserCounts?: Record<string, number>;
   languages?: Record<string, string>;
   skillAvailableCounts?: Record<string, number>;
@@ -37,10 +38,6 @@ interface D3ChoroplethMapProps {
   isAggregatedDataLoading?: boolean;
   totalUsers?: number;
 }
-
-// GeoJSON URL for world map
-const WORLD_GEOJSON_URL =
-  'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson';
 
 // View mode type
 type ViewMode = 'users' | 'languages' | 'capacities';
@@ -60,46 +57,8 @@ const TERRITORY_COLORS: Record<string, string> = {
   NA: '#717171',     // capx-secondary-grey - North America
 };
 
-// Normalize territory name for matching
-function normalizeTerritoryName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]/g, '')
-    .trim();
-}
 
-// Map normalized API territory names to Wikimedia territory IDs
-const NORMALIZED_TERRITORY_MAP: Record<string, string> = {
-  'middleeastandnorthafricamena': 'MENA',
-  'subsaharanafricassa': 'SSA',
-  'southasiasa': 'SA',
-  'eastsoutheastasiaandpacificeseap': 'ESEAP',
-  'latinamericaandcaribbeanlac': 'LAC',
-  'northamericana': 'NA',
-  'northernandwesterneuropenwe': 'NWE',
-  'centralandeasterneuropeandcentralasiaceeca': 'CEECA',
-  'subsaharanafrica': 'SSA',
-  'northernandwesterneurope': 'NWE',
-  'eastsoutheastasiaandthepacific': 'ESEAP',
-  'eastsoutheastasiaandpacific': 'ESEAP',
-  'latinamericaandthecaribbean': 'LAC',
-  'latinamericaandcaribbean': 'LAC',
-  'centralandeasterneuropeandcentralasia': 'CEECA',
-  'southasia': 'SA',
-  'middleeastandnorthafrica': 'MENA',
-  'northamerica': 'NA',
-  'ssa': 'SSA',
-  'nwe': 'NWE',
-  'eseap': 'ESEAP',
-  'lac': 'LAC',
-  'ceeca': 'CEECA',
-  'sa': 'SA',
-  'mena': 'MENA',
-  'na': 'NA',
-};
-
-export default function D3ChoroplethMap({
+export default function SVGWorldMap({
   languageUserCounts,
   languages,
   skillAvailableCounts,
@@ -111,13 +70,11 @@ export default function D3ChoroplethMap({
   capacitiesByTerritory,
   isAggregatedDataLoading,
   totalUsers: totalUsersProp,
-}: D3ChoroplethMapProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+}: SVGWorldMapProps) {
+  const svgContainerRef = useRef<HTMLDivElement>(null);
   const { darkMode } = useTheme();
   const { pageContent, isMobile } = useApp();
-  const [geoData, setGeoData] = useState<any>(null);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 500 });
+  const [svgContent, setSvgContent] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('users');
   const [selectedTerritory, setSelectedTerritory] = useState<WikimediaTerritory | null>(null);
   const [hoveredTerritory, setHoveredTerritory] = useState<WikimediaTerritory | null>(null);
@@ -125,44 +82,29 @@ export default function D3ChoroplethMap({
   const [selectedCapacityId, setSelectedCapacityId] = useState<string>('all');
   const [mapOrientation, setMapOrientation] = useState<MapOrientation>('north-up');
 
-  // Create API territory ID to Wikimedia ID mapping
+  // Create API territory ID to Wikimedia ID mapping (uses fallback if territories unavailable)
   const apiTerritoryToWikimediaMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    if (!territories) return map;
-
-    Object.entries(territories).forEach(([id, name]) => {
-      const normalizedName = normalizeTerritoryName(name);
-      const wikimediaId = NORMALIZED_TERRITORY_MAP[normalizedName];
-      if (wikimediaId) {
-        map[id] = wikimediaId;
-      }
-    });
-
-    return map;
+    return buildApiTerritoryToWikimediaMap(territories);
   }, [territories]);
 
   // Map API territories to Wikimedia territory counts
   const wikimediaTerritoryUserCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
-    if (!territoryUserCounts || !territories) {
+    if (!territoryUserCounts) {
       return counts;
     }
 
+    // Use the apiTerritoryToWikimediaMap which has fallback logic built in
     Object.entries(territoryUserCounts).forEach(([id, count]) => {
-      const territoryName = territories[id];
-      if (territoryName) {
-        const normalizedName = normalizeTerritoryName(territoryName);
-        const wikimediaId = NORMALIZED_TERRITORY_MAP[normalizedName];
-
-        if (wikimediaId) {
-          counts[wikimediaId] = (counts[wikimediaId] || 0) + count;
-        }
+      const wikimediaId = apiTerritoryToWikimediaMap[id];
+      if (wikimediaId) {
+        counts[wikimediaId] = (counts[wikimediaId] || 0) + count;
       }
     });
 
     return counts;
-  }, [territoryUserCounts, territories]);
+  }, [territoryUserCounts, apiTerritoryToWikimediaMap]);
 
   // Get language counts by Wikimedia territory for selected language (or all languages)
   const languageCountsByWikimediaTerritory = useMemo(() => {
@@ -326,49 +268,6 @@ export default function D3ChoroplethMap({
     [capacitiesByTerritory, capacities, apiTerritoryToWikimediaMap]
   );
 
-  // Fetch GeoJSON data
-  useEffect(() => {
-    d3.json(WORLD_GEOJSON_URL).then((data: any) => {
-      setGeoData(data);
-    });
-  }, []);
-
-  // Handle resize
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const width = containerRef.current.clientWidth;
-        const height = isMobile ? 350 : Math.min(500, width * 0.45);
-        setDimensions({ width, height });
-      }
-    };
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, [isMobile]);
-
-  // Create color scale based on view mode
-  const colorScale = useMemo(() => {
-    let baseColor: string;
-
-    switch (viewMode) {
-      case 'languages':
-        baseColor = darkMode ? '#10B85C' : '#0B8E46';
-        break;
-      case 'capacities':
-        baseColor = darkMode ? '#B02890' : '#851D6A';
-        break;
-      default:
-        baseColor = darkMode ? '#339ED6' : '#0070B9';
-    }
-
-    const lightColor = darkMode ? '#1A2F3A' : '#E8F4FC';
-
-    return d3.scaleLinear<string>()
-      .domain([0, maxCount])
-      .range([lightColor, baseColor]);
-  }, [darkMode, maxCount, viewMode]);
-
   // Get count for territory based on view mode
   const getTerritoryCount = useCallback(
     (territory: WikimediaTerritory): number => {
@@ -396,116 +295,186 @@ export default function D3ChoroplethMap({
 
       // Use unique territory color when selected
       if (isSelected) {
-        return TERRITORY_COLORS[territory.id] || (darkMode ? '#FFFFFF' : '#333333');
+        return TERRITORY_COLORS[territory.id] || (darkMode ? '#339ED6' : '#0070B9');
       }
 
       const count = getTerritoryCount(territory);
-      const baseColor = colorScale(count);
+      const intensity = maxCount > 0 ? count / maxCount : 0;
 
-      if (isHovered) {
-        return d3.color(baseColor)?.brighter(0.3)?.toString() || baseColor;
+      let baseColor: string;
+      let lightColor: string;
+
+      switch (viewMode) {
+        case 'languages':
+          baseColor = darkMode ? '#10B85C' : '#0B8E46';
+          lightColor = darkMode ? '#1A2F3A' : '#E8F4FC';
+          break;
+        case 'capacities':
+          baseColor = darkMode ? '#B02890' : '#851D6A';
+          lightColor = darkMode ? '#1A2F3A' : '#E8F4FC';
+          break;
+        default:
+          baseColor = darkMode ? '#339ED6' : '#0070B9';
+          lightColor = darkMode ? '#1A2F3A' : '#E8F4FC';
       }
 
-      return baseColor;
+      // Interpolate between light and base color based on intensity
+      const r1 = parseInt(lightColor.slice(1, 3), 16);
+      const g1 = parseInt(lightColor.slice(3, 5), 16);
+      const b1 = parseInt(lightColor.slice(5, 7), 16);
+      const r2 = parseInt(baseColor.slice(1, 3), 16);
+      const g2 = parseInt(baseColor.slice(3, 5), 16);
+      const b2 = parseInt(baseColor.slice(5, 7), 16);
+
+      const r = Math.round(r1 + (r2 - r1) * intensity);
+      const g = Math.round(g1 + (g2 - g1) * intensity);
+      const b = Math.round(b1 + (b2 - b1) * intensity);
+
+      let color = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+
+      if (isHovered) {
+        // Brighten the color slightly on hover
+        const brighten = 30;
+        const rH = Math.min(255, r + brighten);
+        const gH = Math.min(255, g + brighten);
+        const bH = Math.min(255, b + brighten);
+        color = `#${rH.toString(16).padStart(2, '0')}${gH.toString(16).padStart(2, '0')}${bH.toString(16).padStart(2, '0')}`;
+      }
+
+      return color;
     },
-    [darkMode, selectedTerritory, hoveredTerritory, getTerritoryCount, colorScale]
+    [darkMode, selectedTerritory, hoveredTerritory, getTerritoryCount, maxCount, viewMode]
   );
 
-  // Render map structure (only when geoData, dimensions, darkMode, or orientation changes)
+  // Load SVG content
   useEffect(() => {
-    if (!svgRef.current || !geoData) return;
+    fetch('/static/images/BlankMap-World.svg')
+      .then((response) => response.text())
+      .then((text) => {
+        setSvgContent(text);
+      })
+      .catch((error) => {
+        console.error('Error loading SVG:', error);
+      });
+  }, []);
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
+  // Apply colors and event handlers to SVG
+  useEffect(() => {
+    if (!svgContainerRef.current || !svgContent) return;
 
-    const { width, height } = dimensions;
-    const backgroundColor = darkMode ? '#04222F' : '#FAFAFA';
-    const borderColor = darkMode ? '#0A4C5A' : '#BBBBBB';
+    const container = svgContainerRef.current;
+    container.innerHTML = svgContent;
 
-    svg
-      .attr('width', width)
-      .attr('height', height)
-      .style('background-color', backgroundColor);
+    const svg = container.querySelector('svg');
+    if (!svg) return;
 
-    const projection = d3
-      .geoNaturalEarth1()
-      .scale(isMobile ? width / 5.5 : width / 5.5)
-      .translate([width / 2, height / 2]);
+    // Get original dimensions and set viewBox for proper scaling
+    const originalWidth = 2754;
+    const originalHeight = 1398;
 
-    const pathGenerator = d3.geoPath().projection(projection);
-    const g = svg.append('g').attr('class', 'map-group');
-
-    // Apply South-up rotation if selected (rotate 180 degrees around center)
-    if (mapOrientation === 'south-up') {
-      g.attr('transform', `rotate(180, ${width / 2}, ${height / 2})`);
+    // Set viewBox if not already set (allows proper scaling)
+    if (!svg.getAttribute('viewBox')) {
+      svg.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
     }
 
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1, 6])
-      .on('zoom', (event) => {
-        // Combine zoom transform with orientation transform
-        if (mapOrientation === 'south-up') {
-          g.attr('transform', `rotate(180, ${width / 2}, ${height / 2}) ${event.transform}`);
-        } else {
-          g.attr('transform', event.transform);
+    // Remove fixed width/height and use CSS for responsive sizing
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.width = '100%';
+    svg.style.height = 'auto';
+    svg.style.maxHeight = isMobile ? '280px' : '450px';
+    svg.style.display = 'block';
+
+    // Apply rotation for south-up orientation
+    if (mapOrientation === 'south-up') {
+      svg.style.transform = 'rotate(180deg)';
+    } else {
+      svg.style.transform = 'none';
+    }
+
+    // Find all elements with country classes (both <path> and <g> elements)
+    const landElements = svg.querySelectorAll('.landxx');
+
+    landElements.forEach((element) => {
+      const elementId = element.getAttribute('id') || '';
+      const classList = element.getAttribute('class') || '';
+      const classes = classList.split(' ');
+
+      // Find the country code - first try from element ID, then from classes
+      let countryCode: string | null = null;
+
+      // Try element ID first (e.g., id="br" for Brazil, id="au" for Australia)
+      if (elementId && elementId.length === 2 && ISO_ALPHA2_TO_ALPHA3[elementId.toLowerCase()]) {
+        countryCode = elementId.toLowerCase();
+      } else {
+        // Look in class list for 2-letter country codes
+        for (const cls of classes) {
+          const lowerCls = cls.toLowerCase();
+          // Skip 'id' here as it conflicts with HTML id attribute - handled separately below
+          if (lowerCls.length === 2 && lowerCls !== 'id' && ISO_ALPHA2_TO_ALPHA3[lowerCls]) {
+            countryCode = lowerCls;
+            break;
+          }
         }
-      });
-    svg.call(zoom);
+        // Special case: handle Indonesia which has id="id" or class containing "id"
+        // This handles both the parent <g id="id"> and child paths like <path class="landxx id">
+        if (!countryCode && (elementId.toLowerCase() === 'id' || classes.includes('id'))) {
+          countryCode = 'id';
+        }
+      }
 
-    g.selectAll('path')
-      .data(geoData.features)
-      .enter()
-      .append('path')
-      .attr('class', 'country-path')
-      .attr('d', pathGenerator as any)
-      .attr('stroke', borderColor)
-      .attr('stroke-width', 0.3)
-      .style('cursor', 'pointer');
-  }, [geoData, dimensions, darkMode, isMobile, mapOrientation]);
+      const territory = countryCode ? getTerritoryByCountry(countryCode) : undefined;
+      const color = getTerritoryColor(territory);
 
-  // Update colors separately (without re-rendering the entire map)
-  useEffect(() => {
-    if (!svgRef.current || !geoData) return;
+      // Apply styles - handle both <path> and <g> elements
+      if (element.tagName.toLowerCase() === 'g') {
+        // For group elements, apply fill to all child paths
+        const childPaths = element.querySelectorAll('path');
+        childPaths.forEach((childPath) => {
+          (childPath as SVGPathElement).style.fill = color;
+          (childPath as SVGPathElement).style.transition = 'fill 0.2s ease';
+        });
+        (element as SVGGElement).style.cursor = territory ? 'pointer' : 'default';
+      } else {
+        // For path elements, apply fill directly
+        (element as SVGPathElement).style.fill = color;
+        (element as SVGPathElement).style.cursor = territory ? 'pointer' : 'default';
+        (element as SVGPathElement).style.transition = 'fill 0.2s ease';
+      }
 
-    const svg = d3.select(svgRef.current);
-
-    svg.selectAll('.country-path')
-      .attr('fill', function(d: any) {
-        const countryCode = d.id || d.properties?.iso_a3;
-        const territory = getTerritoryByCountry(countryCode);
-        return getTerritoryColor(territory);
-      });
-  }, [geoData, getTerritoryColor, mapOrientation]);
-
-  // Handle mouse events (separate effect to avoid re-binding on every render)
-  useEffect(() => {
-    if (!svgRef.current || !geoData) return;
-
-    const svg = d3.select(svgRef.current);
-
-    svg.selectAll('.country-path')
-      .on('mouseover', function (event, d: any) {
-        const countryCode = d.id || d.properties?.iso_a3;
-        const territory = getTerritoryByCountry(countryCode);
-        if (territory) {
+      if (territory) {
+        // Add event listeners only for elements with territories
+        element.addEventListener('mouseenter', () => {
           setHoveredTerritory(territory);
-        }
-      })
-      .on('mouseout', function () {
-        setHoveredTerritory(null);
-      })
-      .on('click', (event, d: any) => {
-        event.stopPropagation();
-        const countryCode = d.id || d.properties?.iso_a3;
-        const territory = getTerritoryByCountry(countryCode);
-        if (territory) {
-          setSelectedTerritory(prev =>
+        });
+
+        element.addEventListener('mouseleave', () => {
+          setHoveredTerritory(null);
+        });
+
+        element.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setSelectedTerritory((prev) =>
             prev?.id === territory.id ? null : territory
           );
-        }
-      });
-  }, [geoData, mapOrientation]);
+        });
+      }
+    });
+
+    // Update ocean color and remove its border
+    const ocean = svg.querySelector('#ocean');
+    if (ocean) {
+      (ocean as SVGPathElement).style.fill = darkMode ? '#04222F' : '#FAFAFA';
+      (ocean as SVGPathElement).style.stroke = 'none';
+    }
+
+    // Remove strokes from all land elements to eliminate country borders
+    const allLandPaths = svg.querySelectorAll('.landxx');
+    allLandPaths.forEach((landPath) => {
+      (landPath as SVGPathElement).style.stroke = 'none';
+    });
+
+  }, [svgContent, darkMode, mapOrientation, isMobile, getTerritoryColor, selectedTerritory, hoveredTerritory]);
 
   // Get view mode title
   const getViewModeTitle = () => {
@@ -538,7 +507,7 @@ export default function D3ChoroplethMap({
   const selectedCapacity = capacitiesList.find((c) => c.id === selectedCapacityId);
 
   return (
-    <div ref={containerRef} className="w-full">
+    <div className="w-full">
       {/* View Mode Toggle */}
       <div className="mb-4 flex flex-wrap gap-2">
         <button
@@ -653,20 +622,13 @@ export default function D3ChoroplethMap({
                 : 'bg-white border-gray-300 text-capx-dark-box-bg'
             } focus:outline-none focus:ring-2 focus:ring-capx-primary-green`}
           >
-            <option value="all">
-              {pageContent['analytics-map-all-languages'] || 'All Languages'}
-            </option>
+            <option value="all">{pageContent['analytics-map-all-languages'] || 'All Languages'}</option>
             {sortedLanguages.map((lang) => (
               <option key={lang.id} value={lang.id}>
-                {lang.name} ({lang.count.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'})
+                {lang.name} ({lang.count.toLocaleString()})
               </option>
             ))}
           </select>
-          {isAggregatedDataLoading && (
-            <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/50' : 'text-gray-400'}`}>
-              {pageContent['analytics-map-loading-data'] || 'Loading territory data...'}
-            </span>
-          )}
         </div>
       )}
 
@@ -691,231 +653,170 @@ export default function D3ChoroplethMap({
                 : 'bg-white border-gray-300 text-capx-dark-box-bg'
             } focus:outline-none focus:ring-2 focus:ring-capx-secondary-purple`}
           >
-            <option value="all">
-              {pageContent['analytics-map-all-capacities'] || 'All Capacities'}
-            </option>
+            <option value="all">{pageContent['analytics-map-all-capacities'] || 'All Capacities'}</option>
             {capacitiesList.map((cap) => (
               <option key={cap.id} value={cap.id}>
-                {cap.name} ({cap.total.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'})
+                {cap.name} ({cap.total.toLocaleString()})
               </option>
             ))}
           </select>
-          {isAggregatedDataLoading && (
-            <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/50' : 'text-gray-400'}`}>
-              {pageContent['analytics-map-loading-data'] || 'Loading territory data...'}
+        </div>
+      )}
+
+      {/* SVG Map Container */}
+      <div
+        ref={svgContainerRef}
+        className={`w-full rounded-lg overflow-hidden ${darkMode ? 'bg-[#04222F]' : 'bg-[#FAFAFA]'}`}
+        style={{
+          minHeight: isMobile ? '200px' : '300px',
+          maxHeight: isMobile ? '280px' : '450px',
+        }}
+      />
+
+      {/* Legend and Territory Info */}
+      <div className="mt-4 flex flex-col md:flex-row gap-4">
+        {/* Color Scale Legend */}
+        <div className={`flex-1 p-4 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
+          <h4 className={`font-[Montserrat] font-bold text-sm mb-2 ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
+            {pageContent['analytics-map-legend'] || 'Legend'}
+          </h4>
+          <div className="flex items-center gap-2">
+            <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>0</span>
+            <div
+              className="flex-1 h-4 rounded"
+              style={{
+                background: `linear-gradient(to right, ${gradientColors.light}, ${gradientColors.dark})`,
+              }}
+            />
+            <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
+              {maxCount.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}
             </span>
-          )}
+          </div>
         </div>
-      )}
 
-      {/* Selected item stats */}
-      {viewMode === 'languages' && !isAggregatedDataLoading && (
-        <div className={`mb-4 p-3 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
-          <span className={`font-[Montserrat] text-lg font-bold ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
-            {selectedLanguageId === 'all'
-              ? pageContent['analytics-map-all-languages'] || 'All Languages'
-              : selectedLanguage?.name}:
-          </span>
-          <span className={`font-[Montserrat] text-lg ml-2 text-capx-primary-green`}>
-            {selectedLanguageId === 'all'
-              ? sortedLanguages.reduce((sum, lang) => sum + lang.count, 0).toLocaleString()
-              : selectedLanguage?.count.toLocaleString()}{' '}
-            {pageContent['analytics-map-speakers'] || 'speakers'}
-          </span>
-        </div>
-      )}
-
-      {viewMode === 'capacities' && !isAggregatedDataLoading && (
-        <div className={`mb-4 p-3 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
-          <span className={`font-[Montserrat] text-lg font-bold ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
-            {selectedCapacityId === 'all'
-              ? pageContent['analytics-map-all-capacities'] || 'All Capacities'
-              : selectedCapacity?.name}:
-          </span>
-          <span className={`font-[Montserrat] text-sm ml-2 ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
-            {selectedCapacityId === 'all' ? (
-              <>
-                {capacitiesList.reduce((sum, cap) => sum + cap.available, 0).toLocaleString()}{' '}
-                {pageContent['analytics-bashboard-capacities-card-sharers'] || 'sharers'} |{' '}
-                {capacitiesList.reduce((sum, cap) => sum + cap.wanted, 0).toLocaleString()}{' '}
-                {pageContent['analytics-bashboard-capacities-card-learners'] || 'learners'}
-              </>
-            ) : (
-              <>
-                {selectedCapacity?.available.toLocaleString()}{' '}
-                {pageContent['analytics-bashboard-capacities-card-sharers'] || 'sharers'} |{' '}
-                {selectedCapacity?.wanted.toLocaleString()}{' '}
-                {pageContent['analytics-bashboard-capacities-card-learners'] || 'learners'}
-              </>
-            )}
-          </span>
-        </div>
-      )}
-
-      {/* Map */}
-      <svg ref={svgRef} className="w-full rounded-lg" />
-
-      {/* Color Scale Legend */}
-      <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
-        {/* Gradient bar */}
-        <div className="flex items-center gap-3 mb-4">
-          <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
-            0
-          </span>
+        {/* Territory Info Panel */}
+        {(selectedTerritory || hoveredTerritory) && (
           <div
-            className="flex-1 h-4 rounded"
+            className={`flex-1 p-4 rounded-lg border-2 ${darkMode ? 'bg-capx-dark-bg' : 'bg-white'}`}
             style={{
-              background: `linear-gradient(to right, ${gradientColors.light}, ${gradientColors.dark})`
+              borderColor: selectedTerritory
+                ? TERRITORY_COLORS[selectedTerritory.id]
+                : hoveredTerritory
+                ? TERRITORY_COLORS[hoveredTerritory.id]
+                : 'transparent',
             }}
-          />
-          <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
-            {maxCount.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}
-          </span>
-        </div>
+          >
+            {(() => {
+              const territory = selectedTerritory || hoveredTerritory;
+              if (!territory) return null;
 
-        {/* Territory list with counts */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              const count = getTerritoryCount(territory);
+              const topLanguages = getTopLanguagesForTerritory(territory);
+              const topCapacities = getTopCapacitiesForTerritory(territory);
+
+              return (
+                <>
+                  <h4
+                    className={`font-[Montserrat] font-bold text-lg mb-1 ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}
+                    style={{ color: TERRITORY_COLORS[territory.id] }}
+                  >
+                    {territory.fullName}
+                  </h4>
+                  <p className={`font-[Montserrat] text-sm mb-2 ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
+                    {territory.name} · {territory.countries.length} {pageContent['analytics-map-countries-count'] || 'countries'}
+                  </p>
+                  <p className={`font-[Montserrat] text-sm ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
+                    {viewMode === 'languages' && selectedLanguage
+                      ? `${selectedLanguage.name} ${pageContent['analytics-map-speakers'] || 'speakers'}`
+                      : viewMode === 'capacities' && selectedCapacity
+                      ? `${selectedCapacity.name} ${pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}`
+                      : pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}:{' '}
+                    <span className={`font-bold ${
+                      viewMode === 'languages'
+                        ? 'text-capx-primary-green'
+                        : viewMode === 'capacities'
+                        ? 'text-capx-secondary-purple'
+                        : 'text-capx-primary-blue'
+                    }`}>
+                      {count.toLocaleString()}
+                    </span>
+                  </p>
+
+                  {/* Top Languages */}
+                  {topLanguages.length > 0 && (
+                    <div className="mt-3">
+                      <p className={`font-[Montserrat] text-xs font-semibold mb-1 ${darkMode ? 'text-white/70' : 'text-gray-500'}`}>
+                        {pageContent['analytics-map-top-languages'] || 'Top Languages'}:
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {topLanguages.map((lang) => (
+                          <span
+                            key={lang.id}
+                            className={`text-xs px-2 py-0.5 rounded ${darkMode ? 'bg-capx-dark-box-bg text-white/80' : 'bg-gray-100 text-gray-700'}`}
+                          >
+                            {lang.name} ({lang.count})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Top Capacities */}
+                  {topCapacities.length > 0 && (
+                    <div className="mt-3">
+                      <p className={`font-[Montserrat] text-xs font-semibold mb-1 ${darkMode ? 'text-white/70' : 'text-gray-500'}`}>
+                        {pageContent['analytics-map-top-capacities'] || 'Top Capacities'}:
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {topCapacities.map((cap) => (
+                          <span
+                            key={cap.id}
+                            className={`text-xs px-2 py-0.5 rounded ${darkMode ? 'bg-capx-dark-box-bg text-white/80' : 'bg-gray-100 text-gray-700'}`}
+                          >
+                            {cap.name} ({cap.total})
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTerritory && (
+                    <p className={`font-[Montserrat] text-xs mt-2 ${darkMode ? 'text-white/50' : 'text-gray-400'}`}>
+                      {pageContent['analytics-map-click-deselect'] || 'Click again to deselect'}
+                    </p>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+
+      {/* Territory Grid (when no territory is selected) */}
+      {!selectedTerritory && !hoveredTerritory && (
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
           {WIKIMEDIA_TERRITORIES.map((territory) => {
             const count = getTerritoryCount(territory);
-            const isSelected = selectedTerritory?.id === territory.id;
-            const swatchColor = isSelected
-              ? TERRITORY_COLORS[territory.id] || colorScale(count)
-              : colorScale(count);
             return (
               <button
                 key={territory.id}
-                onClick={() => setSelectedTerritory(selectedTerritory?.id === territory.id ? null : territory)}
-                className={`flex items-center gap-2 p-2 rounded transition-all text-left ${
-                  isSelected
-                    ? darkMode
-                      ? 'bg-white/20 ring-2 ring-white'
-                      : 'bg-gray-200 ring-2 ring-gray-400'
-                    : 'hover:opacity-80'
+                onClick={() => setSelectedTerritory(territory)}
+                className={`p-3 rounded-lg text-left transition-all hover:scale-[1.02] ${
+                  darkMode ? 'bg-capx-dark-bg hover:bg-capx-dark-bg/80' : 'bg-gray-50 hover:bg-gray-100'
                 }`}
+                style={{ borderLeft: `4px solid ${TERRITORY_COLORS[territory.id]}` }}
               >
-                <div
-                  className="w-4 h-4 rounded-sm flex-shrink-0"
-                  style={{ backgroundColor: swatchColor }}
-                />
-                <div className="flex flex-col min-w-0">
-                  <span
-                    className={`font-[Montserrat] text-xs truncate ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}
-                    title={territory.fullName}
-                  >
-                    {territory.fullName}
-                  </span>
-                  <span
-                    className={`font-[Montserrat] text-[10px] ${darkMode ? 'text-white/50' : 'text-gray-400'}`}
-                  >
-                    {territory.name} · {count.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}
-                  </span>
-                </div>
+                <p className={`font-[Montserrat] font-bold text-sm ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
+                  {territory.fullName}
+                </p>
+                <p className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-500'}`}>
+                  {territory.name} · {count.toLocaleString()} {pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}
+                </p>
               </button>
             );
           })}
         </div>
-      </div>
-
-      {/* Hovered/Selected Territory Info */}
-      {(hoveredTerritory || selectedTerritory) && (() => {
-        const currentTerritory = (selectedTerritory || hoveredTerritory)!;
-        const topLanguages = getTopLanguagesForTerritory(currentTerritory);
-        const topCapacities = getTopCapacitiesForTerritory(currentTerritory);
-        const isCurrentSelected = selectedTerritory?.id === currentTerritory.id;
-        const infoSwatchColor = isCurrentSelected
-          ? TERRITORY_COLORS[currentTerritory.id] || colorScale(getTerritoryCount(currentTerritory))
-          : colorScale(getTerritoryCount(currentTerritory));
-
-        return (
-          <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
-            <div className="flex items-center gap-3 mb-2">
-              <div
-                className="w-6 h-6 rounded"
-                style={{
-                  backgroundColor: infoSwatchColor,
-                }}
-              />
-              <h3 className={`font-[Montserrat] text-lg font-bold ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
-                {currentTerritory.fullName}
-              </h3>
-            </div>
-            <p className={`font-[Montserrat] text-sm ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
-              {viewMode === 'languages' && selectedLanguage
-                ? `${selectedLanguage.name} ${pageContent['analytics-map-speakers'] || 'speakers'}`
-                : viewMode === 'capacities' && selectedCapacity
-                ? `${selectedCapacity.name} ${pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}`
-                : pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}:{' '}
-              <span className={`font-bold ${
-                viewMode === 'languages'
-                  ? 'text-capx-primary-green'
-                  : viewMode === 'capacities'
-                  ? 'text-capx-secondary-purple'
-                  : 'text-capx-primary-blue'
-              }`}>
-                {getTerritoryCount(currentTerritory).toLocaleString()}
-              </span>
-            </p>
-            <p className={`font-[Montserrat] text-sm ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
-              {pageContent['analytics-map-countries-count'] || 'Countries in this territory'}:{' '}
-              {currentTerritory.countries.length}
-            </p>
-
-            {/* Top Languages */}
-            {topLanguages.length > 0 && !isAggregatedDataLoading && (
-              <div className="mt-4">
-                <h4 className={`font-[Montserrat] text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
-                  {pageContent['analytics-map-top-languages'] || 'Most Spoken Languages'}
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {topLanguages.map((lang) => (
-                    <span
-                      key={lang.id}
-                      className={`px-2 py-1 rounded text-xs font-[Montserrat] ${
-                        darkMode ? 'bg-capx-primary-green/20 text-capx-primary-green' : 'bg-capx-primary-green/10 text-capx-primary-green'
-                      }`}
-                    >
-                      {lang.name} ({lang.count})
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Top Capacities */}
-            {topCapacities.length > 0 && !isAggregatedDataLoading && (
-              <div className="mt-4">
-                <h4 className={`font-[Montserrat] text-sm font-semibold mb-2 ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
-                  {pageContent['analytics-map-top-capacities'] || 'Top Capacities'}
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {topCapacities.map((cap) => (
-                    <span
-                      key={cap.id}
-                      className={`px-2 py-1 rounded text-xs font-[Montserrat] ${
-                        darkMode ? 'bg-capx-secondary-purple/20 text-capx-secondary-purple' : 'bg-capx-secondary-purple/10 text-capx-secondary-purple'
-                      }`}
-                    >
-                      {cap.name} ({cap.total})
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {isAggregatedDataLoading && (
-              <p className={`font-[Montserrat] text-xs mt-4 ${darkMode ? 'text-white/50' : 'text-gray-400'}`}>
-                {pageContent['analytics-map-loading-data'] || 'Loading territory data...'}
-              </p>
-            )}
-
-            {selectedTerritory && (
-              <p className={`font-[Montserrat] text-xs mt-4 ${darkMode ? 'text-white/50' : 'text-gray-400'}`}>
-                {pageContent['analytics-map-click-deselect'] || 'Click again to deselect'}
-              </p>
-            )}
-          </div>
-        );
-      })()}
+      )}
     </div>
   );
 }
