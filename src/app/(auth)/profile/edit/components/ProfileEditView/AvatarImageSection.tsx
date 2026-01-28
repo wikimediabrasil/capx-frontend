@@ -7,7 +7,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
 import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
 import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
@@ -60,10 +59,7 @@ interface AvatarImageSectionProps {
   readonly handleAvatarSelect: (avatarId: number | null) => void;
   readonly isWikidataSelected: boolean;
   readonly handleWikidataClick: (selected: boolean) => void;
-  readonly hasLetsConnectData: boolean;
   readonly formData: any;
-  readonly setShowLetsConnectPopup: (show: boolean) => void;
-  readonly isLetsConnectLoading: boolean;
   readonly showDeleteProfilePopup: boolean;
   readonly setShowDeleteProfilePopup: (show: boolean) => void;
   readonly handleDeleteProfile: () => void;
@@ -78,12 +74,9 @@ export function AvatarImageSection({
   setShowAvatarPopup,
   handleAvatarSelect,
   isWikidataSelected,
-  handleWikidataClick,
-  hasLetsConnectData,
-  formData,
-  setShowLetsConnectPopup,
-  isLetsConnectLoading,
-  showDeleteProfilePopup,
+    handleWikidataClick,
+    formData,
+    showDeleteProfilePopup,
   setShowDeleteProfilePopup,
   handleDeleteProfile,
   refetch,
@@ -105,7 +98,6 @@ export function AvatarImageSection({
     ? 'bg-transparent border-white text-white placeholder-capx-dark-box-bg'
     : 'border-[#053749]';
   const consentTextColor = darkMode ? 'text-white' : 'text-[#053749]';
-  const showLetsConnectBtn = hasLetsConnectData && !formData?.automated_lets_connect;
   const wikidataText = pageContent['edit-profile-consent-wikidata-before-link'] || '';
   const wikidataLinkText = pageContent['edit-profile-consent-wikidata-link'];
   const checkboxIcon = isWikidataSelected
@@ -193,19 +185,6 @@ export function AvatarImageSection({
             {renderTextWithLink(wikidataText, wikidataLinkText, darkMode)}
           </span>
         </div>
-
-        {showLetsConnectBtn && (
-          <BaseButton
-            onClick={() => setShowLetsConnectPopup(true)}
-            label={pageContent['edit-profile-use-letsconnect']}
-            customClass="w-full flex items-center px-[13px] py-[6px] text-[14px] md:text-[24px] pb-[6px] md:px-8 md:py-4 bg-[#851970] text-white rounded-md py-3 font-bold !mb-0"
-            imageUrl={AccountCircleIconWhite}
-            imageAlt="LetsConnect icon"
-            imageWidth={iconSize}
-            imageHeight={iconSize}
-            disabled={isLetsConnectLoading}
-          />
-        )}
 
         <BaseButton
           onClick={() => setShowDeleteProfilePopup(true)}

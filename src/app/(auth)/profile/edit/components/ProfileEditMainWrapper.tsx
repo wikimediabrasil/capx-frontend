@@ -34,8 +34,6 @@ import ProfileEditView from './ProfileEditView';
 // Import the new capacity hooks
 import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
-import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
-import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
@@ -178,11 +176,8 @@ export default function EditProfilePage() {
   const [selectedCapacityType, setSelectedCapacityType] = useState<
     'known' | 'available' | 'wanted'
   >('known');
-  const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
   const [, setLoading] = useState(false);
   const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
-  const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
-  const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: '',
     affiliation: [],
@@ -202,8 +197,6 @@ export default function EditProfilePage() {
   });
   const [, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
-  // TODO: Remove this after Lets Connect Integration is complete
-  const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [previousImageState, setPreviousImageState] = useState<{
     avatar: number | null;
@@ -478,7 +471,6 @@ export default function EditProfilePage() {
     }
 
     try {
-      formData.automated_lets_connect = hasAutomatedLetsConnect ? true : undefined;
       await updateProfile(formData);
       clearUnsavedData(); // Clear unsaved data after saving successfully
 
@@ -640,98 +632,12 @@ export default function EditProfilePage() {
     router.push(path);
   };
 
-  const handleLetsConnectImport = async () => {
-    const allLanguages = Object.entries(languages).map(
-      ([id, name]) =>
-        ({
-          id: Number(id),
-          name: name,
-          proficiency: '3',
-        }) as LanguageProficiency
-    );
-    const letsConnectLanguages = allLanguages.filter(language =>
-      letsConnectData?.reconciled_languages.includes(language.name || '')
-    );
-
-    // Get all root capacities from cache and their children
-    const rootCapacities = getRootCapacities();
-    const allCapacities = rootCapacities.map(capacity => ({
-      id: capacity.code,
-      code: capacity.skill_wikidata_item,
-    }));
-
-    const letsConnectWantedCapacities = allCapacities.filter(capacity =>
-      letsConnectData?.reconciled_want_to_learn.includes(capacity.code || '')
-    );
-    const letsConnectAvailableCapacities = allCapacities.filter(capacity =>
-      letsConnectData?.reconciled_want_to_share.includes(capacity.code || '')
-    );
-
-    const allAffiliations = Object.entries(affiliations).map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-    }));
-
-    const letsConnectAffiliation = allAffiliations.filter(affiliation => {
-      const affiliationName = affiliation.name.split(' (')[0]; // Get everything before ' ('
-      return affiliationName === letsConnectData?.reconciled_affiliation;
-    });
-
-    const allTerritories = Object.entries(territories).map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-    }));
-
-    const letsConnectTerritory = allTerritories.find(
-      territory => territory.name === letsConnectData?.reconciled_territory
-    );
-    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || '';
-
-    if (letsConnectData) {
-      // Ensure the arrays exist and are of the correct type
-      const currentAffiliations = ensureArray<string>(formData.affiliation);
-      const currentTerritories = ensureArray<string>(formData.territory);
-      const currentLanguages = ensureArray<LanguageProficiency>(formData.language);
-      const currentSkillsKnown = ensureArray<number>(formData.skills_known);
-      const currentSkillsAvailable = ensureArray<number>(formData.skills_available);
-      const currentSkillsWanted = ensureArray<number>(formData.skills_wanted);
-
-      // Prepare the new data
-      const newAffiliations = letsConnectAffiliation.map(affiliation => affiliation.id.toString());
-      const newLanguages = letsConnectLanguages;
-      const newSkillsKnown = letsConnectAvailableCapacities.map(capacity => capacity.id);
-      const newSkillsAvailable = letsConnectAvailableCapacities.map(capacity => capacity.id);
-      const newSkillsWanted = letsConnectWantedCapacities.map(capacity => capacity.id);
-
-      setHasAutomatedLetsConnect(true);
-      const updatedFormData = {
-        ...formData,
-        affiliation: addUniqueAffiliations(currentAffiliations, newAffiliations),
-        language: addUniqueLanguages(currentLanguages, newLanguages),
-        territory: addUniqueTerritory(currentTerritories, letsConnectTerritoryId),
-        skills_known: addUniqueCapacities(currentSkillsKnown, newSkillsKnown),
-        skills_available: addUniqueCapacities(currentSkillsAvailable, newSkillsAvailable),
-        skills_wanted: addUniqueCapacities(currentSkillsWanted, newSkillsWanted),
-      };
-      setFormData(updatedFormData);
-      setUnsavedData(updatedFormData);
-      showSnackbar(pageContent['snackbar-lets-connect-import-success'], 'success');
-      setLoading(true);
-      setTimeout(() => {
-        router.push('/profile/lets_connect');
-      }, 3500);
-    }
-    setShowLetsConnectPopup(false);
-  };
-
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
       src: selectedAvatar.src || DEFAULT_AVATAR,
     },
     handleAvatarSelect,
-    hasLetsConnectData: letsConnectData !== null,
-    hasLetsConnectAccount,
     showAvatarPopup,
     setShowAvatarPopup,
     handleWikidataClick,
@@ -758,10 +664,6 @@ export default function EditProfilePage() {
     profile,
     refetch,
     goTo,
-    showLetsConnectPopup,
-    setShowLetsConnectPopup,
-    handleLetsConnectImport,
-    isLetsConnectLoading,
     isImageLoading,
     setIsImageLoading,
   };
