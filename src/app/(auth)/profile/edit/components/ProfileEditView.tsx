@@ -38,7 +38,7 @@ import { AvatarImageSection } from './ProfileEditView/AvatarImageSection';
 import { BadgesSection } from './ProfileEditView/BadgesSection';
 import { CapacitySection } from './ProfileEditView/CapacitySection';
 import { LanguageSection } from './ProfileEditView/LanguageSection';
-import { MiniBioSection } from './ProfileEditView/MiniBioSection';
+import MiniBio from '../../components/MiniBio';
 import { SelectionSection } from './ProfileEditView/SelectionSection';
 import { WikidataItemSection } from './ProfileEditView/WikidataItemSection';
 import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
@@ -250,7 +250,12 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             />
 
             {/* Mini Bio Section */}
-            <MiniBioSection formData={formData} setFormData={setFormData} />
+            <MiniBio
+              about={formData.about || ''}
+              onAboutChange={value => setFormData({ ...formData, about: value })}
+              isEditing
+              showTooltip
+            />
 
             {/* Capacities Sections */}
             <div className="space-y-6">

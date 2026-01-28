@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useEffect, useState } from 'react';
 
 interface MiniBioTextareaProps {
   value: string;
@@ -20,7 +20,7 @@ export default function MiniBioTextarea({
   maxLength = DEFAULT_MAX_LENGTH,
   className = '',
   disabled = false,
-}: MiniBioTextareaProps) {
+}: Readonly<MiniBioTextareaProps>) {
   const { darkMode } = useTheme();
   const [charCount, setCharCount] = useState(value.length);
   const [isOverLimit, setIsOverLimit] = useState(false);
