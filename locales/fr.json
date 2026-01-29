@@ -638,6 +638,13 @@
 	"recommendations-share-with-tooltip": "Recommandation de profils en fonction des capacités disponibles que vous avez sélectionnées sur votre profil.",
 	"recommendations-learn-from-tooltip": "Recommandation de profils en fonction des capacités souhaitées que vous avez sélectionnées sur votre profil.",
 	"recommendations-same-language-tooltip": "Recommandations de profils en fonction des langues que vous avez sélectionnées sur votre profil.",
+	"home-analytics-cta-text": "{count}+ langues sont parlées sur CapX.",
+	"home-analytics-cta-button": "Afficher les statistiques",
+	"home-analytics-cta-territories": "Le·la·l'{territoryname} est représenté par {count} utilisateur(s) sur CapX.",
+	"home-analytics-cta-total-users": "Le réseau de CapX compte aujourd'hui {count} utilisateur(s).",
+	"home-analytics-cta-total-organizations": "{count} organisation(s) sont active(s) sur CapX aujourd'hui.",
+	"home-analytics-cta-total-capacities": "Il existe {count} capacités parmi lesquelles choisir sur CapX.",
+	"home-analytics-cta-total-messages": "La communauté CapX a échangé {count} message(s).",
 	"recommendations-new-skills-tooltip": "Découvrez des capacités populaires dans le réseau que vous pouvez ajouter à votre liste de compétences souhaitées.",
 	"recommendations-known-available-skills": "Capacités à partager recommandées",
 	"recommendations-known-available-skills-tooltip": "Découvrez des capacités populaires dans le réseau que vous pouvez ajouter à votre listes de compétences connues et de compétences disponibles.",
@@ -676,5 +683,8 @@
 	"mentorship-application-forwarded": "J'ai fait suivi votre demande d'application au programme de mentorat. Ils vous contacteront directement bientôt.",
 	"more-mentorships": "Plus de mentorats",
 	"close": "Fermer",
-	"mentorship-programs-alt": "Programmes de mentorat"
+	"mentorship-programs-alt": "Programmes de mentorat",
+	"sign-in-required-title": "Connectez-vous pour continuer",
+	"sign-in-required-description": "Vous devez être connecté pour accéder à cette page. Inscrivez-vous sur CapX pour échanger des capacités et entrer en contact avec d'autres contributeurs Wikimédia.",
+	"sign-in-required-go-home": "Aller à la page d’accueil"
 }

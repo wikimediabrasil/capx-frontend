@@ -672,5 +672,8 @@
 	"mentorship-application-forwarded": "我已經將您的申請轉發給導師計劃。他們很快會直接與您聯繫。",
 	"more-mentorships": "更多指導",
 	"close": "關閉",
-	"mentorship-programs-alt": "導師計劃"
+	"mentorship-programs-alt": "導師計劃",
+	"sign-in-required-title": "登入以繼續",
+	"sign-in-required-description": "您需要登入才能存取此頁面。註冊 CapX 即可交流能力並與其他維基媒體人聯繫。",
+	"sign-in-required-go-home": "前往首頁"
 }
