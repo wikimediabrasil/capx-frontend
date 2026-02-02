@@ -74,15 +74,15 @@ export default function LoadingStateWithFallback({ fullScreen = false }: { fullS
 // Compact version for use in smaller components
 export function CompactLoading() {
   const [mounted, setMounted] = useState(false);
-  let darkMode = false;
+  let _darkMode = false;
 
   try {
     // Only use the hook if we're in a client component
     const theme = useTheme();
-    darkMode = theme?.darkMode || false;
-  } catch (error) {
+    _darkMode = theme?.darkMode || false;
+  } catch (_error) {
     // Silently fail and use default theme
-    darkMode = false;
+    _darkMode = false;
   }
 
   // Handle mounting to avoid hydration mismatch

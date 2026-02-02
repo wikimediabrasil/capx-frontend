@@ -80,7 +80,6 @@ export default function RecommendationCapacityCardBase({
       }
     };
     loadCapacity();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capacityId]);
 
   const capacityName = useMemo(() => {

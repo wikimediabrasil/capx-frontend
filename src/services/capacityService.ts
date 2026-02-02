@@ -16,10 +16,7 @@ export const fetchAllCapacities = async (token: string): Promise<Capacities[]> =
 };
 
 export const capacityService = {
-  async fetchCapacities(
-    queryData: QueryData,
-    language: string = 'en'
-  ): Promise<CapacityResponse[]> {
+  async fetchCapacities(queryData: QueryData): Promise<CapacityResponse[]> {
     try {
       const response = await axios.get('/api/capacity', {
         params: queryData.params,
@@ -52,11 +49,7 @@ export const capacityService = {
     }
   },
 
-  async fetchCapacityById(
-    id: string,
-    config?: AxiosRequestConfig,
-    language: string = 'en'
-  ): Promise<CapacityResponse> {
+  async fetchCapacityById(id: string, config?: AxiosRequestConfig): Promise<CapacityResponse> {
     try {
       const response = await axios.get(`/api/capacity/${id}`, config);
       return response.data;
@@ -69,7 +62,7 @@ export const capacityService = {
   async searchCapacities(
     search: string,
     config?: AxiosRequestConfig,
-    language: string = 'en'
+    _language: string = 'en'
   ): Promise<CapacityResponse[]> {
     try {
       const response = await axios.get('/api/capacity/search', {
@@ -112,7 +105,7 @@ export const capacityService = {
   // Função para buscar traduções com fallback (Metabase primeiro, Wikidata depois)
   async fetchTranslationsWithFallback(
     codes: Array<{ code: number; wd_code: string }>,
-    language: string
+    language: string = 'en'
   ) {
     try {
       // Try Metabase first

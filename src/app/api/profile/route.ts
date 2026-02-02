@@ -87,7 +87,7 @@ export async function OPTIONS(request: NextRequest) {
       },
     });
     // Removing "user" key/value
-    const { user, ...formFields } = response.data.actions.PUT;
+    const { user: _user, ...formFields } = response.data.actions.PUT;
 
     return NextResponse.json(formFields);
   } catch (error: any) {

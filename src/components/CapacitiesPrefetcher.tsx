@@ -29,7 +29,12 @@ export const CapacitiesPrefetcher = () => {
 };
 
 const CapacitiesPrefetcherInternal = () => {
-  const { updateLanguage, isLoaded, language, isLoadingTranslations } = useCapacityCache();
+  const {
+    updateLanguage,
+    isLoaded,
+    language: _language,
+    isLoadingTranslations,
+  } = useCapacityCache();
   const { data: session } = useSession();
   const appLanguage = useLanguage();
   const pathname = usePathname();

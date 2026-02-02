@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Project } from '@/types/project';
 import { projectsService } from '@/services/projectsService';
+import { Project } from '@/types/project';
+import { useEffect, useState } from 'react';
 
 export function useProject(projectId: number, token?: string) {
   const [project, setProject] = useState<Project | null>(null);
@@ -16,8 +16,8 @@ export function useProject(projectId: number, token?: string) {
         const projectData = await projectsService.getProjectById(projectId, token);
         setProject(projectData);
         setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch project'));
+      } catch (error) {
+        setError(error instanceof Error ? error : new Error('Failed to fetch project'));
         setProject(null);
       } finally {
         setIsLoading(false);
@@ -72,12 +72,7 @@ export function useProject(projectId: number, token?: string) {
   };
 }
 
-export function useProjects(
-  projectIds?: number[],
-  token?: string,
-  limit?: number,
-  offset?: number
-) {
+export function useProjects(projectIds?: number[], token?: string) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -92,8 +87,8 @@ export function useProjects(
         const projectsData = await Promise.all(projectPromises);
         setProjects(projectsData);
         setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch projects'));
+      } catch (error) {
+        setError(error instanceof Error ? error : new Error('Failed to fetch projects'));
         setProjects([]);
       } finally {
         setIsLoading(false);

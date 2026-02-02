@@ -3,7 +3,6 @@ import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
-import { Profile } from '@/types/profile';
 import { FormSelect } from './FormSelect';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES } from './utils';

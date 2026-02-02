@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCapacityDetails } from '@/hooks/useCapacityDetails';
-import { ensureArray, safeStringify } from '@/lib/utils/safeDataAccess';
+import { ensureArray } from '@/lib/utils/safeDataAccess';
 
 interface CapacityDebugProps {
   capacityIds: any[];
@@ -22,7 +22,7 @@ export default function CapacityDebug({
   enabled = process.env.NODE_ENV === 'development',
 }: CapacityDebugProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hookError, setHookError] = useState<Error | null>(null);
+  const [hookError] = useState<Error | null>(null);
   const [shouldRender, setShouldRender] = useState(true);
 
   // Always call the hook unconditionally at the top level

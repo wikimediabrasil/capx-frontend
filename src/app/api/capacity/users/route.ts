@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const capacityId = searchParams.get('id');
   const authHeader = request.headers.get('authorization');
 
   try {
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest) {
       },
     });
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch data.' }, { status: 500 });
   }
 }

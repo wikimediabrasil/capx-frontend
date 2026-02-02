@@ -44,7 +44,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       },
     });
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
   }
 }
@@ -61,7 +61,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       },
     });
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
   }
 }
@@ -77,7 +77,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       },
     });
     return NextResponse.json(response.data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
   }
 }

@@ -45,6 +45,7 @@
 	"edit-profile-add-language": "زبان شامل کرو",
 	"edit-profile-wikidata-item": "وکی ڈیٹا آئٹم",
 	"privacy-policy-banner": "رازداری پالیسی",
+	"profile-incomplete-popup-button-edit": "پروفائل وچ تبدیلی کرو",
 	"snackbar-edit-profile-organization-create-event-failed": "ایونٹ بݨاوݨ وچ خرابی۔ مہربانی کر تے چیک کرو اَتے ولدی کوشش کرو",
 	"message-form-method-email": "ای میل",
 	"message-form-method-talkpage": "ڳالھ مُہاڑ ورقہ",
@@ -86,5 +87,6 @@
 	"profile-sharer": "شیئر کرݨ آلا",
 	"analytics-bashboard-languages-title": "زباناں",
 	"analytics-bashboard-territory-title": "علاقہ",
-	"view-profile": "پروفائل ݙیکھو"
+	"view-profile": "پروفائل ݙیکھو",
+	"congratulations": "مبارکاں!"
 }

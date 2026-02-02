@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
 import { CapacityCard } from '@/app/(auth)/capacity/components/CapacityCard';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 jest.mock('next/navigation', () => ({
@@ -71,13 +71,15 @@ jest.mock('@/hooks/useUserCapacities', () => ({
 
 jest.mock('@/services/userService', () => ({
   userService: {
-    fetchUserProfile: jest.fn(() => Promise.resolve({
-      id: 123,
-      skills_known: [],
-      skills_available: [],
-      skills_wanted: [],
-      language: ['en'],
-    })),
+    fetchUserProfile: jest.fn(() =>
+      Promise.resolve({
+        id: 123,
+        skills_known: [],
+        skills_available: [],
+        skills_wanted: [],
+        language: ['en'],
+      })
+    ),
   },
 }));
 

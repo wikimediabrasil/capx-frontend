@@ -362,9 +362,8 @@ export function useCapacityList(token?: string, language: string = 'en') {
                 icon: parent.icon || grandparent.icon,
               };
             }
+            return parent;
           }
-
-          return parent;
         }
       }
 

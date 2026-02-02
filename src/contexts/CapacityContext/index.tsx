@@ -85,11 +85,11 @@ const saveTranslationsCache = () => {
 };
 
 // Component that fetches descriptions in the background
-const DescriptionFetcher = ({ code, language }: { code: number; language: string }) => {
+const DescriptionFetcher = ({ code, language: _language }: { code: number; language: string }) => {
   const context = useContext(CapacityContext);
   const { getCapacity, getDescription, getWdCode, getMetabaseCode } = useCapacityCache();
   const processedRef = useRef(false);
-  const { data: session } = useSession();
+  const { data: _session } = useSession();
 
   // Get data directly from unified cache
   const capacity = getCapacity(code);
@@ -245,12 +245,12 @@ export function CapacityDescriptionProvider({
 }) {
   // Local state to force re-render when the store changes
   const [, setUpdateCounter] = useState(0);
-  const [isDescriptionsLoading, setIsDescriptionsLoading] = useState(false);
+  const [_isDescriptionsLoading, setIsDescriptionsLoading] = useState(false);
 
   // List of capacities to fetch
   const [codesToFetch, setCodeToFetch] = useState<number[]>([]);
   const { data: session } = useSession();
-  const { getCapacity, isLoaded } = useCapacityCache();
+  const { getCapacity: _getCapacity, isLoaded } = useCapacityCache();
 
   // language is now passed as prop
 
@@ -334,13 +334,7 @@ export function CapacityDescriptionProvider({
 
   // Get metabase_code from cache
   const getMetabaseCode = useCallback((code: number): string => {
-    const result = globalDescriptionStore.metabaseCodes[code] || cachedMetabaseCodes[code] || '';
-
-    // Debug for any level 2 capacity (codes 11-49 typically)
-    if (code >= 11 && code <= 49) {
-    }
-
-    return result;
+    return globalDescriptionStore.metabaseCodes[code] || cachedMetabaseCodes[code] || '';
   }, []);
 
   // Get name from cache

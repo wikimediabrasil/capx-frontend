@@ -29,13 +29,13 @@ const filterProjects = (
   searchTerm: string
 ): [string, string][] => {
   const lowerSearch = searchTerm.toLowerCase();
-  return Object.entries(projects).filter(([id, name]) => name.toLowerCase().includes(lowerSearch));
+  return Object.entries(projects).filter(([_id, name]) => name.toLowerCase().includes(lowerSearch));
 };
 
 // Helper component: Project search input
 function ProjectSearchInput({
   darkMode,
-  isMobile,
+  isMobile: _isMobile,
   pageContent,
   onSearch,
   onKeyDown,

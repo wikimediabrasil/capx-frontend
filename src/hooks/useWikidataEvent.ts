@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Event } from '@/types/event';
 import {
   fetchEventDataByURL,

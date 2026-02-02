@@ -4,8 +4,8 @@ import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { DEFAULT_AVATAR } from '@/constants/images';
-import { usePageContent, useLanguage } from '@/stores';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import { useProfileImage } from '@/hooks/useProfileImage';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import AccountCircle from '@/public/static/images/account_circle.svg';
@@ -17,12 +17,12 @@ import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import { usePageContent } from '@/stores';
 import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, useCallback } from 'react';
-import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
+import { useCallback, useState } from 'react';
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -35,12 +35,11 @@ interface RecommendationProfileCardProps {
 
 export default function RecommendationProfileCard({
   recommendation,
-  onSave,
+  onSave: _onSave,
   capacityType = 'available',
   hintMessage,
 }: RecommendationProfileCardProps) {
   const pageContent = usePageContent();
-  const language = useLanguage();
   const { darkMode } = useTheme();
   const router = useRouter();
   const { data: session } = useSession();
@@ -49,9 +48,6 @@ export default function RecommendationProfileCard({
   const [isSaving, setIsSaving] = useState(false);
 
   const isOrganization = 'acronym' in recommendation;
-  const organizationRecommendation = isOrganization
-    ? (recommendation as OrganizationRecommendation)
-    : null;
   const profileRecommendation = !isOrganization ? (recommendation as ProfileRecommendation) : null;
   const profileUsername = profileRecommendation?.username;
 

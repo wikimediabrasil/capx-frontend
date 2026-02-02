@@ -60,7 +60,7 @@ export default meta;
 type Story = StoryObj<typeof ProfileDeletedSuccessPopup>;
 
 // Helper component to manage state in stories
-const PopupWithState = (args: any) => {
+const _PopupWithState = (args: any) => {
   const [isOpen, setIsOpen] = useState(args.isOpen ?? true);
 
   return (

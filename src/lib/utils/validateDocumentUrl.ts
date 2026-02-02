@@ -113,7 +113,7 @@ export const validateCapXDocumentUrl = (url: string): UrlValidationResult => {
       isValid: true,
       normalizedUrl: trimmedUrl,
     };
-  } catch (error) {
+  } catch {
     return {
       isValid: false,
       error: 'snackbar-edit-profile-organization-document-url-invalid-format',
