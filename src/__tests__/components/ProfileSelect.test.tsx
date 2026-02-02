@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ProfileSelect from '@/components/ProfileSelect';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AppProvider } from '@/contexts/AppContext';
@@ -169,38 +168,38 @@ describe('ProfileSelect', () => {
     expect(screen.getByText('My Profiles')).toBeInTheDocument();
   });
 
-  it('shows user profile option when clicked', async () => {
+  it('shows user profile option when clicked', () => {
     renderWithProviders(<ProfileSelect />);
 
     // Find the select container
     const selectContainer = screen.getByRole('combobox');
-    await userEvent.click(selectContainer);
+    fireEvent.mouseDown(selectContainer);
 
     // Find the profile option using the role 'option'
     const profileOption = screen.getByRole('option', { name: 'User Profile' });
     expect(profileOption).toBeInTheDocument();
   });
 
-  it('handles profile selection correctly', async () => {
+  it('handles profile selection correctly', () => {
     renderWithProviders(<ProfileSelect />);
 
     // Find and click on the select
     const selectContainer = screen.getByRole('combobox');
-    await userEvent.click(selectContainer);
+    fireEvent.mouseDown(selectContainer);
 
     // Find and click on the profile option
     const profileOption = screen.getByRole('option', { name: 'User Profile' });
-    await userEvent.click(profileOption);
+    fireEvent.click(profileOption);
 
     // Check if the router.push was called with the correct path
     expect(pushMock).toHaveBeenCalledWith('/profile');
   });
 
-  it('displays correct profile options', async () => {
+  it('displays correct profile options', () => {
     renderWithProviders(<ProfileSelect />);
 
     const selectContainer = screen.getByRole('combobox');
-    await userEvent.click(selectContainer);
+    fireEvent.mouseDown(selectContainer);
 
     // Check if the correct options are present
     expect(screen.getByText('User Profile')).toBeInTheDocument();
