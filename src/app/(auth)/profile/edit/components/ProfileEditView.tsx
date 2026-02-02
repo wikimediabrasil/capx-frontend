@@ -238,7 +238,10 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             {/* Mini Bio Section */}
             <MiniBio
               about={formData.about || ''}
+              languages={languages}
+              aboutLanguage={formData.about_language}
               onAboutChange={value => setFormData({ ...formData, about: value })}
+              onAboutLanguageChange={value => setFormData({ ...formData, about_language: value })}
               isEditing
               showTooltip
             />
