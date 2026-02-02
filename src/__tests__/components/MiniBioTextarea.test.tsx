@@ -12,8 +12,8 @@ const mockThemeContext = {
 const mockAppContext = {
   isMobile: false,
   pageContent: {
-    'edit-profile-mini-bio-exceeded-chars': 'caracteres excedidos',
-    'edit-profile-mini-bio-remaining-chars': 'caracteres restantes',
+    'edit-profile-mini-bio-exceeded-chars': '$1 caracteres excedidos',
+    'edit-profile-mini-bio-remaining-chars': '$1 caracteres restantes',
   },
   setPageContent: jest.fn(),
 };
