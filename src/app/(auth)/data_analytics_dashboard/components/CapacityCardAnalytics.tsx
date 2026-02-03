@@ -68,9 +68,9 @@ export default function CapacityCardAnalytics({
 
           {/* Cards */}
           <div className="grid grid-cols-2 gap-4 pt-2 pb-4 rounded-b-md">
-            {cards.map((card, idx) => (
+            {cards.map(card => (
               <div
-                key={idx}
+                key={`${card.titleCard}-${String(card.value)}`}
                 className="p-4 rounded shadow flex flex-col items-center"
                 style={{ backgroundColor: bgCard }}
               >
