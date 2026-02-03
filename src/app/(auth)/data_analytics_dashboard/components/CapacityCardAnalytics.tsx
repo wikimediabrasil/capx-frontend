@@ -33,13 +33,12 @@ export default function CapacityCardAnalytics({
   open = false,
 }: CapacityCardAnalytics) {
   if (!open) return null;
-
   return (
     <div className="flex flex-col">
-      {/* Conteúdo */}
+      {/* Content */}
       {open && (
         <div className="w-full max-w-4xl mx-auto mt-4">
-          {/* Subcabeçalho */}
+          {/* Subheader */}
           <div
             className="p-3 rounded-md flex items-center gap-2 mb-2"
             style={{ backgroundColor: headerColor, color: '#fff' }}
@@ -66,7 +65,7 @@ export default function CapacityCardAnalytics({
             </h2>
           </div>
 
-          {/* Cards */}
+          {/* Cards content */}
           <div className="grid grid-cols-2 gap-4 pt-2 pb-4 rounded-b-md">
             {cards.map(card => (
               <div

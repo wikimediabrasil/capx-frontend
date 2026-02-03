@@ -378,7 +378,7 @@ export default function AnalyticsDashboardPage() {
 
                 return (
                   <CapacityCardAnalytics
-                    key={id}
+                    key={`${metadata?.key}-${skillId}`}
                     open={openCapacities}
                     title={metadata ? pageContent[metadata.key] : ''}
                     icon={metadata?.icon}
