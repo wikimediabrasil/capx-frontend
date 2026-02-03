@@ -168,3 +168,20 @@ input::placeholder {
   hyphens: auto;
   -webkit-hyphens: auto;
 }
+
+/* SimpleLoading / LoadingState pulse animation */
+@keyframes pulseFade {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-fade {
+  animation: pulseFade 2s ease-in-out infinite;
+}
