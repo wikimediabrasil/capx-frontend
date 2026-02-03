@@ -1,7 +1,9 @@
 /*
- Checks that all keys accessed via pageContent['...'] exist in locales/en.json
+ Checks that all keys accessed via pageContent['...'] or pageContent[expr.key] exist in locales/en.json
  and flags keys present in en.json that are not used anywhere in the codebase.
  Exits with non-zero code if any issues are found.
+ Supports dynamic keys: in files that use pageContent[someVar.key], keys are also collected from
+ object literals in that file that have a property "key" with a string value (e.g. key: 'i18n-key').
 */
 
 const fs = require('fs');
@@ -12,7 +14,12 @@ const SRC_DIR = path.join(ROOT, 'src');
 const EN_JSON_PATH = path.join(ROOT, 'locales', 'en.json');
 const EXCLUDED_DIRS = new Set(['.next', 'node_modules', 'coverage']);
 const VALID_FILE_EXTENSIONS = /\.(ts|tsx|js|jsx)$/;
+/** Matches pageContent['key'] or pageContent["key"] or pageContent?.['key'] */
 const I18N_KEY_REGEX = /pageContent\s*(?:\?\.)?\[\s*([`'"])(.*?)\1\s*\]/g;
+/** Matches dynamic access like pageContent[metadata.key] or pageContent[expr.key] */
+const DYNAMIC_PAGECONTENT_REGEX = /pageContent\s*(?:\?\.)?\[\s*[^\s'"[\]]+\.key\s*\]/;
+/** In files with dynamic access, matches object property key: 'value' or key: "value" */
+const METADATA_KEY_REGEX = /key\s*:\s*['"]([^'"]+)['"]/g;
 const MAX_PREVIEW_KEYS = 200;
 
 function readJson(filePath) {
@@ -50,11 +57,30 @@ function extractKeysFromFile(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let match;
 
+  I18N_KEY_REGEX.lastIndex = 0;
   while ((match = I18N_KEY_REGEX.exec(content)) !== null) {
     const key = match[2];
     if (key) keys.add(key);
   }
 
+  return keys;
+}
+
+/**
+ * In files that use dynamic pageContent access (e.g. pageContent[metadata.key]),
+ * collect keys from object literals that have property key: 'i18n-key'.
+ */
+function extractDynamicKeysFromFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  if (!DYNAMIC_PAGECONTENT_REGEX.test(content)) return new Set();
+
+  const keys = new Set();
+  let match;
+  METADATA_KEY_REGEX.lastIndex = 0;
+  while ((match = METADATA_KEY_REGEX.exec(content)) !== null) {
+    const key = match[1];
+    if (key) keys.add(key);
+  }
   return keys;
 }
 
@@ -64,6 +90,9 @@ function collectUsedKeys() {
   for (const file of walk(SRC_DIR)) {
     const fileKeys = extractKeysFromFile(file);
     fileKeys.forEach(key => used.add(key));
+
+    const dynamicKeys = extractDynamicKeysFromFile(file);
+    dynamicKeys.forEach(key => used.add(key));
   }
 
   return used;
