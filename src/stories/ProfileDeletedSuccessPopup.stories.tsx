@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import { useEffect } from 'react';
 
+import { useSetDarkMode } from '@/stores';
 // Helper component to force theme mode
 const ThemeWrapper = ({
   children,
@@ -13,7 +12,7 @@ const ThemeWrapper = ({
   children: React.ReactNode;
   forceDarkMode: boolean;
 }) => {
-  const { setDarkMode } = useTheme();
+  const setDarkMode = useSetDarkMode();
 
   useEffect(() => {
     setDarkMode(forceDarkMode);
@@ -25,15 +24,6 @@ const ThemeWrapper = ({
 const meta: Meta<typeof ProfileDeletedSuccessPopup> = {
   title: 'Components/ProfileDeletedSuccessPopup',
   component: ProfileDeletedSuccessPopup,
-  decorators: [
-    Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <Story />
-        </ThemeProvider>
-      </AppProvider>
-    ),
-  ],
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -107,15 +97,11 @@ export const DesktopLightMode: Story = {
   },
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <ThemeWrapper forceDarkMode={false}>
-            <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
-              <Story />
-            </div>
-          </ThemeWrapper>
-        </ThemeProvider>
-      </AppProvider>
+      <ThemeWrapper forceDarkMode={false}>
+        <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+          <Story />
+        </div>
+      </ThemeWrapper>
     ),
   ],
   parameters: {
@@ -142,15 +128,11 @@ export const DesktopDarkMode: Story = {
   },
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <ThemeWrapper forceDarkMode={true}>
-            <div style={{ backgroundColor: '#04222F', minHeight: '100vh' }}>
-              <Story />
-            </div>
-          </ThemeWrapper>
-        </ThemeProvider>
-      </AppProvider>
+      <ThemeWrapper forceDarkMode={true}>
+        <div style={{ backgroundColor: '#04222F', minHeight: '100vh' }}>
+          <Story />
+        </div>
+      </ThemeWrapper>
     ),
   ],
   parameters: {
@@ -181,15 +163,11 @@ export const MobileLightMode: Story = {
   },
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <ThemeWrapper forceDarkMode={false}>
-            <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
-              <Story />
-            </div>
-          </ThemeWrapper>
-        </ThemeProvider>
-      </AppProvider>
+      <ThemeWrapper forceDarkMode={false}>
+        <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+          <Story />
+        </div>
+      </ThemeWrapper>
     ),
   ],
   parameters: {
@@ -214,15 +192,11 @@ export const MobileDarkMode: Story = {
   },
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <ThemeWrapper forceDarkMode={true}>
-            <div style={{ backgroundColor: '#04222F', minHeight: '100vh' }}>
-              <Story />
-            </div>
-          </ThemeWrapper>
-        </ThemeProvider>
-      </AppProvider>
+      <ThemeWrapper forceDarkMode={true}>
+        <div style={{ backgroundColor: '#04222F', minHeight: '100vh' }}>
+          <Story />
+        </div>
+      </ThemeWrapper>
     ),
   ],
   parameters: {
@@ -247,36 +221,32 @@ export const WithBackdrop: Story = {
   },
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <div style={{ position: 'relative', minHeight: '100vh' }}>
-            <div
-              style={{
-                padding: '40px',
-                maxWidth: '800px',
-                margin: '0 auto',
-              }}
-            >
-              <h1>Profile Edit Page</h1>
-              <p>This is example content behind the popup.</p>
-              <p>The popup should appear on top with a backdrop overlay.</p>
-              <div
-                style={{
-                  marginTop: '20px',
-                  padding: '20px',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                }}
-              >
-                <h2>Profile Information</h2>
-                <p>Name: John Doe</p>
-                <p>Email: john@example.com</p>
-              </div>
-            </div>
-            <Story />
+      <div style={{ position: 'relative', minHeight: '100vh' }}>
+        <div
+          style={{
+            padding: '40px',
+            maxWidth: '800px',
+            margin: '0 auto',
+          }}
+        >
+          <h1>Profile Edit Page</h1>
+          <p>This is example content behind the popup.</p>
+          <p>The popup should appear on top with a backdrop overlay.</p>
+          <div
+            style={{
+              marginTop: '20px',
+              padding: '20px',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '8px',
+            }}
+          >
+            <h2>Profile Information</h2>
+            <p>Name: John Doe</p>
+            <p>Email: john@example.com</p>
           </div>
-        </ThemeProvider>
-      </AppProvider>
+        </div>
+        <Story />
+      </div>
     ),
   ],
   parameters: {

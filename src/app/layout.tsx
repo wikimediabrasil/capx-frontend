@@ -4,9 +4,7 @@ import { CapacitiesPrefetcher } from '@/components/CapacitiesPrefetcher';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import HydrationHandler from '@/components/HydrationHandler';
 import SessionWrapper from '@/components/SessionWrapper';
-import { AppProvider } from '@/contexts/AppContext';
-import { CapacityCacheWrapper } from '@/contexts/CapacityCacheWrapper';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import StoreHydrator from '@/components/StoreHydrator';
 import { Metadata } from 'next';
 import './globals.css';
 import Providers from './provider';
@@ -30,21 +28,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ErrorBoundary>
           <HydrationHandler />
           <AxiosInterceptorSetup />
-          <ThemeProvider>
-            <SessionWrapper>
-              <AuthMonitorSetup />
-              <Providers>
-                <AppProvider>
-                  <CapacityCacheWrapper>
-                    <SnackbarProvider>
-                      <CapacitiesPrefetcher />
-                      {children}
-                    </SnackbarProvider>
-                  </CapacityCacheWrapper>
-                </AppProvider>
-              </Providers>
-            </SessionWrapper>
-          </ThemeProvider>
+          <SessionWrapper>
+            <AuthMonitorSetup />
+            <Providers>
+              <StoreHydrator />
+              <SnackbarProvider>
+                <CapacitiesPrefetcher />
+                {children}
+              </SnackbarProvider>
+            </Providers>
+          </SessionWrapper>
         </ErrorBoundary>
       </body>
     </html>

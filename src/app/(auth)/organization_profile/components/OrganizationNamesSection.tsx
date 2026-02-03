@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizationNames } from '@/hooks/useOrganizationNames';
 import { useLanguageSelection } from '@/hooks/useLanguageSelection';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
@@ -16,6 +14,7 @@ import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_m
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface OrganizationNamesSectionProps {
   readonly organizationId: number;
 }
@@ -23,8 +22,8 @@ interface OrganizationNamesSectionProps {
 export default function OrganizationNamesSection({
   organizationId,
 }: OrganizationNamesSectionProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();
   const token = session?.user?.token;

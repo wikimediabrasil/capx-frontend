@@ -1,8 +1,7 @@
 'use client';
 
 import { ProfileItem } from '@/components/ProfileItem';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useIsMobile, usePageContent, useCapacityStore } from '@/stores';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
@@ -36,8 +35,7 @@ import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useBadges } from '@/contexts/BadgesContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useAllBadges } from '@/stores';
 import { getWikiBirthday } from '@/lib/utils/fetchWikimediaData';
 import { UserProfile } from '@/types/user';
 import React from 'react';
@@ -49,10 +47,11 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   const { data: session } = useSession();
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const token = session?.user?.token;
-  const { allBadges } = useBadges();
+  const allBadges = useAllBadges();
   const activeBadges = useMemo(() => {
     return allBadges.filter(badge => profile?.badges.includes(badge.id));
   }, [allBadges, profile?.badges]);
@@ -66,7 +65,7 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
   );
   const [wikiBirthday, setWikiBirthday] = useState<string | null>(null);
 
-  const { getName } = useCapacityCache();
+  const { getName } = useCapacityStore();
 
   useEffect(() => {
     const fetchWikiBirthday = async () => {

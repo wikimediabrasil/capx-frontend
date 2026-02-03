@@ -1,5 +1,5 @@
-import { useApp } from '@/contexts/AppContext';
 import { capacityService } from '@/services/capacityService';
+import { useAppStore } from '@/stores';
 import { CapacityResponse } from '@/types/capacity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
@@ -28,8 +28,7 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
   // Declaração segura para evitar erros em qualquer contexto
   const safeSession = useSession();
   const session = safeSession?.data;
-  const safeAppContext = useApp();
-  const pageContent = safeAppContext?.pageContent || {};
+  const pageContent = useAppStore.getState().pageContent || {};
   const queryClient = useQueryClient();
   const token = session?.user?.token;
 
@@ -272,8 +271,7 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
 export function useCapacity(capacityId?: string | null, language: string = 'en') {
   const safeSession = useSession();
   const session = safeSession?.data;
-  const safeAppContext = useApp();
-  const safeLanguage = safeAppContext?.language || language;
+  const safeLanguage = useAppStore.getState().language || language;
   const token = session?.user?.token;
 
   const enabled = Boolean(capacityId && token);

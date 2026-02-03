@@ -3,6 +3,25 @@ import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
+
 // Image Mock
 jest.mock('next/image', () => {
   return function MockedImage({
@@ -28,21 +47,6 @@ const mockPageContent = {
   'snackbar-edit-profile-organization-document-url-invalid-format':
     'Invalid URL format. Please use a valid Wikimedia Commons URL.',
 };
-
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({
-    pageContent: mockPageContent,
-    isMobile: false,
-  }),
-  AppProvider: ({ children }: any) => <div>{children}</div>,
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(() => ({
-    darkMode: false,
-  })),
-  ThemeProvider: ({ children }: any) => <div>{children}</div>,
-}));
 
 const mockShowSnackbar = jest.fn();
 jest.mock('@/app/providers/SnackbarProvider', () => ({

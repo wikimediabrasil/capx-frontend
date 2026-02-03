@@ -1,7 +1,7 @@
 'use client';
 
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useLanguage } from '@/stores';
+import { useLanguage, useCapacityStore } from '@/stores';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 /**
@@ -10,22 +10,23 @@ import { useEffect, useState } from 'react';
  */
 export const useLanguageSync = () => {
   const appLanguage = useLanguage();
-  const {
-    isLoaded: isCacheLoaded,
-    isLoadingTranslations,
-    language: cacheLanguage,
-    updateLanguage,
-  } = useCapacityCache();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const store = useCapacityStore();
+
+  const isCacheLoaded = store.getIsLoaded();
+  const isLoadingTranslations = store.isLoadingTranslations;
+  const cacheLanguage = store.language;
 
   const [isLanguageChanging, setIsLanguageChanging] = useState(false);
 
   // Detect when app language changes and update capacity cache
   useEffect(() => {
-    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage) {
+    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage && token) {
       setIsLanguageChanging(true);
-      updateLanguage(appLanguage);
+      store.updateLanguage(appLanguage, token);
     }
-  }, [appLanguage, cacheLanguage, updateLanguage]);
+  }, [appLanguage, cacheLanguage, store, token]);
 
   // Reset language changing state when translations are loaded
   useEffect(() => {

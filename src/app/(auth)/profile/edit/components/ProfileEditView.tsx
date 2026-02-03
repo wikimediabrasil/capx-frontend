@@ -6,8 +6,7 @@ import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
 import LetsConnectPopup from '@/components/LetsConnectPopup';
 import Popup from '@/components/Popup';
-import { useApp } from '@/contexts/AppContext';
-import { useBadges } from '@/contexts/BadgesContext';
+import { useBadgesStore } from '@/stores';
 import {
   addAffiliationToFormData,
   addLanguageToFormData,
@@ -46,6 +45,7 @@ import { useAvatarManagement } from './ProfileEditView/useAvatarManagement';
 import { useThemeConfig } from './ProfileEditView/useThemeConfig';
 import { getUserCheckIcon } from './ProfileEditView/themeHelpers';
 
+import { useIsMobile, usePageContent } from '@/stores';
 interface ProfileEditViewProps {
   readonly selectedAvatar: any;
   readonly handleAvatarSelect: (avatarId: number | null) => void;
@@ -123,10 +123,13 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
 
   const router = useRouter();
   const { data: session } = useSession();
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
-  const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
+  const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadgesStore();
+  const token = session?.user?.token;
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
@@ -446,7 +449,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
           onClose={() => setShowBadgeModal(false)}
           onUpdate={async selectedIds => {
             setShowBadgeModal(false);
-            await updateUserBadges(selectedIds);
+            if (token) await updateUserBadges(selectedIds, token);
           }}
         />
       )}

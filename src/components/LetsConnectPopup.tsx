@@ -1,5 +1,4 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, usePageContent } from '@/stores';
 import Popup from './Popup';
 import LetsConnectIcon from '@/public/static/images/lets_connect.svg';
 
@@ -10,8 +9,8 @@ interface LetsConnectPopupProps {
 }
 
 export default function LetsConnectPopup({ isOpen, onClose, onConfirm }: LetsConnectPopupProps) {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
 
   if (!isOpen) return null;
 

@@ -1,19 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import FormMessage from '@/app/(auth)/message/components/FormMessage';
 import SentMessagesList from '@/app/(auth)/message/components/SentMessagesList';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export enum ViewType {
   WRITE = 'submit',
   SENT = 'submissions',
 }
 
 export default function NavBar() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [currentView, setCurrentView] = useState<ViewType>(ViewType.WRITE);
 
   return (

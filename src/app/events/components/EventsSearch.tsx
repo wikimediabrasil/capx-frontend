@@ -2,15 +2,14 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { useApp } from '@/contexts/AppContext';
 import BaseInput from '@/components/BaseInput';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import { useEvents } from '@/hooks/useEvents';
 import LoadingState from '@/components/LoadingState';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Event } from '@/types/event';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface EventsSearchProps {
   onSearchStart?: () => void;
   onSearchEnd?: () => void;
@@ -61,8 +60,10 @@ export function EventsSearch({
   organizationId,
 }: EventsSearchProps) {
   const { data: session } = useSession();
-  const { isMobile, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 

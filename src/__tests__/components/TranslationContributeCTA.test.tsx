@@ -1,9 +1,23 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TranslationContributeCTA } from '../../components/TranslationContributeCTA';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
-import * as AppContext from '@/contexts/AppContext';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
 
 // Mock do Next.js
 jest.mock('next/navigation', () => ({
@@ -42,15 +56,7 @@ jest.mock('next/link', () => ({
 }));
 
 // Mock dos contextos
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
 
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: jest.fn(),
-}));
 
 describe('TranslationContributeCTA', () => {
   const mockPageContent = {
@@ -68,35 +74,20 @@ describe('TranslationContributeCTA', () => {
   };
 
   beforeEach(() => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
 
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      language: 'pt',
-      pageContent: mockPageContent,
-      isMobile: false,
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-    });
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
+      
+        {component}
+      
     );
   };
 
   describe('Language Detection', () => {
     it('does not render when language is English', () => {
-      (AppContext.useApp as jest.Mock).mockReturnValue({
-        language: 'en',
-        pageContent: mockPageContent,
-        isMobile: false,
-      });
+
 
       const { container } = renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
       expect(container.firstChild).toBeNull();
@@ -129,10 +120,7 @@ describe('TranslationContributeCTA', () => {
 
   describe('Dark Mode Support', () => {
     it('applies dark mode styles when darkMode is true', () => {
-      (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 
@@ -254,11 +242,7 @@ describe('TranslationContributeCTA', () => {
     });
 
     it('falls back to default text when pageContent is not available', () => {
-      (AppContext.useApp as jest.Mock).mockReturnValue({
-        language: 'pt',
-        pageContent: {},
-        isMobile: false,
-      });
+
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
 
@@ -302,11 +286,7 @@ describe('TranslationContributeCTA', () => {
 
   describe('Responsive Design', () => {
     it('handles mobile layout in compact mode', () => {
-      (AppContext.useApp as jest.Mock).mockReturnValue({
-        language: 'pt',
-        pageContent: mockPageContent,
-        isMobile: true,
-      });
+
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 

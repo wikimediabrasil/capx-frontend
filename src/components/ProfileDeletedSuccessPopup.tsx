@@ -1,5 +1,4 @@
-import { usePageContent } from '@/stores';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, usePageContent } from '@/stores';
 import UserCheckIcon from '@/public/static/images/user_check.svg';
 import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
 import React, { useEffect } from 'react';
@@ -14,7 +13,7 @@ const ProfileDeletedSuccessPopup: React.FC<ProfileDeletedSuccessPopupProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const pageContent = usePageContent();
 
   // Auto-close after 3 seconds

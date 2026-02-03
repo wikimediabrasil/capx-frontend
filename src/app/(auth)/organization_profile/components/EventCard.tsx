@@ -7,13 +7,12 @@ import CheckBoxIcon from '@/public/static/images/check_box.svg';
 import CheckBoxIconLight from '@/public/static/images/check_box_light.svg';
 import MoreHorizIcon from '@/public/static/images/more_horiz.svg';
 import MoreHorizIconLight from '@/public/static/images/more_horiz_light.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { useEffect, useState, useRef } from 'react';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useSession } from 'next-auth/react';
 import { useCapacityDetails } from '@/hooks/useCapacityDetails';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface EventCardProps {
   event: Partial<Event>;
   isHorizontalScroll?: boolean;
@@ -23,8 +22,8 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, isEditMode = false, onChoose }: EventCardProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { data: session } = useSession();
   const token = session?.user?.token;
   const [isSelected, setIsSelected] = useState(false);

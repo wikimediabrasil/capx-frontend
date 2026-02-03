@@ -2,9 +2,7 @@
 
 import BaseInput from '@/components/BaseInput';
 import LoadingState from '@/components/LoadingState';
-import { useIsMobile, usePageContent } from '@/stores';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile, usePageContent, useDarkMode, useCapacityStore } from '@/stores';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -72,8 +70,8 @@ export function CapacitySearch({
 }: CapacitySearchProps) {
   const isMobile = useIsMobile();
   const pageContent = usePageContent();
-  const { darkMode } = useTheme();
-  const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityCache();
+  const darkMode = useDarkMode();
+  const { getName, getDescription, getWdCode, getRootCapacities, getChildren } = useCapacityStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);

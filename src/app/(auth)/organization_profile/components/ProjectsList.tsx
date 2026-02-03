@@ -1,8 +1,7 @@
 import Image from 'next/image';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useIsMobile, useDarkMode } from '@/stores';
 import { ProjectCard } from './ProjectCard';
 import { useState } from 'react';
 
@@ -13,7 +12,7 @@ interface ProjectsListProps {
 }
 
 export default function ProjectsList({ title, itemIds = [], token }: ProjectsListProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
   const [renderedProjects, setRenderedProjects] = useState(itemIds.length);
 

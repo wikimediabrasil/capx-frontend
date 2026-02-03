@@ -2,10 +2,9 @@ import BaseButton from '@/components/BaseButton';
 import LoadingState from '@/components/LoadingState';
 import { useDocument } from '@/hooks/useDocument';
 import Image from 'next/image';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface DocumentCardProps {
   documentId: number;
   token?: string;
@@ -20,8 +19,8 @@ export const DocumentCard = ({
   isSingle = false,
 }: DocumentCardProps) => {
   const { document, loading, error } = useDocument(token, documentId);
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   if (loading) {
     return <LoadingState />;

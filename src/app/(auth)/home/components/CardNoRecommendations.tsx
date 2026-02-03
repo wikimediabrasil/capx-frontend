@@ -2,16 +2,16 @@
 
 import Image from 'next/image';
 import contacts_product from '@/public/static/images/contacts_product.svg';
-import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
 import { useRouter } from 'next/navigation';
 
+import { usePageContent } from '@/stores';
 interface CardNoCapacitiesProps {
   alt: string;
 }
 
 export default function CardNoCapacities({ alt = '' }: CardNoCapacitiesProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const router = useRouter();
   return (
     <div className="flex flex-col justify-center items-center bg-[#FFFFFF] p-8 mx-auto text-center rounded-md w-full max-w-full">

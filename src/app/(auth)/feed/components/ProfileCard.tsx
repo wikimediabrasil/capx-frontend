@@ -1,9 +1,7 @@
 import BaseButton from '@/components/BaseButton';
 import { ProfileItem } from '@/components/ProfileItem';
 import { getDefaultAvatar } from '@/constants/images';
-import { usePageContent } from '@/stores';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { usePageContent, useDarkMode, useCapacityStore } from '@/stores';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import { useProfileImage } from '@/hooks/useProfileImage';
@@ -96,10 +94,10 @@ export const ProfileCard = ({
   onToggleSaved,
   hasIncompleteProfile = false,
 }: ProfileCardProps) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const router = useRouter();
-  const { getName, preloadCapacities } = useCapacityCache();
+  const { getName, preloadCapacities } = useCapacityStore();
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
@@ -130,10 +128,10 @@ export const ProfileCard = ({
   // Preload capacities to ensure they're available in the cache
   useEffect(() => {
     const allCapacities = [...capacities, ...wantedCapacities, ...availableCapacities];
-    if (allCapacities.length > 0) {
-      preloadCapacities();
+    if (allCapacities.length > 0 && token) {
+      preloadCapacities(token);
     }
-  }, [capacities, wantedCapacities, availableCapacities, preloadCapacities]);
+  }, [capacities, wantedCapacities, availableCapacities, preloadCapacities, token]);
 
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;

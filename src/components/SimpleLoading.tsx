@@ -1,17 +1,15 @@
-import { useApp } from '@/contexts/AppContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
+import { useAppStore } from '@/stores';
 import Image from 'next/image';
 
 // Simple loading component without theme dependency
 export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
   let isMobile = false;
 
-  // Try to get mobile status safely
+  // Try to get mobile status safely from Zustand store (no provider needed)
   try {
-    const app = useApp();
-    isMobile = app.isMobile;
+    isMobile = useAppStore.getState().isMobile;
   } catch {
-    // Context not available, use default
     isMobile = false;
   }
 

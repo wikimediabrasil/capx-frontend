@@ -4,11 +4,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import BaseButton from '@/components/BaseButton';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface StatisticItem {
   text: string;
   value: number;
@@ -20,8 +19,10 @@ export default function AnalyticsCallToActionSection() {
   const { data: session } = useSession();
   const token = session?.user?.token;
   const router = useRouter();
-  const { pageContent, isMobile } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+
+  const isMobile = useIsMobile();
+  const darkMode = useDarkMode();
   const { data, isLoading } = useStatistics();
   const { territories, loading: territoriesLoading } = useTerritories(token);
   const [currentIndex, setCurrentIndex] = useState(0);

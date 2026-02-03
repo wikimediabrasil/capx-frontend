@@ -11,6 +11,15 @@ export type {
   AppStoreState,
   AppStoreActions,
   AppStore,
+  ThemeStoreState,
+  ThemeStoreActions,
+  ThemeStore,
+  ProfileEditStoreState,
+  ProfileEditStoreActions,
+  ProfileEditStore,
+  BadgesStoreState,
+  BadgesStoreActions,
+  BadgesStore,
 } from './types';
 
 // Capacity Store
@@ -63,3 +72,27 @@ export {
   useNavigationState,
   useLanguageState,
 } from './hooks/useAppSelectors';
+
+// Theme Store
+export {
+  useThemeStore,
+  useDarkMode,
+  useSetDarkMode,
+  useThemeMounted,
+} from './themeStore';
+
+// Profile Edit Store
+export {
+  useProfileEditStore,
+  useUnsavedData,
+} from './profileEditStore';
+
+// Badges Store
+export {
+  useBadgesStore,
+  useAllBadges,
+  useUserBadges,
+  useUserBadgesRelations,
+  useBadgesLoading,
+  useBadgesError,
+} from './badgesStore';

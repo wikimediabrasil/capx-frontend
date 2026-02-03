@@ -1,11 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import BaseButton from '@/components/BaseButton';
 import { CapacityRecommendation } from '@/types/recommendation';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
 import { useRouter } from 'next/navigation';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
@@ -17,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { UserProfile } from '@/types/user';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 
+import { useDarkMode, usePageContent, useCapacityStore } from '@/stores';
 type CapacityType = 'wanted' | 'known-and-available';
 
 interface RecommendationCapacityCardBaseProps {
@@ -32,11 +30,11 @@ export default function RecommendationCapacityCardBase({
   userProfile: userProfileProp,
   capacityType,
 }: RecommendationCapacityCardBaseProps) {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const { data: session } = useSession();
   const router = useRouter();
-  const { getName, getIcon, getColor, getDescription, preloadCapacities } = useCapacityCache();
+  const { getName, getIcon, getColor, getDescription, preloadCapacities } = useCapacityStore();
   const { showSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
@@ -72,15 +70,15 @@ export default function RecommendationCapacityCardBase({
   useEffect(() => {
     const loadCapacity = async () => {
       try {
-        if (capacityId) {
-          await preloadCapacities();
+        if (capacityId && session?.user?.token) {
+          await preloadCapacities(session.user.token);
         }
       } catch (error) {
         console.error('Error preloading capacities:', error);
       }
     };
     loadCapacity();
-  }, [capacityId]);
+  }, [capacityId, session?.user?.token]);
 
   const capacityName = useMemo(() => {
     if (typeof recommendation.name === 'string' && recommendation.name.trim().length > 0) {

@@ -1,8 +1,6 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
@@ -15,7 +13,7 @@ import MetabaseIcon from '@/public/static/images/metabase_black.svg';
 import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
-import { useIsMobile, useLanguage, usePageContent } from '@/stores';
+import { useIsMobile, useLanguage, usePageContent, useDarkMode, useCapacityStore } from '@/stores';
 import { Capacity } from '@/types/capacity';
 import { UserProfile } from '@/types/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -258,8 +256,8 @@ export function CapacityCard({
   const isMobile = useIsMobile();
   const pageContent = usePageContent();
   const language = useLanguage();
-  const { darkMode } = useTheme();
-  const { isFallbackTranslation } = useCapacityCache();
+  const darkMode = useDarkMode();
+  const { isFallbackTranslation } = useCapacityStore();
   const [showInfo, setShowInfo] = useState(false);
   const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();

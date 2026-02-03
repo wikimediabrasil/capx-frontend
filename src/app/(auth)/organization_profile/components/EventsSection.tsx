@@ -1,14 +1,13 @@
 import Image from 'next/image';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { EventCard } from './EventCard';
 import { useEffect, useState } from 'react';
 import { Event } from '@/types/event';
 import axios from 'axios';
 import LoadingState from '@/components/LoadingState';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface EventsSectionProps {
   title: string;
   itemIds?: number[];
@@ -22,8 +21,10 @@ export default function EventsSection({
   token,
   isFeatured = false,
 }: EventsSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

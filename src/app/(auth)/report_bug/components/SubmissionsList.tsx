@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { useBugReportSubmissions } from '@/hooks/useBugReportSubmissions';
 import SubmissionCard from './SubmissionCard';
 import { BugReport } from '@/types/report';
 import { PaginationButtons } from '@/components/PaginationButtons';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export default function SubmissionsList() {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
 
   const { reports, isLoading, error } = useBugReportSubmissions();
   const [currentPage, setCurrentPage] = useState(1);

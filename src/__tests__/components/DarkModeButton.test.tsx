@@ -1,8 +1,18 @@
-import * as ThemeContext from '@/contexts/ThemeContext';
 import * as stores from '@/stores';
 import '@testing-library/jest-dom';
 import { fireEvent, screen } from '@testing-library/react';
 import DarkModeButton from '../../components/DarkModeButton';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+}));
+
 import {
   renderWithProviders,
   createMockThemeContext,
@@ -28,16 +38,10 @@ jest.mock('next/navigation', () => ({
 }));
 
 // useTheme's mock
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
+
 
 // Zustand stores mock
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  usePageContent: jest.fn(),
-}));
+
 
 describe('DarkModeButton', () => {
   const mockSetDarkMode = jest.fn();
@@ -48,9 +52,7 @@ describe('DarkModeButton', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(
-      createMockThemeContext(false, { setDarkMode: mockSetDarkMode })
-    );
+
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
@@ -66,9 +68,7 @@ describe('DarkModeButton', () => {
   });
 
   const testIconDisplay = (darkMode: boolean, expectedAltText: string) => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(
-      createMockThemeContext(darkMode, { setDarkMode: mockSetDarkMode })
-    );
+
 
     renderWithProviders(<DarkModeButton />);
     expect(screen.getByAltText(expectedAltText)).toBeInTheDocument();

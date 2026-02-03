@@ -1,9 +1,8 @@
-import Image from 'next/image';
+import MiniBioTextarea from '@/components/MiniBioTextarea';
 import PersonBookIcon from '@/public/static/images/person_book.svg';
 import PersonBookIconWhite from '@/public/static/images/person_book_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-import MiniBioTextarea from '@/components/MiniBioTextarea';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
+import Image from 'next/image';
 
 interface MiniBioProps {
   about: string;
@@ -18,15 +17,16 @@ export default function MiniBio({
   isEditing = false,
   maxLength = 2000,
 }: MiniBioProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
 
   const renderText = (text: string) => {
     if (!text) return pageContent['edit-profile-mini-bio-placeholder'];
 
     // Preserve line breaks and spaces
     return text.split('\n').map((line, index) => (
-      <span key={index}>
+      <span key={`${index}-${line}`}>
         {line}
         {index < text.split('\n').length - 1 && <br />}
       </span>

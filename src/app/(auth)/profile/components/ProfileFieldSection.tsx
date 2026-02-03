@@ -1,7 +1,6 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useIsMobile, useDarkMode } from '@/stores';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 
@@ -20,7 +19,7 @@ export default function ProfileFieldSection({
   children,
   iconSize = { mobile: 20, desktop: 42 },
 }: ProfileFieldSectionProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
 
   return (

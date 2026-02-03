@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipForm, MentorshipFormField } from '@/types/mentorship';
 import Image from 'next/image';
 import MentorIcon from '@/public/static/images/mentor.svg';
 import MenteeIcon from '@/public/static/images/mentee.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface DynamicFormProps {
   form: MentorshipForm;
   programName: string;
@@ -24,8 +23,8 @@ export default function DynamicForm({
   onSubmit,
   onClose,
 }: DynamicFormProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [formData, setFormData] = useState<Record<string, any>>(() => {
     const initial: Record<string, any> = {};
     form.fields.forEach(field => {

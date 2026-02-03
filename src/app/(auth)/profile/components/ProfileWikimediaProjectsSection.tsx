@@ -1,11 +1,10 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProfileWikimediaProjectsSectionProps {
   readonly projects: ReadonlyArray<number>;
   readonly projectImages: { readonly [key: number]: string };
@@ -17,8 +16,10 @@ export default function ProfileWikimediaProjectsSection({
   projectImages,
   projectNames,
 }: ProfileWikimediaProjectsSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const iconSize = isMobile ? { width: 20, height: 20 } : { width: 48, height: 48 };
   const titleSize = isMobile ? 'text-[14px]' : 'text-[24px]';

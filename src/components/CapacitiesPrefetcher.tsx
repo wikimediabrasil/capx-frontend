@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { useLanguage } from '@/stores';
+import { useLanguage, useCapacityStore } from '@/stores';
 
 // Paths where we don't need to prefetch all capacity data
 const EXCLUDED_PATHS = [
@@ -29,22 +28,21 @@ export const CapacitiesPrefetcher = () => {
 };
 
 const CapacitiesPrefetcherInternal = () => {
-  const {
-    updateLanguage,
-    isLoaded,
-    language: _language,
-    isLoadingTranslations,
-  } = useCapacityCache();
+  const store = useCapacityStore();
   const { data: session } = useSession();
+  const token = session?.user?.token;
   const appLanguage = useLanguage();
   const pathname = usePathname();
+
+  const isLoaded = store.getIsLoaded();
+  const isLoadingTranslations = store.isLoadingTranslations;
 
   // Check if we should skip prefetching based on the current path
   const shouldSkipPrefetch = pathname && EXCLUDED_PATHS.some(path => pathname.includes(path));
 
   // Only prefetch when we have a session, no cache loaded, and not already loading
   useEffect(() => {
-    if (!session?.user?.token || shouldSkipPrefetch || isLoaded || isLoadingTranslations) {
+    if (!token || shouldSkipPrefetch || isLoaded || isLoadingTranslations) {
       return;
     }
 
@@ -52,16 +50,16 @@ const CapacitiesPrefetcherInternal = () => {
     const languageToLoad = appLanguage || 'en';
 
     const timer = setTimeout(() => {
-      updateLanguage(languageToLoad);
+      store.updateLanguage(languageToLoad, token);
     }, 100);
 
     return () => clearTimeout(timer);
   }, [
-    session?.user?.token,
+    token,
     shouldSkipPrefetch,
     isLoaded,
     isLoadingTranslations,
-    updateLanguage,
+    store,
     appLanguage,
   ]);
 

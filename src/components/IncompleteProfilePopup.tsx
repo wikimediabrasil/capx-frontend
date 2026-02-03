@@ -1,8 +1,7 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Popup from './Popup';
 import FirstLoginImage from '@/public/static/images/capx_complete_profile.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface IncompleteProfilePopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,8 +13,8 @@ export default function IncompleteProfilePopup({
   onClose,
   onContinue,
 }: IncompleteProfilePopupProps) {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
 
   if (!isOpen) return null;
 

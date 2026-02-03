@@ -1,17 +1,18 @@
 import Image from 'next/image';
-import { useApp } from '@/contexts/AppContext';
 import TabletIllustration from '@/public/static/images/tablet_illustration.svg';
 import TabletIllustrationWhite from '@/public/static/images/tablet_illustration_white.svg';
 import CapxPencilIllustration from '@/public/static/images/capx_pencil_illustration.svg';
 import VideoThumbnail from '@/public/static/images/thumbnail.svg';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useState } from 'react';
 import Popup from './Popup';
 import BaseButton from './BaseButton';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 export default function VideoSection() {
-  const { isMobile, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
 

@@ -1,6 +1,5 @@
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useIsMobile, useDarkMode } from '@/stores';
 
 interface ResponsiveIconProps {
   lightIcon: string;
@@ -21,7 +20,7 @@ export function ResponsiveIcon({
   mobileSize,
   desktopSize,
 }: ResponsiveIconProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
 
   const icon = darkMode ? darkIcon : lightIcon;

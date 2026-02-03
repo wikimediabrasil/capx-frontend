@@ -1,7 +1,16 @@
 import { screen, fireEvent } from '@testing-library/react';
 import BaseButton from '../../components/BaseButton';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { renderWithProviders, createMockThemeContext } from '../utils/test-helpers';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+}));
 
 // Mock do Next.js Router
 jest.mock('next/navigation', () => ({
@@ -22,17 +31,14 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock do useTheme
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
+
 
 describe('BaseButton', () => {
   const defaultOnClick = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockThemeContext(false));
+
   });
 
   const renderButton = (props: any = {}) => {

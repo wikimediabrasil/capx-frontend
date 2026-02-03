@@ -4,11 +4,10 @@
  */
 
 import type { StaticImageData } from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { getAccountIcon, getLetsConnectConfig, type LetsConnectConfig } from './themeHelpers';
 import { ICON_SIZES, RESPONSIVE_SPACING, THEME_COLORS } from './utils';
 
+import { useDarkMode, useIsMobile } from '@/stores';
 /**
  * Theme configuration object returned by the hook
  */
@@ -54,8 +53,8 @@ export interface ThemeConfig {
  * ```
  */
 export function useThemeConfig(): ThemeConfig {
-  const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
 
   return {
     // Layout classes

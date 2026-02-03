@@ -1,11 +1,10 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import CakeIcon from '@/public/static/images/cake.svg';
 import CakeIconWhite from '@/public/static/images/cake_white.svg';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProfileWikiBirthdaySectionProps {
   readonly wikiBirthday: string | null;
 }
@@ -13,8 +12,10 @@ interface ProfileWikiBirthdaySectionProps {
 export default function ProfileWikiBirthdaySection({
   wikiBirthday,
 }: ProfileWikiBirthdaySectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const iconSize = isMobile ? 16 : 42;
   const titleSize = isMobile ? 'text-[14px]' : 'text-[24px]';

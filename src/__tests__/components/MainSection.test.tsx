@@ -1,25 +1,22 @@
 import { render, screen } from '@testing-library/react';
 import MainSection from '@/components/MainSection';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import * as stores from '@/stores';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { useSession } from 'next-auth/react';
+
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+}));
 
 // Mocks necessários
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
-}));
-
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useIsMobile: jest.fn(),
-  usePageContent: jest.fn(),
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
 }));
 
 describe('MainSection', () => {
@@ -41,16 +38,14 @@ describe('MainSection', () => {
     (stores.useIsMobile as jest.Mock).mockReturnValue(false);
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
 
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-    });
+
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
+      
+        {component}
+      
     );
   };
 

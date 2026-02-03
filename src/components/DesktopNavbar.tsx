@@ -5,7 +5,6 @@ import LanguageSelect from './LanguageSelect';
 import CapXLogo from '../../public/static/images/capx_minimalistic_logo.svg';
 import DarkModeButton from './DarkModeButton';
 import ProfileSelect from './ProfileSelect';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Session } from 'next-auth';
 import { useState, useRef, useEffect } from 'react';
 import BurgerMenu from '@/public/static/images/burger_menu.svg';
@@ -14,7 +13,7 @@ import IconCloseMobileMenuLightMode from '@/public/static/images/close_mobile_me
 import IconCloseMobileMenuDarkMode from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import MoveOutIcon from '@/public/static/images/move_item.svg';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, usePageContent } from '@/stores';
 export interface DesktopNavbarProps {
   language: string;
   setLanguage: (language: string) => void;
@@ -22,9 +21,9 @@ export interface DesktopNavbarProps {
 }
 
 export default function DesktopNavbar({ language, setLanguage, session }: DesktopNavbarProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const [showMenu, setShowMenu] = useState(false);
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const token = session?.user?.token;

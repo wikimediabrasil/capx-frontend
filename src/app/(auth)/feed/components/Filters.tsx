@@ -1,7 +1,6 @@
 'use client';
 
-import { usePageContent } from '@/stores';
-import { useTheme } from '@/contexts/ThemeContext';
+import { usePageContent, useDarkMode } from '@/stores';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -78,7 +77,7 @@ export function Filters({
   initialFilters,
   isOnlyOrganization = false,
 }: FiltersProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const { data: session } = useSession();
   const token = session?.user?.token;

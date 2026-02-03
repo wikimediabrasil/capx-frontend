@@ -1,12 +1,11 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import info_blue from '@/public/static/images/info_blue.svg';
 import Image from 'next/image';
 import { Children, useCallback, useEffect, useRef, useState } from 'react';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface RecommendationCarouselProps {
   title: string;
   description?: string;
@@ -22,8 +21,8 @@ export default function RecommendationCarousel({
   showInfoIcon = true,
   tooltipText,
 }: RecommendationCarouselProps) {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);

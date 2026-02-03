@@ -1,7 +1,6 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useDarkMode, useIsMobile } from '@/stores';
 import Image, { StaticImageData } from 'next/image';
 import React, { ReactNode } from 'react';
 
@@ -24,7 +23,7 @@ export const ProfileField: React.FC<ProfileFieldProps> = ({
   children,
   showEmpty = false,
 }) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
 
   if (!showEmpty && !value && !children) {
@@ -76,7 +75,7 @@ interface ProfileTagListProps {
  * Reusable component for rendering tag lists (languages, territories, affiliations)
  */
 export const ProfileTagList: React.FC<ProfileTagListProps> = ({ items, getItemName }) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
 
   const contentSize = isMobile ? 'text-[14px]' : 'text-[24px]';
@@ -113,7 +112,7 @@ interface ProfileSimpleFieldProps {
  * Simplified component for basic profile fields
  */
 export const ProfileSimpleField: React.FC<ProfileSimpleFieldProps> = ({ icon, title, value }) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
 
   const _iconSize = isMobile ? 20 : 48;

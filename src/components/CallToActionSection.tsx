@@ -2,13 +2,13 @@ import AuthButton from '@/components/AuthButton';
 import BaseButton from './BaseButton';
 import Image from 'next/image';
 import Illustration from '@/public/static/images/capx_people_illustration.svg';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import { useSession } from 'next-auth/react';
 
 export default function CallToActionSection() {
-  const { isMobile, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const { data: session } = useSession();
 
   if (isMobile) {

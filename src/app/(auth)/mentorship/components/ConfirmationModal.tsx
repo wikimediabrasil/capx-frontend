@@ -1,10 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,8 +19,8 @@ export default function ConfirmationModal({
   programLogo,
   onViewMore,
 }: ConfirmationModalProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   if (!isOpen) return null;
 

@@ -1,7 +1,6 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useIsMobile, useDarkMode } from '@/stores';
 import { useProfile } from '@/hooks/useProfile';
 import MainSectionIllustration from '@/public/static/images/capx_loggedin_home_illustration.svg';
 import MainSectionIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
@@ -18,7 +17,7 @@ interface AuthenticatedMainSectionProps {
 
 export default function AuthenticatedMainSection({ pageContent }: AuthenticatedMainSectionProps) {
   const isMobile = useIsMobile();
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const { data: session } = useSession();

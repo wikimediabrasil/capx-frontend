@@ -6,10 +6,10 @@ import AuthenticatedMainSection from './AuthenticatedMainSection';
 import Popup from '@/components/Popup';
 import IncompleteProfilePopup from '@/components/IncompleteProfilePopup';
 import FirstLoginImage from '@/public/static/images/capx_complete_profile.svg';
-import { useApp } from '@/contexts/AppContext';
 import { useProfile } from '@/hooks/useProfile';
 import { isProfileIncomplete } from '@/utils/checkProfileCompleteness';
 
+import { usePageContent } from '@/stores';
 interface AuthenticatedHomeWrapperProps {
   isFirstLogin: boolean;
 }
@@ -18,7 +18,7 @@ const SESSION_STORAGE_KEY = 'incomplete-profile-popup-shown';
 
 export default function AuthenticatedHomeWrapper({ isFirstLogin }: AuthenticatedHomeWrapperProps) {
   const router = useRouter();
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const { data: session } = useSession();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;

@@ -1,10 +1,10 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import Image from 'next/image';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useIsMobile, usePageContent } from '@/stores';
 interface ScrollNavigationProps {
   children: React.ReactNode;
   className?: string;
@@ -20,7 +20,9 @@ export const ScrollNavigation: React.FC<ScrollNavigationProps> = ({
   className = '',
   itemWidth = 320,
 }) => {
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);

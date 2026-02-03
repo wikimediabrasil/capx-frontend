@@ -3,12 +3,11 @@
  * Allows users to specify an alternative Wikimedia username
  */
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import { getWikiIcon } from './themeHelpers';
 import { ICON_SIZES, RESPONSIVE_BORDER_RADIUS, RESPONSIVE_TEXT_SIZES } from './utils';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface AlternativeAccountSectionProps {
   readonly wikiAlt: string | undefined;
   readonly onChange: (value: string) => void;
@@ -21,8 +20,10 @@ interface AlternativeAccountSectionProps {
  * @param onChange - Callback when the value changes
  */
 export function AlternativeAccountSection({ wikiAlt, onChange }: AlternativeAccountSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const wikiIcon = getWikiIcon(darkMode);
   const iconSize = isMobile ? ICON_SIZES.mobile : ICON_SIZES.desktopLarge;

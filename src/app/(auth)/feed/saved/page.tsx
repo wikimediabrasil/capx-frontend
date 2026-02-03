@@ -2,8 +2,6 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import LoadingState from '@/components/LoadingState';
 import { NoResults } from '../components/NoResults';
@@ -12,9 +10,10 @@ import SavedItemCard from './components/SavedItemCard';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export default function SavedProfilesPage() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const { showSnackbar } = useSnackbar();

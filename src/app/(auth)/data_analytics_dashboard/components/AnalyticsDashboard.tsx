@@ -2,8 +2,6 @@
 
 import Banner from '@/components/Banner';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
@@ -28,6 +26,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
 
+import { useDarkMode, usePageContent } from '@/stores';
 // Constants
 const SKILL_METADATA = {
   10: {
@@ -199,8 +198,8 @@ function DropdownHeader({
 export default function AnalyticsDashboardPage() {
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { data } = useStatistics();
   const { territories } = useTerritories(token);
   const { languages } = useLanguage(token);

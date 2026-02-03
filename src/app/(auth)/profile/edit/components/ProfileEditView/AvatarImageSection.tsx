@@ -3,8 +3,6 @@ import BaseButton from '@/components/BaseButton';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
 import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
@@ -19,6 +17,7 @@ import DeleteIcon from '@/public/static/images/delete.svg';
 import Image from 'next/image';
 import AvatarSelectionPopup from '../../../components/AvatarSelectionPopup';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 const getAvatarAltText = (src: string, pageContent: any): string => {
   const isDefaultAvatar = src === DEFAULT_AVATAR || src === DEFAULT_AVATAR_WHITE;
   if (isDefaultAvatar) {
@@ -88,8 +87,10 @@ export function AvatarImageSection({
   handleDeleteProfile,
   refetch,
 }: AvatarImageSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const accountBoxIcon = darkMode ? AccountBoxIconWhite : AccountBoxIcon;
   const titleColor = darkMode ? 'text-white' : 'text-[#053749]';

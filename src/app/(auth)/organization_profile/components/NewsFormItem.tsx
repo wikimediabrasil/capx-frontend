@@ -1,10 +1,9 @@
-import { useTheme } from '@/contexts/ThemeContext';
 import CancelIcon from '@/public/static/images/cancel.svg';
 import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import Image from 'next/image';
 import { tagDiff } from '@/types/tagDiff';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface NewsFormItemProps {
   news: tagDiff;
   index: number;
@@ -13,8 +12,10 @@ interface NewsFormItemProps {
 }
 
 const NewsFormItem = ({ news, index, onDelete, onChange }: NewsFormItemProps) => {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   if (isMobile) {
     return (

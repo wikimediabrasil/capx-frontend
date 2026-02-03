@@ -1,5 +1,4 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile, usePageContent } from '@/stores';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import SimpleButton from '@/components/SimpleButton';
 
 interface PaginationButtonsProps {
@@ -15,7 +14,7 @@ export function PaginationButtons({
   totalPages,
   onPageChange,
 }: PaginationButtonsProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
   const pageContent = usePageContent();
 

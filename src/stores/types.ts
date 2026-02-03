@@ -29,6 +29,8 @@ export interface UnifiedCache {
 // Capacity store state
 export interface CapacityStoreState extends UnifiedCache {
   isLoadingTranslations: boolean;
+  // Convenience property (delegates to getIsLoaded)
+  readonly isLoaded: boolean;
 }
 
 // Capacity store actions
@@ -85,3 +87,52 @@ export interface AppStoreActions {
 
 // Combined app store type
 export type AppStore = AppStoreState & AppStoreActions;
+
+// Theme store state
+export interface ThemeStoreState {
+  darkMode: boolean;
+  mounted: boolean;
+}
+
+// Theme store actions
+export interface ThemeStoreActions {
+  setDarkMode: (value: boolean) => void;
+  hydrate: () => () => void; // Returns cleanup function
+}
+
+// Combined theme store type
+export type ThemeStore = ThemeStoreState & ThemeStoreActions;
+
+// Profile edit store state
+export interface ProfileEditStoreState {
+  unsavedData: Partial<import('@/types/profile').Profile> | null;
+}
+
+// Profile edit store actions
+export interface ProfileEditStoreActions {
+  setUnsavedData: (data: Partial<import('@/types/profile').Profile> | null) => void;
+  clearUnsavedData: () => void;
+}
+
+// Combined profile edit store type
+export type ProfileEditStore = ProfileEditStoreState & ProfileEditStoreActions;
+
+// Badges store state
+export interface BadgesStoreState {
+  allBadges: import('@/types/badge').Badge[];
+  userBadgesRelations: import('@/types/badge').UserBadge[];
+  userBadges: import('@/types/badge').Badge[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Badges store actions
+export interface BadgesStoreActions {
+  fetchBadges: (token: string) => Promise<void>;
+  fetchUserBadges: (token: string) => Promise<void>;
+  updateUserBadges: (selectedBadgeIds: number[], token: string) => Promise<void>;
+  reset: () => void;
+}
+
+// Combined badges store type
+export type BadgesStore = BadgesStoreState & BadgesStoreActions;

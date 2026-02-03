@@ -1,18 +1,19 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import PersonIcon from '@/public/static/images/person_book.svg';
 import PersonIconWhite from '@/public/static/images/person_book_white.svg';
 import { Profile } from '@/types/profile';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface MiniBioSectionProps {
   readonly formData: Partial<Profile>;
   readonly setFormData: (data: Partial<Profile>) => void;
 }
 
 export function MiniBioSection({ formData, setFormData }: MiniBioSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   return (
     <div className="flex flex-col gap-4">

@@ -1,11 +1,10 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import InfoIcon from '@/public/static/images/info.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
+import { useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
 interface TranslationContributeCTAProps {
   capacityCode: number;
   metabaseCode?: string;
@@ -23,8 +22,12 @@ export function TranslationContributeCTA({
   className = '',
   compact = false,
 }: Readonly<TranslationContributeCTAProps>) {
-  const { pageContent, language, isMobile } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+
+  const language = useLanguage();
+
+  const isMobile = useIsMobile();
+  const darkMode = useDarkMode();
   const [showHelpPopup, setShowHelpPopup] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
 

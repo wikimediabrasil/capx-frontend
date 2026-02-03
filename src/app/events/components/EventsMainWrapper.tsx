@@ -4,8 +4,6 @@ import Banner from '@/components/Banner';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useEvents } from '@/hooks/useEvents';
 import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import CapxPersonEvent from '@/public/static/images/capx_person_events.svg';
@@ -23,12 +21,13 @@ import { EventsFilters } from './EventsFilters';
 import EventsList from './EventsList';
 import { EventsSearch } from './EventsSearch';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export default function EventsMainWrapper() {
   const { data: session } = useSession();
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const searchParams = useSearchParams();
   const organizationId = searchParams?.get('organization');
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const router = useRouter();
 
   // Pagination states

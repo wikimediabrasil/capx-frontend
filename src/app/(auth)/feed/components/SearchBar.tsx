@@ -1,5 +1,4 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { usePageContent } from '@/stores';
+import { usePageContent, useDarkMode } from '@/stores';
 import Image from 'next/image';
 import SearchIcon from '@/public/static/images/search_icon.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
@@ -36,7 +35,7 @@ export function SearchBar({
   removeItemAltText: _removeItemAltText = '',
   showCapacitiesSearch = false,
 }: SearchBarProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const pageContent = usePageContent();
 
   return (

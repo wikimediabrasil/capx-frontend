@@ -1,9 +1,24 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProfileSelect from '@/components/ProfileSelect';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as AppContext from '@/contexts/AppContext';
 import { SessionProvider } from 'next-auth/react';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
 
 const pushMock = jest.fn();
 
@@ -59,45 +74,18 @@ const mockPageContent = {
 };
 
 // Mock AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: jest.fn(() => ({
-    pageContent: mockPageContent,
-    isMobile: false,
-  })),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(() => ({
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    theme: {
-      fontSize: {
-        mobile: { base: '14px' },
-        desktop: { base: '24px' },
-      },
-    },
-    getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-    getBackgroundColor: () => '#FFFFFF',
-    getTextColor: () => '#000000',
-  })),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
 
 describe('ProfileSelect', () => {
   beforeEach(() => {
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      pageContent: mockPageContent,
-      isMobile: false,
-    });
+
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
       <SessionProvider>
-        <AppProvider>
-          <ThemeProvider>{component}</ThemeProvider>
-        </AppProvider>
+        
+          {component}
+        
       </SessionProvider>
     );
   };
@@ -108,13 +96,7 @@ describe('ProfileSelect', () => {
   });
 
   it('handles long text without breaking layout', () => {
-    (AppContext.useApp as jest.Mock).mockImplementation(() => ({
-      pageContent: {
-        'navbar-link-profiles': 'Meine Profile und Einstellungen',
-        'navbar-user-profile': 'Benutzerprofil',
-      },
-      isMobile: false,
-    }));
+
 
     renderWithProviders(<ProfileSelect />);
 
@@ -126,13 +108,7 @@ describe('ProfileSelect', () => {
   });
 
   it('supports RTL text direction', () => {
-    (AppContext.useApp as jest.Mock).mockImplementation(() => ({
-      pageContent: {
-        'navbar-link-profiles': 'الملفات الشخصية',
-        'navbar-user-profile': 'الملف الشخصي',
-      },
-      isMobile: false,
-    }));
+
 
     renderWithProviders(<ProfileSelect />);
     expect(screen.getByText('الملفات الشخصية')).toBeInTheDocument();

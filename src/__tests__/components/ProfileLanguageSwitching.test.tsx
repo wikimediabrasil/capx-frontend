@@ -2,6 +2,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useCapacityStore: Object.assign(
+    jest.fn(() => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false, getName: jest.fn(() => ''), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => false), getIsDescriptionsReady: jest.fn(() => false), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() })),
+    { getState: () => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false }) }
+  ),
+}));
+
 // Simple test to verify the cache integration works
 describe('Profile Language Switching Integration', () => {
   const TestWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -18,15 +27,6 @@ describe('Profile Language Switching Integration', () => {
   const mockGetName = jest.fn();
   const mockUpdateLanguage = jest.fn().mockResolvedValue(undefined);
 
-  jest.mock('@/contexts/CapacityCacheContext', () => ({
-    useCapacityCache: () => ({
-      getName: mockGetName,
-      isLoadingTranslations: false,
-      updateLanguage: mockUpdateLanguage,
-      isLoaded: true,
-    }),
-  }));
-
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetName.mockImplementation((id: number) => `Capacity ${id}`);
@@ -34,7 +34,6 @@ describe('Profile Language Switching Integration', () => {
 
   it('should have capacity cache integration ready', () => {
     // This is a basic test to ensure our integration setup is working
-    const mockCapacityCache = require('@/contexts/CapacityCacheContext').useCapacityCache();
 
     expect(mockCapacityCache.getName).toBeDefined();
     expect(mockCapacityCache.updateLanguage).toBeDefined();
@@ -43,7 +42,6 @@ describe('Profile Language Switching Integration', () => {
   });
 
   it('should call getName function correctly', () => {
-    const mockCapacityCache = require('@/contexts/CapacityCacheContext').useCapacityCache();
 
     const result = mockCapacityCache.getName(123);
     expect(result).toBe('Capacity 123');
@@ -51,7 +49,6 @@ describe('Profile Language Switching Integration', () => {
   });
 
   it('should handle language update calls', async () => {
-    const mockCapacityCache = require('@/contexts/CapacityCacheContext').useCapacityCache();
 
     await mockCapacityCache.updateLanguage('pt');
     expect(mockUpdateLanguage).toHaveBeenCalledWith('pt');

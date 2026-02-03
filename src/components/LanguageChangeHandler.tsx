@@ -1,8 +1,7 @@
 'use client';
 import LoadingState from '@/components/LoadingState';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useLanguage } from '@/stores';
+import { useLanguage, useDarkMode, useCapacityStore } from '@/stores';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 
 /**
@@ -26,15 +25,17 @@ export function LanguageChangeHandler({ children }: { children: React.ReactNode 
 
 function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
   const language = useLanguage();
-  const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityCache();
-  const { darkMode } = useTheme();
+  const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityStore();
+  const darkMode = useDarkMode();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
 
   // Update language when app language changes
   useEffect(() => {
-    if (language !== cacheLanguage && !isLoadingTranslations) {
-      updateLanguage(language);
+    if (language !== cacheLanguage && !isLoadingTranslations && token) {
+      updateLanguage(language, token);
     }
-  }, [language, cacheLanguage, updateLanguage, isLoadingTranslations]);
+  }, [language, cacheLanguage, updateLanguage, isLoadingTranslations, token]);
 
   // Show loading when actively loading translations
   if (isLoadingTranslations) {

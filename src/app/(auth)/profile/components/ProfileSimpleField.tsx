@@ -1,9 +1,8 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProfileSimpleFieldProps {
   readonly icon: string;
   readonly title: string;
@@ -17,8 +16,10 @@ export default function ProfileSimpleField({
   value,
   emptyText,
 }: ProfileSimpleFieldProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const iconSize = isMobile ? { width: 20, height: 20 } : { width: 48, height: 48 };
   const titleSize = isMobile ? 'text-[14px]' : 'text-[24px]';

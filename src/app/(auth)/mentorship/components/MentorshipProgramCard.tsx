@@ -1,8 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
 import { useState } from 'react';
@@ -16,6 +14,7 @@ import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface MentorshipProgramCardProps {
   program: MentorshipProgram;
   onSubscribe?: (programId: number, role: 'mentor' | 'mentee') => void;
@@ -27,8 +26,8 @@ export default function MentorshipProgramCard({
   onSubscribe,
   onLearnMore,
 }: MentorshipProgramCardProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);

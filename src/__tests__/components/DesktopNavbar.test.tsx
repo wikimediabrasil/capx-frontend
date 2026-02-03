@@ -1,9 +1,27 @@
 import DesktopNavbar from '@/components/DesktopNavbar';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { fireEvent, screen } from '@testing-library/react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
+
 import {
   createMockOrganization,
   createMockPageContent,
@@ -43,10 +61,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // useTheme's mock
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
+
 
 // axios's mock
 jest.mock('axios');
@@ -61,35 +76,7 @@ jest.mock('../../components/LanguageSelect', () => ({
 const mockPageContent = createMockPageContent();
 
 //  Mocking AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    isMobile: true,
-    pageContent: {
-      'sign-in-button': 'Login',
-      'sign-out-button': 'Logout',
-      'navbar-link-home': 'Home',
-      'navbar-link-capacities': 'Capacities',
-      'navbar-link-reports': 'Reports',
-      'navbar-link-feed': 'Feed',
-      'navbar-link-saved': 'Saved',
-      'navbar-link-report-bug': 'Report Bug',
-    },
-    mobileMenuStatus: true,
-    setMobileMenuStatus: jest.fn(),
-    language: 'en',
-    setLanguage: jest.fn(),
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    session: null,
-    setSession: jest.fn(),
-    setPageContent: jest.fn(),
-    isLoading: false,
-    setIsLoading: jest.fn(),
-    isMenuOpen: false,
-    setIsMenuOpen: jest.fn(),
-  }),
-}));
+
 
 describe('DesktopNavbar', () => {
   beforeEach(() => {
@@ -106,10 +93,7 @@ describe('DesktopNavbar', () => {
     });
 
     // useTheme's mock
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+
   });
 
   const validSession = createMockSession();
@@ -166,10 +150,7 @@ describe('DesktopNavbar', () => {
     expectedBgClass: string,
     expectedTextClass: string
   ) => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode,
-      setDarkMode: jest.fn(),
-    });
+
 
     const { container } = renderWithProviders(
       <DesktopNavbar session={nullSession} language="en" setLanguage={() => {}} />

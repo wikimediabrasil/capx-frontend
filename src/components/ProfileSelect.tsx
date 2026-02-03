@@ -1,12 +1,11 @@
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BaseSelect from './BaseSelect';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useSession } from 'next-auth/react';
 import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProfileOption {
   value: string;
   label: string;
@@ -40,8 +39,10 @@ function OrganizationNameLoader({
 
 export default function ProfileSelect() {
   const router = useRouter();
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const { data: session } = useSession();
 
   const { organizations } = useOrganization(session?.user?.token);

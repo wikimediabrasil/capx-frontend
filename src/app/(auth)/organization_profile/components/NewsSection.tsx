@@ -1,5 +1,3 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useTagDiff } from '@/hooks/useTagDiff';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
@@ -8,11 +6,12 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export const NewsSection = ({ ids }: NewsProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { data: session } = useSession();
   const { fetchSingleTag } = useTagDiff(session?.user?.token);
 

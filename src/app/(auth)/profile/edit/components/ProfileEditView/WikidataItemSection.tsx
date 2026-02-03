@@ -3,14 +3,13 @@
  * Allows users to consent to using their Wikidata item for profile information
  */
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { getBarcodeIcon, getCheckboxIcon } from './themeHelpers';
 import { ICON_SIZES, RESPONSIVE_BORDER_RADIUS, RESPONSIVE_TEXT_SIZES } from './utils';
 import { renderTextWithLink } from './textHelpers';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface WikidataItemSectionProps {
   readonly isWikidataSelected: boolean;
   readonly handleWikidataClick: (selected: boolean) => void;
@@ -26,8 +25,10 @@ export function WikidataItemSection({
   isWikidataSelected,
   handleWikidataClick,
 }: WikidataItemSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const barcodeIcon = getBarcodeIcon(darkMode);
   const checkboxIcon = getCheckboxIcon(isWikidataSelected, darkMode);

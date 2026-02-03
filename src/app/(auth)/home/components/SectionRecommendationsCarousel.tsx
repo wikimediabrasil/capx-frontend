@@ -11,13 +11,13 @@ import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommend
 import RecommendationsSection from '@/app/(auth)/home/components/RecommendationsSection';
 import CapacityRecommendationsCarousels from '@/app/(auth)/home/components/CapacityRecommendationsCarousels';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { userService } from '@/services/userService';
 
+import { usePageContent } from '@/stores';
 export default function SectionRecommendationsCarousel() {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const { data, isLoading, error } = useRecommendations();
   const { data: session } = useSession();
 

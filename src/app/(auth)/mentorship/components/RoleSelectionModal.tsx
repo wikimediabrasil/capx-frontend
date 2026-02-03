@@ -1,11 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface RoleSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,8 +18,8 @@ export default function RoleSelectionModal({
   onSelect,
   program,
 }: RoleSelectionModalProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   if (!isOpen) return null;
 

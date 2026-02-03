@@ -1,7 +1,6 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useIsMobile, useDarkMode } from '@/stores';
 import { ReactNode } from 'react';
 
 interface RecommendationsSectionProps {
@@ -10,7 +9,7 @@ interface RecommendationsSectionProps {
 
 export default function RecommendationsSection({ children }: RecommendationsSectionProps) {
   const isMobile = useIsMobile();
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
   if (isMobile) {
     return (

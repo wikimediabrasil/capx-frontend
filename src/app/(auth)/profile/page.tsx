@@ -3,13 +3,12 @@
 import LoadingState from '@/components/LoadingState';
 import ProfilePage from './components/ProfilePage';
 
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
+import { useLanguage, useCapacityStore } from '@/stores';
 export default function ProfileByUserName() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
@@ -17,16 +16,16 @@ export default function ProfileByUserName() {
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
 
   const { profile, isLoading, error } = useProfile(token, userId as number);
-  const capacityCache = useCapacityCache();
+  const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
-  const { language } = useApp();
+  const language = useLanguage();
 
   // Monitor language changes and update capacity cache
   useEffect(() => {
     const updateCacheLanguage = async () => {
       if (language && token) {
         try {
-          await capacityCache?.updateLanguage?.(language);
+          await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
           console.error('Error updating capacity cache language:', error);
         }

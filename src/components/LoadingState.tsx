@@ -1,5 +1,4 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
 import Image from 'next/image';
@@ -8,9 +7,10 @@ import SimpleLoading from './SimpleLoading';
 
 // The core loading component that requires ThemeContext
 function ThemeAwareLoading({ fullScreen = false }) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
 
   // Calculate proper height considering mobile header
   const heightClass = fullScreen

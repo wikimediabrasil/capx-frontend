@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
 import { ProfileCapacityType } from '@/app/(auth)/feed/types';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
 import { SessionProvider } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -18,19 +15,13 @@ const meta: Meta<typeof ProfileCard> = {
   component: ProfileCard,
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <SessionProvider>
-              <CapacityCacheProvider>
-                <div className="max-w-[600px] mx-auto p-4">
-                  <Story />
-                </div>
-              </CapacityCacheProvider>
-            </SessionProvider>
-          </QueryClientProvider>
-        </ThemeProvider>
-      </AppProvider>
+      <QueryClientProvider client={queryClient}>
+        <SessionProvider>
+          <div className="max-w-[600px] mx-auto p-4">
+            <Story />
+          </div>
+        </SessionProvider>
+      </QueryClientProvider>
     ),
   ],
   parameters: {

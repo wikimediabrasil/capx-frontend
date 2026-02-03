@@ -1,8 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useIsMobile } from '@/stores';
+import { useDarkMode, useIsMobile } from '@/stores';
 
 import BaseButton from '@/components/BaseButton';
 
@@ -28,7 +27,7 @@ export default function ActionButtons({
   iconAltBack,
 }: ActionButtonsProps) {
   const router = useRouter();
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
   const defaultBack = () => {
     router.back();

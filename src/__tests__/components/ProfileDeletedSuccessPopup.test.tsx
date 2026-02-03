@@ -1,9 +1,17 @@
 import { screen, waitFor } from '@testing-library/react';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { renderWithThemeApp, createMockTheme, setupTimers, mockConsoleError } from '../test-utils';
+
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+}));
 
 const mockPageContent = {
   'profile-deleted-title': 'Profile successfully deleted',
@@ -15,10 +23,7 @@ const mockPageContent = {
 };
 
 // Mock Zustand stores
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  usePageContent: () => mockPageContent,
-}));
+
 
 // Mock Next.js Router
 jest.mock('next/navigation', () => ({
@@ -39,10 +44,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock useTheme
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
+
 
 describe('ProfileDeletedSuccessPopup', () => {
   setupTimers();
@@ -55,7 +57,7 @@ describe('ProfileDeletedSuccessPopup', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
+
   });
 
   it('should render popup when isOpen is true', () => {
@@ -145,11 +147,11 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Open the popup
     rerender(
-      <ThemeProvider>
-        <AppProvider>
+      
+        
           <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+        
+      
     );
 
     jest.advanceTimersByTime(3000);
@@ -160,7 +162,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in light mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
+
 
     const onClose = jest.fn();
 
@@ -171,7 +173,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in dark mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(true));
+
 
     const onClose = jest.fn();
 
@@ -185,7 +187,7 @@ describe('ProfileDeletedSuccessPopup', () => {
     const onClose = jest.fn();
 
     // Render in light mode first
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
+
 
     const { rerender } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
@@ -195,14 +197,14 @@ describe('ProfileDeletedSuccessPopup', () => {
     expect(image).toBeInTheDocument();
 
     // Change to dark mode
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(true));
+
 
     rerender(
-      <ThemeProvider>
-        <AppProvider>
+      
+        
           <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+        
+      
     );
 
     image = screen.getByAltText('Success illustration');
@@ -252,22 +254,22 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Close
     rerender(
-      <ThemeProvider>
-        <AppProvider>
+      
+        
           <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+        
+      
     );
 
     jest.advanceTimersByTime(1000);
 
     // Re-open
     rerender(
-      <ThemeProvider>
-        <AppProvider>
+      
+        
           <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+        
+      
     );
 
     jest.advanceTimersByTime(3000);

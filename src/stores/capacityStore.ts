@@ -37,12 +37,13 @@ const getInitialLanguage = (): string => {
 };
 
 // Initial state
-const initialState: UnifiedCache & { isLoadingTranslations: boolean } = {
+const initialState: UnifiedCache & { isLoadingTranslations: boolean; isLoaded: boolean } = {
   capacities: {},
   children: {},
   language: getInitialLanguage(),
   timestamp: 0,
   isLoadingTranslations: false,
+  isLoaded: false,
 };
 
 export const useCapacityStore = create<CapacityStore>()(
@@ -147,6 +148,7 @@ export const useCapacityStore = create<CapacityStore>()(
                       language: parsed.language,
                       timestamp: parsed.timestamp,
                       isLoadingTranslations: false,
+                      isLoaded: true,
                     });
                     return;
                   }
@@ -157,13 +159,10 @@ export const useCapacityStore = create<CapacityStore>()(
             }
 
             // Fetch root capacities
-            const rootCapacities = await capacityService.fetchCapacities(
-              {
-                params: { language: newLanguage },
-                headers: { Authorization: `Token ${token}` },
-              },
-              newLanguage
-            );
+            const rootCapacities = await capacityService.fetchCapacities({
+              params: { language: newLanguage },
+              headers: { Authorization: `Token ${token}` },
+            });
 
             if (!rootCapacities || rootCapacities.length === 0) {
               set({ isLoadingTranslations: false });
@@ -367,6 +366,7 @@ export const useCapacityStore = create<CapacityStore>()(
               language: newCache.language,
               timestamp: newCache.timestamp,
               isLoadingTranslations: false,
+              isLoaded: Object.keys(newCache.capacities).length > 0,
             });
           } catch (error) {
             console.error(`Error updating language to ${newLanguage}:`, error);
@@ -391,6 +391,7 @@ export const useCapacityStore = create<CapacityStore>()(
             language: 'en',
             timestamp: 0,
             isLoadingTranslations: false,
+            isLoaded: false,
           });
         },
 
@@ -400,6 +401,7 @@ export const useCapacityStore = create<CapacityStore>()(
             children: cache.children,
             language: cache.language,
             timestamp: cache.timestamp,
+            isLoaded: Object.keys(cache.capacities).length > 0,
           });
         },
 
