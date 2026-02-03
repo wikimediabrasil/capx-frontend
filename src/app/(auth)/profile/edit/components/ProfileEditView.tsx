@@ -4,7 +4,6 @@ import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch'
 import BadgeSelectionModal from '@/components/BadgeSelectionModal';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
-import LetsConnectPopup from '@/components/LetsConnectPopup';
 import Popup from '@/components/Popup';
 import { useApp } from '@/contexts/AppContext';
 import { useBadges } from '@/contexts/BadgesContext';
@@ -77,12 +76,7 @@ interface ProfileEditViewProps {
   readonly goTo: (path: string) => void;
   readonly isImageLoading: boolean;
   readonly hasLetsConnectAccount: boolean;
-  readonly hasLetsConnectData: boolean;
   readonly setIsImageLoading: (loading: boolean) => void;
-  readonly showLetsConnectPopup: boolean;
-  readonly setShowLetsConnectPopup: (show: boolean) => void;
-  readonly handleLetsConnectImport: () => void;
-  readonly isLetsConnectLoading: boolean;
 }
 
 export default function ProfileEditView(props: ProfileEditViewProps) {
@@ -113,12 +107,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     refetch,
     goTo,
     isImageLoading,
-    hasLetsConnectData,
     hasLetsConnectAccount,
-    showLetsConnectPopup,
-    setShowLetsConnectPopup,
-    handleLetsConnectImport,
-    isLetsConnectLoading,
   } = props;
 
   const router = useRouter();
@@ -230,10 +219,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
               handleAvatarSelect={handleAvatarSelect}
               isWikidataSelected={isWikidataSelected}
               handleWikidataClick={handleWikidataClick}
-              hasLetsConnectData={hasLetsConnectData}
               formData={formData}
-              setShowLetsConnectPopup={setShowLetsConnectPopup}
-              isLetsConnectLoading={isLetsConnectLoading}
               showDeleteProfilePopup={showDeleteProfilePopup}
               setShowDeleteProfilePopup={setShowDeleteProfilePopup}
               handleDeleteProfile={handleDeleteProfile}
@@ -450,11 +436,6 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
           }}
         />
       )}
-      <LetsConnectPopup
-        isOpen={showLetsConnectPopup}
-        onClose={() => setShowLetsConnectPopup(false)}
-        onConfirm={handleLetsConnectImport}
-      />
     </>
   );
 }
