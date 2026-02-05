@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import ProjectFormItem from '@/app/(auth)/organization_profile/components/ProjectsFormItem';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -19,9 +20,6 @@ jest.mock('@/stores', () => ({
   ),
 }));
 
-// Mock contexts
-
-
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -31,7 +29,6 @@ jest.mock('next/image', () => ({
 }));
 
 describe('ProjectFormItem', () => {
-
   const mockPageContent = {
     'organization-profile-project-name': 'Project Name',
     'organization-profile-project-image-url': 'Project Image URL',
@@ -60,30 +57,16 @@ describe('ProjectFormItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockUseApp.mockReturnValue({
-      isMobile: false,
-      pageContent: mockPageContent,
-      language: 'en',
-      mobileMenuStatus: false,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      session: null,
-      setSession: jest.fn(),
-    });
-
-    mockUseTheme.mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   it('renders project form item with all inputs', () => {
@@ -174,10 +157,7 @@ describe('ProjectFormItem', () => {
   });
 
   it('applies dark mode styling', () => {
-    mockUseTheme.mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     renderWithProviders(<ProjectFormItem {...mockProps} />);
 
@@ -194,10 +174,8 @@ describe('ProjectFormItem', () => {
 
   describe('mobile view', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+      (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
     });
 
     it('renders mobile layout correctly', () => {
@@ -268,10 +246,7 @@ describe('ProjectFormItem', () => {
   });
 
   it('uses dark mode delete icon when dark mode is enabled', () => {
-    mockUseTheme.mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     renderWithProviders(<ProjectFormItem {...mockProps} />);
 

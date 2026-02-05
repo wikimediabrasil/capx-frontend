@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import MiniBio from '@/app/(auth)/profile/components/MiniBio';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -19,27 +20,15 @@ jest.mock('@/stores', () => ({
   ),
 }));
 
-// Mock dos contextos
-const mockThemeContext = {
-  darkMode: false,
-  toggleDarkMode: jest.fn(),
-};
-
-const mockAppContext = {
-  isMobile: false,
-  pageContent: {
-    'edit-profile-mini-bio': 'Mini Bio',
-    'edit-profile-mini-bio-placeholder': 'Digite sua minibio...',
-  },
-  setPageContent: jest.fn(),
+const mockPageContent = {
+  'edit-profile-mini-bio': 'Mini Bio',
+  'edit-profile-mini-bio-placeholder': 'Digite sua minibio...',
 };
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(
-    
-      {component}
-    
-  );
+      <>{component}</>
+      );
 };
 
 const renderInNarrowContainer = (component: React.ReactElement, width: string = '200px') => {
@@ -59,10 +48,12 @@ describe('MiniBio', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   it('renders correctly in desktop mode', () => {
-    mockAppContext.isMobile = false;
     renderWithProviders(<MiniBio {...defaultProps} />);
 
     expect(screen.getByText('Mini Bio')).toBeInTheDocument();
@@ -70,7 +61,7 @@ describe('MiniBio', () => {
   });
 
   it('renders correctly in mobile mode', () => {
-    mockAppContext.isMobile = true;
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
     renderWithProviders(<MiniBio {...defaultProps} />);
 
     expect(screen.getByText('Mini Bio')).toBeInTheDocument();
@@ -140,7 +131,7 @@ describe('MiniBio', () => {
   });
 
   it('renders correctly in dark mode', () => {
-    mockThemeContext.darkMode = true;
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
     renderWithProviders(<MiniBio {...defaultProps} />);
 
     expect(screen.getByText('Mini Bio')).toBeInTheDocument();
@@ -239,7 +230,7 @@ describe('MiniBio', () => {
   });
 
   it('has full width in mobile mode', () => {
-    mockAppContext.isMobile = true;
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
     renderWithProviders(<MiniBio {...defaultProps} />);
 
     const container = screen.getByText('Minha minibio de teste').closest('div');
@@ -247,7 +238,7 @@ describe('MiniBio', () => {
   });
 
   it('has full width in desktop mode', () => {
-    mockAppContext.isMobile = false;
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
     renderWithProviders(<MiniBio {...defaultProps} />);
 
     const container = screen.getByText('Minha minibio de teste').closest('div');
@@ -283,7 +274,7 @@ describe('MiniBio', () => {
   });
 
   it('works with very long text in mobile container', () => {
-    mockAppContext.isMobile = true;
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
     const longText = 'a'.repeat(1000);
     renderInNarrowContainer(<MiniBio about={longText} />, '280px');
 
@@ -291,7 +282,7 @@ describe('MiniBio', () => {
   });
 
   it('works with very long text in desktop container', () => {
-    mockAppContext.isMobile = false;
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
     const longText = 'a'.repeat(1000);
     renderInNarrowContainer(<MiniBio about={longText} />, '400px');
 

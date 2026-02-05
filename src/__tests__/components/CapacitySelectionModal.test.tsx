@@ -4,6 +4,7 @@ import { capacityService } from '@/services/capacityService';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SessionProvider, useSession } from 'next-auth/react';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -139,11 +140,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <SessionProvider session={null}>
       <QueryClientProvider client={queryClient}>
-        
-          
-            {children}
-          
-        
+        {children}
       </QueryClientProvider>
     </SessionProvider>
   );
@@ -162,20 +159,16 @@ describe('CapacitySelectionModal', () => {
       data: { user: { token: 'mock-token' } },
     });
 
-    (useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-    });
-
-    (useApp as jest.Mock).mockReturnValue({
-      pageContent: createMockPageContent(),
-      isMobile: false,
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(createMockPageContent());
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
 
     (useCapacities as jest.Mock).mockReturnValue({
       getCapacityById: jest.fn(),
     });
 
-    (useCapacityCache as jest.Mock).mockReturnValue({
+    const mockCapacityStore = {
       getCapacity: jest.fn(),
       hasChildren: jest.fn().mockReturnValue(true),
       preloadCapacities: jest.fn(),
@@ -200,7 +193,9 @@ describe('CapacitySelectionModal', () => {
       isLoadingTranslations: false,
       updateLanguage: jest.fn().mockResolvedValue(undefined),
       isFallbackTranslation: jest.fn(() => false),
-    });
+    };
+
+    (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityStore);
 
     // Mock useQuery with stable data and no side effects
     (useQuery as jest.Mock).mockImplementation(({ queryKey }) => {
@@ -264,13 +259,7 @@ describe('CapacitySelectionModal', () => {
     return render(<CapacitySelectionModal {...defaultProps} />, {
       wrapper: ({ children }) => (
         <SessionProvider session={null}>
-          <QueryClientProvider client={queryClient}>
-            
-              
-                {children}
-              
-            
-          </QueryClientProvider>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
         </SessionProvider>
       ),
     });

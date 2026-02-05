@@ -83,9 +83,7 @@ describe('ProfileSelect', () => {
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
       <SessionProvider>
-        
-          {component}
-        
+        {component}
       </SessionProvider>
     );
   };

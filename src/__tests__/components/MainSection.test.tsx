@@ -43,10 +43,8 @@ describe('MainSection', () => {
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   it('renders title without text overflow', () => {

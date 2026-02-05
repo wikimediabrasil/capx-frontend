@@ -68,16 +68,15 @@ export const renderWithProviders = (component: React.ReactNode) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      
-        {component}
-      
+      {component}
     </QueryClientProvider>
   );
 };
 
-// Common Mock Return Values
-
-);
+export const createMockThemeContext = (darkMode = false) => ({
+  darkMode,
+  setDarkMode: jest.fn(),
+});
 
 export const createMockOrganization = (id = 1, name = 'Org 1') => ({
   id,

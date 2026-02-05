@@ -79,10 +79,8 @@ describe('TranslationContributeCTA', () => {
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   describe('Language Detection', () => {

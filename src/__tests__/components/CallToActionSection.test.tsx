@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import CallToActionSection from '@/components/CallToActionSection';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -46,19 +47,11 @@ jest.mock('next-auth/react', () => ({
   SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-// ThemeContext mock
-
-
-// AppContext mock
-
-
 describe('CallToActionSection', () => {
   const renderWithProviders = (component: React.ReactElement) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   it('renders main content correctly', () => {
@@ -78,15 +71,13 @@ describe('CallToActionSection', () => {
   });
 
   it('renders mobile version correctly', () => {
-    jest.spyOn(require('@/contexts/AppContext'), 'useApp').mockImplementation(() => ({
-      pageContent: {
-        'body-home-section01-call-to-action-title': 'Join the Exchange',
-        'body-home-section01-call-to-action-description': 'Connect with peers',
-        'body-home-section01-call-to-action-button01': 'Join Now',
-        'body-home-section01-call-to-action-button02': 'Create Account',
-      },
-      isMobile: true,
-    }));
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      'body-home-section01-call-to-action-title': 'Join the Exchange',
+      'body-home-section01-call-to-action-description': 'Connect with peers',
+      'body-home-section01-call-to-action-button01': 'Join Now',
+      'body-home-section01-call-to-action-button02': 'Create Account',
+    });
 
     const { container } = renderWithProviders(<CallToActionSection />);
 

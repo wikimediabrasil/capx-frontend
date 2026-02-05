@@ -6,6 +6,7 @@ import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recom
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import React from 'react';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -39,7 +40,6 @@ import {
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
-
 
 jest.mock('@/hooks/useAvatars');
 jest.mock('@/hooks/useSavedItems');
@@ -79,7 +79,14 @@ function setupAllMocks(
 ) {
   const { useRouter } = require('next/navigation');
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
+  setupCommonMocks(useSession as jest.Mock);
+
+  // Setup store mocks
+  (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+  (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+  (stores.usePageContent as jest.Mock).mockReturnValue({});
+  (stores.useLanguage as jest.Mock).mockReturnValue('en');
+
   (useAvatars as jest.Mock).mockReturnValue(mockAvatars);
   (useSavedItems as jest.Mock).mockReturnValue(mockSavedItems);
   (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
@@ -92,10 +99,7 @@ function renderProfileCard(props = {}) {
     ...props,
   };
 
-  return renderWithProviders(<RecommendationProfileCard {...defaultProps} />, [
-    ThemeProvider,
-    AppProvider,
-  ]);
+  return renderWithProviders(<RecommendationProfileCard {...defaultProps} />);
 }
 
 // Helper to click save button
@@ -167,9 +171,7 @@ describe('RecommendationProfileCard', () => {
     });
 
     it('should render in dark mode correctly', () => {
-      (useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       const { container } = renderProfileCard();
 

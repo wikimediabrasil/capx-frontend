@@ -1,5 +1,6 @@
 import { ContactsSection } from '@/app/(auth)/organization_profile/components/ContactsSection';
 import { render, screen } from '@testing-library/react';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -23,12 +24,6 @@ const mockPageContent = {
   'body-profile-section-title-contacts': 'Contacts',
 };
 
-// Mock AppContext
-
-
-// Mock ThemeContext
-
-
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -38,32 +33,17 @@ jest.mock('next/image', () => ({
 }));
 
 describe('ContactsSection', () => {
-
   beforeEach(() => {
-    mockUseApp.mockReturnValue({
-      isMobile: false,
-      pageContent: mockPageContent,
-      mobileMenuStatus: false,
-      setMobileMenuStatus: jest.fn(),
-      language: 'en',
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      session: null,
-      setSession: jest.fn(),
-    });
-
-    mockUseTheme.mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   describe('when no contacts are provided', () => {
@@ -76,10 +56,7 @@ describe('ContactsSection', () => {
     });
 
     it('applies correct styling for empty state in mobile', () => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
 
       const { container } = renderWithProviders(
         <ContactsSection email="" meta_page="" website="" />
@@ -177,10 +154,7 @@ describe('ContactsSection', () => {
     };
 
     it('applies mobile styling when isMobile is true', () => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
 
       const { container } = renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -196,10 +170,7 @@ describe('ContactsSection', () => {
     });
 
     it('applies correct mobile text styling', () => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
 
       const { container } = renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -223,10 +194,7 @@ describe('ContactsSection', () => {
     };
 
     it('uses dark mode icons when darkMode is true', () => {
-      mockUseTheme.mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -236,10 +204,7 @@ describe('ContactsSection', () => {
     });
 
     it('applies dark mode text colors', () => {
-      mockUseTheme.mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       const { container } = renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -255,10 +220,7 @@ describe('ContactsSection', () => {
     });
 
     it('applies dark mode background colors in desktop', () => {
-      mockUseTheme.mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       const { container } = renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -274,15 +236,8 @@ describe('ContactsSection', () => {
     });
 
     it('applies dark mode border styling in mobile', () => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
-
-      mockUseTheme.mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       const { container } = renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -347,10 +302,7 @@ describe('ContactsSection', () => {
     };
 
     it('adds title attribute to links in mobile view', () => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
 
       renderWithProviders(<ContactsSection {...testProps} />);
 
@@ -362,10 +314,7 @@ describe('ContactsSection', () => {
     });
 
     it('adds title attribute to non-link text in mobile view', () => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
 
       renderWithProviders(<ContactsSection {...testProps} />);
 

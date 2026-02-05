@@ -1,6 +1,6 @@
 import { screen, fireEvent } from '@testing-library/react';
 import BaseButton from '../../components/BaseButton';
-import { renderWithProviders, createMockThemeContext } from '../utils/test-helpers';
+import { renderWithProviders } from '../utils/test-helpers';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),

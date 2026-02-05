@@ -2,7 +2,7 @@ import DocumentFormItem from '@/app/(auth)/organization_profile/components/Docum
 import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -115,8 +115,7 @@ describe('DocumentFormItem', () => {
   });
 
   it('applies dark mode styles correctly', () => {
-    const { useTheme } = require('@/contexts/ThemeContext');
-    useTheme.mockReturnValue({ darkMode: true });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     const validDocument = { id: 1, url: 'https://commons.wikimedia.org/wiki/File:Test.pdf' };
     renderWithProviders(<DocumentFormItem {...defaultProps} document={validDocument} />);
@@ -126,8 +125,7 @@ describe('DocumentFormItem', () => {
   });
 
   it('applies light mode styles correctly', () => {
-    const { useTheme } = require('@/contexts/ThemeContext');
-    useTheme.mockReturnValue({ darkMode: false });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
 
     const validDocument = { id: 1, url: 'https://commons.wikimedia.org/wiki/File:Test.pdf' };
     renderWithProviders(<DocumentFormItem {...defaultProps} document={validDocument} />);

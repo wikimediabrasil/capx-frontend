@@ -11,6 +11,14 @@ jest.mock('@/stores', () => ({
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
     { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
   ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
 }));
 
 import {
@@ -37,12 +45,6 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// useTheme's mock
-
-
-// Zustand stores mock
-
-
 describe('DarkModeButton', () => {
   const mockSetDarkMode = jest.fn();
   const mockPageContent = createMockPageContent({
@@ -52,7 +54,8 @@ describe('DarkModeButton', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.useSetDarkMode as jest.Mock).mockReturnValue(mockSetDarkMode);
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
@@ -68,8 +71,7 @@ describe('DarkModeButton', () => {
   });
 
   const testIconDisplay = (darkMode: boolean, expectedAltText: string) => {
-
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(darkMode);
     renderWithProviders(<DarkModeButton />);
     expect(screen.getByAltText(expectedAltText)).toBeInTheDocument();
   };

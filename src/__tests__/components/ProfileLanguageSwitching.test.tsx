@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -23,34 +23,37 @@ describe('Profile Language Switching Integration', () => {
     return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
 
-  // Mock the capacity cache
-  const mockGetName = jest.fn();
-  const mockUpdateLanguage = jest.fn().mockResolvedValue(undefined);
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetName.mockImplementation((id: number) => `Capacity ${id}`);
   });
 
-  it('should have capacity cache integration ready', () => {
-    // This is a basic test to ensure our integration setup is working
-
-    expect(mockCapacityCache.getName).toBeDefined();
-    expect(mockCapacityCache.updateLanguage).toBeDefined();
-    expect(mockCapacityCache.isLoadingTranslations).toBe(false);
-    expect(mockCapacityCache.isLoaded).toBe(true);
+  it('should have capacity store available', () => {
+    const capacityStore = stores.useCapacityStore.getState();
+    expect(capacityStore).toBeDefined();
+    expect(capacityStore.getName).toBeDefined();
+    expect(capacityStore.updateLanguage).toBeDefined();
   });
 
   it('should call getName function correctly', () => {
+    const mockGetName = jest.fn(() => 'Capacity 123');
+    (stores.useCapacityStore as jest.Mock).mockReturnValue({
+      getName: mockGetName,
+    });
 
-    const result = mockCapacityCache.getName(123);
+    const getName = (stores.useCapacityStore as jest.Mock)().getName;
+    const result = getName(123);
     expect(result).toBe('Capacity 123');
     expect(mockGetName).toHaveBeenCalledWith(123);
   });
 
   it('should handle language update calls', async () => {
+    const mockUpdateLanguage = jest.fn().mockResolvedValue(undefined);
+    (stores.useCapacityStore as jest.Mock).mockReturnValue({
+      updateLanguage: mockUpdateLanguage,
+    });
 
-    await mockCapacityCache.updateLanguage('pt');
+    const updateLanguage = (stores.useCapacityStore as jest.Mock)().updateLanguage;
+    await updateLanguage('pt');
     expect(mockUpdateLanguage).toHaveBeenCalledWith('pt');
   });
 });

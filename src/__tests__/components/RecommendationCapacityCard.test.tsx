@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import React from 'react';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -94,8 +95,15 @@ function setupAllMocks(
 ) {
   const { useRouter } = require('next/navigation');
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-  (useCapacityCache as jest.Mock).mockReturnValue(mockCapacityCache);
+  setupCommonMocks(useSession as jest.Mock);
+
+  // Setup store mocks
+  (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+  (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+  (stores.usePageContent as jest.Mock).mockReturnValue({});
+  (stores.useLanguage as jest.Mock).mockReturnValue('en');
+
+  (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityCache);
   (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
   (useQuery as jest.Mock).mockReturnValue({
     data: mockUserProfile,
@@ -120,11 +128,7 @@ function renderCapacityCard(props = {}) {
     ...props,
   };
 
-  return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />, [
-    ThemeProvider,
-    AppProvider,
-    CapacityCacheProvider,
-  ]);
+  return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />);
 }
 
 // Helper to wait for card to be loaded
@@ -183,9 +187,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should render in dark mode correctly', async () => {
-      (useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       const { container } = renderCapacityCard();
 

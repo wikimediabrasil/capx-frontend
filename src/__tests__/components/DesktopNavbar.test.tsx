@@ -3,6 +3,7 @@ import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { fireEvent, screen } from '@testing-library/react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -60,9 +61,6 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// useTheme's mock
-
-
 // axios's mock
 jest.mock('axios');
 setupAxiosMock(axios);
@@ -74,9 +72,6 @@ jest.mock('../../components/LanguageSelect', () => ({
 }));
 
 const mockPageContent = createMockPageContent();
-
-//  Mocking AppContext
-
 
 describe('DesktopNavbar', () => {
   beforeEach(() => {
@@ -91,9 +86,6 @@ describe('DesktopNavbar', () => {
       organizations: [createMockOrganization(1, 'Org 1'), createMockOrganization(2, 'Org 2')],
       isOrgManager: true,
     });
-
-    // useTheme's mock
-
   });
 
   const validSession = createMockSession();
@@ -150,7 +142,7 @@ describe('DesktopNavbar', () => {
     expectedBgClass: string,
     expectedTextClass: string
   ) => {
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(darkMode);
 
     const { container } = renderWithProviders(
       <DesktopNavbar session={nullSession} language="en" setLanguage={() => {}} />

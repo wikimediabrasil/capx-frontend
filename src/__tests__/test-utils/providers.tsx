@@ -34,13 +34,11 @@ export function createQueryWrapper(queryClient?: QueryClient) {
 }
 
 /**
- * Wrapper with ThemeProvider and AppProvider for testing
+ * Wrapper for testing (stores are mocked via jest.mock)
  */
 export function createThemeAppWrapper() {
   const ThemeAppWrapper = ({ children }: { children: React.ReactNode }) => (
-    
-      {children}
-    
+    <>{children}</>
   );
   ThemeAppWrapper.displayName = 'ThemeAppWrapper';
   return ThemeAppWrapper;
@@ -53,9 +51,7 @@ export function createAllProvidersWrapper(queryClient?: QueryClient) {
   const client = queryClient || createTestQueryClient();
   const AllProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={client}>
-      
-        {children}
-      
+      {children}
     </QueryClientProvider>
   );
   AllProvidersWrapper.displayName = 'AllProvidersWrapper';

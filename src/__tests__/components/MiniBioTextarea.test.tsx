@@ -21,22 +21,6 @@ jest.mock('@/stores', () => ({
   ),
 }));
 
-// Mock do ThemeContext
-const mockThemeContext = {
-  darkMode: false,
-  toggleDarkMode: jest.fn(),
-};
-
-// Mock do AppContext
-const mockAppContext = {
-  isMobile: false,
-  pageContent: {
-    'edit-profile-mini-bio-exceeded-chars': 'caracteres excedidos',
-    'edit-profile-mini-bio-remaining-chars': 'caracteres restantes',
-  },
-  setPageContent: jest.fn(),
-};
-
 describe('MiniBioTextarea', () => {
   const defaultOnChange = jest.fn();
   const defaultProps = {
@@ -47,7 +31,6 @@ describe('MiniBioTextarea', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockThemeContext.darkMode = false;
   });
 
   const renderTextarea = (props: any = {}) => {

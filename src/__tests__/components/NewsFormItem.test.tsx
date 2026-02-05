@@ -1,5 +1,6 @@
 import { screen, fireEvent, act } from '@testing-library/react';
 import NewsFormItem from '@/app/(auth)/organization_profile/components/NewsFormItem';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -26,9 +27,6 @@ import {
   createMockPageContent,
 } from '../utils/test-helpers';
 
-// Mock contexts
-
-
 // Mock Next.js Image component
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -38,7 +36,6 @@ jest.mock('next/image', () => ({
 }));
 
 describe('NewsFormItem', () => {
-
   const mockPageContent = createMockPageContent({
     'organization-profile-add-a-diff-tag': 'Add a news tag',
   });
@@ -58,8 +55,10 @@ describe('NewsFormItem', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseApp.mockReturnValue(createMockAppContext({ pageContent: mockPageContent }));
-    mockUseTheme.mockReturnValue(createMockThemeContext(false));
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   it('renders news form item with tag input', () => {
@@ -102,7 +101,7 @@ describe('NewsFormItem', () => {
   });
 
   const testThemeStyling = (darkMode: boolean, expectedClasses: string[]) => {
-    mockUseTheme.mockReturnValue(createMockThemeContext(darkMode));
+    (stores.useDarkMode as jest.Mock).mockReturnValue(darkMode);
     renderWithProviders(<NewsFormItem {...mockProps} />);
     const tagInput = screen.getByDisplayValue('Breaking News');
     expectedClasses.forEach(className => {
@@ -140,9 +139,8 @@ describe('NewsFormItem', () => {
 
   describe('mobile view', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue(
-        createMockAppContext({ isMobile: true, pageContent: mockPageContent })
-      );
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+      (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
     });
 
     it('renders mobile layout correctly', () => {
@@ -183,7 +181,7 @@ describe('NewsFormItem', () => {
   });
 
   it('uses dark mode delete icon when dark mode is enabled', () => {
-    mockUseTheme.mockReturnValue(createMockThemeContext(true));
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
     renderWithProviders(<NewsFormItem {...mockProps} />);
     const deleteIcon = screen.getByAltText('Delete icon');
     expect(deleteIcon).toBeInTheDocument();

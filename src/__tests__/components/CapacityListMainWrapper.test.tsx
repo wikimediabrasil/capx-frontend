@@ -23,8 +23,8 @@ jest.mock('@/stores', () => ({
     { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
   ),
   useCapacityStore: Object.assign(
-    jest.fn(() => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false, getName: jest.fn(() => ''), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => false), getIsDescriptionsReady: jest.fn(() => false), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() })),
-    { getState: () => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false }) }
+    jest.fn(() => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: true, getName: jest.fn(() => ''), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => true), getIsDescriptionsReady: jest.fn(() => true), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() })),
+    { getState: () => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: true }) }
   ),
 }));
 
@@ -111,12 +111,6 @@ const mockPageContent = {
   loading: 'Loading...',
 };
 
-// ThemeContext's mock
-
-
-// Mock CapacityCacheContext to simulate loaded data
-
-
 describe('CapacityListMainWrapper', () => {
   // Correct mock for useSession
   const mockSession = {
@@ -150,11 +144,9 @@ describe('CapacityListMainWrapper', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        
-          <SnackbarProvider>
-            {ui}
-          </SnackbarProvider>
-        
+        <SnackbarProvider>
+          {ui}
+        </SnackbarProvider>
       </QueryClientProvider>
     );
   };
@@ -168,7 +160,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
   });
 
@@ -181,7 +173,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
 
     // Verify expand button exists
@@ -197,7 +189,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
 
     // Verify info button exists
@@ -214,7 +206,7 @@ describe('CapacityListMainWrapper', () => {
 
     // Since we're using mocked hooks, we just need to verify the component renders
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
   });
 

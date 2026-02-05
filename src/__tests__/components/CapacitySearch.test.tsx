@@ -76,11 +76,9 @@ describe('CapacitySearch', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        
-          <SnackbarProvider>
-            {ui}
-          </SnackbarProvider>
-        
+        <SnackbarProvider>
+          {ui}
+        </SnackbarProvider>
       </QueryClientProvider>
     );
   };

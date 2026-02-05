@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import MobileMenu from '../../components/MobileMenu';
 import { Session } from 'next-auth';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -41,12 +42,6 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// Mocking AppContext
-
-
-//  Mocking the useTheme hook
-
-
 const validSession: Session = {
   user: {
     id: '123',
@@ -62,16 +57,13 @@ const validSession: Session = {
 
 describe('MobileMenu', () => {
   beforeEach(() => {
-    // Standard configuration for useTheme
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   it('renders sign in button when not logged in', () => {
@@ -87,7 +79,7 @@ describe('MobileMenu', () => {
   });
 
   it('applies dark mode styles', () => {
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     const { container } = renderWithProviders(<MobileMenu session={null} />);
 
@@ -97,7 +89,7 @@ describe('MobileMenu', () => {
   });
 
   it('applies light mode styles', () => {
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
 
     const { container } = renderWithProviders(<MobileMenu session={null} />);
 

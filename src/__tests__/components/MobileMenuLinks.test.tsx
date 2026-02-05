@@ -122,9 +122,7 @@ describe('MobileMenuLinks', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        
-          {component}
-        
+        {component}
       </QueryClientProvider>
     );
   };

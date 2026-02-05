@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import AvatarSelectionPopup from '../../app/(auth)/profile/components/AvatarSelectionPopup';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -43,20 +44,11 @@ jest.mock('@/hooks/useAvatars', () => ({
   useAvatars: () => mockUseAvatars(),
 }));
 
-// useTheme mock
-
-
-// useApp mock
 const mockPageContent = {
   'edit-profile-choose-an-option': 'Choose an option',
   'auth-dialog-button-close': 'Close',
   'edit-profile-update': 'Update',
 };
-
-const mockUseApp = jest.fn(() => ({
-  pageContent: mockPageContent,
-  isMobile: false,
-}));
 
 describe('AvatarSelectionPopup', () => {
   const defaultProps = {
@@ -67,23 +59,19 @@ describe('AvatarSelectionPopup', () => {
   };
 
   beforeEach(() => {
-
     mockUseAvatars.mockReturnValue({
       avatars: mockAvatars,
       isLoading: false,
     });
-    mockUseApp.mockReturnValue({
-      pageContent: mockPageContent,
-      isMobile: false,
-    });
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   describe('Desktop View', () => {
@@ -222,10 +210,8 @@ describe('AvatarSelectionPopup', () => {
 
   describe('Mobile View', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue({
-        pageContent: mockPageContent,
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+      (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
     });
 
     it('renders mobile layout when isMobile is true', () => {
@@ -264,7 +250,7 @@ describe('AvatarSelectionPopup', () => {
 
   describe('Dark Mode', () => {
     beforeEach(() => {
-
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
     });
 
     it('applies dark mode styles', () => {

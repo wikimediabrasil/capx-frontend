@@ -96,10 +96,8 @@ describe('LanguageSelect', () => {
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      
-        {component}
-      
-    );
+        <>{component}</>
+        );
   };
 
   test('deve renderizar o componente corretamente', async () => {

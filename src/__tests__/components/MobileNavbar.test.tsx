@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, screen } from '@testing-library/react';
 import axios from 'axios';
 import MobileNavbar from '../../components/MobileNavbar';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -47,12 +48,6 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// useTheme's mock
-
-
-// useApp's mock
-
-
 // Axios's mock
 jest.mock('axios');
 setupAxiosMock(axios);
@@ -74,18 +69,10 @@ describe('MobileNavbar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-
-    mockUseApp.mockReturnValue({
-      isMobile: true,
-      mobileMenuStatus: false,
-      setMobileMenuStatus: mockSetMobileMenuStatus,
-      pageContent: mockPageContent,
-      language: 'en',
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      session: null,
-      setSession: jest.fn(),
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+    (stores.useMobileMenuStatus as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
   });
 
   it('renders logo correctly', () => {
@@ -109,7 +96,7 @@ describe('MobileNavbar', () => {
   });
 
   const testThemeStyles = (darkMode: boolean, expectedBgClass: string) => {
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(darkMode);
 
     const { container } = renderWithProviders(
       <MobileNavbar session={null} language="en" setLanguage={jest.fn()} />

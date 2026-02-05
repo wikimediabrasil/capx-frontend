@@ -147,11 +147,7 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Open the popup
     rerender(
-      
-        
-          <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        
-      
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
     jest.advanceTimersByTime(3000);
@@ -197,14 +193,8 @@ describe('ProfileDeletedSuccessPopup', () => {
     expect(image).toBeInTheDocument();
 
     // Change to dark mode
-
-
     rerender(
-      
-        
-          <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        
-      
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
     image = screen.getByAltText('Success illustration');
@@ -254,22 +244,14 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Close
     rerender(
-      
-        
-          <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
-        
-      
+      <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
     );
 
     jest.advanceTimersByTime(1000);
 
     // Re-open
     rerender(
-      
-        
-          <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        
-      
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
     jest.advanceTimersByTime(3000);
