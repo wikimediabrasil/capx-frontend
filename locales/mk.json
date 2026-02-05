@@ -86,12 +86,6 @@
 	"organization-profile-no-image-available": "Нема слика",
 	"organization-list-alt-banner": "Заглавна слика на страницата со список на организации",
 	"organization-list-banner-page": "Список на организации",
-	"edit-profile-use-letsconnect": "Интеграција со Let's Connect",
-	"lets-connect-import-data-confirm": "Потврди",
-	"lets-connect-import-data-cancel": "Откажи",
-	"lets-connect-import-data-title": "Увези податоци од Let's Connect",
-	"lets-connect-import-data-description": "Стискајќи на потврдата, се согласувате податоците од профилот на Let's Connect на Мета да се увезат во вашиот кориснички профил на CapX. Ова може да не го комплетира профилот, но ќе ви помогне да започнете. Затоа, проверете сè пред да го зачувате.",
-	"snackbar-lets-connect-import-success": "Податоците од LetsConnect се успешно увезени",
 	"body-profile-edit-organization-button": "Уреди организациски профил",
 	"body-profile-edit-user-button": "Уреди кориснички профил",
 	"logo-not-available": "Логото не е достапно",
@@ -576,5 +570,12 @@
 	"analytics-bashboard-capacities-title": "Капацитети",
 	"analytics-bashboard-capacities-card-learners": "Ученици",
 	"analytics-bashboard-capacities-card-sharers": "Споделува",
-	"analytics-bashboard-capacities-load-more": "Вчитај уште ставки"
+	"analytics-bashboard-capacities-load-more": "Вчитај уште ставки",
+	"analytics-bashboard-capacities-card-organizational-structure": "Организациска структура",
+	"analytics-bashboard-capacities-card-communication": "Комуникација",
+	"analytics-bashboard-capacities-card-learning-and-evaluation": "Учење и оценување",
+	"analytics-bashboard-capacities-card-community-health-initiative": "Иницијатива за здравје на заедницата",
+	"analytics-bashboard-capacities-card-social-skill": "Друштвени вештини",
+	"analytics-bashboard-capacities-card-strategic-management": "Стратешко управување",
+	"analytics-bashboard-capacities-card-technology": "Технологија"
 }
