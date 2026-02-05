@@ -124,7 +124,7 @@ describe('MiniBioTextarea', () => {
     'bg-transparent',
     'resize-none',
     'minibio-textarea',
-  ])('has %s class applied', (className) => {
+  ])('has %s class applied', className => {
     renderTextarea();
     expect(getTextarea()).toHaveClass(className);
   });

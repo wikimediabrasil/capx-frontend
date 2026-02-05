@@ -111,12 +111,16 @@ export default function MiniBioTextarea({
           </span>
         </div>
 
-        <span
-          className={`text-xs font-[Montserrat] font-medium ${charLimitLabelColor}`}
-        >
+        <span className={`text-xs font-[Montserrat] font-medium ${charLimitLabelColor}`}>
           {isOverLimit
-            ? pageContent['edit-profile-mini-bio-exceeded-chars']?.replace('$1', Math.abs(remainingChars).toString())
-            : pageContent['edit-profile-mini-bio-remaining-chars']?.replace('$1', remainingChars.toString())}
+            ? pageContent['edit-profile-mini-bio-exceeded-chars']?.replace(
+                '$1',
+                Math.abs(remainingChars).toString()
+              )
+            : pageContent['edit-profile-mini-bio-remaining-chars']?.replace(
+                '$1',
+                remainingChars.toString()
+              )}
         </span>
       </div>
     </div>

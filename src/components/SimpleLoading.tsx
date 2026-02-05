@@ -5,9 +5,7 @@ import Image from 'next/image';
 // Uses only CSS media queries (md:) for fullScreen so the logo stays below the mobile header
 // from first paint, with no layout shift when context (e.g. isMobile) updates after hydration.
 export default function SimpleLoading({ fullScreen = false }: Readonly<{ fullScreen?: boolean }>) {
-  const wrapperClass = fullScreen
-    ? 'min-h-screen pt-20 md:pt-0 bg-white'
-    : 'h-[150px] bg-white';
+  const wrapperClass = fullScreen ? 'min-h-screen pt-20 md:pt-0 bg-white' : 'h-[150px] bg-white';
   const innerClass = fullScreen
     ? 'min-h-[calc(100vh-5rem)] md:min-h-screen flex items-center justify-center'
     : 'h-full flex items-center justify-center';

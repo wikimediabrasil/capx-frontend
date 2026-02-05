@@ -80,7 +80,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             <div className="flex flex-row gap-4 w-full justify-center items-center">
               <div className="flex items-center h-full">
                 <BaseButton
-                  onClick={() => router.push('/capacity')}
+                  onClick={() => router.push('/feed')}
                   label={pageContent['body-loggedin-home-main-section-button01']}
                   customClass="rounded-[6px] bg-[#851970] inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
                 ></BaseButton>
@@ -178,7 +178,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             <div className="flex flex-col sm:flex-row gap-4 w-full items-start mt-[24px]">
               <div className="flex items-center h-full">
                 <BaseButton
-                  onClick={() => router.push('/capacity')}
+                  onClick={() => router.push('/feed')}
                   label={pageContent['body-loggedin-home-main-section-button01']}
                 ></BaseButton>
               </div>
