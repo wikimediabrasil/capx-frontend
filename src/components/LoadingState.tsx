@@ -13,9 +13,7 @@ function ThemeAwareLoading({ fullScreen = false }) {
   const { darkMode } = useTheme();
   const { pageContent } = useApp();
 
-  const wrapperClass = fullScreen
-    ? 'min-h-screen pt-20 md:pt-0'
-    : 'h-[150px]';
+  const wrapperClass = fullScreen ? 'min-h-screen pt-20 md:pt-0' : 'h-[150px]';
   const innerClass = fullScreen
     ? 'min-h-[calc(100vh-5rem)] md:min-h-screen flex items-center justify-center'
     : 'h-full flex items-center justify-center';
@@ -32,7 +30,9 @@ function ThemeAwareLoading({ fullScreen = false }) {
         <div className="relative w-16 h-16">
           <Image
             src={darkMode ? CapxLogoWhite : CapxLogo}
-            alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
+            alt={
+              pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'
+            }
             className="animate-pulse-fade object-contain"
             width={64}
             height={64}
