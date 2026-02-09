@@ -62,8 +62,6 @@
 	"organization-profile-view-document": "Dokument weisen",
 	"organization-profile-no-image-available": "Kee Bild disponibel",
 	"organization-list-banner-page": "Organisatiounelëscht",
-	"lets-connect-import-data-confirm": "Confirméieren",
-	"lets-connect-import-data-cancel": "Ofbriechen",
 	"body-profile-edit-organization-button": "Organisatiounsprofil änneren",
 	"body-profile-edit-user-button": "Benotzerprofil änneren",
 	"logo-not-available": "Logo net disponibel",
@@ -293,6 +291,9 @@
 	"analytics-bashboard-territory-title": "Territoire",
 	"analytics-bashboard-territory-users": "Benotzer",
 	"analytics-bashboard-capacities-load-more": "Méi Resultater lueden",
+	"analytics-bashboard-capacities-card-organizational-structure": "Organisatiounsstruktur",
+	"analytics-bashboard-capacities-card-communication": "Kommunikatioun",
+	"analytics-bashboard-capacities-card-technology": "Technologie",
 	"added": "Derbäigesat",
 	"capacity-icon": "Kapazitéitssymbol",
 	"error": "Feeler",
@@ -332,5 +333,6 @@
 	"no-mentorship-programs-found": "Kee Mentoreprogramm fonnt",
 	"congratulations": "Gléckwonsch!",
 	"close": "Zoumaachen",
-	"mentorship-programs-alt": "Mentoreprogrammer"
+	"mentorship-programs-alt": "Mentoreprogrammer",
+	"sign-in-required-title": "Loggt Iech a fir virunzefueren"
 }

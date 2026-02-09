@@ -93,6 +93,31 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
+/* Custom scrollbar with purple color */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #851970;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6d1459;
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #851970 transparent;
+}
+
 textarea::placeholder,
 input::placeholder {
   color: #757575;
@@ -167,4 +192,21 @@ input::placeholder {
 :lang(es) .capacity-name-mobile {
   hyphens: auto;
   -webkit-hyphens: auto;
+}
+
+/* SimpleLoading / LoadingState pulse animation */
+@keyframes pulseFade {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-fade {
+  animation: pulseFade 2s ease-in-out infinite;
 }

@@ -88,8 +88,8 @@ const Popup = ({
           ref={dialogRef}
           className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
             w-[90%] md:w-[880px] xl:w-[1024px]
-            ${minHeight} max-h-[90vh]
-            rounded-3xl shadow-xl ${contentScrollable ? 'overflow-auto' : 'overflow-hidden'} ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}
+            ${minHeight} max-h-[90vh] md:max-h-[95vh]
+            rounded-3xl shadow-xl overflow-hidden ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}
             border-0 p-0 backdrop:bg-black backdrop:bg-opacity-50`}
           aria-modal="true"
           aria-labelledby="popup-title"
@@ -97,17 +97,17 @@ const Popup = ({
           onClose={onCloseTab}
         >
           <div
-            className={`flex flex-col h-full p-4 md:p-8 ${contentScrollable ? 'max-h-[90vh]' : ''}`}
+            className={`flex flex-col h-full p-3 md:p-8 min-h-0 ${contentScrollable ? 'max-h-[90vh]' : ''}`}
           >
             {/* Header */}
             <div className="flex-none">
               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
                 {image && (
-                  <div className="md:w-1/2 flex justify-center items-center">
+                  <div className="md:w-1/2 flex justify-center items-center flex-shrink-0">
                     <Image
                       src={image}
                       alt={pageContent['alt-illustration'] || 'Popup illustration'}
-                      className={`${imageSize} h-auto`}
+                      className={`${imageSize} h-auto max-h-[150px] md:max-h-none object-contain`}
                       priority
                     />
                   </div>
@@ -129,8 +129,8 @@ const Popup = ({
 
             {/* Content */}
             <div
-              className={`flex-grow ${contentScrollable ? 'overflow-y-auto' : 'flex items-center justify-center'} ${
-                children ? 'my-4 md:my-6' : 'my-2'
+              className={`flex-grow min-h-0 ${contentScrollable ? 'overflow-y-auto custom-scrollbar' : 'flex items-center justify-center'} ${
+                children ? 'my-2 md:my-6' : 'my-2'
               }`}
             >
               <div

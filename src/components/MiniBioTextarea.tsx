@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useApp } from '@/contexts/AppContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useEffect, useState } from 'react';
 
 interface MiniBioTextareaProps {
   value: string;
@@ -20,7 +20,7 @@ export default function MiniBioTextarea({
   maxLength = DEFAULT_MAX_LENGTH,
   className = '',
   disabled = false,
-}: MiniBioTextareaProps) {
+}: Readonly<MiniBioTextareaProps>) {
   const { darkMode } = useTheme();
   const [charCount, setCharCount] = useState(value.length);
   const [isOverLimit, setIsOverLimit] = useState(false);
@@ -38,6 +38,17 @@ export default function MiniBioTextarea({
 
   const remainingChars = maxLength - charCount;
   const isNearLimit = remainingChars <= 100;
+
+  let charLimitLabelColor: string;
+  if (isOverLimit) {
+    charLimitLabelColor = 'text-red-500';
+  } else if (isNearLimit) {
+    charLimitLabelColor = 'text-yellow-600';
+  } else if (darkMode) {
+    charLimitLabelColor = 'text-gray-300';
+  } else {
+    charLimitLabelColor = 'text-gray-600';
+  }
 
   // Styles for custom scrollbar
   const scrollbarStyles = {
@@ -100,20 +111,16 @@ export default function MiniBioTextarea({
           </span>
         </div>
 
-        <span
-          className={`text-xs font-[Montserrat] font-medium ${
-            isOverLimit
-              ? 'text-red-500'
-              : isNearLimit
-                ? 'text-yellow-600'
-                : darkMode
-                  ? 'text-gray-300'
-                  : 'text-gray-600'
-          }`}
-        >
+        <span className={`text-xs font-[Montserrat] font-medium ${charLimitLabelColor}`}>
           {isOverLimit
-            ? `${Math.abs(remainingChars)} ${pageContent['edit-profile-mini-bio-exceeded-chars']}`
-            : `${remainingChars} ${pageContent['edit-profile-mini-bio-remaining-chars']}`}
+            ? pageContent['edit-profile-mini-bio-exceeded-chars']?.replace(
+                '$1',
+                Math.abs(remainingChars).toString()
+              )
+            : pageContent['edit-profile-mini-bio-remaining-chars']?.replace(
+                '$1',
+                remainingChars.toString()
+              )}
         </span>
       </div>
     </div>
