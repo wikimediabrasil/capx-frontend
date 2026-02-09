@@ -196,6 +196,7 @@ export default function EditProfilePage() {
     wiki_alt: '',
     wikidata_qid: '',
     wikimedia_project: [],
+    about_language: null,
   });
   const [, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
@@ -258,22 +259,51 @@ export default function EditProfilePage() {
 
   // Create a ref to track if the form has been populated
   const formPopulatedRef = useRef(false);
+  const previousAboutLanguageRef = useRef<number | null | undefined>(undefined);
 
   // Update formData when profile data is loaded
   useEffect(() => {
-    if (profile && !formPopulatedRef.current) {
-      setFormData({
-        ...profile,
-        affiliation: ensureArray<string>(profile.affiliation),
-        territory: profile.territory,
-        wikidata_qid: profile.wikidata_qid || '',
-        wikimedia_project: ensureArray<string>(profile.wikimedia_project),
-        language: ensureArray<any>(profile.language),
-        skills_known: ensureArray<number>(profile.skills_known),
-        skills_available: ensureArray<number>(profile.skills_available),
-        skills_wanted: ensureArray<number>(profile.skills_wanted),
-      });
-      formPopulatedRef.current = true;
+    if (profile) {
+      // Extract about_language ID if it's an object (Foreign Key from backend)
+      let aboutLanguageId: number | null = null;
+      if (profile.about_language) {
+        if (typeof profile.about_language === 'number') {
+          aboutLanguageId = profile.about_language;
+        } else if (typeof profile.about_language === 'object' && 'id' in profile.about_language) {
+          aboutLanguageId = Number(profile.about_language.id);
+        }
+      }
+
+      // Check if about_language changed (for updates after save)
+      const aboutLanguageChanged = previousAboutLanguageRef.current !== aboutLanguageId;
+
+      // Only update formData if form hasn't been populated OR if about_language changed
+      if (!formPopulatedRef.current || aboutLanguageChanged) {
+        if (!formPopulatedRef.current) {
+          // Initial load - populate all fields
+          setFormData({
+            ...profile,
+            affiliation: ensureArray<string>(profile.affiliation),
+            territory: profile.territory,
+            wikidata_qid: profile.wikidata_qid || '',
+            wikimedia_project: ensureArray<string>(profile.wikimedia_project),
+            language: ensureArray<any>(profile.language),
+            skills_known: ensureArray<number>(profile.skills_known),
+            skills_available: ensureArray<number>(profile.skills_available),
+            skills_wanted: ensureArray<number>(profile.skills_wanted),
+            about_language: aboutLanguageId,
+          });
+          formPopulatedRef.current = true;
+        } else if (aboutLanguageChanged) {
+          // Update only about_language if it changed
+          setFormData(prev => ({
+            ...prev,
+            about_language: aboutLanguageId,
+          }));
+        }
+
+        previousAboutLanguageRef.current = aboutLanguageId;
+      }
 
       // Check if the user is using Wikidata (avatar = null or 0)
       const isUsingWikidata =
@@ -473,7 +503,13 @@ export default function EditProfilePage() {
     }
 
     try {
-      await updateProfile(formData);
+      // Ensure about_language is explicitly included in the payload
+      const payloadToSend = {
+        ...formData,
+        about_language: formData.about_language ?? null,
+      };
+
+      await updateProfile(payloadToSend);
       clearUnsavedData(); // Clear unsaved data after saving successfully
 
       // Force a refetch to ensure the cache is updated
