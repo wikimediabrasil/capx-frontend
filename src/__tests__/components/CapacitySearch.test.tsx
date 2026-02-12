@@ -42,8 +42,17 @@ const mockGetRootCapacities = jest
   .mockReturnValue([{ code: 1, name: 'Test Capacity', color: 'blue' }]);
 const mockGetChildren = jest.fn().mockReturnValue([]);
 
-// ThemeContext mock
-
+// Wire mocks into the capacity store
+const storesMock = jest.requireMock('@/stores');
+const originalUseCapacityStore = storesMock.useCapacityStore;
+storesMock.useCapacityStore = Object.assign(
+  jest.fn(() => ({
+    ...originalUseCapacityStore(),
+    getRootCapacities: mockGetRootCapacities,
+    getChildren: mockGetChildren,
+  })),
+  { getState: originalUseCapacityStore.getState }
+);
 
 describe('CapacitySearch', () => {
   const mockSession = {
@@ -86,13 +95,13 @@ describe('CapacitySearch', () => {
   it('renders search input correctly', () => {
     renderWithProviders(<CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />);
 
-    expect(screen.getByPlaceholderText('Search capacities')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search capacities...')).toBeInTheDocument();
   });
 
   it('calls fetchCapacitySearch when typing in search input', async () => {
     renderWithProviders(<CapacitySearch onSearchStart={jest.fn()} onSearchEnd={jest.fn()} />);
 
-    const searchInput = screen.getByPlaceholderText('Search capacities');
+    const searchInput = screen.getByPlaceholderText('Search capacities...');
     fireEvent.change(searchInput, { target: { value: 'test' } });
 
     // Fast forward the debounce timer within act
@@ -110,7 +119,7 @@ describe('CapacitySearch', () => {
     const onSearchStart = jest.fn();
     renderWithProviders(<CapacitySearch onSearchStart={onSearchStart} onSearchEnd={jest.fn()} />);
 
-    const searchInput = screen.getByPlaceholderText('Search capacities');
+    const searchInput = screen.getByPlaceholderText('Search capacities...');
     fireEvent.change(searchInput, { target: { value: 'test' } });
 
     // Fast forward the debounce timer within act

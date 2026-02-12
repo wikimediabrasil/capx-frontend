@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TranslationContributeCTA } from '../../components/TranslationContributeCTA';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -74,7 +75,11 @@ describe('TranslationContributeCTA', () => {
   };
 
   beforeEach(() => {
-
+    jest.clearAllMocks();
+    (stores.useLanguage as jest.Mock).mockReturnValue('pt-BR');
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
@@ -85,7 +90,7 @@ describe('TranslationContributeCTA', () => {
 
   describe('Language Detection', () => {
     it('does not render when language is English', () => {
-
+      (stores.useLanguage as jest.Mock).mockReturnValue('en');
 
       const { container } = renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
       expect(container.firstChild).toBeNull();
@@ -118,7 +123,7 @@ describe('TranslationContributeCTA', () => {
 
   describe('Dark Mode Support', () => {
     it('applies dark mode styles when darkMode is true', () => {
-
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 
@@ -240,7 +245,7 @@ describe('TranslationContributeCTA', () => {
     });
 
     it('falls back to default text when pageContent is not available', () => {
-
+      (stores.usePageContent as jest.Mock).mockReturnValue({});
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
 
@@ -284,7 +289,7 @@ describe('TranslationContributeCTA', () => {
 
   describe('Responsive Design', () => {
     it('handles mobile layout in compact mode', () => {
-
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
 
       renderWithProviders(<TranslationContributeCTA {...defaultProps} compact={true} />);
 

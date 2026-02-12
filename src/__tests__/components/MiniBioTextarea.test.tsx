@@ -1,6 +1,7 @@
 import { screen, fireEvent } from '@testing-library/react';
 import MiniBioTextarea from '@/components/MiniBioTextarea';
 import { renderWithProviders } from '../utils/test-helpers';
+import * as stores from '@/stores';
 
 
 jest.mock('@/stores', () => ({
@@ -31,6 +32,10 @@ describe('MiniBioTextarea', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      'edit-profile-mini-bio-exceeded-chars': 'caracteres excedidos',
+      'edit-profile-mini-bio-remaining-chars': 'caracteres restantes',
+    });
   });
 
   const renderTextarea = (props: any = {}) => {

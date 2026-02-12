@@ -3,6 +3,7 @@ import MobileMenuLinks from '../../components/MobileMenuLinks';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { Session } from 'next-auth';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -17,7 +18,7 @@ jest.mock('@/stores', () => ({
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
     { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
   ),
 }));
@@ -98,6 +99,8 @@ const validSession: Session = {
 
 describe('MobileMenuLinks', () => {
   beforeEach(() => {
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
 
     (useOrganization as jest.Mock).mockReturnValue({
       organizations: [
@@ -153,7 +156,7 @@ describe('MobileMenuLinks', () => {
   });
 
   it('applies dark mode styles', () => {
-
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     renderWithProviders(<MobileMenuLinks session={validSession} handleMenuStatus={() => {}} />);
 

@@ -76,6 +76,7 @@ describe('DocumentFormItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockShowSnackbar.mockClear();
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   it('renders document form item correctly', () => {

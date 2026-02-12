@@ -4,10 +4,10 @@ import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { LanguageProficiency } from '@/types/language';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as stores from '@/stores';
 
 
 jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
   useDarkMode: jest.fn(() => false),
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
@@ -23,7 +23,10 @@ jest.mock('@/stores', () => ({
     { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
   ),
   useCapacityStore: Object.assign(
-    jest.fn(() => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false, getName: jest.fn(() => ''), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => false), getIsDescriptionsReady: jest.fn(() => false), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() })),
+    jest.fn(() => {
+      const capacityNames: Record<number, string> = { 1: 'Coding', 2: 'Design', 3: 'Teaching', 4: 'Mentoring' };
+      return { capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false, getName: jest.fn((code: number) => capacityNames[code] || `Capacity ${code}`), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => false), getIsDescriptionsReady: jest.fn(() => false), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() };
+    }),
     { getState: () => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false }) }
   ),
 }));
@@ -163,6 +166,10 @@ const createTestWrapper = () => {
 };
 
 describe('ProfileCard', () => {
+  beforeEach(() => {
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+  });
+
   describe('Learner Profile', () => {
     it('should display profile information correctly', () => {
       const Wrapper = createTestWrapper();

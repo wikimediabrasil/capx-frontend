@@ -15,7 +15,7 @@ jest.mock('@/stores', () => ({
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
     { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
   ),
 }));
@@ -55,6 +55,13 @@ describe('CallToActionSection', () => {
   };
 
   it('renders main content correctly', () => {
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      'body-home-section01-call-to-action-title': 'Join the Exchange',
+      'body-home-section01-call-to-action-description': 'Connect with peers',
+      'body-home-section01-call-to-action-button01': 'Join Now',
+      'body-home-section01-call-to-action-button02': 'Create Account',
+    });
+
     renderWithProviders(<CallToActionSection />);
 
     expect(screen.getByText('Join the Exchange')).toBeInTheDocument();

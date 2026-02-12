@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProfileSelect from '@/components/ProfileSelect';
 import { SessionProvider } from 'next-auth/react';
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -15,7 +16,7 @@ jest.mock('@/stores', () => ({
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
     { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
   ),
 }));
@@ -77,7 +78,7 @@ const mockPageContent = {
 
 describe('ProfileSelect', () => {
   beforeEach(() => {
-
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
@@ -94,7 +95,10 @@ describe('ProfileSelect', () => {
   });
 
   it('handles long text without breaking layout', () => {
-
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      ...mockPageContent,
+      'navbar-link-profiles': 'Meine Profile und Einstellungen',
+    });
 
     renderWithProviders(<ProfileSelect />);
 
@@ -106,7 +110,10 @@ describe('ProfileSelect', () => {
   });
 
   it('supports RTL text direction', () => {
-
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      ...mockPageContent,
+      'navbar-link-profiles': 'الملفات الشخصية',
+    });
 
     renderWithProviders(<ProfileSelect />);
     expect(screen.getByText('الملفات الشخصية')).toBeInTheDocument();

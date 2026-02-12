@@ -154,6 +154,7 @@ describe('RecommendationCapacityCard', () => {
   const mockRouter = createMockRouter();
   const mockQueryClient = createMockQueryClient();
   const mockUserProfile = createMockUserProfile();
+  const mockCapacityCache = createMockCapacityCache();
 
   beforeEach(() => {
     jest.clearAllMocks();

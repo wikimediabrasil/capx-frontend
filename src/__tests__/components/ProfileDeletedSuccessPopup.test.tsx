@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 import { renderWithThemeApp, createMockTheme, setupTimers, mockConsoleError } from '../test-utils';
-
+import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
@@ -10,6 +10,14 @@ jest.mock('@/stores', () => ({
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
     { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
   ),
 }));
 
@@ -57,7 +65,7 @@ describe('ProfileDeletedSuccessPopup', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   it('should render popup when isOpen is true', () => {
