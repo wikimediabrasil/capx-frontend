@@ -134,7 +134,21 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
               wikidataQid={profile?.wikidata_qid}
               isSameUser={isSameUser}
             />
-            {shouldRenderEmptyField(profile?.about) && <MiniBio about={profile?.about || ''} />}
+            {shouldRenderEmptyField(profile?.about) && (
+              <MiniBio
+                about={profile?.about || ''}
+                aboutLanguage={
+                  profile?.about_language
+                    ? typeof profile.about_language === 'number'
+                      ? profile.about_language
+                      : typeof profile.about_language === 'object' && 'id' in profile.about_language
+                        ? Number(profile.about_language.id)
+                        : null
+                    : null
+                }
+                languages={languages}
+              />
+            )}
 
             {/* Badges */}
             {shouldRenderEmptyField(activeBadges) && <ProfileBadgesSection badges={activeBadges} />}

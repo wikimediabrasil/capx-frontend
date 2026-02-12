@@ -176,10 +176,7 @@ export default function EditProfilePage() {
   const [selectedCapacityType, setSelectedCapacityType] = useState<
     'known' | 'available' | 'wanted'
   >('known');
-  const [showLetsConnectPopup, setShowLetsConnectPopup] = useState(false);
-  const [, setLoading] = useState(false);
   const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
-  const { letsConnectData, isLoading: isLetsConnectLoading } = useLetsConnect();
   const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: '',
@@ -197,11 +194,10 @@ export default function EditProfilePage() {
     wiki_alt: '',
     wikidata_qid: '',
     wikimedia_project: [],
+    about_language: null,
   });
   const [, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
-  // TODO: Remove this after Lets Connect Integration is complete
-  const [hasAutomatedLetsConnect, setHasAutomatedLetsConnect] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [previousImageState, setPreviousImageState] = useState<{
     avatar: number | null;
@@ -261,22 +257,51 @@ export default function EditProfilePage() {
 
   // Create a ref to track if the form has been populated
   const formPopulatedRef = useRef(false);
+  const previousAboutLanguageRef = useRef<number | null | undefined>(undefined);
 
   // Update formData when profile data is loaded
   useEffect(() => {
-    if (profile && !formPopulatedRef.current) {
-      setFormData({
-        ...profile,
-        affiliation: ensureArray<string>(profile.affiliation),
-        territory: profile.territory,
-        wikidata_qid: profile.wikidata_qid || '',
-        wikimedia_project: ensureArray<string>(profile.wikimedia_project),
-        language: ensureArray<any>(profile.language),
-        skills_known: ensureArray<number>(profile.skills_known),
-        skills_available: ensureArray<number>(profile.skills_available),
-        skills_wanted: ensureArray<number>(profile.skills_wanted),
-      });
-      formPopulatedRef.current = true;
+    if (profile) {
+      // Extract about_language ID if it's an object (Foreign Key from backend)
+      let aboutLanguageId: number | null = null;
+      if (profile.about_language) {
+        if (typeof profile.about_language === 'number') {
+          aboutLanguageId = profile.about_language;
+        } else if (typeof profile.about_language === 'object' && 'id' in profile.about_language) {
+          aboutLanguageId = Number(profile.about_language.id);
+        }
+      }
+
+      // Check if about_language changed (for updates after save)
+      const aboutLanguageChanged = previousAboutLanguageRef.current !== aboutLanguageId;
+
+      // Only update formData if form hasn't been populated OR if about_language changed
+      if (!formPopulatedRef.current || aboutLanguageChanged) {
+        if (!formPopulatedRef.current) {
+          // Initial load - populate all fields
+          setFormData({
+            ...profile,
+            affiliation: ensureArray<string>(profile.affiliation),
+            territory: profile.territory,
+            wikidata_qid: profile.wikidata_qid || '',
+            wikimedia_project: ensureArray<string>(profile.wikimedia_project),
+            language: ensureArray<any>(profile.language),
+            skills_known: ensureArray<number>(profile.skills_known),
+            skills_available: ensureArray<number>(profile.skills_available),
+            skills_wanted: ensureArray<number>(profile.skills_wanted),
+            about_language: aboutLanguageId,
+          });
+          formPopulatedRef.current = true;
+        } else if (aboutLanguageChanged) {
+          // Update only about_language if it changed
+          setFormData(prev => ({
+            ...prev,
+            about_language: aboutLanguageId,
+          }));
+        }
+
+        previousAboutLanguageRef.current = aboutLanguageId;
+      }
 
       // Check if the user is using Wikidata (avatar = null or 0)
       const isUsingWikidata =
@@ -476,8 +501,13 @@ export default function EditProfilePage() {
     }
 
     try {
-      formData.automated_lets_connect = hasAutomatedLetsConnect ? true : undefined;
-      await updateProfile(formData);
+      // Ensure about_language is explicitly included in the payload
+      const payloadToSend = {
+        ...formData,
+        about_language: formData.about_language ?? null,
+      };
+
+      await updateProfile(payloadToSend);
       clearUnsavedData(); // Clear unsaved data after saving successfully
 
       // Force a refetch to ensure the cache is updated
@@ -638,97 +668,12 @@ export default function EditProfilePage() {
     router.push(path);
   };
 
-  const handleLetsConnectImport = async () => {
-    const allLanguages = Object.entries(languages).map(
-      ([id, name]) =>
-        ({
-          id: Number(id),
-          name: name,
-          proficiency: '3',
-        }) as LanguageProficiency
-    );
-    const letsConnectLanguages = allLanguages.filter(language =>
-      letsConnectData?.reconciled_languages.includes(language.name || '')
-    );
-
-    // Get all root capacities from cache and their children
-    const rootCapacities = getRootCapacities();
-    const allCapacities = rootCapacities.map(capacity => ({
-      id: capacity.code,
-      code: capacity.skill_wikidata_item,
-    }));
-
-    const letsConnectWantedCapacities = allCapacities.filter(capacity =>
-      letsConnectData?.reconciled_want_to_learn.includes(capacity.code || '')
-    );
-    const letsConnectAvailableCapacities = allCapacities.filter(capacity =>
-      letsConnectData?.reconciled_want_to_share.includes(capacity.code || '')
-    );
-
-    const allAffiliations = Object.entries(affiliations).map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-    }));
-
-    const letsConnectAffiliation = allAffiliations.filter(affiliation => {
-      const affiliationName = affiliation.name.split(' (')[0]; // Get everything before ' ('
-      return affiliationName === letsConnectData?.reconciled_affiliation;
-    });
-
-    const allTerritories = Object.entries(territories).map(([id, name]) => ({
-      id: Number(id),
-      name: name,
-    }));
-
-    const letsConnectTerritory = allTerritories.find(
-      territory => territory.name === letsConnectData?.reconciled_territory
-    );
-    const letsConnectTerritoryId = letsConnectTerritory?.id.toString() || '';
-
-    if (letsConnectData) {
-      // Ensure the arrays exist and are of the correct type
-      const currentAffiliations = ensureArray<string>(formData.affiliation);
-      const currentTerritories = ensureArray<string>(formData.territory);
-      const currentLanguages = ensureArray<LanguageProficiency>(formData.language);
-      const currentSkillsKnown = ensureArray<number>(formData.skills_known);
-      const currentSkillsAvailable = ensureArray<number>(formData.skills_available);
-      const currentSkillsWanted = ensureArray<number>(formData.skills_wanted);
-
-      // Prepare the new data
-      const newAffiliations = letsConnectAffiliation.map(affiliation => affiliation.id.toString());
-      const newLanguages = letsConnectLanguages;
-      const newSkillsKnown = letsConnectAvailableCapacities.map(capacity => capacity.id);
-      const newSkillsAvailable = letsConnectAvailableCapacities.map(capacity => capacity.id);
-      const newSkillsWanted = letsConnectWantedCapacities.map(capacity => capacity.id);
-
-      setHasAutomatedLetsConnect(true);
-      const updatedFormData = {
-        ...formData,
-        affiliation: addUniqueAffiliations(currentAffiliations, newAffiliations),
-        language: addUniqueLanguages(currentLanguages, newLanguages),
-        territory: addUniqueTerritory(currentTerritories, letsConnectTerritoryId),
-        skills_known: addUniqueCapacities(currentSkillsKnown, newSkillsKnown),
-        skills_available: addUniqueCapacities(currentSkillsAvailable, newSkillsAvailable),
-        skills_wanted: addUniqueCapacities(currentSkillsWanted, newSkillsWanted),
-      };
-      setFormData(updatedFormData);
-      setUnsavedData(updatedFormData);
-      showSnackbar(pageContent['snackbar-lets-connect-import-success'], 'success');
-      setLoading(true);
-      setTimeout(() => {
-        router.push('/profile/lets_connect');
-      }, 3500);
-    }
-    setShowLetsConnectPopup(false);
-  };
-
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
       src: selectedAvatar.src || DEFAULT_AVATAR,
     },
     handleAvatarSelect,
-    hasLetsConnectData: letsConnectData !== null,
     hasLetsConnectAccount,
     showAvatarPopup,
     setShowAvatarPopup,
@@ -756,10 +701,6 @@ export default function EditProfilePage() {
     profile,
     refetch,
     goTo,
-    showLetsConnectPopup,
-    setShowLetsConnectPopup,
-    handleLetsConnectImport,
-    isLetsConnectLoading,
     isImageLoading,
     setIsImageLoading,
   };

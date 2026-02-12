@@ -27,6 +27,7 @@ export interface Profile {
   wiki_alt?: string;
   wikidata_qid?: string;
   wikimedia_project?: string[];
+  about_language?: number | null;
 }
 
 export interface LetsConnectProfile {

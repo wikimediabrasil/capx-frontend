@@ -89,9 +89,6 @@
 	"organization-profile-no-image-available": "Изображение отсутствует",
 	"organization-list-alt-banner": "Картинка-баннер страницы со списком организаций",
 	"organization-list-banner-page": "Список организаций",
-	"edit-profile-use-letsconnect": "Интеграция Let's Connect",
-	"lets-connect-import-data-confirm": "Подтвердить",
-	"lets-connect-import-data-cancel": "Отмена",
 	"body-profile-edit-organization-button": "Редактировать профиль организации",
 	"body-profile-edit-user-button": "Редактировать профиль",
 	"logo-not-available": "Логотип недоступен",
@@ -500,5 +497,11 @@
 	"analytics-bashboard-capacities-title": "Компетенции",
 	"analytics-bashboard-capacities-card-learners": "Обучающиеся",
 	"analytics-bashboard-capacities-card-sharers": "Делящиеся",
-	"analytics-bashboard-capacities-load-more": "Загрузить больше результатов"
+	"analytics-bashboard-capacities-load-more": "Загрузить больше результатов",
+	"analytics-bashboard-capacities-card-organizational-structure": "Организационная структура",
+	"analytics-bashboard-capacities-card-communication": "Коммуникация",
+	"analytics-bashboard-capacities-card-learning-and-evaluation": "Учебный процесс и оценка",
+	"analytics-bashboard-capacities-card-social-skill": "Социальные навыки",
+	"analytics-bashboard-capacities-card-strategic-management": "Стратегическое управление",
+	"analytics-bashboard-capacities-card-technology": "Технология"
 }

@@ -3,7 +3,7 @@ import { useAppStore } from '@/stores';
 import Image from 'next/image';
 
 // Simple loading component without theme dependency
-export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boolean }) {
+export default function SimpleLoading({ fullScreen = false }: Readonly<{ fullScreen?: boolean }>) {
   let isMobile = false;
 
   // Try to get mobile status safely from Zustand store (no provider needed)
@@ -13,47 +13,29 @@ export default function SimpleLoading({ fullScreen = false }: { fullScreen?: boo
     isMobile = false;
   }
 
-  // Calculate proper height considering mobile header
-  const heightClass = fullScreen
-    ? isMobile
-      ? 'min-h-screen pt-20' // Add padding-top for mobile header (80px height)
-      : 'min-h-screen'
-    : 'h-[150px]';
+// Simple loading component without theme dependency.
+// Uses only CSS media queries (md:) for fullScreen so the logo stays below the mobile header
+// from first paint, with no layout shift when context (e.g. isMobile) updates after hydration.
+  const wrapperClass = fullScreen ? 'min-h-screen pt-20 md:pt-0 bg-white' : 'h-[150px] bg-white';
+  const innerClass = fullScreen
+    ? 'min-h-[calc(100vh-5rem)] md:min-h-screen flex items-center justify-center'
+    : 'h-full flex items-center justify-center';
 
   return (
-    <div
-      className={`flex items-center justify-center ${heightClass} bg-white`}
-      role="status"
-      data-testid="simple-loading"
-      aria-label={'Content is loading'}
-    >
-      <div className="relative w-16 h-16">
-        <Image
-          src={CapxLogo}
-          alt={'CapX - Capacity Exchange logo, page is loading'}
-          className="animate-pulse-fade object-contain"
-          width={64}
-          height={64}
-          style={{ width: 'auto', height: 'auto' }}
-          priority
-        />
-        <style jsx global>{`
-          @keyframes pulseFade {
-            0% {
-              opacity: 0.3;
-            }
-            50% {
-              opacity: 1;
-            }
-            100% {
-              opacity: 0.3;
-            }
-          }
-          .animate-pulse-fade {
-            animation: pulseFade 2s ease-in-out infinite;
-          }
-        `}</style>
+    <output className={wrapperClass} data-testid="simple-loading" aria-label={'Content is loading'}>
+      <div className={innerClass}>
+        <div className="relative w-16 h-16">
+          <Image
+            src={CapxLogo}
+            alt={'CapX - Capacity Exchange logo, page is loading'}
+            className="animate-pulse-fade object-contain"
+            width={64}
+            height={64}
+            style={{ width: 'auto', height: 'auto' }}
+            priority
+          />
+        </div>
       </div>
-    </div>
+    </output>
   );
 }

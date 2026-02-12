@@ -102,11 +102,11 @@ function StatCard({ title, value, subtitle, subtitleColor, darkMode }: Readonly<
 
   return (
     <div className="flex flex-col items-center md:items-start text-center md:text-left">
-      <p
-        className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal leading-[2] md:leading-[29px] ${textColor}`}
+      <h4
+        className={`font-[Montserrat] text-[12px] md:text-[24px] font-normal leading-[2] md:leading-[29px] h-12 md:min-h-[58px] flex items-center ${textColor}`}
       >
         {title}
-      </p>
+      </h4>
       <p className={`font-[Montserrat] text-[36px] md:text-[96px] font-bold ${textColor}`}>
         {value}
       </p>
@@ -222,7 +222,7 @@ export default function AnalyticsDashboardPage() {
   const availableCount = data?.skill_available_user_counts;
   const wantedCount = data?.skill_wanted_user_counts;
 
-  if (!data) return <LoadingState />;
+  if (!data) return <LoadingState fullScreen />;
 
   return (
     <section className="w-full flex flex-col min-h-screen gap-4 pt-24 md:pt-8 mx-auto md:max-w-[1200px]">
@@ -377,7 +377,7 @@ export default function AnalyticsDashboardPage() {
 
                 return (
                   <CapacityCardAnalytics
-                    key={id}
+                    key={`${metadata?.key}-${skillId}`}
                     open={openCapacities}
                     title={metadata ? pageContent[metadata.key] : ''}
                     icon={metadata?.icon}

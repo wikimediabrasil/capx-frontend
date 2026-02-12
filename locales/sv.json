@@ -3,6 +3,7 @@
 		"authors": [
 			"Alicia Fagerving (WMSE)",
 			"Gkyziridis",
+			"Michael FOSS",
 			"Sabelöga",
 			"Stefan2255",
 			"Yupik"
@@ -58,6 +59,8 @@
 	"edit-profile-welcome": "Välkommen!",
 	"edit-profile-use-wikidata-photograph": "Visa mitt Wikidata-objektfoto i profilen",
 	"edit-profile-mini-bio-placeholder": "Skriv några ord om dig själv.",
+	"edit-profile-mini-bio-language-tooltip": "Välj det språk som din mini-bio är skriven på.",
+	"profile-mini-bio-language-label": "Språk:",
 	"edit-profile-add-language": "Lägg till språk",
 	"edit-profile-news": "Nyheter",
 	"privacy-policy-private-information-topic02-link": "OAuth",
