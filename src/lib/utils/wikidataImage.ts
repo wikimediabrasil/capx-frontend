@@ -94,7 +94,7 @@ export const shouldUseWikidataImage = (
 ): boolean => {
   if (!wikidataQid) return false;
 
-  const avatarNum = avatar === null ?  null :  Number(avatar);
+  const avatarNum = avatar == null ? null : Number(avatar);
 
   // Use Wikidata if:
   // 1. avatar is null/undefined/0 (explicitly set to use Wikidata)
