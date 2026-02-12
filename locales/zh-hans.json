@@ -4,6 +4,7 @@
 			"22593",
 			"Aaron Liu",
 			"ExoHyper2026",
+			"Gsdn",
 			"GuoPC",
 			"Hehua",
 			"HellojoeAoPS",
@@ -153,6 +154,10 @@
 	"edit-profile-mini-bio": "个人简介",
 	"edit-profile-mini-bio-placeholder": "写一个关于您自己的简短描述。",
 	"edit-profile-mini-bio-tooltip": "对您的同伴简单介绍一下您自己。您觉得有哪些事情值得分享？您的维基媒体经历有哪些重要的里程碑？",
+	"edit-profile-mini-bio-language-not-specified": "未指定",
+	"edit-profile-mini-bio-language-tooltip": "请选择您个人简介所使用的语言。",
+	"profile-mini-bio-language-label": "语言：",
+	"profile-mini-bio-language-not-specified": "未指定",
 	"edit-profile-select-skills": "从能力目录中选择已具备的能力（请选择最具体的）",
 	"edit-profile-add-capacities": "添加能力",
 	"edit-profile-import-known-capacities": "导入已知能力",
@@ -337,5 +342,8 @@
 	"cancel": "取消",
 	"organization-name-placeholder": "组织名称",
 	"organization-name-updated": "成功更新组织名称",
-	"organization-names-none": "还没有新增翻译。"
+	"organization-names-none": "还没有新增翻译。",
+	"sign-in-required-title": "登录以继续",
+	"sign-in-required-description": "您需要登录才能访问此页面。注册 CapX 即可交换资源并与其他维基媒体用户交流。",
+	"sign-in-required-go-home": "访问首页"
 }
