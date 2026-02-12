@@ -59,6 +59,7 @@ interface AvatarImageSectionProps {
   readonly handleAvatarSelect: (avatarId: number | null) => void;
   readonly isWikidataSelected: boolean;
   readonly handleWikidataClick: (selected: boolean) => void;
+  readonly formData: any;
   readonly showDeleteProfilePopup: boolean;
   readonly setShowDeleteProfilePopup: (show: boolean) => void;
   readonly handleDeleteProfile: () => void;
@@ -74,6 +75,7 @@ export function AvatarImageSection({
   handleAvatarSelect,
   isWikidataSelected,
   handleWikidataClick,
+  formData,
   showDeleteProfilePopup,
   setShowDeleteProfilePopup,
   handleDeleteProfile,
