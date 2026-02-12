@@ -1,11 +1,9 @@
-import { JSX } from 'react';
 import BaseButton from '@/components/BaseButton';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
 import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
 import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
@@ -15,6 +13,7 @@ import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
 import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import Image from 'next/image';
+import { JSX } from 'react';
 import AvatarSelectionPopup from '../../../components/AvatarSelectionPopup';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
@@ -32,19 +31,20 @@ const renderTextWithLink = (
   darkMode: boolean
 ): (string | JSX.Element)[] => {
   const parts = text.split('$1');
-  const link = (
-    <a
-      href="https://www.wikidata.org/wiki/Wikidata:Notability"
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
-    >
-      {linkText}
-    </a>
-  );
   const nodes: (string | JSX.Element)[] = [];
-  parts.forEach((part, index) => {
-    if (index > 0) nodes.push(link);
+  parts.forEach((part) => {
+      nodes.push(
+        <a
+          key={`link-${part.toString()}`}
+          href="https://www.wikidata.org/wiki/Wikidata:Notability"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
+        >
+          {linkText}
+        </a>
+      );
+
     nodes.push(part);
   });
   return nodes;
@@ -59,7 +59,6 @@ interface AvatarImageSectionProps {
   readonly handleAvatarSelect: (avatarId: number | null) => void;
   readonly isWikidataSelected: boolean;
   readonly handleWikidataClick: (selected: boolean) => void;
-  readonly formData: any;
   readonly showDeleteProfilePopup: boolean;
   readonly setShowDeleteProfilePopup: (show: boolean) => void;
   readonly handleDeleteProfile: () => void;
@@ -75,7 +74,6 @@ export function AvatarImageSection({
   handleAvatarSelect,
   isWikidataSelected,
   handleWikidataClick,
-  formData,
   showDeleteProfilePopup,
   setShowDeleteProfilePopup,
   handleDeleteProfile,

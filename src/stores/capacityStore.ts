@@ -121,6 +121,9 @@ export const useCapacityStore = create<CapacityStore>()(
 
           // Check if already loaded for this language
           if (state.language === newLanguage && Object.keys(state.capacities).length > 0) {
+            if (!state.isLoaded) {
+              set({ isLoaded: true });
+            }
             return;
           }
 
