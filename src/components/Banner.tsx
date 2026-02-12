@@ -20,10 +20,7 @@ interface BannerProps {
   };
 }
 
-export default function Banner({ image, title, alt, customClass = {} }: BannerProps) {
-  const _isResponsiveImage = (value: any): value is ResponsiveImageTitle =>
-    value && typeof value === 'object' && 'mobile' in value;
-
+export default function Banner({ image, title, alt, customClass = {} }: Readonly<BannerProps>) {
   return (
     <div
       className={`md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6 md:mb-6 px-4 md:px-4 ${customClass.wrapper ?? ''}`}

@@ -279,7 +279,7 @@ export default function FormMessage() {
       <div className="flex items-start gap-2 text-left">
         <Image
           src={darkMode ? IconChatWhite : IconChat}
-          alt={pageContent['message-form-icon-alt']}
+          alt={pageContent['message-form-icon-alt'] || 'Chat icon'}
           className="w-4 h-5 md:w-[42px] md:h-[42px]"
         />
         <h1
@@ -499,7 +499,7 @@ export default function FormMessage() {
           </p>
           <Image
             src={darkMode ? InfoIcon : InfoIconBlue}
-            alt={pageContent['message-info-alt-icon']}
+            alt={pageContent['message-info-alt-icon'] || 'Info icon'}
             width={16}
             height={16}
             className="cursor-pointer"

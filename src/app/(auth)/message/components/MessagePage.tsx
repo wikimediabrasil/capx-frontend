@@ -13,7 +13,7 @@ export default function MessagePage() {
       <Banner
         image={MessageBanner}
         title={pageContent['message-banner-page']}
-        alt={pageContent['message-alt-banner']}
+        alt={pageContent['message-alt-banner'] || 'Message banner'}
       />
       <NavBarMessagePage />
     </section>
