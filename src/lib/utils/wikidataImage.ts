@@ -5,6 +5,28 @@
 // In-memory cache for Wikidata images with 30-minute TTL
 const wikidataImageCache = new Map<string, { url: string | null; timestamp: number }>();
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const SESSION_STORAGE_PREFIX = 'wikidata_img_';
+
+type CacheEntry = { url: string | null; timestamp: number };
+
+const readFromSession = (qid: string): CacheEntry | null => {
+  if (typeof globalThis === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_PREFIX + qid);
+    return raw ? (JSON.parse(raw) as CacheEntry) : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeToSession = (qid: string, entry: CacheEntry): void => {
+  if (typeof globalThis === 'undefined') return;
+  try {
+    sessionStorage.setItem(SESSION_STORAGE_PREFIX + qid, JSON.stringify(entry));
+  } catch {
+    // sessionStorage quota exceeded or unavailable — silently ignore
+  }
+};
 
 /**
  * Fetches the image URL from a Wikidata item using SPARQL query
@@ -13,10 +35,17 @@ const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
  */
 export const fetchWikidataImage = async (qid: string): Promise<string | null> => {
   try {
-    // Check cache first
+    // 1. Check in-memory cache
     const cached = wikidataImageCache.get(qid);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       return cached.url;
+    }
+
+    // 2. Check sessionStorage (survives navigation, cleared on tab close)
+    const sessionCached = readFromSession(qid);
+    if (sessionCached && Date.now() - sessionCached.timestamp < CACHE_TTL) {
+      wikidataImageCache.set(qid, sessionCached);
+      return sessionCached.url;
     }
 
     const sparqlQuery = `
@@ -35,14 +64,18 @@ export const fetchWikidataImage = async (qid: string): Promise<string | null> =>
       imageUrl = data.results.bindings[0].image.value;
     }
 
-    // Cache the result
-    wikidataImageCache.set(qid, { url: imageUrl, timestamp: Date.now() });
+    // Cache the result in both layers
+    const entry: CacheEntry = { url: imageUrl, timestamp: Date.now() };
+    wikidataImageCache.set(qid, entry);
+    writeToSession(qid, entry);
 
     return imageUrl;
   } catch (error) {
     console.error('Error fetching Wikidata image:', error);
     // Cache null result to avoid repeated failed requests
-    wikidataImageCache.set(qid, { url: null, timestamp: Date.now() });
+    const entry: CacheEntry = { url: null, timestamp: Date.now() };
+    wikidataImageCache.set(qid, entry);
+    writeToSession(qid, entry);
     return null;
   }
 };
@@ -61,7 +94,7 @@ export const shouldUseWikidataImage = (
 ): boolean => {
   if (!wikidataQid) return false;
 
-  const avatarNum = avatar != null ? Number(avatar) : null;
+  const avatarNum = avatar === null ?  null :  Number(avatar);
 
   // Use Wikidata if:
   // 1. avatar is null/undefined/0 (explicitly set to use Wikidata)
