@@ -2,9 +2,8 @@ import illustration01 from '@/public/static/images/learn_capacities_illustration
 import illustration02 from '@/public/static/images/connect_wikimedians_illustration.svg';
 import illustration03 from '@/public/static/images/exchange_knowledge_illustration.svg';
 import Image, { StaticImageData } from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, usePageContent } from '@/stores';
 const Row = (illustration: StaticImageData, description: string, index: number, total: number) => {
   const getBorderClass = () => {
     if (index === 0) return 'border-t border-b';
@@ -12,8 +11,8 @@ const Row = (illustration: StaticImageData, description: string, index: number, 
     return '';
   };
 
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   return (
     <div
@@ -51,7 +50,7 @@ const Row = (illustration: StaticImageData, description: string, index: number, 
 };
 
 export default function FeaturesSection() {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const features = [
     {
       illustration: illustration01,
@@ -66,7 +65,7 @@ export default function FeaturesSection() {
       description: pageContent['body-home-feature-section-knowledge'],
     },
   ];
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div

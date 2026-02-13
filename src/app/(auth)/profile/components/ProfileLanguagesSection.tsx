@@ -3,8 +3,7 @@
 import ProfileFieldSection from './ProfileFieldSection';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import { LanguageProficiency } from '@/types/language';
 
 interface ProfileLanguagesSectionProps {
@@ -18,8 +17,9 @@ export default function ProfileLanguagesSection({
   languagesMap,
   getProficiencyLabel,
 }: ProfileLanguagesSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const textSize = isMobile ? 'text-[14px]' : 'text-[24px]';
 
   return (

@@ -1,7 +1,6 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useAppStore, useCapacityStore, usePageContent } from '@/stores';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,38 +9,28 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 import { DEFAULT_AVATAR, getDefaultAvatar } from '@/constants/images';
-import { useProfileEdit } from '@/contexts/ProfileEditContext';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useProfile } from '@/hooks/useProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
-import {
-  addUniqueAffiliations,
-  addUniqueCapacities,
-  addUniqueCapacity,
-  addUniqueItem,
-  addUniqueLanguages,
-  addUniqueTerritory,
-} from '@/lib/utils/formDataUtils';
+import { addUniqueCapacity, addUniqueItem } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
+import { useProfileEditStore } from '@/stores';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
 import ProfileEditView from './ProfileEditView';
 
 // Import the new capacity hooks
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
-import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
   validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
-import { LanguageProficiency } from '@/types/language';
 import React from 'react';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
@@ -99,14 +88,14 @@ const fetchWikidataImage = async (qid: string) => {
 export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
-  const { pageContent, language } = useApp();
-  useTheme();
+  const pageContent = usePageContent();
+  const language = useAppStore(s => s.language);
   const { avatars, getAvatarById } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const { showSnackbar } = useSnackbar();
-  const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
-  const { preloadCapacities } = useCapacityCache();
+  const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEditStore();
+  const { preloadCapacities } = useCapacityStore();
 
   // Create a ref to track if capacities have been preloaded
   const capacitiesPreloadedRef = useRef(false);
@@ -114,7 +103,7 @@ export default function EditProfilePage() {
   // Initialize capacity cache when the component mounts
   useEffect(() => {
     if (token && !capacitiesPreloadedRef.current) {
-      preloadCapacities();
+      preloadCapacities(token);
       capacitiesPreloadedRef.current = true;
     }
   }, [token, preloadCapacities]);
@@ -124,7 +113,7 @@ export default function EditProfilePage() {
     const updateCacheLanguage = async () => {
       if (language && token) {
         try {
-          await capacityCache?.updateLanguage?.(language);
+          await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
           console.error('Error updating capacity cache language:', error);
         }
@@ -156,7 +145,7 @@ export default function EditProfilePage() {
   }, [wikimediaProjectsError]);
 
   // Get the capacity system from cache
-  const capacityCache = useCapacityCache();
+  const capacityCache = useCapacityStore();
   const {
     getName,
     getRootCapacities,

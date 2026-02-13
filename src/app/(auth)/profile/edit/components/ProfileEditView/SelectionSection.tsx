@@ -1,5 +1,3 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
@@ -7,6 +5,7 @@ import { FormSelect } from './FormSelect';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES } from './utils';
 
+import { useDarkMode, useIsMobile } from '@/stores';
 interface SelectionSectionProps {
   readonly title: string;
   readonly icon: string;
@@ -30,8 +29,8 @@ export function SelectionSection({
   helpText,
   placeholder,
 }: SelectionSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex flex-col gap-4 mt-4">

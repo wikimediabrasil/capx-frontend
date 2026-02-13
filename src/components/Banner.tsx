@@ -20,10 +20,7 @@ interface BannerProps {
   };
 }
 
-export default function Banner({ image, title, alt, customClass = {} }: BannerProps) {
-  const _isResponsiveImage = (value: any): value is ResponsiveImageTitle =>
-    value && typeof value === 'object' && 'mobile' in value;
-
+export default function Banner({ image, title, alt, customClass = {} }: Readonly<BannerProps>) {
   return (
     <div
       className={`md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6 md:mb-6 px-4 md:px-4 ${customClass.wrapper ?? ''}`}
@@ -58,9 +55,8 @@ export default function Banner({ image, title, alt, customClass = {} }: BannerPr
                   <Image
                     src={title.desktop}
                     alt={alt}
-                    width={240}
-                    height={80}
-                    className="hidden md:block h-auto w-auto"
+                    className="hidden md:block h-auto"
+                    style={{ width: 'auto' }}
                     priority
                   />
                 )}
@@ -68,9 +64,8 @@ export default function Banner({ image, title, alt, customClass = {} }: BannerPr
                   <Image
                     src={title.mobile}
                     alt={alt}
-                    width={180}
-                    height={60}
-                    className={title.desktop ? 'block md:hidden h-auto w-auto' : 'h-auto w-auto'}
+                    className={title.desktop ? 'block md:hidden h-auto' : 'h-auto'}
+                    style={{ width: 'auto' }}
                     priority
                   />
                 )}

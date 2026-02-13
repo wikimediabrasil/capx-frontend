@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { BugReport } from '@/types/report';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, useLanguage, usePageContent } from '@/stores';
 interface SubmissionCardProps {
   submission: BugReport;
 }
@@ -13,8 +12,10 @@ function formatDateLocale(timestamp: string, locale: string = navigator.language
 }
 
 const SubmissionCard: React.FC<SubmissionCardProps> = ({ submission }) => {
-  const { darkMode } = useTheme();
-  const { pageContent, language } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+
+  const language = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getStatusColor = (status?: string) => {

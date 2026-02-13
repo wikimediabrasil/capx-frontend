@@ -1,11 +1,10 @@
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface SelectListProps {
   icon: string;
   iconDark: string;
@@ -27,8 +26,8 @@ export function SelectList({
   placeholder,
   multiple = false,
 }: SelectListProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   return (
     <div className="flex flex-col gap-4">

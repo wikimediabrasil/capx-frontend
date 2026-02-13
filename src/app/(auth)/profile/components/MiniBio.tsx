@@ -1,9 +1,8 @@
-import Image from 'next/image';
+import MiniBioTextarea from '@/components/MiniBioTextarea';
 import PersonBookIcon from '@/public/static/images/person_book.svg';
 import PersonBookIconWhite from '@/public/static/images/person_book_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-import MiniBioTextarea from '@/components/MiniBioTextarea';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
+import Image from 'next/image';
 import { FormSelect } from '../edit/components/ProfileEditView/FormSelect';
 import { RESPONSIVE_TEXT_SIZES } from '../edit/components/ProfileEditView/utils';
 
@@ -28,8 +27,9 @@ export default function MiniBio({
   languages,
   onAboutLanguageChange,
 }: MiniBioProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
 
   const iconSize = isMobile ? 20 : 42;
   const fontSize = isMobile ? 'text-[14px]' : 'text-[24px]';
@@ -72,12 +72,14 @@ export default function MiniBio({
         }`}
       >
         <div className="flex items-center gap-2">
-          <Image
-            src={darkMode ? PersonBookIconWhite : PersonBookIcon}
-            alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
-            width={20}
-            height={20}
-          />
+          <div className="relative w-5 h-5">
+            <Image
+              src={darkMode ? PersonBookIconWhite : PersonBookIcon}
+              alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
+              fill
+              className="object-contain"
+            />
+          </div>
           <h2
             className={`text-[14px] font-[Montserrat] font-bold ${
               darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
@@ -155,12 +157,14 @@ export default function MiniBio({
   return (
     <div className={`flex flex-col gap-4 w-full ${textColor}`}>
       <div className="flex items-center gap-2">
-        <Image
-          src={darkMode ? PersonBookIconWhite : PersonBookIcon}
-          alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
-          width={iconSize}
-          height={iconSize}
-        />
+        <div className="relative" style={{ width: iconSize, height: iconSize }}>
+          <Image
+            src={darkMode ? PersonBookIconWhite : PersonBookIcon}
+            alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
+            fill
+            className="object-contain"
+          />
+        </div>
         <h2
           className={`text-[24px] font-[Montserrat] font-bold ${
             darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'

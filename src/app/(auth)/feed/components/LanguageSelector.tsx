@@ -1,7 +1,7 @@
 import { SelectList } from './Selector';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 interface LanguageSelectorProps {
   languages: Record<string, string>;
   selectedLanguages: string[];
@@ -15,7 +15,7 @@ export function LanguageSelector({
   onSelectLanguage,
   placeholder,
 }: LanguageSelectorProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   const languagesList = Object.entries(languages)
     .map(([id, name]) => ({

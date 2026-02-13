@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 
+import { useDarkMode } from '@/stores';
 type ChecklistProps = {
   title?: string;
   other?: string;
@@ -24,7 +24,7 @@ export default function Checklist({
   value,
   onChange,
 }: ChecklistProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
   const [items, setItems] = useState(
     itemsList.map(item => ({

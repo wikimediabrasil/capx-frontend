@@ -1,12 +1,12 @@
-import { useTheme } from '@/contexts/ThemeContext';
 
+import { useDarkMode } from '@/stores';
 interface NoResultsProps {
   title: string;
   description?: string;
 }
 
 export function NoResults({ title, description }: NoResultsProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div className="flex flex-col items-center justify-center py-12">

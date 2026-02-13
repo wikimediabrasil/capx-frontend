@@ -1,5 +1,4 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent, useDarkMode } from '@/stores';
 import Image from 'next/image';
 import SearchIcon from '@/public/static/images/search_icon.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
@@ -36,8 +35,8 @@ export function SearchBar({
   removeItemAltText: _removeItemAltText = '',
   showCapacitiesSearch = false,
 }: SearchBarProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   return (
     <div className="flex gap-2 mb-6 w-full min-w-0">

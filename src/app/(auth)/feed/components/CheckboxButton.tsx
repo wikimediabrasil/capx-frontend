@@ -1,7 +1,6 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface CheckboxButtonProps {
   icon: string;
   iconDark: string;
@@ -11,8 +10,8 @@ interface CheckboxButtonProps {
 }
 
 export function CheckboxButton({ icon, iconDark, label, checked, onClick }: CheckboxButtonProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   return (
     <button

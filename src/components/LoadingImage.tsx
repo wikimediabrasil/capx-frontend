@@ -1,7 +1,7 @@
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 
 export default function LoadingImage() {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   return (
     <div

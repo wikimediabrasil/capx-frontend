@@ -1,10 +1,9 @@
 import BaseButton from '@/components/BaseButton';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface SavedItemActionsProps {
   readonly onView: () => void;
   readonly onDelete: () => void;
@@ -12,8 +11,8 @@ interface SavedItemActionsProps {
 }
 
 export const SavedItemActions = ({ onView, onDelete, size }: SavedItemActionsProps) => {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   const isSmall = size === 'small';
   const iconSize = isSmall ? 20 : 30;

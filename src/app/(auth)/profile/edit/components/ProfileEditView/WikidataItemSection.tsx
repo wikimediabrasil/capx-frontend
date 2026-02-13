@@ -3,14 +3,13 @@
  * Allows users to consent to using their Wikidata item for profile information
  */
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { getBarcodeIcon, getCheckboxIcon } from './themeHelpers';
 import { ICON_SIZES, RESPONSIVE_BORDER_RADIUS, RESPONSIVE_TEXT_SIZES } from './utils';
 import { renderTextWithLink } from './textHelpers';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface WikidataItemSectionProps {
   readonly isWikidataSelected: boolean;
   readonly handleWikidataClick: (selected: boolean) => void;
@@ -26,8 +25,10 @@ export function WikidataItemSection({
   isWikidataSelected,
   handleWikidataClick,
 }: WikidataItemSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const barcodeIcon = getBarcodeIcon(darkMode);
   const checkboxIcon = getCheckboxIcon(isWikidataSelected, darkMode);
@@ -54,7 +55,7 @@ export function WikidataItemSection({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <Image src={barcodeIcon} alt="Wikidata item icon" width={iconSize} height={iconSize} />
+        <Image src={barcodeIcon} alt="Wikidata item icon" width={iconSize} height={iconSize} style={{ width: iconSize, height: iconSize }} />
         <h2 className={titleClass}>{pageContent['edit-profile-wikidata-item']}</h2>
       </div>
       <div className="flex items-center gap-2 py-[6px]">

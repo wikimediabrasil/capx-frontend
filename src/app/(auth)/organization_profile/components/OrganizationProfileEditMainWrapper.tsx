@@ -3,9 +3,6 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import { getDefaultOrganizationLogo } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useDocument } from '@/hooks/useDocument';
@@ -36,6 +33,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import EventsForm from './EventsEditForm';
 import OrganizationProfileEditView from './OrganizationProfileEditView';
 
+import { useDarkMode, useLanguage, usePageContent, useCapacityStore } from '@/stores';
 interface ProfileOption {
   value: string;
   label: string | null | undefined;
@@ -172,13 +170,15 @@ export default function EditOrganizationProfilePage() {
   const organizationId = params?.id as string;
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const { pageContent, language } = useApp();
+  const pageContent = usePageContent();
+
+  const language = useLanguage();
   const [isInitialized, setIsInitialized] = useState(false);
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const { showSnackbar } = useSnackbar();
   const { userProfile, isLoading: isUserLoading } = useUserProfile();
   const { avatars } = useAvatars();
-  const capacityCache = useCapacityCache();
+  const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
   const { territories } = useTerritories(token);
 
@@ -256,7 +256,7 @@ export default function EditOrganizationProfilePage() {
     const updateCacheLanguage = async () => {
       if (language && token) {
         try {
-          await capacityCache?.updateLanguage?.(language);
+          await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
           console.error('Error updating capacity cache language:', error);
         }

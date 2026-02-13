@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
 import MentorshipProgramCard from './components/MentorshipProgramCard';
 import { MentorshipProgram } from '@/types/mentorship';
@@ -10,6 +8,7 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import Banner from '@/components/Banner';
 import MentorshipProgramsIcon from '@/public/static/images/mentorship_programs.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 // Mock data with dynamic forms
 const mockPrograms: MentorshipProgram[] = [
   {
@@ -366,8 +365,8 @@ const mockPrograms: MentorshipProgram[] = [
 ];
 
 export default function MentorshipPage() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { showSnackbar } = useSnackbar();
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);

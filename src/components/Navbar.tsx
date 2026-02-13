@@ -1,7 +1,7 @@
 'use client';
 import DesktopNavbar from './DesktopNavbar';
 import MobileNavbar from './MobileNavbar';
-import { useApp } from '@/contexts/AppContext';
+import { useIsMobile } from '@/stores';
 
 interface NavbarProps {
   session: any;
@@ -11,7 +11,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ session, language, setLanguage }: Omit<NavbarProps, 'isMobile'>) {
-  const { isMobile } = useApp();
+  const isMobile = useIsMobile();
 
   return isMobile ? (
     <MobileNavbar language={language} setLanguage={setLanguage} session={session} />

@@ -1,8 +1,24 @@
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import AvatarSelectionPopup from '../../app/(auth)/profile/components/AvatarSelectionPopup';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
 
 // Next.js Image mock
 jest.mock('next/image', () => ({
@@ -28,28 +44,11 @@ jest.mock('@/hooks/useAvatars', () => ({
   useAvatars: () => mockUseAvatars(),
 }));
 
-// useTheme mock
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
-
-// useApp mock
 const mockPageContent = {
   'edit-profile-choose-an-option': 'Choose an option',
   'auth-dialog-button-close': 'Close',
   'edit-profile-update': 'Update',
 };
-
-const mockUseApp = jest.fn(() => ({
-  pageContent: mockPageContent,
-  isMobile: false,
-}));
-
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => mockUseApp(),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
 
 describe('AvatarSelectionPopup', () => {
   const defaultProps = {
@@ -60,26 +59,19 @@ describe('AvatarSelectionPopup', () => {
   };
 
   beforeEach(() => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
     mockUseAvatars.mockReturnValue({
       avatars: mockAvatars,
       isLoading: false,
     });
-    mockUseApp.mockReturnValue({
-      pageContent: mockPageContent,
-      isMobile: false,
-    });
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
+        <>{component}</>
+        );
   };
 
   describe('Desktop View', () => {
@@ -98,10 +90,7 @@ describe('AvatarSelectionPopup', () => {
     });
 
     it('displays the default person avatar in dark mode', () => {
-      (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+
 
       renderWithProviders(<AvatarSelectionPopup {...defaultProps} />);
 
@@ -221,10 +210,8 @@ describe('AvatarSelectionPopup', () => {
 
   describe('Mobile View', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue({
-        pageContent: mockPageContent,
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+      (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
     });
 
     it('renders mobile layout when isMobile is true', () => {
@@ -263,10 +250,7 @@ describe('AvatarSelectionPopup', () => {
 
   describe('Dark Mode', () => {
     beforeEach(() => {
-      (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-        setDarkMode: jest.fn(),
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
     });
 
     it('applies dark mode styles', () => {

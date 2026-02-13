@@ -3,9 +3,8 @@ import SaveIcon from '@/public/static/images/save_as.svg';
 import CancelIcon from '@/public/static/images/cancel.svg';
 import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ActionButtonsProps {
   onSave: () => void;
   onCancel: () => void;
@@ -48,8 +47,10 @@ const getCancelButtonClass = (variant: ActionButtonsProps['variant'], darkMode: 
 };
 
 export function ActionButtons({ onSave, onCancel, onDelete, variant }: ActionButtonsProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const isMobileTop = variant === 'mobile-top';
   const containerClass = getContainerClass(variant);

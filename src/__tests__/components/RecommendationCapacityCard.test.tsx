@@ -1,13 +1,34 @@
 import RecommendationCapacityCard from '@/app/(auth)/home/components/RecommendationCapacityCard';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { AppProvider, useApp } from '@/contexts/AppContext';
-import { CapacityCacheProvider, useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { CapacityRecommendation } from '@/types/recommendation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import React from 'react';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+  useCapacityStore: Object.assign(
+    jest.fn(() => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false, getName: jest.fn(() => ''), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => false), getIsDescriptionsReady: jest.fn(() => false), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() })),
+    { getState: () => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false }) }
+  ),
+}));
+
 import {
   cleanupMocks,
   createMockCapacityCache,
@@ -22,18 +43,7 @@ import {
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: jest.fn(),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-jest.mock('@/contexts/CapacityCacheContext', () => ({
-  useCapacityCache: jest.fn(),
-  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+
 jest.mock('@/app/providers/SnackbarProvider');
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
@@ -85,8 +95,15 @@ function setupAllMocks(
 ) {
   const { useRouter } = require('next/navigation');
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  setupCommonMocks(useSession as jest.Mock, useTheme as jest.Mock, useApp as jest.Mock);
-  (useCapacityCache as jest.Mock).mockReturnValue(mockCapacityCache);
+  setupCommonMocks(useSession as jest.Mock);
+
+  // Setup store mocks
+  (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+  (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+  (stores.usePageContent as jest.Mock).mockReturnValue({});
+  (stores.useLanguage as jest.Mock).mockReturnValue('en');
+
+  (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityCache);
   (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
   (useQuery as jest.Mock).mockReturnValue({
     data: mockUserProfile,
@@ -111,11 +128,7 @@ function renderCapacityCard(props = {}) {
     ...props,
   };
 
-  return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />, [
-    ThemeProvider,
-    AppProvider,
-    CapacityCacheProvider,
-  ]);
+  return renderWithProviders(<RecommendationCapacityCard {...defaultProps} />);
 }
 
 // Helper to wait for card to be loaded
@@ -175,9 +188,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should render in dark mode correctly', async () => {
-      (useTheme as jest.Mock).mockReturnValue({
-        darkMode: true,
-      });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
       const { container } = renderCapacityCard();
 

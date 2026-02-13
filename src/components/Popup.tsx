@@ -1,5 +1,4 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, usePageContent } from '@/stores';
 import Image, { StaticImageData } from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import BaseButton from './BaseButton';
@@ -37,8 +36,8 @@ const Popup = ({
   minHeight = 'min-h-[300px] md:min-h-[400px]',
   contentScrollable = false,
 }: PopupProps) => {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [isOpen, setIsOpen] = useState(true);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const noop = () => {};

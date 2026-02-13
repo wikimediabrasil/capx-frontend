@@ -1,6 +1,6 @@
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useQuery } from '@tanstack/react-query';
 
+import { useCapacityStore } from '@/stores';
 // Simplified cache keys
 export const CAPACITY_CACHE_KEYS = {
   root: (language: string) => ['capacities', 'root', language] as const,
@@ -13,7 +13,7 @@ export const CAPACITY_CACHE_KEYS = {
  * Hook for root capacities - now uses unified cache directly
  */
 export function useRootCapacities(language: string = 'en') {
-  const { isLoaded, language: cacheLanguage, getRootCapacities } = useCapacityCache();
+  const { isLoaded, language: cacheLanguage, getRootCapacities } = useCapacityStore();
 
   return useQuery({
     queryKey: CAPACITY_CACHE_KEYS.root(language),
@@ -37,7 +37,7 @@ export function useRootCapacities(language: string = 'en') {
  * Hook for capacities by parent - simplified
  */
 export function useCapacitiesByParent(parentCode: string, language: string = 'en') {
-  const { getChildren, isLoaded } = useCapacityCache();
+  const { getChildren, isLoaded } = useCapacityStore();
 
   return useQuery({
     queryKey: CAPACITY_CACHE_KEYS.byParent(parentCode, language),

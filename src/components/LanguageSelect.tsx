@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { setCookie } from '@/app/actions';
 import BaseSelect from './BaseSelect';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguageSelection } from '@/hooks/useLanguageSelection';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, usePageContent, useAppStore } from '@/stores';
 interface LanguageSelectProps {
   language: string;
   setLanguage: (language: string) => void;
@@ -23,12 +22,14 @@ export default function LanguageSelect({
   isMobile,
   className = 'w-max',
 }: LanguageSelectProps) {
-  const { darkMode } = useTheme();
-  const { setMobileMenuStatus } = useApp();
+  const darkMode = useDarkMode();
+  const setMobileMenuStatus = useAppStore(s => s.setMobileMenuStatus);
   const { fetchLanguages, fetchTranslations } = useLanguageSelection();
   const [options, setOptions] = useState<LanguageOption[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const { pageContent, setPageContent } = useApp();
+  const pageContent = usePageContent();
+
+  const setPageContent = useAppStore(s => s.setPageContent);
 
   // Ensure language is never undefined
   const currentLanguage = language || 'en';

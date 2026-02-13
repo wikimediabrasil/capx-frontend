@@ -1,12 +1,11 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
 import CapacitiesTreeVisualization from './CapacitiesTreeVisualization';
 
+import { useLanguage } from '@/stores';
 function CapacitiesVisualizationContent() {
-  const { language } = useApp();
+  const language = useLanguage();
 
   // Use language as key to force remount when language changes
   return <CapacitiesTreeVisualization key={language} />;
@@ -14,10 +13,8 @@ function CapacitiesVisualizationContent() {
 
 export default function CapacitiesVisualizationWrapper() {
   return (
-    <CapacityCacheProvider>
-      <LanguageChangeHandler>
-        <CapacitiesVisualizationContent />
-      </LanguageChangeHandler>
-    </CapacityCacheProvider>
+    <LanguageChangeHandler>
+      <CapacitiesVisualizationContent />
+    </LanguageChangeHandler>
   );
 }

@@ -1,6 +1,19 @@
 import React from 'react';
 
 import { OrganizationDocument } from '@/types/document';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
+
 // Hooks Mock
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
@@ -37,14 +50,6 @@ const mockPageContent = {
   'body-profile-section-title-documents': 'Documents',
   'edit-profile-share-documents-tooltop': 'Share documents tooltip',
 };
-
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({
-    pageContent: mockPageContent,
-    isMobile: false,
-  }),
-  AppProvider: ({ children }: any) => <div>{children}</div>,
-}));
 
 describe('Organization Profile Edit - Documents CRUD', () => {
   let documentsData: OrganizationDocument[];

@@ -157,7 +157,7 @@ function OAuthContent() {
     <section className="flex w-screen h-screen font-montserrat">
       <div className="flex flex-wrap w-1/2 mx-auto my-auto">
         <div className="flex w-fit mx-auto mb-4">
-          <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16" />
+          <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16 h-auto" />
         </div>
         <div className="flex w-full text-center mb-4">
           <h1 className="w-full">{loginStatus}</h1>
@@ -176,7 +176,7 @@ function OAuthLoading() {
     <section className="flex w-screen h-screen font-montserrat">
       <div className="flex flex-wrap w-1/2 mx-auto my-auto">
         <div className="flex w-fit mx-auto mb-4">
-          <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16" />
+          <Image priority src={CapXLogo} alt="Capacity Exchange logo image." className="w-16 h-auto" />
         </div>
         <div className="flex w-full text-center mb-4">
           <h1 className="w-full">Loading...</h1>

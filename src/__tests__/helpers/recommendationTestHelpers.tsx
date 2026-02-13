@@ -46,22 +46,26 @@ export const createMockPageContent = (overrides = {}) => ({
 // Common mock setup helpers
 export const setupCommonMocks = (
   useSession: jest.Mock,
-  useTheme: jest.Mock,
-  useApp: jest.Mock,
+  useTheme?: jest.Mock,
+  useApp?: jest.Mock,
   pageContentOverrides = {}
 ) => {
   useSession.mockReturnValue({
     data: { user: { token: 'mock-token', id: '123' } },
   });
 
-  useTheme.mockReturnValue({
-    darkMode: false,
-  });
+  if (useTheme) {
+    useTheme.mockReturnValue({
+      darkMode: false,
+    });
+  }
 
-  useApp.mockReturnValue({
-    pageContent: createMockPageContent(pageContentOverrides),
-    language: 'en',
-  });
+  if (useApp) {
+    useApp.mockReturnValue({
+      pageContent: createMockPageContent(pageContentOverrides),
+      language: 'en',
+    });
+  }
 };
 
 // Helper to render with common providers

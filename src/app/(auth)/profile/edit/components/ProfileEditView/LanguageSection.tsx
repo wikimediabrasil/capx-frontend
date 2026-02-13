@@ -1,5 +1,3 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
@@ -11,6 +9,7 @@ import { Profile } from '@/types/profile';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface LanguageSectionProps {
   readonly formData: Partial<Profile>;
   readonly setFormData: (data: Partial<Profile>) => void;
@@ -41,8 +40,10 @@ export function LanguageSection({
   handleRemoveLanguage,
   addLanguageToFormData,
 }: LanguageSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const selectStyles = {
     backgroundColor: darkMode ? '#053749' : 'white',
     color: darkMode ? 'white' : '#053749',

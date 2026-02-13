@@ -1,13 +1,13 @@
 'use client';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useSetDarkMode, usePageContent } from '@/stores';
 import Image from 'next/image';
 import DarkMode from '@/public/static/images/dark_mode.svg';
 import LightMode from '@/public/static/images/light_mode.svg';
 
 export default function DarkModeButton() {
-  const { darkMode, setDarkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const setDarkMode = useSetDarkMode();
+  const pageContent = usePageContent();
 
   const handleThemeToggle = () => {
     setDarkMode(!darkMode);

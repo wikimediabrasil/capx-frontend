@@ -1,13 +1,9 @@
-import { JSX } from 'react';
 import BaseButton from '@/components/BaseButton';
 import LoadingImage from '@/components/LoadingImage';
 import Popup from '@/components/Popup';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import AccountBoxIcon from '@/public/static/images/account_box.svg';
 import AccountBoxIconWhite from '@/public/static/images/account_box_white.svg';
-import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import capxPersonIcon from '@/public/static/images/capx_person_icon.svg';
 import ChangeCircleIcon from '@/public/static/images/change_circle.svg';
 import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.svg';
@@ -17,8 +13,10 @@ import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
 import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import Image from 'next/image';
+import { JSX } from 'react';
 import AvatarSelectionPopup from '../../../components/AvatarSelectionPopup';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 const getAvatarAltText = (src: string, pageContent: any): string => {
   const isDefaultAvatar = src === DEFAULT_AVATAR || src === DEFAULT_AVATAR_WHITE;
   if (isDefaultAvatar) {
@@ -33,19 +31,20 @@ const renderTextWithLink = (
   darkMode: boolean
 ): (string | JSX.Element)[] => {
   const parts = text.split('$1');
-  const link = (
-    <a
-      href="https://www.wikidata.org/wiki/Wikidata:Notability"
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
-    >
-      {linkText}
-    </a>
-  );
   const nodes: (string | JSX.Element)[] = [];
-  parts.forEach((part, index) => {
-    if (index > 0) nodes.push(link);
+  parts.forEach((part) => {
+      nodes.push(
+        <a
+          key={`link-${part.toString()}`}
+          href="https://www.wikidata.org/wiki/Wikidata:Notability"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
+        >
+          {linkText}
+        </a>
+      );
+
     nodes.push(part);
   });
   return nodes;
@@ -82,8 +81,10 @@ export function AvatarImageSection({
   handleDeleteProfile,
   refetch,
 }: AvatarImageSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const accountBoxIcon = darkMode ? AccountBoxIconWhite : AccountBoxIcon;
   const titleColor = darkMode ? 'text-white' : 'text-[#053749]';
@@ -134,7 +135,9 @@ export function AvatarImageSection({
                 src={avatarSrc}
                 alt={avatarAlt}
                 fill
+                priority
                 className="object-contain"
+                sizes="(max-width: 768px) 128px, 256px"
                 onError={e => {
                   e.currentTarget.src = getDefaultAvatar();
                 }}
