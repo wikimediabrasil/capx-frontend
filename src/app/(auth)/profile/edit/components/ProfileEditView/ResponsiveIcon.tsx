@@ -26,5 +26,5 @@ export function ResponsiveIcon({
   const icon = darkMode ? darkIcon : lightIcon;
   const size = isMobile ? mobileSize : desktopSize;
 
-  return <Image src={icon} alt={alt} width={size} height={size} />;
+  return <Image src={icon} alt={alt} width={size} height={size} style={{ width: size, height: size }} />;
 }

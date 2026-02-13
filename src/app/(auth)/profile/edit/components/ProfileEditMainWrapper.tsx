@@ -1,6 +1,6 @@
 'use client';
 
-import { usePageContent, useAppStore, useCapacityStore } from '@/stores';
+import { useAppStore, useCapacityStore, usePageContent } from '@/stores';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -9,22 +9,15 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 import { DEFAULT_AVATAR, getDefaultAvatar } from '@/constants/images';
-import { useProfileEditStore } from '@/stores';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useProfile } from '@/hooks/useProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
-import {
-  addUniqueAffiliations,
-  addUniqueCapacities,
-  addUniqueCapacity,
-  addUniqueItem,
-  addUniqueLanguages,
-  addUniqueTerritory,
-} from '@/lib/utils/formDataUtils';
+import { addUniqueCapacity, addUniqueItem } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
+import { useProfileEditStore } from '@/stores';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
@@ -33,13 +26,11 @@ import ProfileEditView from './ProfileEditView';
 // Import the new capacity hooks
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
-import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
   validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
-import { LanguageProficiency } from '@/types/language';
 import React from 'react';
 
 // Helper function declarations moved to safeDataAccess.ts utility file

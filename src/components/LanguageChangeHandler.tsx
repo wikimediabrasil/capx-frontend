@@ -1,6 +1,6 @@
 'use client';
 import LoadingState from '@/components/LoadingState';
-import { useLanguage, useDarkMode, useCapacityStore } from '@/stores';
+import { useCapacityStore, useDarkMode, useLanguage, usePageContent } from '@/stores';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 
@@ -8,9 +8,8 @@ import React, { useEffect, useState } from 'react';
  * Componente para gerenciar mudanças de idioma e atualizar automaticamente
  * as traduções das capacidades quando o idioma mudar
  */
-export function LanguageChangeHandler({ children }: { children: React.ReactNode }) {
+export function LanguageChangeHandler({ children }: Readonly<{ children: React.ReactNode }>) {
   const [mounted, setMounted] = useState(false);
-
   // Wait for hydration to complete before accessing contexts
   useEffect(() => {
     setMounted(true);
@@ -23,12 +22,13 @@ export function LanguageChangeHandler({ children }: { children: React.ReactNode 
   return <LanguageChangeHandlerInternal>{children}</LanguageChangeHandlerInternal>;
 }
 
-function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode }) {
+function LanguageChangeHandlerInternal({ children }: Readonly<{ children: React.ReactNode }>) {
   const language = useLanguage();
   const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityStore();
   const darkMode = useDarkMode();
   const { data: session } = useSession();
   const token = session?.user?.token;
+  const pageContent = usePageContent();
 
   // Update language when app language changes
   useEffect(() => {
@@ -48,12 +48,7 @@ function LanguageChangeHandlerInternal({ children }: { children: React.ReactNode
           <p
             className={`text-lg font-medium ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
           >
-            Loading translations for {language}...
-          </p>
-          <p
-            className={`text-sm mt-2 ${darkMode ? 'text-capx-dark-box-bg' : 'text-capx-light-bg'}`}
-          >
-            Please wait while we prepare the capacity data
+            {pageContent['capacity-list-loading-translations'] || 'Loading translations...'}
           </p>
         </div>
       </div>

@@ -7,7 +7,7 @@ export default function Terms() {
     <main className="flex flex-wrap flex-col w-full h-screen bg-zinc-50 font-montserrat text-capx-secondary-gray">
       <div className="flex flex-wrap w-1/3 mx-auto mt-36 font-montserrat text-justify">
         <Link href="/" className="w-full mb-8">
-          <Image priority src={capXLogo} alt="Capacity Exchange logo" className="w-full sm:w-14" />
+          <Image priority src={capXLogo} alt="Capacity Exchange logo" className="w-full sm:w-14 h-auto" />
         </Link>
         <h2 className="w-full mb-4 sm:text-xl">Before you log in</h2>
         <p className="w-full mb-8">

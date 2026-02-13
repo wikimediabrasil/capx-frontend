@@ -179,7 +179,7 @@ export default function OrganizationProfileEditView({
                     alt="Organization logo"
                     width={127}
                     height={51}
-                    className="w-full rounded-lg object-contain"
+                    className="w-full h-auto rounded-lg object-contain"
                     priority
                     loading="eager"
                   />

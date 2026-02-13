@@ -25,13 +25,15 @@ export default function ProfileFieldSection({
   return (
     <div className="flex flex-col gap-2 md:gap-4">
       <div className="flex items-center gap-2">
-        <Image
-          src={icon}
-          alt={iconAlt}
-          width={isMobile ? iconSize.mobile : iconSize.desktop}
-          height={isMobile ? iconSize.mobile : iconSize.desktop}
-          className="object-cover"
-        />
+        <div
+          className="relative"
+          style={{
+            width: isMobile ? iconSize.mobile : iconSize.desktop,
+            height: isMobile ? iconSize.mobile : iconSize.desktop,
+          }}
+        >
+          <Image src={icon} alt={iconAlt} fill className="object-cover" />
+        </div>
         <h2
           className={`font-[Montserrat] font-bold ${
             isMobile ? 'text-[14px]' : 'text-[24px]'

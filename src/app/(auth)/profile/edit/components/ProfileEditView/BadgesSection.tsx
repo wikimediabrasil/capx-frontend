@@ -74,7 +74,7 @@ export function BadgesSection({
   return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-4">
-        <Image src={badgeIcon} alt="Badges icon" width={iconSize} height={iconSize} />
+        <Image src={badgeIcon} alt="Badges icon" width={iconSize} height={iconSize} style={{ width: iconSize, height: iconSize }} />
         <h2 className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${titleColor}`}>
           {pageContent['body-profile-badges-title']}
         </h2>

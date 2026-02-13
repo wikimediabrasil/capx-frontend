@@ -73,7 +73,6 @@ export default function VideoSection() {
               width={600}
               height={400}
               className="w-full h-auto"
-              style={{ width: '100%', height: 'auto' }}
             />
 
             <div className="absolute inset-0 flex items-center justify-center">
@@ -193,8 +192,7 @@ export default function VideoSection() {
               alt="Capx pencil illustration"
               width={335}
               height={450}
-              className="w-full"
-              style={{ height: 'auto' }}
+              className="w-full h-auto"
             />
           </div>
         </div>

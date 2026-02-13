@@ -12,7 +12,7 @@ import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
-import { useIsMobile, useLanguage, usePageContent, useCapacityStore } from '@/stores';
+import { useCapacityStore, useIsMobile, useLanguage, usePageContent } from '@/stores';
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
@@ -278,9 +278,6 @@ function CapacityListContent() {
               {isLoadingTranslations
                 ? pageContent['capacity-list-loading-translations'] || 'Loading translations...'
                 : `${pageContent['capacity-list-loading-capacity-data'] || 'Loading capacity data for'} ${language}...`}
-            </p>
-            <p className={`text-sm mt-2 ${isMobile ? 'text-xs' : 'text-sm'} opacity-70`}>
-              Please wait while we prepare the content
             </p>
           </div>
         )}

@@ -135,7 +135,9 @@ export function AvatarImageSection({
                 src={avatarSrc}
                 alt={avatarAlt}
                 fill
+                priority
                 className="object-contain"
+                sizes="(max-width: 768px) 128px, 256px"
                 onError={e => {
                   e.currentTarget.src = getDefaultAvatar();
                 }}

@@ -32,9 +32,7 @@ function ThemeAwareLoading({ fullScreen = false }) {
               pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'
             }
             className="animate-pulse-fade object-contain"
-            width={64}
-            height={64}
-            style={{ width: 'auto', height: 'auto' }}
+            fill
             priority
           />
         </div>

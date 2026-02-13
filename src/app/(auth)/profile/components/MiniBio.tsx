@@ -72,12 +72,14 @@ export default function MiniBio({
         }`}
       >
         <div className="flex items-center gap-2">
-          <Image
-            src={darkMode ? PersonBookIconWhite : PersonBookIcon}
-            alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
-            width={20}
-            height={20}
-          />
+          <div className="relative w-5 h-5">
+            <Image
+              src={darkMode ? PersonBookIconWhite : PersonBookIcon}
+              alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
+              fill
+              className="object-contain"
+            />
+          </div>
           <h2
             className={`text-[14px] font-[Montserrat] font-bold ${
               darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
@@ -155,12 +157,14 @@ export default function MiniBio({
   return (
     <div className={`flex flex-col gap-4 w-full ${textColor}`}>
       <div className="flex items-center gap-2">
-        <Image
-          src={darkMode ? PersonBookIconWhite : PersonBookIcon}
-          alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
-          width={iconSize}
-          height={iconSize}
-        />
+        <div className="relative" style={{ width: iconSize, height: iconSize }}>
+          <Image
+            src={darkMode ? PersonBookIconWhite : PersonBookIcon}
+            alt={pageContent['edit-profile-mini-bio'] || 'Mini bio'}
+            fill
+            className="object-contain"
+          />
+        </div>
         <h2
           className={`text-[24px] font-[Montserrat] font-bold ${
             darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'

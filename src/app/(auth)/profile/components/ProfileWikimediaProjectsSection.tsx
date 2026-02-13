@@ -31,7 +31,7 @@ export default function ProfileWikimediaProjectsSection({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-row gap-2 items-center">
-        <div className={`relative h-[${iconSize.height}px] w-[${iconSize.width}px]`}>
+        <div className="relative" style={{ height: iconSize.height, width: iconSize.width }}>
           <Image
             src={darkMode ? WikiIconWhite : WikiIcon}
             alt="Wikidata Logo"
@@ -53,9 +53,10 @@ export default function ProfileWikimediaProjectsSection({
             projectId ? (
               <div
                 key={projectId}
-                className={`relative h-[${projectSize.height}px] w-[${projectSize.width}px] rounded-[16px] flex items-center justify-center ${
+                className={`relative rounded-[16px] flex items-center justify-center ${
                   darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'
                 }`}
+                style={{ height: projectSize.height, width: projectSize.width }}
               >
                 <Image
                   src={projectImages[projectId] || (darkMode ? WikiIconWhite : WikiIcon)}

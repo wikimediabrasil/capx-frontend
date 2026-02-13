@@ -933,7 +933,8 @@ const SearchCard: React.FC<SearchCardProps> = ({
 
   return (
     <div className={`w-full ${cardShadow} ${cardRadius}`}>
-      <button
+      <div
+        role="button"
         onClick={handleCardClick}
         className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor }}
@@ -967,7 +968,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {isInfoVisible && (
         <div
@@ -1029,7 +1030,8 @@ const RootCard: React.FC<RootCardProps> = ({
 
   return (
     <div className={`w-full ${cardShadow} ${cardRadius}`}>
-      <button
+      <div
+        role="button"
         onClick={handleCardClick}
         className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor: getCapacityColor(color) }}
@@ -1079,7 +1081,7 @@ const RootCard: React.FC<RootCardProps> = ({
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {isInfoVisible && (
         <div
@@ -1141,6 +1143,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   color,
   icon,
   handleCardClick,
+  handleCardKeyDown,
   renderIcon,
   renderInfoButton,
   renderArrowButton,
@@ -1149,8 +1152,10 @@ const ChildCard: React.FC<ChildCardProps> = ({
 }) => {
   return (
     <div className="w-full">
-      <button
+      <div
+        role="button"
         onClick={handleCardClick}
+        onKeyDown={handleCardKeyDown}
         className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
         style={{ backgroundColor }}
         tabIndex={0}
@@ -1200,7 +1205,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             )}
           </div>
         </div>
-      </button>
+      </div>
 
       {isInfoVisible && (
         <div

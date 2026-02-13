@@ -25,13 +25,9 @@ export default function ProfileWikiBirthdaySection({
   return (
     <div className={`flex flex-col ${isMobile ? 'gap-2' : 'gap-4'}`}>
       <div className="flex flex-row gap-2 items-center">
-        <Image
-          src={darkMode ? CakeIconWhite : CakeIcon}
-          alt="Cake icon"
-          width={iconSize}
-          height={iconSize}
-          className="object-cover"
-        />
+        <div className="relative" style={{ width: iconSize, height: iconSize }}>
+          <Image src={darkMode ? CakeIconWhite : CakeIcon} alt="Cake icon" fill className="object-cover" />
+        </div>
         <h2
           className={`font-[Montserrat] ${titleSize} font-bold ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}
         >

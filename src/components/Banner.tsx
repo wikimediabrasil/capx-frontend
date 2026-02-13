@@ -55,9 +55,8 @@ export default function Banner({ image, title, alt, customClass = {} }: Readonly
                   <Image
                     src={title.desktop}
                     alt={alt}
-                    width={240}
-                    height={80}
-                    className="hidden md:block h-auto w-auto"
+                    className="hidden md:block h-auto"
+                    style={{ width: 'auto' }}
                     priority
                   />
                 )}
@@ -65,9 +64,8 @@ export default function Banner({ image, title, alt, customClass = {} }: Readonly
                   <Image
                     src={title.mobile}
                     alt={alt}
-                    width={180}
-                    height={60}
-                    className={title.desktop ? 'block md:hidden h-auto w-auto' : 'h-auto w-auto'}
+                    className={title.desktop ? 'block md:hidden h-auto' : 'h-auto'}
+                    style={{ width: 'auto' }}
                     priority
                   />
                 )}

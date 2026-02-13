@@ -28,10 +28,8 @@ export default function SimpleLoading({ fullScreen = false }: Readonly<{ fullScr
           <Image
             src={CapxLogo}
             alt={'CapX - Capacity Exchange logo, page is loading'}
+            fill
             className="animate-pulse-fade object-contain"
-            width={64}
-            height={64}
-            style={{ width: 'auto', height: 'auto' }}
             priority
           />
         </div>
