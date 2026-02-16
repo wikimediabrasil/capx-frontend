@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"0x48fe75df30",
 			"22593",
 			"Aaron Liu",
 			"ExoHyper2026",
@@ -154,6 +155,7 @@
 	"edit-profile-mini-bio": "个人简介",
 	"edit-profile-mini-bio-placeholder": "写一个关于您自己的简短描述。",
 	"edit-profile-mini-bio-tooltip": "对您的同伴简单介绍一下您自己。您觉得有哪些事情值得分享？您的维基媒体经历有哪些重要的里程碑？",
+	"edit-profile-mini-bio-language": "简历语言",
 	"edit-profile-mini-bio-language-not-specified": "未指定",
 	"edit-profile-mini-bio-language-tooltip": "请选择您个人简介所使用的语言。",
 	"profile-mini-bio-language-label": "语言：",
