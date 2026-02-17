@@ -11,6 +11,7 @@ import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAllUsers } from '@/hooks/useUserProfile';
 import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
+import { CapacityVisibilityControls } from './components/CapacityVisibilityControls';
 import { usePageContent } from '@/stores';
 import {
   createProfilesFromUsers,
@@ -31,6 +32,9 @@ export default function FeedPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [showWanted, setShowWanted] = useState(true);
+  const [showAvailable, setShowAvailable] = useState(true);
+  const [showKnown, setShowKnown] = useState(false);
 
   const [activeFilters, setActiveFilters] = useState<FilterState>({
     capacities: [] as Skill[],
@@ -97,12 +101,31 @@ export default function FeedPage() {
     ordering: '-last_update',
   });
 
+  const shouldFetchKnownUsers = activeFilters.profileCapacityTypes.includes(
+    ProfileCapacityType.Known
+  );
+  const {
+    allUsers: usersKnown,
+    count: usersKnownCount,
+    isLoading: isUsersKnownLoading,
+  } = useAllUsers({
+    limit: shouldFetchKnownUsers ? itemsPerList : 0,
+    offset: shouldFetchKnownUsers ? offset : 0,
+    activeFilters: shouldFetchKnownUsers
+      ? {
+          ...activeFilters,
+          profileCapacityTypes: [ProfileCapacityType.Known],
+        }
+      : undefined,
+    ordering: '-last_update',
+  });
+
   // Mark as loaded once data is fetched
   useEffect(() => {
-    if (!isUsersLearnerLoading && !isUsersSharerLoading) {
+    if (!isUsersLearnerLoading && !isUsersSharerLoading && !isUsersKnownLoading) {
       setHasLoadedOnce(true);
     }
-  }, [isUsersLearnerLoading, isUsersSharerLoading]);
+  }, [isUsersLearnerLoading, isUsersSharerLoading, isUsersKnownLoading]);
 
   // Total of records according to the profileFilter
   const totalRecords =
@@ -111,7 +134,8 @@ export default function FeedPage() {
       : 0) +
     (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
       ? usersSharerCount
-      : 0);
+      : 0) +
+    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Known) ? usersKnownCount : 0);
 
   const isProfileSaved = (profileId: number) => {
     if (!savedItems) return false;
@@ -121,13 +145,19 @@ export default function FeedPage() {
 
   // Create profiles (to create cards) from users
   const filteredProfiles = useMemo(() => {
-    const isBothTypesSelected =
-      activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner) &&
-      activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer);
+    const selectedTypes = activeFilters.profileCapacityTypes;
+    const hasLearner = selectedTypes.includes(ProfileCapacityType.Learner);
+    const hasSharer = selectedTypes.includes(ProfileCapacityType.Sharer);
+    const hasKnown = selectedTypes.includes(ProfileCapacityType.Known);
+    const multipleTypesSelected = [hasLearner, hasSharer, hasKnown].filter(Boolean).length > 1;
 
-    if (isBothTypesSelected) {
-      // When both types are selected, use unified profiles to avoid duplicates
-      const allUsers = [...(usersLearner || []), ...(usersSharer || [])];
+    if (multipleTypesSelected) {
+      // When multiple types are selected, use unified profiles to avoid duplicates
+      const allUsers = [
+        ...(hasLearner ? usersLearner || [] : []),
+        ...(hasSharer ? usersSharer || [] : []),
+        ...(hasKnown ? usersKnown || [] : []),
+      ];
       // Remove duplicates based on user ID
       const uniqueUsers = allUsers.filter(
         (user, index, self) => index === self.findIndex(u => u.user.id === user.user.id)
@@ -141,26 +171,26 @@ export default function FeedPage() {
         .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
     } else {
       // When only one type is selected, use the original logic
-      const wantedUserProfiles = activeFilters.profileCapacityTypes.includes(
-        ProfileCapacityType.Learner
-      )
+      const wantedUserProfiles = hasLearner
         ? createProfilesFromUsers(usersLearner || [], ProfileCapacityType.Learner)
         : [];
 
-      const availableUserProfiles = activeFilters.profileCapacityTypes.includes(
-        ProfileCapacityType.Sharer
-      )
+      const availableUserProfiles = hasSharer
         ? createProfilesFromUsers(usersSharer || [], ProfileCapacityType.Sharer)
         : [];
 
-      const userProfiles = [...wantedUserProfiles, ...availableUserProfiles];
+      const knownUserProfiles = hasKnown
+        ? createProfilesFromUsers(usersKnown || [], ProfileCapacityType.Known)
+        : [];
+
+      const userProfiles = [...wantedUserProfiles, ...availableUserProfiles, ...knownUserProfiles];
 
       return userProfiles.map(profile => ({
         ...profile,
         isSaved: isProfileSaved(profile.id),
       }));
     }
-  }, [activeFilters, usersLearner, usersSharer, savedItems, isProfileSaved]);
+  }, [activeFilters, usersLearner, usersSharer, usersKnown, savedItems, isProfileSaved]);
 
   // Calculate total of pages based on total profiles
   const numberOfPages = Math.ceil(totalRecords / itemsPerPage);
@@ -189,7 +219,7 @@ export default function FeedPage() {
 
   // Only show full loading on initial load, not during search
   const shouldShowFullLoading =
-    (!hasLoadedOnce && (isUsersLearnerLoading || isUsersSharerLoading)) ||
+    (!hasLoadedOnce && (isUsersLearnerLoading || isUsersSharerLoading || isUsersKnownLoading)) ||
     isLoadingTranslations ||
     isLanguageChanging;
 
@@ -239,7 +269,22 @@ export default function FeedPage() {
             onShowFilters={setShowFilters}
           />
 
-          <ProfileListWithEmpty profiles={filteredProfiles} onToggleSaved={handleToggleSaved} />
+          <CapacityVisibilityControls
+            showWanted={showWanted}
+            showAvailable={showAvailable}
+            showKnown={showKnown}
+            onToggleWanted={() => setShowWanted(!showWanted)}
+            onToggleAvailable={() => setShowAvailable(!showAvailable)}
+            onToggleKnown={() => setShowKnown(!showKnown)}
+          />
+
+          <ProfileListWithEmpty
+            profiles={filteredProfiles}
+            onToggleSaved={handleToggleSaved}
+            showWanted={showWanted}
+            showAvailable={showAvailable}
+            showKnown={showKnown}
+          />
         </div>
       </div>
 

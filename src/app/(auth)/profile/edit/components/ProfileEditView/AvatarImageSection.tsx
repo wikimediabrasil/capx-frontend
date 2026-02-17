@@ -32,18 +32,18 @@ const renderTextWithLink = (
 ): (string | JSX.Element)[] => {
   const parts = text.split('$1');
   const nodes: (string | JSX.Element)[] = [];
-  parts.forEach((part) => {
-      nodes.push(
-        <a
-          key={`link-${part.toString()}`}
-          href="https://www.wikidata.org/wiki/Wikidata:Notability"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
-        >
-          {linkText}
-        </a>
-      );
+  parts.forEach(part => {
+    nodes.push(
+      <a
+        key={`link-${part.toString()}`}
+        href="https://www.wikidata.org/wiki/Wikidata:Notability"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
+      >
+        {linkText}
+      </a>
+    );
 
     nodes.push(part);
   });

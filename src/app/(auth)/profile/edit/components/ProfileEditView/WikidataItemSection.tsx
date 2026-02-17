@@ -55,7 +55,13 @@ export function WikidataItemSection({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <Image src={barcodeIcon} alt="Wikidata item icon" width={iconSize} height={iconSize} style={{ width: iconSize, height: iconSize }} />
+        <Image
+          src={barcodeIcon}
+          alt="Wikidata item icon"
+          width={iconSize}
+          height={iconSize}
+          style={{ width: iconSize, height: iconSize }}
+        />
         <h2 className={titleClass}>{pageContent['edit-profile-wikidata-item']}</h2>
       </div>
       <div className="flex items-center gap-2 py-[6px]">

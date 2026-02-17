@@ -74,18 +74,10 @@ export {
 } from './hooks/useAppSelectors';
 
 // Theme Store
-export {
-  useThemeStore,
-  useDarkMode,
-  useSetDarkMode,
-  useThemeMounted,
-} from './themeStore';
+export { useThemeStore, useDarkMode, useSetDarkMode, useThemeMounted } from './themeStore';
 
 // Profile Edit Store
-export {
-  useProfileEditStore,
-  useUnsavedData,
-} from './profileEditStore';
+export { useProfileEditStore, useUnsavedData } from './profileEditStore';
 
 // Badges Store
 export {

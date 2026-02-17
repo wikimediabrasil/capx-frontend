@@ -9,15 +9,50 @@ jest.mock('@/stores', () => ({
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
   ),
   useIsMobile: jest.fn(() => false),
   usePageContent: jest.fn(() => ({})),
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
-    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
   ),
 }));
 
@@ -37,9 +72,7 @@ export function createQueryWrapper(queryClient?: QueryClient) {
  * Wrapper for testing (stores are mocked via jest.mock)
  */
 export function createThemeAppWrapper() {
-  const ThemeAppWrapper = ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  );
+  const ThemeAppWrapper = ({ children }: { children: React.ReactNode }) => <>{children}</>;
   ThemeAppWrapper.displayName = 'ThemeAppWrapper';
   return ThemeAppWrapper;
 }
@@ -50,9 +83,7 @@ export function createThemeAppWrapper() {
 export function createAllProvidersWrapper(queryClient?: QueryClient) {
   const client = queryClient || createTestQueryClient();
   const AllProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={client}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
   AllProvidersWrapper.displayName = 'AllProvidersWrapper';
   return AllProvidersWrapper;
