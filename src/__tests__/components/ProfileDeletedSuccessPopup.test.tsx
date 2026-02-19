@@ -1,25 +1,37 @@
 import { screen, waitFor } from '@testing-library/react';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { renderWithThemeApp, createMockTheme, setupTimers, mockConsoleError } from '../test-utils';
+import * as stores from '@/stores';
 
-// Mock AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    pageContent: {
-      'profile-deleted-title': 'Profile successfully deleted',
-      'profile-deleted-message': 'Your profile has been permanently deleted from CapX.',
-      'profile-deleted-submessage':
-        'Thank you for being part of our community. You can create a new account at any time.',
-      'profile-deleted-ok-button': 'OK',
-      'alt-illustration': 'Success illustration',
-    },
-    isMobile: false,
-  }),
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
 }));
+
+const mockPageContent = {
+  'profile-deleted-title': 'Profile successfully deleted',
+  'profile-deleted-message': 'Your profile has been permanently deleted from CapX.',
+  'profile-deleted-submessage':
+    'Thank you for being part of our community. You can create a new account at any time.',
+  'profile-deleted-ok-button': 'OK',
+  'alt-illustration': 'Success illustration',
+};
+
+// Mock Zustand stores
+
 
 // Mock Next.js Router
 jest.mock('next/navigation', () => ({
@@ -40,10 +52,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock useTheme
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
+
 
 describe('ProfileDeletedSuccessPopup', () => {
   setupTimers();
@@ -56,7 +65,7 @@ describe('ProfileDeletedSuccessPopup', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   it('should render popup when isOpen is true', () => {
@@ -146,11 +155,7 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Open the popup
     rerender(
-      <ThemeProvider>
-        <AppProvider>
-          <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
     jest.advanceTimersByTime(3000);
@@ -161,7 +166,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in light mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
+
 
     const onClose = jest.fn();
 
@@ -172,7 +177,7 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in dark mode', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(true));
+
 
     const onClose = jest.fn();
 
@@ -186,7 +191,7 @@ describe('ProfileDeletedSuccessPopup', () => {
     const onClose = jest.fn();
 
     // Render in light mode first
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(false));
+
 
     const { rerender } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
@@ -196,14 +201,8 @@ describe('ProfileDeletedSuccessPopup', () => {
     expect(image).toBeInTheDocument();
 
     // Change to dark mode
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue(createMockTheme(true));
-
     rerender(
-      <ThemeProvider>
-        <AppProvider>
-          <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
     image = screen.getByAltText('Success illustration');
@@ -253,22 +252,14 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Close
     rerender(
-      <ThemeProvider>
-        <AppProvider>
-          <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+      <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
     );
 
     jest.advanceTimersByTime(1000);
 
     // Re-open
     rerender(
-      <ThemeProvider>
-        <AppProvider>
-          <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-        </AppProvider>
-      </ThemeProvider>
+      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
 
     jest.advanceTimersByTime(3000);

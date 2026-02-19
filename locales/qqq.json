@@ -91,12 +91,6 @@
 	"organization-profile-no-image-available": "Fallback text when no image is available",
 	"organization-list-alt-banner": "Alt text for the organization list banner image",
 	"organization-list-banner-page": "Page title for the Organization list",
-	"edit-profile-use-letsconnect": "Heading introducing the Let's Connect integration",
-	"lets-connect-import-data-confirm": "{{Identical|Confirm}}",
-	"lets-connect-import-data-cancel": "{{Identical|Cancel}}",
-	"lets-connect-import-data-title": "Dialog title to import data from Let's Connect",
-	"lets-connect-import-data-description": "Explains the consequences of importing Let's Connect data into the CapX profile",
-	"snackbar-lets-connect-import-success": "Snackbar informing the user that Let's Connect data was imported successfully",
 	"body-profile-edit-organization-button": "Allows user to edit the organization profile",
 	"body-profile-edit-user-button": "Allows user to edit their own profile",
 	"logo-not-available": "Fallback text when an organization's logo is not available",
@@ -572,5 +566,12 @@
 	"analytics-bashboard-capacities-title": "Section title: Capacities",
 	"analytics-bashboard-capacities-card-learners": "Capacity card metric: Learners",
 	"analytics-bashboard-capacities-card-sharers": "Capacity card metric: Sharers",
-	"analytics-bashboard-capacities-load-more": "Button to load more results"
+	"analytics-bashboard-capacities-load-more": "Button to load more results",
+	"analytics-bashboard-capacities-card-organizational-structure": "Capacity card title: Organizational structure",
+	"analytics-bashboard-capacities-card-communication": "Capacity card title: Communication",
+	"analytics-bashboard-capacities-card-learning-and-evaluation": "Capacity card title: Learning and Evaluation",
+	"analytics-bashboard-capacities-card-community-health-initiative": "Capacity card title: Community health initiative",
+	"analytics-bashboard-capacities-card-social-skill": "Capacity card title: Social skill",
+	"analytics-bashboard-capacities-card-strategic-management": "Capacity card title: Strategic Management",
+	"analytics-bashboard-capacities-card-technology": "Capacity card title: Technology"
 }

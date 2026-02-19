@@ -1,8 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { usePageContent, useLanguage, useDarkMode } from '@/stores';
 import BaseButton from '@/components/BaseButton';
 import { EventRecommendation } from '@/types/recommendation';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
@@ -28,8 +27,9 @@ export default function RecommendationEventCard({
   recommendation,
   hintMessage,
 }: RecommendationEventCardProps) {
-  const { pageContent, language } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const language = useLanguage();
+  const darkMode = useDarkMode();
   const router = useRouter();
   const { data: session } = useSession();
 

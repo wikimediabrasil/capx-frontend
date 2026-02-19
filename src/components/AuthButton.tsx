@@ -1,5 +1,5 @@
 'use client';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 import axios from 'axios';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
@@ -30,7 +30,7 @@ export default function AuthButton({
 }: Readonly<AuthButtonProps>) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const handleAuth = async () => {
     setIsLoading(true);
 

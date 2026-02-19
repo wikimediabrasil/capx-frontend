@@ -5,7 +5,6 @@ import BaseButton from '@/components/BaseButton';
 import LoadingState from '@/components/LoadingState';
 import { ProfileItem } from '@/components/ProfileItem';
 import { getDefaultOrganizationLogo } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
 import { useOrganizationNames } from '@/hooks/useOrganizationNames';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
@@ -33,6 +32,7 @@ import EventsSection from './EventsSection';
 import { NewsSection } from './NewsSection';
 import ProjectsList from './ProjectsList';
 
+import { useLanguage } from '@/stores';
 function HeaderSection({
   pageContent,
   darkMode,
@@ -43,7 +43,7 @@ function HeaderSection({
   showSnackbar,
   token,
 }) {
-  const { language } = useApp();
+  const language = useLanguage();
   const { names } = useOrganizationNames({
     organizationId: organization?.id,
     token,

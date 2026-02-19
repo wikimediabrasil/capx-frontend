@@ -6,12 +6,12 @@ import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
 import { SearchFilterSection } from '@/components/SearchFilterSection';
-import { useApp } from '@/contexts/AppContext';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import { useAllUsers } from '@/hooks/useUserProfile';
 import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
+import { usePageContent } from '@/stores';
 import {
   createProfilesFromUsers,
   createUnifiedProfiles,
@@ -21,7 +21,7 @@ import {
 } from './types';
 
 export default function FeedPage() {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const { showSnackbar } = useSnackbar();
 
   // Use shared language sync logic

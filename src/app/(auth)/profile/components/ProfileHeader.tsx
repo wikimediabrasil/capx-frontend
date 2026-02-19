@@ -1,7 +1,6 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import { useAvatars } from '@/hooks/useAvatars';
 import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import EditIcon from '@/public/static/images/edit.svg';
@@ -29,8 +28,9 @@ export default function ProfileHeader({
   isSameUser,
 }: ProfileHeaderProps & { isSameUser: boolean }) {
   const router = useRouter();
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const { getAvatarById, avatars } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { showSnackbar } = useSnackbar();

@@ -1,10 +1,9 @@
 'use client';
 
 import { ProfileCard } from '@/app/(auth)/feed/components/ProfileCard';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import React from 'react';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface ProfileListWithEmptyProps {
   profiles: any[];
   onToggleSaved?: (profile: any) => void;
@@ -22,8 +21,8 @@ export const ProfileListWithEmpty: React.FC<ProfileListWithEmptyProps> = ({
   emptyMessage,
   emptyDescription,
 }) => {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   if (profiles.length > 0) {
     return (

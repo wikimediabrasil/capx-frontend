@@ -1,19 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import FormSubmitReportBugPage from '@/app/(auth)/report_bug/components/FormSubmitReportBugPage';
 import SubmissionReportBugPage from '@/app/(auth)/report_bug/components/SubmissionsList';
 
+import { useDarkMode, usePageContent } from '@/stores';
 enum ViewType {
   SUBMIT = 'submit',
   SUBMISSIONS = 'submissions',
 }
 
 export default function NavBar() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   const [currentView, setCurrentView] = useState<ViewType>(ViewType.SUBMIT);
 

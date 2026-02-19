@@ -4,10 +4,8 @@ import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch'
 import BadgeSelectionModal from '@/components/BadgeSelectionModal';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
-import LetsConnectPopup from '@/components/LetsConnectPopup';
 import Popup from '@/components/Popup';
-import { useApp } from '@/contexts/AppContext';
-import { useBadges } from '@/contexts/BadgesContext';
+import { useBadgesStore } from '@/stores';
 import {
   addAffiliationToFormData,
   addLanguageToFormData,
@@ -38,7 +36,7 @@ import { AvatarImageSection } from './ProfileEditView/AvatarImageSection';
 import { BadgesSection } from './ProfileEditView/BadgesSection';
 import { CapacitySection } from './ProfileEditView/CapacitySection';
 import { LanguageSection } from './ProfileEditView/LanguageSection';
-import { MiniBioSection } from './ProfileEditView/MiniBioSection';
+import MiniBio from '../../components/MiniBio';
 import { SelectionSection } from './ProfileEditView/SelectionSection';
 import { WikidataItemSection } from './ProfileEditView/WikidataItemSection';
 import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
@@ -46,6 +44,7 @@ import { useAvatarManagement } from './ProfileEditView/useAvatarManagement';
 import { useThemeConfig } from './ProfileEditView/useThemeConfig';
 import { getUserCheckIcon } from './ProfileEditView/themeHelpers';
 
+import { useIsMobile, usePageContent } from '@/stores';
 interface ProfileEditViewProps {
   readonly selectedAvatar: any;
   readonly handleAvatarSelect: (avatarId: number | null) => void;
@@ -77,12 +76,7 @@ interface ProfileEditViewProps {
   readonly goTo: (path: string) => void;
   readonly isImageLoading: boolean;
   readonly hasLetsConnectAccount: boolean;
-  readonly hasLetsConnectData: boolean;
   readonly setIsImageLoading: (loading: boolean) => void;
-  readonly showLetsConnectPopup: boolean;
-  readonly setShowLetsConnectPopup: (show: boolean) => void;
-  readonly handleLetsConnectImport: () => void;
-  readonly isLetsConnectLoading: boolean;
 }
 
 export default function ProfileEditView(props: ProfileEditViewProps) {
@@ -113,20 +107,18 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     refetch,
     goTo,
     isImageLoading,
-    hasLetsConnectData,
     hasLetsConnectAccount,
-    showLetsConnectPopup,
-    setShowLetsConnectPopup,
-    handleLetsConnectImport,
-    isLetsConnectLoading,
   } = props;
 
   const router = useRouter();
   const { data: session } = useSession();
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const username = session?.user?.name;
   const [showDeleteProfilePopup, setShowDeleteProfilePopup] = useState(false);
-  const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadges();
+  const { userBadges, isLoading: isBadgesLoading, updateUserBadges } = useBadgesStore();
+  const token = session?.user?.token;
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const completedBadges = userBadges.filter(badge => badge.progress === 100);
   const displayedBadges = completedBadges.filter(badge => badge.is_displayed);
@@ -230,10 +222,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
               handleAvatarSelect={handleAvatarSelect}
               isWikidataSelected={isWikidataSelected}
               handleWikidataClick={handleWikidataClick}
-              hasLetsConnectData={hasLetsConnectData}
               formData={formData}
-              setShowLetsConnectPopup={setShowLetsConnectPopup}
-              isLetsConnectLoading={isLetsConnectLoading}
               showDeleteProfilePopup={showDeleteProfilePopup}
               setShowDeleteProfilePopup={setShowDeleteProfilePopup}
               handleDeleteProfile={handleDeleteProfile}
@@ -250,7 +239,15 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
             />
 
             {/* Mini Bio Section */}
-            <MiniBioSection formData={formData} setFormData={setFormData} />
+            <MiniBio
+              about={formData.about || ''}
+              languages={languages}
+              aboutLanguage={formData.about_language}
+              onAboutChange={value => setFormData({ ...formData, about: value })}
+              onAboutLanguageChange={value => setFormData({ ...formData, about_language: value })}
+              isEditing
+              showTooltip
+            />
 
             {/* Capacities Sections */}
             <div className="space-y-6">
@@ -446,15 +443,10 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
           onClose={() => setShowBadgeModal(false)}
           onUpdate={async selectedIds => {
             setShowBadgeModal(false);
-            await updateUserBadges(selectedIds);
+            if (token) await updateUserBadges(selectedIds, token);
           }}
         />
       )}
-      <LetsConnectPopup
-        isOpen={showLetsConnectPopup}
-        onClose={() => setShowLetsConnectPopup(false)}
-        onConfirm={handleLetsConnectImport}
-      />
     </>
   );
 }

@@ -1,9 +1,9 @@
 import Select from 'react-select';
-import { useApp } from '@/contexts/AppContext';
 import ArrowDropDownCircle from '../../public/static/images/arrow_drop_down_circle.svg';
 import ArrowDropDownCircleWhite from '../../public/static/images/arrow_drop_down_circle_white.svg';
 import Image from 'next/image';
 
+import { usePageContent } from '@/stores';
 interface _Option {
   value: string;
   label: string;
@@ -101,7 +101,7 @@ export default function BaseSelect({
   onMenuOpen,
   placeholder,
 }: BaseSelectProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   return (
     <div onClick={onContainerClick}>
       <Select

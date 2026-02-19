@@ -1,7 +1,24 @@
 import { render, screen } from '@testing-library/react';
 import CallToActionSection from '@/components/CallToActionSection';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
 
 // Next.js Router mock
 jest.mock('next/navigation', () => ({
@@ -30,44 +47,21 @@ jest.mock('next-auth/react', () => ({
   SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-// ThemeContext mock
-jest.mock('@/contexts/ThemeContext', () => {
-  const originalModule = jest.requireActual('@/contexts/ThemeContext');
-  return {
-    ...originalModule,
-    useTheme: () => ({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    }),
-    ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+describe('CallToActionSection', () => {
+  const renderWithProviders = (component: React.ReactElement) => {
+    return render(
+        <>{component}</>
+        );
   };
-});
 
-// AppContext mock
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    pageContent: {
+  it('renders main content correctly', () => {
+    (stores.usePageContent as jest.Mock).mockReturnValue({
       'body-home-section01-call-to-action-title': 'Join the Exchange',
       'body-home-section01-call-to-action-description': 'Connect with peers',
       'body-home-section01-call-to-action-button01': 'Join Now',
       'body-home-section01-call-to-action-button02': 'Create Account',
-    },
-    isMobile: false,
-  }),
-  AppProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+    });
 
-describe('CallToActionSection', () => {
-  const renderWithProviders = (component: React.ReactElement) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
-  };
-
-  it('renders main content correctly', () => {
     renderWithProviders(<CallToActionSection />);
 
     expect(screen.getByText('Join the Exchange')).toBeInTheDocument();
@@ -84,15 +78,13 @@ describe('CallToActionSection', () => {
   });
 
   it('renders mobile version correctly', () => {
-    jest.spyOn(require('@/contexts/AppContext'), 'useApp').mockImplementation(() => ({
-      pageContent: {
-        'body-home-section01-call-to-action-title': 'Join the Exchange',
-        'body-home-section01-call-to-action-description': 'Connect with peers',
-        'body-home-section01-call-to-action-button01': 'Join Now',
-        'body-home-section01-call-to-action-button02': 'Create Account',
-      },
-      isMobile: true,
-    }));
+    (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      'body-home-section01-call-to-action-title': 'Join the Exchange',
+      'body-home-section01-call-to-action-description': 'Connect with peers',
+      'body-home-section01-call-to-action-button01': 'Join Now',
+      'body-home-section01-call-to-action-button02': 'Create Account',
+    });
 
     const { container } = renderWithProviders(<CallToActionSection />);
 

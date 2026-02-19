@@ -5,8 +5,6 @@ import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
 import LoadingState from '@/components/LoadingState';
 import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
 import { ScrollNavigation } from '@/components/ScrollNavigation';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
 import React, { useCallback, useState } from 'react';
@@ -14,6 +12,7 @@ import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
+import { useCapacityStore, useIsMobile, useLanguage, usePageContent } from '@/stores';
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
@@ -38,9 +37,9 @@ const ChildCapacities = ({
   );
 
   const { data: rootCapacities = [] } = useRootCapacities(language);
-  const { isMobile } = useApp();
+  const isMobile = useIsMobile();
 
-  const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityCache();
+  const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityStore();
 
   if (isLoadingChildren) {
     return <LoadingState />;
@@ -154,7 +153,9 @@ const ChildCapacities = ({
 
 // Main component with content
 function CapacityListContent() {
-  const { language, isMobile } = useApp();
+  const language = useLanguage();
+
+  const isMobile = useIsMobile();
 
   // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
@@ -164,7 +165,7 @@ function CapacityListContent() {
   const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
   const [_expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
 
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   // Data hooks
   const { data: rootCapacities = [], isLoading: isLoadingRoot } = useRootCapacities(language);
@@ -181,7 +182,7 @@ function CapacityListContent() {
     isLoaded,
     isLoadingTranslations,
     language: cacheLanguage,
-  } = useCapacityCache();
+  } = useCapacityStore();
 
   // Check if cache is ready for the current language
   const isCacheReady = isLoaded && !isLoadingTranslations && cacheLanguage === language;
@@ -278,9 +279,6 @@ function CapacityListContent() {
                 ? pageContent['capacity-list-loading-translations'] || 'Loading translations...'
                 : `${pageContent['capacity-list-loading-capacity-data'] || 'Loading capacity data for'} ${language}...`}
             </p>
-            <p className={`text-sm mt-2 ${isMobile ? 'text-xs' : 'text-sm'} opacity-70`}>
-              Please wait while we prepare the content
-            </p>
           </div>
         )}
       </div>
@@ -372,7 +370,7 @@ export default function CapacityListMainWrapper() {
 }
 
 function CapacityErrorBoundaryWrapper({ children }: { children: React.ReactNode }) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   return <CapacityErrorBoundary pageContent={pageContent}>{children}</CapacityErrorBoundary>;
 }
 // Simple error boundary component to catch context errors

@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import { EventFilterState, EventFilterType, EventLocationType } from '../types';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
@@ -23,6 +21,7 @@ import BaseButton from '@/components/BaseButton';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface EventsFiltersProps {
   onClose: () => void;
   onApplyFilters: (filters: EventFilterState) => void;
@@ -30,8 +29,8 @@ interface EventsFiltersProps {
 }
 
 export function EventsFilters({ onClose, onApplyFilters, initialFilters }: EventsFiltersProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   const [searchCapacity, _setSearchCapacity] = useState('');
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);

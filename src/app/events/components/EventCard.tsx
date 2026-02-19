@@ -1,9 +1,7 @@
 import BaseButton from '@/components/BaseButton';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile, usePageContent, useLanguage, useDarkMode, useCapacityStore } from '@/stores';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useOrganizationNames } from '@/hooks/useOrganizationNames';
 import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
@@ -49,12 +47,14 @@ export default function EventCard({
   isLoading,
   error,
 }: EventCardProps) {
-  const { isMobile, pageContent, language } = useApp();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const language = useLanguage();
   const { data: session } = useSession();
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const token = session?.user?.token;
 
-  const { getName: getCapacityName, updateLanguage, isLoaded: _isLoaded } = useCapacityCache();
+  const { getName: getCapacityName, updateLanguage, isLoaded: _isLoaded } = useCapacityStore();
   const { organization } = useOrganization(token, event.organization);
   const { names: organizationNames } = useOrganizationNames({
     organizationId: organization?.id,
@@ -73,7 +73,7 @@ export default function EventCard({
   // Update capacity cache language when component language changes
   useEffect(() => {
     if (language && token) {
-      updateLanguage(language);
+      updateLanguage(language, token);
     }
   }, [language, token, updateLanguage]);
 

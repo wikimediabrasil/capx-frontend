@@ -1,31 +1,25 @@
-import { screen, fireEvent } from '@testing-library/react';
 import MiniBioTextarea from '@/components/MiniBioTextarea';
+import * as stores from '@/stores';
+import { fireEvent, screen } from '@testing-library/react';
 import { renderWithProviders } from '../utils/test-helpers';
 
-// Mock do ThemeContext
-const mockThemeContext = {
-  darkMode: false,
-  toggleDarkMode: jest.fn(),
-};
 
-// Mock do AppContext
-const mockAppContext = {
-  isMobile: false,
-  pageContent: {
-    'edit-profile-mini-bio-exceeded-chars': 'caracteres excedidos',
-    'edit-profile-mini-bio-remaining-chars': 'caracteres restantes',
-  },
-  setPageContent: jest.fn(),
-};
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: () => mockThemeContext,
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => mockAppContext,
-  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
 }));
 
 describe('MiniBioTextarea', () => {
@@ -38,7 +32,10 @@ describe('MiniBioTextarea', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockThemeContext.darkMode = false;
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      'edit-profile-mini-bio-exceeded-chars': '$1 caracteres excedidos',
+      'edit-profile-mini-bio-remaining-chars': '$1 caracteres restantes',
+    });
   });
 
   const renderTextarea = (props: any = {}) => {
@@ -70,18 +67,22 @@ describe('MiniBioTextarea', () => {
     expect(screen.getByText('2000 caracteres restantes')).toBeInTheDocument();
   });
 
-  it('displays the correct character count', () => {
-    testCharacterCount('Texto de teste');
+  it.each([
+    ['plain text', 'Texto de teste', 2000],
+    ['text exceeding limit', 'a'.repeat(2001), 2000],
+    ['custom character limit', '', 1000],
+    ['accented characters', 'Texto com acentos: áéíóú çãõ ñ', 2000],
+    ['emojis', 'Texto com emojis 😀🎉🚀', 2000],
+    ['multiple spaces', 'Texto com   espaços   múltiplos', 2000],
+    ['line breaks', 'Linha 1\nLinha 2\nLinha 3', 2000],
+  ])('displays correct character count with %s', (_label, value, maxLength) => {
+    testCharacterCount(value as string, maxLength as number);
   });
 
   it('calls onChange when the user types', () => {
     renderTextarea();
     fireEvent.change(getTextarea(), { target: { value: 'Novo texto' } });
     expect(defaultOnChange).toHaveBeenCalledWith('Novo texto');
-  });
-
-  it('respects the maximum character limit', () => {
-    testCharacterCount('a'.repeat(2001));
   });
 
   it('changes the text color when the limit is exceeded', () => {
@@ -94,10 +95,6 @@ describe('MiniBioTextarea', () => {
     expect(screen.getByText('100 caracteres restantes')).toHaveClass('text-yellow-600');
   });
 
-  it('accepts a custom character limit', () => {
-    testCharacterCount('', 1000);
-  });
-
   it('applies custom CSS classes', () => {
     renderTextarea({ className: 'custom-class' });
     expect(getTextarea()).toHaveClass('custom-class');
@@ -108,69 +105,29 @@ describe('MiniBioTextarea', () => {
     expect(getTextarea()).toBeDisabled();
   });
 
-  it('works correctly with text in different languages', () => {
-    testCharacterCount('Texto com acentos: áéíóú çãõ ñ');
-  });
-
-  it('works correctly with emojis', () => {
-    testCharacterCount('Texto com emojis 😀🎉🚀');
-  });
-
-  it('works correctly with spaces', () => {
-    testCharacterCount('Texto com   espaços   múltiplos');
-  });
-
-  it('works correctly with line breaks', () => {
-    testCharacterCount('Linha 1\nLinha 2\nLinha 3');
-  });
-
-  const testStyle = (styleOrClass: any, expected?: any) => {
+  it.each([
+    ['minHeight', { minHeight: '100px' }],
+    ['padding', { padding: '8px 12px' }],
+  ])('has correct %s style applied', (_label, style) => {
     renderTextarea();
-    const textarea = getTextarea();
-    if (expected) {
-      expect(textarea).toHaveStyle(styleOrClass);
-    } else {
-      expect(textarea).toHaveClass(styleOrClass);
-    }
-  };
-
-  it('has a minimum height defined', () => {
-    testStyle({ minHeight: '100px' }, true);
+    expect(getTextarea()).toHaveStyle(style);
   });
 
-  it('has correct padding applied', () => {
-    testStyle({ padding: '8px 12px' }, true);
-  });
-
-  it('has border radius applied', () => {
-    testStyle('rounded-[4px]');
-  });
-
-  it('has border applied', () => {
+  it.each([
+    'rounded-[4px]',
+    'border-[1px]',
+    'border-[solid]',
+    'font-[Montserrat]',
+    'bg-transparent',
+    'resize-none',
+    'minibio-textarea',
+  ])('has %s class applied', className => {
     renderTextarea();
-    const textarea = getTextarea();
-    expect(textarea).toHaveClass('border-[1px]');
-    expect(textarea).toHaveClass('border-[solid]');
+    expect(getTextarea()).toHaveClass(className);
   });
 
   it('has red border when the limit is exceeded', () => {
     renderTextarea({ value: 'a'.repeat(2001) });
     expect(getTextarea()).toHaveClass('border-red-500');
-  });
-
-  it('has Montserrat font applied', () => {
-    testStyle('font-[Montserrat]');
-  });
-
-  it('has transparent background', () => {
-    testStyle('bg-transparent');
-  });
-
-  it('has resize none', () => {
-    testStyle('resize-none');
-  });
-
-  it('has minibio-textarea class for custom scrollbar styling', () => {
-    testStyle('minibio-textarea');
   });
 });

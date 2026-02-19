@@ -1,59 +1,41 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
+import { useDarkMode, usePageContent } from '@/stores';
 import Image from 'next/image';
-import { ErrorBoundary } from 'react-error-boundary';
+import ErrorBoundary from './ErrorBoundary';
 import SimpleLoading from './SimpleLoading';
 
-// The core loading component that requires ThemeContext
+// The core loading component that requires ThemeContext.
+// Uses CSS media queries (md:) for fullScreen height so layout is correct from first paint
+// on mobile, with no shift when isMobile updates after hydration.
 function ThemeAwareLoading({ fullScreen = false }) {
-  const { darkMode } = useTheme();
-
-  const { isMobile, pageContent } = useApp();
-
-  // Calculate proper height considering mobile header
-  const heightClass = fullScreen
-    ? isMobile
-      ? 'min-h-screen pt-20' // Add padding-top for mobile header (80px height)
-      : 'min-h-screen'
-    : 'h-[150px]';
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+  const wrapperClass = fullScreen ? 'min-h-screen pt-20 md:pt-0' : 'h-[150px]';
+  const innerClass = fullScreen
+    ? 'min-h-[calc(100vh-5rem)] md:min-h-screen flex items-center justify-center'
+    : 'h-full flex items-center justify-center';
+  const bgClass = darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg';
 
   return (
     <div
-      className={`flex items-center justify-center ${heightClass} ${
-        darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'
-      }`}
-      role="status"
+      className={`${wrapperClass} ${bgClass}`}
+      role="output"
       data-testid="loading-state"
       aria-label={pageContent['aria-label-loading'] || 'Content is loading'}
     >
-      <div className="relative w-16 h-16">
-        <Image
-          src={darkMode ? CapxLogoWhite : CapxLogo}
-          alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
-          className="animate-pulse-fade object-contain"
-          width={64}
-          height={64}
-          style={{ width: 'auto', height: 'auto' }}
-          priority
-        />
-        <style jsx global>{`
-          @keyframes pulseFade {
-            0% {
-              opacity: 0.3;
+      <div className={`${innerClass} flex items-center justify-center w-full`}>
+        <div className="relative w-16 h-16">
+          <Image
+            src={darkMode ? CapxLogoWhite : CapxLogo}
+            alt={
+              pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'
             }
-            50% {
-              opacity: 1;
-            }
-            100% {
-              opacity: 0.3;
-            }
-          }
-          .animate-pulse-fade {
-            animation: pulseFade 2s ease-in-out infinite;
-          }
-        `}</style>
+            className="animate-pulse-fade object-contain"
+            fill
+            priority
+          />
+        </div>
       </div>
     </div>
   );

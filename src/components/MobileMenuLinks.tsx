@@ -1,19 +1,18 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { useState } from 'react';
-import NextLink from 'next/link';
-import Image from 'next/image';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
+import ArrowDropDownBlack from '@/public/static/images/arrow_drop_down_circle.svg';
+import ArrowDropDownWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import IconDarkMode from '@/public/static/images/dark_mode.svg';
 import IconLightMode from '@/public/static/images/light_mode.svg';
-import ArrowDropDownWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
-import ArrowDropDownBlack from '@/public/static/images/arrow_drop_down_circle.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useOrganization } from '@/hooks/useOrganizationProfile';
+import { useDarkMode, usePageContent, useSetDarkMode } from '@/stores';
 import { Session } from 'next-auth';
-import { useApp } from '@/contexts/AppContext';
-import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import NextLink from 'next/link';
+import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 interface MenuItem {
   title: string;
@@ -73,9 +72,10 @@ function OrganizationSubMenuItem({
 
 export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMenuLinksProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { darkMode, setDarkMode } = useTheme();
+  const darkMode = useDarkMode();
+  const setDarkMode = useSetDarkMode();
   const params = useParams();
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const organizationId = params?.id;
   const { organizations, isOrgManager } = useOrganization(
     session?.user?.token,
@@ -232,8 +232,7 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
               alt="Profile menu icon"
               width={24}
               height={24}
-              style={{ width: 'auto', height: 'auto' }}
-              className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+              className={`transition-transform duration-300 h-auto w-auto ${isExpanded ? 'rotate-180' : ''}`}
             />
           )}
           {item.image && !isExpanded && darkMode && (

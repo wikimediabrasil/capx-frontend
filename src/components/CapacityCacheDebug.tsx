@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
+import { useSession } from 'next-auth/react';
 import { CAPACITY_CACHE_KEYS as _CAPACITY_CACHE_KEYS } from '@/hooks/useCapacitiesQuery';
 import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 
+import { useCapacityStore } from '@/stores';
 /**
  * A debug component to visualize and manage capacity cache data
  * Only intended to be used in development
@@ -13,7 +14,9 @@ import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 export default function CapacityCacheDebug() {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { preloadCapacities, clearCache } = useCapacityCache();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const { preloadCapacities, clearCache } = useCapacityStore();
   const { data: rootCapacities = [] } = useRootCapacities();
 
   // Get current cache status
@@ -49,7 +52,7 @@ export default function CapacityCacheDebug() {
               <h3 className="text-lg font-semibold mb-2">Cache Status</h3>
               <div className="flex gap-2 mb-4">
                 <button
-                  onClick={() => preloadCapacities()}
+                  onClick={() => token && preloadCapacities(token)}
                   className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
                 >
                   Preload Capacity Data

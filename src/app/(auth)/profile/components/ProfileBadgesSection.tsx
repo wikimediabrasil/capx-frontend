@@ -4,8 +4,7 @@ import BadgesCarousel from '@/components/BadgesCarousel';
 import ProfileFieldSection from './ProfileFieldSection';
 import BadgesIcon from '@/public/static/images/icons/badges_icon.svg';
 import BadgesIconWhite from '@/public/static/images/icons/badges_icon_white.svg';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import { Badge } from '@/types/badge';
 
 interface ProfileBadgesSectionProps {
@@ -13,8 +12,9 @@ interface ProfileBadgesSectionProps {
 }
 
 export default function ProfileBadgesSection({ badges }: ProfileBadgesSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const textSize = isMobile ? 'text-[14px]' : 'text-[24px]';
 
   return (

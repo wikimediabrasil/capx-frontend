@@ -1,9 +1,25 @@
 import { render, screen } from '@testing-library/react';
 import MobileMenu from '../../components/MobileMenu';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { Session } from 'next-auth';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
+}));
 
 // Mocking the Next.js Router
 jest.mock('next/navigation', () => ({
@@ -26,43 +42,6 @@ jest.mock('next/navigation', () => ({
   },
 }));
 
-// Mocking AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    pageContent: {
-      'sign-in-button': 'Login',
-      'sign-out-button': 'Logout',
-      'navbar-link-home': 'Home',
-      'navbar-link-capacities': 'Capacities',
-      'navbar-link-reports': 'Reports',
-      'navbar-link-feed': 'Feed',
-      'navbar-link-saved': 'Saved',
-      'navbar-link-report-bug': 'Report Bug',
-    },
-    isMobile: true,
-    mobileMenuStatus: true,
-    setMobileMenuStatus: jest.fn(),
-    language: 'en',
-    setLanguage: jest.fn(),
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    session: null,
-    setSession: jest.fn(),
-    setPageContent: jest.fn(),
-    isLoading: false,
-    setIsLoading: jest.fn(),
-    isMenuOpen: false,
-    setIsMenuOpen: jest.fn(),
-  }),
-}));
-
-//  Mocking the useTheme hook
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
-}));
-
 const validSession: Session = {
   user: {
     id: '123',
@@ -78,19 +57,17 @@ const validSession: Session = {
 
 describe('MobileMenu', () => {
   beforeEach(() => {
-    // Standard configuration for useTheme
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      'sign-in-button': 'Login',
+      'sign-out-button': 'Logout',
     });
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
+        <>{component}</>
+        );
   };
 
   it('renders sign in button when not logged in', () => {
@@ -106,10 +83,7 @@ describe('MobileMenu', () => {
   });
 
   it('applies dark mode styles', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     const { container } = renderWithProviders(<MobileMenu session={null} />);
 
@@ -119,10 +93,7 @@ describe('MobileMenu', () => {
   });
 
   it('applies light mode styles', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
 
     const { container } = renderWithProviders(<MobileMenu session={null} />);
 

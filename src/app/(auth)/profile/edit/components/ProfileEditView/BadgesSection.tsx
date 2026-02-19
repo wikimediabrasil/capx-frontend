@@ -1,5 +1,3 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import BadgesCarousel from '@/components/BadgesCarousel';
@@ -10,6 +8,7 @@ import ChangeCircleIconWhite from '@/public/static/images/change_circle_white.sv
 import ExpandIcon from '@/public/static/images/expand_all.svg';
 import ExpandIconWhite from '@/public/static/images/expand_all_white.svg';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface BadgesSectionProps {
   readonly isBadgesLoading: boolean;
   readonly displayedBadges: any[];
@@ -53,8 +52,10 @@ export function BadgesSection({
   setShowBadgeModal,
   onSeeAllClick,
 }: BadgesSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const badgeIcon = darkMode ? BadgesIconWhite : BadgesIcon;
   const iconSize = isMobile ? 20 : 48;
@@ -73,7 +74,7 @@ export function BadgesSection({
   return (
     <>
       <div className="flex items-center gap-2 mt-4 mb-4">
-        <Image src={badgeIcon} alt="Badges icon" width={iconSize} height={iconSize} />
+        <Image src={badgeIcon} alt="Badges icon" width={iconSize} height={iconSize} style={{ width: iconSize, height: iconSize }} />
         <h2 className={`font-[Montserrat] text-[14px] md:text-[24px] font-bold ${titleColor}`}>
           {pageContent['body-profile-badges-title']}
         </h2>

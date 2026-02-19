@@ -1,5 +1,3 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
@@ -13,6 +11,7 @@ import { Profile } from '@/types/profile';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS, RESPONSIVE_PADDING } from './utils';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface WikimediaProjectsSectionProps {
   readonly formData: Partial<Profile>;
   readonly setFormData: (data: Partial<Profile>) => void;
@@ -116,8 +115,10 @@ export function WikimediaProjectsSection({
   wikimediaProjects,
   addProjectToFormData,
 }: WikimediaProjectsSectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const [showProjectSelector, setShowProjectSelector] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<[string, string][]>([]);
 

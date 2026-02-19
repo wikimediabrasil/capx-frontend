@@ -1,11 +1,10 @@
 import React from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import EmojiObjectsIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiObjectsIconLight from '@/public/static/images/emoji_objects_white.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,8 +22,8 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   capacities,
   description,
 }) => {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
 
   if (!isOpen) return null;
 

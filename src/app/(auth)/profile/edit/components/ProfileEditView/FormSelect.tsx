@@ -1,9 +1,9 @@
-import { useTheme } from '@/contexts/ThemeContext';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_BORDER_RADIUS } from './utils';
 
+import { useDarkMode } from '@/stores';
 interface FormSelectProps {
   value: string;
   onChange: (value: string) => void;
@@ -12,7 +12,7 @@ interface FormSelectProps {
 }
 
 export function FormSelect({ value, onChange, options, placeholder }: FormSelectProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const selectStyles = {
     backgroundColor: darkMode ? '#053749' : 'white',
     color: darkMode ? 'white' : '#053749',

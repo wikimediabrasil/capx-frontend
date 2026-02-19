@@ -1,19 +1,23 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import ProjectFormItem from '@/app/(auth)/organization_profile/components/ProjectsFormItem';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
-import * as AppContext from '@/contexts/AppContext';
+import * as stores from '@/stores';
 
-// Mock contexts
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: jest.fn(),
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn(),
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
+    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+  ),
 }));
 
 // Mock Next.js Image component
@@ -25,9 +29,6 @@ jest.mock('next/image', () => ({
 }));
 
 describe('ProjectFormItem', () => {
-  const mockUseApp = AppContext.useApp as jest.MockedFunction<typeof AppContext.useApp>;
-  const mockUseTheme = ThemeContext.useTheme as jest.MockedFunction<typeof ThemeContext.useTheme>;
-
   const mockPageContent = {
     'organization-profile-project-name': 'Project Name',
     'organization-profile-project-image-url': 'Project Image URL',
@@ -56,30 +57,16 @@ describe('ProjectFormItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockUseApp.mockReturnValue({
-      isMobile: false,
-      pageContent: mockPageContent,
-      language: 'en',
-      mobileMenuStatus: false,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      session: null,
-      setSession: jest.fn(),
-    });
-
-    mockUseTheme.mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
     return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
+        <>{component}</>
+        );
   };
 
   it('renders project form item with all inputs', () => {
@@ -170,10 +157,7 @@ describe('ProjectFormItem', () => {
   });
 
   it('applies dark mode styling', () => {
-    mockUseTheme.mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     renderWithProviders(<ProjectFormItem {...mockProps} />);
 
@@ -190,10 +174,8 @@ describe('ProjectFormItem', () => {
 
   describe('mobile view', () => {
     beforeEach(() => {
-      mockUseApp.mockReturnValue({
-        ...mockUseApp(),
-        isMobile: true,
-      });
+      (stores.useIsMobile as jest.Mock).mockReturnValue(true);
+      (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
     });
 
     it('renders mobile layout correctly', () => {
@@ -264,10 +246,7 @@ describe('ProjectFormItem', () => {
   });
 
   it('uses dark mode delete icon when dark mode is enabled', () => {
-    mockUseTheme.mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     renderWithProviders(<ProjectFormItem {...mockProps} />);
 
@@ -305,11 +284,11 @@ describe('ProjectFormItem', () => {
     const updatedProps = { ...mockProps, project: updatedProject };
 
     rerender(
-      <ThemeProvider>
-        <AppProvider>
+      
+        
           <ProjectFormItem {...updatedProps} />
-        </AppProvider>
-      </ThemeProvider>
+        
+      
     );
 
     expect(screen.getByDisplayValue('Updated Project')).toBeInTheDocument();

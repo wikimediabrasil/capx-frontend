@@ -1,12 +1,11 @@
-import { useTheme } from '@/contexts/ThemeContext';
 import ImagesModeIcon from '@/public/static/images/images_mode.svg';
 import AddLinkIcon from '@/public/static/images/add_link.svg';
 import CancelIcon from '@/public/static/images/cancel.svg';
 import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import Image from 'next/image';
 import { Project } from '@/types/project';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProjectFormItemProps {
   project: Project;
   index: number;
@@ -15,8 +14,10 @@ interface ProjectFormItemProps {
 }
 
 const ProjectFormItem = ({ project, index, onDelete, onChange }: ProjectFormItemProps) => {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   if (isMobile) {
     return (

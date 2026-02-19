@@ -1,9 +1,8 @@
 'use client';
 import Navbar from './Navbar';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useLanguage, usePageContent, useAppStore } from '@/stores';
 import { useSession } from 'next-auth/react';
 import Footer from './Footer';
-import { useTheme } from '@/contexts/ThemeContext';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { useState, useEffect } from 'react';
 
@@ -12,7 +11,7 @@ interface BaseWrapperProps {
 }
 
 function ErrorFallback({ error }: FallbackProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const errorMessage = error instanceof Error ? error.message : String(error);
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
@@ -36,9 +35,10 @@ function ErrorFallback({ error }: FallbackProps) {
 }
 
 function BaseContent({ children }: BaseWrapperProps) {
-  const { language, setLanguage } = useApp();
+  const language = useLanguage();
+  const setLanguage = useAppStore(s => s.setLanguage);
   const { data: session } = useSession();
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div className="flex flex-col min-h-screen">

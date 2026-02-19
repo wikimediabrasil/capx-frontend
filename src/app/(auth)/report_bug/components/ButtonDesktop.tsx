@@ -1,21 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 
 import CancelIcon from '@/public/static/images/cancel.svg';
 import CancelIconWhite from '@/public/static/images/cancel_white.svg';
 import Uploadicon from '@/public/static/images/upload.svg';
 import BaseButton from '@/components/BaseButton';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface BaseButtonProps {
   handleSubmit: () => void;
 }
 
 export default function ButtonDesktopReportBugPage({ handleSubmit }: BaseButtonProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const router = useRouter();
 
   return (

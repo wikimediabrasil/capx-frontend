@@ -1,5 +1,4 @@
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import SimpleButton from '@/components/SimpleButton';
 
 interface PaginationButtonsProps {
@@ -15,8 +14,9 @@ export function PaginationButtons({
   totalPages,
   onPageChange,
 }: PaginationButtonsProps) {
-  const { darkMode } = useTheme();
-  const { pageContent, isMobile } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
 
   // Function to generate array of pages to be shown
   const getPageNumbers = (): PageItem[] => {

@@ -1,7 +1,6 @@
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface SavedItemProfileImageProps {
   readonly profileImageUrl: string | null;
   readonly isLoading: boolean;
@@ -17,8 +16,8 @@ export const SavedItemProfileImage = ({
   username,
   size,
 }: SavedItemProfileImageProps) => {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   const dimensions = size === 'small' ? 120 : 160;
   const heightClass = size === 'small' ? 'h-[120px]' : 'h-[160px]';

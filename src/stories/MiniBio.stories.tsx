@@ -1,20 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import MiniBio from '@/app/(auth)/profile/components/MiniBio';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 
 const meta: Meta<typeof MiniBio> = {
   title: 'Components/MiniBio',
   component: MiniBio,
   decorators: [
     Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <div className="max-w-[600px] mx-auto p-4">
-            <Story />
-          </div>
-        </ThemeProvider>
-      </AppProvider>
+      <div className="max-w-[600px] mx-auto p-4">
+        <Story />
+      </div>
     ),
   ],
   parameters: {

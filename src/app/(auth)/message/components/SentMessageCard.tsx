@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Message } from '@/types/message';
-import { useApp } from '@/contexts/AppContext';
 
+import { useDarkMode, useLanguage, usePageContent } from '@/stores';
 interface SentMessageCardProps {
   submission: Message;
 }
@@ -13,8 +12,10 @@ function formatDateLocale(timestamp: string, locale: string = navigator.language
 }
 
 const SentMessageCard: React.FC<SentMessageCardProps> = ({ submission }) => {
-  const { darkMode } = useTheme();
-  const { pageContent, language } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+
+  const language = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getStatusColor = (status?: string) => {

@@ -1,7 +1,6 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, usePageContent } from '@/stores';
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
 import CapxLogoWhite from '@/public/static/images/capx_detailed_logo_white.svg';
 import Image from 'next/image';
@@ -10,11 +9,8 @@ import { useEffect, useState } from 'react';
 // Default version that can occupy the entire screen
 export default function LoadingStateWithFallback({ fullScreen = false }: { fullScreen?: boolean }) {
   const [mounted, setMounted] = useState(false);
-  const theme = useTheme();
-  const app = useApp();
-
-  const darkMode = theme?.darkMode || false;
-  const pageContent = app?.pageContent || {};
+  const darkMode = useDarkMode() || false;
+  const pageContent = usePageContent() || {};
 
   // Handle mounting to avoid hydration mismatch
   useEffect(() => {
@@ -44,10 +40,8 @@ export default function LoadingStateWithFallback({ fullScreen = false }: { fullS
         <Image
           src={darkMode ? CapxLogoWhite : CapxLogo}
           alt={pageContent['alt-logo-loading'] || 'CapX - Capacity Exchange logo, page is loading'}
+          fill
           className="animate-pulse-fade object-contain"
-          width={64}
-          height={64}
-          style={{ width: 'auto', height: 'auto' }}
           priority
         />
         <style jsx global>{`
@@ -78,8 +72,7 @@ export function CompactLoading() {
 
   try {
     // Only use the hook if we're in a client component
-    const theme = useTheme();
-    _darkMode = theme?.darkMode || false;
+    _darkMode = useDarkMode() || false;
   } catch (_error) {
     // Silently fail and use default theme
     _darkMode = false;

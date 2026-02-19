@@ -14,8 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Increase the maximum number of user processes
-        run: ulimit -u 1024
+      - name: Read versions from package.json
+        run: |
+          YARN_VERSION=$(jq -r '.packageManager' package.json | cut -d'@' -f2)
+          NODE_MAJOR=$(jq -r '.engines.node' package.json | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+          echo "YARN_VERSION=$YARN_VERSION" >> $GITHUB_ENV
+          echo "NODE_MAJOR=$NODE_MAJOR" >> $GITHUB_ENV
 
       - name: Run deployment script
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
@@ -24,12 +28,15 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
+          envs: YARN_VERSION,NODE_MAJOR
           request_pty: true
           script_stop: true
           script: |
             become capx-test git -C '$HOME/www/js' fetch origin
             become capx-test git -C '$HOME/www/js' reset --hard origin/dev
             become capx-test git -C '$HOME/www/js' pull origin dev
-            become capx-test webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' install
-            become capx-test webservice --mem 2G --cpu 2 node18 shell -- yarn --cwd '$HOME/www/js' build
+            become capx-test webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- npx corepack enable --install-directory '$HOME/.local/bin'
+            become capx-test webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- corepack prepare yarn@${YARN_VERSION} --activate
+            become capx-test webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- yarn --cwd '$HOME/www/js' install
+            become capx-test webservice --mem 2G --cpu 2 node${NODE_MAJOR} shell -- yarn --cwd '$HOME/www/js' build
             become capx-test webservice restart

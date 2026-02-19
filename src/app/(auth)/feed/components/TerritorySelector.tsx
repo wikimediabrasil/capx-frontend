@@ -1,7 +1,7 @@
 import { SelectList } from './Selector';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
-import { useApp } from '@/contexts/AppContext';
+import { usePageContent } from '@/stores';
 interface TerritorySelectorProps {
   territories: Record<string, string>;
   selectedTerritories: string[];
@@ -15,7 +15,7 @@ export function TerritorySelector({
   onSelectTerritory,
   placeholder,
 }: TerritorySelectorProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   // Region ids to order first
   const priorityTerritoryIds = ['18', '19', '20', '21', '22', '23', '24', '25'];

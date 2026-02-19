@@ -3,9 +3,8 @@
 import { motion } from 'framer-motion';
 import MobileMenuLinks from '@/components/MobileMenuLinks';
 import AuthButton from '@/components/AuthButton';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, usePageContent, useAppStore } from '@/stores';
 import MoveOutIcon from '@/public/static/images/move_item.svg';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Session } from 'next-auth';
 
 interface MobileMenuProps {
@@ -13,9 +12,9 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ session }: MobileMenuProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
-  const { setMobileMenuStatus } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+  const setMobileMenuStatus = useAppStore(s => s.setMobileMenuStatus);
   const animationVariants = {
     initial: {
       scaleY: 0,

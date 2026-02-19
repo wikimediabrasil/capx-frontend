@@ -14,23 +14,22 @@ import SendIcon from '@/public/static/images/send.svg';
 import Image from 'next/image';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useMessage } from '@/hooks/useMessage';
 import { MessageService } from '@/services/messageService';
 import { Message } from '@/types/message';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { useDarkMode, usePageContent } from '@/stores';
 export enum MessageMethod {
   EMAIL = 'email',
   TALKPAGE = 'talkpage',
 }
 
 export default function FormMessage() {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const { data: session } = useSession();
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const [formData, setFormData] = useState<Partial<Message>>({
     receiver: '',
     subject: '',
@@ -280,7 +279,7 @@ export default function FormMessage() {
       <div className="flex items-start gap-2 text-left">
         <Image
           src={darkMode ? IconChatWhite : IconChat}
-          alt={pageContent['message-form-icon-alt']}
+          alt={pageContent['message-form-icon-alt'] || 'Chat icon'}
           className="w-4 h-5 md:w-[42px] md:h-[42px]"
         />
         <h1
@@ -500,7 +499,7 @@ export default function FormMessage() {
           </p>
           <Image
             src={darkMode ? InfoIcon : InfoIconBlue}
-            alt={pageContent['message-info-alt-icon']}
+            alt={pageContent['message-info-alt-icon'] || 'Info icon'}
             width={16}
             height={16}
             className="cursor-pointer"

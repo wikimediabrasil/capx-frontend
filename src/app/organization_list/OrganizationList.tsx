@@ -6,8 +6,6 @@ import { useLanguageSync } from '@/components/LanguageSync';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
 import { SearchFilterSection } from '@/components/SearchFilterSection';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganizations } from '@/hooks/useOrganizationProfile';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useEffect, useMemo, useState } from 'react';
@@ -16,11 +14,12 @@ import Banner from '@/components/Banner';
 import LoadingState from '@/components/LoadingState';
 import OrgListBanner from '@/public/static/images/organization_list.svg';
 
+import { usePageContent } from '@/stores';
 // Removed duplicated components - now using shared components
 
 export default function OrganizationList() {
-  const { darkMode: _darkMode } = useTheme();
-  const { pageContent } = useApp();
+  // darkMode unused here - removed useTheme
+  const pageContent = usePageContent();
 
   // Use shared language sync logic
   const { isLanguageChanging, isLoadingTranslations } = useLanguageSync();

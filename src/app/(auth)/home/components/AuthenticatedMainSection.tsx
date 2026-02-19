@@ -1,7 +1,6 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile, useDarkMode } from '@/stores';
 import { useProfile } from '@/hooks/useProfile';
 import MainSectionIllustration from '@/public/static/images/capx_loggedin_home_illustration.svg';
 import MainSectionIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
@@ -10,14 +9,15 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
+import AnalyticsCallToActionSection from './AnalyticsCallToActionSection';
 
 interface AuthenticatedMainSectionProps {
   pageContent: any;
 }
 
 export default function AuthenticatedMainSection({ pageContent }: AuthenticatedMainSectionProps) {
-  const { isMobile } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+  const darkMode = useDarkMode();
   const router = useRouter();
   const { showSnackbar } = useSnackbar();
   const { data: session } = useSession();
@@ -79,7 +79,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             <div className="flex flex-row gap-4 w-full justify-center items-center">
               <div className="flex items-center h-full">
                 <BaseButton
-                  onClick={() => router.push('/capacity')}
+                  onClick={() => router.push('/feed')}
                   label={pageContent['body-loggedin-home-main-section-button01']}
                   customClass="rounded-[6px] bg-[#851970] inline-flex px-[19px] py-[8px] justify-center items-center gap-[10px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
                 ></BaseButton>
@@ -92,6 +92,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             </div>
           </div>
         </section>
+        <AnalyticsCallToActionSection />
         <SectionRecommendationsCarousel />
 
         <section
@@ -176,7 +177,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             <div className="flex flex-col sm:flex-row gap-4 w-full items-start mt-[24px]">
               <div className="flex items-center h-full">
                 <BaseButton
-                  onClick={() => router.push('/capacity')}
+                  onClick={() => router.push('/feed')}
                   label={pageContent['body-loggedin-home-main-section-button01']}
                 ></BaseButton>
               </div>
@@ -200,6 +201,7 @@ export default function AuthenticatedMainSection({ pageContent }: AuthenticatedM
             />
           </div>
         </div>
+        <AnalyticsCallToActionSection />
         <SectionRecommendationsCarousel />
 
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">

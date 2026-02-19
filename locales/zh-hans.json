@@ -1,9 +1,11 @@
 {
 	"@metadata": {
 		"authors": [
+			"0x48fe75df30",
 			"22593",
 			"Aaron Liu",
 			"ExoHyper2026",
+			"Gsdn",
 			"GuoPC",
 			"Hehua",
 			"HellojoeAoPS",
@@ -102,12 +104,6 @@
 	"organization-profile-no-image-available": "没有可用图片",
 	"organization-list-alt-banner": "横幅图片组织清单页面",
 	"organization-list-banner-page": "组织清单",
-	"edit-profile-use-letsconnect": "Let's Connect集成",
-	"lets-connect-import-data-confirm": "确认",
-	"lets-connect-import-data-cancel": "取消",
-	"lets-connect-import-data-title": "从Let's Connect导入数据",
-	"lets-connect-import-data-description": "点击确认，即表示您同意将 Meta-wiki上的Let's Connect个人资料数据导入您的CapX用户个人资料。这可能不会完善您的个人资料，但可以帮助您入门。因此，请务必在保存前检查所有内容。",
-	"snackbar-lets-connect-import-success": "LetsConnect数据导入成功",
 	"body-profile-edit-organization-button": "编辑组织简介",
 	"body-profile-edit-user-button": "编辑用户档案",
 	"logo-not-available": "标志无法使用",
@@ -159,6 +155,11 @@
 	"edit-profile-mini-bio": "个人简介",
 	"edit-profile-mini-bio-placeholder": "写一个关于您自己的简短描述。",
 	"edit-profile-mini-bio-tooltip": "对您的同伴简单介绍一下您自己。您觉得有哪些事情值得分享？您的维基媒体经历有哪些重要的里程碑？",
+	"edit-profile-mini-bio-language": "简历语言",
+	"edit-profile-mini-bio-language-not-specified": "未指定",
+	"edit-profile-mini-bio-language-tooltip": "请选择您个人简介所使用的语言。",
+	"profile-mini-bio-language-label": "语言：",
+	"profile-mini-bio-language-not-specified": "未指定",
 	"edit-profile-select-skills": "从能力目录中选择已具备的能力（请选择最具体的）",
 	"edit-profile-add-capacities": "添加能力",
 	"edit-profile-import-known-capacities": "导入已知能力",
@@ -332,6 +333,8 @@
 	"capacity-visualization-title": "交互式容量可视化",
 	"capacity-visualization-description": "点击主要功能图标展开/折叠并聚焦 • 点击图标查看详情并自动居中 • 使用鼠标缩放和拖动 • 点击“返回初始视图”重置焦点",
 	"analytics-dashboard": "数据分析",
+	"analytics-bashboard-capacities-card-learning-and-evaluation": "学习与评估",
+	"analytics-bashboard-capacities-card-strategic-management": "战略管理",
 	"add-to-profile": "添加到简介",
 	"view-event": "查看活动",
 	"view-profile": "查看简介",
@@ -341,5 +344,8 @@
 	"cancel": "取消",
 	"organization-name-placeholder": "组织名称",
 	"organization-name-updated": "成功更新组织名称",
-	"organization-names-none": "还没有新增翻译。"
+	"organization-names-none": "还没有新增翻译。",
+	"sign-in-required-title": "登录以继续",
+	"sign-in-required-description": "您需要登录才能访问此页面。注册 CapX 即可交换资源并与其他维基媒体用户交流。",
+	"sign-in-required-go-home": "访问首页"
 }

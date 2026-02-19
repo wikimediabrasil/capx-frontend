@@ -1,13 +1,13 @@
 'use client';
 
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
 import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { useCapacityList } from '@/hooks/useCapacityList';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import D3TreeVisualization from './D3TreeVisualization';
 
+import { useLanguage } from '@/stores';
 // Specific interface for D3 visualization
 interface D3Capacity {
   id: string;
@@ -18,7 +18,7 @@ interface D3Capacity {
 }
 
 export default function CapacitiesTreeVisualization() {
-  const { language } = useApp();
+  const language = useLanguage();
   const { data: session } = useSession();
   const [capacities, setCapacities] = useState<D3Capacity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
