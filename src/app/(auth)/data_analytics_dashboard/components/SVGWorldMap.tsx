@@ -1,7 +1,7 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { usePageContent, useIsMobile } from '@/stores/appStore';
+import { useDarkMode } from '@/stores/themeStore';
 import {
   getCapacityTotalsByWikimediaTerritory,
   getLanguageTotalsByWikimediaTerritory,
@@ -72,8 +72,9 @@ export default function SVGWorldMap({
   totalUsers: totalUsersProp,
 }: SVGWorldMapProps) {
   const svgContainerRef = useRef<HTMLDivElement>(null);
-  const { darkMode } = useTheme();
-  const { pageContent, isMobile } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+  const isMobile = useIsMobile();
   const [svgContent, setSvgContent] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('users');
   const [selectedTerritory, setSelectedTerritory] = useState<WikimediaTerritory | null>(null);
