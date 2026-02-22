@@ -296,10 +296,12 @@ export const ProfileCard = ({
 
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
-                <div
+                <button
+                  onClick={navigateToProfile}
                   className={`relative w-[100px] h-[100px] md:w-[200px] md:h-[200px] ${
                     darkMode ? 'bg-[#EFEFEF]' : ''
-                  } rounded-[4px]`}
+                  } rounded-[4px] cursor-pointer hover:opacity-90 transition-opacity`}
+                  aria-label={pageContent['alt-view-profile-user'] || 'View user profile'}
                 >
                   <Image
                     src={profileImageUrl || defaultAvatar}
@@ -314,7 +316,7 @@ export const ProfileCard = ({
                     unoptimized
                     loading="lazy"
                   />
-                </div>
+                </button>
               </div>
             </div>
 
