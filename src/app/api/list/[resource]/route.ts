@@ -12,7 +12,12 @@ export async function GET(request: NextRequest, { params }: { params: { resource
       return NextResponse.json({ error: 'Authorization header is required' }, { status: 401 });
     }
 
-    const response = await axios.get(`${process.env.BASE_URL}${resource}`, {
+    // Forward query params (e.g. language) to the backend
+    const { searchParams } = new URL(request.url);
+    const queryString = searchParams.toString();
+    const backendUrl = `${process.env.BASE_URL}${resource}${queryString ? `?${queryString}` : ''}`;
+
+    const response = await axios.get(backendUrl, {
       headers: {
         Authorization: authorization,
       },
