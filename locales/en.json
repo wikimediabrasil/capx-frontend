@@ -706,6 +706,15 @@
   "analytics-map-south-up": "South ↑",
   "analytics-map-switch-south-up": "Switch to South-up view",
   "analytics-map-switch-north-up": "Switch to North-up view",
+  "analytics-map-sub-saharian-africa": "Sub-Saharan Africa",
+  "analytics-map-nothern-western-europe": "Northern & Western Europe",
+  "analytics-map-east-southeast-asia-pacific": "East, Southeast Asia, & Pacific",
+  "analytics-map-latin-america-caribbean": "Latin America & Caribbean",
+  "analytics-map-central-eastern-europe-central-asia": "Central & Eastern Europe & Central Asia",
+  "analytics-map-south-asia": "South Asia",
+  "analytics-map-middle-east-north-africa": "Middle East & North Africa",
+  "analytics-map-north-america": "North America",
+
   "sign-in-required-title": "Log in to continue",
   "sign-in-required-description": "You need to be logged in to access this page. Sign up for CapX to exchange capacities and connect with other Wikimedians.",
   "sign-in-required-go-home": "Go to the home page"
