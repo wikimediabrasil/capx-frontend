@@ -6,18 +6,58 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import React from 'react';
 
-
 jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
   useDarkMode: jest.fn(() => false),
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
   ),
   useCapacityStore: Object.assign(
-    jest.fn(() => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false, getName: jest.fn(() => ''), getDescription: jest.fn(() => ''), getWdCode: jest.fn(() => ''), getMetabaseCode: jest.fn(() => ''), getColor: jest.fn(() => '#000'), getIcon: jest.fn(() => ''), getChildren: jest.fn(() => []), getCapacity: jest.fn(() => null), getRootCapacities: jest.fn(() => []), hasChildren: jest.fn(() => false), isFallbackTranslation: jest.fn(() => false), getIsLoaded: jest.fn(() => false), getIsDescriptionsReady: jest.fn(() => false), updateLanguage: jest.fn(), preloadCapacities: jest.fn(), clearCache: jest.fn(), setCache: jest.fn(), invalidateQueryCache: jest.fn() })),
-    { getState: () => ({ capacities: {}, children: {}, language: 'en', timestamp: 0, isLoadingTranslations: false, isLoaded: false }) }
+    jest.fn(() => ({
+      capacities: {},
+      children: {},
+      language: 'en',
+      timestamp: 0,
+      isLoadingTranslations: false,
+      isLoaded: false,
+      getName: jest.fn(() => ''),
+      getDescription: jest.fn(() => ''),
+      getWdCode: jest.fn(() => ''),
+      getMetabaseCode: jest.fn(() => ''),
+      getColor: jest.fn(() => '#000'),
+      getIcon: jest.fn(() => ''),
+      getChildren: jest.fn(() => []),
+      getCapacity: jest.fn(() => null),
+      getRootCapacities: jest.fn(() => []),
+      hasChildren: jest.fn(() => false),
+      isFallbackTranslation: jest.fn(() => false),
+      getIsLoaded: jest.fn(() => false),
+      getIsDescriptionsReady: jest.fn(() => false),
+      updateLanguage: jest.fn(),
+      preloadCapacities: jest.fn(),
+      clearCache: jest.fn(),
+      setCache: jest.fn(),
+      invalidateQueryCache: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        capacities: {},
+        children: {},
+        language: 'en',
+        timestamp: 0,
+        isLoadingTranslations: false,
+        isLoaded: false,
+      }),
+    }
   ),
 }));
 
@@ -85,9 +125,7 @@ describe('CapacitySearch', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        <SnackbarProvider>
-          {ui}
-        </SnackbarProvider>
+        <SnackbarProvider>{ui}</SnackbarProvider>
       </QueryClientProvider>
     );
   };

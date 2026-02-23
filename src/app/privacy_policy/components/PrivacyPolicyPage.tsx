@@ -7,7 +7,6 @@ import Link from 'next/link';
 import PrivacyPolicy from '@/public/static/images/privacy_policy.svg';
 import Banner from '@/components/Banner';
 
-
 import { useDarkMode, usePageContent } from '@/stores';
 export default function PrivacyPolicyPage() {
   const darkMode = useDarkMode();

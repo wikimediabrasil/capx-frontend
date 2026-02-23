@@ -9,8 +9,36 @@ jest.mock('@/stores', () => ({
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
-    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
   ),
 }));
 

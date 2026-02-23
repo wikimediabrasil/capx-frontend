@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProfileItemsListProps {
   readonly items: ReadonlyArray<{ readonly id: number | string; readonly label: string }>;

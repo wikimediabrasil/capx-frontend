@@ -9,6 +9,9 @@ interface ProfileListWithEmptyProps {
   onToggleSaved?: (profile: any) => void;
   emptyMessage?: string;
   emptyDescription?: string;
+  showWanted?: boolean;
+  showAvailable?: boolean;
+  showKnown?: boolean;
 }
 
 /**
@@ -20,6 +23,9 @@ export const ProfileListWithEmpty: React.FC<ProfileListWithEmptyProps> = ({
   onToggleSaved,
   emptyMessage,
   emptyDescription,
+  showWanted = true,
+  showAvailable = true,
+  showKnown = false,
 }) => {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -37,6 +43,7 @@ export const ProfileListWithEmpty: React.FC<ProfileListWithEmptyProps> = ({
             capacities={profile.capacities}
             wantedCapacities={profile.wantedCapacities}
             availableCapacities={profile.availableCapacities}
+            knownCapacities={profile.knownCapacities}
             avatar={profile.avatar}
             wikidataQid={profile.wikidataQid}
             languages={profile.languages}
@@ -45,6 +52,9 @@ export const ProfileListWithEmpty: React.FC<ProfileListWithEmptyProps> = ({
             hasIncompleteProfile={profile.hasIncompleteProfile}
             isSaved={profile.isSaved}
             onToggleSaved={onToggleSaved ? () => onToggleSaved(profile) : undefined}
+            showWanted={showWanted}
+            showAvailable={showAvailable}
+            showKnown={showKnown}
           />
         ))}
       </div>

@@ -102,8 +102,7 @@ export default function RecommendationProfileCard({
 
   let profileImageAlt: string;
   if (!profileImageUrl || profileImageUrl === DEFAULT_AVATAR) {
-    profileImageAlt =
-      pageContent['alt-profile-picture-default'] || 'Default user profile picture';
+    profileImageAlt = pageContent['alt-profile-picture-default'] || 'Default user profile picture';
   } else {
     const imageLabel = isOrganization
       ? pageContent['organization-logo'] || 'Organization logo'
@@ -204,13 +203,7 @@ export default function RecommendationProfileCard({
           className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0"
           aria-hidden="true"
         >
-          <Image
-            src={profileTypeIcon}
-            alt=""
-            fill
-            className="object-contain"
-            priority
-          />
+          <Image src={profileTypeIcon} alt="" fill className="object-contain" priority />
         </div>
         <h3
           className={`text-[14px] md:text-[18px] font-bold truncate flex-1 ${

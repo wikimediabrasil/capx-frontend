@@ -91,19 +91,18 @@ const Popup = ({
       {isOpen && (
         <dialog
           ref={dialogRef}
-          className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
-            w-[85%] max-w-[calc(100vw-24px)] md:w-[880px] xl:w-[1024px]
+          className={`fixed inset-0 z-50 m-auto
+            w-[85%] max-w-[calc(100vw-24px)] md:w-[700px] md:max-w-[90vw]
             ${minHeight} max-h-[90vh] md:max-h-[95vh]
             rounded-3xl shadow-xl overflow-hidden overflow-x-hidden box-border ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}
             border-0 p-0 backdrop:bg-black backdrop:bg-opacity-50`}
-          style={{ maxWidth: 'calc(100vw - 24px)', width: '85%' }}
           aria-modal="true"
           aria-labelledby="popup-title"
           aria-describedby="popup-content"
           onClose={onCloseTab}
         >
           <div
-            className={`flex flex-col h-full p-3 md:p-8 min-h-0 box-border ${contentScrollable ? 'max-h-[90vh]' : ''}`}
+            className={`flex flex-col h-full p-4 md:p-10 min-h-0 box-border ${contentScrollable ? 'max-h-[90vh]' : ''}`}
             style={{ maxWidth: '100%', overflowX: 'hidden' }}
           >
             {/* Header */}

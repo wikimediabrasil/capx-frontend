@@ -14,6 +14,8 @@ import LearnerIcon from '@/public/static/images/learner_icon.svg';
 import LearnerIconWhite from '@/public/static/images/learner_icon_white.svg';
 import SharerIcon from '@/public/static/images/sharer_icon.svg';
 import SharerIconWhite from '@/public/static/images/sharer_icon_white.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
 
 import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import { useAffiliation } from '@/hooks/useAffiliation';
@@ -213,6 +215,15 @@ export function Filters({
                     filters.profileCapacityTypes?.includes(ProfileCapacityType.Sharer) ?? false
                   }
                   onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Sharer)}
+                />
+                <CheckboxButton
+                  icon={NeurologyIcon}
+                  iconDark={NeurologyIconWhite}
+                  label={pageContent['filters-known']}
+                  checked={
+                    filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
+                  }
+                  onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Known)}
                 />
               </div>
             </div>

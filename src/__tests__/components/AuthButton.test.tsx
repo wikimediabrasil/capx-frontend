@@ -8,15 +8,50 @@ jest.mock('@/stores', () => ({
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
   ),
   useIsMobile: jest.fn(() => false),
   usePageContent: jest.fn(() => ({})),
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() })),
-    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
   ),
 }));
 
@@ -29,7 +64,6 @@ import {
 const mockPageContent = createMockPageContent();
 
 // Mock AppContext
-
 
 // Mock do Next.js Router
 jest.mock('next/navigation', () => ({
@@ -51,11 +85,9 @@ jest.mock('next/navigation', () => ({
 
 // Mock do useTheme
 
-
 describe('AuthButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
   });
 
   const renderButton = (props: any) => {
@@ -103,7 +135,6 @@ describe('AuthButton', () => {
   });
 
   const testThemeMode = (darkMode: boolean, expectedClass: string) => {
-
     renderButton({ message: 'Sign In', isSignOut: false, customClass: expectedClass });
     expect(screen.getByText('Sign In').closest('button')).toHaveClass(expectedClass);
   };
