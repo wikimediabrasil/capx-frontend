@@ -40,14 +40,19 @@ const CapacitiesPrefetcherInternal = () => {
   // Check if we should skip prefetching based on the current path
   const shouldSkipPrefetch = pathname && EXCLUDED_PATHS.some(path => pathname.includes(path));
 
-  // Only prefetch when we have a session, no cache loaded, and not already loading
+  // Prefetch when we have a session, not already loading, and either not yet loaded
+  // or the cached language differs from the current app language.
   useEffect(() => {
-    if (!token || shouldSkipPrefetch || isLoaded || isLoadingTranslations) {
+    if (!token || shouldSkipPrefetch || isLoadingTranslations) {
       return;
     }
 
-    // Use the app language (from localStorage/context) instead of cache language
     const languageToLoad = appLanguage || 'en';
+
+    // Skip if already loaded with the correct language
+    if (isLoaded && store.language === languageToLoad) {
+      return;
+    }
 
     const timer = setTimeout(() => {
       store.updateLanguage(languageToLoad, token);
