@@ -158,6 +158,27 @@ export const WIKIMEDIA_TERRITORIES: WikimediaTerritory[] = [
   },
 ];
 
+// Translation keys for each territory's full name
+const TERRITORY_TRANSLATION_KEYS: Record<string, string> = {
+  SSA: 'analytics-map-sub-saharian-africa',
+  NWE: 'analytics-map-nothern-western-europe',
+  ESEAP: 'analytics-map-east-southeast-asia-pacific',
+  LAC: 'analytics-map-latin-america-caribbean',
+  CEECA: 'analytics-map-central-eastern-europe-central-asia',
+  SA: 'analytics-map-south-asia',
+  MENA: 'analytics-map-middle-east-north-africa',
+  NA: 'analytics-map-north-america',
+};
+
+// Returns territories with localized fullNames from pageContent.
+// Falls back to the static English name if a key is missing.
+export function getWikimediaTerritories(pageContent: Record<string, string>): WikimediaTerritory[] {
+  return WIKIMEDIA_TERRITORIES.map(territory => ({
+    ...territory,
+    fullName: pageContent[TERRITORY_TRANSLATION_KEYS[territory.id]] || territory.fullName,
+  }));
+}
+
 // Create a lookup map for quick country-to-territory mapping
 export const countryToTerritoryMap: Record<string, WikimediaTerritory> = {};
 WIKIMEDIA_TERRITORIES.forEach(territory => {
