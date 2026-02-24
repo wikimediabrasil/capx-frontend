@@ -307,16 +307,20 @@ export default function AnalyticsDashboardPage() {
           </h2>
         </div>
         <div className={`w-full rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}>
-          <SVGWorldMap
-            languageUserCounts={data?.language_user_counts}
-            languages={languages}
-            territoryUserCounts={data?.territory_user_counts}
-            territories={territories}
-            capacities={capacities}
-            languagesByTerritory={languagesByTerritory}
-            capacitiesByTerritory={capacitiesByTerritory}
-            totalUsers={data?.total_users}
-          />
+          {isAggregatedDataLoading ? (
+            <LoadingState />
+          ) : (
+            <SVGWorldMap
+              languageUserCounts={data?.language_user_counts}
+              languages={languages}
+              territoryUserCounts={data?.territory_user_counts}
+              territories={territories}
+              capacities={capacities}
+              languagesByTerritory={languagesByTerritory}
+              capacitiesByTerritory={capacitiesByTerritory}
+              totalUsers={data?.total_users}
+            />
+          )}
         </div>
       </div>
 

@@ -731,6 +731,13 @@ export default function SVGWorldMap({
                     </span>
                   </p>
 
+                  {/* No data message */}
+                  {topLanguages.length === 0 && topCapacities.length === 0 && (
+                    <p className={`font-[Montserrat] text-sm mt-2 ${darkMode ? 'text-white/50' : 'text-gray-400'}`}>
+                      {pageContent['analytics-map-no-data'] || 'No detailed data available for this territory yet.'}
+                    </p>
+                  )}
+
                   {/* Top Languages */}
                   {topLanguages.length > 0 && (
                     <div className="mt-3">
