@@ -675,7 +675,7 @@
   "close": "Close",
   "mentorship-programs-alt": "Mentorship Programs",
   "analytics-map-header-title": "Wikimedians through the globe",
-  "analytics-map-legend": "Legend",
+  "analytics-map-legend-title": "Legend",
   "analytics-map-top-languages": "Most Spoken Languages",
   "analytics-map-top-capacities": "Top Capacities",
   "analytics-map-no-data": "No detailed data available for this territory yet.",
@@ -704,6 +704,7 @@
   "analytics-map-south-asia": "South Asia",
   "analytics-map-middle-east-north-africa": "Middle East & North Africa",
   "analytics-map-north-america": "North America",
+  "analytics-map-legend": "All data is fetched from the Capx database in realtime",
   "sign-in-required-title": "Log in to continue",
   "sign-in-required-description": "You need to be logged in to access this page. Sign up for CapX to exchange capacities and connect with other Wikimedians.",
   "sign-in-required-go-home": "Go to the home page"
