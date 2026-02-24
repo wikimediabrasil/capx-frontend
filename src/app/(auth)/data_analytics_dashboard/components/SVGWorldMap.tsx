@@ -455,14 +455,17 @@ export default function SVGWorldMap({
       }
 
       if (territory) {
-        // Add event listeners only for elements with territories
-        element.addEventListener('mouseenter', () => {
-          setHoveredTerritory(territory);
-        });
+        // Add hover listeners only on non-touch devices; on mobile mouseenter
+        // fires on tap but mouseleave never fires, leaving hoveredTerritory stuck.
+        if (!isMobile) {
+          element.addEventListener('mouseenter', () => {
+            setHoveredTerritory(territory);
+          });
 
-        element.addEventListener('mouseleave', () => {
-          setHoveredTerritory(null);
-        });
+          element.addEventListener('mouseleave', () => {
+            setHoveredTerritory(null);
+          });
+        }
 
         element.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -786,7 +789,7 @@ export default function SVGWorldMap({
             })()}
                     <div className={`flex-1 p-4 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
           <h4 className={`font-[Montserrat] font-bold text-sm mb-2 ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}>
-            {pageContent['analytics-map-legend'] || 'Legend'}
+            {pageContent['analytics-map-legend-title'] || 'Legend'}
           </h4>
           <div className="flex items-center gap-2">
             <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>0</span>
@@ -803,6 +806,12 @@ export default function SVGWorldMap({
         </div>
           </div>
         )}
+      </div>
+
+      <div>
+        <span className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}>
+          {pageContent["analytics-map-legend"]}
+        </span>
       </div>
 
       {/* Territory Grid (when no territory is selected) */}
