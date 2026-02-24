@@ -4,7 +4,6 @@ import Banner from '@/components/Banner';
 import LoadingState from '@/components/LoadingState';
 import { useAggregatedTerritoryData } from '@/hooks/useAggregatedTerritoryData';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useSkills } from '@/hooks/useSkills';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
@@ -29,7 +28,7 @@ import { useMemo, useState } from 'react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
 import SVGWorldMap from './SVGWorldMap';
 
-import { useDarkMode, usePageContent } from '@/stores';
+import { useCapacities, useCurrentLanguage, useDarkMode, usePageContent } from '@/stores';
 // Constants
 const SKILL_METADATA = {
   10: {
@@ -151,8 +150,7 @@ function DropdownHeader({
   };
 
   return (
-    <div
-      role="button"
+    <button
       tabIndex={0}
       className="flex items-center justify-between cursor-pointer"
       onClick={onToggle}
@@ -194,7 +192,7 @@ function DropdownHeader({
         height={20}
         className={`transition-transform duration-300 block md:hidden ${isOpen ? 'rotate-180' : ''}`}
       />
-    </div>
+    </button>
   );
 }
 
@@ -203,27 +201,29 @@ export default function AnalyticsDashboardPage() {
   const token = session?.user?.token;
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
+  const currentLanguage = useCurrentLanguage();
   const { data } = useStatistics();
   const { territories } = useTerritories(token);
-  const { languages } = useLanguage(token);
-  const { skills } = useSkills();
+  const { languages } = useLanguage(token, currentLanguage);
   const {
     languagesByTerritory,
     capacitiesByTerritory,
     isLoading: isAggregatedDataLoading,
   } = useAggregatedTerritoryData(token);
 
-  // Transform skills array to Record<string, string> for capacities mapping
+  // Build capacity name lookup from the Zustand capacity store, which holds ALL
+  // individual capacity codes (root + children + grandchildren) populated by
+  // CapacitiesPrefetcher. Keys are numeric codes stringified (e.g. "10", "101").
+  const allCapacitiesFromStore = useCapacities();
   const capacities = useMemo(() => {
-    if (!skills || !Array.isArray(skills)) return {};
-    return skills.reduce(
-      (acc: Record<string, string>, skill: { code: number; name: string }) => {
-        acc[String(skill.code)] = skill.name;
+    return Object.entries(allCapacitiesFromStore).reduce(
+      (acc: Record<string, string>, [code, data]) => {
+        acc[code] = data.name;
         return acc;
       },
       {}
     );
-  }, [skills]);
+  }, [allCapacitiesFromStore]);
 
   const [openLanguages, setOpenLanguages] = useState(false);
   const [openTerritories, setOpenTerritories] = useState(false);
@@ -310,14 +310,11 @@ export default function AnalyticsDashboardPage() {
           <SVGWorldMap
             languageUserCounts={data?.language_user_counts}
             languages={languages}
-            skillAvailableCounts={data?.skill_available_user_counts}
-            skillWantedCounts={data?.skill_wanted_user_counts}
             territoryUserCounts={data?.territory_user_counts}
             territories={territories}
             capacities={capacities}
             languagesByTerritory={languagesByTerritory}
             capacitiesByTerritory={capacitiesByTerritory}
-            isAggregatedDataLoading={isAggregatedDataLoading}
             totalUsers={data?.total_users}
           />
         </div>
