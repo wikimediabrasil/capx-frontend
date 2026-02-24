@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 interface AggregatedLanguageData {
-  // { territoryId: { languageId: count } }
   [territoryId: string]: { [languageId: string]: number };
 }
 
@@ -23,53 +22,45 @@ interface AggregatedTerritoryData {
 export const useAggregatedTerritoryData = (
   token: string | undefined
 ): AggregatedTerritoryData => {
-  const [languagesByTerritory, setLanguagesByTerritory] =
-    useState<AggregatedLanguageData>({});
-  const [capacitiesByTerritory, setCapacitiesByTerritory] =
-    useState<AggregatedCapacityData>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const headers: Record<string, string> = token
+    ? { Authorization: `Token ${token}` }
+    : {};
 
-  useEffect(() => {
-    const fetchAggregatedData = async () => {
-      setIsLoading(true);
-      setError(null);
+  const {
+    data: languagesByTerritory = {},
+    isLoading: isLanguagesLoading,
+  } = useQuery({
+    queryKey: ['statistics', 'languages-by-territory', token ?? null],
+    queryFn: async () => {
+      const response = await axios.get<AggregatedLanguageData>(
+        '/api/statistics/languages-by-territory/',
+        { headers }
+      );
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
-      try {
-        // Build headers with token if available
-        const headers: Record<string, string> = {};
-        if (token) {
-          headers.Authorization = `Token ${token}`;
-        }
-
-        // Fetch pre-aggregated data from dedicated endpoints in parallel
-        const [languagesResponse, capacitiesResponse] = await Promise.all([
-          axios.get<AggregatedLanguageData>('/api/statistics/languages-by-territory/', {
-            headers,
-          }),
-          axios.get<AggregatedCapacityData>('/api/statistics/capacities-by-territory/', {
-            headers,
-          }),
-        ]);
-
-        setLanguagesByTerritory(languagesResponse.data);
-        setCapacitiesByTerritory(capacitiesResponse.data);
-      } catch (err) {
-        console.error('Error fetching aggregated territory data:', err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch data'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAggregatedData();
-  }, [token]);
+  const {
+    data: capacitiesByTerritory = {},
+    isLoading: isCapacitiesLoading,
+  } = useQuery({
+    queryKey: ['statistics', 'capacities-by-territory', token ?? null],
+    queryFn: async () => {
+      const response = await axios.get<AggregatedCapacityData>(
+        '/api/statistics/capacities-by-territory/',
+        { headers }
+      );
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   return {
     languagesByTerritory,
     capacitiesByTerritory,
-    isLoading,
-    error,
+    isLoading: isLanguagesLoading || isCapacitiesLoading,
+    error: null,
   };
 };
 
