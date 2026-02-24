@@ -2,6 +2,7 @@
 
 import Banner from '@/components/Banner';
 import LoadingState from '@/components/LoadingState';
+import { useAggregatedTerritoryData } from '@/hooks/useAggregatedTerritoryData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
@@ -23,10 +24,11 @@ import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import technology from '@/public/static/images/wifi_tethering.svg';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import CapacityCardAnalytics from './CapacityCardAnalytics';
+import SVGWorldMap from './SVGWorldMap';
 
-import { useDarkMode, usePageContent } from '@/stores';
+import { useCapacities, useCurrentLanguage, useDarkMode, usePageContent } from '@/stores';
 // Constants
 const SKILL_METADATA = {
   10: {
@@ -148,8 +150,7 @@ function DropdownHeader({
   };
 
   return (
-    <div
-      role="button"
+    <button
       tabIndex={0}
       className="flex items-center justify-between cursor-pointer"
       onClick={onToggle}
@@ -191,7 +192,7 @@ function DropdownHeader({
         height={20}
         className={`transition-transform duration-300 block md:hidden ${isOpen ? 'rotate-180' : ''}`}
       />
-    </div>
+    </button>
   );
 }
 
@@ -200,9 +201,29 @@ export default function AnalyticsDashboardPage() {
   const token = session?.user?.token;
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
+  const currentLanguage = useCurrentLanguage();
   const { data } = useStatistics();
   const { territories } = useTerritories(token);
-  const { languages } = useLanguage(token);
+  const { languages } = useLanguage(token, currentLanguage);
+  const {
+    languagesByTerritory,
+    capacitiesByTerritory,
+    isLoading: isAggregatedDataLoading,
+  } = useAggregatedTerritoryData(token);
+
+  // Build capacity name lookup from the Zustand capacity store, which holds ALL
+  // individual capacity codes (root + children + grandchildren) populated by
+  // CapacitiesPrefetcher. Keys are numeric codes stringified (e.g. "10", "101").
+  const allCapacitiesFromStore = useCapacities();
+  const capacities = useMemo(() => {
+    return Object.entries(allCapacitiesFromStore).reduce(
+      (acc: Record<string, string>, [code, data]) => {
+        acc[code] = data.name;
+        return acc;
+      },
+      {}
+    );
+  }, [allCapacitiesFromStore]);
 
   const [openLanguages, setOpenLanguages] = useState(false);
   const [openTerritories, setOpenTerritories] = useState(false);
@@ -258,6 +279,49 @@ export default function AnalyticsDashboardPage() {
           subtitleColor="text-[#0070B9]"
           darkMode={darkMode}
         />
+      </div>
+
+      {/* World Map Section - Territory Map */}
+      <div className="flex flex-col px-4 w-full gap-4 mt-[40px]">
+        <div className="flex items-center gap-2">
+          <Image
+            src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+            alt="Globe icon"
+            width={20}
+            height={20}
+            className="block md:hidden"
+          />
+          <Image
+            src={darkMode ? TerritoryIconWhite : TerritoryIcon}
+            alt="Globe icon"
+            width={48}
+            height={48}
+            className="hidden md:block"
+          />
+          <h2
+            className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${
+              darkMode ? 'text-white' : 'text-[#053749]'
+            }`}
+          >
+            {pageContent['analytics-map-header-title'] || 'Wikimedians through the globe'}
+          </h2>
+        </div>
+        <div className={`w-full rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}>
+          {isAggregatedDataLoading ? (
+            <LoadingState />
+          ) : (
+            <SVGWorldMap
+              languageUserCounts={data?.language_user_counts}
+              languages={languages}
+              territoryUserCounts={data?.territory_user_counts}
+              territories={territories}
+              capacities={capacities}
+              languagesByTerritory={languagesByTerritory}
+              capacitiesByTerritory={capacitiesByTerritory}
+              totalUsers={data?.total_users}
+            />
+          )}
+        </div>
       </div>
 
       {/* Language Dropdown */}

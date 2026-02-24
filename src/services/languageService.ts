@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { Languages, LanguageProficiency } from '@/types/language';
 
-export const fetchLanguages = async (token: string): Promise<Languages> => {
+export const fetchLanguages = async (token: string, language?: string): Promise<Languages> => {
   const response = await axios.get<Languages>(`/api/list/language/`, {
     headers: {
       Authorization: `Token ${token}`,
     },
+    params: language ? { language } : undefined,
   });
 
   return response.data;
