@@ -11,15 +11,53 @@ jest.mock('@/stores', () => ({
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
   ),
   useIsMobile: jest.fn(() => false),
   usePageContent: jest.fn(() => ({})),
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
-    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+    jest.fn((selector?: any) => {
+      const state = {
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
   ),
 }));
 
@@ -60,7 +98,6 @@ jest.mock('next/navigation', () => ({
 
 // useTheme's mock
 
-
 // useOrganization's mock
 jest.mock('@/hooks/useOrganizationProfile', () => ({
   useOrganization: jest.fn(),
@@ -96,7 +133,6 @@ const validSession: Session = {
 
 // Mocking AppContext
 
-
 describe('MobileMenuLinks', () => {
   beforeEach(() => {
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
@@ -123,11 +159,7 @@ describe('MobileMenuLinks', () => {
       },
     });
 
-    return render(
-      <QueryClientProvider client={queryClient}>
-        {component}
-      </QueryClientProvider>
-    );
+    return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
   };
 
   it('renders menu links when logged in', () => {

@@ -9,15 +9,53 @@ jest.mock('@/stores', () => ({
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
   ),
   useIsMobile: jest.fn(() => false),
   usePageContent: jest.fn(() => ({})),
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),
   useAppStore: Object.assign(
-    jest.fn((selector?: any) => { const state = { isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }; return selector ? selector(state) : state; }),
-    { getState: () => ({ isMobile: false, mobileMenuStatus: false, language: 'en', pageContent: {}, session: null, mounted: true, setMobileMenuStatus: jest.fn(), setLanguage: jest.fn(), setPageContent: jest.fn(), setSession: jest.fn(), setIsMobile: jest.fn(), hydrate: jest.fn() }) }
+    jest.fn((selector?: any) => {
+      const state = {
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
   ),
 }));
 
@@ -31,7 +69,6 @@ const mockPageContent = {
 };
 
 // Mock Zustand stores
-
 
 // Mock Next.js Router
 jest.mock('next/navigation', () => ({
@@ -52,7 +89,6 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock useTheme
-
 
 describe('ProfileDeletedSuccessPopup', () => {
   setupTimers();
@@ -154,9 +190,7 @@ describe('ProfileDeletedSuccessPopup', () => {
     );
 
     // Open the popup
-    rerender(
-      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-    );
+    rerender(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     jest.advanceTimersByTime(3000);
 
@@ -166,8 +200,6 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in light mode', () => {
-
-
     const onClose = jest.fn();
 
     renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
@@ -177,8 +209,6 @@ describe('ProfileDeletedSuccessPopup', () => {
   });
 
   it('should render image in dark mode', () => {
-
-
     const onClose = jest.fn();
 
     renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
@@ -192,7 +222,6 @@ describe('ProfileDeletedSuccessPopup', () => {
 
     // Render in light mode first
 
-
     const { rerender } = renderWithThemeApp(
       <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
     );
@@ -201,9 +230,7 @@ describe('ProfileDeletedSuccessPopup', () => {
     expect(image).toBeInTheDocument();
 
     // Change to dark mode
-    rerender(
-      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-    );
+    rerender(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     image = screen.getByAltText('Success illustration');
     expect(image).toBeInTheDocument();
@@ -251,16 +278,12 @@ describe('ProfileDeletedSuccessPopup', () => {
     jest.advanceTimersByTime(1000);
 
     // Close
-    rerender(
-      <ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />
-    );
+    rerender(<ProfileDeletedSuccessPopup isOpen={false} onClose={onClose} />);
 
     jest.advanceTimersByTime(1000);
 
     // Re-open
-    rerender(
-      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-    );
+    rerender(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
     jest.advanceTimersByTime(3000);
 

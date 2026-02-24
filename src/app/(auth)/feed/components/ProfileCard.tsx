@@ -22,6 +22,8 @@ import TargetIcon from '@/public/static/images/target.svg';
 import TargetIconWhite from '@/public/static/images/target_white.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -37,6 +39,7 @@ interface ProfileCardProps {
   capacities: (number | string)[];
   wantedCapacities?: (number | string)[];
   availableCapacities?: (number | string)[];
+  knownCapacities?: (number | string)[];
   languages?: LanguageProficiency[];
   territory?: string;
   avatar?: string;
@@ -46,6 +49,9 @@ interface ProfileCardProps {
   isSaved?: boolean;
   onToggleSaved?: () => void;
   hasIncompleteProfile?: boolean;
+  showWanted?: boolean;
+  showAvailable?: boolean;
+  showKnown?: boolean;
 }
 
 // Helper functions
@@ -85,6 +91,7 @@ export const ProfileCard = ({
   capacities = [],
   wantedCapacities = [],
   availableCapacities = [],
+  knownCapacities = [],
   languages = [],
   territory,
   avatar,
@@ -93,6 +100,9 @@ export const ProfileCard = ({
   isSaved = false,
   onToggleSaved,
   hasIncompleteProfile = false,
+  showWanted = true,
+  showAvailable = true,
+  showKnown = false,
 }: ProfileCardProps) => {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -127,19 +137,33 @@ export const ProfileCard = ({
 
   // Preload capacities to ensure they're available in the cache
   useEffect(() => {
-    const allCapacities = [...capacities, ...wantedCapacities, ...availableCapacities];
+    const allCapacities = [
+      ...capacities,
+      ...wantedCapacities,
+      ...availableCapacities,
+      ...knownCapacities,
+    ];
     if (allCapacities.length > 0 && token) {
       preloadCapacities(token);
     }
-  }, [capacities, wantedCapacities, availableCapacities, preloadCapacities, token]);
+  }, [
+    capacities,
+    wantedCapacities,
+    availableCapacities,
+    knownCapacities,
+    preloadCapacities,
+    token,
+  ]);
 
   const wantedCapacitiesIcon = darkMode ? TargetIconWhite : TargetIcon;
   const availableCapacitiesIcon = darkMode ? EmojiIconWhite : EmojiIcon;
+  const knownCapacitiesIcon = darkMode ? NeurologyIconWhite : NeurologyIcon;
   const bookmarkIcon = getBookmarkIcon(isSaved, darkMode);
   const profileButtonIcon = getProfileButtonIcon(isOrganization, darkMode);
 
   const learnerLabel = pageContent['profile-learner'] || 'Learner';
   const sharerLabel = pageContent['profile-sharer'] || 'Sharer';
+  const proficientLabel = pageContent['profile-proficient'] || 'Proficient';
   const typeBadgeBaseClass =
     'md:text-[18px] inline-flex px-2 py-1 text-xs font-normal rounded-full border';
 
@@ -173,39 +197,69 @@ export const ProfileCard = ({
       );
     }
 
-    if (isMultiType) {
+    // Check if profile has known capacities
+    const hasKnown = knownCapacities && knownCapacities.length > 0;
+    const typeArray = Array.isArray(type) ? type : [type];
+    const hasKnownType = typeArray.includes(ProfileCapacityType.Known);
+
+    if (
+      isMultiType ||
+      (hasKnownType &&
+        (typeArray.includes(ProfileCapacityType.Learner) ||
+          typeArray.includes(ProfileCapacityType.Sharer)))
+    ) {
       return (
         <>
-          <span
-            className={`${typeBadgeBaseClass} ${
-              darkMode ? 'text-purple-200 border-purple-200' : 'text-purple-800 border-purple-800'
-            }`}
-          >
-            {learnerLabel}
-          </span>
-          <span
-            className={`${typeBadgeBaseClass} ${
-              darkMode ? 'text-[#05A300] border-[#05A300]' : 'text-[#166534] border-[#166534]'
-            }`}
-          >
-            {sharerLabel}
-          </span>
+          {typeArray.includes(ProfileCapacityType.Learner) && (
+            <span
+              className={`${typeBadgeBaseClass} ${
+                darkMode ? 'text-purple-200 border-purple-200' : 'text-purple-800 border-purple-800'
+              }`}
+            >
+              {learnerLabel}
+            </span>
+          )}
+          {typeArray.includes(ProfileCapacityType.Sharer) && (
+            <span
+              className={`${typeBadgeBaseClass} ${
+                darkMode ? 'text-[#05A300] border-[#05A300]' : 'text-[#166534] border-[#166534]'
+              }`}
+            >
+              {sharerLabel}
+            </span>
+          )}
+          {hasKnownType && (
+            <span
+              className={`${typeBadgeBaseClass} ${
+                darkMode ? 'text-orange-200 border-orange-200' : 'text-orange-600 border-orange-600'
+              }`}
+            >
+              {proficientLabel}
+            </span>
+          )}
         </>
       );
     }
 
     let typeLabel = '';
+    let badgeColor = '';
+
     if (primaryType === 'learner') {
       typeLabel = learnerLabel;
+      badgeColor = darkMode
+        ? 'text-purple-200 border-purple-200'
+        : 'text-purple-800 border-purple-800';
     } else if (primaryType === 'sharer') {
       typeLabel = sharerLabel;
+      badgeColor = darkMode ? 'text-[#05A300] border-[#05A300]' : 'text-[#166534] border-[#166534]';
+    } else if (primaryType === 'known') {
+      typeLabel = proficientLabel;
+      badgeColor = darkMode
+        ? 'text-orange-200 border-orange-200'
+        : 'text-orange-600 border-orange-600';
     }
 
-    return (
-      <span className={`${typeBadgeBaseClass} ${getTypeBadgeColors(primaryType, darkMode)}`}>
-        {typeLabel}
-      </span>
-    );
+    return <span className={`${typeBadgeBaseClass} ${badgeColor}`}>{typeLabel}</span>;
   };
 
   const renderCapacitiesSection = () => {
@@ -225,50 +279,80 @@ export const ProfileCard = ({
       );
     }
 
-    if (isMultiType) {
-      return (
-        <div className="flex flex-col gap-4">
-          {wantedCapacities && wantedCapacities.length > 0 && (
-            <ProfileItem
-              icon={wantedCapacitiesIcon}
-              title={pageContent['body-profile-wanted-capacities-title']}
-              items={wantedCapacities}
-              showEmptyDataText={false}
-              getItemName={id => getName(Number(id))}
-              customClass={capacityItemClass}
-            />
-          )}
-          {availableCapacities && availableCapacities.length > 0 && (
-            <ProfileItem
-              icon={availableCapacitiesIcon}
-              title={pageContent['body-profile-available-capacities-title']}
-              items={availableCapacities}
-              showEmptyDataText={false}
-              getItemName={id => getName(Number(id))}
-              customClass={capacityItemClass}
-            />
-          )}
-          {/* Show message if no capacities are available */}
-          {(!wantedCapacities || wantedCapacities.length === 0) &&
-            (!availableCapacities || availableCapacities.length === 0) && (
-              <div className="text-center py-4">
-                <p
-                  className={`font-[Montserrat] text-[14px] ${
-                    darkMode ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                >
-                  No capacities available
-                </p>
-              </div>
-            )}
-        </div>
+    // Collect all capacity sections to display
+    const sectionsToShow: JSX.Element[] = [];
+
+    // Always show wanted if it exists and is enabled
+    if (showWanted && wantedCapacities && wantedCapacities.length > 0) {
+      sectionsToShow.push(
+        <ProfileItem
+          key="wanted"
+          icon={wantedCapacitiesIcon}
+          title={pageContent['body-profile-wanted-capacities-title']}
+          items={wantedCapacities}
+          showEmptyDataText={false}
+          getItemName={id => getName(Number(id))}
+          customClass={capacityItemClass}
+        />
       );
+    }
+
+    // Show available if it exists and is enabled
+    if (showAvailable && availableCapacities && availableCapacities.length > 0) {
+      sectionsToShow.push(
+        <ProfileItem
+          key="available"
+          icon={availableCapacitiesIcon}
+          title={pageContent['body-profile-available-capacities-title']}
+          items={availableCapacities}
+          showEmptyDataText={false}
+          getItemName={id => getName(Number(id))}
+          customClass={capacityItemClass}
+        />
+      );
+    }
+
+    // Show known if it exists and is enabled
+    if (showKnown && knownCapacities && knownCapacities.length > 0) {
+      sectionsToShow.push(
+        <ProfileItem
+          key="known"
+          icon={knownCapacitiesIcon}
+          title={pageContent['body-profile-known-capacities-title']}
+          items={knownCapacities}
+          showEmptyDataText={false}
+          getItemName={id => getName(Number(id))}
+          customClass={capacityItemClass}
+        />
+      );
+    }
+
+    // If multi-type or has multiple capacity types, show all enabled sections
+    if (isMultiType || sectionsToShow.length > 1) {
+      return <div className="flex flex-col gap-4">{sectionsToShow}</div>;
+    }
+
+    // Single type: show primary capacity type if enabled, otherwise show first available
+    if (sectionsToShow.length > 0) {
+      return sectionsToShow[0];
+    }
+
+    // Fallback: determine icon and title based on type
+    let icon = availableCapacitiesIcon;
+    let title = capacitiesTitleSingle;
+
+    if (primaryType === 'learner') {
+      icon = wantedCapacitiesIcon;
+      title = pageContent['body-profile-wanted-capacities-title'];
+    } else if (primaryType === 'known') {
+      icon = knownCapacitiesIcon;
+      title = pageContent['body-profile-known-capacities-title'];
     }
 
     return (
       <ProfileItem
-        icon={primaryType === 'learner' ? wantedCapacitiesIcon : availableCapacitiesIcon}
-        title={capacitiesTitleSingle}
+        icon={icon}
+        title={title}
         items={capacities}
         showEmptyDataText={false}
         getItemName={id => getName(Number(id))}
@@ -296,10 +380,12 @@ export const ProfileCard = ({
 
               {/* Profile Image */}
               <div className="flex flex-col items-center mb-6">
-                <div
+                <button
+                  onClick={navigateToProfile}
                   className={`relative w-[100px] h-[100px] md:w-[200px] md:h-[200px] ${
                     darkMode ? 'bg-[#EFEFEF]' : ''
-                  } rounded-[4px]`}
+                  } rounded-[4px] cursor-pointer hover:opacity-90 transition-opacity`}
+                  aria-label={pageContent['alt-view-profile-user'] || 'View user profile'}
                 >
                   <Image
                     src={profileImageUrl || defaultAvatar}
@@ -314,7 +400,7 @@ export const ProfileCard = ({
                     unoptimized
                     loading="lazy"
                   />
-                </div>
+                </button>
               </div>
             </div>
 

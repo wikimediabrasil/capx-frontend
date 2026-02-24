@@ -11,7 +11,7 @@ const initialState = {
 
 export const useProfileEditStore = create<ProfileEditStore>()(
   devtools(
-    (set) => ({
+    set => ({
       ...initialState,
 
       setUnsavedData: (data: Partial<Profile> | null) => {

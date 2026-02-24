@@ -59,14 +59,7 @@ const CapacitiesPrefetcherInternal = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [
-    token,
-    shouldSkipPrefetch,
-    isLoaded,
-    isLoadingTranslations,
-    store,
-    appLanguage,
-  ]);
+  }, [token, shouldSkipPrefetch, isLoaded, isLoadingTranslations, store, appLanguage]);
 
   return null;
 };

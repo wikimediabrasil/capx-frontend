@@ -45,7 +45,13 @@ export function AlternativeAccountSection({ wikiAlt, onChange }: AlternativeAcco
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <Image src={wikiIcon} alt="Alternative account icon" width={iconSize} height={iconSize} style={{ width: iconSize, height: iconSize }} />
+        <Image
+          src={wikiIcon}
+          alt="Alternative account icon"
+          width={iconSize}
+          height={iconSize}
+          style={{ width: iconSize, height: iconSize }}
+        />
         <h2 className={titleClass}>{pageContent['body-profile-box-title-alt-wiki-acc']}</h2>
       </div>
       <input

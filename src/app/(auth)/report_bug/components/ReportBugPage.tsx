@@ -1,6 +1,5 @@
 'use client';
 
-
 import NavBarReportBugPage from './NavBar';
 import Banner from '@/components/Banner';
 import BugReport from '@/public/static/images/bug_reports.svg';

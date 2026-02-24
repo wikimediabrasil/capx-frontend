@@ -9,7 +9,13 @@ import LanguageSelect from './LanguageSelect';
 import DarkModeButton from './DarkModeButton';
 import BurgerMenu from '@/public/static/images/burger_menu.svg';
 import BurgerMenuDarkMode from '@/public/static/images/burger_menu_light.svg';
-import { useDarkMode, useIsMobile, useMobileMenuStatus, usePageContent, useAppStore } from '@/stores';
+import {
+  useDarkMode,
+  useIsMobile,
+  useMobileMenuStatus,
+  usePageContent,
+  useAppStore,
+} from '@/stores';
 import IconCloseMobileMenuLightMode from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import IconCloseMobileMenuDarkMode from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import { Session } from 'next-auth';

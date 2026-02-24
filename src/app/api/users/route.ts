@@ -21,9 +21,11 @@ export async function GET(request: NextRequest) {
       languageproficiency__language: searchParams.get('language') || undefined,
       skills_wanted: searchParams.get('skills_wanted') || undefined,
       skills_available: searchParams.get('skills_available') || undefined,
+      skills_known: searchParams.get('skills_known') || undefined,
       has_any_skills: searchParams.get('has_any_skills') === 'true' ? true : undefined,
       has_skills_wanted: searchParams.get('has_skills_wanted') === 'true' ? true : undefined,
       has_skills_available: searchParams.get('has_skills_available') === 'true' ? true : undefined,
+      has_skills_known: searchParams.get('has_skills_known') === 'true' ? true : undefined,
       affiliation: searchParams.get('affiliation') || undefined,
       ordering: searchParams.get('ordering') || undefined,
     };

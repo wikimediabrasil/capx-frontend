@@ -8,7 +8,14 @@ jest.mock('@/stores', () => ({
   useSetDarkMode: jest.fn(() => jest.fn()),
   useThemeStore: Object.assign(
     jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    { getState: () => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() }) }
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
   ),
 }));
 
@@ -32,13 +39,11 @@ jest.mock('next/navigation', () => ({
 
 // Mock do useTheme
 
-
 describe('BaseButton', () => {
   const defaultOnClick = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-
   });
 
   const renderButton = (props: any = {}) => {

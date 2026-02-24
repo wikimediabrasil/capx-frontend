@@ -7,7 +7,7 @@ import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_wh
 import { useDarkMode, usePageContent } from '@/stores';
 const CAPACITY_STYLES = {
   known: {
-    backgroundColor: 'bg-[#0070B9]',
+    backgroundColor: 'bg-orange-500',
     textColor: 'text-white',
   },
   available: {

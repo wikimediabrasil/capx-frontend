@@ -1,4 +1,3 @@
-
 import { useDarkMode } from '@/stores';
 interface NoResultsProps {
   title: string;

@@ -9,8 +9,10 @@ export interface UserFilters {
   affiliations?: string[];
   skills_available?: number[];
   skills_wanted?: number[];
+  skills_known?: number[];
   has_skills_wanted?: boolean;
   has_skills_available?: boolean;
+  has_skills_known?: boolean;
 }
 
 export interface FetchAllUsersParams {
@@ -76,12 +78,20 @@ export const userService = {
       queryParams.filters.skills_wanted.forEach(c => params.append('skills_wanted', c.toString()));
     }
 
+    if (queryParams?.filters?.skills_known?.length) {
+      queryParams.filters.skills_known.forEach(c => params.append('skills_known', c.toString()));
+    }
+
     if (queryParams?.filters?.has_skills_available === true) {
       params.append('has_skills_available', 'true');
     }
 
     if (queryParams?.filters?.has_skills_wanted === true) {
       params.append('has_skills_wanted', 'true');
+    }
+
+    if (queryParams?.filters?.has_skills_known === true) {
+      params.append('has_skills_known', 'true');
     }
 
     if (queryParams?.limit) {
