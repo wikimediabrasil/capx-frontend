@@ -32,6 +32,6 @@ export const useStatistics = () => {
       }
     };
     fetchStatistics();
-  }, [session]);
+  }, [session?.user?.token]);
   return { data, isLoading, error };
 };
