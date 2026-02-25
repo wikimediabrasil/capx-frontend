@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
+  const { id } = await params;
 
   try {
-    const response = await axios.get(`${process.env.BASE_URL}/organizations/${params.id}/`, {
+    const response = await axios.get(`${process.env.BASE_URL}/organizations/${id}/`, {
       headers: {
         Authorization: authHeader,
         Accept: 'application/json',
@@ -25,22 +26,20 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   try {
     const body = await request.json();
     const authHeader = request.headers.get('authorization');
 
-    const updateResponse = await axios.put(
-      `${process.env.BASE_URL}/organizations/${params.id}/`,
-      body,
-      {
-        headers: {
-          Authorization: authHeader,
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const updateResponse = await axios.put(`${process.env.BASE_URL}/organizations/${id}/`, body, {
+      headers: {
+        Authorization: authHeader,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
 
     return NextResponse.json(updateResponse.data);
   } catch (error: any) {

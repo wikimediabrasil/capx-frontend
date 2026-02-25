@@ -1,19 +1,20 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
+  const { id } = await params;
   const formData = await request.json();
 
   try {
     const payload = {
       ...formData,
       user: {
-        id: Number(params.id),
+        id: Number(id),
       },
     };
 
-    const response = await axios.put(`${process.env.BASE_URL}/profile/${params.id}/`, payload, {
+    const response = await axios.put(`${process.env.BASE_URL}/profile/${id}/`, payload, {
       headers: {
         Authorization: authHeader,
       },
@@ -32,11 +33,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
+  const { id } = await params;
 
   try {
-    const response = await axios.get(`${process.env.BASE_URL}/profile/${params.id}/`, {
+    const response = await axios.get(`${process.env.BASE_URL}/profile/${id}/`, {
       headers: {
         Authorization: authHeader,
       },

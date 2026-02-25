@@ -10,17 +10,18 @@ import { useParams } from 'next/navigation';
 export default function ProfileByUserName() {
   const params = useParams();
   const { data: session } = useSession();
-  const username = params?.username.toString();
+  const usernameParam = params?.username;
+  const username = Array.isArray(usernameParam) ? usernameParam[0] : usernameParam;
 
   // Ensure the username is encoded and replace spaces with underscores
-  const decodedUsername = decodeURIComponent(username as string);
+  const decodedUsername = decodeURIComponent(username || '');
   const { userByUsername } = useUserByUsername(decodedUsername);
 
   const decodedUsernameToLower = decodedUsername?.toLowerCase().trim();
   const loggedUserNameToLower = session?.user?.name?.toLowerCase().trim() || '';
   const isSameUser = decodedUsernameToLower === loggedUserNameToLower;
 
-  if (!userByUsername) {
+  if (!username || !userByUsername) {
     return <LoadingState fullScreen={true} />;
   }
 

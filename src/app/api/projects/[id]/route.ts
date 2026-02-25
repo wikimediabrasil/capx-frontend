@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
 
   try {
     const response = await axios.get(`${process.env.BASE_URL}/projects/${id}`, {
@@ -33,9 +33,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
   const body = await request.json();
   try {
     const response = await axios.post(`${process.env.BASE_URL}/projects/${id}`, body, {
@@ -49,9 +49,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
   const body = await request.json();
   try {
     const response = await axios.put(`${process.env.BASE_URL}/projects/${id}/`, body, {
@@ -66,9 +66,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
   try {
     const response = await axios.delete(`${process.env.BASE_URL}/projects/${id}/`, {
       headers: {

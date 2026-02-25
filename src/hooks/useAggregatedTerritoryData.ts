@@ -19,17 +19,10 @@ interface AggregatedTerritoryData {
   error: Error | null;
 }
 
-export const useAggregatedTerritoryData = (
-  token: string | undefined
-): AggregatedTerritoryData => {
-  const headers: Record<string, string> = token
-    ? { Authorization: `Token ${token}` }
-    : {};
+export const useAggregatedTerritoryData = (token: string | undefined): AggregatedTerritoryData => {
+  const headers: Record<string, string> = token ? { Authorization: `Token ${token}` } : {};
 
-  const {
-    data: languagesByTerritory = {},
-    isLoading: isLanguagesLoading,
-  } = useQuery({
+  const { data: languagesByTerritory = {}, isLoading: isLanguagesLoading } = useQuery({
     queryKey: ['statistics', 'languages-by-territory', token ?? null],
     queryFn: async () => {
       const response = await axios.get<AggregatedLanguageData>(
@@ -41,10 +34,7 @@ export const useAggregatedTerritoryData = (
     staleTime: 5 * 60 * 1000,
   });
 
-  const {
-    data: capacitiesByTerritory = {},
-    isLoading: isCapacitiesLoading,
-  } = useQuery({
+  const { data: capacitiesByTerritory = {}, isLoading: isCapacitiesLoading } = useQuery({
     queryKey: ['statistics', 'capacities-by-territory', token ?? null],
     queryFn: async () => {
       const response = await axios.get<AggregatedCapacityData>(
@@ -142,8 +132,7 @@ export const getCapacityTotalsByWikimediaTerritory = (
       }
       totals[wikimediaId].available += capCounts[capacityId].available;
       totals[wikimediaId].wanted += capCounts[capacityId].wanted;
-      totals[wikimediaId].total +=
-        capCounts[capacityId].available + capCounts[capacityId].wanted;
+      totals[wikimediaId].total += capCounts[capacityId].available + capCounts[capacityId].wanted;
     }
   });
 
