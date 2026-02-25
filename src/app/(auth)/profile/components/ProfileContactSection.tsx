@@ -1,18 +1,20 @@
 'use client';
 
 import BaseButton from '@/components/BaseButton';
-import { useApp } from '@/contexts/AppContext';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ContactImage from '@/public/static/images/capx_contact_person.svg';
 import ContactImageDesktop from '@/public/static/images/capx_contact_person_desktop.svg';
 
+import { useIsMobile, usePageContent } from '@/stores';
 interface ProfileContactSectionProps {
   readonly username: string;
 }
 
 export default function ProfileContactSection({ username }: ProfileContactSectionProps) {
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const router = useRouter();
 
   if (isMobile) {

@@ -2,6 +2,60 @@ import DocumentFormItem from '@/app/(auth)/organization_profile/components/Docum
 import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+}));
 
 // Image Mock
 jest.mock('next/image', () => {
@@ -28,21 +82,6 @@ const mockPageContent = {
   'snackbar-edit-profile-organization-document-url-invalid-format':
     'Invalid URL format. Please use a valid Wikimedia Commons URL.',
 };
-
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({
-    pageContent: mockPageContent,
-    isMobile: false,
-  }),
-  AppProvider: ({ children }: any) => <div>{children}</div>,
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(() => ({
-    darkMode: false,
-  })),
-  ThemeProvider: ({ children }: any) => <div>{children}</div>,
-}));
 
 const mockShowSnackbar = jest.fn();
 jest.mock('@/app/providers/SnackbarProvider', () => ({
@@ -72,6 +111,7 @@ describe('DocumentFormItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockShowSnackbar.mockClear();
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   it('renders document form item correctly', () => {
@@ -111,8 +151,7 @@ describe('DocumentFormItem', () => {
   });
 
   it('applies dark mode styles correctly', () => {
-    const { useTheme } = require('@/contexts/ThemeContext');
-    useTheme.mockReturnValue({ darkMode: true });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     const validDocument = { id: 1, url: 'https://commons.wikimedia.org/wiki/File:Test.pdf' };
     renderWithProviders(<DocumentFormItem {...defaultProps} document={validDocument} />);
@@ -122,8 +161,7 @@ describe('DocumentFormItem', () => {
   });
 
   it('applies light mode styles correctly', () => {
-    const { useTheme } = require('@/contexts/ThemeContext');
-    useTheme.mockReturnValue({ darkMode: false });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
 
     const validDocument = { id: 1, url: 'https://commons.wikimedia.org/wiki/File:Test.pdf' };
     renderWithProviders(<DocumentFormItem {...defaultProps} document={validDocument} />);

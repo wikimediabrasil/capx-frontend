@@ -1,14 +1,13 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 const CAPACITY_STYLES = {
   known: {
-    backgroundColor: 'bg-[#0070B9]',
+    backgroundColor: 'bg-orange-500',
     textColor: 'text-white',
   },
   available: {
@@ -60,8 +59,8 @@ export function ProfileItem({
   itemCustomClass = '',
   useDefaultStyle = true,
 }: Readonly<ProfileItemProps>) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [isExpanded, setIsExpanded] = useState(false);
   const noDataMessage = pageContent['empty-field'];
   const [localNames, setLocalNames] = useState<{ [key: string]: string }>({});

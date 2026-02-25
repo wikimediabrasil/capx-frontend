@@ -1,5 +1,4 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import CommonsLogo from '@/public/static/images/commons_logo.svg';
 import MainImage from '@/public/static/images/main_image.svg';
 import MediaWikiLogo from '@/public/static/images/mediawiki_logo.svg';
@@ -15,8 +14,9 @@ import AuthButton from './AuthButton';
 import BaseButton from './BaseButton';
 
 export default function MainSection() {
-  const { isMobile, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const { data: session } = useSession();
 
   // Internationalized dynamic title handling using a parameterized template with a $1 placeholder

@@ -1,10 +1,63 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ProfileSelect from '@/components/ProfileSelect';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as AppContext from '@/contexts/AppContext';
 import { SessionProvider } from 'next-auth/react';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => {
+      const state = {
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+}));
 
 const pushMock = jest.fn();
 
@@ -60,47 +113,14 @@ const mockPageContent = {
 };
 
 // Mock AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: jest.fn(() => ({
-    pageContent: mockPageContent,
-    isMobile: false,
-  })),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(() => ({
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    theme: {
-      fontSize: {
-        mobile: { base: '14px' },
-        desktop: { base: '24px' },
-      },
-    },
-    getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-    getBackgroundColor: () => '#FFFFFF',
-    getTextColor: () => '#000000',
-  })),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
 
 describe('ProfileSelect', () => {
   beforeEach(() => {
-    (AppContext.useApp as jest.Mock).mockReturnValue({
-      pageContent: mockPageContent,
-      isMobile: false,
-    });
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <SessionProvider>
-        <AppProvider>
-          <ThemeProvider>{component}</ThemeProvider>
-        </AppProvider>
-      </SessionProvider>
-    );
+    return render(<SessionProvider>{component}</SessionProvider>);
   };
 
   it('renders with default text correctly', () => {
@@ -109,13 +129,10 @@ describe('ProfileSelect', () => {
   });
 
   it('handles long text without breaking layout', () => {
-    (AppContext.useApp as jest.Mock).mockImplementation(() => ({
-      pageContent: {
-        'navbar-link-profiles': 'Meine Profile und Einstellungen',
-        'navbar-user-profile': 'Benutzerprofil',
-      },
-      isMobile: false,
-    }));
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      ...mockPageContent,
+      'navbar-link-profiles': 'Meine Profile und Einstellungen',
+    });
 
     renderWithProviders(<ProfileSelect />);
 
@@ -127,13 +144,10 @@ describe('ProfileSelect', () => {
   });
 
   it('supports RTL text direction', () => {
-    (AppContext.useApp as jest.Mock).mockImplementation(() => ({
-      pageContent: {
-        'navbar-link-profiles': 'الملفات الشخصية',
-        'navbar-user-profile': 'الملف الشخصي',
-      },
-      isMobile: false,
-    }));
+    (stores.usePageContent as jest.Mock).mockReturnValue({
+      ...mockPageContent,
+      'navbar-link-profiles': 'الملفات الشخصية',
+    });
 
     renderWithProviders(<ProfileSelect />);
     expect(screen.getByText('الملفات الشخصية')).toBeInTheDocument();
@@ -169,38 +183,38 @@ describe('ProfileSelect', () => {
     expect(screen.getByText('My Profiles')).toBeInTheDocument();
   });
 
-  it('shows user profile option when clicked', async () => {
+  it('shows user profile option when clicked', () => {
     renderWithProviders(<ProfileSelect />);
 
     // Find the select container
     const selectContainer = screen.getByRole('combobox');
-    await userEvent.click(selectContainer);
+    fireEvent.mouseDown(selectContainer);
 
     // Find the profile option using the role 'option'
     const profileOption = screen.getByRole('option', { name: 'User Profile' });
     expect(profileOption).toBeInTheDocument();
   });
 
-  it('handles profile selection correctly', async () => {
+  it('handles profile selection correctly', () => {
     renderWithProviders(<ProfileSelect />);
 
     // Find and click on the select
     const selectContainer = screen.getByRole('combobox');
-    await userEvent.click(selectContainer);
+    fireEvent.mouseDown(selectContainer);
 
     // Find and click on the profile option
     const profileOption = screen.getByRole('option', { name: 'User Profile' });
-    await userEvent.click(profileOption);
+    fireEvent.click(profileOption);
 
     // Check if the router.push was called with the correct path
     expect(pushMock).toHaveBeenCalledWith('/profile');
   });
 
-  it('displays correct profile options', async () => {
+  it('displays correct profile options', () => {
     renderWithProviders(<ProfileSelect />);
 
     const selectContainer = screen.getByRole('combobox');
-    await userEvent.click(selectContainer);
+    fireEvent.mouseDown(selectContainer);
 
     // Check if the correct options are present
     expect(screen.getByText('User Profile')).toBeInTheDocument();

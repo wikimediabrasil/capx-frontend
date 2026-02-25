@@ -9,10 +9,15 @@ import LanguageSelect from './LanguageSelect';
 import DarkModeButton from './DarkModeButton';
 import BurgerMenu from '@/public/static/images/burger_menu.svg';
 import BurgerMenuDarkMode from '@/public/static/images/burger_menu_light.svg';
-import { useApp } from '@/contexts/AppContext';
+import {
+  useDarkMode,
+  useIsMobile,
+  useMobileMenuStatus,
+  usePageContent,
+  useAppStore,
+} from '@/stores';
 import IconCloseMobileMenuLightMode from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import IconCloseMobileMenuDarkMode from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Session } from 'next-auth';
 
 interface MobileNavbarProps {
@@ -22,8 +27,11 @@ interface MobileNavbarProps {
 }
 
 export default function MobileNavbar({ session, language, setLanguage }: MobileNavbarProps) {
-  const { isMobile, mobileMenuStatus, setMobileMenuStatus, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+  const mobileMenuStatus = useMobileMenuStatus();
+  const setMobileMenuStatus = useAppStore(s => s.setMobileMenuStatus);
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const navbarClasses = `fixed top-0 left-0 right-0 z-50 mb-16 ${
     darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'
   } ${mobileMenuStatus ? 'shadow-lg' : ''}`;

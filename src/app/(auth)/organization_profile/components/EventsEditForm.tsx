@@ -2,8 +2,6 @@
 
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
 import CustomDatePicker from '@/components/CustomDatePicker';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useCapacityDetails } from '@/hooks/useCapacityDetails';
 import { dateTimeLocalToDate, dateToDateTimeLocal } from '@/lib/utils/dateLocale';
 import {
@@ -16,6 +14,7 @@ import { organizationProfileService } from '@/services/organizationProfileServic
 import { Capacity } from '@/types/capacity';
 import { Event } from '@/types/event';
 import { useSession } from 'next-auth/react';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import React, {
   memo,
   useCallback,
@@ -341,8 +340,10 @@ OrganizationLoader.displayName = 'OrganizationLoader';
 // Memoize the EventsForm component to avoid unnecessary renders
 const EventsForm = memo(
   ({ eventData, index, onChange, eventType }: EventFormItemProps) => {
-    const { darkMode } = useTheme();
-    const { isMobile, pageContent } = useApp();
+    const darkMode = useDarkMode();
+    const isMobile = useIsMobile();
+
+    const pageContent = usePageContent();
     const { capacityNames } = useCapacityDetails();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);

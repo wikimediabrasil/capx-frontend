@@ -1,7 +1,6 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import Image from 'next/image';
 import { Badge } from '@/types/badge';
 // import CheckCircleIcon from "@/public/static/images/check.svg"; TODO: Add this icon
@@ -21,8 +20,9 @@ export default function BadgeSelectionModal({
   onClose,
   onUpdate,
 }: BadgeSelectionModalProps) {
-  const { darkMode } = useTheme();
-  const { pageContent, isMobile } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+  const isMobile = useIsMobile();
   const [selected, setSelected] = useState<number[]>(selectedBadges);
 
   // Avoid scroll on the page when the modal is open

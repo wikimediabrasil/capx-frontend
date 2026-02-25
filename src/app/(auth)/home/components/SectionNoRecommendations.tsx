@@ -1,12 +1,11 @@
 'use client';
 
 import CardNoRecommendations from '@/app/(auth)/home/components/CardNoRecommendations';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile, useDarkMode } from '@/stores';
 
 export default function SectionNoRecommendations() {
-  const { isMobile } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+  const darkMode = useDarkMode();
 
   const noCapacitesSection = isMobile ? (
     //Mobile

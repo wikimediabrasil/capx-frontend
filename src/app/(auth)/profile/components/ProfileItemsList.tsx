@@ -1,16 +1,16 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
-
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ProfileItemsListProps {
   readonly items: ReadonlyArray<{ readonly id: number | string; readonly label: string }>;
   readonly emptyMessage?: string;
 }
 
 export default function ProfileItemsList({ items, emptyMessage }: ProfileItemsListProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
   const textSize = isMobile ? 'text-[14px]' : 'text-[24px]';
 
   if (!items || items.length === 0) {

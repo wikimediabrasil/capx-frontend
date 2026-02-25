@@ -1,11 +1,65 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import MobileMenuLinks from '../../components/MobileMenuLinks';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { Session } from 'next-auth';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => {
+      const state = {
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+}));
 
 // Mock next-auth
 jest.mock('next-auth/react', () => ({
@@ -43,13 +97,6 @@ jest.mock('next/navigation', () => ({
 }));
 
 // useTheme's mock
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn().mockReturnValue({
-    darkMode: false,
-    setDarkMode: jest.fn(),
-  }),
-}));
 
 // useOrganization's mock
 jest.mock('@/hooks/useOrganizationProfile', () => ({
@@ -85,33 +132,12 @@ const validSession: Session = {
 };
 
 // Mocking AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    pageContent: mockPageContent,
-    isMobile: true,
-    mobileMenuStatus: true,
-    setMobileMenuStatus: jest.fn(),
-    language: 'en',
-    setLanguage: jest.fn(),
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    session: null,
-    setSession: jest.fn(),
-    setPageContent: jest.fn(),
-    isLoading: false,
-    setIsLoading: jest.fn(),
-    isMenuOpen: false,
-    setIsMenuOpen: jest.fn(),
-  }),
-}));
 
 describe('MobileMenuLinks', () => {
   beforeEach(() => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+
     (useOrganization as jest.Mock).mockReturnValue({
       organizations: [
         { id: 1, display_name: 'Org 1' },
@@ -133,13 +159,7 @@ describe('MobileMenuLinks', () => {
       },
     });
 
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AppProvider>{component}</AppProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    );
+    return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
   };
 
   it('renders menu links when logged in', () => {
@@ -168,10 +188,7 @@ describe('MobileMenuLinks', () => {
   });
 
   it('applies dark mode styles', () => {
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: true,
-      setDarkMode: jest.fn(),
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(true);
 
     renderWithProviders(<MobileMenuLinks session={validSession} handleMenuStatus={() => {}} />);
 

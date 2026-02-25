@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { useApp } from '@/contexts/AppContext';
+import { useLanguage, useCapacityStore } from '@/stores';
 
 // Paths where we don't need to prefetch all capacity data
 const EXCLUDED_PATHS = [
@@ -29,41 +28,38 @@ export const CapacitiesPrefetcher = () => {
 };
 
 const CapacitiesPrefetcherInternal = () => {
-  const {
-    updateLanguage,
-    isLoaded,
-    language: _language,
-    isLoadingTranslations,
-  } = useCapacityCache();
+  const store = useCapacityStore();
   const { data: session } = useSession();
-  const { language: appLanguage } = useApp();
+  const token = session?.user?.token;
+  const appLanguage = useLanguage();
   const pathname = usePathname();
+
+  const isLoaded = store.getIsLoaded();
+  const isLoadingTranslations = store.isLoadingTranslations;
 
   // Check if we should skip prefetching based on the current path
   const shouldSkipPrefetch = pathname && EXCLUDED_PATHS.some(path => pathname.includes(path));
 
-  // Only prefetch when we have a session, no cache loaded, and not already loading
+  // Prefetch when we have a session, not already loading, and either not yet loaded
+  // or the cached language differs from the current app language.
   useEffect(() => {
-    if (!session?.user?.token || shouldSkipPrefetch || isLoaded || isLoadingTranslations) {
+    if (!token || shouldSkipPrefetch || isLoadingTranslations) {
       return;
     }
 
-    // Use the app language (from localStorage/context) instead of cache language
     const languageToLoad = appLanguage || 'en';
 
+    // Skip if already loaded with the correct language
+    if (isLoaded && store.language === languageToLoad) {
+      return;
+    }
+
     const timer = setTimeout(() => {
-      updateLanguage(languageToLoad);
+      store.updateLanguage(languageToLoad, token);
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [
-    session?.user?.token,
-    shouldSkipPrefetch,
-    isLoaded,
-    isLoadingTranslations,
-    updateLanguage,
-    appLanguage,
-  ]);
+  }, [token, shouldSkipPrefetch, isLoaded, isLoadingTranslations, store, appLanguage]);
 
   return null;
 };

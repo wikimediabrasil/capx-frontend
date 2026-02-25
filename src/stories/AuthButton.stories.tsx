@@ -1,21 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import AuthButton from '@/components/AuthButton';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import MoveOutIcon from '@/public/static/images/move_item.svg';
 
 const meta: Meta<typeof AuthButton> = {
   title: 'Components/AuthButton',
   component: AuthButton,
-  decorators: [
-    Story => (
-      <AppProvider>
-        <ThemeProvider>
-          <Story />
-        </ThemeProvider>
-      </AppProvider>
-    ),
-  ],
   parameters: {
     layout: 'centered',
   },

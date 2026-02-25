@@ -13,6 +13,7 @@ The Capacity Exchange (CapX) is available in Toolforge at https://capx.toolforge
   - [Installation](#installation)
 - [Project Architecture](#project-architecture)
 - [Features](#features)
+- [State Management Architecture](#state-management-architecture)
 - [Testing](#testing)
 - [Storybook](#storybook)
 - [Development](#development)
@@ -90,7 +91,7 @@ capx-frontend/
 │ │ └── layout.tsx # Root layout
 │ ├── components/ # Shared components (50+ components)
 │ ├── hooks/ # Custom hooks (35+ hooks)
-│ ├── contexts/ # React contexts for state management
+│ ├── stores/ # Zustand stores for global state management
 │ ├── services/ # API services (23+ services)
 │ ├── types/ # TypeScript type definitions
 │ ├── lib/ # Utility functions
@@ -209,6 +210,7 @@ The application features a sophisticated multi-layered caching system designed f
 ### 🔧 Developer Features
 
 - **TypeScript**: Full type safety throughout the application
+- **Zustand State Management**: Modular stores with selective subscriptions, devtools integration, and persist middleware
 - **Error Boundaries**: Graceful error handling
 - **Loading States**: Comprehensive loading state management
 - **Advanced Caching System**: Multi-layered caching with React Query, localStorage persistence, and intelligent cache invalidation
@@ -248,9 +250,9 @@ yarn lint
 
 ### Test Coverage Statistics
 
-- **Total Test Suites**: 32
-- **Total Tests**: 343+
-- **Pass Rate**: 99%+ (342/343 tests passing)
+- **Total Test Suites**: 50
+- **Total Tests**: 620+
+- **Pass Rate**: 100%
 - **Coverage Areas**: All major components and features
 
 ### Comprehensive Test Coverage
@@ -354,11 +356,11 @@ graph TD
     G --> I[Metabase API]
     G --> W[Wikidata SPARQL]
 
-    E --> J[Theme Context]
-    E --> K[Unified Capacity Cache Context]
-    E --> L[Badges Context]
-    E --> M[Profile Edit Context]
-    E --> N[App Context]
+    E --> J[ThemeStore]
+    E --> K[CapacityStore]
+    E --> L[BadgesStore]
+    E --> M[ProfileEditStore]
+    E --> N[AppStore]
 
     O[Middleware] --> P[Authentication Check]
     P --> Q[Request Headers]
@@ -383,10 +385,26 @@ graph TD
 
 ## State Management Architecture
 
+Global client state is managed with **Zustand**, replacing the previous React Context approach. Zustand stores live in `src/stores/` and use selective subscriptions so components only re-render when the slice of state they consume actually changes.
+
+### Zustand Stores
+
+| Store | File | Persisted | Description |
+|---|---|---|---|
+| `useAppStore` | `appStore.ts` | `language` | Mobile detection, language, page content, session, mobile menu |
+| `useThemeStore` | `themeStore.ts` | `darkMode` | Dark/light theme with system preference detection |
+| `useCapacityStore` | `capacityStore.ts` | full cache | Capacity hierarchy, translations, Wikidata integration |
+| `useProfileEditStore` | `profileEditStore.ts` | — | Unsaved profile edit state |
+| `useBadgesStore` | `badgesStore.ts` | — | All badges, user badges, loading/error state |
+
+Each store exposes fine-grained **selector hooks** (e.g. `useDarkMode`, `useLanguage`, `useAllBadges`) so components subscribe only to the fields they need. Stores with browser-only state implement a `hydrate()` action to avoid SSR mismatches.
+
+All stores are wrapped with the `devtools` middleware for Redux DevTools inspection in development.
+
 ```mermaid
 graph LR
     A[Global State] --> B[React Query Cache]
-    A --> C[React Contexts]
+    A --> C[Zustand Stores]
     A --> D[NextAuth Session]
 
     B --> E[Server State]
@@ -396,17 +414,23 @@ graph LR
     E --> I[Event Data]
     E --> J[Translation Data]
 
-    C --> K[Theme State]
-    C --> L[Unified Capacity Cache]
-    C --> M[Badges State]
-    C --> N[Profile Edit State]
-    C --> O[App State]
-    C --> P[Language State]
+    C --> K[ThemeStore]
+    C --> L[CapacityStore]
+    C --> M[BadgesStore]
+    C --> N[ProfileEditStore]
+    C --> O[AppStore]
+
+    K --> K1[darkMode]
+    K --> K2[System Preference Sync]
 
     L --> Q[Capacity Hierarchy]
     L --> R[Translation Cache]
     L --> S[Wikidata Integration]
     L --> T[Fallback System]
+
+    O --> O1[Language]
+    O --> O2[Mobile Detection]
+    O --> O3[Mobile Menu]
 
     D --> U[Authentication State]
     D --> V[User Session]
@@ -417,6 +441,8 @@ graph LR
     Y --> AA[Validation State]
 
     BB[Persistent Storage] --> CC[localStorage]
+    CC --> K
+    CC --> O
     CC --> L
     BB --> DD[React Query Persistence]
     DD --> B

@@ -4,8 +4,7 @@ import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { DEFAULT_AVATAR } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
 import { useProfileImage } from '@/hooks/useProfileImage';
 import { useSavedItems } from '@/hooks/useSavedItems';
 import AccountCircle from '@/public/static/images/account_circle.svg';
@@ -17,12 +16,12 @@ import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import lamp_purple from '@/public/static/images/lamp_purple.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import { useDarkMode, usePageContent } from '@/stores';
 import { OrganizationRecommendation, ProfileRecommendation } from '@/types/recommendation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, useCallback } from 'react';
-import { useOrganizationDisplayName } from '@/hooks/useOrganizationDisplayName';
+import { useCallback, useState } from 'react';
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -39,8 +38,8 @@ export default function RecommendationProfileCard({
   capacityType = 'available',
   hintMessage,
 }: RecommendationProfileCardProps) {
-  const { pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const router = useRouter();
   const { data: session } = useSession();
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
@@ -94,13 +93,38 @@ export default function RecommendationProfileCard({
       item.entity_id === recommendation.id && item.entity === (isOrganization ? 'org' : 'user')
   );
 
-  const bookmarkIcon = isSaved
-    ? darkMode
-      ? BookmarkFilledWhite
-      : BookmarkFilled
-    : darkMode
-      ? BookmarkWhite
-      : Bookmark;
+  let bookmarkIcon;
+  if (isSaved) {
+    bookmarkIcon = darkMode ? BookmarkFilledWhite : BookmarkFilled;
+  } else {
+    bookmarkIcon = darkMode ? BookmarkWhite : Bookmark;
+  }
+
+  let profileImageAlt: string;
+  if (!profileImageUrl || profileImageUrl === DEFAULT_AVATAR) {
+    profileImageAlt = pageContent['alt-profile-picture-default'] || 'Default user profile picture';
+  } else {
+    const imageLabel = isOrganization
+      ? pageContent['organization-logo'] || 'Organization logo'
+      : pageContent['profile-picture'] || 'Profile picture';
+    profileImageAlt = `${imageLabel} - ${displayName || ''}`;
+  }
+
+  let profileTypeIcon;
+  if (isOrganization) {
+    profileTypeIcon = darkMode ? UserCircleIconWhite : UserCircleIcon;
+  } else {
+    profileTypeIcon = darkMode ? AccountCircleWhite : AccountCircle;
+  }
+
+  let saveButtonStyle: string;
+  if (isSaved) {
+    saveButtonStyle = 'bg-[#053749] text-white border-[#053749] hover:bg-[#04222F]';
+  } else if (darkMode) {
+    saveButtonStyle = 'text-white border-white bg-transparent hover:bg-gray-700';
+  } else {
+    saveButtonStyle = 'text-[#053749] border-[#053749] bg-white hover:bg-gray-50';
+  }
 
   const handleSave = async () => {
     if (!session?.user?.token || isSaving) return;
@@ -166,11 +190,7 @@ export default function RecommendationProfileCard({
       >
         <Image
           src={profileImageUrl || DEFAULT_AVATAR}
-          alt={
-            !profileImageUrl || profileImageUrl === DEFAULT_AVATAR
-              ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
-              : `${isOrganization ? pageContent['organization-logo'] || 'Organization logo' : pageContent['profile-picture'] || 'Profile picture'} - ${displayName || ''}`
-          }
+          alt={profileImageAlt}
           fill
           className="object-contain"
           unoptimized
@@ -183,21 +203,7 @@ export default function RecommendationProfileCard({
           className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0"
           aria-hidden="true"
         >
-          <Image
-            src={
-              isOrganization
-                ? darkMode
-                  ? UserCircleIconWhite
-                  : UserCircleIcon
-                : darkMode
-                  ? AccountCircleWhite
-                  : AccountCircle
-            }
-            alt=""
-            fill
-            className="object-contain"
-            priority
-          />
+          <Image src={profileTypeIcon} alt="" fill className="object-contain" priority />
         </div>
         <h3
           className={`text-[14px] md:text-[18px] font-bold truncate flex-1 ${
@@ -217,13 +223,7 @@ export default function RecommendationProfileCard({
         <BaseButton
           onClick={handleSave}
           disabled={isSaving}
-          customClass={`flex justify-center items-center gap-2 px-4 !py-2 rounded-lg text-[14px] font-extrabold border-2 md:text-[16px] md:px-6 md:py-3 ${
-            isSaved
-              ? 'bg-[#053749] text-white border-[#053749] hover:bg-[#04222F]'
-              : darkMode
-                ? 'text-white border-white bg-transparent hover:bg-gray-700'
-                : 'text-[#053749] border-[#053749] bg-white hover:bg-gray-50'
-          } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          customClass={`flex justify-center items-center gap-2 px-4 !py-2 rounded-lg text-[14px] font-extrabold border-2 md:text-[16px] md:px-6 md:py-3 ${saveButtonStyle} ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
           label={pageContent['save'] || 'Save'}
           imageUrl={bookmarkIcon}
           imageWidth={16}

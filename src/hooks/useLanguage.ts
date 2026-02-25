@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Languages, LanguageProficiency } from '@/types/language';
 import { fetchLanguages, updateLanguageProficiency } from '@/services/languageService';
 
-export const useLanguage = (token: string | undefined) => {
+export const useLanguage = (token: string | undefined, language?: string) => {
   const [languages, setLanguages] = useState<Languages>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export const useLanguage = (token: string | undefined) => {
       if (!token) return;
 
       try {
-        const data = await fetchLanguages(token);
+        const data = await fetchLanguages(token, language);
         setLanguages(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load languages');
@@ -22,7 +22,7 @@ export const useLanguage = (token: string | undefined) => {
     };
 
     loadLanguages();
-  }, [token]);
+  }, [token, language]);
 
   const updateProficiency = async (userId: number, languages: LanguageProficiency[]) => {
     if (!token) return;

@@ -1,7 +1,6 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import Image from 'next/image';
 import { motion, useMotionValue, animate } from 'framer-motion';
 import { Badge } from '@/types/badge';
@@ -16,8 +15,9 @@ export default function BadgesCarousel({
   badges,
   showFullDescription = false,
 }: BadgesCarouselProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Calculating the total width needed to show all badges

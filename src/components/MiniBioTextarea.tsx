@@ -1,5 +1,4 @@
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, usePageContent } from '@/stores';
 import { useEffect, useState } from 'react';
 
 interface MiniBioTextareaProps {
@@ -21,10 +20,10 @@ export default function MiniBioTextarea({
   className = '',
   disabled = false,
 }: Readonly<MiniBioTextareaProps>) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const [charCount, setCharCount] = useState(value.length);
   const [isOverLimit, setIsOverLimit] = useState(false);
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   useEffect(() => {
     setCharCount(value.length);

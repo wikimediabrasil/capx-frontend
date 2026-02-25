@@ -1,6 +1,4 @@
 import BaseButton from '@/components/BaseButton';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import AddIcon from '@/public/static/images/add.svg';
@@ -8,6 +6,7 @@ import AddIconDark from '@/public/static/images/add_dark.svg';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_PADDING, RESPONSIVE_BORDER_RADIUS } from './utils';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface CapacitySectionProps {
   type: 'known' | 'available' | 'wanted';
   title: string;
@@ -35,8 +34,10 @@ export function CapacitySection({
   showImportButton,
   onImport,
 }: CapacitySectionProps) {
-  const { darkMode } = useTheme();
-  const { isMobile, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   const textColor = darkMode ? 'text-white' : 'text-[#053749]';
   const bgColor = darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]';

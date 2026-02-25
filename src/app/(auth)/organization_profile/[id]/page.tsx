@@ -1,8 +1,5 @@
 'use client';
 import LoadingState from '@/components/LoadingState';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useSession } from 'next-auth/react';
@@ -10,12 +7,15 @@ import { useParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import OrganizationProfileView from '../components/OrganizationProfileView';
 
+import { useDarkMode, useLanguage, usePageContent, useCapacityStore } from '@/stores';
 export default function OrganizationProfilePage() {
-  const { darkMode } = useTheme();
-  const { pageContent, language } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+
+  const language = useLanguage();
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const capacityCache = useCapacityCache();
+  const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
   const { territories } = useTerritories(token);
 
@@ -45,7 +45,7 @@ export default function OrganizationProfilePage() {
     const updateCacheLanguage = async () => {
       if (language && token) {
         try {
-          await capacityCache?.updateLanguage?.(language);
+          await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
           console.error('Error updating capacity cache language:', error);
         }

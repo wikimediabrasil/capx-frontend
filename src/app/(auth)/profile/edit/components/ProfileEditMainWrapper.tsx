@@ -1,7 +1,6 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useAppStore, useCapacityStore, usePageContent } from '@/stores';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,38 +9,28 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 import { DEFAULT_AVATAR, getDefaultAvatar } from '@/constants/images';
-import { useProfileEdit } from '@/contexts/ProfileEditContext';
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useProfile } from '@/hooks/useProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
-import {
-  addUniqueAffiliations,
-  addUniqueCapacities,
-  addUniqueCapacity,
-  addUniqueItem,
-  addUniqueLanguages,
-  addUniqueTerritory,
-} from '@/lib/utils/formDataUtils';
+import { addUniqueCapacity, addUniqueItem } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
+import { useProfileEditStore } from '@/stores';
 import { Profile } from '@/types/profile';
 import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
 import ProfileEditView from './ProfileEditView';
 
 // Import the new capacity hooks
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
-import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
   validateCapacitiesBeforeSave,
 } from '@/lib/utils/capacityValidation';
-import { LanguageProficiency } from '@/types/language';
 import React from 'react';
 
 // Helper function declarations moved to safeDataAccess.ts utility file
@@ -99,14 +88,14 @@ const fetchWikidataImage = async (qid: string) => {
 export default function EditProfilePage() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
-  const { pageContent, language } = useApp();
-  useTheme();
+  const pageContent = usePageContent();
+  const language = useAppStore(s => s.language);
   const { avatars, getAvatarById } = useAvatars();
   const token = session?.user?.token;
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   const { showSnackbar } = useSnackbar();
-  const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEdit();
-  const { preloadCapacities } = useCapacityCache();
+  const { unsavedData, setUnsavedData, clearUnsavedData } = useProfileEditStore();
+  const { preloadCapacities } = useCapacityStore();
 
   // Create a ref to track if capacities have been preloaded
   const capacitiesPreloadedRef = useRef(false);
@@ -114,7 +103,7 @@ export default function EditProfilePage() {
   // Initialize capacity cache when the component mounts
   useEffect(() => {
     if (token && !capacitiesPreloadedRef.current) {
-      preloadCapacities();
+      preloadCapacities(token);
       capacitiesPreloadedRef.current = true;
     }
   }, [token, preloadCapacities]);
@@ -124,7 +113,7 @@ export default function EditProfilePage() {
     const updateCacheLanguage = async () => {
       if (language && token) {
         try {
-          await capacityCache?.updateLanguage?.(language);
+          await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
           console.error('Error updating capacity cache language:', error);
         }
@@ -156,7 +145,7 @@ export default function EditProfilePage() {
   }, [wikimediaProjectsError]);
 
   // Get the capacity system from cache
-  const capacityCache = useCapacityCache();
+  const capacityCache = useCapacityStore();
   const {
     getName,
     getRootCapacities,
@@ -196,6 +185,7 @@ export default function EditProfilePage() {
     wiki_alt: '',
     wikidata_qid: '',
     wikimedia_project: [],
+    about_language: null,
   });
   const [, setAvatarUrl] = useState<string>(getDefaultAvatar());
 
@@ -258,22 +248,51 @@ export default function EditProfilePage() {
 
   // Create a ref to track if the form has been populated
   const formPopulatedRef = useRef(false);
+  const previousAboutLanguageRef = useRef<number | null | undefined>(undefined);
 
   // Update formData when profile data is loaded
   useEffect(() => {
-    if (profile && !formPopulatedRef.current) {
-      setFormData({
-        ...profile,
-        affiliation: ensureArray<string>(profile.affiliation),
-        territory: profile.territory,
-        wikidata_qid: profile.wikidata_qid || '',
-        wikimedia_project: ensureArray<string>(profile.wikimedia_project),
-        language: ensureArray<any>(profile.language),
-        skills_known: ensureArray<number>(profile.skills_known),
-        skills_available: ensureArray<number>(profile.skills_available),
-        skills_wanted: ensureArray<number>(profile.skills_wanted),
-      });
-      formPopulatedRef.current = true;
+    if (profile) {
+      // Extract about_language ID if it's an object (Foreign Key from backend)
+      let aboutLanguageId: number | null = null;
+      if (profile.about_language) {
+        if (typeof profile.about_language === 'number') {
+          aboutLanguageId = profile.about_language;
+        } else if (typeof profile.about_language === 'object' && 'id' in profile.about_language) {
+          aboutLanguageId = Number(profile.about_language.id);
+        }
+      }
+
+      // Check if about_language changed (for updates after save)
+      const aboutLanguageChanged = previousAboutLanguageRef.current !== aboutLanguageId;
+
+      // Only update formData if form hasn't been populated OR if about_language changed
+      if (!formPopulatedRef.current || aboutLanguageChanged) {
+        if (!formPopulatedRef.current) {
+          // Initial load - populate all fields
+          setFormData({
+            ...profile,
+            affiliation: ensureArray<string>(profile.affiliation),
+            territory: profile.territory,
+            wikidata_qid: profile.wikidata_qid || '',
+            wikimedia_project: ensureArray<string>(profile.wikimedia_project),
+            language: ensureArray<any>(profile.language),
+            skills_known: ensureArray<number>(profile.skills_known),
+            skills_available: ensureArray<number>(profile.skills_available),
+            skills_wanted: ensureArray<number>(profile.skills_wanted),
+            about_language: aboutLanguageId,
+          });
+          formPopulatedRef.current = true;
+        } else if (aboutLanguageChanged) {
+          // Update only about_language if it changed
+          setFormData(prev => ({
+            ...prev,
+            about_language: aboutLanguageId,
+          }));
+        }
+
+        previousAboutLanguageRef.current = aboutLanguageId;
+      }
 
       // Check if the user is using Wikidata (avatar = null or 0)
       const isUsingWikidata =
@@ -473,7 +492,13 @@ export default function EditProfilePage() {
     }
 
     try {
-      await updateProfile(formData);
+      // Ensure about_language is explicitly included in the payload
+      const payloadToSend = {
+        ...formData,
+        about_language: formData.about_language ?? null,
+      };
+
+      await updateProfile(payloadToSend);
       clearUnsavedData(); // Clear unsaved data after saving successfully
 
       // Force a refetch to ensure the cache is updated

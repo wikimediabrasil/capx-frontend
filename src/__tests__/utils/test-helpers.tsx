@@ -1,8 +1,59 @@
 import { render } from '@testing-library/react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
 import { Session } from 'next-auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+}));
 
 /**
  * Shared test utilities and helpers
@@ -50,51 +101,12 @@ export const renderWithProviders = (component: React.ReactNode) => {
     },
   });
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
+  return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
 };
 
-// Common Mock Return Values
-export const createMockAppContext = (overrides?: any) => {
-  const defaultPageContent = overrides?.pageContent || createMockPageContent();
-  return {
-    isMobile: false,
-    pageContent: defaultPageContent,
-    language: 'en',
-    mobileMenuStatus: false,
-    setMobileMenuStatus: jest.fn(),
-    setLanguage: jest.fn(),
-    setPageContent: jest.fn(),
-    session: null,
-    setSession: jest.fn(),
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    isLoading: false,
-    setIsLoading: jest.fn(),
-    isMenuOpen: false,
-    setIsMenuOpen: jest.fn(),
-    ...overrides,
-  };
-};
-
-export const createMockThemeContext = (darkMode = false, additionalProps?: any) => ({
+export const createMockThemeContext = (darkMode = false) => ({
   darkMode,
   setDarkMode: jest.fn(),
-  theme: {
-    fontSize: {
-      mobile: { base: '14px' },
-      desktop: { base: '24px' },
-    },
-  },
-  getFontSize: () => ({ mobile: '14px', desktop: '24px' }),
-  getBackgroundColor: () => (darkMode ? '#005B3F' : '#FFFFFF'),
-  getTextColor: () => (darkMode ? '#FFFFFF' : '#000000'),
-  ...additionalProps,
 });
 
 export const createMockOrganization = (id = 1, name = 'Org 1') => ({

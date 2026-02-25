@@ -3,8 +3,6 @@ import BaseButton from '@/components/BaseButton';
 import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import Popup from '@/components/Popup';
 import { getDefaultOrganizationLogo } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useProfileImage } from '@/hooks/useProfileImage';
@@ -48,6 +46,7 @@ import NewsFormItem from './NewsFormItem';
 import OrganizationNamesSection from './OrganizationNamesSection';
 import ProjectsFormItem from './ProjectsFormItem';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export default function OrganizationProfileEditView({
   handleSubmit,
   handleRemoveCapacity,
@@ -85,8 +84,8 @@ export default function OrganizationProfileEditView({
   territories,
   organizationId,
 }) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { data: session } = useSession();
   const { userProfile } = useUserProfile();
   const { avatars } = useAvatars();
@@ -180,7 +179,7 @@ export default function OrganizationProfileEditView({
                     alt="Organization logo"
                     width={127}
                     height={51}
-                    className="w-full rounded-lg object-contain"
+                    className="w-full h-auto rounded-lg object-contain"
                     priority
                     loading="eager"
                   />

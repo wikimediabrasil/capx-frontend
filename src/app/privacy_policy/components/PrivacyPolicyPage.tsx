@@ -7,12 +7,10 @@ import Link from 'next/link';
 import PrivacyPolicy from '@/public/static/images/privacy_policy.svg';
 import Banner from '@/components/Banner';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
-
+import { useDarkMode, usePageContent } from '@/stores';
 export default function PrivacyPolicyPage() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const capacityExchangeText = pageContent['privacy-policy-capacity-exchange-text']?.split(/\$\d/);
   const privateInformationTopic =
     pageContent['privacy-policy-private-information-topic02']?.split(/\$\d/);

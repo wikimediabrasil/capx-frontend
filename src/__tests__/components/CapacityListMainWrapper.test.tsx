@@ -1,11 +1,100 @@
 import CapacityListMainWrapper from '@/app/(auth)/capacity/components/CapacityListMainWrapper';
-import { CapacityCacheProvider } from '@/contexts/CapacityCacheContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor, act } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import React from 'react';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useCapacityStore: Object.assign(
+    jest.fn(() => ({
+      capacities: {},
+      children: {},
+      language: 'en',
+      timestamp: 0,
+      isLoadingTranslations: false,
+      isLoaded: true,
+      getName: jest.fn(() => ''),
+      getDescription: jest.fn(() => ''),
+      getWdCode: jest.fn(() => ''),
+      getMetabaseCode: jest.fn(() => ''),
+      getColor: jest.fn(() => '#000'),
+      getIcon: jest.fn(() => ''),
+      getChildren: jest.fn(() => []),
+      getCapacity: jest.fn(() => null),
+      getRootCapacities: jest.fn(() => []),
+      hasChildren: jest.fn(() => false),
+      isFallbackTranslation: jest.fn(() => false),
+      getIsLoaded: jest.fn(() => true),
+      getIsDescriptionsReady: jest.fn(() => true),
+      updateLanguage: jest.fn(),
+      preloadCapacities: jest.fn(),
+      clearCache: jest.fn(),
+      setCache: jest.fn(),
+      invalidateQueryCache: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        capacities: {},
+        children: {},
+        language: 'en',
+        timestamp: 0,
+        isLoadingTranslations: false,
+        isLoaded: true,
+      }),
+    }
+  ),
+}));
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -80,84 +169,15 @@ jest.mock('@/hooks/useCapacitiesQuery', () => ({
   }),
 }));
 
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({
-    pageContent: {
-      'body-capacity-title': 'Capacities',
-      'body-capacity-subtitle': 'Explore capacities',
-      'capacity-card-expand-capacity': 'Expand capacity',
-      'capacity-card-explore-capacity': 'Explore capacity',
-      'capacity-card-info': 'Information',
-      'capacity-search-placeholder': 'Search capacities',
-      loading: 'Loading...',
-    },
-    language: 'en',
-    isMobile: false,
-  }),
-  AppProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-// Mock CapacityDescriptionProvider
-jest.mock('@/contexts/CapacityContext', () => ({
-  useCapacityDescriptions: () => ({
-    getDescription: jest.fn().mockReturnValue('Root description'),
-    getWdCode: jest.fn().mockReturnValue('WD123'),
-    requestDescription: jest.fn().mockResolvedValue('Root description'),
-    isRequested: jest.fn().mockReturnValue(false),
-  }),
-  CapacityDescriptionProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-// ThemeContext's mock
-jest.mock('@/contexts/ThemeContext', () => {
-  const originalModule = jest.requireActual('@/contexts/ThemeContext');
-  return {
-    ...originalModule,
-    useTheme: () => ({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    }),
-    ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
-  };
-});
-
-// Mock CapacityCacheContext to simulate loaded data
-jest.mock('@/contexts/CapacityCacheContext', () => ({
-  useCapacityCache: () => ({
-    getName: (id: number) => `Capacity ${id}`,
-    getDescription: jest.fn(),
-    getWdCode: jest.fn(),
-    getMetabaseCode: jest.fn(),
-    getColor: jest.fn(),
-    getIcon: jest.fn(),
-    getCapacity: jest.fn(),
-    getRootCapacities: () => [
-      {
-        code: 1,
-        name: 'Root Capacity',
-        color: 'organizational',
-        icon: '/test-icon.svg',
-        hasChildren: true,
-      },
-    ],
-    getChildren: jest.fn().mockReturnValue([
-      {
-        code: 2,
-        name: 'Child Capacity',
-        color: 'organizational',
-        icon: '/child-icon.svg',
-        hasChildren: true,
-      },
-    ]),
-    isLoaded: true,
-    isLoadingTranslations: false,
-    language: 'en',
-    updateLanguage: jest.fn(),
-    preloadCapacities: jest.fn(),
-    isFallbackTranslation: jest.fn(() => false),
-  }),
-  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
+const mockPageContent = {
+  'body-capacity-title': 'Capacities',
+  'body-capacity-subtitle': 'Explore capacities',
+  'capacity-card-expand-capacity': 'Expand capacity',
+  'capacity-card-explore-capacity': 'Explore capacity',
+  'capacity-card-info': 'Information',
+  'capacity-search-placeholder': 'Search capacities',
+  loading: 'Loading...',
+};
 
 describe('CapacityListMainWrapper', () => {
   // Correct mock for useSession
@@ -192,11 +212,7 @@ describe('CapacityListMainWrapper', () => {
 
     return render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <SnackbarProvider>
-            <CapacityCacheProvider>{ui}</CapacityCacheProvider>
-          </SnackbarProvider>
-        </ThemeProvider>
+        <SnackbarProvider>{ui}</SnackbarProvider>
       </QueryClientProvider>
     );
   };
@@ -210,7 +226,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
   });
 
@@ -223,7 +239,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
 
     // Verify expand button exists
@@ -239,7 +255,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
 
     // Verify info button exists
@@ -256,7 +272,7 @@ describe('CapacityListMainWrapper', () => {
 
     // Since we're using mocked hooks, we just need to verify the component renders
     await waitFor(() => {
-      expect(screen.getByText('Capacity 1')).toBeInTheDocument();
+      expect(screen.getByText('Root Capacity')).toBeInTheDocument();
     });
   });
 

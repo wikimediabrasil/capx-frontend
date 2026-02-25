@@ -117,6 +117,11 @@ export function useAllUsers(params: UseAllUsersParams) {
     [profileCapacityTypes]
   );
 
+  const hasKnown = useMemo(
+    () => profileCapacityTypes.includes(ProfileCapacityType.Known),
+    [profileCapacityTypes]
+  );
+
   useEffect(() => {
     const fetchAllUsers = async () => {
       if (!session?.user?.token) {
@@ -130,6 +135,7 @@ export function useAllUsers(params: UseAllUsersParams) {
           ...(capacitiesCodes.length > 0 && {
             skills_available: hasSharer ? capacitiesCodes : undefined,
             skills_wanted: hasLearner ? capacitiesCodes : undefined,
+            skills_known: hasKnown ? capacitiesCodes : undefined,
           }),
           ...(territories.length > 0 && {
             territory: territories,
@@ -141,6 +147,7 @@ export function useAllUsers(params: UseAllUsersParams) {
           ...(affiliations.length > 0 && { affiliations }),
           has_skills_available: hasSharer || undefined,
           has_skills_wanted: hasLearner || undefined,
+          has_skills_known: hasKnown || undefined,
         };
 
         const data = await userService.fetchAllUsers({
@@ -173,6 +180,7 @@ export function useAllUsers(params: UseAllUsersParams) {
     affiliations,
     hasSharer,
     hasLearner,
+    hasKnown,
   ]);
 
   return { allUsers, isLoading, error, count };

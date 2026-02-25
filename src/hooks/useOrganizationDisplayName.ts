@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useApp } from '@/contexts/AppContext';
 import { useOrganizationNames } from './useOrganizationNames';
 import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
 
+import { useLanguage } from '@/stores';
 interface UseOrganizationDisplayNameOptions {
   organizationId?: number;
   defaultName?: string;
@@ -25,7 +25,7 @@ export function useOrganizationDisplayName({
   defaultName = '',
   token,
 }: UseOrganizationDisplayNameOptions = {}) {
-  const { language } = useApp();
+  const language = useLanguage();
   const { names, isLoading } = useOrganizationNames({
     organizationId,
     token,

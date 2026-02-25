@@ -1,9 +1,9 @@
-import { useApp } from '@/contexts/AppContext';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
 import React from 'react';
 import { SelectList } from './Selector';
 
+import { usePageContent } from '@/stores';
 interface AffiliationSelectorProps {
   affiliations: Record<string, string>;
   selectedAffiliations: string[];
@@ -17,7 +17,7 @@ export function AffiliationSelector({
   onSelectAffiliation,
   placeholder,
 }: AffiliationSelectorProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
   const affiliationsList = Object.entries(affiliations)
     .map(([id, name]) => ({
       id,

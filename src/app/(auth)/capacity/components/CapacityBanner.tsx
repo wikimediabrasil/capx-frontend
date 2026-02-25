@@ -1,9 +1,11 @@
 import Image from 'next/image';
 import CapxPeopleLogo from '@/public/static/images/capx_people_illustration.svg';
-import { useApp } from '@/contexts/AppContext';
 
+import { useIsMobile, usePageContent } from '@/stores';
 export function CapacityBanner() {
-  const { isMobile, pageContent } = useApp();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
 
   return (
     <section className={`w-full rounded-[4px] ${isMobile ? 'h-fit py-6' : 'h-[399px]'}`}>

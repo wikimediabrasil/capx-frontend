@@ -1,6 +1,4 @@
 import { ProfileItem } from '@/components/ProfileItem';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import ContactEmailIcon from '@/public/static/images/contact_alternate_email.svg';
 import ContactEmailIconWhite from '@/public/static/images/contact_alternate_email_white.svg';
 import ContactPortalIcon from '@/public/static/images/contact_captive_portal.svg';
@@ -11,6 +9,7 @@ import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
 import Image from 'next/image';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface ContactsSectionProps {
   email: string;
   meta_page: string;
@@ -18,8 +17,10 @@ interface ContactsSectionProps {
 }
 
 export const ContactsSection = ({ email, meta_page, website }: ContactsSectionProps) => {
-  const { isMobile, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
 
   const formatContactInfo = (info: string) => {
     if (!info) return '';

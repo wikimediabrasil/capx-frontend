@@ -1,27 +1,106 @@
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import { AppProvider, useApp } from '@/contexts/AppContext';
-import { CapacityCacheProvider, useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { useCapacities } from '@/hooks/useCapacities';
 import { capacityService } from '@/services/capacityService';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SessionProvider, useSession } from 'next-auth/react';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useCapacityStore: Object.assign(
+    jest.fn(() => ({
+      capacities: {},
+      children: {},
+      language: 'en',
+      timestamp: 0,
+      isLoadingTranslations: false,
+      isLoaded: false,
+      getName: jest.fn(() => ''),
+      getDescription: jest.fn(() => ''),
+      getWdCode: jest.fn(() => ''),
+      getMetabaseCode: jest.fn(() => ''),
+      getColor: jest.fn(() => '#000'),
+      getIcon: jest.fn(() => ''),
+      getChildren: jest.fn(() => []),
+      getCapacity: jest.fn(() => null),
+      getRootCapacities: jest.fn(() => []),
+      hasChildren: jest.fn(() => false),
+      isFallbackTranslation: jest.fn(() => false),
+      getIsLoaded: jest.fn(() => false),
+      getIsDescriptionsReady: jest.fn(() => false),
+      updateLanguage: jest.fn(),
+      preloadCapacities: jest.fn(),
+      clearCache: jest.fn(),
+      setCache: jest.fn(),
+      invalidateQueryCache: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        capacities: {},
+        children: {},
+        language: 'en',
+        timestamp: 0,
+        isLoadingTranslations: false,
+        isLoaded: false,
+      }),
+    }
+  ),
+}));
 
 // Services and hooks mocks
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
   SessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: jest.fn(),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/hooks/useCapacities', () => ({
@@ -30,11 +109,6 @@ jest.mock('@/hooks/useCapacities', () => ({
     root: (language: string) => ['rootCapacities', language],
     children: (id: string) => ['childrenCapacities', id],
   },
-}));
-
-jest.mock('@/contexts/CapacityCacheContext', () => ({
-  useCapacityCache: jest.fn(),
-  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@tanstack/react-query', () => ({
@@ -134,13 +208,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SessionProvider session={null}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AppProvider>
-            <CapacityCacheProvider>{children}</CapacityCacheProvider>
-          </AppProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </SessionProvider>
   );
 };
@@ -158,20 +226,16 @@ describe('CapacitySelectionModal', () => {
       data: { user: { token: 'mock-token' } },
     });
 
-    (useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-    });
-
-    (useApp as jest.Mock).mockReturnValue({
-      pageContent: createMockPageContent(),
-      isMobile: false,
-    });
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue(createMockPageContent());
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
 
     (useCapacities as jest.Mock).mockReturnValue({
       getCapacityById: jest.fn(),
     });
 
-    (useCapacityCache as jest.Mock).mockReturnValue({
+    const mockCapacityStore = {
       getCapacity: jest.fn(),
       hasChildren: jest.fn().mockReturnValue(true),
       preloadCapacities: jest.fn(),
@@ -196,7 +260,9 @@ describe('CapacitySelectionModal', () => {
       isLoadingTranslations: false,
       updateLanguage: jest.fn().mockResolvedValue(undefined),
       isFallbackTranslation: jest.fn(() => false),
-    });
+    };
+
+    (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityStore);
 
     // Mock useQuery with stable data and no side effects
     (useQuery as jest.Mock).mockImplementation(({ queryKey }) => {
@@ -260,13 +326,7 @@ describe('CapacitySelectionModal', () => {
     return render(<CapacitySelectionModal {...defaultProps} />, {
       wrapper: ({ children }) => (
         <SessionProvider session={null}>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider>
-              <AppProvider>
-                <CapacityCacheProvider>{children}</CapacityCacheProvider>
-              </AppProvider>
-            </ThemeProvider>
-          </QueryClientProvider>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
         </SessionProvider>
       ),
     });

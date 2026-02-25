@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE } from '@/constants/images';
 import { useRouter } from 'next/navigation';
 import { useProfileImage } from '@/hooks/useProfileImage';
@@ -9,6 +8,7 @@ import { SavedItemProfileImage } from './SavedItemProfileImage';
 import { SavedItemHeader } from './SavedItemHeader';
 import { SavedItemActions } from './SavedItemActions';
 
+import { useDarkMode } from '@/stores';
 interface SavedItemCardProps {
   readonly id: string;
   readonly username: string;
@@ -28,7 +28,7 @@ export const SavedItemCard = ({
   isOrganization = false,
   onDelete,
 }: SavedItemCardProps) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const router = useRouter();
   const { data: session } = useSession();
 

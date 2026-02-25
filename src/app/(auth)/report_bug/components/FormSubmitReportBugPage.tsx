@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { useBugReport, ReportType } from '@/hooks/useBugReport';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useRouter } from 'next/navigation';
 import { BugReport } from '@/types/report';
@@ -20,9 +18,10 @@ import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_wh
 import ButtonDesktopReportBugPage from './ButtonDesktop';
 import SuccessSubmissionSVG from '@/public/static/images/capx_person_12.svg';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export default function FormSubmitReportBugPage() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const [formData, setFormData] = useState<Partial<BugReport>>({
     title: '',
     description: '',

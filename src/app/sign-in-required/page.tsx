@@ -3,16 +3,17 @@
 import AuthButton from '@/components/AuthButton';
 import BaseButton from '@/components/BaseButton';
 import BaseWrapper from '@/components/BaseWrapper';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import ConnectIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
 import ConnectIllustration from '@/public/static/images/connect_wikimedians_illustration.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 function SignInRequiredContent() {
-  const { isMobile, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const isMobile = useIsMobile();
+
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const router = useRouter();
 
   const handleGoHome = () => {

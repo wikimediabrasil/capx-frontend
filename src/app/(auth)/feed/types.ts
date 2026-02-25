@@ -4,6 +4,7 @@ import { UserProfile } from '@/types/user';
 export enum ProfileCapacityType {
   Learner = 'learner',
   Sharer = 'sharer',
+  Known = 'known',
   Incomplete = 'incomplete',
 }
 
@@ -45,12 +46,22 @@ export const createProfilesFromOrganizations = (
 export const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapacityType) => {
   const profiles: any[] = [];
   users.forEach(user => {
+    let capacities: string[] = [];
+    if (type === ProfileCapacityType.Sharer) {
+      capacities = user.skills_available;
+    } else if (type === ProfileCapacityType.Learner) {
+      capacities = user.skills_wanted;
+    } else if (type === ProfileCapacityType.Known) {
+      capacities = user.skills_known;
+    }
+
     profiles.push({
       id: user.user.id,
       username: user.user.username,
-      capacities: type === ProfileCapacityType.Sharer ? user.skills_available : user.skills_wanted,
+      capacities,
       wantedCapacities: user.skills_wanted,
       availableCapacities: user.skills_available,
+      knownCapacities: user.skills_known,
       type,
       languages: user.language,
       territory: user.territory?.[0],
@@ -62,52 +73,32 @@ export const createProfilesFromUsers = (users: UserProfile[], type: ProfileCapac
   return profiles;
 };
 
-// Combine both sharer and learner data
+// Combine sharer, learner, and known data
 export const createUnifiedProfiles = (users: UserProfile[]) => {
   const profiles: any[] = [];
   users.forEach(user => {
     const hasWanted = user.skills_wanted && user.skills_wanted.length > 0;
     const hasAvailable = user.skills_available && user.skills_available.length > 0;
+    const hasKnown = user.skills_known && user.skills_known.length > 0;
 
-    if (hasWanted && hasAvailable) {
-      // User is both learner and sharer
+    const types: ProfileCapacityType[] = [];
+    if (hasWanted) types.push(ProfileCapacityType.Learner);
+    if (hasAvailable) types.push(ProfileCapacityType.Sharer);
+    if (hasKnown) types.push(ProfileCapacityType.Known);
+
+    if (types.length > 0) {
       profiles.push({
         id: user.user.id,
         username: user.user.username,
-        capacities: [...(user.skills_wanted || []), ...(user.skills_available || [])],
+        capacities: [
+          ...(user.skills_wanted || []),
+          ...(user.skills_available || []),
+          ...(user.skills_known || []),
+        ],
         wantedCapacities: user.skills_wanted,
         availableCapacities: user.skills_available,
-        type: [ProfileCapacityType.Learner, ProfileCapacityType.Sharer],
-        languages: user.language,
-        territory: user.territory?.[0],
-        avatar: user.avatar,
-        wikidataQid: user.wikidata_qid,
-        isOrganization: false,
-      });
-    } else if (hasWanted) {
-      // User is only learner
-      profiles.push({
-        id: user.user.id,
-        username: user.user.username,
-        capacities: user.skills_wanted,
-        wantedCapacities: user.skills_wanted,
-        availableCapacities: [],
-        type: ProfileCapacityType.Learner,
-        languages: user.language,
-        territory: user.territory?.[0],
-        avatar: user.avatar,
-        wikidataQid: user.wikidata_qid,
-        isOrganization: false,
-      });
-    } else if (hasAvailable) {
-      // User is only sharer
-      profiles.push({
-        id: user.user.id,
-        username: user.user.username,
-        capacities: user.skills_available,
-        wantedCapacities: [],
-        availableCapacities: user.skills_available,
-        type: ProfileCapacityType.Sharer,
+        knownCapacities: user.skills_known,
+        type: types.length === 1 ? types[0] : types,
         languages: user.language,
         territory: user.territory?.[0],
         avatar: user.avatar,

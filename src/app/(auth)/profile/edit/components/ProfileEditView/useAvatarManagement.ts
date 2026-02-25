@@ -1,14 +1,14 @@
 import { getDefaultAvatar } from '@/constants/images';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useEffect, useState } from 'react';
 
+import { useDarkMode } from '@/stores';
 /**
  * Custom hook to manage avatar state and loading
  * Extracts avatar-related logic to reduce complexity in ProfileEditView
  */
 export function useAvatarManagement(profile: any) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const getAvatarById = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar());
 

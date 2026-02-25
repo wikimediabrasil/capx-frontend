@@ -3,9 +3,7 @@
 import BaseButton from '@/components/BaseButton';
 import ProgressBar from '@/components/ProgressBar';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
-import { useApp } from '@/contexts/AppContext';
-import { useBadges } from '@/contexts/BadgesContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useAllBadges, useUserBadges } from '@/stores';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useProfile } from '@/hooks/useProfile';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
@@ -15,9 +13,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { useDarkMode, usePageContent } from '@/stores';
 export default function BadgesPage() {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -28,7 +27,8 @@ export default function BadgesPage() {
 
   const { getAvatarById } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || getDefaultAvatar());
-  const { allBadges, userBadges } = useBadges();
+  const allBadges = useAllBadges();
+  const userBadges = useUserBadges();
   const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 
   useEffect(() => {

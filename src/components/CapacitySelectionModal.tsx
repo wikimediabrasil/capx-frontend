@@ -1,8 +1,6 @@
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useIsMobile, useLanguage, usePageContent, useCapacityStore } from '@/stores';
 import { getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import InfoIcon from '@/public/static/images/info.svg';
 import InfoFilledIcon from '@/public/static/images/info_filled.svg';
@@ -373,15 +371,17 @@ export default function CapacitySelectionModal({
   allowMultipleSelection = true,
   initialCapacityId,
 }: CapacitySelectionModalProps) {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const { data: session } = useSession();
-  const { pageContent, isMobile, language } = useApp();
+  const pageContent = usePageContent();
+  const isMobile = useIsMobile();
+  const language = useLanguage();
   const [selectedPath, setSelectedPath] = useState<number[]>([]);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
   const [showInfoMap, setShowInfoMap] = useState<Record<number, boolean>>({});
 
   // Get capacity data from the global cache system
-  const capacityCache = useCapacityCache();
+  const capacityCache = useCapacityStore();
   const {
     getRootCapacities,
     getChildren,
@@ -434,7 +434,7 @@ export default function CapacitySelectionModal({
 
   useEffect(() => {
     if (isOpen && session?.user?.token) {
-      updateLanguage(language).then(() => {
+      updateLanguage(language, session.user.token).then(() => {
         // If there's an initial capacity, navigate to it
         if (initialCapacityId) {
           const path = findPathToCapacity(initialCapacityId);

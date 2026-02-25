@@ -1,11 +1,64 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import LanguageSelect from '@/components/LanguageSelect';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AppProvider } from '@/contexts/AppContext';
-import * as ThemeContext from '@/contexts/ThemeContext';
 import { useLanguageSelection } from '@/hooks/useLanguageSelection';
 import { setCookie } from '@/app/actions';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => {
+      const state = {
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+}));
 
 // React-select's mock
 jest.mock('react-select', () => ({
@@ -42,13 +95,6 @@ jest.mock('@/hooks/useLanguageSelection', () => ({
 }));
 
 // useTheme's mock
-jest.mock('@/contexts/ThemeContext', () => ({
-  ...jest.requireActual('@/contexts/ThemeContext'),
-  useTheme: jest.fn().mockReturnValue({
-    darkMode: false,
-    setDarkMode: jest.fn(),
-  }),
-}));
 
 // setCookie's mock
 jest.mock('@/app/actions', () => ({
@@ -58,35 +104,6 @@ jest.mock('@/app/actions', () => ({
 const mockSetPageContent = jest.fn();
 
 // Mocking AppContext
-jest.mock('@/contexts/AppContext', () => ({
-  ...jest.requireActual('@/contexts/AppContext'),
-  useApp: () => ({
-    pageContent: {
-      'sign-in-button': 'Login',
-      'sign-out-button': 'Logout',
-      'navbar-link-home': 'Home',
-      'navbar-link-capacities': 'Capacities',
-      'navbar-link-reports': 'Reports',
-      'navbar-link-feed': 'Feed',
-      'navbar-link-saved': 'Saved',
-      'navbar-link-report-bug': 'Report Bug',
-    },
-    isMobile: true,
-    mobileMenuStatus: true,
-    setMobileMenuStatus: jest.fn(),
-    language: 'en',
-    setLanguage: jest.fn(),
-    darkMode: false,
-    setDarkMode: jest.fn(),
-    session: null,
-    setSession: jest.fn(),
-    setPageContent: mockSetPageContent,
-    isLoading: false,
-    setIsLoading: jest.fn(),
-    isMenuOpen: false,
-    setIsMenuOpen: jest.fn(),
-  }),
-}));
 
 describe('LanguageSelect', () => {
   const mockSetLanguage = jest.fn();
@@ -109,19 +126,10 @@ describe('LanguageSelect', () => {
       isLoading: false,
       error: null,
     });
-
-    (ThemeContext.useTheme as jest.Mock).mockReturnValue({
-      darkMode: false,
-      setDarkMode: jest.fn(),
-    });
   });
 
   const renderWithProviders = (component: React.ReactNode) => {
-    return render(
-      <ThemeProvider>
-        <AppProvider>{component}</AppProvider>
-      </ThemeProvider>
-    );
+    return render(<>{component}</>);
   };
 
   test('deve renderizar o componente corretamente', async () => {

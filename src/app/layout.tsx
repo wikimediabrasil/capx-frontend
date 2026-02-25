@@ -4,9 +4,7 @@ import { CapacitiesPrefetcher } from '@/components/CapacitiesPrefetcher';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import HydrationHandler from '@/components/HydrationHandler';
 import SessionWrapper from '@/components/SessionWrapper';
-import { AppProvider } from '@/contexts/AppContext';
-import { CapacityCacheWrapper } from '@/contexts/CapacityCacheWrapper';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import StoreHydrator from '@/components/StoreHydrator';
 import { Metadata } from 'next';
 import './globals.css';
 import Providers from './provider';
@@ -20,31 +18,31 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="next-image-preload-policy" content="default" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body id="root" className="min-h-screen" suppressHydrationWarning>
         <ErrorBoundary>
           <HydrationHandler />
           <AxiosInterceptorSetup />
-          <ThemeProvider>
-            <SessionWrapper>
-              <AuthMonitorSetup />
-              <Providers>
-                <AppProvider>
-                  <CapacityCacheWrapper>
-                    <SnackbarProvider>
-                      <CapacitiesPrefetcher />
-                      {children}
-                    </SnackbarProvider>
-                  </CapacityCacheWrapper>
-                </AppProvider>
-              </Providers>
-            </SessionWrapper>
-          </ThemeProvider>
+          <SessionWrapper>
+            <AuthMonitorSetup />
+            <Providers>
+              <StoreHydrator />
+              <SnackbarProvider>
+                <CapacitiesPrefetcher />
+                {children}
+              </SnackbarProvider>
+            </Providers>
+          </SessionWrapper>
         </ErrorBoundary>
       </body>
     </html>

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useDarkMode, useLanguage, usePageContent } from '@/stores';
 import { getLocaleFromLanguage, getDatePickerTexts } from '@/lib/utils/dateLocale';
 
 interface CustomDatePickerProps {
@@ -28,8 +27,9 @@ export default function CustomDatePicker({
   disabled = false,
   placeholder = '',
 }: CustomDatePickerProps) {
-  const { language, pageContent } = useApp();
-  const { darkMode } = useTheme();
+  const language = useLanguage();
+  const pageContent = usePageContent();
+  const darkMode = useDarkMode();
   const [isOpen, setIsOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'calendar' | 'time'>('calendar');
   const [viewDate, setViewDate] = useState(new Date());

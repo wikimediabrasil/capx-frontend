@@ -1,10 +1,9 @@
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { CompactLoading } from '@/components/LoadingStateWithFallback';
 import { useProject } from '@/hooks/useProjects';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface ProjectCardProps {
   projectId: number;
   token?: string;
@@ -17,8 +16,8 @@ export const ProjectCard = ({
   updateRenderedProjectsCount,
 }: ProjectCardProps) => {
   const { project, isLoading, error } = useProject(projectId, token);
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
 
   if (isLoading) {
     return <CompactLoading />;

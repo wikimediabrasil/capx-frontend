@@ -5,8 +5,8 @@ import RecommendationCarousel from './RecommendationCarousel';
 import RecommendationKnownAndAvailableCapacityCard from './RecommendationKnownAndAvailableCapacityCard';
 import { CapacityRecommendation } from '@/types/recommendation';
 import { UserProfile } from '@/types/user';
-import { useApp } from '@/contexts/AppContext';
 
+import { usePageContent } from '@/stores';
 interface CapacityRecommendationsCarouselsProps {
   readonly capacitiesToShare: ReadonlyArray<CapacityRecommendation>;
   readonly capacitiesToLearn: ReadonlyArray<CapacityRecommendation>;
@@ -18,7 +18,7 @@ export default function CapacityRecommendationsCarousels({
   capacitiesToLearn,
   userProfile,
 }: CapacityRecommendationsCarouselsProps) {
-  const { pageContent } = useApp();
+  const pageContent = usePageContent();
 
   return (
     <>

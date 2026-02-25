@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"ACheJu",
 			"AJurno (WMB)",
 			"Albertoleoncio",
 			"Andrekowacs",
@@ -143,6 +144,11 @@
 	"edit-profile-mini-bio": "Breve biografia",
 	"edit-profile-mini-bio-placeholder": "Escreva uma breve descrição sobre você.",
 	"edit-profile-mini-bio-tooltip": "Conte a seus pares um pouco sobre você. O que acha interessante compartilhar? Quais são os marcos importantes da sua jornada wikimedista?",
+	"edit-profile-mini-bio-language": "Idioma da bio",
+	"edit-profile-mini-bio-language-not-specified": "Não especificado",
+	"edit-profile-mini-bio-language-tooltip": "Selecione o idioma no qual sua mini-bio está escrita.",
+	"profile-mini-bio-language-label": "Idioma:",
+	"profile-mini-bio-language-not-specified": "Não especificado",
 	"edit-profile-select-skills": "Selecione as habilidades que você já possui no Diretório de Capacidades. Tente escolher as mais específicas.",
 	"edit-profile-add-capacities": "Adicionar capacidade",
 	"edit-profile-import-known-capacities": "Importar Capacidades Conhecidas",
@@ -674,5 +680,8 @@
 	"mentorship-application-forwarded": "Encaminhei sua candidatura para o programa de mentoria. Eles(as) entrarão em contato com você em breve.",
 	"more-mentorships": "Mais programas de mentoria",
 	"close": "Fechar",
-	"mentorship-programs-alt": "Programas de Mentoria"
+	"mentorship-programs-alt": "Programas de Mentoria",
+	"sign-in-required-title": "Entre para continuar",
+	"sign-in-required-description": "Você precisa estar logado(a) para acessar esta página. Registre-se no CapX para compartilhar capacidades e se conectar com outros(as) wikimedistas.",
+	"sign-in-required-go-home": "Ir para página inicial"
 }

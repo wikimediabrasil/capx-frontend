@@ -1,6 +1,4 @@
 import { useMessageList } from '@/hooks/useMessageList';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useApp } from '@/contexts/AppContext';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useState, useEffect } from 'react';
 import { Message } from '@/types/message';
@@ -13,13 +11,14 @@ import HomeIcon from '@/public/static/images/home_icon.svg';
 import { ViewType } from './NavBar';
 import { useRouter } from 'next/navigation';
 
+import { useDarkMode, usePageContent } from '@/stores';
 interface SentMessagesListProps {
   setCurrentView: any;
 }
 
 export default function SentMessagesList({ setCurrentView }: SentMessagesListProps) {
-  const { darkMode } = useTheme();
-  const { pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const pageContent = usePageContent();
   const { messages, isLoading, error } = useMessageList();
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedMessages, setPaginatedMessages] = useState<Message[]>([]);

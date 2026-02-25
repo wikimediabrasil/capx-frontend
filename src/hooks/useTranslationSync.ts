@@ -1,33 +1,31 @@
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
 import { useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 
+import { useLanguage, useCapacityStore } from '@/stores';
 /**
  * Hook for synchronizing translations with language changes
  * Applies cached translations to main fields when the language changes
  */
 export function useTranslationSync() {
-  const { language } = useApp();
-  const { updateLanguage, isLoaded } = useCapacityCache();
+  const language = useLanguage();
+  const { updateLanguage, isLoaded } = useCapacityStore();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
   const lastLanguage = useRef<string>('');
 
   useEffect(() => {
-    // Only proceed if cache is loaded and language has changed
-    if (!isLoaded || language === lastLanguage.current) {
+    // Only proceed if cache is loaded, we have a token, and language has changed
+    if (!isLoaded || !token || language === lastLanguage.current) {
       return;
     }
 
     // Apply cached translations for the new language
     if (lastLanguage.current !== '') {
-      console.log(
-        `🔄 Language changed from ${lastLanguage.current} to ${language}, applying translations`
-      );
-      const appliedCount = updateLanguage(language);
-      console.log(`✅ Applied ${appliedCount} translations for ${language}`);
+      updateLanguage(language, token);
     }
 
     lastLanguage.current = language;
-  }, [language, isLoaded, updateLanguage]);
+  }, [language, isLoaded, updateLanguage, token]);
 
   return {
     currentLanguage: language,

@@ -6,8 +6,7 @@ import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
 import LoadingState from '@/components/LoadingState';
 import Popup from '@/components/Popup';
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
@@ -23,14 +22,14 @@ import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_w
 import UserCheckIcon from '@/public/static/images/user_check.svg';
 import UserCheckIconDark from '@/public/static/images/user_check_dark.svg';
 import { LetsConnect } from '@/types/lets_connect';
+import en from 'locales/en.json';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Checklist from './CheckList';
-import en from 'locales/en.json';
-import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 
+import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 export enum LetsConnectRole {
   A = 'A',
   B = 'B',
@@ -41,10 +40,12 @@ export enum LetsConnectRole {
 }
 
 export default function LetsConnectPage() {
-  const { pageContent, isMobile } = useApp();
+  const pageContent = usePageContent();
+
+  const isMobile = useIsMobile();
   const { hasLetsConnectAccount } = useLetsConnectExists();
 
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
   const router = useRouter();
   const { submitLetsConnectForm } = useLetsConnect();
   const { showSnackbar } = useSnackbar();

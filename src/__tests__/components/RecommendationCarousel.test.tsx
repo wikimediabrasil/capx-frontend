@@ -1,7 +1,60 @@
 import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
-import { AppProvider, useApp } from '@/contexts/AppContext';
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+}));
+
 import {
   renderWithProviders,
   setupCommonMocks,
@@ -13,15 +66,6 @@ import {
   setupScrollableContainer,
 } from '../helpers/recommendationTestHelpers';
 
-// Mock dependencies
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: jest.fn(),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: jest.fn(),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
@@ -32,7 +76,11 @@ jest.mock('next/image', () => ({
 
 describe('RecommendationCarousel', () => {
   beforeEach(() => {
-    setupCommonMocks(jest.fn(), useTheme as jest.Mock, useApp as jest.Mock);
+    setupCommonMocks(jest.fn());
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.usePageContent as jest.Mock).mockReturnValue({});
+    (stores.useLanguage as jest.Mock).mockReturnValue('en');
     mockScrollMethods();
   });
 
@@ -45,10 +93,7 @@ describe('RecommendationCarousel', () => {
       ...props,
     };
 
-    return renderWithProviders(<RecommendationCarousel {...defaultProps} />, [
-      ThemeProvider,
-      AppProvider,
-    ]);
+    return renderWithProviders(<RecommendationCarousel {...defaultProps} />);
   };
 
   describe('Rendering', () => {
@@ -85,7 +130,7 @@ describe('RecommendationCarousel', () => {
     });
 
     it('should render in dark mode correctly', () => {
-      (useTheme as jest.Mock).mockReturnValue({ darkMode: true });
+      (stores.useDarkMode as jest.Mock).mockReturnValue(true);
       const { container } = renderCarousel();
       const title = screen.getByText('Test Carousel');
       expect(title).toHaveClass('text-white');

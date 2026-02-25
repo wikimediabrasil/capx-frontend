@@ -1,15 +1,15 @@
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
 import AccountCircle from '@/public/static/images/account_circle.svg';
 import AccountCircleWhite from '@/public/static/images/account_circle_white.svg';
 
+import { useDarkMode } from '@/stores';
 interface SavedItemHeaderProps {
   readonly displayName: string;
   readonly size: 'small' | 'large';
 }
 
 export const SavedItemHeader = ({ displayName, size }: SavedItemHeaderProps) => {
-  const { darkMode } = useTheme();
+  const darkMode = useDarkMode();
 
   const iconSize = size === 'small' ? 20 : 24;
   const textClass = size === 'small' ? 'text-xl md:text-[32px]' : 'text-xl md:text-2xl';

@@ -4,6 +4,105 @@ import { ProfileCapacityType } from '@/app/(auth)/feed/types';
 import { LanguageProficiency } from '@/types/language';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as stores from '@/stores';
+
+jest.mock('@/stores', () => ({
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useCapacityStore: Object.assign(
+    jest.fn(() => {
+      const capacityNames: Record<number, string> = {
+        1: 'Coding',
+        2: 'Design',
+        3: 'Teaching',
+        4: 'Mentoring',
+      };
+      return {
+        capacities: {},
+        children: {},
+        language: 'en',
+        timestamp: 0,
+        isLoadingTranslations: false,
+        isLoaded: false,
+        getName: jest.fn((code: number) => capacityNames[code] || `Capacity ${code}`),
+        getDescription: jest.fn(() => ''),
+        getWdCode: jest.fn(() => ''),
+        getMetabaseCode: jest.fn(() => ''),
+        getColor: jest.fn(() => '#000'),
+        getIcon: jest.fn(() => ''),
+        getChildren: jest.fn(() => []),
+        getCapacity: jest.fn(() => null),
+        getRootCapacities: jest.fn(() => []),
+        hasChildren: jest.fn(() => false),
+        isFallbackTranslation: jest.fn(() => false),
+        getIsLoaded: jest.fn(() => false),
+        getIsDescriptionsReady: jest.fn(() => false),
+        updateLanguage: jest.fn(),
+        preloadCapacities: jest.fn(),
+        clearCache: jest.fn(),
+        setCache: jest.fn(),
+        invalidateQueryCache: jest.fn(),
+      };
+    }),
+    {
+      getState: () => ({
+        capacities: {},
+        children: {},
+        language: 'en',
+        timestamp: 0,
+        isLoadingTranslations: false,
+        isLoaded: false,
+      }),
+    }
+  ),
+}));
 
 // useRouter's mock
 jest.mock('next/navigation', () => ({
@@ -38,21 +137,6 @@ jest.mock('next-auth/react', () => ({
 }));
 
 // CapacityCacheContext mock
-jest.mock('@/contexts/CapacityCacheContext', () => ({
-  useCapacityCache: () => ({
-    getName: (id: number) => {
-      const capacityNames: Record<number, string> = {
-        1: 'Coding',
-        2: 'Design',
-        3: 'Teaching',
-        4: 'Mentoring',
-      };
-      return capacityNames[id] || `Capacity ${id}`;
-    },
-    preloadCapacities: jest.fn(),
-  }),
-  CapacityCacheProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
 
 jest.mock('@/hooks/useTerritories', () => ({
   useTerritories: () => ({
@@ -81,10 +165,6 @@ jest.mock('@/hooks/useAvatars', () => ({
 }));
 
 // ThemeContext's mock
-jest.mock('@/contexts/ThemeContext', () => ({
-  useTheme: () => ({ darkMode: false }),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
 
 const mockPageContent = {
   'empty-field': "You haven't filled this field yet",
@@ -99,11 +179,9 @@ const mockPageContent = {
   'filters-search-by-capacities': 'Search by capacities',
 };
 
-// AppContext's mock
-jest.mock('@/contexts/AppContext', () => ({
-  useApp: () => ({ pageContent: mockPageContent }),
-  AppProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
+// Zustand stores mock
+
+// Also mock AppContext for components not yet migrated
 
 const defaultProps = {
   id: '1',
@@ -157,6 +235,10 @@ const createTestWrapper = () => {
 };
 
 describe('ProfileCard', () => {
+  beforeEach(() => {
+    (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
+  });
+
   describe('Learner Profile', () => {
     it('should display profile information correctly', () => {
       const Wrapper = createTestWrapper();

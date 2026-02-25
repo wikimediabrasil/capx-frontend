@@ -1,11 +1,10 @@
 'use client';
 
-import { useApp } from '@/contexts/AppContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
 import * as d3 from 'd3';
 import { useEffect, useRef, useState } from 'react';
 
+import { useDarkMode, useSetDarkMode, useLanguage, usePageContent } from '@/stores';
 // Interface para as capacidades da visualização D3
 interface D3Capacity {
   id: string;
@@ -47,8 +46,11 @@ export default function D3TreeVisualization({
   );
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
-  const { darkMode, setDarkMode } = useTheme();
-  const { language: _language, pageContent } = useApp();
+  const darkMode = useDarkMode();
+  const setDarkMode = useSetDarkMode();
+  const _language = useLanguage();
+
+  const pageContent = usePageContent();
   const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when theme changes
 
   // Listen for system theme changes

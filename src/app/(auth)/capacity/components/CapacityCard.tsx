@@ -1,9 +1,6 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
-import { useApp } from '@/contexts/AppContext';
-import { useCapacityCache } from '@/contexts/CapacityCacheContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { getCapacityColor, getHueRotate } from '@/lib/utils/capacitiesUtils';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
@@ -16,12 +13,14 @@ import MetabaseIcon from '@/public/static/images/metabase_black.svg';
 import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
+import { useIsMobile, useLanguage, usePageContent, useDarkMode, useCapacityStore } from '@/stores';
 import { Capacity } from '@/types/capacity';
 import { UserProfile } from '@/types/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useMemo, useRef, useState } from 'react';
 
 interface CapacityCardProps {
@@ -253,9 +252,12 @@ export function CapacityCard({
   isInfoExpanded,
   onToggleInfo,
 }: CapacityCardProps) {
-  const { isMobile, pageContent, language } = useApp();
-  const { darkMode } = useTheme();
-  const { isFallbackTranslation } = useCapacityCache();
+  const router = useRouter();
+  const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const language = useLanguage();
+  const darkMode = useDarkMode();
+  const { isFallbackTranslation } = useCapacityStore();
   const [showInfo, setShowInfo] = useState(false);
   const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();
@@ -931,7 +933,8 @@ const SearchCard: React.FC<SearchCardProps> = ({
 
   return (
     <div className={`w-full ${cardShadow} ${cardRadius}`}>
-      <button
+      <div
+        role="button"
         onClick={handleCardClick}
         className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor }}
@@ -965,7 +968,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {isInfoVisible && (
         <div
@@ -1027,7 +1030,8 @@ const RootCard: React.FC<RootCardProps> = ({
 
   return (
     <div className={`w-full ${cardShadow} ${cardRadius}`}>
-      <button
+      <div
+        role="button"
         onClick={handleCardClick}
         className={`flex flex-col w-full ${buttonShadow} transition-shadow ${buttonRadius} cursor-pointer hover:brightness-95 transition-all`}
         style={{ backgroundColor: getCapacityColor(color) }}
@@ -1077,7 +1081,7 @@ const RootCard: React.FC<RootCardProps> = ({
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {isInfoVisible && (
         <div
@@ -1139,6 +1143,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   color,
   icon,
   handleCardClick,
+  handleCardKeyDown,
   renderIcon,
   renderInfoButton,
   renderArrowButton,
@@ -1147,8 +1152,10 @@ const ChildCard: React.FC<ChildCardProps> = ({
 }) => {
   return (
     <div className="w-full">
-      <button
+      <div
+        role="button"
         onClick={handleCardClick}
+        onKeyDown={handleCardKeyDown}
         className={`flex flex-col w-full rounded-lg cursor-pointer hover:shadow-md transition-shadow overflow-hidden`}
         style={{ backgroundColor }}
         tabIndex={0}
@@ -1198,7 +1205,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             )}
           </div>
         </div>
-      </button>
+      </div>
 
       {isInfoVisible && (
         <div
