@@ -3,6 +3,7 @@
 		"authors": [
 			"AJurno (WMB)",
 			"Adamw",
+			"Angelsn",
 			"Avengium",
 			"HylianAngel",
 			"Jemily1",
@@ -134,7 +135,7 @@
 	"video-transcript-duration": "Duración del video: 2 minutos y 30 segundos",
 	"edit-profile-update": "Actualizar",
 	"edit-profile-welcome": "¡Bienvenido!",
-	"edit-profile-image-title": "Imagen de perfil",
+	"edit-profile-image-title": "Foto de perfil",
 	"edit-profile-choose-avatar": "Elegir avatar",
 	"edit-profile-choose-avatar-tooltip": "Elige un avatar para mostrar en tu perfil de CapX, en lugar de la imagen de tu elemento en Wikidata (si existe).",
 	"edit-profile-use-wikidata-photograph": "Mostrar la fotografía de mi elemento de Wikidata en el perfil",
