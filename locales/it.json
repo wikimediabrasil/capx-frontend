@@ -6,7 +6,8 @@
 			"Ayub Abdulla",
 			"Beta16",
 			"Dream Indigo",
-			"Giacomo Lanza"
+			"Giacomo Lanza",
+			"Neonsn0w"
 		]
 	},
 	"empty-field": "Non hai ancora compilato questo campo",
@@ -684,5 +685,6 @@
 	"analytics-map-south-asia": "Asia meridionale",
 	"analytics-map-middle-east-north-africa": "Medio Oriente e Nord Africa",
 	"analytics-map-north-america": "Nord America",
+	"analytics-map-legend": "Tutti i dati vengono recuperati dal database di Capx in tempo reale",
 	"sign-in-required-title": "Accedi per continuare"
 }
