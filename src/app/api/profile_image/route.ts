@@ -1,3 +1,4 @@
+import { WIKIMEDIA_USER_AGENT } from '@/constants/wikimedia';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,10 +10,11 @@ export async function GET(request: NextRequest) {
     const query = encodeURIComponent(searchParams.get('query')!);
     try {
       const queryResponse = await axios.get(
-        `https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srlimit=10&format=json&srsearch=${query}`
+        `https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srlimit=10&format=json&srsearch=${query}`,
+        { headers: { 'User-Agent': WIKIMEDIA_USER_AGENT } }
       );
 
-      if (!Object.hasOwn(queryResponse.data, 'query')) {
+      if (!(Object as any).hasOwn(queryResponse.data, 'query')) {
         return NextResponse.json({ message: 'No images found' }, { status: 404 });
       }
 
@@ -39,7 +41,8 @@ export async function GET(request: NextRequest) {
 
     try {
       const queryResponse = await axios.get(
-        `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${title}${suffix}`
+        `https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/${title}${suffix}`,
+        { headers: { 'User-Agent': WIKIMEDIA_USER_AGENT } }
       );
 
       const image = queryResponse.request?.res?.responseUrl;
