@@ -1,6 +1,6 @@
 import { POST } from '@/app/api/messages/check_emailable/route';
-import { NextRequest } from 'next/server';
 import axios from 'axios';
+import { NextRequest } from 'next/server';
 
 // Mock axios
 jest.mock('axios');
@@ -179,7 +179,7 @@ describe('check_emailable API route', () => {
         'https://meta.wikimedia.org/w/api.php',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'User-Agent': 'CapX/1.0 (https://capx.toolforge.org/; contact@capx.org) axios/1.0',
+            'User-Agent': 'CapX/1.0 (https://capx.toolforge.org/; capx@wmnobrasil.org) axios/1.0',
           }),
         })
       );
