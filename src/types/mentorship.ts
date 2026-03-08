@@ -4,6 +4,49 @@ export type MentorshipFormat = 'in-person' | 'online' | 'hybrid';
 
 export type MentorshipRole = 'mentor' | 'mentee';
 
+// API response types (backend)
+// Partner: id is organization id; used for mentorship programs when mentorship=true
+export interface PartnerApi {
+  id: number;
+  name: string;
+  description: string;
+  mentorship: boolean;
+  territory_names: string[];
+  capacities: string[];
+  profile_image: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MentorshipFormMentorApi {
+  id: number;
+  organization: number;
+  counter: number;
+  json: FormBuilderFieldSchema[];
+  created_at: string;
+}
+
+export interface MentorshipFormMenteeApi {
+  id: number;
+  organization: number;
+  counter: number;
+  json: FormBuilderFieldSchema[];
+  created_at: string;
+}
+
+// jQuery formBuilder field schema (stored in backend)
+export interface FormBuilderFieldSchema {
+  type: string;
+  label?: string;
+  name?: string;
+  className?: string;
+  subtype?: string;
+  values?: Array<{ label: string; value: string }>;
+  required?: boolean;
+  placeholder?: string;
+  [key: string]: unknown;
+}
+
 export type FormFieldType =
   | 'text'
   | 'email'
@@ -57,7 +100,8 @@ export interface MentorshipProgram {
   languages: string[];
   subscribers: number;
   forms?: {
-    mentor?: MentorshipForm;
-    mentee?: MentorshipForm;
+    mentor?: MentorshipForm & { formId?: number };
+    mentee?: MentorshipForm & { formId?: number };
   };
 }
+

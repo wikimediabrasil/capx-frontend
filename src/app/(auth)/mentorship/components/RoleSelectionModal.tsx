@@ -68,26 +68,30 @@ export default function RoleSelectionModal({
               'Please indicate whether you would like to participate as a mentor or as a mentee.'}
           </p>
 
-          {/* Role Selection Buttons */}
+          {/* Role Selection Buttons - only show roles that have a form */}
           <div className="space-y-3 mb-6">
-            <BaseButton
-              onClick={() => onSelect('mentor', program)}
-              customClass="w-full px-4 py-3 rounded-lg text-base font-extrabold bg-[#053749] hover:bg-[#04222F] text-white flex items-center justify-center gap-2"
-              label={pageContent['mentor'] || 'Mentor'}
-              imageWidth={24}
-              imageHeight={24}
-            />
-            <BaseButton
-              onClick={() => onSelect('mentee', program)}
-              customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold border-2 border-[#053749] flex items-center justify-center gap-2 ${
-                darkMode
-                  ? 'bg-transparent text-white hover:bg-[#053749]'
-                  : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
-              }`}
-              label={pageContent['mentee'] || 'Mentee'}
-              imageWidth={24}
-              imageHeight={24}
-            />
+            {program.forms?.mentor && (
+              <BaseButton
+                onClick={() => onSelect('mentor', program)}
+                customClass="w-full px-4 py-3 rounded-lg text-base font-extrabold bg-[#053749] hover:bg-[#04222F] text-white flex items-center justify-center gap-2"
+                label={pageContent['mentor'] || 'Mentor'}
+                imageWidth={24}
+                imageHeight={24}
+              />
+            )}
+            {program.forms?.mentee && (
+              <BaseButton
+                onClick={() => onSelect('mentee', program)}
+                customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold border-2 border-[#053749] flex items-center justify-center gap-2 ${
+                  darkMode
+                    ? 'bg-transparent text-white hover:bg-[#053749]'
+                    : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
+                }`}
+                label={pageContent['mentee'] || 'Mentee'}
+                imageWidth={24}
+                imageHeight={24}
+              />
+            )}
           </div>
 
           {/* Close Button */}

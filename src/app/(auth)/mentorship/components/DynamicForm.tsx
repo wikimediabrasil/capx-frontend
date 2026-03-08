@@ -14,6 +14,7 @@ interface DynamicFormProps {
   programLogo: string | null;
   onSubmit: (data: Record<string, any>) => void;
   onClose: () => void;
+  submitting?: boolean;
 }
 
 export default function DynamicForm({
@@ -22,6 +23,7 @@ export default function DynamicForm({
   programLogo,
   onSubmit,
   onClose,
+  submitting = false,
 }: DynamicFormProps) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -377,17 +379,22 @@ export default function DynamicForm({
             <BaseButton
               type="button"
               onClick={onClose}
-              customClass={`flex-1 px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] text-[#053749] ${
+              customClass={`flex-1 px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] ${
                 darkMode
-                  ? 'bg-transparent hover:bg-[#053749] hover:text-white'
-                  : 'bg-white hover:bg-[#053749] hover:text-white'
+                  ? 'bg-transparent text-white hover:bg-[#053749] hover:text-white'
+                  : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
               }`}
               label={pageContent['close'] || 'Close'}
             />
             <BaseButton
               type="submit"
-              customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-[#6A1B9A] text-white"
-              label={form.submitButtonLabel || pageContent['subscribe'] || 'Subscribe'}
+              disabled={submitting}
+              customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-[#6A1B9A] text-white disabled:opacity-60 disabled:cursor-not-allowed"
+              label={
+                submitting
+                  ? pageContent['submitting'] || 'Submitting...'
+                  : form.submitButtonLabel || pageContent['subscribe'] || 'Subscribe'
+              }
             />
           </div>
         </form>

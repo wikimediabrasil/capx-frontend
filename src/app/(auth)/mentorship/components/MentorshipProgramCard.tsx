@@ -4,6 +4,7 @@ import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import RoleSelectionModal from './RoleSelectionModal';
 import DynamicForm from './DynamicForm';
 import ConfirmationModal from './ConfirmationModal';
@@ -13,6 +14,8 @@ import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import { mentorshipService } from '@/services/mentorshipService';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
 import { useDarkMode, usePageContent } from '@/stores';
 interface MentorshipProgramCardProps {
@@ -28,29 +31,94 @@ export default function MentorshipProgramCard({
 }: MentorshipProgramCardProps) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
+  const { data: session } = useSession();
+  const { showSnackbar } = useSnackbar();
+  const token = (session?.user as { token?: string } | undefined)?.token;
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'mentor' | 'mentee' | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const hasAnyForm = program.forms?.mentor || program.forms?.mentee;
 
   const handleSubscribe = () => {
+    if (!token) {
+      showSnackbar(
+        pageContent['mentorship-sign-in-required'] || 'Please sign in to apply for mentorship.',
+        'error'
+      );
+      return;
+    }
+    if (!hasAnyForm) {
+      showSnackbar(
+        pageContent['no-mentorship-programs-found'] || 'No application form available for this program.',
+        'info'
+      );
+      return;
+    }
     setShowRoleModal(true);
   };
 
   const handleRoleSelect = (role: 'mentor' | 'mentee', _program: MentorshipProgram) => {
+    const form = program.forms?.[role];
+    if (!form) return;
     setShowRoleModal(false);
     setSelectedRole(role);
     setShowForm(true);
   };
 
-  const handleFormSubmit = (data: Record<string, any>) => {
-    setShowForm(false);
-    setShowConfirmation(true);
-    if (onSubscribe && selectedRole) {
-      onSubscribe(program.id, selectedRole);
+  const handleFormSubmit = async (data: Record<string, unknown>) => {
+    const form = selectedRole ? program.forms?.[selectedRole] : undefined;
+    const formId = form && 'formId' in form ? (form as { formId: number }).formId : undefined;
+
+    if (!token) {
+      showSnackbar(
+        pageContent['mentorship-sign-in-required'] || 'Please sign in to apply for mentorship.',
+        'error'
+      );
+      return;
     }
-    // Here you would typically send the form data to the API
-    console.log('Form submitted:', { role: selectedRole, data });
+
+    if (formId != null) {
+      setSubmitting(true);
+      try {
+        if (selectedRole === 'mentor') {
+          await mentorshipService.submitMentorResponse(formId, data, token);
+        } else {
+          await mentorshipService.submitMenteeResponse(formId, data, token);
+        }
+        setShowForm(false);
+        setShowConfirmation(true);
+        if (onSubscribe && selectedRole) {
+          onSubscribe(program.id, selectedRole);
+        }
+        showSnackbar(
+          pageContent['mentorship-application-forwarded'] ||
+            "Application submitted. The program will contact you directly soon.",
+          'success'
+        );
+      } catch (err: unknown) {
+        const message =
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+          (err as Error)?.message ||
+          'Failed to submit application';
+        showSnackbar(message, 'error');
+      } finally {
+        setSubmitting(false);
+      }
+    } else {
+      setShowForm(false);
+      setShowConfirmation(true);
+      if (onSubscribe && selectedRole) {
+        onSubscribe(program.id, selectedRole);
+      }
+      showSnackbar(
+        pageContent['mentorship-application-forwarded'] ||
+          "Application submitted. The program will contact you directly soon.",
+        'success'
+      );
+    }
   };
 
   const handleLearnMore = () => {
@@ -266,11 +334,13 @@ export default function MentorshipProgramCard({
 
         {/* Action Buttons */}
         <div className="flex gap-2 mt-auto">
-          <BaseButton
-            onClick={handleSubscribe}
-            customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-capx-primary-green text-white"
-            label={pageContent['subscribe'] || 'Subscribe'}
-          />
+          {hasAnyForm && (
+            <BaseButton
+              onClick={handleSubscribe}
+              customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-capx-primary-green text-white"
+              label={pageContent['subscribe'] || 'Subscribe'}
+            />
+          )}
           <BaseButton
             onClick={handleLearnMore}
             customClass={`flex-1 px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] ${
@@ -300,6 +370,7 @@ export default function MentorshipProgramCard({
             setShowForm(false);
             setSelectedRole(null);
           }}
+          submitting={submitting}
         />
       )}
 
