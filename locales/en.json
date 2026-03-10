@@ -709,6 +709,7 @@
   "analytics-map-capacity-wanted": "Wanted",
   "analytics-map-legend": "All data is fetched from the Capx database in realtime",
   "analytics-map-loading-capacities": "Loading capacities in ",
+  "analytics-map-capacity-type": "Type",
   "sign-in-required-title": "Log in to continue",
   "sign-in-required-description": "You need to be logged in to access this page. Sign up for CapX to exchange capacities and connect with other Wikimedians.",
   "sign-in-required-go-home": "Go to the home page"
