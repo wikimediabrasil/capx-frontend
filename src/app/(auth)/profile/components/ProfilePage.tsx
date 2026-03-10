@@ -15,7 +15,14 @@ import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
-import { useAllBadges, useCapacityStore, useCurrentLanguage, useDarkMode, useIsMobile, usePageContent } from '@/stores';
+import {
+  useAllBadges,
+  useCapacityStore,
+  useCurrentLanguage,
+  useDarkMode,
+  useIsMobile,
+  usePageContent,
+} from '@/stores';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import MiniBio from './MiniBio';
@@ -143,7 +150,10 @@ export default function ProfilePage({ isSameUser, profile }: Readonly<ProfilePag
                   if (typeof profile.about_language === 'number') {
                     return profile.about_language;
                   }
-                  if (typeof profile.about_language === 'object' && 'id' in profile.about_language) {
+                  if (
+                    typeof profile.about_language === 'object' &&
+                    'id' in profile.about_language
+                  ) {
                     return Number(profile.about_language.id);
                   }
                   return null;

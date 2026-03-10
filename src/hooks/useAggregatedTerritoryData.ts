@@ -123,7 +123,10 @@ export const getCapacityTotalsByWikimediaTerritory = (
   apiTerritoryToWikimediaMap: Record<string, string>,
   capacityId: string
 ): Record<string, { known: number; available: number; wanted: number; total: number }> => {
-  const totals: Record<string, { known: number; available: number; wanted: number; total: number }> = {};
+  const totals: Record<
+    string,
+    { known: number; available: number; wanted: number; total: number }
+  > = {};
 
   Object.entries(capacitiesByTerritory).forEach(([apiTerritoryId, capCounts]) => {
     const wikimediaId = apiTerritoryToWikimediaMap[apiTerritoryId];
@@ -135,7 +138,9 @@ export const getCapacityTotalsByWikimediaTerritory = (
       totals[wikimediaId].available += capCounts[capacityId].available;
       totals[wikimediaId].wanted += capCounts[capacityId].wanted;
       totals[wikimediaId].total +=
-        capCounts[capacityId].known + capCounts[capacityId].available + capCounts[capacityId].wanted;
+        capCounts[capacityId].known +
+        capCounts[capacityId].available +
+        capCounts[capacityId].wanted;
     }
   });
 
