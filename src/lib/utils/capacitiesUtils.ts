@@ -5,6 +5,7 @@ import CommunityIcon from '@/public/static/images/communities.svg';
 import OrganizationalIcon from '@/public/static/images/corporate_fare.svg';
 import LearningIcon from '@/public/static/images/local_library.svg';
 import TechnologyIcon from '@/public/static/images/wifi_tethering.svg';
+import { WIKIMEDIA_USER_AGENT } from '@/constants/wikimedia';
 import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { Dispatch, SetStateAction } from 'react';
@@ -226,7 +227,8 @@ export const fetchWikidata = async (codes: any, language: string) => {
     )}} SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'.}}`;
 
     const wikidataResponse = await axios.get(
-      `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`
+      `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`,
+      { headers: { 'User-Agent': WIKIMEDIA_USER_AGENT } }
     );
 
     const results = (wikidataResponse.data.results.bindings || [])

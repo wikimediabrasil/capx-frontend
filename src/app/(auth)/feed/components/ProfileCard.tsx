@@ -280,7 +280,7 @@ export const ProfileCard = ({
     }
 
     // Collect all capacity sections to display
-    const sectionsToShow: JSX.Element[] = [];
+    const sectionsToShow: React.ReactElement[] = [];
 
     // Always show wanted if it exists and is enabled
     if (showWanted && wantedCapacities && wantedCapacities.length > 0) {

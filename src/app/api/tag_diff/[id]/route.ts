@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
 
   try {
     const response = await axios.get(`${process.env.BASE_URL}/tag_diff/${id}`, {
@@ -16,9 +16,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
 
   try {
     const response = await axios.delete(`${process.env.BASE_URL}/tag_diff/${id}`, {

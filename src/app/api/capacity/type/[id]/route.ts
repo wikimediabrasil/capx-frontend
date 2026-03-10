@@ -4,9 +4,10 @@ import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capaciti
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   try {
-    const id = params.id;
     const language = req.nextUrl.searchParams.get('language') || 'en';
 
     const response = await axios.get(`${process.env.BASE_URL}/skills_by_type/${id}/`);

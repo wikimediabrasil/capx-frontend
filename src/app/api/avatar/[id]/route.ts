@@ -1,7 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 import axios from 'axios';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+
   try {
     const authHeader = request.headers.get('authorization');
 
@@ -9,7 +11,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'No authorization token provided' }, { status: 401 });
     }
 
-    const response = await axios.get(`${process.env.BASE_URL}/avatar/${params.id}/`, {
+    const response = await axios.get(`${process.env.BASE_URL}/avatar/${id}/`, {
       headers: {
         Authorization: authHeader,
       },
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json(response.data);
   } catch (error: any) {
     console.error('Avatar fetch error:', {
-      url: `${process.env.BASE_URL}/avatar/${params.id}/`,
+      url: `${process.env.BASE_URL}/avatar/${id}/`,
       error: error.response?.data || error.message,
       status: error.response?.status,
       headers: error.config?.headers,
