@@ -13,9 +13,10 @@ export interface CapacityById {
   icon?: string;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   try {
-    const id = params.id;
     const language = req.nextUrl.searchParams.get('language') || 'en';
 
     const codeList = await axios.get(`${process.env.BASE_URL}/list/skills/`);
@@ -104,7 +105,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       description: '',
     });
   } catch (error) {
-    console.error(`❌ API: Error processing capacity ${params.id}:`, error);
+    console.error(`❌ API: Error processing capacity ${id}:`, error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
