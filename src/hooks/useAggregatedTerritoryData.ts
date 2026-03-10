@@ -6,9 +6,9 @@ interface AggregatedLanguageData {
 }
 
 interface AggregatedCapacityData {
-  // { territoryId: { capacityId: { available: count, wanted: count } } }
+  // { territoryId: { capacityId: { known: count, available: count, wanted: count } } }
   [territoryId: string]: {
-    [capacityId: string]: { available: number; wanted: number };
+    [capacityId: string]: { known: number; available: number; wanted: number };
   };
 }
 
@@ -89,16 +89,17 @@ export const getCapacityCountsForWikimediaTerritory = (
   capacitiesByTerritory: AggregatedCapacityData,
   apiTerritoryToWikimediaMap: Record<string, string>,
   wikimediaTerritoryId: string
-): Record<string, { available: number; wanted: number }> => {
-  const counts: Record<string, { available: number; wanted: number }> = {};
+): Record<string, { known: number; available: number; wanted: number }> => {
+  const counts: Record<string, { known: number; available: number; wanted: number }> = {};
 
   Object.entries(capacitiesByTerritory).forEach(([apiTerritoryId, capCounts]) => {
     const wikimediaId = apiTerritoryToWikimediaMap[apiTerritoryId];
     if (wikimediaId === wikimediaTerritoryId) {
-      Object.entries(capCounts).forEach(([capId, { available, wanted }]) => {
+      Object.entries(capCounts).forEach(([capId, { known, available, wanted }]) => {
         if (!counts[capId]) {
-          counts[capId] = { available: 0, wanted: 0 };
+          counts[capId] = { known: 0, available: 0, wanted: 0 };
         }
+        counts[capId].known += known;
         counts[capId].available += available;
         counts[capId].wanted += wanted;
       });
@@ -131,19 +132,20 @@ export const getCapacityTotalsByWikimediaTerritory = (
   capacitiesByTerritory: AggregatedCapacityData,
   apiTerritoryToWikimediaMap: Record<string, string>,
   capacityId: string
-): Record<string, { available: number; wanted: number; total: number }> => {
-  const totals: Record<string, { available: number; wanted: number; total: number }> = {};
+): Record<string, { known: number; available: number; wanted: number; total: number }> => {
+  const totals: Record<string, { known: number; available: number; wanted: number; total: number }> = {};
 
   Object.entries(capacitiesByTerritory).forEach(([apiTerritoryId, capCounts]) => {
     const wikimediaId = apiTerritoryToWikimediaMap[apiTerritoryId];
     if (wikimediaId && capCounts[capacityId]) {
       if (!totals[wikimediaId]) {
-        totals[wikimediaId] = { available: 0, wanted: 0, total: 0 };
+        totals[wikimediaId] = { known: 0, available: 0, wanted: 0, total: 0 };
       }
+      totals[wikimediaId].known += capCounts[capacityId].known;
       totals[wikimediaId].available += capCounts[capacityId].available;
       totals[wikimediaId].wanted += capCounts[capacityId].wanted;
       totals[wikimediaId].total +=
-        capCounts[capacityId].available + capCounts[capacityId].wanted;
+        capCounts[capacityId].known + capCounts[capacityId].available + capCounts[capacityId].wanted;
     }
   });
 
