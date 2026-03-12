@@ -4,6 +4,7 @@ import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import RoleSelectionModal from './RoleSelectionModal';
 import DynamicForm from './DynamicForm';
 import ConfirmationModal from './ConfirmationModal';
@@ -13,49 +14,111 @@ import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import { mentorshipService } from '@/services/mentorshipService';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
 import { useDarkMode, usePageContent } from '@/stores';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+
 interface MentorshipProgramCardProps {
   program: MentorshipProgram;
   onSubscribe?: (programId: number, role: 'mentor' | 'mentee') => void;
-  onLearnMore?: (programId: number) => void;
 }
 
 export default function MentorshipProgramCard({
   program,
   onSubscribe,
-  onLearnMore,
 }: MentorshipProgramCardProps) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
+  const { data: session } = useSession();
+  const { showSnackbar } = useSnackbar();
+  const token = (session?.user as { token?: string } | undefined)?.token;
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'mentor' | 'mentee' | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const hasAnyForm = program.forms?.mentor || program.forms?.mentee;
 
   const handleSubscribe = () => {
+    if (!token) {
+      showSnackbar(
+        pageContent['mentorship-sign-in-required'] || 'Please sign in to apply for mentorship.',
+        'error'
+      );
+      return;
+    }
+    if (!hasAnyForm) {
+      showSnackbar(
+        pageContent['no-mentorship-programs-found'] ||
+          'No application form available for this program.',
+        'success'
+      );
+      return;
+    }
     setShowRoleModal(true);
   };
 
   const handleRoleSelect = (role: 'mentor' | 'mentee', _program: MentorshipProgram) => {
+    const form = program.forms?.[role];
+    if (!form) return;
     setShowRoleModal(false);
     setSelectedRole(role);
     setShowForm(true);
   };
 
-  const handleFormSubmit = (data: Record<string, any>) => {
-    setShowForm(false);
-    setShowConfirmation(true);
-    if (onSubscribe && selectedRole) {
-      onSubscribe(program.id, selectedRole);
-    }
-    // Here you would typically send the form data to the API
-    console.log('Form submitted:', { role: selectedRole, data });
-  };
+  const handleFormSubmit = async (data: Record<string, unknown>) => {
+    const form = selectedRole ? program.forms?.[selectedRole] : undefined;
+    const formId = form && 'formId' in form ? (form as { formId: number }).formId : undefined;
 
-  const handleLearnMore = () => {
-    if (onLearnMore) {
-      onLearnMore(program.id);
+    if (!token) {
+      showSnackbar(
+        pageContent['mentorship-sign-in-required'] || 'Please sign in to apply for mentorship.',
+        'error'
+      );
+      return;
+    }
+
+    if (formId != null) {
+      setSubmitting(true);
+      try {
+        if (selectedRole === 'mentor') {
+          await mentorshipService.submitMentorResponse(formId, data, token);
+        } else {
+          await mentorshipService.submitMenteeResponse(formId, data, token);
+        }
+        setShowForm(false);
+        setShowConfirmation(true);
+        if (onSubscribe && selectedRole) {
+          onSubscribe(program.id, selectedRole);
+        }
+        showSnackbar(
+          pageContent['mentorship-application-forwarded'] ||
+            'Application submitted. The program will contact you directly soon.',
+          'success'
+        );
+      } catch (err: unknown) {
+        const message =
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+          (err as Error)?.message ||
+          'Failed to submit application';
+        showSnackbar(message, 'error');
+      } finally {
+        setSubmitting(false);
+      }
+    } else {
+      setShowForm(false);
+      setShowConfirmation(true);
+      if (onSubscribe && selectedRole) {
+        onSubscribe(program.id, selectedRole);
+      }
+      showSnackbar(
+        pageContent['mentorship-application-forwarded'] ||
+          'Application submitted. The program will contact you directly soon.',
+        'success'
+      );
     }
   };
 
@@ -78,26 +141,35 @@ export default function MentorshipProgramCard({
           darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-200'
         }`}
       >
-        {/* Logo */}
+        {/* Logo: organization profile_image from partner_mentorship_settings (Commons URL) */}
         <div className="mb-4">
           <div className="relative w-20 h-20 md:w-24 md:h-24">
             {program.logo && program.logo.trim() !== '' ? (
-              <Image src={program.logo} alt={program.name} fill className="object-contain" />
-            ) : (
-              <div
-                className={`w-full h-full rounded-lg flex items-center justify-center border-2 ${
-                  darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'
+              <div className="absolute inset-0 rounded-lg bg-white overflow-hidden">
+                <Image
+                  src={formatWikiImageUrl(program.logo)}
+                  alt={program.name}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ) : null}
+            <div
+              className={`absolute inset-0 w-full h-full rounded-lg flex items-center justify-center border-2 ${
+                darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'
+              }`}
+              style={{
+                display: program.logo && program.logo.trim() !== '' ? 'none' : 'flex',
+              }}
+            >
+              <span
+                className={`text-xl md:text-2xl font-bold ${
+                  darkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}
               >
-                <span
-                  className={`text-xl md:text-2xl font-bold ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                >
-                  {program.name.charAt(0)}
-                </span>
-              </div>
-            )}
+                {program.name.charAt(0)}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -266,20 +338,13 @@ export default function MentorshipProgramCard({
 
         {/* Action Buttons */}
         <div className="flex gap-2 mt-auto">
-          <BaseButton
-            onClick={handleSubscribe}
-            customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-capx-primary-green text-white"
-            label={pageContent['subscribe'] || 'Subscribe'}
-          />
-          <BaseButton
-            onClick={handleLearnMore}
-            customClass={`flex-1 px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] ${
-              darkMode
-                ? 'bg-transparent text-white hover:bg-[#053749]'
-                : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
-            }`}
-            label={pageContent['learn-more'] || 'Learn more'}
-          />
+          {hasAnyForm && (
+            <BaseButton
+              onClick={handleSubscribe}
+              customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-capx-primary-green text-white"
+              label={pageContent['subscribe'] || 'Subscribe'}
+            />
+          )}
         </div>
       </div>
 
@@ -300,6 +365,7 @@ export default function MentorshipProgramCard({
             setShowForm(false);
             setSelectedRole(null);
           }}
+          submitting={submitting}
         />
       )}
 

@@ -24,7 +24,8 @@ interface CookieData {
 export async function setCookie(data: CookieData): Promise<void> {
   try {
     const { name, value, options } = data;
-    cookies().set(name, value, options);
+    const cookieStore = await cookies();
+    cookieStore.set(name, value, options);
   } catch (error) {
     console.error('Error setting cookie:', error);
     throw error;

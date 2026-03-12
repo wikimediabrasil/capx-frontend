@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export async function DELETE(
   request: NextRequest,
-  { params: _params }: { params: { id: string } }
+  { params: _params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');

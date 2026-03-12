@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Jurgitar",
 			"Nokeoo"
 		]
 	},
@@ -134,6 +135,10 @@
 	"edit-profile-add-language": "Pridėti kalbą",
 	"edit-profile-main-projects": "Pagrindiniai projektai",
 	"edit-profile-add-projects": "Pridėti projektus",
+	"edit-profile-news": "Naujienos",
+	"edit-profile-loading-news": "Įkeliamos naujienos...",
+	"edit-profile-insert-item": "Įterpti elementą",
+	"edit-profile-share-username": "Bendrinkite kitą Vikimedijos vartotojo vardą, jei tokį turite.",
 	"edit-profile-save-organization": "Išsaugoti organizaciją",
 	"filters-territory": "Teritorija",
 	"aria-language-input": "Pasirinkite kalbą"

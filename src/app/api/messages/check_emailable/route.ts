@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { WIKIMEDIA_USER_AGENT } from '@/constants/wikimedia';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -19,9 +20,7 @@ export async function POST(request: NextRequest) {
       console.log('[check_emailable] Checking email for sender:', sender);
     }
 
-    const headers = {
-      'User-Agent': 'CapX/1.0 (https://capx.toolforge.org/; contact@capx.org) axios/1.0',
-    };
+    const headers = { 'User-Agent': WIKIMEDIA_USER_AGENT };
 
     // Check both sender and receiver in a single request if sender is provided
     const usersToCheck = sender ? `${sender}|${receiver}` : receiver;

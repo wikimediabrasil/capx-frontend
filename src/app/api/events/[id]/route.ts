@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
 
   try {
     const response = await axios.get(`${process.env.BASE_URL}/events/${id}/`, {
@@ -33,7 +33,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   try {
     const body = await request.json();
     const authHeader = request.headers.get('authorization');
@@ -43,23 +45,19 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       type_of_location: body.type_of_location || 'virtual',
     };
 
-    const updateResponse = await axios.put(
-      `${process.env.BASE_URL}/events/${params.id}/`,
-      payload,
-      {
-        headers: {
-          Authorization: authHeader,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const updateResponse = await axios.put(`${process.env.BASE_URL}/events/${id}/`, payload, {
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+    });
 
     return NextResponse.json(updateResponse.data);
   } catch (error: any) {
     console.error('Error details:', error.response?.data || error);
     return NextResponse.json(
       {
-        error: `Failed to update event with id ${params.id}`,
+        error: `Failed to update event with id ${id}`,
         details: error.response?.data || error.message,
       },
       { status: error.response?.status || 500 }
@@ -67,9 +65,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const authHeader = request.headers.get('authorization');
-  const id = params.id;
+  const { id } = await params;
 
   if (!authHeader) {
     return NextResponse.json({ error: 'Authorization header missing' }, { status: 401 });

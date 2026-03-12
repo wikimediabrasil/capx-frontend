@@ -133,7 +133,7 @@ export default function EditProfilePage() {
     deleteProfile,
   } = useProfile(token, userId);
   const { territories } = useTerritories(token);
-  const { languages } = useLanguage(token);
+  const { languages } = useLanguage(token, language);
   const { affiliations } = useAffiliation(token);
   const { wikimediaProjects, error: wikimediaProjectsError } = useWikimediaProject(token);
 
