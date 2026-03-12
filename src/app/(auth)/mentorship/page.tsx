@@ -9,7 +9,6 @@ import Banner from '@/components/Banner';
 import MentorshipProgramsIcon from '@/public/static/images/mentorship_programs.svg';
 import { mentorshipService } from '@/services/mentorshipService';
 import { formBuilderJsonToMentorshipForm } from '@/utils/formBuilderToMentorshipForm';
-
 import { useDarkMode, usePageContent } from '@/stores';
 
 // Build programs from partner_mentorship_settings + mentor/mentee form APIs (both form APIs are used)
@@ -39,7 +38,13 @@ function buildProgramsFromSettings(
     const displayName = setting.name?.trim() || `Partner ${orgId}`;
     const territoryNames = Array.isArray(setting.territory_names) ? setting.territory_names : [];
     const location = territoryNames.length > 0 ? territoryNames.join(', ') : 'Global';
-    const logo = setting.profile_image?.trim() || null;
+    const rawProfileImage =
+      (setting as { profile_image?: string | null }).profile_image ??
+      (setting as { profileImage?: string | null }).profileImage ??
+      (setting as { organization?: { profile_image?: string | null } }).organization?.profile_image;
+    const profileImage =
+      rawProfileImage != null && typeof rawProfileImage === 'string' ? rawProfileImage.trim() : '';
+    const logo = profileImage !== '' ? profileImage : null;
     const description = setting.description?.trim() || `Mentorship program by ${displayName}.`;
     const capacities = Array.isArray(setting.skill_names) ? setting.skill_names : [];
     const languages = Array.isArray(setting.language_names) ? setting.language_names : [];
@@ -145,8 +150,12 @@ export default function MentorshipPage() {
 
           {/* Programs Grid */}
           {loading ? (
-            <div className={`text-center py-12 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              <p>Loading mentorship programs...</p>
+            <div className="flex justify-center py-12">
+              <div
+                className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-[#851970]"
+                data-testid="loading-spinner"
+                aria-label="Loading"
+              />
             </div>
           ) : loadError ? (
             <div className="text-center py-12 text-red-600">

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 
 import { useDarkMode, usePageContent } from '@/stores';
 interface RoleSelectionModalProps {
@@ -40,7 +41,12 @@ export default function RoleSelectionModal({
           <div className="flex justify-center mb-4">
             <div className="relative w-20 h-20">
               {program.logo && program.logo.trim() !== '' && program.logo !== null ? (
-                <Image src={program.logo} alt={program.name} fill className="object-contain" />
+                <Image
+                  src={formatWikiImageUrl(program.logo)}
+                  alt={program.name}
+                  fill
+                  className="object-contain"
+                />
               ) : (
                 <div
                   className={`w-full h-full rounded-lg flex items-center justify-center ${

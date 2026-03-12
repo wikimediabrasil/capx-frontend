@@ -8,6 +8,31 @@ import MentorIcon from '@/public/static/images/mentor.svg';
 import MenteeIcon from '@/public/static/images/mentee.svg';
 
 import { useDarkMode, usePageContent } from '@/stores';
+
+/** Only limits the year when it has more than 4 digits; does not change 1–4 digits (allows typing 2025 etc.). */
+function sanitizeDateValue(value: string | undefined): string {
+  if (value == null || value === '') return value ?? '';
+  const match = String(value).match(/^(\d{5,})-(\d{2})-(\d{2})$/);
+  if (!match) return value;
+  const yearStr = match[1].slice(0, 4);
+  let year = parseInt(yearStr, 10);
+  if (year > 9999) year = 9999;
+  if (year < 1) year = 1;
+  return `${String(year).padStart(4, '0')}-${match[2]}-${match[3]}`;
+}
+
+/** Same rule for datetime-local: only sanitizes when the year has more than 4 digits. */
+function sanitizeDateTimeValue(value: string | undefined): string {
+  if (value == null || value === '') return value ?? '';
+  const match = String(value).match(/^(\d{5,})-(\d{2})-(\d{2})T(.+)$/);
+  if (!match) return value;
+  const yearStr = match[1].slice(0, 4);
+  let year = parseInt(yearStr, 10);
+  if (year > 9999) year = 9999;
+  if (year < 1) year = 1;
+  return `${String(year).padStart(4, '0')}-${match[2]}-${match[3]}T${match[4]}`;
+}
+
 interface DynamicFormProps {
   form: MentorshipForm;
   programName: string;
@@ -54,12 +79,20 @@ export default function DynamicForm({
     }
   };
 
+  const isEmpty = (v: any, field: MentorshipFormField): boolean => {
+    if (v == null) return true;
+    if (Array.isArray(v)) return v.length === 0;
+    if (typeof v === 'string') return v.trim() === '';
+    return false;
+  };
+
   const validateField = (field: MentorshipFormField, value: any): string | null => {
-    if (field.required && (!value || (Array.isArray(value) && value.length === 0))) {
+    const required = field.required !== false;
+    if (required && isEmpty(value, field)) {
       return `${field.label} is required`;
     }
 
-    if (!value && !field.required) return null;
+    if (isEmpty(value, field) && !required) return null;
 
     if (field.validation) {
       const { min, max, minLength, maxLength, pattern } = field.validation;
@@ -94,8 +127,9 @@ export default function DynamicForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Record<string, string> = {};
+    if (form.fields.length === 0) return;
 
+    const newErrors: Record<string, string> = {};
     form.fields.forEach(field => {
       const error = validateField(field, formData[field.id]);
       if (error) {
@@ -112,7 +146,9 @@ export default function DynamicForm({
   };
 
   const renderField = (field: MentorshipFormField) => {
-    const value = formData[field.id] || '';
+    const rawValue = formData[field.id];
+    const value =
+      field.type === 'multiselect' ? (Array.isArray(rawValue) ? rawValue : []) : (rawValue ?? '');
     const error = errors[field.id];
 
     switch (field.type) {
@@ -125,13 +161,13 @@ export default function DynamicForm({
               }`}
             >
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
             </label>
             <textarea
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
               placeholder={field.placeholder}
-              required={field.required}
+              required={field.required !== false}
               rows={4}
               className={`w-full px-4 py-3 rounded-lg border ${
                 error
@@ -159,12 +195,12 @@ export default function DynamicForm({
               }`}
             >
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
             </label>
             <select
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
-              required={field.required}
+              required={field.required !== false}
               className={`w-full px-4 py-3 rounded-lg border ${
                 error
                   ? 'border-red-500'
@@ -198,58 +234,40 @@ export default function DynamicForm({
               }`}
             >
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
             </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {Array.isArray(value) &&
-                value.map((selectedValue, index) => (
-                  <span
-                    key={index}
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
-                      darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700'
+            <div className="space-y-2">
+              {field.options?.map((option, optIndex) => {
+                const optValue = String(option.value);
+                const isChecked = value.some(v => String(v) === optValue);
+                return (
+                  <label
+                    key={`${field.id}-opt-${optIndex}`}
+                    className={`flex items-center gap-2 cursor-pointer ${
+                      darkMode ? 'text-gray-200' : 'text-gray-800'
                     }`}
                   >
-                    {field.options?.find(opt => opt.value === selectedValue)?.label ||
-                      selectedValue}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newValue = value.filter((_, i) => i !== index);
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {
+                        const newValue = isChecked
+                          ? value.filter(v => String(v) !== optValue)
+                          : [...value, option.value];
                         handleChange(field.id, newValue);
                       }}
-                      className="ml-1 hover:opacity-70"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
+                      className="w-4 h-4 rounded border-gray-400 text-[#053749] focus:ring-[#053749]"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                );
+              })}
             </div>
-            <select
-              value=""
-              onChange={e => {
-                if (e.target.value) {
-                  const currentValues = Array.isArray(value) ? value : [];
-                  if (!currentValues.includes(e.target.value)) {
-                    handleChange(field.id, [...currentValues, e.target.value]);
-                  }
-                  e.target.value = '';
-                }
-              }}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                darkMode
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
-            >
-              <option value="">{field.placeholder || 'Select...'}</option>
-              {field.options
-                ?.filter(opt => !Array.isArray(value) || !value.includes(opt.value))
-                .map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-            </select>
+            {!field.options?.length && (
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                No options defined for this field.
+              </p>
+            )}
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
             {field.hint && (
               <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -268,13 +286,83 @@ export default function DynamicForm({
               }`}
             >
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
             </label>
             <input
               type="time"
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
-              required={field.required}
+              required={field.required !== false}
+              className={`w-full px-4 py-3 rounded-lg border ${
+                error
+                  ? 'border-red-500'
+                  : darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+            />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+            {field.hint && (
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {field.hint}
+              </p>
+            )}
+          </div>
+        );
+
+      case 'date':
+        return (
+          <div key={field.id} className="mb-4">
+            <label
+              className={`block mb-2 text-sm font-semibold ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+              }`}
+            >
+              {field.label}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <input
+              type="date"
+              min="1000-01-01"
+              max="9999-12-31"
+              value={sanitizeDateValue(value)}
+              onChange={e => handleChange(field.id, sanitizeDateValue(e.target.value))}
+              required={field.required !== false}
+              className={`w-full px-4 py-3 rounded-lg border ${
+                error
+                  ? 'border-red-500'
+                  : darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+            />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+            {field.hint && (
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {field.hint}
+              </p>
+            )}
+          </div>
+        );
+
+      case 'datetime':
+        return (
+          <div key={field.id} className="mb-4">
+            <label
+              className={`block mb-2 text-sm font-semibold ${
+                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+              }`}
+            >
+              {field.label}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <input
+              type="datetime-local"
+              min="1000-01-01T00:00"
+              max="9999-12-31T23:59"
+              value={sanitizeDateTimeValue(value)}
+              onChange={e => handleChange(field.id, sanitizeDateTimeValue(e.target.value))}
+              required={field.required !== false}
               className={`w-full px-4 py-3 rounded-lg border ${
                 error
                   ? 'border-red-500'
@@ -301,14 +389,14 @@ export default function DynamicForm({
               }`}
             >
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
             </label>
             <input
               type={field.type}
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
               placeholder={field.placeholder}
-              required={field.required}
+              required={field.required !== false}
               className={`w-full px-4 py-3 rounded-lg border ${
                 error
                   ? 'border-red-500'

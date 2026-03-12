@@ -141,31 +141,35 @@ export default function MentorshipProgramCard({
           darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-200'
         }`}
       >
-        {/* Logo: organization profile_image or partner avatar (formatWikiImageUrl for Commons/URLs) */}
+        {/* Logo: organization profile_image from partner_mentorship_settings (Commons URL) */}
         <div className="mb-4">
           <div className="relative w-20 h-20 md:w-24 md:h-24">
             {program.logo && program.logo.trim() !== '' ? (
-              <Image
-                src={formatWikiImageUrl(program.logo)}
-                alt={program.name}
-                fill
-                className="object-contain"
-              />
-            ) : (
-              <div
-                className={`w-full h-full rounded-lg flex items-center justify-center border-2 ${
-                  darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'
+              <div className="absolute inset-0 rounded-lg bg-white overflow-hidden">
+                <Image
+                  src={formatWikiImageUrl(program.logo)}
+                  alt={program.name}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            ) : null}
+            <div
+              className={`absolute inset-0 w-full h-full rounded-lg flex items-center justify-center border-2 ${
+                darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'
+              }`}
+              style={{
+                display: program.logo && program.logo.trim() !== '' ? 'none' : 'flex',
+              }}
+            >
+              <span
+                className={`text-xl md:text-2xl font-bold ${
+                  darkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}
               >
-                <span
-                  className={`text-xl md:text-2xl font-bold ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                >
-                  {program.name.charAt(0)}
-                </span>
-              </div>
-            )}
+                {program.name.charAt(0)}
+              </span>
+            </div>
           </div>
         </div>
 

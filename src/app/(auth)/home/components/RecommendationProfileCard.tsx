@@ -117,6 +117,8 @@ export default function RecommendationProfileCard({
     profileTypeIcon = darkMode ? AccountCircleWhite : AccountCircle;
   }
 
+  const profileTypeAlt = isOrganization ? 'Organization profile icon' : 'User profile icon';
+
   let saveButtonStyle: string;
   if (isSaved) {
     saveButtonStyle = 'bg-[#053749] text-white border-[#053749] hover:bg-[#04222F]';
@@ -199,11 +201,14 @@ export default function RecommendationProfileCard({
       </div>
 
       <div className="flex items-center justify-start gap-2 mb-4 w-full">
-        <div
-          className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0"
-          aria-hidden="true"
-        >
-          <Image src={profileTypeIcon} alt="" fill className="object-contain" priority />
+        <div className="relative w-[15px] h-[15px] md:w-[30px] md:h-[30px] flex-shrink-0">
+          <Image
+            src={profileTypeIcon}
+            alt={profileTypeAlt}
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
         <h3
           className={`text-[14px] md:text-[18px] font-bold truncate flex-1 ${

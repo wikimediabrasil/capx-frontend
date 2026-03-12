@@ -14,6 +14,8 @@ const TYPE_MAP: Record<string, FormFieldType> = {
   select: 'select',
   'radio-group': 'select',
   'checkbox-group': 'multiselect',
+  checkbox_group: 'multiselect',
+  checkboxGroup: 'multiselect',
   number: 'number',
   email: 'email',
   tel: 'tel',
@@ -24,21 +26,30 @@ const TYPE_MAP: Record<string, FormFieldType> = {
 };
 
 function mapFormBuilderType(fbType: string): FormFieldType {
-  return TYPE_MAP[fbType] ?? 'text';
+  if (!fbType || typeof fbType !== 'string') return 'text';
+  const normalized = String(fbType).trim().toLowerCase().replace(/\s+/g, '-');
+  return TYPE_MAP[normalized] ?? TYPE_MAP[fbType] ?? 'text';
 }
 
 function valuesToOptions(values: FormBuilderFieldSchema['values']): FormFieldOption[] | undefined {
   if (!values || !Array.isArray(values)) return undefined;
-  return values.map(v => ({
-    label:
+  const seen = new Set<string>();
+  return values.map((v, idx) => {
+    const label =
       typeof v === 'object' && v !== null && 'label' in v
         ? String((v as { label: string }).label)
-        : String(v),
-    value:
+        : String(v);
+    let value: string | number =
       typeof v === 'object' && v !== null && 'value' in v
         ? (v as { value: string }).value
-        : String(v),
-  }));
+        : label || `opt-${idx}`;
+    const valueStr = String(value);
+    if (seen.has(valueStr)) {
+      value = `${valueStr}-${idx}`;
+    }
+    seen.add(valueStr);
+    return { label, value };
+  });
 }
 
 /**
@@ -62,7 +73,7 @@ export function formBuilderJsonToMentorshipForm(
         id,
         label: (f.label as string) || id,
         type,
-        required: Boolean(f.required),
+        required: true,
         placeholder: (f.placeholder as string) || undefined,
         options: options?.length ? options : undefined,
         hint: (f.description as string) || (f.hint as string) || undefined,
