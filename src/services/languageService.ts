@@ -6,7 +6,7 @@ export const fetchLanguages = async (token: string, language?: string): Promise<
     headers: {
       Authorization: `Token ${token}`,
     },
-    params: language ? { language } : undefined,
+    params: language ? { lang: language } : undefined,
   });
 
   return response.data;

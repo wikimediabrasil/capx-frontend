@@ -1,33 +1,40 @@
 'use client';
 
 import { ProfileItem } from '@/components/ProfileItem';
-import { useDarkMode, useIsMobile, usePageContent, useCapacityStore } from '@/stores';
-import NeurologyIcon from '@/public/static/images/neurology.svg';
-import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
-import EmojiIcon from '@/public/static/images/emoji_objects.svg';
-import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
-import TargetIcon from '@/public/static/images/target.svg';
-import TargetIconWhite from '@/public/static/images/target_white.svg';
-import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
-import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
 import AffiliationIcon from '@/public/static/images/affiliation.svg';
 import AffiliationIconWhite from '@/public/static/images/affiliation_white.svg';
-import TerritoryIcon from '@/public/static/images/territory.svg';
-import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
 import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
+import EmojiIcon from '@/public/static/images/emoji_objects.svg';
+import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
+import NeurologyIcon from '@/public/static/images/neurology.svg';
+import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import TargetIcon from '@/public/static/images/target.svg';
+import TargetIconWhite from '@/public/static/images/target_white.svg';
+import TerritoryIcon from '@/public/static/images/territory.svg';
+import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
+import WikiIcon from '@/public/static/images/wikimedia_logo_black.svg';
+import WikiIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
+import {
+  useAllBadges,
+  useCapacityStore,
+  useCurrentLanguage,
+  useDarkMode,
+  useIsMobile,
+  usePageContent,
+} from '@/stores';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import MiniBio from './MiniBio';
-import ProfileHeader from './ProfileHeader';
 import ProfileBadgesSection from './ProfileBadgesSection';
-import ProfileWikiBirthdaySection from './ProfileWikiBirthdaySection';
-import ProfileLanguagesSection from './ProfileLanguagesSection';
-import ProfileFieldSection from './ProfileFieldSection';
-import ProfileItemsList from './ProfileItemsList';
-import ProfileSimpleField from './ProfileSimpleField';
-import ProfileWikimediaProjectsSection from './ProfileWikimediaProjectsSection';
 import ProfileContactSection from './ProfileContactSection';
+import ProfileFieldSection from './ProfileFieldSection';
+import ProfileHeader from './ProfileHeader';
+import ProfileItemsList from './ProfileItemsList';
+import ProfileLanguagesSection from './ProfileLanguagesSection';
+import ProfileSimpleField from './ProfileSimpleField';
+import ProfileWikiBirthdaySection from './ProfileWikiBirthdaySection';
+import ProfileWikimediaProjectsSection from './ProfileWikimediaProjectsSection';
 
 import { useAffiliation } from '@/hooks/useAffiliation';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -35,17 +42,15 @@ import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useAllBadges } from '@/stores';
 import { getWikiBirthday } from '@/lib/utils/fetchWikimediaData';
 import { UserProfile } from '@/types/user';
-import React from 'react';
 
 interface ProfilePageProps {
   isSameUser: boolean;
   profile: UserProfile;
 }
 
-export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
+export default function ProfilePage({ isSameUser, profile }: Readonly<ProfilePageProps>) {
   const { data: session } = useSession();
   const darkMode = useDarkMode();
   const isMobile = useIsMobile();
@@ -56,7 +61,8 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
     return allBadges.filter(badge => profile?.badges.includes(badge.id));
   }, [allBadges, profile?.badges]);
 
-  const { languages } = useLanguage(token);
+  const currentLanguage = useCurrentLanguage();
+  const { languages } = useLanguage(token, currentLanguage);
   const { affiliations } = useAffiliation(token);
   const { territories } = useTerritories(token);
   const { wikimediaProjects, wikimediaProjectImages } = useWikimediaProject(
@@ -137,15 +143,21 @@ export default function ProfilePage({ isSameUser, profile }: ProfilePageProps) {
             {shouldRenderEmptyField(profile?.about) && (
               <MiniBio
                 about={profile?.about || ''}
-                aboutLanguage={
-                  profile?.about_language
-                    ? typeof profile.about_language === 'number'
-                      ? profile.about_language
-                      : typeof profile.about_language === 'object' && 'id' in profile.about_language
-                        ? Number(profile.about_language.id)
-                        : null
-                    : null
-                }
+                aboutLanguage={(() => {
+                  if (!profile?.about_language) {
+                    return null;
+                  }
+                  if (typeof profile.about_language === 'number') {
+                    return profile.about_language;
+                  }
+                  if (
+                    typeof profile.about_language === 'object' &&
+                    'id' in profile.about_language
+                  ) {
+                    return Number(profile.about_language.id);
+                  }
+                  return null;
+                })()}
                 languages={languages}
               />
             )}
