@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {
   PartnerApi,
+  MentorshipSettingsApi,
   MentorshipFormMentorApi,
   MentorshipFormMenteeApi,
 } from '@/types/mentorship';
@@ -13,7 +14,8 @@ function getAuthConfig(token: string | undefined) {
 
 function unwrapList<T>(data: T[] | { results: T[] }): T[] {
   if (Array.isArray(data)) return data;
-  if (data && typeof data === 'object' && 'results' in data) return (data as { results: T[] }).results;
+  if (data && typeof data === 'object' && 'results' in data)
+    return (data as { results: T[] }).results;
   return [];
 }
 
@@ -25,17 +27,24 @@ export const mentorshipService = {
     return unwrapList(response.data);
   },
 
+  async getMentorshipSettings(): Promise<MentorshipSettingsApi[]> {
+    const response = await axios.get<
+      MentorshipSettingsApi[] | { results: MentorshipSettingsApi[] }
+    >(`${API_BASE}/partner_mentorship_settings/`);
+    return unwrapList(response.data);
+  },
+
   async getMentorForms(): Promise<MentorshipFormMentorApi[]> {
-    const response = await axios.get<MentorshipFormMentorApi[] | { results: MentorshipFormMentorApi[] }>(
-      `${API_BASE}/mentorship_form_mentor/`
-    );
+    const response = await axios.get<
+      MentorshipFormMentorApi[] | { results: MentorshipFormMentorApi[] }
+    >(`${API_BASE}/mentorship_form_mentor/`);
     return unwrapList(response.data);
   },
 
   async getMenteeForms(): Promise<MentorshipFormMenteeApi[]> {
-    const response = await axios.get<MentorshipFormMenteeApi[] | { results: MentorshipFormMenteeApi[] }>(
-      `${API_BASE}/mentorship_form_mentee/`
-    );
+    const response = await axios.get<
+      MentorshipFormMenteeApi[] | { results: MentorshipFormMenteeApi[] }
+    >(`${API_BASE}/mentorship_form_mentee/`);
     return unwrapList(response.data);
   },
 

@@ -18,6 +18,24 @@ export interface PartnerApi {
   updated_at: string;
 }
 
+// Partner mentorship settings: one per partner with mentorship; used to fill cards
+export interface MentorshipSettingsApi {
+  id: number;
+  organization: number;
+  name: string;
+  description: string;
+  territory_names: string[];
+  profile_image: string | null;
+  skills: number[];
+  skill_names: string[];
+  languages: number[];
+  language_names: string[];
+  mentor_form: number | null;
+  mentee_form: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface MentorshipFormMentorApi {
   id: number;
   organization: number;
@@ -104,4 +122,3 @@ export interface MentorshipProgram {
     mentee?: MentorshipForm & { formId?: number };
   };
 }
-

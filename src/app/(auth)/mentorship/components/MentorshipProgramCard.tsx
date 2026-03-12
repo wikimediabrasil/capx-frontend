@@ -18,16 +18,16 @@ import { mentorshipService } from '@/services/mentorshipService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
 import { useDarkMode, usePageContent } from '@/stores';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
+
 interface MentorshipProgramCardProps {
   program: MentorshipProgram;
   onSubscribe?: (programId: number, role: 'mentor' | 'mentee') => void;
-  onLearnMore?: (programId: number) => void;
 }
 
 export default function MentorshipProgramCard({
   program,
   onSubscribe,
-  onLearnMore,
 }: MentorshipProgramCardProps) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -52,8 +52,9 @@ export default function MentorshipProgramCard({
     }
     if (!hasAnyForm) {
       showSnackbar(
-        pageContent['no-mentorship-programs-found'] || 'No application form available for this program.',
-        'info'
+        pageContent['no-mentorship-programs-found'] ||
+          'No application form available for this program.',
+        'success'
       );
       return;
     }
@@ -95,7 +96,7 @@ export default function MentorshipProgramCard({
         }
         showSnackbar(
           pageContent['mentorship-application-forwarded'] ||
-            "Application submitted. The program will contact you directly soon.",
+            'Application submitted. The program will contact you directly soon.',
           'success'
         );
       } catch (err: unknown) {
@@ -115,15 +116,9 @@ export default function MentorshipProgramCard({
       }
       showSnackbar(
         pageContent['mentorship-application-forwarded'] ||
-          "Application submitted. The program will contact you directly soon.",
+          'Application submitted. The program will contact you directly soon.',
         'success'
       );
-    }
-  };
-
-  const handleLearnMore = () => {
-    if (onLearnMore) {
-      onLearnMore(program.id);
     }
   };
 
@@ -146,11 +141,16 @@ export default function MentorshipProgramCard({
           darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-200'
         }`}
       >
-        {/* Logo */}
+        {/* Logo: organization profile_image or partner avatar (formatWikiImageUrl for Commons/URLs) */}
         <div className="mb-4">
           <div className="relative w-20 h-20 md:w-24 md:h-24">
             {program.logo && program.logo.trim() !== '' ? (
-              <Image src={program.logo} alt={program.name} fill className="object-contain" />
+              <Image
+                src={formatWikiImageUrl(program.logo)}
+                alt={program.name}
+                fill
+                className="object-contain"
+              />
             ) : (
               <div
                 className={`w-full h-full rounded-lg flex items-center justify-center border-2 ${
@@ -341,15 +341,6 @@ export default function MentorshipProgramCard({
               label={pageContent['subscribe'] || 'Subscribe'}
             />
           )}
-          <BaseButton
-            onClick={handleLearnMore}
-            customClass={`flex-1 px-4 py-2 rounded-lg text-sm font-extrabold border-2 border-[#053749] ${
-              darkMode
-                ? 'bg-transparent text-white hover:bg-[#053749]'
-                : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
-            }`}
-            label={pageContent['learn-more'] || 'Learn more'}
-          />
         </div>
       </div>
 

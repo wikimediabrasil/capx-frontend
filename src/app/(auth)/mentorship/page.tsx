@@ -12,16 +12,18 @@ import { formBuilderJsonToMentorshipForm } from '@/utils/formBuilderToMentorship
 
 import { useDarkMode, usePageContent } from '@/stores';
 
-function buildProgramsFromApi(
-  partners: Awaited<ReturnType<typeof mentorshipService.getPartners>>,
+// Build programs from partner_mentorship_settings + mentor/mentee form APIs (both form APIs are used)
+function buildProgramsFromSettings(
+  settings: Awaited<ReturnType<typeof mentorshipService.getMentorshipSettings>>,
   mentorForms: Awaited<ReturnType<typeof mentorshipService.getMentorForms>>,
   menteeForms: Awaited<ReturnType<typeof mentorshipService.getMenteeForms>>
 ): MentorshipProgram[] {
-  const withMentorship = partners.filter(p => p.mentorship);
-  return withMentorship.map(partner => {
-    const orgId = partner.id;
-    const mentorForm = mentorForms.find(f => f.organization === orgId);
-    const menteeForm = menteeForms.find(f => f.organization === orgId);
+  return settings.map(setting => {
+    const orgId = setting.organization;
+    const mentorForm =
+      setting.mentor_form != null ? mentorForms.find(f => f.id === setting.mentor_form) : undefined;
+    const menteeForm =
+      setting.mentee_form != null ? menteeForms.find(f => f.id === setting.mentee_form) : undefined;
     const forms: MentorshipProgram['forms'] = {};
     if (mentorForm?.json?.length) {
       const converted = formBuilderJsonToMentorshipForm(mentorForm.json, 'mentor');
@@ -34,17 +36,23 @@ function buildProgramsFromApi(
     const mentorCount = mentorForm?.counter ?? 0;
     const menteeCount = menteeForm?.counter ?? 0;
     const subscribers = mentorCount + menteeCount;
-    const displayName = partner.name || `Partner ${orgId}`;
+    const displayName = setting.name?.trim() || `Partner ${orgId}`;
+    const territoryNames = Array.isArray(setting.territory_names) ? setting.territory_names : [];
+    const location = territoryNames.length > 0 ? territoryNames.join(', ') : 'Global';
+    const logo = setting.profile_image?.trim() || null;
+    const description = setting.description?.trim() || `Mentorship program by ${displayName}.`;
+    const capacities = Array.isArray(setting.skill_names) ? setting.skill_names : [];
+    const languages = Array.isArray(setting.language_names) ? setting.language_names : [];
     return {
       id: orgId,
       name: displayName,
-      logo: partner.profile_image || null,
-      location: partner.territory_names?.length ? partner.territory_names.join(', ') : 'Global',
+      logo,
+      location,
       status: 'open',
-      description: partner.description?.trim() || `Mentorship program by ${displayName}.`,
+      description,
       format: 'online',
-      capacities: partner.capacities || [],
-      languages: [],
+      capacities,
+      languages,
       subscribers,
       forms: Object.keys(forms).length ? forms : undefined,
     };
@@ -66,52 +74,19 @@ export default function MentorshipPage() {
     setLoading(true);
     setLoadError(null);
     Promise.all([
-      mentorshipService.getPartners(),
+      mentorshipService.getMentorshipSettings(),
       mentorshipService.getMentorForms(),
       mentorshipService.getMenteeForms(),
     ])
-      .then(([partners, mentorForms, menteeForms]) => {
+      .then(([settings, mentorForms, menteeForms]) => {
         if (cancelled) return;
-        // #region agent log
-        fetch('http://127.0.0.1:7342/ingest/11168b70-41f9-46b5-ac84-2020f4caa4bc', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '6d77d0' },
-          body: JSON.stringify({
-            sessionId: '6d77d0',
-            location: 'mentorship/page.tsx:fetch.then',
-            message: 'Partners and forms loaded',
-            data: {
-              partnersLength: Array.isArray(partners) ? partners.length : 'not-array',
-              firstPartner: Array.isArray(partners) && partners[0] ? { id: partners[0].id, name: (partners[0] as { name?: string }).name, description: (partners[0] as { description?: string }).description, territory_names: (partners[0] as { territory_names?: string[] }).territory_names, capacities: (partners[0] as { capacities?: string[] }).capacities, mentorship: (partners[0] as { mentorship?: boolean }).mentorship } : null,
-              mentorFormsLength: Array.isArray(mentorForms) ? mentorForms.length : 0,
-              menteeFormsLength: Array.isArray(menteeForms) ? menteeForms.length : 0,
-              firstMentorFormOrg: Array.isArray(mentorForms) && mentorForms[0] ? (mentorForms[0] as { organization?: number }).organization : null,
-            },
-            timestamp: Date.now(),
-            hypothesisId: 'H1-H5',
-          }),
-        }).catch(() => {});
-        // #endregion
-        const built = buildProgramsFromApi(partners, mentorForms, menteeForms);
-        // #region agent log
-        fetch('http://127.0.0.1:7342/ingest/11168b70-41f9-46b5-ac84-2020f4caa4bc', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '6d77d0' },
-          body: JSON.stringify({
-            sessionId: '6d77d0',
-            location: 'mentorship/page.tsx:buildProgramsFromApi',
-            message: 'Programs built',
-            data: { programsLength: built.length, firstProgram: built[0] ? { id: built[0].id, name: built[0].name, description: built[0].description, location: built[0].location, capacitiesLength: built[0].capacities?.length } : null },
-            timestamp: Date.now(),
-            hypothesisId: 'H4-H5',
-          }),
-        }).catch(() => {});
-        // #endregion
+        const built = buildProgramsFromSettings(settings, mentorForms, menteeForms);
         setPrograms(built);
       })
       .catch(err => {
         if (cancelled) return;
-        const message = err?.response?.data?.detail || err?.message || 'Failed to load mentorship programs';
+        const message =
+          err?.response?.data?.detail || err?.message || 'Failed to load mentorship programs';
         setLoadError(message);
         setPrograms([]);
       })
@@ -132,7 +107,8 @@ export default function MentorshipPage() {
       programs.filter(
         program =>
           program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (program.description &&
+            program.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (program.location && program.location.toLowerCase().includes(searchTerm.toLowerCase()))
       ),
     [programs, searchTerm]
@@ -142,12 +118,6 @@ export default function MentorshipPage() {
     const program = programs.find(p => p.id === programId);
     showSnackbar(`Successfully subscribed to ${program?.name} as ${role}`, 'success');
     console.log('Subscribe:', { programId, role });
-  };
-
-  const handleLearnMore = (programId: number) => {
-    const program = programs.find(p => p.id === programId);
-    showSnackbar(`Learn more about ${program?.name}`, 'success');
-    console.log('Learn more:', programId);
   };
 
   return (
@@ -189,7 +159,6 @@ export default function MentorshipPage() {
                   key={program.id}
                   program={program}
                   onSubscribe={handleSubscribe}
-                  onLearnMore={handleLearnMore}
                 />
               ))}
             </div>

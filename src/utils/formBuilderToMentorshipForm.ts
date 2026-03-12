@@ -30,8 +30,14 @@ function mapFormBuilderType(fbType: string): FormFieldType {
 function valuesToOptions(values: FormBuilderFieldSchema['values']): FormFieldOption[] | undefined {
   if (!values || !Array.isArray(values)) return undefined;
   return values.map(v => ({
-    label: typeof v === 'object' && v !== null && 'label' in v ? String((v as { label: string }).label) : String(v),
-    value: typeof v === 'object' && v !== null && 'value' in v ? (v as { value: string }).value : String(v),
+    label:
+      typeof v === 'object' && v !== null && 'label' in v
+        ? String((v as { label: string }).label)
+        : String(v),
+    value:
+      typeof v === 'object' && v !== null && 'value' in v
+        ? (v as { value: string }).value
+        : String(v),
   }));
 }
 
