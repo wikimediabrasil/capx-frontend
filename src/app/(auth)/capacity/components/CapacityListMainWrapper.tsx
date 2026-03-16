@@ -1,5 +1,6 @@
 'use client';
 
+import CapacitiesTreeVisualization from '@/app/capacities_visualization/components/CapacitiesTreeVisualization';
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
 import LoadingState from '@/components/LoadingState';
@@ -13,6 +14,8 @@ import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
 import { useCapacityStore, useIsMobile, useLanguage, usePageContent } from '@/stores';
+
+type VisualizationMode = 'cards' | 'tree' | 'other';
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
@@ -160,6 +163,7 @@ function CapacityListContent() {
   // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>('cards');
 
   // Exclusive expansion state
   const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
@@ -290,10 +294,95 @@ function CapacityListContent() {
       className={`flex flex-col ${isMobile ? 'w-full' : 'max-w-screen-xl mx-auto'} py-8 px-4 lg:px-12 gap-[40px]`}
     >
       <CapacityBanner />
-      <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
 
-      {/* Quando não estiver em modo de busca, mostrar as capacidades raiz */}
-      {!searchTerm && (
+      {/* Search + Filter row */}
+      <div className="flex gap-3 w-full">
+        <div className="flex-1">
+          <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
+        </div>
+        <div className="flex-shrink-0 min-w-5xl w-5xl">
+          <button
+            className="h-full flex items-center justify-center w-[48px] sm:w-[64px] rounded-[16px] border-2 border-capx-dark-box-bg"
+            aria-label="Filter"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="5" cy="7" r="1.5" stroke="#053749" strokeWidth="1.5"/>
+              <line x1="8" y1="7" x2="20" y2="7" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="4" y1="7" x2="2" y2="7" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="12" cy="12" r="1.5" stroke="#053749" strokeWidth="1.5"/>
+              <line x1="15" y1="12" x2="20" y2="12" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="4" y1="12" x2="9" y2="12" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="8" cy="17" r="1.5" stroke="#053749" strokeWidth="1.5"/>
+              <line x1="11" y1="17" x2="20" y2="17" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="4" y1="17" x2="5.5" y2="17" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Visualization mode switcher — hidden when searching */}
+      {!searchTerm && <div className="flex items-center justify-evenly bg-[#F6F6F6] rounded-[16px] p-2 w-full">
+        <button
+          onClick={() => setVisualizationMode('cards')}
+          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${
+            visualizationMode === 'cards' ? 'bg-capx-dark-box-bg' : 'bg-transparent'
+          }`}
+          aria-label="Cards view"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="5" rx="1" stroke={visualizationMode === 'cards' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <rect x="3" y="11" width="18" height="5" rx="1" stroke={visualizationMode === 'cards' ? 'white' : '#053749'} strokeWidth="1.5"/>
+          </svg>
+        </button>
+        <button
+          onClick={() => setVisualizationMode('tree')}
+          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${
+            visualizationMode === 'tree' ? 'bg-capx-dark-box-bg' : 'bg-transparent'
+          }`}
+          aria-label="Tree view"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="2" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <rect x="2" y="14" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <rect x="9" y="14" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <rect x="16" y="14" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <line x1="12" y1="6" x2="12" y2="10" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <line x1="5" y1="10" x2="19" y2="10" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <line x1="5" y1="10" x2="5" y2="14" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <line x1="12" y1="10" x2="12" y2="14" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+            <line x1="19" y1="10" x2="19" y2="14" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
+          </svg>
+        </button>
+        <button
+          onClick={() => setVisualizationMode('other')}
+          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${
+            visualizationMode === 'other' ? 'bg-capx-dark-box-bg' : 'bg-transparent'
+          }`}
+          aria-label="Other view"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="18,9 12,4 6,9" stroke={visualizationMode === 'other' ? 'white' : '#053749'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <polyline points="6,15 12,20 18,15" stroke={visualizationMode === 'other' ? 'white' : '#053749'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </div>}
+
+      {/* Tree visualization */}
+      {!searchTerm && visualizationMode === 'tree' && (
+        <div className="w-full">
+          <CapacitiesTreeVisualization />
+        </div>
+      )}
+
+      {/* Placeholder for other visualization */}
+      {!searchTerm && visualizationMode === 'other' && (
+        <div className="flex justify-center items-center h-[200px] bg-[#F6F6F6] rounded-[16px]">
+          <p className="text-gray-500">Coming soon...</p>
+        </div>
+      )}
+
+      {/* Cards visualization — shown when in cards mode and not searching, or when searching */}
+      {visualizationMode === 'cards' && !searchTerm && (
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => {
             return (

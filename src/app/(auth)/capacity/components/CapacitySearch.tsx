@@ -250,15 +250,15 @@ export function CapacitySearch({
           setSearchTerm(e.target.value);
         }}
         placeholder={pageContent['capacity-search-placeholder'] || 'Search capacities...'}
-        className={`w-full ${compact ? '' : 'py-6 px-3'} rounded-[16px] opacity-50 ${
-          darkMode ? 'text-white border-white' : 'text-capx-dark-box-bg border-capx-dark-box-bg '
-        } ${!compact && isMobile ? 'text-[12px]' : ''} ${!compact && !isMobile ? 'text-[24px]' : ''}`}
+        className={`w-full ${compact ? '' : isMobile ? 'py-3 px-3' : 'py-6 px-3'} rounded-[16px] opacity-50 ${
+          darkMode ? 'text-white border-white' : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+        }`}
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
-        size={compact ? 'small' : 'large'}
+        size={compact ? 'small' : isMobile ? 'default' : 'large'}
       />
 
-      <div className={`mt-4 w-full ${compact ? 'space-y-2' : 'grid gap-4'}`}>
+      {(isLoading || processedResults.length > 0) && <div className={`mt-4 w-full ${compact ? 'space-y-2' : 'grid gap-4'}`}>
         {isLoading && <LoadingState />}
         {!isLoading && compact && (
           // Compact view for filters
@@ -356,7 +356,7 @@ export function CapacitySearch({
             })}
           </>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
