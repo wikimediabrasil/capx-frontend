@@ -434,6 +434,11 @@ export const useCapacityStore = create<CapacityStore>()(
         }),
         // Skip hydration on server
         skipHydration: typeof window === 'undefined',
+        onRehydrateStorage: () => state => {
+          if (state && Object.keys(state.capacities).length > 0) {
+            state.isLoaded = true;
+          }
+        },
       }
     ),
     { name: 'CapacityStore', enabled: process.env.NODE_ENV === 'development' }
