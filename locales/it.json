@@ -653,7 +653,7 @@
 	"search-by-mentorships": "Ricerca per tutoraggio",
 	"filter-mentorship-programs": "Filtra i programmi di tutoraggio",
 	"subscribe": "Iscriviti",
-	"learn-more": "Ulteriori informazioni",
+	"submitting": "Invio in corso...",
 	"select-your-role": "Seleziona il tuo ruolo",
 	"close-tab": "Chiudi scheda",
 	"no-mentorship-programs-found": "Nessun programma di tutoraggio trovato",
@@ -685,6 +685,9 @@
 	"analytics-map-south-asia": "Asia meridionale",
 	"analytics-map-middle-east-north-africa": "Medio Oriente e Nord Africa",
 	"analytics-map-north-america": "Nord America",
+	"analytics-map-capacity-known": "Conosciuto",
+	"analytics-map-capacity-available": "Disponibile",
 	"analytics-map-legend": "Tutti i dati vengono recuperati dal database di Capx in tempo reale",
+	"analytics-map-capacity-type": "Tipo",
 	"sign-in-required-title": "Accedi per continuare"
 }

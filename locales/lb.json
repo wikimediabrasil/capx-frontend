@@ -331,7 +331,6 @@
 	"organization-names-title": "Nimm vun der Organisatioun (Iwwersetzungen)",
 	"select-language": "Sprooch eraussichen",
 	"mentorship-programs": "Mentoreprogrammer",
-	"learn-more": "Méi gewuer ginn",
 	"select-your-role": "Wielt Är Roll",
 	"mentor": "Mentor",
 	"mentee": "Mentoréierten",
@@ -347,5 +346,9 @@
 	"analytics-map-latin-america-caribbean": "Latäinamerika & Karibik",
 	"analytics-map-south-asia": "Südasien",
 	"analytics-map-north-america": "Nordamerika",
+	"analytics-map-capacity-known": "Bekannt",
+	"analytics-map-capacity-available": "Disponibel",
+	"analytics-map-capacity-wanted": "Gesicht",
+	"analytics-map-capacity-type": "Typ",
 	"sign-in-required-title": "Loggt Iech a fir virunzefueren"
 }
