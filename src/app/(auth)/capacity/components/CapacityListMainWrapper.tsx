@@ -14,6 +14,7 @@ import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
 import { useCapacityStore, useIsMobile, useLanguage, usePageContent } from '@/stores';
+import SuggestCapacityModal from './SuggestCapacityModal';
 
 type VisualizationMode = 'cards' | 'tree' | 'other';
 // This component is no longer needed as descriptions are handled by the consolidated cache
@@ -169,6 +170,9 @@ function CapacityListContent() {
   const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
   const [_expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
 
+  // Suggest capacity modal
+  const [isSuggestModalOpen, setIsSuggestModalOpen] = useState(false);
+
   const pageContent = usePageContent();
 
   // Data hooks
@@ -295,30 +299,29 @@ function CapacityListContent() {
     >
       <CapacityBanner />
 
-      {/* Search + Filter row */}
-      <div className="flex gap-3 w-full">
+      {/* Search + Suggest row */}
+      <div className="flex gap-3 w-full items-center">
         <div className="flex-1">
           <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
         </div>
-        <div className="flex-shrink-0 min-w-5xl w-5xl">
-          <button
-            className="h-full flex items-center justify-center w-[48px] sm:w-[64px] rounded-[16px] border-2 border-capx-dark-box-bg"
-            aria-label="Filter"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="5" cy="7" r="1.5" stroke="#053749" strokeWidth="1.5"/>
-              <line x1="8" y1="7" x2="20" y2="7" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="4" y1="7" x2="2" y2="7" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
-              <circle cx="12" cy="12" r="1.5" stroke="#053749" strokeWidth="1.5"/>
-              <line x1="15" y1="12" x2="20" y2="12" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="4" y1="12" x2="9" y2="12" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
-              <circle cx="8" cy="17" r="1.5" stroke="#053749" strokeWidth="1.5"/>
-              <line x1="11" y1="17" x2="20" y2="17" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="4" y1="17" x2="5.5" y2="17" stroke="#053749" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </button>
-        </div>
+        <button
+          onClick={() => setIsSuggestModalOpen(true)}
+          title={pageContent['suggest-capacity-button-title'] || 'Suggest a new capacity'}
+          aria-label={pageContent['suggest-capacity-button-title'] || 'Suggest a new capacity'}
+          className="flex-shrink-0 flex items-center justify-center w-[52px] h-[52px] rounded-[16px] bg-capx-dark-box-bg text-white hover:opacity-90 transition-opacity"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="1.5"/>
+            <line x1="12" y1="7" x2="12" y2="17" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="7" y1="12" x2="17" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </button>
       </div>
+
+      <SuggestCapacityModal
+        isOpen={isSuggestModalOpen}
+        onClose={() => setIsSuggestModalOpen(false)}
+      />
 
       {/* Visualization mode switcher — hidden when searching */}
       {!searchTerm && <div className="flex items-center justify-evenly bg-[#F6F6F6] rounded-[16px] p-2 w-full">
