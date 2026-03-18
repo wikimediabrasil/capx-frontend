@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 
 import { useDarkMode, usePageContent } from '@/stores';
 interface ConfirmationModalProps {
@@ -41,7 +42,12 @@ export default function ConfirmationModal({
           {programLogo && programLogo.trim() !== '' && (
             <div className="flex justify-center mb-4">
               <div className="relative w-20 h-20">
-                <Image src={programLogo} alt={programName} fill className="object-contain" />
+                <Image
+                  src={formatWikiImageUrl(programLogo)}
+                  alt={programName}
+                  fill
+                  className="object-contain"
+                />
               </div>
             </div>
           )}
@@ -69,7 +75,7 @@ export default function ConfirmationModal({
                 ? 'bg-transparent text-white hover:bg-[#053749]'
                 : 'bg-white text-[#053749] hover:bg-[#053749] hover:text-white'
             }`}
-            label={pageContent['more-mentorships'] || 'More mentorships'}
+            label={pageContent['mentorship-close'] || 'Close'}
           />
         </div>
       </div>

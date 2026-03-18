@@ -4,6 +4,7 @@ import { useState } from 'react';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipForm, MentorshipFormField } from '@/types/mentorship';
 import Image from 'next/image';
+import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import MentorIcon from '@/public/static/images/mentor.svg';
 import MenteeIcon from '@/public/static/images/mentee.svg';
 
@@ -66,6 +67,9 @@ export default function DynamicForm({
     return initial;
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const normalizedLogo =
+    programLogo && programLogo.trim() !== '' ? formatWikiImageUrl(programLogo) : null;
 
   const handleChange = (fieldId: string, value: any) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }));
@@ -417,13 +421,13 @@ export default function DynamicForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div
-        className={`relative w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
+        className={`relative w-full max-w-lg md:max-w-2xl mx-auto max-h-[90vh] overflow-y-auto rounded-lg shadow-xl ${
           darkMode
             ? 'bg-capx-dark-box-bg border border-gray-700'
             : 'bg-white border border-gray-200'
@@ -435,21 +439,13 @@ export default function DynamicForm({
           {programLogo && programLogo.trim() !== '' && (
             <div className="flex justify-center mb-4">
               <div className="relative w-20 h-20">
-                <Image src={programLogo} alt={programName} fill className="object-contain" />
+                <Image src={normalizedLogo!} alt={programName} fill className="object-contain" />
               </div>
             </div>
           )}
 
           {/* Title */}
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="relative w-6 h-6 md:w-8 md:h-8">
-              <Image
-                src={form.role === 'mentor' ? MentorIcon : MenteeIcon}
-                alt={form.role === 'mentor' ? 'Mentor' : 'Mentee'}
-                fill
-                className="object-contain"
-              />
-            </div>
+          <div className="flex items-center justify-center mb-2">
             <h2
               className={`text-xl md:text-2xl font-bold ${
                 darkMode ? 'text-white' : 'text-capx-dark-box-bg'

@@ -73,7 +73,8 @@ export function formBuilderJsonToMentorshipForm(
         id,
         label: (f.label as string) || id,
         type,
-        required: true,
+        // Respect required flag coming from formBuilder; default to true if undefined
+        required: (f as { required?: boolean }).required !== false,
         placeholder: (f.placeholder as string) || undefined,
         options: options?.length ? options : undefined,
         hint: (f.description as string) || (f.hint as string) || undefined,
