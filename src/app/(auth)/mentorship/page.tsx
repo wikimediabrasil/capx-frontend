@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { SearchBar } from '@/app/(auth)/feed/components/SearchBar';
+import { useState, useEffect } from 'react';
 import MentorshipProgramCard from './components/MentorshipProgramCard';
-import { MentorshipProgram } from '@/types/mentorship';
+import { MentorshipProgram, MentorshipStatus } from '@/types/mentorship';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import Banner from '@/components/Banner';
 import MentorshipProgramsIcon from '@/public/static/images/mentorship_programs.svg';
@@ -17,6 +16,7 @@ function buildProgramsFromSettings(
   mentorForms: Awaited<ReturnType<typeof mentorshipService.getMentorForms>>,
   menteeForms: Awaited<ReturnType<typeof mentorshipService.getMenteeForms>>
 ): MentorshipProgram[] {
+  const now = new Date();
   return settings.map(setting => {
     const orgId = setting.organization;
     const mentorForm =
@@ -46,14 +46,32 @@ function buildProgramsFromSettings(
       rawProfileImage != null && typeof rawProfileImage === 'string' ? rawProfileImage.trim() : '';
     const logo = profileImage !== '' ? profileImage : null;
     const description = setting.description?.trim() || `Mentorship program by ${displayName}.`;
-    const capacities = Array.isArray(setting.skill_names) ? setting.skill_names : [];
+    const capacities = Array.isArray(setting.skills) ? setting.skills : [];
     const languages = Array.isArray(setting.language_names) ? setting.language_names : [];
+
+    const openDateRaw = setting.registration_open_date ?? null;
+    const closeDateRaw = setting.registration_close_date ?? null;
+    const openDateObj = openDateRaw ? new Date(openDateRaw) : null;
+    const closeDateObj = closeDateRaw ? new Date(closeDateRaw) : null;
+
+    let status: MentorshipStatus = 'open';
+    if (openDateObj || closeDateObj) {
+      if (openDateObj && now < openDateObj) {
+        status = 'upcoming';
+      } else if (closeDateObj && now > closeDateObj) {
+        status = 'closed';
+      } else {
+        status = 'open';
+      }
+    }
     return {
       id: orgId,
       name: displayName,
       logo,
       location,
-      status: 'open',
+      openDate: openDateRaw,
+      closeDate: closeDateRaw,
+      status,
       description,
       format: 'online',
       capacities,
@@ -68,8 +86,6 @@ export default function MentorshipPage() {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const { showSnackbar } = useSnackbar();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
   const [programs, setPrograms] = useState<MentorshipProgram[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -103,22 +119,6 @@ export default function MentorshipPage() {
     };
   }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const filteredPrograms = useMemo(
-    () =>
-      programs.filter(
-        program =>
-          program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (program.description &&
-            program.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (program.location && program.location.toLowerCase().includes(searchTerm.toLowerCase()))
-      ),
-    [programs, searchTerm]
-  );
-
   const handleSubscribe = (programId: number, role: 'mentor' | 'mentee') => {
     const program = programs.find(p => p.id === programId);
     showSnackbar(`Successfully subscribed to ${program?.name} as ${role}`, 'success');
@@ -137,17 +137,6 @@ export default function MentorshipPage() {
       {/* Main Content */}
       <div className={`w-full py-8 md:py-12 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}>
         <div className="container mx-auto px-4 max-w-screen-xl">
-          {/* Search Bar */}
-          <SearchBar
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            onFilterClick={() => setShowFilters(!showFilters)}
-            searchPlaceholder={pageContent['search-by-mentorships'] || 'Search by mentorships'}
-            filterAriaLabel={
-              pageContent['filter-mentorship-programs'] || 'Filter mentorship programs'
-            }
-          />
-
           {/* Programs Grid */}
           {loading ? (
             <div className="flex justify-center py-12">
@@ -161,9 +150,9 @@ export default function MentorshipPage() {
             <div className="text-center py-12 text-red-600">
               <p>{loadError}</p>
             </div>
-          ) : filteredPrograms.length > 0 ? (
+          ) : programs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPrograms.map(program => (
+              {programs.map(program => (
                 <MentorshipProgramCard
                   key={program.id}
                   program={program}

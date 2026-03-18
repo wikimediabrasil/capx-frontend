@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import RoleSelectionModal from './RoleSelectionModal';
 import DynamicForm from './DynamicForm';
@@ -17,7 +17,7 @@ import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import { mentorshipService } from '@/services/mentorshipService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
-import { useDarkMode, usePageContent } from '@/stores';
+import { useDarkMode, usePageContent, useCapacityStore } from '@/stores';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 
 interface MentorshipProgramCardProps {
@@ -39,6 +39,15 @@ export default function MentorshipProgramCard({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'mentor' | 'mentee' | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const { getName, preloadCapacities } = useCapacityStore();
+  const [showAllCapacities, setShowAllCapacities] = useState(false);
+
+  useEffect(() => {
+    if (program.capacities.length > 0 && token) {
+      preloadCapacities(token);
+    }
+  }, [program.capacities, preloadCapacities, token]);
 
   const hasAnyForm = program.forms?.mentor || program.forms?.mentee;
 
@@ -125,7 +134,15 @@ export default function MentorshipProgramCard({
   const statusColor =
     program.status === 'open'
       ? 'bg-capx-primary-green text-white'
-      : 'bg-capx-primary-red text-white';
+      : program.status === 'upcoming'
+        ? 'bg-yellow-500 text-white'
+        : 'bg-capx-primary-red text-white';
+
+  const statusLabelMap: Record<string, string> = {
+    open: pageContent['mentorship-status-open'] || 'Open',
+    upcoming: pageContent['mentorship-status-upcoming'] || 'Upcoming',
+    closed: pageContent['mentorship-status-closed'] || 'Closed',
+  };
 
   const formatLabel =
     program.format === 'in-person'
@@ -142,7 +159,7 @@ export default function MentorshipProgramCard({
         }`}
       >
         {/* Logo: organization profile_image from partner_mentorship_settings (Commons URL) */}
-        <div className="mb-4">
+        <div className="mb-4 flex justify-center">
           <div className="relative w-20 h-20 md:w-24 md:h-24">
             {program.logo && program.logo.trim() !== '' ? (
               <div className="absolute inset-0 rounded-lg bg-white overflow-hidden">
@@ -174,7 +191,7 @@ export default function MentorshipProgramCard({
         </div>
 
         {/* Location and Status */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <div className="relative w-4 h-4">
               <Image
@@ -189,9 +206,29 @@ export default function MentorshipProgramCard({
             </span>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
-            {program.status}
+            {statusLabelMap[program.status] ?? program.status}
           </span>
         </div>
+
+        {/* Registration period */}
+        {(program.openDate || program.closeDate) && (
+          <div className="mb-3">
+            <span
+              className={`block text-xs font-semibold ${
+                darkMode ? 'text-gray-200' : 'text-gray-800'
+              }`}
+            >
+              Registration period
+            </span>
+            <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              {program.openDate && program.closeDate
+                ? `${program.openDate} → ${program.closeDate}`
+                : program.openDate
+                  ? program.openDate
+                  : program.closeDate}
+            </span>
+          </div>
+        )}
 
         {/* Description */}
         <p
@@ -224,41 +261,45 @@ export default function MentorshipProgramCard({
             </span>
           </div>
 
-          {/* Capacities */}
+          {/* Capacities (skills) */}
           {program.capacities.length > 0 && (
-            <div className="flex items-start gap-2">
-              <div className="relative w-4 h-4 flex-shrink-0 mt-0.5">
-                <Image
-                  src={darkMode ? EmojiIconWhite : EmojiIcon}
-                  alt="Capacities"
-                  fill
-                  className="object-contain"
-                />
+            <div className="mb-1">
+              <span
+                className={`block text-xs font-semibold mb-1 ${
+                  darkMode ? 'text-gray-200' : 'text-gray-800'
+                }`}
+              >
+                {pageContent['filters-capacities'] || 'Capacities'}
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {(showAllCapacities ? program.capacities : program.capacities.slice(0, 8)).map(
+                  (capacity, index) => {
+                    const code = Number(capacity);
+                    const label = Number.isNaN(code) ? String(capacity) : getName(code);
+                    return (
+                      <span
+                        key={index}
+                        className="inline-flex px-3 py-1 rounded-md bg-capx-primary-green text-white text-xs md:text-sm"
+                      >
+                        {label}
+                      </span>
+                    );
+                  }
+                )}
               </div>
-              <div className="flex-1">
-                <span
-                  className={`text-xs font-semibold block mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+              {program.capacities.length > 8 && (
+                <button
+                  type="button"
+                  className={`mt-1 text-xs font-semibold underline ${
+                    darkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}
+                  onClick={() => setShowAllCapacities(prev => !prev)}
                 >
-                  Capacities:
-                </span>
-                <div className="flex flex-wrap gap-1">
-                  {program.capacities.slice(0, 2).map((capacity, index) => (
-                    <span
-                      key={index}
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {capacity}
-                    </span>
-                  ))}
-                  {program.capacities.length > 2 && (
-                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      ...
-                    </span>
-                  )}
-                </div>
-              </div>
+                  {showAllCapacities
+                    ? pageContent['capacity-list-scroll-previous'] || 'Show less'
+                    : pageContent['capacity-list-scroll-next'] || 'Show more'}
+                </button>
+              )}
             </div>
           )}
 
