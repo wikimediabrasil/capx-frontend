@@ -135,6 +135,7 @@ export default function ProfilePage({ isSameUser, profile }: Readonly<ProfilePag
         <section className={sectionClass}>
           <div className={contentClass}>
             <ProfileHeader
+              userId={profile.user.id}
               username={profile?.user?.username || ''}
               avatar={profile?.avatar}
               wikidataQid={profile?.wikidata_qid}
