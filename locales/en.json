@@ -714,5 +714,6 @@
   "analytics-map-capacity-type": "Type",
   "sign-in-required-title": "Log in to continue",
   "sign-in-required-description": "You need to be logged in to access this page. Sign up for CapX to exchange capacities and connect with other Wikimedians.",
-  "sign-in-required-go-home": "Go to the home page"
+  "sign-in-required-go-home": "Go to the home page",
+  "suggest-capacity-link": "Can't find a capacity? Suggest a new one!"
 }
