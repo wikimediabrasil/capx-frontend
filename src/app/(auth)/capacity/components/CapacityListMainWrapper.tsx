@@ -13,7 +13,7 @@ import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
-import { useCapacityStore, useIsMobile, useLanguage, usePageContent } from '@/stores';
+import { useCapacityStore, useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
 import SuggestCapacityModal from './SuggestCapacityModal';
 
 type VisualizationMode = 'cards' | 'tree' | 'other';
@@ -60,7 +60,7 @@ const ChildCapacities = ({
 
     // If not found in root, check if any child already has a parent reference
     const childWithParent = children.find(
-      child => child.parentCapacity && child.parentCapacity.code.toString() === parentCode
+      child => child.parentCapacity?.code.toString() === parentCode
     );
 
     if (childWithParent?.parentCapacity) {
@@ -69,12 +69,12 @@ const ChildCapacities = ({
 
     // If not found anywhere, construct a minimal parent
     return {
-      code: parseInt(parentCode, 10),
+      code: Number.parseInt(parentCode, 10),
       name: '',
       color: '', // Will be determined by code in formatCapacity
       icon: '',
       hasChildren: true,
-      skill_type: parseInt(parentCode, 10),
+      skill_type: Number.parseInt(parentCode, 10),
       skill_wikidata_item: '',
       description: '',
       wd_code: '',
@@ -89,7 +89,7 @@ const ChildCapacities = ({
     // If this is a root capacity, get its color from cache
     const isRoot = rootCapacities.some(c => c.code.toString() === parentCode);
     if (isRoot) {
-      return getColor(parseInt(parentCode, 10)) || parentCapacity.color;
+      return getColor(Number.parseInt(parentCode, 10)) || parentCapacity.color;
     }
 
     // If this is a child capacity (has a parent that is root), use the parent's color from cache
@@ -198,7 +198,7 @@ function CapacityListContent() {
   // Helper function to get root family code
   const getRootFamilyCode = useCallback(
     (capacityCode: string) => {
-      const capacity = getCapacity ? getCapacity(parseInt(capacityCode)) : null;
+      const capacity = getCapacity ? getCapacity(Number.parseInt(capacityCode)) : null;
       if (!capacity) return capacityCode;
 
       // If it's already root (level 1), return its code
@@ -276,6 +276,8 @@ function CapacityListContent() {
     [searchTerm]
   );
 
+  const darkMode = useDarkMode();
+
   if (isLoadingRoot || !isCacheReady) {
     return (
       <div className="flex flex-col justify-center items-center h-[400px]">
@@ -299,23 +301,9 @@ function CapacityListContent() {
     >
       <CapacityBanner />
 
-      {/* Search + Suggest row */}
-      <div className="flex gap-3 w-full items-center">
-        <div className="flex-1">
-          <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
-        </div>
-        <button
-          onClick={() => setIsSuggestModalOpen(true)}
-          title={pageContent['suggest-capacity-button-title'] || 'Suggest a new capacity'}
-          aria-label={pageContent['suggest-capacity-button-title'] || 'Suggest a new capacity'}
-          className="flex-shrink-0 flex items-center justify-center w-[52px] h-[52px] rounded-[16px] bg-capx-dark-box-bg text-white hover:opacity-90 transition-opacity"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="1.5"/>
-            <line x1="12" y1="7" x2="12" y2="17" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="7" y1="12" x2="17" y2="12" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </button>
+      {/* Search */}
+      <div className="flex flex-col gap-2 w-full">
+        <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
       </div>
 
       <SuggestCapacityModal
@@ -429,6 +417,13 @@ function CapacityListContent() {
         </div>
       )}
 
+      {/* Capacity Suggestion button */}
+      <button
+          onClick={() => setIsSuggestModalOpen(true)}
+          className={`self-start text-sm sm:text-lg underline hover:opacity-70 transition-opacity ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text' }`}
+        >
+          {pageContent['suggest-capacity-link'] || "Can't find a capacity? Suggest a new one!"}
+      </button>
       {/* Debug component in development mode */}
       {process.env.NODE_ENV === 'development' && <CapacityCacheDebug />}
     </section>
@@ -461,7 +456,7 @@ export default function CapacityListMainWrapper() {
   );
 }
 
-function CapacityErrorBoundaryWrapper({ children }: { children: React.ReactNode }) {
+function CapacityErrorBoundaryWrapper({ children }: Readonly<{ children: React.ReactNode }>) {
   const pageContent = usePageContent();
   return <CapacityErrorBoundary pageContent={pageContent}>{children}</CapacityErrorBoundary>;
 }
@@ -497,7 +492,7 @@ class CapacityErrorBoundary extends React.Component<
               'Context error'}
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => globalThis.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Try again

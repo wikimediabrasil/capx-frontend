@@ -1,9 +1,8 @@
 'use client';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { apiPost } from '@/lib/api';
+import { useBugReport } from '@/hooks/useBugReport';
 import { useDarkMode, usePageContent } from '@/stores';
-import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 
 interface SuggestCapacityModalProps {
@@ -14,12 +13,11 @@ interface SuggestCapacityModalProps {
 const SuggestCapacityModal: React.FC<SuggestCapacityModalProps> = ({ isOpen, onClose }) => {
   const pageContent = usePageContent();
   const darkMode = useDarkMode();
-  const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();
+  const { submitBugReport, isSubmitting } = useBugReport();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
@@ -33,41 +31,28 @@ const SuggestCapacityModal: React.FC<SuggestCapacityModalProps> = ({ isOpen, onC
     e.preventDefault();
     if (!title.trim()) return;
 
-    setIsSubmitting(true);
     try {
-      const token = session?.user?.token as string | undefined;
-      const response = await apiPost(
-        '/bugs/',
-        { title: title.trim(), description: description.trim(), bug_type: 'new_feature' },
-        token
+      await submitBugReport({
+        title: title.trim(),
+        description: description.trim(),
+        bug_type: 'new_capacity',
+      });
+      showSnackbar(
+        pageContent['suggest-capacity-success'] || 'Capacity suggestion submitted successfully!',
+        'success'
       );
-
-      if (response.error) {
-        showSnackbar(
-          pageContent['suggest-capacity-error'] || 'Failed to submit suggestion. Please try again.',
-          'error'
-        );
-      } else {
-        showSnackbar(
-          pageContent['suggest-capacity-success'] || 'Capacity suggestion submitted successfully!',
-          'success'
-        );
-        handleClose();
-      }
+      handleClose();
     } catch {
       showSnackbar(
         pageContent['suggest-capacity-error'] || 'Failed to submit suggestion. Please try again.',
         'error'
       );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <div
+    <dialog
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-      role="dialog"
       aria-modal="true"
       aria-labelledby="suggest-capacity-modal-title"
     >
@@ -162,7 +147,7 @@ const SuggestCapacityModal: React.FC<SuggestCapacityModalProps> = ({ isOpen, onC
           </div>
         </form>
       </div>
-    </div>
+    </dialog>
   );
 };
 
