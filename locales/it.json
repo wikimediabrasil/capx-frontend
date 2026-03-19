@@ -6,6 +6,7 @@
 			"Ayub Abdulla",
 			"Beta16",
 			"Dream Indigo",
+			"FL2226",
 			"Giacomo Lanza",
 			"Neonsn0w"
 		]
@@ -650,14 +651,14 @@
 	"organization-names-title": "Nome dell'organizzazione (traduzioni)",
 	"select-language": "Seleziona lingua",
 	"mentorship-programs": "Programmi di tutoraggio",
-	"search-by-mentorships": "Ricerca per tutoraggio",
-	"filter-mentorship-programs": "Filtra i programmi di tutoraggio",
 	"subscribe": "Iscriviti",
 	"submitting": "Invio in corso...",
 	"select-your-role": "Seleziona il tuo ruolo",
+	"mentee-not-available": "Mentee (non disponibile)",
 	"close-tab": "Chiudi scheda",
 	"no-mentorship-programs-found": "Nessun programma di tutoraggio trovato",
 	"congratulations": "Complimenti!",
+	"mentorship-sign-in-required": "Effettua l'accesso per richiedere assistenza",
 	"close": "Chiudi",
 	"mentorship-programs-alt": "Programmi di tutoraggio",
 	"analytics-map-header-title": "Wikimediani in tutto il mondo",
@@ -687,7 +688,9 @@
 	"analytics-map-north-america": "Nord America",
 	"analytics-map-capacity-known": "Conosciuto",
 	"analytics-map-capacity-available": "Disponibile",
+	"analytics-map-capacity-wanted": "Ricercato",
 	"analytics-map-legend": "Tutti i dati vengono recuperati dal database di Capx in tempo reale",
+	"analytics-map-loading-capacities": "caricamento capacità in corso",
 	"analytics-map-capacity-type": "Tipo",
 	"sign-in-required-title": "Accedi per continuare"
 }
