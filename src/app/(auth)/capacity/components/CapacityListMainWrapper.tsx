@@ -420,7 +420,7 @@ function CapacityListContent() {
       {/* Capacity Suggestion button */}
       <button
           onClick={() => setIsSuggestModalOpen(true)}
-          className={`self-start text-sm sm:text-lg underline hover:opacity-70 transition-opacity ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text' }`}
+          className={`self-center text-sm sm:text-lg underline hover:opacity-70 transition-opacity ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text' }`}
         >
           {pageContent['suggest-capacity-link'] || "Can't find a capacity? Suggest a new one!"}
       </button>
