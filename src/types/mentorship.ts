@@ -1,4 +1,4 @@
-export type MentorshipStatus = 'open' | 'closed';
+export type MentorshipStatus = 'open' | 'closed' | 'upcoming';
 
 export type MentorshipFormat = 'in-person' | 'online' | 'hybrid';
 
@@ -24,6 +24,8 @@ export interface MentorshipSettingsApi {
   organization: number;
   name: string;
   description: string;
+  registration_open_date?: string | null;
+  registration_close_date?: string | null;
   territory_names: string[];
   profile_image: string | null;
   skills: number[];
@@ -111,10 +113,12 @@ export interface MentorshipProgram {
   name: string;
   logo: string | null;
   location: string;
+  openDate?: string | null;
+  closeDate?: string | null;
   status: MentorshipStatus;
   description: string;
   format: MentorshipFormat;
-  capacities: string[];
+  capacities: (number | string)[];
   languages: string[];
   subscribers: number;
   forms?: {

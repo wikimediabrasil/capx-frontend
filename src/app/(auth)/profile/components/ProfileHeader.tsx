@@ -9,12 +9,19 @@ import CopyLinkIcon from '@/public/static/images/icons/copy_link.svg';
 import CopyLinkIconWhite from '@/public/static/images/icons/copy_link_white.svg';
 import UserCircleIcon from '@/public/static/images/supervised_user_circle.svg';
 import UserCircleIconWhite from '@/public/static/images/supervised_user_circle_white.svg';
+import Bookmark from '@/public/static/images/bookmark.svg';
+import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
+import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
+import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useSavedItems } from '@/hooks/useSavedItems';
 const DEFAULT_AVATAR = '/static/images/person.svg';
 
 interface ProfileHeaderProps {
+  userId: number;
   username: string;
   avatar?: number;
   wikidataQid?: string;
@@ -22,11 +29,12 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({
+  userId,
   username,
   avatar,
   wikidataQid,
   isSameUser,
-}: ProfileHeaderProps & { isSameUser: boolean }) {
+}: ProfileHeaderProps) {
   const router = useRouter();
   const darkMode = useDarkMode();
   const isMobile = useIsMobile();
@@ -34,6 +42,10 @@ export default function ProfileHeader({
   const { getAvatarById, avatars } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { showSnackbar } = useSnackbar();
+  const { data: session } = useSession();
+  const { isProfileSaved, getSavedItemId, createSavedItem, deleteSavedItem } = useSavedItems();
+  const canShowSaveButton = !!session?.user && !isSameUser;
+  const isSaved = canShowSaveButton ? isProfileSaved(userId, false) : false;
 
   const loadAvatar = useCallback(async () => {
     // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
@@ -84,6 +96,28 @@ export default function ProfileHeader({
     } catch (error) {
       console.error('Error copying link:', error);
       showSnackbar(pageContent['body-profile-copy-link-error'], 'error');
+    }
+  };
+
+  const handleToggleSaved = async () => {
+    if (!canShowSaveButton) return;
+
+    try {
+      if (isSaved) {
+        const savedItemId = getSavedItemId(userId, false);
+        if (!savedItemId) return;
+        await deleteSavedItem(savedItemId);
+        showSnackbar(pageContent['saved-profiles-delete-success'], 'success');
+      } else {
+        const success = await createSavedItem('user', userId, 'learner');
+        if (success) {
+          showSnackbar(pageContent['saved-profiles-add-success'], 'success');
+        } else {
+          showSnackbar(pageContent['saved-profiles-error'], 'error');
+        }
+      }
+    } catch {
+      showSnackbar(pageContent['saved-profiles-error'], 'error');
     }
   };
 
@@ -150,6 +184,34 @@ export default function ProfileHeader({
             imageWidth={20}
             imageHeight={20}
           />
+
+          {canShowSaveButton && (
+            <BaseButton
+              onClick={handleToggleSaved}
+              label={
+                isSaved
+                  ? pageContent['saved-profiles-saved-profile'] || 'Saved'
+                  : pageContent['edit-profile-save'] || 'Save profile'
+              }
+              customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
+                darkMode
+                  ? 'text-capx-light-bg border-capx-light-bg'
+                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+              }`}
+              imageUrl={
+                isSaved
+                  ? darkMode
+                    ? BookmarkFilledWhite
+                    : BookmarkFilled
+                  : darkMode
+                    ? BookmarkWhite
+                    : Bookmark
+              }
+              imageAlt="Save profile"
+              imageWidth={20}
+              imageHeight={20}
+            />
+          )}
 
           {isSameUser && (
             <BaseButton
@@ -231,6 +293,33 @@ export default function ProfileHeader({
             imageWidth={42}
             imageHeight={42}
           />
+          {canShowSaveButton && (
+            <BaseButton
+              onClick={handleToggleSaved}
+              label={
+                isSaved
+                  ? pageContent['saved-profiles-saved-profile'] || 'Saved'
+                  : pageContent['edit-profile-save'] || 'Save profile'
+              }
+              customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
+                darkMode
+                  ? 'text-capx-light-bg border-capx-light-bg'
+                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
+              }`}
+              imageUrl={
+                isSaved
+                  ? darkMode
+                    ? BookmarkFilledWhite
+                    : BookmarkFilled
+                  : darkMode
+                    ? BookmarkWhite
+                    : Bookmark
+              }
+              imageAlt="Save profile"
+              imageWidth={42}
+              imageHeight={42}
+            />
+          )}
           {isSameUser && (
             <BaseButton
               onClick={() => router.push('/profile/edit')}
