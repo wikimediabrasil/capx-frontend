@@ -243,6 +243,7 @@
 	"select-language": "언어 선택",
 	"mentorship-programs": "멘토링 프로그램",
 	"subscribe": "구독",
+	"submitting": "제출 중...",
 	"select-your-role": "내 역할 선택",
 	"mentor": "멘토",
 	"mentee": "멘티",
@@ -251,5 +252,6 @@
 	"congratulations": "축하합니다!",
 	"close": "닫기",
 	"mentorship-programs-alt": "멘토링 프로그램",
-	"analytics-map-select-language": "언어 선택"
+	"analytics-map-select-language": "언어 선택",
+	"analytics-map-capacity-type": "유형"
 }
