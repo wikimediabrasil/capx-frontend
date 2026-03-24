@@ -16,6 +16,14 @@ import { CapacitySearch } from './CapacitySearch';
 import { useCapacityStore, useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
 import SuggestCapacityModal from './SuggestCapacityModal';
 
+import AccountTreeIcon from '@/public/static/images/account_tree.svg';
+import AccountTreeWhiteIcon from '@/public/static/images/account_tree_white.svg';
+import CollapseAllIcon from '@/public/static/images/collapse_all.svg';
+import CollapseAllWhiteIcon from '@/public/static/images/collapse_all_white.svg';
+import CreditCardIcon from '@/public/static/images/credit_card.svg';
+import CreditCardDarkIcon from '@/public/static/images/credit_card_dark.svg';
+import Image from 'next/image';
+
 type VisualizationMode = 'cards' | 'tree' | 'other';
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
@@ -278,6 +286,19 @@ function CapacityListContent() {
 
   const darkMode = useDarkMode();
 
+  const getVisualizationBg = (mode: VisualizationMode) => {
+    if (visualizationMode === mode)
+      return darkMode ? 'bg-capx-light-box-bg' : 'bg-capx-dark-box-bg';
+    return 'bg-transparent';
+  }
+
+  const getVisualizationIcon = (mode: VisualizationMode) => {
+    const useWhite = (visualizationMode === mode) !== darkMode;
+    if (mode === 'tree') return useWhite ? AccountTreeWhiteIcon : AccountTreeIcon;
+    if (mode === 'other') return useWhite ? CollapseAllWhiteIcon : CollapseAllIcon;
+    return useWhite ? CreditCardIcon : CreditCardDarkIcon;
+  }
+
   if (isLoadingRoot || !isCacheReady) {
     return (
       <div className="flex flex-col justify-center items-center h-[400px]">
@@ -312,49 +333,33 @@ function CapacityListContent() {
       />
 
       {/* Visualization mode switcher — hidden when searching */}
-      {!searchTerm && <div className="flex items-center justify-evenly bg-[#F6F6F6] rounded-[16px] p-2 w-full">
+      {!searchTerm && <div className={`flex items-center justify-evenly rounded-[16px] p-2 w-full ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}>
         <button
           onClick={() => setVisualizationMode('cards')}
-          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${
-            visualizationMode === 'cards' ? 'bg-capx-dark-box-bg' : 'bg-transparent'
-          }`}
+          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('cards')}`}
           aria-label="Cards view"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3" y="4" width="18" height="5" rx="1" stroke={visualizationMode === 'cards' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <rect x="3" y="11" width="18" height="5" rx="1" stroke={visualizationMode === 'cards' ? 'white' : '#053749'} strokeWidth="1.5"/>
-          </svg>
+          <div className="relative w-5 h-5">
+            <Image src={getVisualizationIcon('cards')} alt="Cards view" fill />
+          </div>
         </button>
         <button
           onClick={() => setVisualizationMode('tree')}
-          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${
-            visualizationMode === 'tree' ? 'bg-capx-dark-box-bg' : 'bg-transparent'
-          }`}
+          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('tree')}`}
           aria-label="Tree view"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="9" y="2" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <rect x="2" y="14" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <rect x="9" y="14" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <rect x="16" y="14" width="6" height="4" rx="1" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <line x1="12" y1="6" x2="12" y2="10" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <line x1="5" y1="10" x2="19" y2="10" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <line x1="5" y1="10" x2="5" y2="14" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <line x1="12" y1="10" x2="12" y2="14" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-            <line x1="19" y1="10" x2="19" y2="14" stroke={visualizationMode === 'tree' ? 'white' : '#053749'} strokeWidth="1.5"/>
-          </svg>
+          <div className="relative w-5 h-5">
+            <Image src={getVisualizationIcon('tree')} alt="Tree view" fill />
+          </div>
         </button>
         <button
           onClick={() => setVisualizationMode('other')}
-          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${
-            visualizationMode === 'other' ? 'bg-capx-dark-box-bg' : 'bg-transparent'
-          }`}
+          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('other')}`}
           aria-label="Other view"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="18,9 12,4 6,9" stroke={visualizationMode === 'other' ? 'white' : '#053749'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <polyline points="6,15 12,20 18,15" stroke={visualizationMode === 'other' ? 'white' : '#053749'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <div className="relative w-[10px] h-[17px]">
+            <Image src={getVisualizationIcon('other')} alt="Other view" fill />
+          </div>
         </button>
       </div>}
 

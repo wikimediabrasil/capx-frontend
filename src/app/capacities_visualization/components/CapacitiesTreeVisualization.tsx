@@ -7,14 +7,17 @@ import D3TreeVisualization from './D3TreeVisualization';
 
 interface D3Capacity {
   id: string;
+  code: number;
   name: string;
   color: string;
   description: string;
+  wd_code: string;
+  metabase_code: string;
   children: D3Capacity[];
 }
 
 export default function CapacitiesTreeVisualization() {
-  const { getRootCapacities, getChildren, getName, getDescription, getColor, isLoaded, isLoadingTranslations } =
+  const { getRootCapacities, getChildren, getName, getDescription, getColor, getWdCode, getMetabaseCode, isLoaded, isLoadingTranslations } =
     useCapacityStore();
 
   // Subscribe to capacities data so the memo recomputes when the store updates
@@ -24,19 +27,28 @@ export default function CapacitiesTreeVisualization() {
     const roots = getRootCapacities();
     return roots.map(root => ({
       id: root.code.toString(),
+      code: root.code,
       name: getName(root.code) || root.name,
       color: getColor(root.code),
       description: getDescription(root.code),
+      wd_code: getWdCode(root.code),
+      metabase_code: getMetabaseCode(root.code),
       children: getChildren(root.code).map(child => ({
         id: child.code.toString(),
+        code: child.code,
         name: getName(child.code) || child.name,
         color: getColor(child.code),
         description: getDescription(child.code),
+        wd_code: getWdCode(child.code),
+        metabase_code: getMetabaseCode(child.code),
         children: getChildren(child.code).map(grandchild => ({
           id: grandchild.code.toString(),
+          code: grandchild.code,
           name: getName(grandchild.code) || grandchild.name,
           color: getColor(grandchild.code),
           description: getDescription(grandchild.code),
+          wd_code: getWdCode(grandchild.code),
+          metabase_code: getMetabaseCode(grandchild.code),
           children: [],
         })),
       })),
