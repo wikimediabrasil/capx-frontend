@@ -75,6 +75,11 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
       active: true,
     },
     {
+      title: pageContent['body-profile-badges-title'] || 'Badges',
+      to: '/profile/badges',
+      active: true,
+    },
+    {
       title: pageContent['navbar-link-events'],
       to: '/events',
     },

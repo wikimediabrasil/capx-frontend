@@ -100,14 +100,14 @@ export default function BadgesPage() {
           {/* Action Buttons */}
           <BaseButton
             onClick={() => router.back()}
-            label={pageContent['badges-back-to-user-profile']}
+            label={pageContent['badges-back-to-user-profile'] || 'Go back'}
             customClass={`w-full flex items-center px-[13px] py-[6px] pb-[6px] text-[14px] border border-[#053749] text-[#053749] rounded-md py-3 font-bold mb-0 ${
               darkMode
                 ? 'bg-transparent text-[#F6F6F6] border-[#F6F6F6] border-[2px]'
                 : 'bg-[#F6F6F6] border-[#053749] text-[#053749]'
             }`}
             imageUrl={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
-            imageAlt="Cancel icon"
+            imageAlt={pageContent['badges-back-to-user-profile'] || 'Go back'}
             imageWidth={20}
             imageHeight={20}
           />
