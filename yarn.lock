@@ -6235,10 +6235,12 @@ __metadata:
     eslint-config-prettier: "npm:^10.1.5"
     eslint-plugin-prettier: "npm:^5.4.1"
     eslint-plugin-storybook: "npm:^0.11.1"
+    formBuilder: "npm:^3.21.1"
     framer-motion: "npm:^11.1.7"
     globals: "npm:^17.0.0"
     jest: "npm:^29.7.0"
     jest-environment-jsdom: "npm:^29.7.0"
+    jquery: "npm:^3.7.1"
     lodash: "npm:^4.17.23"
     next: "npm:15.5.10"
     next-auth: "npm:^4.24.12"
@@ -8842,6 +8844,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"formBuilder@npm:^3.21.1":
+  version: 3.22.0
+  resolution: "formBuilder@npm:3.22.0"
+  dependencies:
+    jquery: "npm:>=3.4.1"
+    jquery-ui-sortable: "npm:*"
+  checksum: 10c0/d94a2b539117be6a6315520f972244e6bd8ffd72b63fa101c493b8a0978d5d68890396b0b83d841368d8bd7a34fd826544a6352a2d03383231896bcedf391133
+  languageName: node
+  linkType: hard
+
 "fraction.js@npm:^5.3.4":
   version: 5.3.4
   resolution: "fraction.js@npm:5.3.4"
@@ -10554,6 +10566,27 @@ __metadata:
   version: 4.15.9
   resolution: "jose@npm:4.15.9"
   checksum: 10c0/4ed4ddf4a029db04bd167f2215f65d7245e4dc5f36d7ac3c0126aab38d66309a9e692f52df88975d99429e357e5fd8bab340ff20baab544d17684dd1d940a0f4
+  languageName: node
+  linkType: hard
+
+"jquery-ui-sortable@npm:*":
+  version: 1.0.0
+  resolution: "jquery-ui-sortable@npm:1.0.0"
+  checksum: 10c0/0e5416a6a0231e90d0fdd28b36ebbf1ea9c313d37076ab4fda9d88e19edb07dd090f4e0fe703a297da882c68b2e5c8605260c4f032b984c6deb533611e684875
+  languageName: node
+  linkType: hard
+
+"jquery@npm:>=3.4.1":
+  version: 4.0.0
+  resolution: "jquery@npm:4.0.0"
+  checksum: 10c0/06d8d0f51121af5a691f8b59c74823157bb5b60eea915b30eaa920d6c0ffd91e60ba81e9b97bd8203f331f9dd8d0ec9a4b010935ea314bdd2f15453c29bc780b
+  languageName: node
+  linkType: hard
+
+"jquery@npm:^3.7.1":
+  version: 3.7.1
+  resolution: "jquery@npm:3.7.1"
+  checksum: 10c0/808cfbfb758438560224bf26e17fcd5afc7419170230c810dd11f5c1792e2263e2970cca8d659eb84fcd9acc301edb6d310096e450277d54be4f57071b0c82d9
   languageName: node
   linkType: hard
 

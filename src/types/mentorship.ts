@@ -105,6 +105,7 @@ export interface MentorshipFormField {
 export interface MentorshipForm {
   role: MentorshipRole;
   fields: MentorshipFormField[];
+  rawJson?: FormBuilderFieldSchema[];
   submitButtonLabel?: string;
 }
 
