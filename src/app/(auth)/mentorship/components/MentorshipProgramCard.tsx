@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import RoleSelectionModal from './RoleSelectionModal';
 import DynamicForm from './DynamicForm';
+import NativeFormRenderModal from './NativeFormRenderModal';
 import ConfirmationModal from './ConfirmationModal';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
@@ -396,19 +397,32 @@ export default function MentorshipProgramCard({
         program={program}
       />
 
-      {showForm && selectedRole && program.forms?.[selectedRole] && (
-        <DynamicForm
-          form={program.forms[selectedRole]}
-          programName={program.name}
-          programLogo={program.logo}
-          onSubmit={handleFormSubmit}
-          onClose={() => {
-            setShowForm(false);
-            setSelectedRole(null);
-          }}
-          submitting={submitting}
-        />
-      )}
+      {showForm && selectedRole && program.forms?.[selectedRole] &&
+        (program.forms[selectedRole].rawJson?.length ? (
+          <NativeFormRenderModal
+            form={program.forms[selectedRole]}
+            programName={program.name}
+            programLogo={program.logo}
+            onSubmit={handleFormSubmit}
+            onClose={() => {
+              setShowForm(false);
+              setSelectedRole(null);
+            }}
+            submitting={submitting}
+          />
+        ) : (
+          <DynamicForm
+            form={program.forms[selectedRole]}
+            programName={program.name}
+            programLogo={program.logo}
+            onSubmit={handleFormSubmit}
+            onClose={() => {
+              setShowForm(false);
+              setSelectedRole(null);
+            }}
+            submitting={submitting}
+          />
+        ))}
 
       <ConfirmationModal
         isOpen={showConfirmation}

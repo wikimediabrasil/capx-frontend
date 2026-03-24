@@ -26,11 +26,11 @@ function buildProgramsFromSettings(
     const forms: MentorshipProgram['forms'] = {};
     if (mentorForm?.json?.length) {
       const converted = formBuilderJsonToMentorshipForm(mentorForm.json, 'mentor');
-      forms.mentor = { ...converted, formId: mentorForm.id };
+      forms.mentor = { ...converted, formId: mentorForm.id, rawJson: mentorForm.json };
     }
     if (menteeForm?.json?.length) {
       const converted = formBuilderJsonToMentorshipForm(menteeForm.json, 'mentee');
-      forms.mentee = { ...converted, formId: menteeForm.id };
+      forms.mentee = { ...converted, formId: menteeForm.id, rawJson: menteeForm.json };
     }
     const mentorCount = mentorForm?.counter ?? 0;
     const menteeCount = menteeForm?.counter ?? 0;
