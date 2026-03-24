@@ -397,7 +397,9 @@ export default function MentorshipProgramCard({
         program={program}
       />
 
-      {showForm && selectedRole && program.forms?.[selectedRole] &&
+      {showForm &&
+        selectedRole &&
+        program.forms?.[selectedRole] &&
         (program.forms[selectedRole].rawJson?.length ? (
           <NativeFormRenderModal
             form={program.forms[selectedRole]}

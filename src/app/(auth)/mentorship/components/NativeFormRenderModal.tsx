@@ -16,13 +16,14 @@ interface NativeFormRenderModalProps {
   submitting?: boolean;
 }
 
-function appendValue(
-  target: Record<string, unknown>,
-  key: string,
-  value: FormDataEntryValue
-): void {
+function appendValue(target: Record<string, unknown>, key: string, value: unknown): void {
   const normalizedKey = key.endsWith('[]') ? key.slice(0, -2) : key;
-  const normalizedValue = typeof value === 'string' ? value : value.name;
+  const normalizedValue =
+    typeof value === 'string'
+      ? value
+      : typeof value === 'object' && value !== null && 'name' in value
+        ? String((value as { name?: unknown }).name ?? '')
+        : String(value);
 
   if (Object.prototype.hasOwnProperty.call(target, normalizedKey)) {
     const current = target[normalizedKey];
@@ -93,8 +94,7 @@ export default function NativeFormRenderModal({
         }
       } catch (error) {
         if (cancelled) return;
-        const message =
-          error instanceof Error ? error.message : 'Failed to render native form';
+        const message = error instanceof Error ? error.message : 'Failed to render native form';
         setRenderError(message);
       }
     }
