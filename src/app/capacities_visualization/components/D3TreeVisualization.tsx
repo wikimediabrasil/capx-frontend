@@ -85,22 +85,32 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
   const [isAddingKnown, setIsAddingKnown] = useState(false);
   const [isAddingWanted, setIsAddingWanted] = useState(false);
 
-  const { data: userProfile, isLoading: isProfileLoading, isError: isProfileError } = useQuery({
+  const {
+    data: userProfile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useQuery({
     queryKey: ['userProfile', session?.user?.id, session?.user?.token],
-    queryFn: () => userService.fetchUserProfile(Number(session?.user?.id), session?.user?.token || ''),
+    queryFn: () =>
+      userService.fetchUserProfile(Number(session?.user?.id), session?.user?.token || ''),
     enabled: !!session?.user?.token && !!session?.user?.id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
-  const { userKnownCapacities, userAvailableCapacities, userWantedCapacities } = useUserCapacities(userProfile);
+  const { userKnownCapacities, userAvailableCapacities, userWantedCapacities } =
+    useUserCapacities(userProfile);
 
   const isAddedToKnown = useMemo(
-    () => selectedNode ? userKnownCapacities.includes(selectedNode.code) && userAvailableCapacities.includes(selectedNode.code) : false,
+    () =>
+      selectedNode
+        ? userKnownCapacities.includes(selectedNode.code) &&
+          userAvailableCapacities.includes(selectedNode.code)
+        : false,
     [userKnownCapacities, userAvailableCapacities, selectedNode]
   );
   const isAddedToWanted = useMemo(
-    () => selectedNode ? userWantedCapacities.includes(selectedNode.code) : false,
+    () => (selectedNode ? userWantedCapacities.includes(selectedNode.code) : false),
     [userWantedCapacities, selectedNode]
   );
 
@@ -121,12 +131,24 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
           ? userAvailableCapacities.map(c => c.toString())
           : [...userAvailableCapacities, code].map(c => c.toString()),
       };
-      if (userProfile.language && Array.isArray(userProfile.language)) payload.language = userProfile.language;
-      const updated: UserProfile = { ...userProfile, skills_known: payload.skills_known, skills_available: payload.skills_available };
+      if (userProfile.language && Array.isArray(userProfile.language))
+        payload.language = userProfile.language;
+      const updated: UserProfile = {
+        ...userProfile,
+        skills_known: payload.skills_known,
+        skills_available: payload.skills_available,
+      };
       queryClient.setQueryData(['userProfile', session.user.id, session.user.token], updated);
       showSnackbar(pageContent['capacity-added-known'] || 'Capacity added to known', 'success');
-      profileService.updateProfile(Number(session.user.id), payload, { headers: { Authorization: `Token ${session.user.token}` } })
-        .catch(() => queryClient.invalidateQueries({ queryKey: ['userProfile', session.user.id, session.user.token] }));
+      profileService
+        .updateProfile(Number(session.user.id), payload, {
+          headers: { Authorization: `Token ${session.user.token}` },
+        })
+        .catch(() =>
+          queryClient.invalidateQueries({
+            queryKey: ['userProfile', session.user.id, session.user.token],
+          })
+        );
     } catch {
       showSnackbar(pageContent['error'] || 'Error adding capacity', 'error');
     } finally {
@@ -148,12 +170,20 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
           ? userWantedCapacities.map(c => c.toString())
           : [...userWantedCapacities, code].map(c => c.toString()),
       };
-      if (userProfile.language && Array.isArray(userProfile.language)) payload.language = userProfile.language;
+      if (userProfile.language && Array.isArray(userProfile.language))
+        payload.language = userProfile.language;
       const updated: UserProfile = { ...userProfile, skills_wanted: payload.skills_wanted };
       queryClient.setQueryData(['userProfile', session.user.id, session.user.token], updated);
       showSnackbar(pageContent['capacity-added-wanted'] || 'Capacity added to wanted', 'success');
-      profileService.updateProfile(Number(session.user.id), payload, { headers: { Authorization: `Token ${session.user.token}` } })
-        .catch(() => queryClient.invalidateQueries({ queryKey: ['userProfile', session.user.id, session.user.token] }));
+      profileService
+        .updateProfile(Number(session.user.id), payload, {
+          headers: { Authorization: `Token ${session.user.token}` },
+        })
+        .catch(() =>
+          queryClient.invalidateQueries({
+            queryKey: ['userProfile', session.user.id, session.user.token],
+          })
+        );
     } catch {
       showSnackbar(pageContent['error'] || 'Error adding capacity', 'error');
     } finally {
@@ -224,7 +254,9 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       if (isRoot) setFocusedRootId(null);
     } else {
       if (isRoot) {
-        data.forEach(c => { if (c.id !== nodeId) next.delete(c.id); });
+        data.forEach(c => {
+          if (c.id !== nodeId) next.delete(c.id);
+        });
         setFocusedRootId(nodeId);
       }
       next.add(nodeId);
@@ -241,13 +273,19 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
     const container = svg.append('g').attr('class', 'main-container');
 
     type NodeDatum = {
-      x: number; y: number; depth: number; angle: number;
+      x: number;
+      y: number;
+      depth: number;
+      angle: number;
       data: D3Capacity;
-      rootColor: string | null; rootId?: string;
+      rootColor: string | null;
+      rootId?: string;
     };
     type LinkDatum = {
-      source: { x: number; y: number }; target: { x: number; y: number };
-      rootId?: string; depth: number;
+      source: { x: number; y: number };
+      target: { x: number; y: number };
+      rootId?: string;
+      depth: number;
     };
 
     const allNodes: NodeDatum[] = [];
@@ -255,8 +293,21 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
 
     // Center logo node
     allNodes.push({
-      x: CX, y: CY, depth: -1, angle: 0,
-      data: { id: 'center', code: 0, name: '', color: '', description: '', wd_code: '', metabase_code: '', children: [], isCenter: true },
+      x: CX,
+      y: CY,
+      depth: -1,
+      angle: 0,
+      data: {
+        id: 'center',
+        code: 0,
+        name: '',
+        color: '',
+        description: '',
+        wd_code: '',
+        metabase_code: '',
+        children: [],
+        isCenter: true,
+      },
       rootColor: null,
     });
 
@@ -265,7 +316,12 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       const { x: rx, y: ry, angle } = rootPositions[i];
       const rootColor = getColorForCapacity(cap.id);
       allNodes.push({ x: rx, y: ry, depth: 0, data: cap, rootColor, angle, rootId: cap.id });
-      allLinks.push({ source: { x: CX, y: CY }, target: { x: rx, y: ry }, rootId: cap.id, depth: 0 });
+      allLinks.push({
+        source: { x: CX, y: CY },
+        target: { x: rx, y: ry },
+        rootId: cap.id,
+        depth: 0,
+      });
 
       if (!expandedNodes.has(cap.id) || !cap.children?.length) return;
 
@@ -276,8 +332,21 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
         const cAngle = nC === 1 ? angle : angle - fanHalf + (ci / (nC - 1)) * 2 * fanHalf;
         const cX = rx + CHILD_RADIUS * Math.cos(cAngle);
         const cY = ry + CHILD_RADIUS * Math.sin(cAngle);
-        allNodes.push({ x: cX, y: cY, depth: 1, data: child, rootColor, angle: cAngle, rootId: cap.id });
-        allLinks.push({ source: { x: rx, y: ry }, target: { x: cX, y: cY }, rootId: cap.id, depth: 1 });
+        allNodes.push({
+          x: cX,
+          y: cY,
+          depth: 1,
+          data: child,
+          rootColor,
+          angle: cAngle,
+          rootId: cap.id,
+        });
+        allLinks.push({
+          source: { x: rx, y: ry },
+          target: { x: cX, y: cY },
+          rootId: cap.id,
+          depth: 1,
+        });
 
         if (!expandedNodes.has(child.id) || !child.children?.length) return;
 
@@ -285,17 +354,32 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
         const gcFanHalf = nGc === 1 ? 0 : Math.min(Math.PI * 0.4, (nGc - 1) * 0.24 + 0.14);
 
         child.children.forEach((gc, gci) => {
-          const gcAngle = nGc === 1 ? cAngle : cAngle - gcFanHalf + (gci / (nGc - 1)) * 2 * gcFanHalf;
+          const gcAngle =
+            nGc === 1 ? cAngle : cAngle - gcFanHalf + (gci / (nGc - 1)) * 2 * gcFanHalf;
           const gcX = cX + GC_RADIUS * Math.cos(gcAngle);
           const gcY = cY + GC_RADIUS * Math.sin(gcAngle);
-          allNodes.push({ x: gcX, y: gcY, depth: 2, data: gc, rootColor, angle: gcAngle, rootId: cap.id });
-          allLinks.push({ source: { x: cX, y: cY }, target: { x: gcX, y: gcY }, rootId: cap.id, depth: 2 });
+          allNodes.push({
+            x: gcX,
+            y: gcY,
+            depth: 2,
+            data: gc,
+            rootColor,
+            angle: gcAngle,
+            rootId: cap.id,
+          });
+          allLinks.push({
+            source: { x: cX, y: cY },
+            target: { x: gcX, y: gcY },
+            rootId: cap.id,
+            depth: 2,
+          });
         });
       });
     });
 
     // Draw links
-    container.selectAll('.link')
+    container
+      .selectAll('.link')
       .data(allLinks)
       .enter()
       .append('line')
@@ -305,17 +389,18 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       .attr('x2', d => d.target.x)
       .attr('y2', d => d.target.y)
       .style('stroke', '#9ca3af')
-      .style('stroke-width', d => d.depth === 0 ? '2px' : '1.5px')
-      .style('opacity', d => focusedRootId && d.rootId !== focusedRootId ? 0.12 : 0.65);
+      .style('stroke-width', d => (d.depth === 0 ? '2px' : '1.5px'))
+      .style('opacity', d => (focusedRootId && d.rootId !== focusedRootId ? 0.12 : 0.65));
 
     // Draw nodes
-    const nodeG = container.selectAll('.node')
+    const nodeG = container
+      .selectAll('.node')
       .data(allNodes)
       .enter()
       .append('g')
       .attr('class', 'node')
       .attr('transform', d => `translate(${d.x},${d.y})`)
-      .style('cursor', d => d.data.isCenter ? 'default' : 'pointer')
+      .style('cursor', d => (d.data.isCenter ? 'default' : 'pointer'))
       .on('click', (_event, d) => {
         if (d.data.isCenter) return;
         setSelectedNode(d.data);
@@ -328,22 +413,27 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       })
       .on('mouseover', function (_, d) {
         if (d.data.isCenter) return;
-        d3.select(this).select('path')
-          .transition().duration(150)
+        d3.select(this)
+          .select('path')
+          .transition()
+          .duration(150)
           .style('stroke', '#fbbf24')
           .style('stroke-width', '3px');
       })
       .on('mouseout', function (_, d) {
         if (d.data.isCenter) return;
         const isSelected = selectedNode?.id === d.data.id;
-        d3.select(this).select('path')
-          .transition().duration(150)
+        d3.select(this)
+          .select('path')
+          .transition()
+          .duration(150)
           .style('stroke', isSelected ? '#fbbf24' : '#ffffff')
           .style('stroke-width', isSelected ? '3px' : '2px');
       });
 
     // Center logo
-    nodeG.filter(d => !!d.data.isCenter)
+    nodeG
+      .filter(d => !!d.data.isCenter)
       .append('image')
       .attr('href', '/static/images/capx_minimalistic_logo.svg')
       .attr('x', -LOGO_SIZE / 2)
@@ -352,18 +442,21 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       .attr('height', LOGO_SIZE);
 
     // Hexagon nodes
-    nodeG.filter(d => !d.data.isCenter)
+    nodeG
+      .filter(d => !d.data.isCenter)
       .each(function (d) {
         const r = d.depth === 0 ? 13 : d.depth === 1 ? 10 : 8;
         const fill = d.rootColor ? getCapacityColor(d.rootColor) : '#6b7280';
-        const nodeOpacity = focusedRootId && d.depth === 0 && d.data.id !== focusedRootId ? 0.18 : 1;
+        const nodeOpacity =
+          focusedRootId && d.depth === 0 && d.data.id !== focusedRootId ? 0.18 : 1;
         const stroke = selectedNode?.id === d.data.id ? '#fbbf24' : '#ffffff';
         const sw = selectedNode?.id === d.data.id ? '3px' : '2px';
         const pts = Array.from({ length: 6 }, (_, k) => {
           const a = (k * Math.PI) / 3;
           return `${Math.cos(a) * r},${Math.sin(a) * r}`;
         }).join(' L ');
-        d3.select(this).append('path')
+        d3.select(this)
+          .append('path')
           .attr('d', `M ${pts} Z`)
           .style('fill', fill)
           .style('stroke', stroke)
@@ -372,7 +465,8 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       });
 
     // Labels
-    nodeG.filter(d => !d.data.isCenter)
+    nodeG
+      .filter(d => !d.data.isCenter)
       .append('text')
       .attr('x', d => {
         const offset = d.depth === 0 ? 18 : 15;
@@ -389,9 +483,9 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
         return cos > 0 ? 'start' : 'end';
       })
       .text(d => capitalizeFirst(d.data.name))
-      .style('font-size', d => d.depth === 0 ? '13px' : d.depth === 1 ? '11px' : '10px')
+      .style('font-size', d => (d.depth === 0 ? '13px' : d.depth === 1 ? '11px' : '10px'))
       .style('fill', darkMode ? '#f3f4f6' : '#111827')
-      .style('font-weight', d => d.depth === 0 ? '600' : '400')
+      .style('font-weight', d => (d.depth === 0 ? '600' : '400'))
       .style('pointer-events', 'none')
       .style('opacity', d => {
         if (focusedRootId && d.depth === 0 && d.data.id !== focusedRootId) return 0.18;
@@ -399,7 +493,8 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       });
 
     // D3 zoom + pan
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.3, 4])
       .on('zoom', event => {
         container.attr('transform', event.transform.toString());
@@ -415,14 +510,19 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
     svg.on('click', event => {
       if (event.target === svgRef.current) setSelectedNode(null);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, expandedNodes, selectedNode, focusedRootId, darkMode, forceUpdate]);
 
   return (
     <div className="w-full">
       <style jsx>{`
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
 
       <div className="mb-4 w-full">
@@ -432,10 +532,7 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
         >
           {pageContent['capacity-visualization-title'] || 'Visualização Interativa das Capacidades'}
         </h2>
-        <p
-          className="text-sm mb-4"
-          style={{ color: darkMode ? '#d1d5db' : '#4b5563' }}
-        >
+        <p className="text-sm mb-4" style={{ color: darkMode ? '#d1d5db' : '#4b5563' }}>
           {pageContent['capacity-visualization-description'] ||
             'Clique nas capacidades principais para expandir e centralizar • Use scroll/pinch para zoom • Arraste para navegar'}
         </p>
@@ -452,7 +549,8 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            {pageContent['capacity-visualization-reset-button'] || 'Retornar à visualização inicial'}
+            {pageContent['capacity-visualization-reset-button'] ||
+              'Retornar à visualização inicial'}
           </button>
         </div>
       </div>
@@ -504,9 +602,15 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
                       className="flex flex-row items-center gap-2"
                     >
                       <div className="relative w-6 h-6 flex-shrink-0">
-                        <Image src={darkMode ? MetabaseLightIcon : MetabaseIcon} alt="Metabase" fill />
+                        <Image
+                          src={darkMode ? MetabaseLightIcon : MetabaseIcon}
+                          alt="Metabase"
+                          fill
+                        />
                       </div>
-                      <span className={`text-sm underline break-all ${darkMode ? 'text-blue-400' : 'text-capx-light-link'}`}>
+                      <span
+                        className={`text-sm underline break-all ${darkMode ? 'text-blue-400' : 'text-capx-light-link'}`}
+                      >
                         {selectedNode.metabase_code}
                       </span>
                     </a>
@@ -520,9 +624,15 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
                       className="flex flex-row items-center gap-2"
                     >
                       <div className="relative w-6 h-6 flex-shrink-0">
-                        <Image src={darkMode ? BarCodeLightIcon : BarCodeIcon} alt="Wikidata" fill />
+                        <Image
+                          src={darkMode ? BarCodeLightIcon : BarCodeIcon}
+                          alt="Wikidata"
+                          fill
+                        />
                       </div>
-                      <span className={`text-sm underline break-all ${darkMode ? 'text-blue-400' : 'text-capx-light-link'}`}>
+                      <span
+                        className={`text-sm underline break-all ${darkMode ? 'text-blue-400' : 'text-capx-light-link'}`}
+                      >
                         {selectedNode.wd_code}
                       </span>
                     </a>
@@ -532,7 +642,10 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
 
               {/* Description */}
               {selectedNode.description && (
-                <p className="text-sm leading-relaxed" style={{ color: darkMode ? '#d1d5db' : '#374151' }}>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: darkMode ? '#d1d5db' : '#374151' }}
+                >
                   {selectedNode.description}
                 </p>
               )}
@@ -541,37 +654,58 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
               <div className="flex flex-col gap-2 pt-1">
                 <button
                   onClick={handleAddToKnown}
-                  disabled={isAddingKnown || isAddedToKnown || isProfileLoading || isProfileError || !userProfile || !session?.user?.token}
+                  disabled={
+                    isAddingKnown ||
+                    isAddedToKnown ||
+                    isProfileLoading ||
+                    isProfileError ||
+                    !userProfile ||
+                    !session?.user?.token
+                  }
                   className={`w-full px-3 py-2 rounded-md text-sm font-semibold text-white transition-opacity ${
                     isAddedToKnown ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
                   }`}
                   style={{ backgroundColor: '#507380' }}
                 >
                   {isAddedToKnown
-                    ? (pageContent['capacity-card-added-to-known'] || '✓ Added to Known')
-                    : (isAddingKnown || isProfileLoading)
-                      ? (pageContent['loading'] || 'Loading...')
-                      : (pageContent['capacity-card-add-to-known'] || 'Add to Known')}
+                    ? pageContent['capacity-card-added-to-known'] || '✓ Added to Known'
+                    : isAddingKnown || isProfileLoading
+                      ? pageContent['loading'] || 'Loading...'
+                      : pageContent['capacity-card-add-to-known'] || 'Add to Known'}
                 </button>
                 <button
                   onClick={handleAddToWanted}
-                  disabled={isAddingWanted || isAddedToWanted || isProfileLoading || isProfileError || !userProfile || !session?.user?.token}
+                  disabled={
+                    isAddingWanted ||
+                    isAddedToWanted ||
+                    isProfileLoading ||
+                    isProfileError ||
+                    !userProfile ||
+                    !session?.user?.token
+                  }
                   className={`w-full px-3 py-2 rounded-md text-sm font-semibold text-white transition-opacity ${
                     isAddedToWanted ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
                   }`}
                   style={{ backgroundColor: '#507380' }}
                 >
                   {isAddedToWanted
-                    ? (pageContent['capacity-card-added-to-wanted'] || '✓ Added to Wanted')
-                    : (isAddingWanted || isProfileLoading)
-                      ? (pageContent['loading'] || 'Loading...')
-                      : (pageContent['capacity-card-add-to-wanted'] || 'Add to Wanted')}
+                    ? pageContent['capacity-card-added-to-wanted'] || '✓ Added to Wanted'
+                    : isAddingWanted || isProfileLoading
+                      ? pageContent['loading'] || 'Loading...'
+                      : pageContent['capacity-card-add-to-wanted'] || 'Add to Wanted'}
                 </button>
               </div>
 
               {/* Info note */}
-              <p className="text-xs leading-relaxed border-t pt-3" style={{ color: darkMode ? '#9ca3af' : '#6b7280', borderColor: darkMode ? '#374151' : '#e5e7eb' }}>
-                {pageContent['capacity-card-profile-info'] || 'This will be added to your personal profile.'}
+              <p
+                className="text-xs leading-relaxed border-t pt-3"
+                style={{
+                  color: darkMode ? '#9ca3af' : '#6b7280',
+                  borderColor: darkMode ? '#374151' : '#e5e7eb',
+                }}
+              >
+                {pageContent['capacity-card-profile-info'] ||
+                  'This will be added to your personal profile.'}
               </p>
             </div>
           </div>

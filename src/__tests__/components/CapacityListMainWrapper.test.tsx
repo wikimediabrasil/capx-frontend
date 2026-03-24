@@ -291,9 +291,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Can't find a capacity? Suggest a new one!")
-      ).toBeInTheDocument();
+      expect(screen.getByText("Can't find a capacity? Suggest a new one!")).toBeInTheDocument();
     });
   });
 
@@ -305,9 +303,7 @@ describe('CapacityListMainWrapper', () => {
     });
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Can't find a capacity? Suggest a new one!")
-      ).toBeInTheDocument();
+      expect(screen.getByText("Can't find a capacity? Suggest a new one!")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByText("Can't find a capacity? Suggest a new one!"));

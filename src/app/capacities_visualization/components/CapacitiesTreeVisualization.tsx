@@ -17,8 +17,17 @@ interface D3Capacity {
 }
 
 export default function CapacitiesTreeVisualization() {
-  const { getRootCapacities, getChildren, getName, getDescription, getColor, getWdCode, getMetabaseCode, isLoaded, isLoadingTranslations } =
-    useCapacityStore();
+  const {
+    getRootCapacities,
+    getChildren,
+    getName,
+    getDescription,
+    getColor,
+    getWdCode,
+    getMetabaseCode,
+    isLoaded,
+    isLoadingTranslations,
+  } = useCapacityStore();
 
   // Subscribe to capacities data so the memo recomputes when the store updates
   const capacitiesData = useCapacityStore(state => state.capacities);
@@ -53,7 +62,7 @@ export default function CapacitiesTreeVisualization() {
         })),
       })),
     }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capacitiesData]);
 
   if (isLoadingTranslations || !isLoaded) {

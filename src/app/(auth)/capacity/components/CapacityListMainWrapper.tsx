@@ -290,14 +290,14 @@ function CapacityListContent() {
     if (visualizationMode === mode)
       return darkMode ? 'bg-capx-light-box-bg' : 'bg-capx-dark-box-bg';
     return 'bg-transparent';
-  }
+  };
 
   const getVisualizationIcon = (mode: VisualizationMode) => {
     const useWhite = (visualizationMode === mode) !== darkMode;
     if (mode === 'tree') return useWhite ? AccountTreeWhiteIcon : AccountTreeIcon;
     if (mode === 'other') return useWhite ? CollapseAllWhiteIcon : CollapseAllIcon;
     return useWhite ? CreditCardIcon : CreditCardDarkIcon;
-  }
+  };
 
   if (isLoadingRoot || !isCacheReady) {
     return (
@@ -333,35 +333,39 @@ function CapacityListContent() {
       />
 
       {/* Visualization mode switcher — hidden when searching */}
-      {!searchTerm && <div className={`flex items-center justify-evenly rounded-[16px] p-2 w-full ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}>
-        <button
-          onClick={() => setVisualizationMode('cards')}
-          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('cards')}`}
-          aria-label="Cards view"
+      {!searchTerm && (
+        <div
+          className={`flex items-center justify-evenly rounded-[16px] p-2 w-full ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}
         >
-          <div className="relative w-5 h-5">
-            <Image src={getVisualizationIcon('cards')} alt="Cards view" fill />
-          </div>
-        </button>
-        <button
-          onClick={() => setVisualizationMode('tree')}
-          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('tree')}`}
-          aria-label="Tree view"
-        >
-          <div className="relative w-5 h-5">
-            <Image src={getVisualizationIcon('tree')} alt="Tree view" fill />
-          </div>
-        </button>
-        <button
-          onClick={() => setVisualizationMode('other')}
-          className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('other')}`}
-          aria-label="Other view"
-        >
-          <div className="relative w-[10px] h-[17px]">
-            <Image src={getVisualizationIcon('other')} alt="Other view" fill />
-          </div>
-        </button>
-      </div>}
+          <button
+            onClick={() => setVisualizationMode('cards')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('cards')}`}
+            aria-label="Cards view"
+          >
+            <div className="relative w-5 h-5">
+              <Image src={getVisualizationIcon('cards')} alt="Cards view" fill />
+            </div>
+          </button>
+          <button
+            onClick={() => setVisualizationMode('tree')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('tree')}`}
+            aria-label="Tree view"
+          >
+            <div className="relative w-5 h-5">
+              <Image src={getVisualizationIcon('tree')} alt="Tree view" fill />
+            </div>
+          </button>
+          <button
+            onClick={() => setVisualizationMode('other')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('other')}`}
+            aria-label="Other view"
+          >
+            <div className="relative w-[10px] h-[17px]">
+              <Image src={getVisualizationIcon('other')} alt="Other view" fill />
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* Tree visualization */}
       {!searchTerm && visualizationMode === 'tree' && (
@@ -424,10 +428,10 @@ function CapacityListContent() {
 
       {/* Capacity Suggestion button */}
       <button
-          onClick={() => setIsSuggestModalOpen(true)}
-          className={`self-center text-sm sm:text-lg underline hover:opacity-70 transition-opacity ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text' }`}
-        >
-          {pageContent['suggest-capacity-link'] || "Can't find a capacity? Suggest a new one!"}
+        onClick={() => setIsSuggestModalOpen(true)}
+        className={`self-center text-sm sm:text-lg underline hover:opacity-70 transition-opacity ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
+      >
+        {pageContent['suggest-capacity-link'] || "Can't find a capacity? Suggest a new one!"}
       </button>
       {/* Debug component in development mode */}
       {process.env.NODE_ENV === 'development' && <CapacityCacheDebug />}
