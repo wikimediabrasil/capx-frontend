@@ -75,7 +75,7 @@ export function AvatarImageSection({
   handleAvatarSelect,
   isWikidataSelected,
   handleWikidataClick,
-  formData,
+  formData: _formData,
   showDeleteProfilePopup,
   setShowDeleteProfilePopup,
   handleDeleteProfile,

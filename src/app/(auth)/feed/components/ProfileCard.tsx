@@ -55,14 +55,6 @@ interface ProfileCardProps {
 }
 
 // Helper functions
-function getTypeBadgeColors(type: string, darkMode: boolean) {
-  const isLearner = type === 'learner';
-  if (darkMode) {
-    return isLearner ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
-  }
-  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#166534] border-[#166534]';
-}
-
 function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
   if (isSaved) {
     return darkMode ? BookmarkFilledWhite : BookmarkFilled;
@@ -197,8 +189,6 @@ export const ProfileCard = ({
       );
     }
 
-    // Check if profile has known capacities
-    const hasKnown = knownCapacities && knownCapacities.length > 0;
     const typeArray = Array.isArray(type) ? type : [type];
     const hasKnownType = typeArray.includes(ProfileCapacityType.Known);
 

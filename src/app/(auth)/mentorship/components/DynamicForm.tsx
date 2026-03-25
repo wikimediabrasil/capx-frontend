@@ -5,9 +5,6 @@ import BaseButton from '@/components/BaseButton';
 import { MentorshipForm, MentorshipFormField } from '@/types/mentorship';
 import Image from 'next/image';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
-import MentorIcon from '@/public/static/images/mentor.svg';
-import MenteeIcon from '@/public/static/images/mentee.svg';
-
 import { useDarkMode, usePageContent } from '@/stores';
 
 /** Only limits the year when it has more than 4 digits; does not change 1–4 digits (allows typing 2025 etc.). */
@@ -83,7 +80,7 @@ export default function DynamicForm({
     }
   };
 
-  const isEmpty = (v: any, field: MentorshipFormField): boolean => {
+  const isEmpty = (v: any, _field: MentorshipFormField): boolean => {
     if (v == null) return true;
     if (Array.isArray(v)) return v.length === 0;
     if (typeof v === 'string') return v.trim() === '';
