@@ -13,8 +13,8 @@ import Bookmark from '@/public/static/images/bookmark.svg';
 import BookmarkFilled from '@/public/static/images/bookmark_filled.svg';
 import BookmarkFilledWhite from '@/public/static/images/bookmark_filled_white.svg';
 import BookmarkWhite from '@/public/static/images/bookmark_white.svg';
-import BarCodeIcon from '@/public/static/images/barcode.svg';
-import BarCodeIconWhite from '@/public/static/images/barcode_white.svg';
+import QrCodeIcon from '@/public/static/images/icons/qr_code.svg';
+import QrCodeIconWhite from '@/public/static/images/icons/qr_code_white.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -200,8 +200,8 @@ export default function ProfileHeader({
                   ? 'text-capx-light-bg border-capx-light-bg'
                   : 'text-capx-dark-box-bg border-capx-dark-box-bg'
               }`}
-              imageUrl={darkMode ? BarCodeIconWhite : BarCodeIcon}
-              imageAlt=""
+              imageUrl={darkMode ? QrCodeIconWhite : QrCodeIcon}
+              imageAlt="QR code"
               imageWidth={20}
               imageHeight={20}
             />
@@ -327,8 +327,8 @@ export default function ProfileHeader({
                   ? 'text-capx-light-bg border-capx-light-bg'
                   : 'text-capx-dark-box-bg border-capx-dark-box-bg'
               }`}
-              imageUrl={darkMode ? BarCodeIconWhite : BarCodeIcon}
-              imageAlt=""
+              imageUrl={darkMode ? QrCodeIconWhite : QrCodeIcon}
+              imageAlt="QR code"
               imageWidth={42}
               imageHeight={42}
             />

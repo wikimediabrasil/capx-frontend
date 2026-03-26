@@ -113,6 +113,7 @@
   "body-profile-qr-code": "Show QR code",
   "body-profile-qr-code-modal-title": "Profile link QR code",
   "body-profile-qr-code-hint": "Scan this code to open this profile in a browser.",
+  "body-profile-qr-code-download": "Download QR Code",
   "body-profile-qr-code-close": "Close",
   "body-profile-choose-skills": "Choose the skills you are available to share from your known capacities.",
   "aria-label-video-player": "Capacity Exchange introduction video",

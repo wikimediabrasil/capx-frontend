@@ -3,8 +3,16 @@
 import BaseButton from '@/components/BaseButton';
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import QRCode from 'react-qr-code';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { getPublicProfileUrl } from '@/lib/utils/profilePublicUrl';
+
+const QR_EXPORT_SCALE = 2;
+
+function sanitizeProfileQrFilename(username: string): string {
+  const base = username.trim() || 'profile';
+  const safe = base.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  return safe || 'profile';
+}
 
 interface ProfileQrCodeModalProps {
   isOpen: boolean;
@@ -13,6 +21,7 @@ interface ProfileQrCodeModalProps {
 }
 
 export default function ProfileQrCodeModal({ isOpen, onClose, username }: ProfileQrCodeModalProps) {
+  const qrWrapperRef = useRef<HTMLDivElement>(null);
   const darkMode = useDarkMode();
   const isMobile = useIsMobile();
   const pageContent = usePageContent();
@@ -22,11 +31,71 @@ export default function ProfileQrCodeModal({ isOpen, onClose, username }: Profil
     return getPublicProfileUrl(username).trim();
   }, [isOpen, username]);
 
-  if (!isOpen) return null;
-
   const qrSize = isMobile ? 200 : 256;
   const fgColor = darkMode ? '#F6F6F6' : '#053749';
   const bgColor = darkMode ? '#053749' : '#FFFFFF';
+
+  const handleDownloadQr = useCallback(() => {
+    if (!profileUrl || typeof document === 'undefined') return;
+
+    const svgEl = qrWrapperRef.current?.querySelector('svg');
+    if (!svgEl) return;
+
+    const exportSize = qrSize * QR_EXPORT_SCALE;
+    const serializer = new XMLSerializer();
+    const svgClone = svgEl.cloneNode(true) as SVGSVGElement;
+    svgClone.setAttribute('width', String(exportSize));
+    svgClone.setAttribute('height', String(exportSize));
+
+    const svgString = serializer.serializeToString(svgClone);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const objectUrl = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    const safeName = sanitizeProfileQrFilename(username);
+    const downloadName = `profile-${safeName}-qr.png`;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = exportSize;
+      canvas.height = exportSize;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, exportSize, exportSize);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(objectUrl);
+
+      canvas.toBlob(
+        pngBlob => {
+          if (!pngBlob) return;
+          const pngUrl = URL.createObjectURL(pngBlob);
+          const anchor = document.createElement('a');
+          anchor.href = pngUrl;
+          anchor.download = downloadName;
+          anchor.rel = 'noopener';
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+          URL.revokeObjectURL(pngUrl);
+        },
+        'image/png',
+        1
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+
+    img.src = objectUrl;
+  }, [profileUrl, qrSize, bgColor, username]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -59,6 +128,7 @@ export default function ProfileQrCodeModal({ isOpen, onClose, username }: Profil
           </p>
 
           <div
+            ref={qrWrapperRef}
             className={`p-4 rounded-lg inline-flex ${darkMode ? 'bg-[#053749]' : 'bg-white shadow-sm'}`}
           >
             {profileUrl ? (
@@ -76,6 +146,16 @@ export default function ProfileQrCodeModal({ isOpen, onClose, username }: Profil
             )}
           </div>
 
+          <BaseButton
+            onClick={handleDownloadQr}
+            disabled={!profileUrl}
+            customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold ${
+              darkMode
+                ? 'bg-white text-[#053749] hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-white'
+                : 'bg-[#053749] text-white hover:opacity-90 disabled:opacity-50'
+            }`}
+            label={pageContent['body-profile-qr-code-download'] ?? 'Download QR Code'}
+          />
           <BaseButton
             onClick={onClose}
             customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold border-2 border-[#053749] ${
