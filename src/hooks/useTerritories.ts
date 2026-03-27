@@ -8,12 +8,13 @@ export const useTerritories = (token: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!token) return;
+
     const loadTerritories = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Try fetching with token if available, otherwise without
         const data = await fetchTerritories(token);
         setTerritories(data || {});
       } catch (err) {

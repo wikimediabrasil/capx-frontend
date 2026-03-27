@@ -38,6 +38,7 @@ interface SVGWorldMapProps {
   languagesByTerritory?: AggregatedLanguageData;
   capacitiesByTerritory?: AggregatedCapacityData;
   totalUsers?: number;
+  onViewModeChange?: (viewMode: ViewMode) => void;
 }
 
 // View mode type
@@ -67,6 +68,7 @@ export default function SVGWorldMap({
   languagesByTerritory,
   capacitiesByTerritory,
   totalUsers: totalUsersProp,
+  onViewModeChange,
 }: Readonly<SVGWorldMapProps>) {
   const svgContainerRef = useRef<HTMLDivElement>(null);
   const darkMode = useDarkMode();
@@ -629,7 +631,7 @@ export default function SVGWorldMap({
       {/* View Mode Toggle */}
       <div className="mb-4 flex flex-wrap gap-2">
         <button
-          onClick={() => setViewMode('users')}
+          onClick={() => { setViewMode('users'); onViewModeChange?.('users'); }}
           className={`px-4 py-2 rounded-lg font-[Montserrat] text-sm font-semibold transition-colors ${
             viewMode === 'users' ? 'bg-capx-primary-blue text-white' : buttonStyle
           }`}
@@ -637,7 +639,7 @@ export default function SVGWorldMap({
           {pageContent['analytics-map-filter-users'] || 'Wikimedians'}
         </button>
         <button
-          onClick={() => setViewMode('languages')}
+          onClick={() => { setViewMode('languages'); onViewModeChange?.('languages'); }}
           className={`px-4 py-2 rounded-lg font-[Montserrat] text-sm font-semibold transition-colors ${
             viewMode === 'languages' ? 'bg-capx-primary-green text-white' : buttonStyle
           }`}
@@ -645,7 +647,7 @@ export default function SVGWorldMap({
           {pageContent['analytics-bashboard-languages-title'] || 'Languages'}
         </button>
         <button
-          onClick={() => setViewMode('capacities')}
+          onClick={() => { setViewMode('capacities'); onViewModeChange?.('capacities'); }}
           className={`px-4 py-2 rounded-lg font-[Montserrat] text-sm font-semibold transition-colors ${
             viewMode === 'capacities' ? 'bg-capx-secondary-purple text-white' : buttonStyle
           }`}
@@ -930,7 +932,7 @@ export default function SVGWorldMap({
                   )}
 
                   {/* Top Languages */}
-                  {topLanguages.length > 0 && (
+                  {viewMode !== 'capacities' && topLanguages.length > 0 && (
                     <div className="mt-3">
                       <p
                         className={`font-[Montserrat] text-xs font-semibold mb-1 ${darkMode ? 'text-white/70' : 'text-gray-500'}`}
@@ -951,7 +953,7 @@ export default function SVGWorldMap({
                   )}
 
                   {/* Top Capacities */}
-                  {(topCapacities.length > 0 || isCapacitiesLoading) && (
+                  {viewMode !== 'languages' && (topCapacities.length > 0 || isCapacitiesLoading) && (
                     <div className="mt-3">
                       <p
                         className={`font-[Montserrat] text-xs font-semibold mb-1 ${darkMode ? 'text-white/70' : 'text-gray-500'}`}

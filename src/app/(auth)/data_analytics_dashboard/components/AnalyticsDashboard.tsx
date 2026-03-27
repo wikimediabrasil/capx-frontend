@@ -229,6 +229,7 @@ export default function AnalyticsDashboardPage() {
   const [openTerritories, setOpenTerritories] = useState(false);
   const [openCapacities, setOpenCapacities] = useState(false);
   const [visibleLanguagesCount, setVisibleLanguagesCount] = useState(8);
+  const [mapViewMode, setMapViewMode] = useState<'users' | 'languages' | 'capacities'>('users');
 
   const sortedTerritories = getTopItems(territories, data?.territory_user_counts, 8);
   const sortedLanguages = getTopItems(languages, data?.language_user_counts).filter(
@@ -319,12 +320,14 @@ export default function AnalyticsDashboardPage() {
               languagesByTerritory={languagesByTerritory}
               capacitiesByTerritory={capacitiesByTerritory}
               totalUsers={data?.total_users}
+              onViewModeChange={setMapViewMode}
             />
           )}
         </div>
       </div>
 
       {/* Language Dropdown */}
+      {(mapViewMode === 'users' || mapViewMode === 'languages') && (
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
         <DropdownHeader
           icon={LanguageIcon}
@@ -377,8 +380,10 @@ export default function AnalyticsDashboardPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* Territories Dropdown */}
+      {mapViewMode === 'users' && (
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
         <DropdownHeader
           icon={TerritoryIcon}
@@ -420,8 +425,10 @@ export default function AnalyticsDashboardPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* Capacties Dropdown */}
+      {(mapViewMode === 'users' || mapViewMode === 'capacities') && (
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
         <DropdownHeader
           icon={CapxIcon}
@@ -463,6 +470,7 @@ export default function AnalyticsDashboardPage() {
           </div>
         )}
       </div>
+      )}
     </section>
   );
 }
