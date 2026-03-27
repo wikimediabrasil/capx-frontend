@@ -1,9 +1,11 @@
-import { SelectList } from './Selector';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import { usePageContent } from '@/stores';
+import { Territory } from '@/types/territory';
+import { SelectList } from './Selector';
+
 interface TerritorySelectorProps {
-  territories: Record<string, string>;
+  territories: Territory[];
   selectedTerritories: string[];
   onSelectTerritory: (TerritoryId: string) => void;
   placeholder?: string;
@@ -14,37 +16,18 @@ export function TerritorySelector({
   selectedTerritories,
   onSelectTerritory,
   placeholder,
-}: TerritorySelectorProps) {
+}: Readonly<TerritorySelectorProps>) {
   const pageContent = usePageContent();
 
-  // Region ids to order first
-  const priorityTerritoryIds = ['18', '19', '20', '21', '22', '23', '24', '25'];
-
-  const territoriesList = Object.entries(territories)
-    .map(([id, name]) => ({
-      id,
-      name,
+  const territoriesList = territories
+    .map(t => ({
+      id: String(t.id),
+      name: t.territory_name,
+      isTopLevel: t.parent_territory.length === 0,
     }))
     .sort((a, b) => {
-      const aIsPriority = priorityTerritoryIds.includes(a.id);
-      const bIsPriority = priorityTerritoryIds.includes(b.id);
-
-      // If both are regions, order them
-      if (aIsPriority && bIsPriority) {
-        return a.name.localeCompare(b.name);
-      }
-
-      // If only A is region, it comes first
-      if (aIsPriority && !bIsPriority) {
-        return -1;
-      }
-
-      // If B is region, B comes first
-      if (!aIsPriority && bIsPriority) {
-        return 1;
-      }
-
-      // If none is region, order
+      if (a.isTopLevel && !b.isTopLevel) return -1;
+      if (!a.isTopLevel && b.isTopLevel) return 1;
       return a.name.localeCompare(b.name);
     });
 

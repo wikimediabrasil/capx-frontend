@@ -33,7 +33,7 @@ interface SVGWorldMapProps {
   languageUserCounts?: Record<string, number>;
   languages?: Record<string, string>;
   territoryUserCounts?: Record<string, number>;
-  territories?: Record<string, string>;
+  territories?: { id: number; territory_acronym: string }[];
   capacities?: Record<string, string>;
   languagesByTerritory?: AggregatedLanguageData;
   capacitiesByTerritory?: AggregatedCapacityData;
@@ -101,9 +101,9 @@ export default function SVGWorldMap({
 
   const wikimediaTerritories = useMemo(() => getWikimediaTerritories(pageContent), [pageContent]);
 
-  // Create API territory ID to Wikimedia ID mapping (uses fallback if territories unavailable)
+  // Create API territory ID to Wikimedia ID mapping using territory_acronym from API
   const apiTerritoryToWikimediaMap = useMemo(() => {
-    return buildApiTerritoryToWikimediaMap(territories);
+    return buildApiTerritoryToWikimediaMap(territories ?? []);
   }, [territories]);
 
   // Map API territories to Wikimedia territory counts
@@ -114,7 +114,6 @@ export default function SVGWorldMap({
       return counts;
     }
 
-    // Use the apiTerritoryToWikimediaMap which has fallback logic built in
     Object.entries(territoryUserCounts).forEach(([id, count]) => {
       const wikimediaId = apiTerritoryToWikimediaMap[id];
       if (wikimediaId) {
@@ -207,7 +206,9 @@ export default function SVGWorldMap({
         values = Object.values(languageCountsByWikimediaTerritory);
         break;
       case 'capacities':
-        values = Object.values(capacityCountsByWikimediaTerritory).map(c => c.total);
+        values = Object.values(capacityCountsByWikimediaTerritory).map(c =>
+          selectedCapacityType === 'all' ? c.total : c[selectedCapacityType] || 0
+        );
         break;
       default:
         values = Object.values(wikimediaTerritoryUserCounts);
@@ -219,6 +220,7 @@ export default function SVGWorldMap({
     wikimediaTerritoryUserCounts,
     languageCountsByWikimediaTerritory,
     capacityCountsByWikimediaTerritory,
+    selectedCapacityType,
   ]);
 
   // Get total users - use prop if available, otherwise calculate from territories
@@ -371,8 +373,11 @@ export default function SVGWorldMap({
       switch (viewMode) {
         case 'languages':
           return languageCountsByWikimediaTerritory[territory.id] || 0;
-        case 'capacities':
-          return capacityCountsByWikimediaTerritory[territory.id]?.total || 0;
+        case 'capacities': {
+          const cap = capacityCountsByWikimediaTerritory[territory.id];
+          if (!cap) return 0;
+          return selectedCapacityType === 'all' ? cap.total : cap[selectedCapacityType] || 0;
+        }
         default:
           return wikimediaTerritoryUserCounts[territory.id] || 0;
       }
@@ -382,6 +387,7 @@ export default function SVGWorldMap({
       wikimediaTerritoryUserCounts,
       languageCountsByWikimediaTerritory,
       capacityCountsByWikimediaTerritory,
+      selectedCapacityType,
     ]
   );
 
@@ -631,7 +637,10 @@ export default function SVGWorldMap({
       {/* View Mode Toggle */}
       <div className="mb-4 flex flex-wrap gap-2">
         <button
-          onClick={() => { setViewMode('users'); onViewModeChange?.('users'); }}
+          onClick={() => {
+            setViewMode('users');
+            onViewModeChange?.('users');
+          }}
           className={`px-4 py-2 rounded-lg font-[Montserrat] text-sm font-semibold transition-colors ${
             viewMode === 'users' ? 'bg-capx-primary-blue text-white' : buttonStyle
           }`}
@@ -639,7 +648,10 @@ export default function SVGWorldMap({
           {pageContent['analytics-map-filter-users'] || 'Wikimedians'}
         </button>
         <button
-          onClick={() => { setViewMode('languages'); onViewModeChange?.('languages'); }}
+          onClick={() => {
+            setViewMode('languages');
+            onViewModeChange?.('languages');
+          }}
           className={`px-4 py-2 rounded-lg font-[Montserrat] text-sm font-semibold transition-colors ${
             viewMode === 'languages' ? 'bg-capx-primary-green text-white' : buttonStyle
           }`}
@@ -647,7 +659,10 @@ export default function SVGWorldMap({
           {pageContent['analytics-bashboard-languages-title'] || 'Languages'}
         </button>
         <button
-          onClick={() => { setViewMode('capacities'); onViewModeChange?.('capacities'); }}
+          onClick={() => {
+            setViewMode('capacities');
+            onViewModeChange?.('capacities');
+          }}
           className={`px-4 py-2 rounded-lg font-[Montserrat] text-sm font-semibold transition-colors ${
             viewMode === 'capacities' ? 'bg-capx-secondary-purple text-white' : buttonStyle
           }`}
@@ -953,43 +968,44 @@ export default function SVGWorldMap({
                   )}
 
                   {/* Top Capacities */}
-                  {viewMode !== 'languages' && (topCapacities.length > 0 || isCapacitiesLoading) && (
-                    <div className="mt-3">
-                      <p
-                        className={`font-[Montserrat] text-xs font-semibold mb-1 ${darkMode ? 'text-white/70' : 'text-gray-500'}`}
-                      >
-                        {pageContent['analytics-map-top-capacities'] || 'Top Capacities'}:
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {isCapacitiesLoading ? (
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded animate-pulse ${darkMode ? 'bg-capx-dark-box-bg text-white/50' : 'bg-gray-100 text-gray-400'}`}
-                          >
-                            {pageContent['analytics-map-loading-capacities'] ||
-                              `Loading capacities in `}
-                            {currentLanguage}…
-                          </span>
-                        ) : (
-                          topCapacities.map(cap => (
+                  {viewMode !== 'languages' &&
+                    (topCapacities.length > 0 || isCapacitiesLoading) && (
+                      <div className="mt-3">
+                        <p
+                          className={`font-[Montserrat] text-xs font-semibold mb-1 ${darkMode ? 'text-white/70' : 'text-gray-500'}`}
+                        >
+                          {pageContent['analytics-map-top-capacities'] || 'Top Capacities'}:
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {isCapacitiesLoading ? (
                             <span
-                              key={cap.id}
-                              className={`text-xs px-2 py-0.5 rounded ${darkMode ? 'bg-capx-dark-box-bg text-white/80' : 'bg-gray-100 text-gray-700'}`}
+                              className={`text-xs px-2 py-0.5 rounded animate-pulse ${darkMode ? 'bg-capx-dark-box-bg text-white/50' : 'bg-gray-100 text-gray-400'}`}
                             >
-                              {cap.name.charAt(0).toUpperCase()}
-                              {cap.name.slice(1)} —{' '}
-                              {selectedCapacityType === 'all'
-                                ? `${pageContent['analytics-map-capacity-known'] || 'Known'}: ${cap.known} ${pageContent['analytics-map-capacity-available'] || 'Available'}: ${cap.available} ${pageContent['analytics-map-capacity-wanted'] || 'Wanted'}: ${cap.wanted}`
-                                : selectedCapacityType === 'known'
-                                  ? `${pageContent['analytics-map-capacity-known'] || 'Known'}: ${cap.known}`
-                                  : selectedCapacityType === 'available'
-                                    ? `${pageContent['analytics-map-capacity-available'] || 'Available'}: ${cap.available}`
-                                    : `${pageContent['analytics-map-capacity-wanted'] || 'Wanted'}: ${cap.wanted}`}
+                              {pageContent['analytics-map-loading-capacities'] ||
+                                `Loading capacities in `}
+                              {currentLanguage}…
                             </span>
-                          ))
-                        )}
+                          ) : (
+                            topCapacities.map(cap => (
+                              <span
+                                key={cap.id}
+                                className={`text-xs px-2 py-0.5 rounded ${darkMode ? 'bg-capx-dark-box-bg text-white/80' : 'bg-gray-100 text-gray-700'}`}
+                              >
+                                {cap.name.charAt(0).toUpperCase()}
+                                {cap.name.slice(1)} —{' '}
+                                {selectedCapacityType === 'all'
+                                  ? `${pageContent['analytics-map-capacity-known'] || 'Known'}: ${cap.known} ${pageContent['analytics-map-capacity-available'] || 'Available'}: ${cap.available} ${pageContent['analytics-map-capacity-wanted'] || 'Wanted'}: ${cap.wanted}`
+                                  : selectedCapacityType === 'known'
+                                    ? `${pageContent['analytics-map-capacity-known'] || 'Known'}: ${cap.known}`
+                                    : selectedCapacityType === 'available'
+                                      ? `${pageContent['analytics-map-capacity-available'] || 'Available'}: ${cap.available}`
+                                      : `${pageContent['analytics-map-capacity-wanted'] || 'Wanted'}: ${cap.wanted}`}
+                              </span>
+                            ))
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </>
               );
             })()}
@@ -1033,6 +1049,40 @@ export default function SVGWorldMap({
         >
           {pageContent['analytics-map-click-deselect'] || 'Click again to deselect'}
         </p>
+      )}
+
+      {/* Legend (when no territory is selected) */}
+      {!selectedTerritory && !hoveredTerritory && (
+        <div className={`mt-4 p-4 rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-gray-50'}`}>
+          <h4
+            className={`font-[Montserrat] font-bold text-sm mb-2 ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'}`}
+          >
+            {pageContent['analytics-map-legend-title'] || 'Legend'}
+          </h4>
+          <div className="flex items-center gap-2">
+            <span
+              className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}
+            >
+              0
+            </span>
+            <div
+              className="flex-1 h-4 rounded"
+              style={{
+                background: `linear-gradient(to right, ${gradientColors.light}, ${gradientColors.dark})`,
+              }}
+            />
+            <span
+              className={`font-[Montserrat] text-xs ${darkMode ? 'text-white/70' : 'text-gray-600'}`}
+            >
+              {maxCount.toLocaleString()}{' '}
+              {viewMode === 'languages' && selectedLanguageId === 'all'
+                ? pageContent['analytics-bashboard-languages-title'] || 'Languages'
+                : viewMode === 'capacities' && selectedCapacityId === 'all'
+                  ? pageContent['analytics-bashboard-capacities-title'] || 'Capacities'
+                  : pageContent['analytics-bashboard-territory-users'] || 'Wikimedians'}
+            </span>
+          </div>
+        </div>
       )}
 
       {/* Territory Grid (when no territory is selected) */}
