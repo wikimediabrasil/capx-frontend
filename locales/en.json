@@ -715,5 +715,16 @@
   "analytics-map-capacity-type": "Type",
   "sign-in-required-title": "Log in to continue",
   "sign-in-required-description": "You need to be logged in to access this page. Sign up for CapX to exchange capacities and connect with other Wikimedians.",
-  "sign-in-required-go-home": "Go to the home page"
+  "sign-in-required-go-home": "Go to the home page",
+  "suggest-capacity-link": "Can't find a capacity? Suggest a new one!",
+  "suggest-capacity-cancel": "Cancel",
+  "suggest-capacity-description-label": "Description",
+  "suggest-capacity-description-placeholder": "Describe the capacity and why it should be added...",
+  "suggest-capacity-error": "Failed to submit suggestion. Please try again.",
+  "suggest-capacity-modal-title": "Suggest a new capacity",
+  "suggest-capacity-submit": "Submit",
+  "suggest-capacity-submitting": "Submitting...",
+  "suggest-capacity-success": "Capacity suggestion submitted successfully!",
+  "suggest-capacity-title-label": "Title",
+  "suggest-capacity-title-placeholder": "e.g. Data visualization"
 }

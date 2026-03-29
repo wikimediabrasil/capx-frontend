@@ -1,5 +1,6 @@
 'use client';
 
+import CapacitiesTreeVisualization from '@/app/capacities_visualization/components/CapacitiesTreeVisualization';
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
 import LoadingState from '@/components/LoadingState';
@@ -12,7 +13,18 @@ import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
 import { CapacitySearch } from './CapacitySearch';
 
-import { useCapacityStore, useIsMobile, useLanguage, usePageContent } from '@/stores';
+import { useCapacityStore, useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
+import SuggestCapacityModal from './SuggestCapacityModal';
+
+import AccountTreeIcon from '@/public/static/images/account_tree.svg';
+import AccountTreeWhiteIcon from '@/public/static/images/account_tree_white.svg';
+import CollapseAllIcon from '@/public/static/images/collapse_all.svg';
+import CollapseAllWhiteIcon from '@/public/static/images/collapse_all_white.svg';
+import CreditCardIcon from '@/public/static/images/credit_card.svg';
+import CreditCardDarkIcon from '@/public/static/images/credit_card_dark.svg';
+import Image from 'next/image';
+
+type VisualizationMode = 'cards' | 'tree' | 'other';
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
@@ -56,7 +68,7 @@ const ChildCapacities = ({
 
     // If not found in root, check if any child already has a parent reference
     const childWithParent = children.find(
-      child => child.parentCapacity && child.parentCapacity.code.toString() === parentCode
+      child => child.parentCapacity?.code.toString() === parentCode
     );
 
     if (childWithParent?.parentCapacity) {
@@ -65,12 +77,12 @@ const ChildCapacities = ({
 
     // If not found anywhere, construct a minimal parent
     return {
-      code: parseInt(parentCode, 10),
+      code: Number.parseInt(parentCode, 10),
       name: '',
       color: '', // Will be determined by code in formatCapacity
       icon: '',
       hasChildren: true,
-      skill_type: parseInt(parentCode, 10),
+      skill_type: Number.parseInt(parentCode, 10),
       skill_wikidata_item: '',
       description: '',
       wd_code: '',
@@ -85,7 +97,7 @@ const ChildCapacities = ({
     // If this is a root capacity, get its color from cache
     const isRoot = rootCapacities.some(c => c.code.toString() === parentCode);
     if (isRoot) {
-      return getColor(parseInt(parentCode, 10)) || parentCapacity.color;
+      return getColor(Number.parseInt(parentCode, 10)) || parentCapacity.color;
     }
 
     // If this is a child capacity (has a parent that is root), use the parent's color from cache
@@ -160,10 +172,14 @@ function CapacityListContent() {
   // Basic UI hooks
   const [expandedCapacities, setExpandedCapacities] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [visualizationMode, setVisualizationMode] = useState<VisualizationMode>('cards');
 
   // Exclusive expansion state
   const [expandedInfoCard, setExpandedInfoCard] = useState<string | null>(null);
   const [_expandedChildrenCard, setExpandedChildrenCard] = useState<string | null>(null);
+
+  // Suggest capacity modal
+  const [isSuggestModalOpen, setIsSuggestModalOpen] = useState(false);
 
   const pageContent = usePageContent();
 
@@ -190,7 +206,7 @@ function CapacityListContent() {
   // Helper function to get root family code
   const getRootFamilyCode = useCallback(
     (capacityCode: string) => {
-      const capacity = getCapacity ? getCapacity(parseInt(capacityCode)) : null;
+      const capacity = getCapacity ? getCapacity(Number.parseInt(capacityCode)) : null;
       if (!capacity) return capacityCode;
 
       // If it's already root (level 1), return its code
@@ -268,6 +284,21 @@ function CapacityListContent() {
     [searchTerm]
   );
 
+  const darkMode = useDarkMode();
+
+  const getVisualizationBg = (mode: VisualizationMode) => {
+    if (visualizationMode === mode)
+      return darkMode ? 'bg-capx-light-box-bg' : 'bg-capx-dark-box-bg';
+    return 'bg-transparent';
+  };
+
+  const getVisualizationIcon = (mode: VisualizationMode) => {
+    const useWhite = (visualizationMode === mode) !== darkMode;
+    if (mode === 'tree') return useWhite ? AccountTreeWhiteIcon : AccountTreeIcon;
+    if (mode === 'other') return useWhite ? CollapseAllWhiteIcon : CollapseAllIcon;
+    return useWhite ? CreditCardIcon : CreditCardDarkIcon;
+  };
+
   if (isLoadingRoot || !isCacheReady) {
     return (
       <div className="flex flex-col justify-center items-center h-[400px]">
@@ -290,10 +321,68 @@ function CapacityListContent() {
       className={`flex flex-col ${isMobile ? 'w-full' : 'max-w-screen-xl mx-auto'} py-8 px-4 lg:px-12 gap-[40px]`}
     >
       <CapacityBanner />
-      <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
 
-      {/* Quando não estiver em modo de busca, mostrar as capacidades raiz */}
+      {/* Search */}
+      <div className="flex flex-col gap-2 w-full">
+        <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
+      </div>
+
+      <SuggestCapacityModal
+        isOpen={isSuggestModalOpen}
+        onClose={() => setIsSuggestModalOpen(false)}
+      />
+
+      {/* Visualization mode switcher — hidden when searching */}
       {!searchTerm && (
+        <div
+          className={`flex items-center justify-evenly rounded-[16px] p-2 w-full ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}
+        >
+          <button
+            onClick={() => setVisualizationMode('cards')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('cards')}`}
+            aria-label="Cards view"
+          >
+            <div className="relative w-5 h-5">
+              <Image src={getVisualizationIcon('cards')} alt="Cards view" fill />
+            </div>
+          </button>
+          <button
+            onClick={() => setVisualizationMode('tree')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('tree')}`}
+            aria-label="Tree view"
+          >
+            <div className="relative w-5 h-5">
+              <Image src={getVisualizationIcon('tree')} alt="Tree view" fill />
+            </div>
+          </button>
+          <button
+            onClick={() => setVisualizationMode('other')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('other')}`}
+            aria-label="Other view"
+          >
+            <div className="relative w-[10px] h-[17px]">
+              <Image src={getVisualizationIcon('other')} alt="Other view" fill />
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Tree visualization */}
+      {!searchTerm && visualizationMode === 'tree' && (
+        <div className="w-full">
+          <CapacitiesTreeVisualization />
+        </div>
+      )}
+
+      {/* Placeholder for other visualization */}
+      {!searchTerm && visualizationMode === 'other' && (
+        <div className="flex justify-center items-center h-[200px] bg-[#F6F6F6] rounded-[16px]">
+          <p className="text-gray-500">Coming soon...</p>
+        </div>
+      )}
+
+      {/* Cards visualization — shown when in cards mode and not searching, or when searching */}
+      {visualizationMode === 'cards' && !searchTerm && (
         <div className="grid gap-[40px] w-full">
           {rootCapacities.map((capacity, index) => {
             return (
@@ -337,6 +426,13 @@ function CapacityListContent() {
         </div>
       )}
 
+      {/* Capacity Suggestion button */}
+      <button
+        onClick={() => setIsSuggestModalOpen(true)}
+        className={`self-center text-sm sm:text-lg underline hover:opacity-70 transition-opacity ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
+      >
+        {pageContent['suggest-capacity-link'] || "Can't find a capacity? Suggest a new one!"}
+      </button>
       {/* Debug component in development mode */}
       {process.env.NODE_ENV === 'development' && <CapacityCacheDebug />}
     </section>
@@ -369,7 +465,7 @@ export default function CapacityListMainWrapper() {
   );
 }
 
-function CapacityErrorBoundaryWrapper({ children }: { children: React.ReactNode }) {
+function CapacityErrorBoundaryWrapper({ children }: Readonly<{ children: React.ReactNode }>) {
   const pageContent = usePageContent();
   return <CapacityErrorBoundary pageContent={pageContent}>{children}</CapacityErrorBoundary>;
 }
@@ -405,7 +501,7 @@ class CapacityErrorBoundary extends React.Component<
               'Context error'}
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => globalThis.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Try again

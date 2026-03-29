@@ -1,20 +1,34 @@
 'use client';
 
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
+import BarCodeIcon from '@/public/static/images/barcode.svg';
+import BarCodeLightIcon from '@/public/static/images/barcode_white.svg';
+import MetabaseIcon from '@/public/static/images/metabase_black.svg';
+import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
+import { profileService } from '@/services/profileService';
+import { userService } from '@/services/userService';
+import { useDarkMode, usePageContent, useSetDarkMode } from '@/stores';
+import { UserProfile } from '@/types/user';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as d3 from 'd3';
-import { useEffect, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { useDarkMode, useSetDarkMode, useLanguage, usePageContent } from '@/stores';
-// Interface para as capacidades da visualização D3
 interface D3Capacity {
   id: string;
+  code: number;
   name: string;
   color: string;
   description: string;
+  wd_code: string;
+  metabase_code: string;
   children: D3Capacity[];
+  isCenter?: boolean;
 }
 
-// Function to determine color based on capacity id
 const getColorForCapacity = (id: number | string): string => {
   const idStr = String(id);
   if (idStr === '10') return 'organizational';
@@ -27,730 +41,480 @@ const getColorForCapacity = (id: number | string): string => {
   return 'gray-200';
 };
 
+function capitalizeFirst(str: string | undefined | null): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 interface D3TreeVisualizationProps {
   data: D3Capacity[];
   width?: number;
   height?: number;
 }
 
-export default function D3TreeVisualization({
-  data,
-  width = 1200,
-  height = 800,
-}: D3TreeVisualizationProps) {
+// Canvas dimensions in SVG user units
+const CANVAS_W = 1200;
+const CANVAS_H = 700;
+const CX = CANVAS_W / 2; // 600
+const CY = CANVAS_H / 2; // 350
+
+// Radial distances
+const ROOT_RADIUS = 195;
+const CHILD_RADIUS = 185;
+const GC_RADIUS = 160;
+
+// Logo display size
+const LOGO_SIZE = 72;
+
+export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const zoomRef = useRef<any>(null);
-  const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [_selectedNodeCoords, setSelectedNodeCoords] = useState<{ x: number; y: number } | null>(
-    null
-  );
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const savedTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
+  const [selectedNode, setSelectedNode] = useState<D3Capacity | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [focusedRootId, setFocusedRootId] = useState<string | null>(null);
   const darkMode = useDarkMode();
   const setDarkMode = useSetDarkMode();
-  const _language = useLanguage();
-
   const pageContent = usePageContent();
-  const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when theme changes
+  const [forceUpdate, setForceUpdate] = useState(0);
 
-  // Listen for system theme changes
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  // Auth / profile for "Add to" buttons
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const { showSnackbar } = useSnackbar();
+  const [isAddingKnown, setIsAddingKnown] = useState(false);
+  const [isAddingWanted, setIsAddingWanted] = useState(false);
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const {
+    data: userProfile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useQuery({
+    queryKey: ['userProfile', session?.user?.id, session?.user?.token],
+    queryFn: () =>
+      userService.fetchUserProfile(Number(session?.user?.id), session?.user?.token || ''),
+    enabled: !!session?.user?.token && !!session?.user?.id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
-    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-      // Only update if no theme is saved in localStorage
-      const savedTheme = localStorage.getItem('theme');
-      if (!savedTheme) {
-        setDarkMode(e.matches);
-      }
-    };
+  const { userKnownCapacities, userAvailableCapacities, userWantedCapacities } =
+    useUserCapacities(userProfile);
 
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
+  const isAddedToKnown = useMemo(
+    () =>
+      selectedNode
+        ? userKnownCapacities.includes(selectedNode.code) &&
+          userAvailableCapacities.includes(selectedNode.code)
+        : false,
+    [userKnownCapacities, userAvailableCapacities, selectedNode]
+  );
+  const isAddedToWanted = useMemo(
+    () => (selectedNode ? userWantedCapacities.includes(selectedNode.code) : false),
+    [userWantedCapacities, selectedNode]
+  );
 
-    return () => {
-      mediaQuery.removeEventListener('change', handleSystemThemeChange);
-    };
-  }, [setDarkMode]);
-
-  // Define horizontal margins for global use
-  const margin = {
-    left: 50,
-    right: 120,
-  };
-
-  // Define font size and vertical padding according to device
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-  const nodeFontSize = isMobile ? 56 : 22; // px (much larger on mobile)
-  const verticalPadding = isMobile ? 0 : 32; // vertical padding only on desktop
-  const svgHeight = 432; // Reduced from 512 to 432 to eliminate empty area
-  const rootCount = data.length;
-  const availableHeight = svgHeight - 2 * verticalPadding;
-  const rootPositions: { x: number; y: number }[] = [];
-  for (let i = 0; i < rootCount; i++) {
-    if (isMobile) {
-      // Extra spacing on mobile
-      const gapFactor = 1.3;
-      const y =
-        (svgHeight - nodeFontSize) * (rootCount === 1 ? 0.5 : i / (rootCount - 1)) * gapFactor;
-      rootPositions.push({ x: 50, y });
-    } else {
-      // Desktop: standard vertical padding
-      const y =
-        verticalPadding +
-        (availableHeight - nodeFontSize) * (rootCount === 1 ? 0.5 : i / (rootCount - 1));
-      rootPositions.push({ x: 50, y });
-    }
-  }
-
-  // Function to center the selected node
-  const centerOnNode = (nodeX: number, nodeY: number) => {
-    if (!svgRef.current || !zoomRef.current) {
-      console.error('svgRef or zoomRef not available');
+  const handleAddToKnown = async () => {
+    if (!session?.user?.token || !session?.user?.id) {
+      showSnackbar(pageContent['login-required'] || 'Please log in to add capacities', 'error');
       return;
     }
-
-    const svg = d3.select(svgRef.current);
-    const container = svg.select('g');
-
-    // Get SVG container dimensions
-    const svgRect = svgRef.current.getBoundingClientRect();
-
-    // Calculate viewport center
-    const viewportCenterX = svgRect.width / 2;
-    const viewportCenterY = svgRect.height / 2;
-
-    // Calculate transformation needed to center the node
-    const currentTransform = d3.zoomTransform(svgRef.current);
-
-    // Adjust coordinates considering margins
-    const adjustedNodeX = nodeX + margin.left;
-    const adjustedNodeY = nodeY; // don't use margin.top
-
-    const targetX = viewportCenterX - adjustedNodeX * currentTransform.k;
-    const targetY = viewportCenterY - adjustedNodeY * currentTransform.k;
-
-    // Apply transformation with smooth animation
-    const newTransform = d3.zoomIdentity.translate(targetX, targetY).scale(currentTransform.k);
-
-    svg
-      .transition()
-      .duration(750)
-      .ease(d3.easeCubicOut)
-      .call(zoomRef.current.transform, newTransform);
-
-    // Add visual highlight effect on centered node
-    const nodeElement = container
-      .selectAll('.node')
-      .filter((d: any) => d.x === nodeX && d.y === nodeY);
-    if (!nodeElement.empty()) {
-      // Add temporary highlight class
-      nodeElement
-        .select('circle')
-        .transition()
-        .duration(200)
-        .style('stroke', '#fbbf24')
-        .style('stroke-width', '4px')
-        .transition()
-        .delay(1000)
-        .duration(200)
-        .style('stroke', '#ffffff')
-        .style('stroke-width', '2px');
+    if (!userProfile || !selectedNode || isAddingKnown || isAddedToKnown) return;
+    setIsAddingKnown(true);
+    try {
+      const code = selectedNode.code;
+      const payload: any = {
+        skills_known: userKnownCapacities.includes(code)
+          ? userKnownCapacities.map(c => c.toString())
+          : [...userKnownCapacities, code].map(c => c.toString()),
+        skills_available: userAvailableCapacities.includes(code)
+          ? userAvailableCapacities.map(c => c.toString())
+          : [...userAvailableCapacities, code].map(c => c.toString()),
+      };
+      if (userProfile.language && Array.isArray(userProfile.language))
+        payload.language = userProfile.language;
+      const updated: UserProfile = {
+        ...userProfile,
+        skills_known: payload.skills_known,
+        skills_available: payload.skills_available,
+      };
+      queryClient.setQueryData(['userProfile', session.user.id, session.user.token], updated);
+      showSnackbar(pageContent['capacity-added-known'] || 'Capacity added to known', 'success');
+      profileService
+        .updateProfile(Number(session.user.id), payload, {
+          headers: { Authorization: `Token ${session.user.token}` },
+        })
+        .catch(() =>
+          queryClient.invalidateQueries({
+            queryKey: ['userProfile', session.user.id, session.user.token],
+          })
+        );
+    } catch {
+      showSnackbar(pageContent['error'] || 'Error adding capacity', 'error');
+    } finally {
+      setIsAddingKnown(false);
     }
   };
 
-  // Function to show all capacities
+  const handleAddToWanted = async () => {
+    if (!session?.user?.token || !session?.user?.id) {
+      showSnackbar(pageContent['login-required'] || 'Please log in to add capacities', 'error');
+      return;
+    }
+    if (!userProfile || !selectedNode || isAddingWanted || isAddedToWanted) return;
+    setIsAddingWanted(true);
+    try {
+      const code = selectedNode.code;
+      const payload: any = {
+        skills_wanted: userWantedCapacities.includes(code)
+          ? userWantedCapacities.map(c => c.toString())
+          : [...userWantedCapacities, code].map(c => c.toString()),
+      };
+      if (userProfile.language && Array.isArray(userProfile.language))
+        payload.language = userProfile.language;
+      const updated: UserProfile = { ...userProfile, skills_wanted: payload.skills_wanted };
+      queryClient.setQueryData(['userProfile', session.user.id, session.user.token], updated);
+      showSnackbar(pageContent['capacity-added-wanted'] || 'Capacity added to wanted', 'success');
+      profileService
+        .updateProfile(Number(session.user.id), payload, {
+          headers: { Authorization: `Token ${session.user.token}` },
+        })
+        .catch(() =>
+          queryClient.invalidateQueries({
+            queryKey: ['userProfile', session.user.id, session.user.token],
+          })
+        );
+    } catch {
+      showSnackbar(pageContent['error'] || 'Error adding capacity', 'error');
+    } finally {
+      setIsAddingWanted(false);
+    }
+  };
+
+  // Root positions computed from data length
+  const rootCount = data.length;
+  const rootPositions = data.map((_, i) => {
+    const angle = (2 * Math.PI * i) / rootCount - Math.PI / 2; // start from top
+    return { x: CX + ROOT_RADIUS * Math.cos(angle), y: CY + ROOT_RADIUS * Math.sin(angle), angle };
+  });
+
+  // System theme change listener
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) setDarkMode(e.matches);
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [setDarkMode]);
+
+  // Clear SVG on dark mode change, force redraw
+  useEffect(() => {
+    setForceUpdate(p => p + 1);
+    if (svgRef.current) d3.select(svgRef.current).selectAll('*').remove();
+  }, [darkMode]);
+
+  // Center viewport on an SVG-coordinate point.
+  // D3 zoom transforms are in SVG user (viewBox) units:
+  // a container point (x, y) renders at (tx + x*k, ty + y*k) in viewBox space.
+  // To center (x, y) in the viewport (CANVAS_W/2, CANVAS_H/2):
+  //   tx = CANVAS_W/2 - x*k,  ty = CANVAS_H/2 - y*k
+  const centerOnNode = (x: number, y: number) => {
+    if (!svgRef.current || !zoomRef.current) return;
+    const k = savedTransformRef.current.k;
+    const tx = CANVAS_W / 2 - x * k;
+    const ty = CANVAS_H / 2 - y * k;
+    const transform = d3.zoomIdentity.translate(tx, ty).scale(k);
+    savedTransformRef.current = transform;
+    d3.select(svgRef.current)
+      .transition()
+      .duration(650)
+      .ease(d3.easeCubicOut)
+      .call(zoomRef.current.transform, transform);
+  };
+
   const showAllCapacities = () => {
     if (!svgRef.current || !zoomRef.current) return;
-
-    const svg = d3.select(svgRef.current);
-    const margin = {
-      top: typeof window !== 'undefined' && window.innerWidth < 640 ? 0 : 20,
-      left: 50,
-    };
-
-    const initialTransform = d3.zoomIdentity.translate(margin.left, margin.top).scale(1);
-
-    svg
+    savedTransformRef.current = d3.zoomIdentity;
+    d3.select(svgRef.current)
       .transition()
       .duration(750)
       .ease(d3.easeCubicOut)
-      .call(zoomRef.current.transform, initialTransform);
-
-    // Reset state: clear focus, selection and expansions to show all capacities
+      .call(zoomRef.current.transform, d3.zoomIdentity);
     setFocusedRootId(null);
     setSelectedNode(null);
-    setSelectedNodeCoords(null);
     setExpandedNodes(new Set());
   };
 
-  // Function to transform flat data into hierarchical with expansion control
-  const createHierarchy = (capacities: D3Capacity[]) => {
-    // Recursive function to process capacities with expansion control
-    const processCapacity = (capacity: D3Capacity, level: number): any => {
-      const isExpanded = expandedNodes.has(capacity.id);
-
-      return {
-        ...capacity,
-        level: level,
-        children: isExpanded
-          ? (capacity.children || []).map(child => processCapacity(child, level + 1))
-          : [],
-      };
-    };
-
-    return capacities.map(rootCap => processCapacity(rootCap, 1));
-  };
-
-  // Function to expand/collapse a capacity
-  const toggleNode = (nodeId: string, isRoot: boolean = false) => {
-    const newExpandedNodes = new Set(expandedNodes);
-
-    if (newExpandedNodes.has(nodeId)) {
-      // If already expanded, collapse
-      newExpandedNodes.delete(nodeId);
-      if (isRoot) {
-        setFocusedRootId(null); // Remove focus if collapsing
-      }
+  const toggleNode = (nodeId: string, isRoot = false) => {
+    const next = new Set(expandedNodes);
+    if (next.has(nodeId)) {
+      next.delete(nodeId);
+      if (isRoot) setFocusedRootId(null);
     } else {
-      // If going to expand
       if (isRoot) {
-        // If it's a root capacity, collapse all other roots first
-        data.forEach(capacity => {
-          if (capacity.id !== nodeId) {
-            newExpandedNodes.delete(capacity.id);
-          }
+        data.forEach(c => {
+          if (c.id !== nodeId) next.delete(c.id);
         });
-        setFocusedRootId(nodeId); // Set focus on expanded root capacity
+        setFocusedRootId(nodeId);
       }
-      newExpandedNodes.add(nodeId);
+      next.add(nodeId);
     }
-
-    setExpandedNodes(newExpandedNodes);
+    setExpandedNodes(next);
   };
 
-  // Utility function to capitalize first letter
-  function capitalizeFirst(str: string | undefined | null) {
-    if (!str || typeof str !== 'string') return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  // Force SVG re-render when dark mode changes
+  // Main D3 render
   useEffect(() => {
-    // Force complete re-render by updating forceUpdate state
-    setForceUpdate(prev => prev + 1);
-
-    // Force complete SVG re-render by clearing and re-creating
-    if (svgRef.current) {
-      const svg = d3.select(svgRef.current);
-      const backgroundColor = darkMode ? '#053749' : '#fafafa';
-      const textColor = darkMode ? '#f3f4f6' : '#222';
-
-      // Clear all SVG content immediately
-      svg.selectAll('*').remove();
-
-      // Re-apply background and text colors
-      svg.style('backgroundColor', backgroundColor);
-      svg.style('color', textColor);
-
-      // Force immediate re-render by triggering the main useEffect
-      // This ensures the SVG is completely re-created with new theme colors
-    }
-  }, [darkMode]);
-
-  useEffect(() => {
-    if (!data || data.length === 0 || !svgRef.current) return;
-
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640; // Changed from 768 to 640
-    // Define small margins for the top
-    const margin = {
-      top: 8, // small value for the top
-      right: 120,
-      bottom: isMobile ? 0 : 20,
-      left: 50,
-    };
-    const _innerWidth = isMobile ? 1200 : width - margin.left - margin.right; // Force fixed width on mobile
-    const _innerHeight = height - margin.top - margin.bottom;
-
-    // Adjust SVG width for vertical root layout
-    const _adjustedWidth = Math.max(width, 400); // Fixed width for a column
+    if (!data?.length || !svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
-    // Return main SVG group to translate(margin.left, 0)
-    const container = svg.append('g').attr('transform', `translate(${margin.left},0)`);
+    const container = svg.append('g').attr('class', 'main-container');
 
-    // Create hierarchy
-    const hierarchyData = createHierarchy(data);
-    const roots = hierarchyData.map(item => d3.hierarchy(item));
+    type NodeDatum = {
+      x: number;
+      y: number;
+      depth: number;
+      angle: number;
+      data: D3Capacity;
+      rootColor: string | null;
+      rootId?: string;
+    };
+    type LinkDatum = {
+      source: { x: number; y: number };
+      target: { x: number; y: number };
+      rootId?: string;
+      depth: number;
+    };
 
-    const allNodes: any[] = [];
-    const allLinks: any[] = [];
+    const allNodes: NodeDatum[] = [];
+    const allLinks: LinkDatum[] = [];
 
-    roots.forEach((root, index) => {
-      // Position each root using calculated positions
-      const rootX = rootPositions[index].x;
-      const rootY = rootPositions[index].y;
-
-      // Process hierarchy nodes (Horizontal Layout)
-      const processNodes = (
-        node: any,
-        parentX: number,
-        parentY: number,
-        level: number,
-        rootColor?: string
-      ) => {
-        const nodes: any[] = [];
-        const links: any[] = [];
-
-        // Determine root capacity color
-        const currentRootColor = level === 0 ? getColorForCapacity(node.data.id) : rootColor;
-
-        // Add current node
-        const currentNode = {
-          ...node,
-          x: parentX,
-          y: parentY,
-          depth: level,
-          rootColor: currentRootColor,
-        };
-        nodes.push(currentNode);
-
-        // Process children if expanded
-        if (expandedNodes.has(node.data.id) && node.children && node.children.length > 0) {
-          // Calculate spacing based on child names length
-          const _childNames = node.children.map((c: any) => c.data.name);
-          const minChildSpacing = 50; // Reduced minimum spacing between children
-          const spacingPerChildChar = 2; // Reduced additional spacing per character
-
-          // Calculate Y positions of children based on name length
-          let currentChildY = parentY;
-          const childPositions: number[] = [];
-
-          node.children.forEach((child: any) => {
-            const nameLength = child.data.name.length;
-            const spacing = minChildSpacing + nameLength * spacingPerChildChar;
-
-            childPositions.push(currentChildY);
-            currentChildY += spacing;
-          });
-
-          // Center children group relative to parent
-          const totalChildHeight = currentChildY - parentY - minChildSpacing;
-          const offsetY = -totalChildHeight / 2;
-
-          node.children.forEach((child: any, childIndex: number) => {
-            const childY = childPositions[childIndex] + offsetY;
-            // Increase horizontal offset on mobile
-            const childX = parentX + (isMobile ? 700 : 400); // was 500, now 700 on mobile
-
-            const childNode = {
-              ...child,
-              x: childX,
-              y: childY,
-              depth: level + 1,
-              rootColor: currentRootColor,
-            };
-            nodes.push(childNode);
-
-            // Add link
-            links.push({
-              source: { x: parentX, y: parentY },
-              target: { x: childX, y: childY },
-            });
-
-            // Process grandchildren if expanded
-            if (expandedNodes.has(child.data.id) && child.children && child.children.length > 0) {
-              // Calculate spacing based on grandchild names length
-              const _grandChildNames = child.children.map((gc: any) => gc.data.name);
-              const minGrandChildSpacing = 40; // Reduced minimum spacing between grandchildren
-              const spacingPerGrandChildChar = 1; // Reduced additional spacing per character
-
-              // Calculate Y positions of grandchildren based on name length
-              let currentGrandChildY = childY;
-              const grandChildPositions: number[] = [];
-
-              child.children.forEach((grandChild: any) => {
-                const nameLength = grandChild.data.name.length;
-                const spacing = minGrandChildSpacing + nameLength * spacingPerGrandChildChar;
-
-                grandChildPositions.push(currentGrandChildY);
-                currentGrandChildY += spacing;
-              });
-
-              // Center children group relative to parent
-              const totalChildHeight = currentGrandChildY - childY - minGrandChildSpacing;
-              const offsetY = -totalChildHeight / 2;
-
-              child.children.forEach((grandChild: any, grandChildIndex: number) => {
-                const grandChildY = grandChildPositions[grandChildIndex] + offsetY;
-                const grandChildX = childX + (isMobile ? 600 : 350); // Increased from 400 to 600 on mobile
-
-                const grandChildNode = {
-                  ...grandChild,
-                  x: grandChildX,
-                  y: grandChildY,
-                  depth: level + 2,
-                  rootColor: currentRootColor,
-                };
-                nodes.push(grandChildNode);
-
-                // Add link
-                links.push({
-                  source: { x: childX, y: childY },
-                  target: { x: grandChildX, y: grandChildY },
-                });
-              });
-            }
-          });
-        }
-
-        return { nodes, links };
-      };
-
-      const { nodes, links } = processNodes(root, rootX, rootY, 0, undefined);
-      allNodes.push(...nodes);
-      allLinks.push(...links);
+    // Center logo node
+    allNodes.push({
+      x: CX,
+      y: CY,
+      depth: -1,
+      angle: 0,
+      data: {
+        id: 'center',
+        code: 0,
+        name: '',
+        color: '',
+        description: '',
+        wd_code: '',
+        metabase_code: '',
+        children: [],
+        isCenter: true,
+      },
+      rootColor: null,
     });
 
-    // Add links (connections) - using smooth curves instead of straight lines
-    const _link = container
+    // Root nodes + edges
+    data.forEach((cap, i) => {
+      const { x: rx, y: ry, angle } = rootPositions[i];
+      const rootColor = getColorForCapacity(cap.id);
+      allNodes.push({ x: rx, y: ry, depth: 0, data: cap, rootColor, angle, rootId: cap.id });
+      allLinks.push({
+        source: { x: CX, y: CY },
+        target: { x: rx, y: ry },
+        rootId: cap.id,
+        depth: 0,
+      });
+
+      if (!expandedNodes.has(cap.id) || !cap.children?.length) return;
+
+      const nC = cap.children.length;
+      const fanHalf = nC === 1 ? 0 : Math.min(Math.PI * 0.55, (nC - 1) * 0.3 + 0.2);
+
+      cap.children.forEach((child, ci) => {
+        const cAngle = nC === 1 ? angle : angle - fanHalf + (ci / (nC - 1)) * 2 * fanHalf;
+        const cX = rx + CHILD_RADIUS * Math.cos(cAngle);
+        const cY = ry + CHILD_RADIUS * Math.sin(cAngle);
+        allNodes.push({
+          x: cX,
+          y: cY,
+          depth: 1,
+          data: child,
+          rootColor,
+          angle: cAngle,
+          rootId: cap.id,
+        });
+        allLinks.push({
+          source: { x: rx, y: ry },
+          target: { x: cX, y: cY },
+          rootId: cap.id,
+          depth: 1,
+        });
+
+        if (!expandedNodes.has(child.id) || !child.children?.length) return;
+
+        const nGc = child.children.length;
+        const gcFanHalf = nGc === 1 ? 0 : Math.min(Math.PI * 0.4, (nGc - 1) * 0.24 + 0.14);
+
+        child.children.forEach((gc, gci) => {
+          const gcAngle =
+            nGc === 1 ? cAngle : cAngle - gcFanHalf + (gci / (nGc - 1)) * 2 * gcFanHalf;
+          const gcX = cX + GC_RADIUS * Math.cos(gcAngle);
+          const gcY = cY + GC_RADIUS * Math.sin(gcAngle);
+          allNodes.push({
+            x: gcX,
+            y: gcY,
+            depth: 2,
+            data: gc,
+            rootColor,
+            angle: gcAngle,
+            rootId: cap.id,
+          });
+          allLinks.push({
+            source: { x: cX, y: cY },
+            target: { x: gcX, y: gcY },
+            rootId: cap.id,
+            depth: 2,
+          });
+        });
+      });
+    });
+
+    // Draw links
+    container
       .selectAll('.link')
       .data(allLinks)
       .enter()
-      .append('path')
+      .append('line')
       .attr('class', 'link')
-      .attr('d', (d: any) => {
-        // Create smooth curve between nodes
-        const dx = d.target.x - d.source.x;
-        const dy = d.target.y - d.source.y;
-        const dr = Math.sqrt(dx * dx + dy * dy);
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y)
+      .style('stroke', '#9ca3af')
+      .style('stroke-width', d => (d.depth === 0 ? '2px' : '1.5px'))
+      .style('opacity', d => (focusedRootId && d.rootId !== focusedRootId ? 0.12 : 0.65));
 
-        // Calculate control point to create a smooth curve
-        const controlX = d.source.x + dx * 0.5;
-        const controlY = d.source.y + dy * 0.5 + dr * 0.1; // Small curvature
-
-        return `M ${d.source.x} ${d.source.y} Q ${controlX} ${controlY} ${d.target.x} ${d.target.y}`;
-      })
-      .style('fill', 'none')
-      .style('stroke', '#9ca3af') // More visible in both themes
-      .style('stroke-width', '2px')
-      .style('stroke-linecap', 'round') // Rounded ends
-      .style('opacity', (d: any) => {
-        // Apply fade-out for non-focused root capacity links
-        if (focusedRootId) {
-          // Determine if link belongs to focused root capacity
-          const sourceNode = allNodes.find(
-            (node: any) => node.x === d.source.x && node.y === d.source.y
-          );
-          const targetNode = allNodes.find(
-            (node: any) => node.x === d.target.x && node.y === d.target.y
-          );
-
-          if (sourceNode && targetNode) {
-            const sourceRootColor = sourceNode.rootColor;
-            const targetRootColor = targetNode.rootColor;
-            const focusedRootColor = getColorForCapacity(focusedRootId);
-
-            // If both nodes belong to the same focused capacity tree
-            if (sourceRootColor === focusedRootColor && targetRootColor === focusedRootColor) {
-              return 1;
-            }
-            return 0.2; // Fade-out for unrelated links
-          }
-        }
-        return 1; // Show all links normally
-      });
-
-    // Add nodes
-    const node = container
+    // Draw nodes
+    const nodeG = container
       .selectAll('.node')
       .data(allNodes)
       .enter()
       .append('g')
       .attr('class', 'node')
-      .attr('data-node-id', (d: any) => d.data.id)
-      .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
-      .style('cursor', 'pointer')
-      .on('click', (event: any, d: any) => {
-        // Show capacity details
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .style('cursor', d => (d.data.isCenter ? 'default' : 'pointer'))
+      .on('click', (_event, d) => {
+        if (d.data.isCenter) return;
         setSelectedNode(d.data);
-        setSelectedNodeCoords({ x: d.x, y: d.y });
-
-        // Center on clicked capacity
-        centerOnNode(d.x, d.y);
-
-        // Expand/collapse for root and child capacities
         if (d.depth === 0) {
-          toggleNode(d.data.id, true); // isRoot = true for root capacities
+          centerOnNode(d.x, d.y);
+          toggleNode(d.data.id, true);
         } else if (d.depth === 1) {
-          toggleNode(d.data.id, false); // isRoot = false for child capacities
+          toggleNode(d.data.id, false);
         }
       })
-      .on('mouseover', function (_event: any, _d: any) {
+      .on('mouseover', function (_, d) {
+        if (d.data.isCenter) return;
         d3.select(this)
-          .select('circle')
+          .select('path')
           .transition()
-          .duration(200)
-          .attr('r', (d: any) => {
-            const level = d.depth;
-            const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-            if (level === 0) return isMobile ? 18 : 12; // Larger roots on mobile
-            if (level === 1) return isMobile ? 15 : 10; // Medium children on mobile
-            return isMobile ? 12 : 8; // Smaller grandchildren on mobile
-          });
+          .duration(150)
+          .style('stroke', '#fbbf24')
+          .style('stroke-width', '3px');
       })
-      .on('mouseout', function (_event: any, _d: any) {
+      .on('mouseout', function (_, d) {
+        if (d.data.isCenter) return;
+        const isSelected = selectedNode?.id === d.data.id;
         d3.select(this)
-          .select('circle')
+          .select('path')
           .transition()
-          .duration(200)
-          .attr('r', (d: any) => {
-            const level = d.depth;
-            const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-            if (level === 0) return isMobile ? 15 : 10; // Larger roots on mobile
-            if (level === 1) return isMobile ? 12 : 8; // Medium children on mobile
-            return isMobile ? 10 : 6; // Smaller grandchildren on mobile
-          });
+          .duration(150)
+          .style('stroke', isSelected ? '#fbbf24' : '#ffffff')
+          .style('stroke-width', isSelected ? '3px' : '2px');
       });
 
-    // Add shapes for nodes (hexagons for better visualization)
-    node.each(function (d: any) {
-      const level = d.depth;
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-      let radius;
-      if (level === 0)
-        radius = isMobile ? 15 : 10; // Larger roots
-      else if (level === 1)
-        radius = isMobile ? 12 : 8; // Medium children
-      else radius = isMobile ? 10 : 6; // Smaller grandchildren
-
-      // Determine fill color
-      const nodeData = d.data;
-      let fillColor;
-      if (nodeData.id === '0') {
-        fillColor = '#6b7280'; // Root
-      } else if (d.rootColor) {
-        fillColor = getCapacityColor(d.rootColor);
-      } else if (level === 0) {
-        const colorName = getColorForCapacity(nodeData.id);
-        fillColor = getCapacityColor(colorName);
-      } else if (level >= 2) {
-        fillColor = '#053749';
-      } else if (level === 1) {
-        fillColor = '#0a4a5f';
-      } else {
-        fillColor = '#6b7280';
-      }
-
-      // Determine border color
-      const strokeColor = selectedNode && selectedNode.id === d.data.id ? '#fbbf24' : '#ffffff';
-      const strokeWidth = selectedNode && selectedNode.id === d.data.id ? '4px' : '2px';
-
-      // Determine opacity
-      let opacity = 1;
-      if (focusedRootId && d.depth === 0) {
-        opacity =
-          d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
-            ? 1
-            : 0.2;
-      }
-
-      // Create hexagon
-      const hexagon = d3.select(this).append('path');
-      const points: string[] = [];
-      for (let i = 0; i < 6; i++) {
-        const angle = (i * Math.PI) / 3;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-        points.push(`${x},${y}`);
-      }
-
-      hexagon
-        .attr('d', `M ${points.join(' L ')} Z`)
-        .style('fill', fillColor)
-        .style('stroke', strokeColor)
-        .style('stroke-width', strokeWidth)
-        .style('opacity', opacity);
-    });
-
-    // Add text to nodes (Horizontal Layout)
-    node
-      .append('text')
-      .attr('dy', '.35em')
-      .attr('x', (d: any) => {
-        // Positioning based on level for horizontal layout
-        const level = d.depth;
-        const hasChildren = d.data.children && d.data.children.length > 0;
-        const isExpanded = expandedNodes.has(d.data.id);
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-        if (level === 0) {
-          return 25; // Roots always to the right - increased from 15 to 25 to give space to icon
-        } else if (level === 1) {
-          // Children always to the right on mobile to avoid overlap
-          return isMobile ? 25 : hasChildren && isExpanded ? -20 : 20; // Increased to 25 on mobile
-        } else {
-          // Grandchildren always to the right on mobile to avoid overlap
-          return isMobile ? 25 : -25; // Increased to 25 on mobile
-        }
-      })
-      .style('text-anchor', (d: any) => {
-        const level = d.depth;
-        const hasChildren = d.data.children && d.data.children.length > 0;
-        const isExpanded = expandedNodes.has(d.data.id);
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-        if (level === 0) {
-          return 'start'; // Roots always to the right
-        } else if (level === 1) {
-          // Children always to the right on mobile to avoid overlap
-          return isMobile ? 'start' : hasChildren && isExpanded ? 'end' : 'start';
-        } else {
-          // Grandchildren always to the right on mobile to avoid overlap
-          return isMobile ? 'start' : 'end';
-        }
-      })
-      .text((d: any) => capitalizeFirst(d.data.name))
-      .style('font-size', (d: any) => {
-        // Highlight root capacities with larger font
-        if (d.depth === 0) return `${nodeFontSize}px`;
-        return isMobile ? '24px' : '18px';
-      })
-      .style('fill', (_d: any) => {
-        const textColor = darkMode ? '#ffffff' : '#000000'; // More contrast
-        return textColor;
-      })
-      .style('font-weight', '600') // Keep bold on mobile too
-      .style('opacity', (d: any) => {
-        // Apply fade-out for non-focused root capacities
-        if (focusedRootId && d.depth === 0) {
-          // If there's a focused root capacity, show only it and its descendants
-          return d.data.id === focusedRootId || d.rootColor === getColorForCapacity(focusedRootId)
-            ? 1
-            : 0.2;
-        }
-        return 1; // Show all capacities normally
-      });
-
-    // Add icons (if available)
-    node
+    // Center logo
+    nodeG
+      .filter(d => !!d.data.isCenter)
       .append('image')
-      .attr('xlink:href', (d: any) => {
-        if (d.data.icon && d.data.id !== '0') {
-          return `/static/images/${d.data.icon}`;
-        }
-        return null;
-      })
-      .attr('x', -8) // Adjusted from -6 to -8 to be closer to circle
-      .attr('y', -8) // Adjusted from -6 to -8 to be closer to circle
-      .attr('width', 16) // Increased from 12 to 16 for better visibility
-      .attr('height', 16) // Increased from 12 to 16 for better visibility
-      .style('display', (d: any) => (d.data.icon && d.data.code !== 0 ? 'block' : 'none'));
+      .attr('href', '/static/images/capx_minimalistic_logo.svg')
+      .attr('x', -LOGO_SIZE / 2)
+      .attr('y', -LOGO_SIZE / 2)
+      .attr('width', LOGO_SIZE)
+      .attr('height', LOGO_SIZE);
 
-    // Add zoom and pan
-    const zoom = d3
-      .zoom()
-      .scaleExtent([0.5, 3])
-      .on('zoom', (event: any) => {
-        container.attr('transform', event.transform);
+    // Hexagon nodes
+    nodeG
+      .filter(d => !d.data.isCenter)
+      .each(function (d) {
+        const r = d.depth === 0 ? 13 : d.depth === 1 ? 10 : 8;
+        const fill = d.rootColor ? getCapacityColor(d.rootColor) : '#6b7280';
+        const nodeOpacity =
+          focusedRootId && d.depth === 0 && d.data.id !== focusedRootId ? 0.18 : 1;
+        const stroke = selectedNode?.id === d.data.id ? '#fbbf24' : '#ffffff';
+        const sw = selectedNode?.id === d.data.id ? '3px' : '2px';
+        const pts = Array.from({ length: 6 }, (_, k) => {
+          const a = (k * Math.PI) / 3;
+          return `${Math.cos(a) * r},${Math.sin(a) * r}`;
+        }).join(' L ');
+        d3.select(this)
+          .append('path')
+          .attr('d', `M ${pts} Z`)
+          .style('fill', fill)
+          .style('stroke', stroke)
+          .style('stroke-width', sw)
+          .style('opacity', nodeOpacity);
       });
 
-    svg.call(zoom as any);
-    zoomRef.current = zoom; // Assign zoom to ref
+    // Labels
+    nodeG
+      .filter(d => !d.data.isCenter)
+      .append('text')
+      .attr('x', d => {
+        const offset = d.depth === 0 ? 18 : 15;
+        return Math.cos(d.angle) * offset;
+      })
+      .attr('y', d => {
+        const offset = d.depth === 0 ? 18 : 15;
+        return Math.sin(d.angle) * offset;
+      })
+      .attr('dy', '.35em')
+      .style('text-anchor', d => {
+        const cos = Math.cos(d.angle);
+        if (Math.abs(cos) < 0.25) return 'middle';
+        return cos > 0 ? 'start' : 'end';
+      })
+      .text(d => capitalizeFirst(d.data.name))
+      .style('font-size', d => (d.depth === 0 ? '13px' : d.depth === 1 ? '11px' : '10px'))
+      .style('fill', darkMode ? '#f3f4f6' : '#111827')
+      .style('font-weight', d => (d.depth === 0 ? '600' : '400'))
+      .style('pointer-events', 'none')
+      .style('opacity', d => {
+        if (focusedRootId && d.depth === 0 && d.data.id !== focusedRootId) return 0.18;
+        return 1;
+      });
 
-    // Center visualization
-    const initialTransform = d3.zoomIdentity.translate(margin.left, margin.top).scale(1);
+    // D3 zoom + pan
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.3, 4])
+      .on('zoom', event => {
+        container.attr('transform', event.transform.toString());
+        savedTransformRef.current = event.transform;
+      });
+    svg.call(zoom);
+    zoomRef.current = zoom;
 
-    svg.call(zoom.transform as any, initialTransform);
+    // Restore saved transform (preserve position across re-renders)
+    svg.call(zoom.transform, savedTransformRef.current);
 
-    // Remove details rendering inside SVG
-
-    // Add click event on SVG to clear selection
-    svg.on('click', (event: any) => {
-      // Only clear if clicked on SVG, not on a node
-      if (event.target === svgRef.current) {
-        setSelectedNode(null);
-        setSelectedNodeCoords(null);
-      }
+    // Click on background to deselect
+    svg.on('click', event => {
+      if (event.target === svgRef.current) setSelectedNode(null);
     });
-  }, [data, width, height, expandedNodes, selectedNode, focusedRootId, darkMode, forceUpdate]);
-
-  // Calculate adjusted width for vertical root layout
-  const calculateAdjustedWidth = () => {
-    if (!data || data.length === 0) return width;
-
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-    // For vertical root layout, we need more width for children and grandchildren
-    // On mobile, don't limit by screen width - allow larger canvas
-    const baseWidth = isMobile ? 200 : 100; // Reduced to accommodate roots near (0,0)
-    const childLevelWidth = isMobile ? 600 : 450; // Increased from 400 to 600 on mobile
-    const grandChildLevelWidth = isMobile ? 700 : 400; // Increased from 500 to 700 on mobile
-
-    let totalWidth = baseWidth;
-
-    // Check if there are expanded children
-    const hasExpandedChildren = data.some(
-      capacity =>
-        expandedNodes.has(capacity.id) && capacity.children && capacity.children.length > 0
-    );
-
-    if (hasExpandedChildren) {
-      totalWidth += childLevelWidth;
-
-      // Check if there are expanded grandchildren
-      const hasExpandedGrandChildren = data.some(
-        capacity =>
-          expandedNodes.has(capacity.id) &&
-          capacity.children &&
-          capacity.children.some(
-            child => expandedNodes.has(child.id) && child.children && child.children.length > 0
-          )
-      );
-
-      if (hasExpandedGrandChildren) {
-        totalWidth += grandChildLevelWidth;
-      }
-    }
-
-    // On mobile, always use larger minimum width to avoid overlap
-    if (isMobile) {
-      return Math.max(1200, totalWidth); // Minimum width of 1200px on mobile
-    }
-
-    return Math.max(width, totalWidth);
-  };
-
-  // Calculate adjusted height for vertical root layout
-  const calculateAdjustedHeight = () => {
-    if (!data || data.length === 0) return height;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-
-    // Height based on number of roots, with adequate spacing
-    const totalHeight = 10 + (data.length - 1) * 80 + 40; // 10px from top + spacing between capacities + 40px from end
-
-    // On mobile, limit maximum height to avoid vertical scroll
-    if (isMobile) {
-      const maxMobileHeight = 512; // 32rem = 512px
-      return Math.min(totalHeight, maxMobileHeight);
-    }
-
-    // On desktop, use minimum height of 800px
-    const minDesktopHeight = 800;
-    return Math.max(minDesktopHeight, totalHeight);
-  };
-
-  const adjustedWidth = calculateAdjustedWidth();
-  const _adjustedHeight = calculateAdjustedHeight();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, expandedNodes, selectedNode, focusedRootId, darkMode, forceUpdate]);
 
   return (
     <div className="w-full">
-      {/* CSS to hide scrollbars */}
       <style jsx>{`
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
@@ -759,41 +523,19 @@ export default function D3TreeVisualization({
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-
-        .dark-theme {
-          background-color: #053749 !important;
-          color: #f3f4f6 !important;
-        }
-
-        .light-theme {
-          background-color: #fafafa !important;
-          color: #222 !important;
-        }
       `}</style>
 
-      {/* Title and description moved outside container with limited height */}
-      <div className="mb-4 w-full mt-20">
+      <div className="mb-4 w-full">
         <h2
-          className="text-xl font-semibold mb-2 break-words w-full"
-          style={{
-            wordBreak: 'break-word',
-            color: darkMode ? '#f3f4f6' : '#111827', // text-white : text-gray-900
-          }}
+          className="text-xl font-semibold mb-2"
+          style={{ color: darkMode ? '#f3f4f6' : '#111827' }}
         >
           {pageContent['capacity-visualization-title'] || 'Visualização Interativa das Capacidades'}
         </h2>
-        <p
-          className="text-sm mb-4 break-words w-full"
-          style={{
-            wordBreak: 'break-word',
-            color: darkMode ? '#f3f4f6' : '#4b5563', // text-white : text-gray-600
-          }}
-        >
+        <p className="text-sm mb-4" style={{ color: darkMode ? '#d1d5db' : '#4b5563' }}>
           {pageContent['capacity-visualization-description'] ||
-            'Clique nas capacidades principais para expandir/colapsar e focar • Clique nos ícones para ver detalhes e centralizar automaticamente • Use o mouse para fazer zoom e arrastar • Clique em "Retornar a visualização inicial" para resetar o foco'}
+            'Clique nas capacidades principais para expandir e centralizar • Use scroll/pinch para zoom • Arraste para navegar'}
         </p>
-
-        {/* Control buttons */}
         <div className="flex flex-wrap gap-2 mt-4">
           <button
             onClick={showAllCapacities}
@@ -814,56 +556,157 @@ export default function D3TreeVisualization({
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* D3 Visualization */}
         <div className="flex-1 relative">
           <div
-            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hide-scrollbar overflow-x-auto"
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-lg hide-scrollbar overflow-hidden"
             style={{
-              overflowY: 'hidden',
-              height: svgHeight,
-              maxHeight: svgHeight,
-              position: 'relative',
+              height: 520,
+              backgroundColor: darkMode ? '#053749' : '#fafafa',
             }}
           >
             <svg
               key={`svg-${darkMode}-${forceUpdate}`}
               ref={svgRef}
               width="100%"
-              height={svgHeight}
-              viewBox={`0 0 ${adjustedWidth} ${svgHeight}`}
+              height={520}
+              viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
               preserveAspectRatio="xMidYMid meet"
-              className={darkMode ? 'dark-theme' : 'light-theme'}
               style={{
                 backgroundColor: darkMode ? '#053749' : '#fafafa',
-                color: darkMode ? '#f3f4f6' : '#222',
-                maxWidth: '100%',
                 display: 'block',
               }}
             />
           </div>
         </div>
 
-        {/* Capacity details */}
-        {selectedNode && (
+        {selectedNode && !selectedNode.isCenter && (
           <div className="lg:w-80 flex-shrink-0">
             <div
-              className="p-6 rounded-lg border border-gray-200 dark:border-gray-700 h-full"
-              style={{
-                backgroundColor: darkMode ? '#1f2937' : '#fafafa',
-                color: darkMode ? '#f3f4f6' : '#222',
-              }}
+              className="p-5 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col gap-4"
+              style={{ backgroundColor: darkMode ? '#1f2937' : '#fafafa' }}
             >
-              <h3
-                className="text-xl font-semibold mb-4"
-                style={{ color: darkMode ? '#f3f4f6' : '#222' }}
-              >
+              {/* Name */}
+              <h3 className="text-lg font-bold" style={{ color: darkMode ? '#f3f4f6' : '#111827' }}>
                 {capitalizeFirst(selectedNode.name)}
               </h3>
+
+              {/* Metabase + Wikidata links */}
+              {(selectedNode.metabase_code || selectedNode.wd_code) && (
+                <div className="flex flex-row gap-4 flex-wrap">
+                  {selectedNode.metabase_code && (
+                    <a
+                      href={`https://metabase.wikibase.cloud/wiki/Item:${selectedNode.metabase_code}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={pageContent['capacity-card-visit-metabase'] || 'Visit on Metabase'}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <div className="relative w-6 h-6 flex-shrink-0">
+                        <Image
+                          src={darkMode ? MetabaseLightIcon : MetabaseIcon}
+                          alt="Metabase"
+                          fill
+                        />
+                      </div>
+                      <span
+                        className={`text-sm underline break-all ${darkMode ? 'text-blue-400' : 'text-capx-light-link'}`}
+                      >
+                        {selectedNode.metabase_code}
+                      </span>
+                    </a>
+                  )}
+                  {selectedNode.wd_code && (
+                    <a
+                      href={`https://www.wikidata.org/wiki/${selectedNode.wd_code}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={pageContent['capacity-card-visit-wikidata'] || 'Visit on Wikidata'}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <div className="relative w-6 h-6 flex-shrink-0">
+                        <Image
+                          src={darkMode ? BarCodeLightIcon : BarCodeIcon}
+                          alt="Wikidata"
+                          fill
+                        />
+                      </div>
+                      <span
+                        className={`text-sm underline break-all ${darkMode ? 'text-blue-400' : 'text-capx-light-link'}`}
+                      >
+                        {selectedNode.wd_code}
+                      </span>
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Description */}
               {selectedNode.description && (
-                <p className="leading-relaxed" style={{ color: darkMode ? '#d1d5db' : '#374151' }}>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: darkMode ? '#d1d5db' : '#374151' }}
+                >
                   {selectedNode.description}
                 </p>
               )}
+
+              {/* Add to Known / Wanted buttons */}
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  onClick={handleAddToKnown}
+                  disabled={
+                    isAddingKnown ||
+                    isAddedToKnown ||
+                    isProfileLoading ||
+                    isProfileError ||
+                    !userProfile ||
+                    !session?.user?.token
+                  }
+                  className={`w-full px-3 py-2 rounded-md text-sm font-semibold text-white transition-opacity ${
+                    isAddedToKnown ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+                  }`}
+                  style={{ backgroundColor: '#507380' }}
+                >
+                  {isAddedToKnown
+                    ? pageContent['capacity-card-added-to-known'] || '✓ Added to Known'
+                    : isAddingKnown || isProfileLoading
+                      ? pageContent['loading'] || 'Loading...'
+                      : pageContent['capacity-card-add-to-known'] || 'Add to Known'}
+                </button>
+                <button
+                  onClick={handleAddToWanted}
+                  disabled={
+                    isAddingWanted ||
+                    isAddedToWanted ||
+                    isProfileLoading ||
+                    isProfileError ||
+                    !userProfile ||
+                    !session?.user?.token
+                  }
+                  className={`w-full px-3 py-2 rounded-md text-sm font-semibold text-white transition-opacity ${
+                    isAddedToWanted ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+                  }`}
+                  style={{ backgroundColor: '#507380' }}
+                >
+                  {isAddedToWanted
+                    ? pageContent['capacity-card-added-to-wanted'] || '✓ Added to Wanted'
+                    : isAddingWanted || isProfileLoading
+                      ? pageContent['loading'] || 'Loading...'
+                      : pageContent['capacity-card-add-to-wanted'] || 'Add to Wanted'}
+                </button>
+              </div>
+
+              {/* Info note */}
+              <p
+                className="text-xs leading-relaxed border-t pt-3"
+                style={{
+                  color: darkMode ? '#9ca3af' : '#6b7280',
+                  borderColor: darkMode ? '#374151' : '#e5e7eb',
+                }}
+              >
+                {pageContent['capacity-card-profile-info'] ||
+                  'This will be added to your personal profile.'}
+              </p>
             </div>
           </div>
         )}
