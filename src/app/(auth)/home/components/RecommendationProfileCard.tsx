@@ -22,6 +22,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
+import { toProfileSlug } from '@/lib/utils/profilePublicUrl';
 
 type ProfileCardRecommendation = ProfileRecommendation | OrganizationRecommendation;
 
@@ -77,7 +78,7 @@ export default function RecommendationProfileCard({
     if (isOrganization) {
       router.push(`/organization_profile/${recommendation.id}`);
     } else if (profileUsername) {
-      router.push(`/profile/${profileUsername}`);
+      router.push(`/profile/${toProfileSlug(profileUsername)}`);
     }
   }, [isOrganization, recommendation.id, profileUsername, router]);
 

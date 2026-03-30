@@ -6,6 +6,7 @@ import LoadingState from '@/components/LoadingState';
 import { useUserByUsername } from '@/hooks/useUserProfile';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
+import { fromProfileSlug } from '@/lib/utils/profilePublicUrl';
 
 export default function ProfileByUserName() {
   const params = useParams();
@@ -13,8 +14,7 @@ export default function ProfileByUserName() {
   const usernameParam = params?.username;
   const username = Array.isArray(usernameParam) ? usernameParam[0] : usernameParam;
 
-  // Ensure the username is encoded and replace spaces with underscores
-  const decodedUsername = decodeURIComponent(username || '');
+  const decodedUsername = fromProfileSlug(username || '');
   const { userByUsername } = useUserByUsername(decodedUsername);
 
   const decodedUsernameToLower = decodedUsername?.toLowerCase().trim();
