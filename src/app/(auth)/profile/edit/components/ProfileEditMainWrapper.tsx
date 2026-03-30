@@ -146,12 +146,7 @@ export default function EditProfilePage() {
 
   // Get the capacity system from cache
   const capacityCache = useCapacityStore();
-  const {
-    getName,
-    getRootCapacities,
-    isLoaded: isCapacityCacheLoaded,
-    isLoadingTranslations,
-  } = capacityCache;
+  const { getName, isLoaded: isCapacityCacheLoaded, isLoadingTranslations } = capacityCache;
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<{

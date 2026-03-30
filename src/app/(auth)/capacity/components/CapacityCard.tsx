@@ -20,7 +20,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import React, { useMemo, useRef, useState } from 'react';
 
 interface CapacityCardProps {
@@ -252,7 +251,6 @@ export function CapacityCard({
   isInfoExpanded,
   onToggleInfo,
 }: CapacityCardProps) {
-  const router = useRouter();
   const isMobile = useIsMobile();
   const pageContent = usePageContent();
   const language = useLanguage();
