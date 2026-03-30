@@ -9,6 +9,7 @@ import { SavedItemHeader } from './SavedItemHeader';
 import { SavedItemActions } from './SavedItemActions';
 
 import { useDarkMode } from '@/stores';
+import { toProfileSlug } from '@/lib/utils/profilePublicUrl';
 interface SavedItemCardProps {
   readonly id: string;
   readonly username: string;
@@ -52,7 +53,7 @@ export const SavedItemCard = ({
   const handleView = () => {
     const routePath = isOrganization
       ? `/organization_profile/${id}`
-      : `/profile/${encodeURIComponent(username)}`;
+      : `/profile/${toProfileSlug(username)}`;
     router.push(routePath);
   };
 

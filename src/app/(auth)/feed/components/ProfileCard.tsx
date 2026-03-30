@@ -30,6 +30,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { ProfileCapacityType } from '../types';
+import { toProfileSlug } from '@/lib/utils/profilePublicUrl';
 
 interface ProfileCardProps {
   id: string;
@@ -70,9 +71,7 @@ function getProfileButtonIcon(isOrganization: boolean, darkMode: boolean) {
 }
 
 function getProfileRoute(isOrganization: boolean, id: string, username: string) {
-  return isOrganization
-    ? `/organization_profile/${id}`
-    : `/profile/${encodeURIComponent(username)}`;
+  return isOrganization ? `/organization_profile/${id}` : `/profile/${toProfileSlug(username)}`;
 }
 
 export const ProfileCard = ({
