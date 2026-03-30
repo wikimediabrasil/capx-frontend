@@ -627,77 +627,32 @@ export function getColorForCountry(countryCode: string, darkMode: boolean): stri
   return darkMode ? territory.colorDark : territory.color;
 }
 
-// Fallback mapping of known API territory IDs to Wikimedia territory IDs
-// Based on actual API data: IDs 18-25 are the Wikimedia regions
-export const API_TERRITORY_ID_TO_WIKIMEDIA: Record<string, string> = {
-  '18': 'MENA', // Middle East & North Africa (MENA)
-  '19': 'SSA', // Sub-Saharan Africa (SSA)
-  '20': 'SA', // South Asia (SA)
-  '21': 'ESEAP', // East, Southeast Asia, & Pacific (ESEAP)
-  '22': 'LAC', // Latin America & Caribbean (LAC)
-  '23': 'NA', // North America (NA)
-  '24': 'NWE', // Northern & Western Europe (NWE)
-  '25': 'CEECA', // Central & Eastern Europe & Central Asia (CEECA)
+// Stable base mapping: the statistics endpoint uses these numeric IDs for Wikimedia regions.
+// This is a contract with the stats API and is always included in the final map.
+const STATISTICS_ID_TO_WIKIMEDIA: Record<string, string> = {
+  '18': 'MENA',
+  '19': 'SSA',
+  '20': 'SA',
+  '21': 'ESEAP',
+  '22': 'LAC',
+  '23': 'NA',
+  '24': 'NWE',
+  '25': 'CEECA',
 };
 
-// Build mapping from API territory to Wikimedia territory using either dynamic names or fallback
+// Build mapping from API territory ID to Wikimedia territory acronym.
+// Always starts from the stable stats mapping so IDs 18-25 are always covered.
+// API territory_acronym data is merged on top, extending the map with any additional
+// territory IDs that the stats endpoints may use.
 export function buildApiTerritoryToWikimediaMap(
-  territories: Record<string, string> | null | undefined
+  territories: { id: number; territory_acronym: string }[]
 ): Record<string, string> {
-  const map: Record<string, string> = {};
-
-  // If territories is available, use dynamic mapping based on names
-  if (territories && Object.keys(territories).length > 0) {
-    // Map that handles various naming patterns including parenthetical abbreviations
-    // e.g., "Middle East & North Africa (MENA)" or "Sub-Saharan Africa (SSA)"
-    const NORMALIZED_TERRITORY_MAP: Record<string, string> = {
-      // Full names without abbreviations
-      subsaharanafrica: 'SSA',
-      northernandwesterneurope: 'NWE',
-      eastsoutheastasiaandpacific: 'ESEAP',
-      latinamericaandcaribbean: 'LAC',
-      centralandeasterneuropeandcentralasia: 'CEECA',
-      southasia: 'SA',
-      middleeastandnorthafrica: 'MENA',
-      northamerica: 'NA',
-      // With abbreviations in parentheses (normalized)
-      subsaharanafricassa: 'SSA',
-      northernandwesterneuropenwe: 'NWE',
-      eastsoutheastasiaandpacificeseap: 'ESEAP',
-      latinamericaandcaribbeanlac: 'LAC',
-      centralandeasterneuropeandcentralasiaceeca: 'CEECA',
-      southasiasa: 'SA',
-      middleeastandnorthafricamena: 'MENA',
-      northamericana: 'NA',
-      // Just abbreviations
-      ssa: 'SSA',
-      nwe: 'NWE',
-      eseap: 'ESEAP',
-      lac: 'LAC',
-      ceeca: 'CEECA',
-      sa: 'SA',
-      mena: 'MENA',
-      na: 'NA',
-    };
-
-    Object.entries(territories).forEach(([id, name]) => {
-      const normalizedName = name
-        .toLowerCase()
-        .replace(/&/g, 'and')
-        .replace(/[^a-z0-9]/g, '')
-        .trim();
-      const wikimediaId = NORMALIZED_TERRITORY_MAP[normalizedName];
-      if (wikimediaId) {
-        map[id] = wikimediaId;
-      }
-    });
-
-    // If we found mappings, return them
-    if (Object.keys(map).length > 0) {
-      return map;
+  const apiMap = territories.reduce<Record<string, string>>((acc, t) => {
+    if (t.territory_acronym) {
+      acc[String(t.id)] = t.territory_acronym.toUpperCase();
     }
-  }
+    return acc;
+  }, {});
 
-  // Fallback to hardcoded mapping when territories data is not available or no matches found
-  return { ...API_TERRITORY_ID_TO_WIKIMEDIA };
+  return { ...STATISTICS_ID_TO_WIKIMEDIA, ...apiMap };
 }

@@ -64,7 +64,7 @@ export default function ProfilePage({ isSameUser, profile }: Readonly<ProfilePag
   const currentLanguage = useCurrentLanguage();
   const { languages } = useLanguage(token, currentLanguage);
   const { affiliations } = useAffiliation(token);
-  const { territories } = useTerritories(token);
+  const { territoriesMap: territories } = useTerritories(token);
   const { wikimediaProjects, wikimediaProjectImages } = useWikimediaProject(
     token,
     profile?.wikimedia_project || []

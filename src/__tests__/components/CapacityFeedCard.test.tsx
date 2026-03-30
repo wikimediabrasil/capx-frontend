@@ -140,7 +140,11 @@ jest.mock('next-auth/react', () => ({
 
 jest.mock('@/hooks/useTerritories', () => ({
   useTerritories: () => ({
-    territories: {
+    territories: [
+      { id: 1, territory_name: 'Brazil', territory_acronym: 'LAC', parent_territory: [22] },
+      { id: 2, territory_name: 'Argentina', territory_acronym: 'LAC', parent_territory: [22] },
+    ],
+    territoriesMap: {
       '1': 'Brazil',
       '2': 'Argentina',
     },
