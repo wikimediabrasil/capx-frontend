@@ -180,7 +180,7 @@ export default function EditOrganizationProfilePage() {
   const { avatars } = useAvatars();
   const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
-  const { territories } = useTerritories(token);
+  const { territoriesMap: territories } = useTerritories(token);
 
   /* State Management*/
 
@@ -1268,7 +1268,7 @@ export default function EditOrganizationProfilePage() {
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
-        territories={territories || {}}
+        territories={territories}
         organizationId={Number(organizationId)}
       />
 

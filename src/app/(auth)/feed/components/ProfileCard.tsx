@@ -103,7 +103,7 @@ export const ProfileCard = ({
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
-  const { territories: availableTerritories } = useTerritories(token);
+  const { territoriesMap: availableTerritories } = useTerritories(token);
 
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({

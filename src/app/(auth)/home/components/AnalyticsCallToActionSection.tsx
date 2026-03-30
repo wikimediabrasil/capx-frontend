@@ -24,7 +24,7 @@ export default function AnalyticsCallToActionSection() {
   const isMobile = useIsMobile();
   const darkMode = useDarkMode();
   const { data, isLoading } = useStatistics();
-  const { territories, loading: territoriesLoading } = useTerritories(token);
+  const { territoriesMap: territories, loading: territoriesLoading } = useTerritories(token);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

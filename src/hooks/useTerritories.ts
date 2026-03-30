@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react';
-import { Territories } from '@/types/territory';
+import { useState, useEffect, useMemo } from 'react';
+import { Territory } from '@/types/territory';
 import { fetchTerritories } from '@/services/territoryService';
 
 export const useTerritories = (token: string | undefined) => {
-  const [territories, setTerritories] = useState<Territories>({});
+  const [territories, setTerritories] = useState<Territory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!token) return;
+
     const loadTerritories = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Try fetching with token if available, otherwise without
         const data = await fetchTerritories(token);
-        setTerritories(data || {});
+        setTerritories(data || []);
       } catch (err) {
         console.error('Error loading territories:', err);
         setError(err instanceof Error ? err.message : 'Failed to load territories');
-        setTerritories({});
+        setTerritories([]);
       } finally {
         setLoading(false);
       }
@@ -28,8 +29,19 @@ export const useTerritories = (token: string | undefined) => {
     loadTerritories();
   }, [token]);
 
+  // Derived map of id (string) → territory_name for components that need lookup by id
+  const territoriesMap = useMemo(
+    () =>
+      territories.reduce<Record<string, string>>((acc, t) => {
+        acc[String(t.id)] = t.territory_name;
+        return acc;
+      }, {}),
+    [territories]
+  );
+
   return {
     territories,
+    territoriesMap,
     loading,
     error,
   };

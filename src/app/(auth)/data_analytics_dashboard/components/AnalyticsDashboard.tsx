@@ -229,8 +229,16 @@ export default function AnalyticsDashboardPage() {
   const [openTerritories, setOpenTerritories] = useState(false);
   const [openCapacities, setOpenCapacities] = useState(false);
   const [visibleLanguagesCount, setVisibleLanguagesCount] = useState(8);
+  const [mapViewMode, setMapViewMode] = useState<'users' | 'languages' | 'capacities'>('users');
 
-  const sortedTerritories = getTopItems(territories, data?.territory_user_counts, 8);
+  const sortedTerritories = territories
+    .map(t => ({
+      id: t.id,
+      name: t.territory_name,
+      count: data?.territory_user_counts?.[String(t.id)] ?? 0,
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
   const sortedLanguages = getTopItems(languages, data?.language_user_counts).filter(
     lang => lang.count > 0
   );
@@ -319,150 +327,157 @@ export default function AnalyticsDashboardPage() {
               languagesByTerritory={languagesByTerritory}
               capacitiesByTerritory={capacitiesByTerritory}
               totalUsers={data?.total_users}
+              onViewModeChange={setMapViewMode}
             />
           )}
         </div>
       </div>
 
       {/* Language Dropdown */}
-      <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
-        <DropdownHeader
-          icon={LanguageIcon}
-          iconWhite={LanguageIconWhite}
-          title={pageContent['analytics-bashboard-languages-title']}
-          isOpen={openLanguages}
-          onToggle={() => setOpenLanguages(!openLanguages)}
-          darkMode={darkMode}
-        />
+      {(mapViewMode === 'users' || mapViewMode === 'languages') && (
+        <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
+          <DropdownHeader
+            icon={LanguageIcon}
+            iconWhite={LanguageIconWhite}
+            title={pageContent['analytics-bashboard-languages-title']}
+            isOpen={openLanguages}
+            onToggle={() => setOpenLanguages(!openLanguages)}
+            darkMode={darkMode}
+          />
 
-        {openLanguages && (
-          <div
-            className={`mt-8 gap-4 ${
-              darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
-            } overflow-hidden`}
-          >
-            {visibleLanguages.map(language => (
-              <div key={language.id} className="flex flex-row justify-between md:items-center">
-                <div
-                  className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
+          {openLanguages && (
+            <div
+              className={`mt-8 gap-4 ${
+                darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
+              } overflow-hidden`}
+            >
+              {visibleLanguages.map(language => (
+                <div key={language.id} className="flex flex-row justify-between md:items-center">
+                  <div
+                    className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {language.name}
+                  </div>
+                  <div
+                    className={`font-[Montserrat] text-[12px] md:text-[24px] mb-4 md:mr-[80px] flex items-center gap-1 ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {formatNumber(language.count ?? 0)}{' '}
+                    {pageContent['analytics-bashboard-territory-users']}
+                  </div>
+                </div>
+              ))}
+
+              {visibleLanguagesCount < sortedLanguages.length && (
+                <button
+                  onClick={handleLoadMoreLanguages}
+                  className={`w-full md:w-auto mx-auto flex items-center justify-center gap-2 px-4 md:py-2 border-2 border-[#053749] rounded-lg text-[#053749] text-[12px] md:text-[24px] font-bold hover:bg-[#EFEFEF] transition ${
+                    darkMode
+                      ? 'text-white border-white hover:bg-[#0A4C5A]'
+                      : 'text-[#053749] border-[#053749]'
                   }`}
                 >
-                  {language.name}
-                </div>
-                <div
-                  className={`font-[Montserrat] text-[12px] md:text-[24px] mb-4 md:mr-[80px] flex items-center gap-1 ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
-                >
-                  {formatNumber(language.count ?? 0)}{' '}
-                  {pageContent['analytics-bashboard-territory-users']}
-                </div>
-              </div>
-            ))}
-
-            {visibleLanguagesCount < sortedLanguages.length && (
-              <button
-                onClick={handleLoadMoreLanguages}
-                className={`w-full md:w-auto mx-auto flex items-center justify-center gap-2 px-4 md:py-2 border-2 border-[#053749] rounded-lg text-[#053749] text-[12px] md:text-[24px] font-bold hover:bg-[#EFEFEF] transition ${
-                  darkMode
-                    ? 'text-white border-white hover:bg-[#0A4C5A]'
-                    : 'text-[#053749] border-[#053749]'
-                }`}
-              >
-                {pageContent['analytics-bashboard-capacities-load-more']}
-                <span className="text-xl">+</span>
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+                  {pageContent['analytics-bashboard-capacities-load-more']}
+                  <span className="text-xl">+</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Territories Dropdown */}
-      <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
-        <DropdownHeader
-          icon={TerritoryIcon}
-          iconWhite={TerritoryIconWhite}
-          title={pageContent['analytics-bashboard-territory-title']}
-          isOpen={openTerritories}
-          onToggle={() => setOpenTerritories(!openTerritories)}
-          darkMode={darkMode}
-        />
+      {mapViewMode === 'users' && (
+        <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
+          <DropdownHeader
+            icon={TerritoryIcon}
+            iconWhite={TerritoryIconWhite}
+            title={pageContent['analytics-bashboard-territory-title']}
+            isOpen={openTerritories}
+            onToggle={() => setOpenTerritories(!openTerritories)}
+            darkMode={darkMode}
+          />
 
-        {openTerritories && (
-          <div
-            className={`mt-8 gap-4 ${
-              darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
-            } overflow-hidden`}
-          >
-            {sortedTerritories.map(territory => (
-              <div
-                className="flex flex-col md:flex-row md:justify-between md:items-center"
-                key={territory.id}
-              >
+          {openTerritories && (
+            <div
+              className={`mt-8 gap-4 ${
+                darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
+              } overflow-hidden`}
+            >
+              {sortedTerritories.map(territory => (
                 <div
-                  className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  }`}
+                  className="flex flex-col md:flex-row md:justify-between md:items-center"
+                  key={territory.id}
                 >
-                  {territory.name}
+                  <div
+                    className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                  >
+                    {territory.name}
+                  </div>
+                  <div
+                    className={`font-[Montserrat] text-[12px] md:text-[24px] mb-4 mr-[80px] md:mb-4 ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    } flex items-center gap-1`}
+                  >
+                    {formatNumber(territory.count ?? 0)}{' '}
+                    {pageContent['analytics-bashboard-territory-users']}
+                  </div>
                 </div>
-                <div
-                  className={`font-[Montserrat] text-[12px] md:text-[24px] mb-4 mr-[80px] md:mb-4 ${
-                    darkMode ? 'text-white' : 'text-[#053749]'
-                  } flex items-center gap-1`}
-                >
-                  {formatNumber(territory.count ?? 0)}{' '}
-                  {pageContent['analytics-bashboard-territory-users']}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Capacties Dropdown */}
-      <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
-        <DropdownHeader
-          icon={CapxIcon}
-          iconWhite={capxIconWhite}
-          title={pageContent['analytics-bashboard-capacities-title']}
-          isOpen={openCapacities}
-          onToggle={() => setOpenCapacities(!openCapacities)}
-          darkMode={darkMode}
-        />
+      {(mapViewMode === 'users' || mapViewMode === 'capacities') && (
+        <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
+          <DropdownHeader
+            icon={CapxIcon}
+            iconWhite={capxIconWhite}
+            title={pageContent['analytics-bashboard-capacities-title']}
+            isOpen={openCapacities}
+            onToggle={() => setOpenCapacities(!openCapacities)}
+            darkMode={darkMode}
+          />
 
-        {openCapacities && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {availableCount &&
-              Object.keys(availableCount).map(id => {
-                const skillId = Number(id);
-                const metadata = SKILL_METADATA[skillId];
+          {openCapacities && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {availableCount &&
+                Object.keys(availableCount).map(id => {
+                  const skillId = Number(id);
+                  const metadata = SKILL_METADATA[skillId];
 
-                return (
-                  <CapacityCardAnalytics
-                    key={`${metadata?.key}-${skillId}`}
-                    open={openCapacities}
-                    title={metadata ? pageContent[metadata.key] : ''}
-                    icon={metadata?.icon}
-                    headerColor={metadata?.headerColor || '#EFEFEF'}
-                    darkMode={darkMode}
-                    cards={[
-                      {
-                        titleCard: pageContent['analytics-bashboard-capacities-card-learners'],
-                        value: wantedCount?.[id] || 0,
-                      },
-                      {
-                        titleCard: pageContent['analytics-bashboard-capacities-card-sharers'],
-                        value: availableCount?.[id] || 0,
-                      },
-                    ]}
-                  />
-                );
-              })}
-          </div>
-        )}
-      </div>
+                  return (
+                    <CapacityCardAnalytics
+                      key={`${metadata?.key}-${skillId}`}
+                      open={openCapacities}
+                      title={metadata ? pageContent[metadata.key] : ''}
+                      icon={metadata?.icon}
+                      headerColor={metadata?.headerColor || '#EFEFEF'}
+                      darkMode={darkMode}
+                      cards={[
+                        {
+                          titleCard: pageContent['analytics-bashboard-capacities-card-learners'],
+                          value: wantedCount?.[id] || 0,
+                        },
+                        {
+                          titleCard: pageContent['analytics-bashboard-capacities-card-sharers'],
+                          value: availableCount?.[id] || 0,
+                        },
+                      ]}
+                    />
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
