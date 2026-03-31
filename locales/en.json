@@ -748,5 +748,11 @@
   "translation-oauth-edits-attributed": "Edits will be attributed to you.",
   "translation-oauth-disconnect": "Disconnect",
   "translation-oauth-disconnected": "Metabase account disconnected.",
-  "translation-oauth-timeout": "Authorization timed out. Please try again."
+  "translation-oauth-timeout": "Authorization timed out. Please try again.",
+  "translation-label-search": "Search",
+  "translation-search-placeholder": "Filter by label, description or QID…",
+  "translation-search-results": "results",
+  "translation-no-results": "No capacities match your search.",
+  "translation-clear-search": "Clear search",
+  "translation-page-of": "Page"
 }
