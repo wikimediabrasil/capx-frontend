@@ -132,7 +132,7 @@ export default function EditProfilePage() {
     refetch,
     deleteProfile,
   } = useProfile(token, userId);
-  const { territories } = useTerritories(token);
+  const { territoriesMap: territories } = useTerritories(token);
   const { languages } = useLanguage(token, language);
   const { affiliations } = useAffiliation(token);
   const { wikimediaProjects, error: wikimediaProjectsError } = useWikimediaProject(token);
@@ -146,12 +146,7 @@ export default function EditProfilePage() {
 
   // Get the capacity system from cache
   const capacityCache = useCapacityStore();
-  const {
-    getName,
-    getRootCapacities,
-    isLoaded: isCapacityCacheLoaded,
-    isLoadingTranslations,
-  } = capacityCache;
+  const { getName, isLoaded: isCapacityCacheLoaded, isLoadingTranslations } = capacityCache;
 
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<{
@@ -684,7 +679,7 @@ export default function EditProfilePage() {
     handleCancel: () => router.back(),
     formData,
     setFormData,
-    territories: territories || {},
+    territories,
     languages: languages || {},
     affiliations: affiliations || {},
     wikimediaProjects: wikimediaProjects || {},

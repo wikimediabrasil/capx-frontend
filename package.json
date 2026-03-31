@@ -1,6 +1,6 @@
 {
   "name": "capx-frontend",
-  "version": "2.2.14",
+  "version": "2.2.15",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -40,6 +40,7 @@
     "react-error-boundary": "^6.0.0",
     "react-is": "^18",
     "react-modal": "^3.16.1",
+    "react-qr-code": "^2.0.18",
     "react-scroll": "^1.9.0",
     "react-select": "^5.8.0",
     "react-simple-typewriter": "^5.0.1",

@@ -13,8 +13,6 @@ import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
-import EmojiIcon from '@/public/static/images/emoji_objects.svg';
-import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import { mentorshipService } from '@/services/mentorshipService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 

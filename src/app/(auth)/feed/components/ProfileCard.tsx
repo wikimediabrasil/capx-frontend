@@ -30,6 +30,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { ProfileCapacityType } from '../types';
+import { toProfileSlug } from '@/lib/utils/profilePublicUrl';
 
 interface ProfileCardProps {
   id: string;
@@ -55,14 +56,6 @@ interface ProfileCardProps {
 }
 
 // Helper functions
-function getTypeBadgeColors(type: string, darkMode: boolean) {
-  const isLearner = type === 'learner';
-  if (darkMode) {
-    return isLearner ? 'text-purple-200 border-purple-200' : 'text-[#05A300] border-[#05A300]';
-  }
-  return isLearner ? 'text-purple-800 border-purple-800' : 'text-[#166534] border-[#166534]';
-}
-
 function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
   if (isSaved) {
     return darkMode ? BookmarkFilledWhite : BookmarkFilled;
@@ -78,9 +71,7 @@ function getProfileButtonIcon(isOrganization: boolean, darkMode: boolean) {
 }
 
 function getProfileRoute(isOrganization: boolean, id: string, username: string) {
-  return isOrganization
-    ? `/organization_profile/${id}`
-    : `/profile/${encodeURIComponent(username)}`;
+  return isOrganization ? `/organization_profile/${id}` : `/profile/${toProfileSlug(username)}`;
 }
 
 export const ProfileCard = ({
@@ -111,7 +102,7 @@ export const ProfileCard = ({
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
-  const { territories: availableTerritories } = useTerritories(token);
+  const { territoriesMap: availableTerritories } = useTerritories(token);
 
   // Use custom hook for profile image loading
   const { profileImageUrl } = useProfileImage({
@@ -197,8 +188,6 @@ export const ProfileCard = ({
       );
     }
 
-    // Check if profile has known capacities
-    const hasKnown = knownCapacities && knownCapacities.length > 0;
     const typeArray = Array.isArray(type) ? type : [type];
     const hasKnownType = typeArray.includes(ProfileCapacityType.Known);
 

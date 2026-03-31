@@ -4,7 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   try {
-    const response = await axios.get(`${process.env.BASE_URL}/territory`, {
+    const { searchParams } = new URL(request.url);
+    const queryString = searchParams.toString();
+    const url = `${process.env.BASE_URL}/territory/${queryString ? `?${queryString}` : ''}`;
+
+    const response = await axios.get(url, {
       headers: {
         Authorization: authHeader,
       },

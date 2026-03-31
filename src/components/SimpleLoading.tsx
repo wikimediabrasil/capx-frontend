@@ -1,21 +1,10 @@
 import CapxLogo from '@/public/static/images/capx_detailed_logo.svg';
-import { useAppStore } from '@/stores';
 import Image from 'next/image';
 
-// Simple loading component without theme dependency
+// Simple loading component without theme dependency.
+// Uses only CSS media queries (md:) for fullScreen so the logo stays below the mobile header
+// from first paint, with no layout shift when context updates after hydration.
 export default function SimpleLoading({ fullScreen = false }: Readonly<{ fullScreen?: boolean }>) {
-  let isMobile = false;
-
-  // Try to get mobile status safely from Zustand store (no provider needed)
-  try {
-    isMobile = useAppStore.getState().isMobile;
-  } catch {
-    isMobile = false;
-  }
-
-  // Simple loading component without theme dependency.
-  // Uses only CSS media queries (md:) for fullScreen so the logo stays below the mobile header
-  // from first paint, with no layout shift when context (e.g. isMobile) updates after hydration.
   const wrapperClass = fullScreen ? 'min-h-screen pt-20 md:pt-0 bg-white' : 'h-[150px] bg-white';
   const innerClass = fullScreen
     ? 'min-h-[calc(100vh-5rem)] md:min-h-screen flex items-center justify-center'

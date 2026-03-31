@@ -573,5 +573,8 @@
 	"analytics-bashboard-capacities-card-community-health-initiative": "Capacity card title: Community health initiative",
 	"analytics-bashboard-capacities-card-social-skill": "Capacity card title: Social skill",
 	"analytics-bashboard-capacities-card-strategic-management": "Capacity card title: Strategic Management",
-	"analytics-bashboard-capacities-card-technology": "Capacity card title: Technology"
+	"analytics-bashboard-capacities-card-technology": "Capacity card title: Technology",
+	"analytics-map-countries-count": "Need to include territories as well as countries please.",
+	"analytics-map-capacity-known": "''Known'' means \"(that person) has experience in/with\": maybe to extensive degree or not?",
+	"analytics-map-capacity-available": "''Available'' means offering to mentor."
 }
