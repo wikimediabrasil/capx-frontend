@@ -4,6 +4,7 @@ import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useCapacityStore } from '@/stores';
 
 function OAuthContent() {
   const router = useRouter();
@@ -22,6 +23,11 @@ function OAuthContent() {
       // Clean up OAuth tokens after successful authentication
       localStorage.removeItem('oauth_token');
       localStorage.removeItem('oauth_token_secret');
+
+      // Prefetch capacities immediately so they're ready by the time
+      // the user lands on /home (the fetch continues through client-side navigation)
+      const language = localStorage.getItem('language') || 'en';
+      useCapacityStore.getState().updateLanguage(language, session.user.token);
     }
   }, [status, session]);
 
