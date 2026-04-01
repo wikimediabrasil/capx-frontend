@@ -2,8 +2,8 @@
 
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
-import LoadingState from '@/components/LoadingState';
 import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
+import { ChildCapacitiesSkeleton } from '@/components/skeletons';
 import { ScrollNavigation } from '@/components/ScrollNavigation';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
@@ -42,7 +42,7 @@ const ChildCapacities = ({
   const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityStore();
 
   if (isLoadingChildren) {
-    return <LoadingState />;
+    return <ChildCapacitiesSkeleton />;
   }
 
   // First, find the actual parent capacity from root capacities or existing children
@@ -271,7 +271,7 @@ function CapacityListContent() {
   if (isLoadingRoot || !isCacheReady) {
     return (
       <div className="flex flex-col justify-center items-center h-[400px]">
-        <LoadingState fullScreen={false} />
+        <ChildCapacitiesSkeleton />
         {!isCacheReady && (
           <div className="mt-8 text-center">
             <p className={`text-lg font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>

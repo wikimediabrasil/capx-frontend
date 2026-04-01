@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import LoadingState from '@/components/LoadingState';
+import { ProfileEditSkeleton } from '@/components/skeletons';
 import ProfileDeletedSuccessPopup from '@/components/ProfileDeletedSuccessPopup';
 import { DEFAULT_AVATAR, getDefaultAvatar } from '@/constants/images';
 import { useAffiliation } from '@/hooks/useAffiliation';
@@ -403,7 +403,7 @@ export default function EditProfilePage() {
 
   // Show loading state while session is loading
   if (sessionStatus === 'loading') {
-    return <LoadingState fullScreen={true} />;
+    return <ProfileEditSkeleton />;
   }
 
   // If session is unauthenticated, don't render anything
@@ -424,7 +424,7 @@ export default function EditProfilePage() {
 
   // Show loading state while profile is loading or capacity translations are loading
   if (profileLoading || !isCapacityCacheLoaded || isLoadingTranslations) {
-    return <LoadingState fullScreen={true} />;
+    return <ProfileEditSkeleton />;
   }
 
   // Handle error state

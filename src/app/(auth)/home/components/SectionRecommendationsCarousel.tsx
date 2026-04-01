@@ -10,7 +10,7 @@ import RecommendationProfileCard from '@/app/(auth)/home/components/Recommendati
 import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
 import RecommendationsSection from '@/app/(auth)/home/components/RecommendationsSection';
 import CapacityRecommendationsCarousels from '@/app/(auth)/home/components/CapacityRecommendationsCarousels';
-import LoadingState from '@/components/LoadingState';
+import { RecommendationCarouselSkeleton } from '@/components/skeletons';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { userService } from '@/services/userService';
@@ -67,8 +67,11 @@ export default function SectionRecommendationsCarousel() {
 
   if (isLoading) {
     return (
-      <section className="flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 bg-transparent">
-        <LoadingState />
+      <section className="flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 bg-transparent gap-12">
+        <RecommendationCarouselSkeleton type="profile" cardCount={3} />
+        <RecommendationCarouselSkeleton type="profile" cardCount={3} />
+        <RecommendationCarouselSkeleton type="capacity" cardCount={3} />
+        <RecommendationCarouselSkeleton type="event" cardCount={3} />
       </section>
     );
   }

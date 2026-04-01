@@ -2,7 +2,7 @@
 
 import Banner from '@/components/Banner';
 import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import LoadingState from '@/components/LoadingState';
+import { EventCardSkeleton } from '@/components/skeletons';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { useEvents } from '@/hooks/useEvents';
 import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
@@ -277,8 +277,8 @@ export default function EventsMainWrapper() {
           )}
 
           {(isEventsLoading && !isSearchMode) || isSearching ? (
-            <div className="flex justify-center items-center py-10">
-              <LoadingState />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
+              {Array.from({ length: 6 }).map((_, i) => <EventCardSkeleton key={i} />)}
             </div>
           ) : eventsError && !isSearchMode ? (
             <div className="text-center py-8">

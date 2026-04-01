@@ -1,7 +1,7 @@
 'use client';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import LoadingState from '@/components/LoadingState';
+import { OrganizationProfileSkeleton } from '@/components/skeletons';
 import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useFormCapacitySelection } from '@/hooks/useCapacitySelection';
@@ -1229,7 +1229,7 @@ export default function EditOrganizationProfilePage() {
   };
 
   if (isLoading) {
-    return <LoadingState fullScreen={true} />;
+    return <OrganizationProfileSkeleton />;
   }
 
   return (

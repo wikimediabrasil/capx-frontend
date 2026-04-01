@@ -1,6 +1,6 @@
 'use client';
 
-import LoadingState from '@/components/LoadingState';
+import { CapacitiesTreeSkeleton } from '@/components/skeletons';
 import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { useCapacityList } from '@/hooks/useCapacityList';
 import { useSession } from 'next-auth/react';
@@ -211,7 +211,7 @@ export default function CapacitiesTreeVisualization() {
   ]);
 
   if (isLoading || isLoadingRoots) {
-    return <LoadingState fullScreen />;
+    return <CapacitiesTreeSkeleton />;
   }
 
   if (!session?.user?.token) {

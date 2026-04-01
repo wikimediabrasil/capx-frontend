@@ -5,7 +5,7 @@ import { EventCard } from './EventCard';
 import { useEffect, useState } from 'react';
 import { Event } from '@/types/event';
 import axios from 'axios';
-import LoadingState from '@/components/LoadingState';
+import { EventCardSkeleton } from '@/components/skeletons';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface EventsSectionProps {
@@ -94,7 +94,9 @@ export default function EventsSection({
         }`}
       >
         {isLoading ? (
-          <LoadingState />
+          <>
+            {Array.from({ length: 3 }).map((_, i) => <EventCardSkeleton key={i} isHorizontalScroll />)}
+          </>
         ) : error ? (
           <p className="text-center py-4 text-red-500">{error}</p>
         ) : events && events.length > 0 ? (

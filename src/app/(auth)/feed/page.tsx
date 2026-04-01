@@ -3,6 +3,7 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useLanguageSync } from '@/components/LanguageSync';
 import LoadingState from '@/components/LoadingState';
+import { FeedPageSkeleton } from '@/components/skeletons';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
 import { SearchFilterSection } from '@/components/SearchFilterSection';
@@ -217,13 +218,23 @@ export default function FeedPage() {
     }
   };
 
-  // Only show full loading on initial load, not during search
-  const shouldShowFullLoading =
-    (!hasLoadedOnce && (isUsersLearnerLoading || isUsersSharerLoading || isUsersKnownLoading)) ||
-    isLoadingTranslations ||
-    isLanguageChanging;
+  const isInitialLoading =
+    !hasLoadedOnce && (isUsersLearnerLoading || isUsersSharerLoading || isUsersKnownLoading);
+  const isTranslationLoading = isLoadingTranslations || isLanguageChanging;
 
-  if (shouldShowFullLoading) {
+  if (isInitialLoading) {
+    return (
+      <div className="w-full flex flex-col items-center pt-24 md:pt-8 overflow-x-hidden">
+        <div className="container mx-auto px-4 w-full max-w-full">
+          <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
+            <FeedPageSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isTranslationLoading) {
     return <LoadingState fullScreen={true} />;
   }
 

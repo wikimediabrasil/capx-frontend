@@ -2,7 +2,7 @@
 
 import ProfilePage from '../components/ProfilePage';
 
-import LoadingState from '@/components/LoadingState';
+import { ProfilePageSkeleton } from '@/components/skeletons';
 import { useUserByUsername } from '@/hooks/useUserProfile';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
@@ -22,7 +22,7 @@ export default function ProfileByUserName() {
   const isSameUser = decodedUsernameToLower === loggedUserNameToLower;
 
   if (!username || !userByUsername) {
-    return <LoadingState fullScreen={true} />;
+    return <ProfilePageSkeleton />;
   }
 
   return <ProfilePage isSameUser={isSameUser} profile={userByUsername}></ProfilePage>;

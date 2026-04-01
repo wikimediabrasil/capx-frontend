@@ -1,7 +1,7 @@
 'use client';
 
 import Banner from '@/components/Banner';
-import LoadingState from '@/components/LoadingState';
+import { AnalyticsDashboardSkeleton, SkeletonBase } from '@/components/skeletons';
 import { useAggregatedTerritoryData } from '@/hooks/useAggregatedTerritoryData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
@@ -251,7 +251,7 @@ export default function AnalyticsDashboardPage() {
   const availableCount = data?.skill_available_user_counts;
   const wantedCount = data?.skill_wanted_user_counts;
 
-  if (!data) return <LoadingState fullScreen />;
+  if (!data) return <AnalyticsDashboardSkeleton />;
 
   return (
     <section className="w-full flex flex-col min-h-screen gap-4 pt-24 md:pt-8 mx-auto md:max-w-[1200px]">
@@ -316,7 +316,7 @@ export default function AnalyticsDashboardPage() {
         </div>
         <div className={`w-full rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}>
           {isAggregatedDataLoading ? (
-            <LoadingState />
+            <SkeletonBase className="w-full h-[280px] md:h-[450px] rounded-lg" />
           ) : (
             <SVGWorldMap
               languageUserCounts={data?.language_user_counts}

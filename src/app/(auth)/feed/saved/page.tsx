@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { useSavedItems } from '@/hooks/useSavedItems';
-import LoadingState from '@/components/LoadingState';
+import { SavedItemsSkeleton } from '@/components/skeletons';
 import { NoResults } from '../components/NoResults';
 import SavedItemsIllustration from '@/public/static/images/capx_person_4.svg';
 import SavedItemCard from './components/SavedItemCard';
@@ -66,7 +66,7 @@ export default function SavedProfilesPage() {
 
           {/* Loading state */}
           {isLoading ? (
-            <LoadingState />
+            <SavedItemsSkeleton />
           ) : error ? (
             <div
               className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-white' : 'bg-red-100 text-red-800'}`}
