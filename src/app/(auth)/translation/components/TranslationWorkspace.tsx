@@ -1,30 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useDarkMode, usePageContent } from '@/stores';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { translationService } from '@/services/translationService';
+import { useDarkMode, usePageContent } from '@/stores';
 import type { EditableCapacityItem, OAuthStatusResponse } from '@/types/translation';
-
-// Languages users can translate into (English excluded per spec)
-const EDITABLE_LANGUAGES = [
-  { code: 'fr', label: 'Français' },
-  { code: 'es', label: 'Español' },
-  { code: 'pt-br', label: 'Português (Brasil)' },
-  { code: 'de', label: 'Deutsch' },
-  { code: 'it', label: 'Italiano' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' },
-  { code: 'zh-hant', label: '繁體中文' },
-  { code: 'zh-hans', label: '简体中文' },
-  { code: 'ar', label: 'العربية' },
-  { code: 'hi', label: 'हिन्दी' },
-  { code: 'bn', label: 'বাংলা' },
-  { code: 'ru', label: 'Русский' },
-  { code: 'nl', label: 'Nederlands' },
-  { code: 'pl', label: 'Polski' },
-];
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import TranslationBanner from './TranslationBanner';
 
 const OAUTH_POLL_INTERVAL_MS = 2500;
 const OAUTH_TIMEOUT_MS = 90_000;
@@ -43,7 +26,8 @@ export default function TranslationWorkspace() {
   const token = getToken(session);
 
   // Language selection
-  const [targetLang, setTargetLang] = useState('fr');
+  const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
+  const [targetLang, setTargetLang] = useState('');
   const [fallbackLang] = useState('en');
 
   // OAuth state
@@ -280,6 +264,14 @@ export default function TranslationWorkspace() {
   // Effects
   // ------------------------------------------------------------------
   useEffect(() => {
+    axios.get<string[]>('/api/language').then(res => {
+      const langs = res.data.filter(l => l !== 'en');
+      setAvailableLanguages(langs);
+      if (langs.length > 0) setTargetLang(prev => prev || langs[0]);
+    });
+  }, []);
+
+  useEffect(() => {
     checkOAuthStatus();
   }, [checkOAuthStatus]);
 
@@ -334,11 +326,8 @@ export default function TranslationWorkspace() {
   return (
     <section className={`w-full min-h-screen pt-24 md:pt-8 ${bg}`}>
       <div className="mx-auto max-w-[1200px] px-4 flex flex-col gap-6 pb-16">
-        {/* Page title */}
-        <h1 className="text-2xl font-bold">
-          {pageContent['translation-page-title'] || 'Translate Capacities'}
-        </h1>
 
+        <TranslationBanner/>
         {/* OAuth banner */}
         {!oauthLoading && (
           <div
@@ -402,9 +391,9 @@ export default function TranslationWorkspace() {
               onChange={e => setTargetLang(e.target.value)}
               className={`rounded border px-3 py-2 text-sm ${inputBase} focus:outline-none focus:ring-2 focus:ring-[#851970]`}
             >
-              {EDITABLE_LANGUAGES.map(l => (
-                <option key={l.code} value={l.code}>
-                  {l.label} ({l.code})
+              {availableLanguages.map(code => (
+                <option key={code} value={code}>
+                  {code}
                 </option>
               ))}
             </select>
