@@ -585,6 +585,7 @@
   "capacity-visualization-title": "Interactive capacity visualization",
   "capacity-visualization-description": "Click main capacities to expand/collapse and focus • Click icons to see details and automatically center • Use mouse to zoom and drag • Click 'Return to initial view' to reset focus",
   "capacity-visualization-reset-button": "Return to initial view",
+  "translate-page": "Translate!",
   "analytics-dashboard": "Data analytics",
   "analytics-bashboard-alt-banner": "Banner image data analytics page",
   "analytics-bashboard-total-users": "Total users",
