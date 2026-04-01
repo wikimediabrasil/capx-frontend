@@ -142,7 +142,11 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
       to: '/data_analytics_dashboard',
       active: true,
     },
-
+    {
+      title: pageContent['translate-page'],
+      to: '/translation',
+      active: true,
+    },
     {
       title: pageContent['navbar-link-dark-mode'],
       action: () => {
