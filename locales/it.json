@@ -5,6 +5,7 @@
 			"Asteralee",
 			"Ayub Abdulla",
 			"Beta16",
+			"Daimona Eaytoy",
 			"Dream Indigo",
 			"FL2226",
 			"Giacomo Lanza",
@@ -121,6 +122,9 @@
 	"body-profile-copy-link": "Copia collegamento",
 	"body-profile-copy-link-success": "Link al profilo copiato negli appunti!",
 	"body-profile-copy-link-error": "Impossibile copiare il collegamento al profilo",
+	"body-profile-qr-code": "Mostra codice QR",
+	"body-profile-qr-code-download": "Scarica codice QR",
+	"body-profile-qr-code-close": "Chiudi",
 	"body-profile-choose-skills": "Scegli le competenze che sei disposto a condividere tra quelle che conosci.",
 	"aria-label-video-player": "Video introduttivo di Capacity Exchange",
 	"video-fallback-message": "Il browser non supporta il tag video. Per vedere questo video, si prega di usare un browser moderno.",
@@ -695,7 +699,7 @@
 	"analytics-map-capacity-available": "Disponibile",
 	"analytics-map-capacity-wanted": "Ricercato",
 	"analytics-map-legend": "Tutti i dati vengono recuperati dal database di Capx in tempo reale",
-	"analytics-map-loading-capacities": "caricamento capacità in corso",
+	"analytics-map-loading-capacities": "Caricamento capacità in corso",
 	"analytics-map-capacity-type": "Tipo",
 	"sign-in-required-title": "Accedi per continuare"
 }
