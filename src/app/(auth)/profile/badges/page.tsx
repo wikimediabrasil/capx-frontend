@@ -6,12 +6,13 @@ import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/consta
 import { useAllBadges, useUserBadges } from '@/stores';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useProfile } from '@/hooks/useProfile';
+import { fetchWikidataImage, shouldUseWikidataImage } from '@/lib/utils/wikidataImage';
 import AccountCircleIcon from '@/public/static/images/account_circle.svg';
 import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useDarkMode, usePageContent } from '@/stores';
 export default function BadgesPage() {
@@ -26,27 +27,41 @@ export default function BadgesPage() {
   const { profile } = useProfile(token, Number(userId));
 
   const { getAvatarById } = useAvatars();
-  const [avatarUrl, setAvatarUrl] = useState<string>(profile?.avatar || getDefaultAvatar());
+  const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar());
   const allBadges = useAllBadges();
   const userBadges = useUserBadges();
   const userBadgeById = new Map(userBadges.map(b => [b.id, b]));
 
-  useEffect(() => {
-    const fetchAvatar = async () => {
-      if (typeof profile?.avatar === 'number' && profile?.avatar > 0) {
-        try {
-          const avatarData = await getAvatarById(profile?.avatar);
-          if (avatarData?.avatar_url) {
-            setAvatarUrl(avatarData.avatar_url);
-          }
-        } catch (error) {
-          console.error('Error fetching avatar:', error);
-        }
-      }
-    };
+  const loadAvatar = useCallback(async () => {
+    if (!profile) {
+      setAvatarUrl(getDefaultAvatar());
+      return;
+    }
 
-    fetchAvatar();
-  }, [profile?.avatar, getAvatarById]);
+    if (shouldUseWikidataImage(profile.avatar, profile.wikidata_qid)) {
+      const wikidataImage = await fetchWikidataImage(profile.wikidata_qid!);
+      setAvatarUrl(wikidataImage || getDefaultAvatar());
+      return;
+    }
+
+    if (typeof profile.avatar === 'number' && profile.avatar > 0) {
+      try {
+        const avatarData = await getAvatarById(profile.avatar);
+        if (avatarData?.avatar_url) {
+          setAvatarUrl(avatarData.avatar_url);
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching avatar:', error);
+      }
+    }
+
+    setAvatarUrl(getDefaultAvatar());
+  }, [profile, getAvatarById]);
+
+  useEffect(() => {
+    loadAvatar();
+  }, [loadAvatar]);
 
   return (
     <main
@@ -93,6 +108,11 @@ export default function BadgesPage() {
                 }
                 fill
                 className="object-contain"
+                unoptimized
+                onError={e => {
+                  console.error('Error loading profile image on badges page:', e);
+                  e.currentTarget.src = getDefaultAvatar();
+                }}
               />
             </div>
           </div>
