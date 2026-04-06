@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"KormiSK",
 			"Oujon"
 		]
 	},
@@ -12,5 +13,10 @@
 	"body-loggedin-home-main-section-button02": "Môj profil",
 	"footer-link-documentation": "Dokumentácia",
 	"footer-link-wikimedia": "Meta-wikimedia",
-	"footer-message": "Pre a podľa hnutia Wikimedia"
+	"footer-message": "Pre a podľa hnutia Wikimedia",
+	"body-profile-qr-code": "Zobraziť QR kód",
+	"body-profile-qr-code-modal-title": "QR kód odkazu na profil",
+	"body-profile-qr-code-hint": "Naskenujte tento kód a otvorte si tento profil v prehliadači.",
+	"body-profile-qr-code-download": "Stiahnuť QR kód",
+	"body-profile-qr-code-close": "Zavrieť"
 }
