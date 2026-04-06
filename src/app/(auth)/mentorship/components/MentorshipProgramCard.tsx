@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
 import { MentorshipProgram } from '@/types/mentorship';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import RoleSelectionModal from './RoleSelectionModal';
@@ -11,8 +12,6 @@ import NativeFormRenderModal from './NativeFormRenderModal';
 import ConfirmationModal from './ConfirmationModal';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
-import LanguageIcon from '@/public/static/images/language.svg';
-import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import { mentorshipService } from '@/services/mentorshipService';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
@@ -33,6 +32,7 @@ export default function MentorshipProgramCard({
   const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();
   const token = (session?.user as { token?: string } | undefined)?.token;
+  const { languages: availableLanguages } = useLanguage(token);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -41,6 +41,7 @@ export default function MentorshipProgramCard({
 
   const { getName, preloadCapacities } = useCapacityStore();
   const [showAllCapacities, setShowAllCapacities] = useState(false);
+  const [showAllLanguages, setShowAllLanguages] = useState(false);
 
   useEffect(() => {
     if (program.capacities.length > 0 && token) {
@@ -302,41 +303,43 @@ export default function MentorshipProgramCard({
             </div>
           )}
 
-          {/* Languages */}
-          {program.languages.length > 0 && (
-            <div className="flex items-start gap-2">
-              <div className="relative w-4 h-4 flex-shrink-0 mt-0.5">
-                <Image
-                  src={darkMode ? LanguageIconWhite : LanguageIcon}
-                  alt="Languages"
-                  fill
-                  className="object-contain"
-                />
+          {program.languageIds.length > 0 && (
+            <div className="mb-1">
+              <span
+                className={`block text-xs font-semibold mb-1 ${
+                  darkMode ? 'text-gray-200' : 'text-gray-800'
+                }`}
+              >
+                {pageContent['body-profile-languages-title'] || 'Languages'}
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {(showAllLanguages ? program.languageIds : program.languageIds.slice(0, 8)).map(
+                  (languageId, index) => {
+                    const label = availableLanguages[String(languageId)] ?? '…';
+                    return (
+                      <span
+                        key={`${languageId}-${index}`}
+                        className="inline-flex px-3 py-1 rounded-md bg-capx-primary-green text-white text-xs md:text-sm"
+                      >
+                        {label}
+                      </span>
+                    );
+                  }
+                )}
               </div>
-              <div className="flex-1">
-                <span
-                  className={`text-xs font-semibold block mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+              {program.languageIds.length > 8 && (
+                <button
+                  type="button"
+                  className={`mt-1 text-xs font-semibold underline ${
+                    darkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}
+                  onClick={() => setShowAllLanguages(prev => !prev)}
                 >
-                  Languages:
-                </span>
-                <div className="flex flex-wrap gap-1">
-                  {program.languages.slice(0, 2).map((language, index) => (
-                    <span
-                      key={index}
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {language}
-                    </span>
-                  ))}
-                  {program.languages.length > 2 && (
-                    <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      ...
-                    </span>
-                  )}
-                </div>
-              </div>
+                  {showAllLanguages
+                    ? pageContent['capacity-list-scroll-previous'] || 'Show less'
+                    : pageContent['capacity-list-scroll-next'] || 'Show more'}
+                </button>
+              )}
             </div>
           )}
 

@@ -47,7 +47,9 @@ function buildProgramsFromSettings(
     const logo = profileImage !== '' ? profileImage : null;
     const description = setting.description?.trim() || `Mentorship program by ${displayName}.`;
     const capacities = Array.isArray(setting.skills) ? setting.skills : [];
-    const languages = Array.isArray(setting.language_names) ? setting.language_names : [];
+    const languageIds = Array.isArray(setting.languages)
+      ? setting.languages.map(id => Number(id)).filter(n => !Number.isNaN(n))
+      : [];
 
     const openDateRaw = setting.registration_open_date ?? null;
     const closeDateRaw = setting.registration_close_date ?? null;
@@ -75,7 +77,7 @@ function buildProgramsFromSettings(
       description,
       format: 'online',
       capacities,
-      languages,
+      languageIds,
       subscribers,
       forms: Object.keys(forms).length ? forms : undefined,
     };
