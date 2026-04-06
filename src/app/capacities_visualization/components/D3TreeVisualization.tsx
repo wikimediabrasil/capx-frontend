@@ -316,8 +316,9 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
       const { x: rx, y: ry, angle } = rootPositions[i];
       const rootColor = getColorForCapacity(cap.id);
       allNodes.push({ x: rx, y: ry, depth: 0, data: cap, rootColor, angle, rootId: cap.id });
+      const logoR = LOGO_SIZE / 2;
       allLinks.push({
-        source: { x: CX, y: CY },
+        source: { x: CX + logoR * Math.cos(angle), y: CY + logoR * Math.sin(angle) },
         target: { x: rx, y: ry },
         rootId: cap.id,
         depth: 0,
