@@ -581,8 +581,6 @@
   "snackbar-edit-profile-organization-remove-event-success": "Event removed successfully",
   "snackbar-edit-profile-organization-save-event-failed": "Error saving event",
   "snackbar-edit-profile-organization-update-event-success": "Event updated successfully",
-  "capacity-visualization-title": "Interactive capacity visualization",
-  "capacity-visualization-description": "Click main capacities to expand/collapse and focus • Click icons to see details and automatically center • Use mouse to zoom and drag • Click 'Return to initial view' to reset focus",
   "capacity-visualization-reset-button": "Return to initial view",
   "analytics-dashboard": "Data analytics",
   "analytics-bashboard-alt-banner": "Banner image data analytics page",
