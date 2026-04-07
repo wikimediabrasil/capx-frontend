@@ -56,15 +56,15 @@ function buildProgramsFromSettings(
     const openDateObj = openDateRaw ? new Date(openDateRaw) : null;
     const closeDateObj = closeDateRaw ? new Date(closeDateRaw) : null;
 
-    let status: MentorshipStatus = 'open';
-    if (openDateObj || closeDateObj) {
-      if (openDateObj && now < openDateObj) {
-        status = 'upcoming';
-      } else if (closeDateObj && now > closeDateObj) {
-        status = 'closed';
-      } else {
-        status = 'open';
-      }
+    let status: MentorshipStatus;
+    if (!openDateRaw && !closeDateRaw) {
+      status = 'closed';
+    } else if (openDateObj && now < openDateObj) {
+      status = 'upcoming';
+    } else if (closeDateObj && now > closeDateObj) {
+      status = 'closed';
+    } else {
+      status = 'open';
     }
     return {
       id: orgId,
