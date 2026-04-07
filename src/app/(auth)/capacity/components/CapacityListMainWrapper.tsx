@@ -325,8 +325,7 @@ function CapacityListContent() {
       <CapacityBanner />
 
       {/* Visualization description */}
-
-      <div className="flex flex-col justify-center items-center px-2 gap-2 w-full">
+      <div className="flex flex-col lg:flex-row md:flex-col justify-center items-center md:items-start px-2 gap-2 w-full">
         <p
           className={`font-montserrat font-normal text-center items-center ${isMobile ? 'text-capx-font-size-mobile-3xl' : 'text-capx-font-size-desktop-4xl'} ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
         >

@@ -442,7 +442,7 @@ function CategoryCard({
               {capacities.length} specialized {capacities.length === 1 ? 'capacity' : 'capacities'}
             </p>
           </div>
-          <div className="flex gap-3 pb-4 pt-4 overflow-x-auto">
+          <div className="flex gap-3 pb-4 pt-4 overflow-x-auto scrollbar-hide">
             {capacities.map(capacity => (
               <CapacityChip
                 key={capacity.code}
@@ -491,7 +491,7 @@ function CategoryCard({
       </p>
       {isExpanded && (
         <div className="px-6 py-4 border-t border-black/5" style={{ backgroundColor: bg }}>
-          <div className="flex gap-3 pb-4 overflow-x-auto">
+          <div className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide">
             {capacities.map(capacity => (
               <CapacityChip
                 key={capacity.code}
