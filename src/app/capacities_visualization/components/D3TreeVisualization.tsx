@@ -66,7 +66,7 @@ const GC_RADIUS = 160;
 // Logo display size
 const LOGO_SIZE = 72;
 
-export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) {
+export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizationProps>) {
   const svgRef = useRef<SVGSVGElement>(null);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const savedTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
@@ -526,36 +526,6 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
         }
       `}</style>
 
-      <div className="mb-4 w-full">
-        <h2
-          className="text-xl font-semibold mb-2"
-          style={{ color: darkMode ? '#f3f4f6' : '#111827' }}
-        >
-          {pageContent['capacity-visualization-title'] || 'Visualização Interativa das Capacidades'}
-        </h2>
-        <p className="text-sm mb-4" style={{ color: darkMode ? '#d1d5db' : '#4b5563' }}>
-          {pageContent['capacity-visualization-description'] ||
-            'Clique nas capacidades principais para expandir e centralizar • Use scroll/pinch para zoom • Arraste para navegar'}
-        </p>
-        <div className="flex flex-wrap gap-2 mt-4">
-          <button
-            onClick={showAllCapacities}
-            className="px-4 py-2 bg-capx-secondary-purple hover:bg-capx-secondary-purple/80 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            {pageContent['capacity-visualization-reset-button'] ||
-              'Retornar à visualização inicial'}
-          </button>
-        </div>
-      </div>
-
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 relative">
           <div
@@ -581,7 +551,7 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
         </div>
 
         {selectedNode && !selectedNode.isCenter && (
-          <div className="lg:w-80 flex-shrink-0">
+          <div className="lg:w-80 flex-shrink-0 flex flex-col gap-4">
             <div
               className="p-5 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col gap-4"
               style={{ backgroundColor: darkMode ? '#1f2937' : '#fafafa' }}
@@ -709,6 +679,20 @@ export default function D3TreeVisualization({ data }: D3TreeVisualizationProps) 
                   'This will be added to your personal profile.'}
               </p>
             </div>
+            <button
+              onClick={showAllCapacities}
+              className="px-4 py-2 bg-capx-secondary-purple hover:bg-capx-secondary-purple/80 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              {pageContent['capacity-visualization-reset-button']}
+            </button>
           </div>
         )}
       </div>

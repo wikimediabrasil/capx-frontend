@@ -11,6 +11,7 @@ import { Capacity } from '@/types/capacity';
 import React, { useCallback, useState } from 'react';
 import { CapacityBanner } from './CapacityBanner';
 import { CapacityCard } from './CapacityCard';
+import CapacityCategories from './CapacityCategories';
 import { CapacitySearch } from './CapacitySearch';
 
 import { useCapacityStore, useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
@@ -23,8 +24,9 @@ import CollapseAllWhiteIcon from '@/public/static/images/collapse_all_white.svg'
 import CreditCardIcon from '@/public/static/images/credit_card.svg';
 import CreditCardDarkIcon from '@/public/static/images/credit_card_dark.svg';
 import Image from 'next/image';
+import { Typewriter } from 'react-simple-typewriter';
 
-type VisualizationMode = 'cards' | 'tree' | 'other';
+type VisualizationMode = 'cards' | 'tree' | 'categories';
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
@@ -295,7 +297,7 @@ function CapacityListContent() {
   const getVisualizationIcon = (mode: VisualizationMode) => {
     const useWhite = (visualizationMode === mode) !== darkMode;
     if (mode === 'tree') return useWhite ? AccountTreeWhiteIcon : AccountTreeIcon;
-    if (mode === 'other') return useWhite ? CollapseAllWhiteIcon : CollapseAllIcon;
+    if (mode === 'categories') return useWhite ? CollapseAllWhiteIcon : CollapseAllIcon;
     return useWhite ? CreditCardIcon : CreditCardDarkIcon;
   };
 
@@ -318,10 +320,28 @@ function CapacityListContent() {
 
   return (
     <section
-      className={`flex flex-col ${isMobile ? 'w-full' : 'max-w-screen-xl mx-auto'} py-8 px-4 lg:px-12 gap-[40px]`}
+      className={`flex flex-col ${isMobile ? 'w-full' : 'max-w-screen-xl mx-auto'} py-8 px-4 lg:px-12 gap-[36px]`}
     >
       <CapacityBanner />
 
+      {/* Visualization description */}
+
+      <div className="flex flex-col justify-center items-center px-2 gap-2 w-full">
+        <p className={`font-montserrat font-normal text-center items-center ${isMobile ? 'text-capx-font-size-mobile-3xl' : 'text-capx-font-size-desktop-4xl'} ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}>
+          {pageContent['capacity-list-visualization-description']}
+        </p>
+        <p className={`flex font-montserrat font-normal ${isMobile ? 'text-capx-font-size-mobile-2xl' : 'text-capx-font-size-desktop-4xl'} ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}>
+          <Typewriter
+            words={[ pageContent['capacity-list-visualization-description-browse-cards'], pageContent['capacity-list-visualization-description-view-tree-structure'], pageContent['capacity-list-visualization-description-navigate-by-categories']]}
+            loop={0}
+            cursor
+            cursorStyle="_"
+            typeSpeed={120}
+            deleteSpeed={50}
+            delaySpeed={3000}
+          />
+        </p>
+      </div>
       {/* Search */}
       <div className="flex flex-col gap-2 w-full">
         <CapacitySearch onSearchEnd={handleSearchEnd} onSearch={handleSearch} />
@@ -356,12 +376,12 @@ function CapacityListContent() {
             </div>
           </button>
           <button
-            onClick={() => setVisualizationMode('other')}
-            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('other')}`}
+            onClick={() => setVisualizationMode('categories')}
+            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('categories')}`}
             aria-label="Other view"
           >
             <div className="relative w-[10px] h-[17px]">
-              <Image src={getVisualizationIcon('other')} alt="Other view" fill />
+              <Image src={getVisualizationIcon('categories')} alt="Other view" fill />
             </div>
           </button>
         </div>
@@ -375,9 +395,9 @@ function CapacityListContent() {
       )}
 
       {/* Placeholder for other visualization */}
-      {!searchTerm && visualizationMode === 'other' && (
-        <div className="flex justify-center items-center h-[200px] bg-[#F6F6F6] rounded-[16px]">
-          <p className="text-gray-500">Coming soon...</p>
+      {!searchTerm && visualizationMode === 'categories' && (
+        <div className="w-full">
+          <CapacityCategories />
         </div>
       )}
 
