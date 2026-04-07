@@ -149,7 +149,10 @@ function CapacityInfoPanel({
         skills_known: updatePayload.skills_known,
         skills_available: updatePayload.skills_available,
       };
-      queryClient.setQueryData(['userProfile', session.user.id, session.user.token], updatedProfile);
+      queryClient.setQueryData(
+        ['userProfile', session.user.id, session.user.token],
+        updatedProfile
+      );
       showSnackbar(pageContent['capacity-added-known'] || 'Capacity added to known', 'success');
       profileService
         .updateProfile(Number(session.user.id), updatePayload, {
@@ -188,7 +191,10 @@ function CapacityInfoPanel({
         ...userProfile,
         skills_wanted: updatePayload.skills_wanted,
       };
-      queryClient.setQueryData(['userProfile', session.user.id, session.user.token], updatedProfile);
+      queryClient.setQueryData(
+        ['userProfile', session.user.id, session.user.token],
+        updatedProfile
+      );
       showSnackbar(pageContent['capacity-added-wanted'] || 'Capacity added to wanted', 'success');
       profileService
         .updateProfile(Number(session.user.id), updatePayload, {
@@ -279,7 +285,9 @@ function CapacityInfoPanel({
                   priority
                 />
               </div>
-              <p className="text-[13px] text-capx-light-link underline break-all">{metabase_code}</p>
+              <p className="text-[13px] text-capx-light-link underline break-all">
+                {metabase_code}
+              </p>
             </div>
           </a>
         )}
@@ -317,7 +325,10 @@ function CapacityInfoPanel({
 
       {/* Add buttons */}
       <div className="flex flex-col sm:flex-row gap-2">
-        <div className="rounded-[4px]" style={{ backgroundColor: ICON_COLOR, display: 'inline-block' }}>
+        <div
+          className="rounded-[4px]"
+          style={{ backgroundColor: ICON_COLOR, display: 'inline-block' }}
+        >
           <BaseButton
             label={knownButtonLabel}
             customClass={`flex justify-center items-center gap-2 px-3 py-2 text-[#F6F6F6] font-extrabold rounded-[4px] text-center text-[14px] ${isAddedToKnown ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -325,7 +336,10 @@ function CapacityInfoPanel({
             disabled={isDisabledKnown}
           />
         </div>
-        <div className="rounded-[4px]" style={{ backgroundColor: ICON_COLOR, display: 'inline-block' }}>
+        <div
+          className="rounded-[4px]"
+          style={{ backgroundColor: ICON_COLOR, display: 'inline-block' }}
+        >
           <BaseButton
             label={wantedButtonLabel}
             customClass={`flex justify-center items-center gap-2 px-3 py-2 text-[#F6F6F6] font-extrabold rounded-[4px] text-center text-[14px] ${isAddedToWanted ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -364,9 +378,7 @@ function CapacityChip({
       style={{ backgroundColor: bg }}
       aria-pressed={isSelected}
     >
-      {capacity.icon && (
-        <MaskedIcon src={capacity.icon as unknown as StaticImageData} size={24} />
-      )}
+      {capacity.icon && <MaskedIcon src={capacity.icon as unknown as StaticImageData} size={24} />}
       <span
         className="text-sm font-semibold text-[#032430] text-start truncate"
         title={capacity.name}
@@ -465,10 +477,16 @@ function CategoryCard({
           rotate={isExpanded ? 180 : 0}
         />
       </button>
-      <p className="text-[12px] font-[Montserrat] text-[#032430] text-start px-6 py-2" style={{ backgroundColor: bg }}>
+      <p
+        className="text-[12px] font-[Montserrat] text-[#032430] text-start px-6 py-2"
+        style={{ backgroundColor: bg }}
+      >
         {description}
       </p>
-      <p className="text-[12px] font-[Montserrat] text-[#032430] text-start px-6 pb-3" style={{ backgroundColor: bg }}>
+      <p
+        className="text-[12px] font-[Montserrat] text-[#032430] text-start px-6 pb-3"
+        style={{ backgroundColor: bg }}
+      >
         {capacities.length} specialized {capacities.length === 1 ? 'capacity' : 'capacities'}
       </p>
       {isExpanded && (
