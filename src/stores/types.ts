@@ -67,6 +67,7 @@ export type CapacityStore = CapacityStoreState & CapacityStoreActions;
 // App store state
 export interface AppStoreState {
   isMobile: boolean;
+  isTablet: boolean;
   mobileMenuStatus: boolean;
   language: string;
   pageContent: Record<string, string>;

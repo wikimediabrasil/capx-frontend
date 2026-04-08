@@ -29,6 +29,7 @@ const getInitialLanguage = (): string => {
 // Initial state
 const initialState = {
   isMobile: false,
+  isTablet: false,
   mobileMenuStatus: false,
   language: getInitialLanguage(),
   pageContent: defaultPageContent,
@@ -85,14 +86,16 @@ export const useAppStore = create<AppStore>()(
 
           // Handle initial mobile detection
           const isMobile = window.innerWidth <= 768;
-          set({ isMobile, mounted: true });
+          const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
+          set({ isMobile, isTablet, mounted: true });
 
           // Set up resize listener
           const checkIsMobile = () => {
             const newIsMobile = window.innerWidth <= 768;
+            const newIsTablet = window.innerWidth >= 768 && window.innerWidth <= 1024;
             const currentState = get();
-            if (currentState.isMobile !== newIsMobile) {
-              set({ isMobile: newIsMobile });
+            if (currentState.isMobile !== newIsMobile || currentState.isTablet !== newIsTablet) {
+              set({ isMobile: newIsMobile, isTablet: newIsTablet });
               // Auto-close mobile menu when switching to desktop
               if (!newIsMobile) {
                 set({ mobileMenuStatus: false });
@@ -131,6 +134,7 @@ export const useAppStore = create<AppStore>()(
 
 // Selector hooks for optimal re-renders
 export const useIsMobile = () => useAppStore(state => state.isMobile);
+export const useIsTablet = () => useAppStore(state => state.isTablet);
 export const useLanguage = () => useAppStore(state => state.language);
 export const useMobileMenuStatus = () => useAppStore(state => state.mobileMenuStatus);
 export const usePageContent = () => useAppStore(state => state.pageContent);

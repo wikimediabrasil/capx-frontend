@@ -12,13 +12,13 @@ const getHierarchyInfo = (code: number) => {
   const codeStr = code.toString();
 
   let category = '';
-  if (codeStr.startsWith('10')) category = 'organizational';
+  if (codeStr.startsWith('106')) category = 'technology';
+  else if (codeStr.startsWith('10')) category = 'organizational';
   else if (codeStr.startsWith('36')) category = 'communication';
   else if (codeStr.startsWith('50')) category = 'learning';
   else if (codeStr.startsWith('56')) category = 'community';
   else if (codeStr.startsWith('65')) category = 'social';
   else if (codeStr.startsWith('74')) category = 'strategic';
-  else if (codeStr.startsWith('106')) category = 'technology';
   else category = 'organizational';
 
   return {

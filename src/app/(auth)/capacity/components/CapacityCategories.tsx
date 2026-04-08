@@ -2,7 +2,6 @@
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
-import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
@@ -15,39 +14,15 @@ import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
-import { useCapacityStore, useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
+import { useCapacityStore, useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import { CapacityData } from '@/stores/types';
 import { UserProfile } from '@/types/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Image, { StaticImageData } from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 const ICON_COLOR = '#032430';
-
-const THEMATIC_CATEGORIES = [
-  {
-    label: 'Linguistic Equity',
-    categories: ['communication', 'social'],
-    icon: LanguageIcon as StaticImageData,
-    bg: '#E2E4FB',
-    description: 'Language Diversity Hub',
-  },
-  {
-    label: 'Knowledge gaps',
-    categories: ['organizational', 'strategic', 'community'],
-    icon: NeurologyIcon as StaticImageData,
-    bg: '#FBE2EE',
-    description: 'Knowledge gaps are the areas where we need to improve our understanding.',
-  },
-  {
-    label: 'Open education',
-    categories: ['learning', 'technology'],
-    icon: BookIcon as StaticImageData,
-    bg: '#E2FBE7',
-    description: 'WikiCamp, Week Club, Education',
-  },
-];
 
 function MaskedIcon({
   src,
@@ -251,7 +226,6 @@ function CapacityInfoPanel({
     <div
       className="rounded-xl shadow-md border border-black/10 p-4 flex flex-col gap-4"
       style={{ backgroundColor: bg }}
-      onClick={e => e.stopPropagation()}
     >
       <div className="flex items-center justify-between">
         <span className="font-extrabold text-[#032430] text-lg">{capacity.name}</span>
@@ -405,6 +379,16 @@ function CategoryCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCapacity, setSelectedCapacity] = useState<CapacityData | null>(null);
   const isMobile = useIsMobile();
+  const chipsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollChips = (direction: 'left' | 'right') => {
+    if (chipsScrollRef.current) {
+      chipsScrollRef.current.scrollBy({
+        left: direction === 'left' ? -260 : 260,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   const handleChipSelect = (capacity: CapacityData) => {
     setSelectedCapacity(prev => (prev?.code === capacity.code ? null : capacity));
@@ -442,16 +426,32 @@ function CategoryCard({
               {capacities.length} specialized {capacities.length === 1 ? 'capacity' : 'capacities'}
             </p>
           </div>
-          <div className="flex gap-3 pb-4 pt-4 overflow-x-auto scrollbar-hide">
-            {capacities.map(capacity => (
-              <CapacityChip
-                key={capacity.code}
-                capacity={capacity}
-                bg={bg}
-                isSelected={selectedCapacity?.code === capacity.code}
-                onSelect={() => handleChipSelect(capacity)}
-              />
-            ))}
+          <div className="flex items-center gap-2 pt-4 pb-4">
+            <button
+              onClick={() => scrollChips('left')}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors"
+              aria-label="Scroll left"
+            >
+              <MaskedIcon src={ArrowDownIcon as StaticImageData} size={20} rotate={90} />
+            </button>
+            <div ref={chipsScrollRef} className="flex gap-3 overflow-x-auto scrollbar-hide">
+              {capacities.map(capacity => (
+                <CapacityChip
+                  key={capacity.code}
+                  capacity={capacity}
+                  bg={bg}
+                  isSelected={selectedCapacity?.code === capacity.code}
+                  onSelect={() => handleChipSelect(capacity)}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => scrollChips('right')}
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors"
+              aria-label="Scroll right"
+            >
+              <MaskedIcon src={ArrowDownIcon as StaticImageData} size={20} rotate={270} />
+            </button>
           </div>
           {capacityInfoPanel}
         </div>
@@ -510,15 +510,47 @@ function CategoryCard({
 }
 
 export default function CapacityCategories() {
-  const language = useLanguage();
-  const { data: rootCapacities = [] } = useRootCapacities(language);
-  const { getName, getIcon } = useCapacityStore();
+  const { capacities, getName, getIcon } = useCapacityStore();
+  const pageContent = usePageContent();
 
+  // Capacities curated from capx-unified-cache by thematic relevance (max 10 each)
+  const THEMATIC_CATEGORIES = [
+    {
+      label: pageContent['capacity-category-linguistic-equity'] || 'Linguistic Equity',
+      // Language and communication-related capacities
+      codes: [39, 38, 116, 123, 47, 48, 46, 44, 43, 49],
+      icon: LanguageIcon as StaticImageData,
+      bg: '#E2E4FB',
+      description:
+        pageContent['capacity-category-linguistic-equity-description'] || 'Language Diversity Hub',
+    },
+    {
+      label: pageContent['capacity-category-knowledge-gaps'] || 'Knowledge gaps',
+      // Advanced Wikimedia tools few users have added to their profiles
+      codes: [143, 141, 140, 139, 137, 134, 142, 131, 126, 125],
+      icon: NeurologyIcon as StaticImageData,
+      bg: '#FBE2EE',
+      description:
+        pageContent['capacity-category-knowledge-gaps-description'] ||
+        'Knowledge gaps are the areas where we need to improve our understanding.',
+    },
+    {
+      label: pageContent['capacity-category-open-education'] || 'Open education',
+      // Education programs and core Wikimedia technology
+      codes: [76, 77, 91, 84, 100, 105, 110, 113, 118, 127],
+      icon: BookIcon as StaticImageData,
+      bg: '#E2FBE7',
+      description:
+        pageContent['capacity-category-open-education-description'] ||
+        'WikiCamp, Week Club, Education',
+    },
+  ];
   return (
     <div className="flex flex-col gap-6 w-full">
-      {THEMATIC_CATEGORIES.map(({ label, categories, icon, bg, description }) => {
-        const matching = rootCapacities
-          .filter(c => c.category && categories.includes(c.category))
+      {THEMATIC_CATEGORIES.map(({ label, codes, icon, bg, description }) => {
+        const matching = codes
+          .map(code => capacities[code])
+          .filter(Boolean)
           .map(c => ({
             ...c,
             name: getName(c.code) || c.name,
