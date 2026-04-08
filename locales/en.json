@@ -678,6 +678,7 @@
   "mentorship-status-open": "Open",
   "mentorship-status-upcoming": "Upcoming",
   "mentorship-status-closed": "Closed",
+  "mentorship-registration-not-open": "Registration is not open for this program.",
   "mentorship-close": "Close",
   "close": "Close",
   "mentorship-programs-alt": "Mentorship Programs",

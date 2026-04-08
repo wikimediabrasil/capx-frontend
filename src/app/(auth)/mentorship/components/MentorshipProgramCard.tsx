@@ -50,11 +50,21 @@ export default function MentorshipProgramCard({
   }, [program.capacities, preloadCapacities, token]);
 
   const hasAnyForm = program.forms?.mentor || program.forms?.mentee;
+  const registrationActive = program.status === 'open';
+  const canApply = Boolean(hasAnyForm && registrationActive);
 
   const handleSubscribe = () => {
     if (!token) {
       showSnackbar(
         pageContent['mentorship-sign-in-required'] || 'Please sign in to apply for mentorship.',
+        'error'
+      );
+      return;
+    }
+    if (!registrationActive) {
+      showSnackbar(
+        pageContent['mentorship-registration-not-open'] ||
+          'Registration is not open for this program.',
         'error'
       );
       return;
@@ -85,6 +95,15 @@ export default function MentorshipProgramCard({
     if (!token) {
       showSnackbar(
         pageContent['mentorship-sign-in-required'] || 'Please sign in to apply for mentorship.',
+        'error'
+      );
+      return;
+    }
+
+    if (program.status !== 'open') {
+      showSnackbar(
+        pageContent['mentorship-registration-not-open'] ||
+          'Registration is not open for this program.',
         'error'
       );
       return;
@@ -383,8 +402,13 @@ export default function MentorshipProgramCard({
         <div className="flex gap-2 mt-auto">
           {hasAnyForm && (
             <BaseButton
+              disabled={!canApply}
               onClick={handleSubscribe}
-              customClass="flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-capx-primary-green text-white"
+              customClass={
+                canApply
+                  ? 'flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-[#851970] hover:bg-capx-primary-green text-white'
+                  : 'flex-1 px-4 py-2 rounded-lg text-sm font-extrabold bg-gray-300 text-gray-500 cursor-not-allowed opacity-70'
+              }
               label={pageContent['subscribe'] || 'Subscribe'}
             />
           )}
