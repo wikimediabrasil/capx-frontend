@@ -1,5 +1,4 @@
 import CapacityCategories from '@/app/(auth)/capacity/components/CapacityCategories';
-import { useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { profileService } from '@/services/profileService';
 import { useCapacityStore, useIsMobile } from '@/stores';
@@ -33,10 +32,6 @@ jest.mock('@/stores', () => ({
       }),
     }
   ),
-}));
-
-jest.mock('@/hooks/useCapacitiesQuery', () => ({
-  useRootCapacities: jest.fn(() => ({ data: [] })),
 }));
 
 jest.mock('@/hooks/useUserCapacities', () => ({
@@ -103,19 +98,35 @@ jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(() => mockQueryClient),
 }));
 
-const mockRootCapacities = [
-  { code: 1, name: 'Translation', category: 'communication', icon: null },
-  { code: 2, name: 'Social Media', category: 'social', icon: null },
-  { code: 3, name: 'Knowledge Management', category: 'organizational', icon: null },
-  { code: 4, name: 'E-Learning', category: 'technology', icon: null },
-];
+// Codes matching THEMATIC_CATEGORIES in CapacityCategories.tsx:
+//   Linguistic Equity: [39, 38, ...]
+//   Open education:    [76, 77, ...]
+const makeCapacity = (code: number, name: string) => ({
+  code,
+  name,
+  description: '',
+  wd_code: '',
+  metabase_code: '',
+  color: '',
+  icon: '',
+  hasChildren: false,
+  skill_type: 0,
+  skill_wikidata_item: '',
+});
+
+// Two Linguistic Equity capacities + one Open education capacity
+const mockCapacities: Record<number, ReturnType<typeof makeCapacity>> = {
+  39: makeCapacity(39, 'Translation'),
+  38: makeCapacity(38, 'Social Media'),
+  76: makeCapacity(76, 'E-Learning'),
+};
 
 describe('CapacityCategories', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useRootCapacities as jest.Mock).mockReturnValue({ data: [] });
     (useIsMobile as jest.Mock).mockReturnValue(false);
     (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+      capacities: {},
       getName: jest.fn(() => ''),
       getDescription: jest.fn(() => 'Test capacity description'),
       getWdCode: jest.fn(() => 'Q12345'),
@@ -150,28 +161,47 @@ describe('CapacityCategories', () => {
     });
 
     it('filters capacities into the correct thematic card', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
-      // 'communication' and 'social' categories → Linguistic Equity
+      // Codes 39 and 38 → Linguistic Equity
       expect(screen.getByText('Translation')).toBeInTheDocument();
       expect(screen.getByText('Social Media')).toBeInTheDocument();
 
-      // 'technology' category → Open education
+      // Code 76 → Open education
       expect(screen.getByText('E-Learning')).toBeInTheDocument();
     });
 
     it('shows correct capacity count per category', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
-      // Linguistic Equity: 2 capacities (translation + social media)
+      // Linguistic Equity: 2 capacities (codes 39 + 38)
       expect(screen.getByText('2 specialized capacities')).toBeInTheDocument();
     });
 
     it('shows singular "capacity" for a single match', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({
-        data: [{ code: 1, name: 'Translation', category: 'communication', icon: null }],
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: { 39: makeCapacity(39, 'Translation') },
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
       });
       render(<CapacityCategories />);
 
@@ -181,7 +211,14 @@ describe('CapacityCategories', () => {
 
   describe('desktop layout (isMobile: false)', () => {
     it('chips are always visible without expanding', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       expect(screen.getByText('Translation')).toBeInTheDocument();
@@ -195,7 +232,14 @@ describe('CapacityCategories', () => {
     });
 
     it('shows capacity info panel when a chip is clicked', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       fireEvent.click(screen.getByText('Translation'));
@@ -205,7 +249,14 @@ describe('CapacityCategories', () => {
     });
 
     it('hides info panel when the same chip is clicked again', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       fireEvent.click(screen.getByText('Translation'));
@@ -217,7 +268,14 @@ describe('CapacityCategories', () => {
     });
 
     it('closes info panel when close button is clicked', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       fireEvent.click(screen.getByText('Translation'));
@@ -228,10 +286,10 @@ describe('CapacityCategories', () => {
     });
 
     it('switches info panel when a different chip is clicked', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
       (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
         getName: jest.fn(() => ''),
-        getDescription: jest.fn(code => (code === 1 ? 'Translation desc' : 'Social desc')),
+        getDescription: jest.fn(code => (code === 39 ? 'Translation desc' : 'Social desc')),
         getWdCode: jest.fn(() => ''),
         getMetabaseCode: jest.fn(() => ''),
         getIcon: jest.fn(() => null),
@@ -253,7 +311,14 @@ describe('CapacityCategories', () => {
     });
 
     it('renders category cards collapsed by default', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       // Chips should not be visible before expanding
@@ -261,7 +326,14 @@ describe('CapacityCategories', () => {
     });
 
     it('expands a category card when its header is clicked', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       const expandableButtons = screen
@@ -275,7 +347,14 @@ describe('CapacityCategories', () => {
     });
 
     it('collapses an expanded category card when clicked again', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       const expandableButtons = screen
@@ -290,7 +369,14 @@ describe('CapacityCategories', () => {
     });
 
     it('shows capacity info panel after expanding and clicking a chip', () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: mockCapacities,
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
 
       const expandableButtons = screen
@@ -306,7 +392,14 @@ describe('CapacityCategories', () => {
 
   describe('CapacityInfoPanel', () => {
     const openTranslationPanel = () => {
-      (useRootCapacities as jest.Mock).mockReturnValue({ data: mockRootCapacities });
+      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: { 39: makeCapacity(39, 'Translation') },
+        getName: jest.fn(() => ''),
+        getDescription: jest.fn(() => 'Test capacity description'),
+        getWdCode: jest.fn(() => 'Q12345'),
+        getMetabaseCode: jest.fn(() => 'M9001'),
+        getIcon: jest.fn(() => null),
+      });
       render(<CapacityCategories />);
       fireEvent.click(screen.getByText('Translation'));
     };
@@ -335,13 +428,15 @@ describe('CapacityCategories', () => {
 
     it('does not show Wikidata link when wd_code is empty', () => {
       (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+        capacities: { 39: makeCapacity(39, 'Translation') },
         getName: jest.fn(() => ''),
         getDescription: jest.fn(() => 'Test capacity description'),
         getWdCode: jest.fn(() => ''),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
       });
-      openTranslationPanel();
+      render(<CapacityCategories />);
+      fireEvent.click(screen.getByText('Translation'));
       expect(screen.queryByText('Q12345')).not.toBeInTheDocument();
     });
 
@@ -377,8 +472,8 @@ describe('CapacityCategories', () => {
 
     it('shows "Added to Known" state when capacity is already in known list', () => {
       (useUserCapacities as jest.Mock).mockReturnValue({
-        userKnownCapacities: [1],
-        userAvailableCapacities: [1],
+        userKnownCapacities: [39],
+        userAvailableCapacities: [39],
         userWantedCapacities: [],
       });
       openTranslationPanel();
@@ -390,7 +485,7 @@ describe('CapacityCategories', () => {
       (useUserCapacities as jest.Mock).mockReturnValue({
         userKnownCapacities: [],
         userAvailableCapacities: [],
-        userWantedCapacities: [1],
+        userWantedCapacities: [39],
       });
       openTranslationPanel();
 
@@ -399,8 +494,8 @@ describe('CapacityCategories', () => {
 
     it('does not call updateProfile when capacity is already added to known', async () => {
       (useUserCapacities as jest.Mock).mockReturnValue({
-        userKnownCapacities: [1],
-        userAvailableCapacities: [1],
+        userKnownCapacities: [39],
+        userAvailableCapacities: [39],
         userWantedCapacities: [],
       });
       openTranslationPanel();
@@ -416,9 +511,7 @@ describe('CapacityCategories', () => {
 
     it('shows profile info notice', () => {
       openTranslationPanel();
-      expect(
-        screen.getByText(/This will be added to your personal profile/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/This will be added to your personal profile/i)).toBeInTheDocument();
     });
   });
 });
