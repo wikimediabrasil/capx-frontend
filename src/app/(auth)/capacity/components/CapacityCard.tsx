@@ -13,7 +13,14 @@ import MetabaseIcon from '@/public/static/images/metabase_black.svg';
 import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
-import { useIsMobile, useLanguage, usePageContent, useDarkMode, useCapacityStore } from '@/stores';
+import {
+  useIsMobile,
+  useIsTablet,
+  useLanguage,
+  usePageContent,
+  useDarkMode,
+  useCapacityStore,
+} from '@/stores';
 import { Capacity } from '@/types/capacity';
 import { UserProfile } from '@/types/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -178,7 +185,12 @@ const getExpandedButtonBackgroundColor = (
 };
 
 // Helper function to get text styling classes
-const getTextClasses = (isRoot?: boolean, isMobile?: boolean, displayNameLength?: number) => {
+const getTextClasses = (
+  isRoot?: boolean,
+  isMobile?: boolean,
+  displayNameLength?: number,
+  isTablet?: boolean
+) => {
   let textBreakClass;
   if (isRoot) {
     textBreakClass = 'break-words hyphens-auto capacity-name';
@@ -189,7 +201,15 @@ const getTextClasses = (isRoot?: boolean, isMobile?: boolean, displayNameLength?
   }
 
   let textSizeClass;
-  if (isMobile) {
+  if (isTablet) {
+    if (displayNameLength && displayNameLength > 40) {
+      textSizeClass = 'text-[18px]';
+    } else if (displayNameLength && displayNameLength > 25) {
+      textSizeClass = 'text-[22px]';
+    } else {
+      textSizeClass = 'text-[28px]';
+    }
+  } else if (isMobile) {
     if (displayNameLength && displayNameLength > 40) {
       textSizeClass = 'text-[14px]';
     } else if (displayNameLength && displayNameLength > 25) {
@@ -225,11 +245,14 @@ const renderIconByType = (
   renderIcon: (size: number, iconSrc: string) => React.ReactNode,
   isRoot?: boolean,
   isMobile?: boolean,
-  _parentCapacity?: Capacity
+  _parentCapacity?: Capacity,
+  isTablet?: boolean
 ) => {
   if (icon && isRoot) {
+    if (isTablet) return renderIcon(40, icon);
     return isMobile ? renderIcon(32, icon) : renderIcon(48, icon);
   }
+  if (isTablet) return renderIcon(52, icon);
   return isMobile ? renderIcon(32, icon) : renderIcon(68, icon);
 };
 
@@ -254,6 +277,7 @@ export function CapacityCard({
 }: CapacityCardProps) {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
   const pageContent = usePageContent();
   const language = useLanguage();
   const darkMode = useDarkMode();
@@ -830,6 +854,7 @@ export function CapacityCard({
         level={level}
         parentCapacity={parentCapacity}
         isMobile={isMobile}
+        isTablet={isTablet}
         darkMode={darkMode}
         isInfoVisible={isInfoVisible}
         handleCardClick={handleCardClick}
@@ -849,6 +874,7 @@ export function CapacityCard({
         icon={icon}
         color={color}
         isMobile={isMobile}
+        isTablet={isTablet}
         darkMode={darkMode}
         language={language}
         isInfoVisible={isInfoVisible}
@@ -873,6 +899,7 @@ export function CapacityCard({
       backgroundColor={backgroundColor}
       isRoot={isRoot}
       isMobile={isMobile}
+      isTablet={isTablet}
       darkMode={darkMode}
       language={language}
       isInfoVisible={isInfoVisible}
@@ -900,6 +927,7 @@ interface SearchCardProps {
   level?: number;
   parentCapacity?: Capacity;
   isMobile?: boolean;
+  isTablet?: boolean;
   darkMode: boolean;
   isInfoVisible: boolean;
   handleCardClick: (e: React.MouseEvent) => void;
@@ -917,6 +945,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
   level,
   parentCapacity,
   isMobile,
+  isTablet,
   darkMode,
   isInfoVisible,
   handleCardClick,
@@ -948,14 +977,19 @@ const SearchCard: React.FC<SearchCardProps> = ({
               : 'flex-row h-[326px] justify-around items-center'
           }`}
         >
-          {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
+          {icon &&
+            (isTablet
+              ? renderIcon(64, icon)
+              : isMobile
+                ? renderIcon(32, icon)
+                : renderIcon(85, icon))}
 
           <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
             <div className={`flex items-start ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}>
               <Link href={`/feed?capacityId=${code}`}>
                 <h3
                   className={`font-extrabold text-white hover:underline truncate text-left ${
-                    isMobile ? 'text-[20px]' : 'text-[48px]'
+                    isTablet ? 'text-[32px]' : isMobile ? 'text-[20px]' : 'text-[48px]'
                   }`}
                 >
                   {capitalizeFirstLetter(name)}
@@ -964,7 +998,11 @@ const SearchCard: React.FC<SearchCardProps> = ({
             </div>
 
             <div className="flex items-center gap-4">
-              {isMobile ? renderInfoButton(24, InfoIcon) : renderInfoButton(68, InfoIcon)}
+              {isTablet
+                ? renderInfoButton(44, InfoIcon)
+                : isMobile
+                  ? renderInfoButton(24, InfoIcon)
+                  : renderInfoButton(68, InfoIcon)}
             </div>
           </div>
         </div>
@@ -990,6 +1028,7 @@ interface RootCardProps {
   icon: string;
   color: string;
   isMobile?: boolean;
+  isTablet?: boolean;
   darkMode: boolean;
   language?: string;
   isInfoVisible: boolean;
@@ -1010,6 +1049,7 @@ const RootCard: React.FC<RootCardProps> = ({
   icon,
   color,
   isMobile,
+  isTablet,
   darkMode,
   language,
   isInfoVisible,
@@ -1045,7 +1085,12 @@ const RootCard: React.FC<RootCardProps> = ({
               : 'flex-row h-[326px] justify-around items-center'
           }`}
         >
-          {icon && isMobile ? renderIcon(32, icon) : renderIcon(85, icon)}
+          {icon &&
+            (isTablet
+              ? renderIcon(64, icon)
+              : isMobile
+                ? renderIcon(32, icon)
+                : renderIcon(85, icon))}
 
           <div
             className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}
@@ -1056,7 +1101,7 @@ const RootCard: React.FC<RootCardProps> = ({
               <Link href={`/feed?capacityId=${code}`}>
                 <h3
                   className={`font-extrabold text-white hover:underline break-words hyphens-auto capacity-name text-left ${
-                    isMobile ? 'text-[20px]' : 'text-[48px]'
+                    isTablet ? 'text-[32px]' : isMobile ? 'text-[20px]' : 'text-[48px]'
                   }`}
                   style={{ wordBreak: 'break-word', hyphens: 'auto' }}
                   lang={language || 'en'}
@@ -1067,7 +1112,12 @@ const RootCard: React.FC<RootCardProps> = ({
             </div>
 
             <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-4'}`}>
-              {isMobile ? (
+              {isTablet ? (
+                <>
+                  {renderInfoButton(44, InfoIcon)}
+                  {hasChildrenFromCache && renderArrowButton(44, ArrowDownIcon)}
+                </>
+              ) : isMobile ? (
                 <>
                   {renderInfoButton(20, InfoIcon)}
                   {hasChildrenFromCache && renderArrowButton(20, ArrowDownIcon)}
@@ -1113,6 +1163,7 @@ interface ChildCardProps {
   backgroundColor: string;
   isRoot?: boolean;
   isMobile?: boolean;
+  isTablet?: boolean;
   darkMode: boolean;
   language?: string;
   isInfoVisible: boolean;
@@ -1135,6 +1186,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   backgroundColor,
   isRoot,
   isMobile,
+  isTablet,
   darkMode,
   language,
   isInfoVisible,
@@ -1164,7 +1216,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           className={`flex flex-row items-center w-full h-[144px] py-4 justify-between gap-4 px-4`}
         >
           <div className={`flex items-center ${isRoot ? 'gap-12' : 'gap-4'} min-w-0`}>
-            {renderIconByType(icon, renderIcon, isRoot, isMobile, parentCapacity)}
+            {renderIconByType(icon, renderIcon, isRoot, isMobile, parentCapacity, isTablet)}
             <div
               className={`flex flex-row items-start justify-between ${
                 isRoot && !isMobile ? 'w-max' : ''
@@ -1172,7 +1224,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             >
               <Link href={`/feed?capacityId=${code}`} className="w-full min-w-0">
                 <h3
-                  className={getTextClasses(isRoot, isMobile, displayName.length)}
+                  className={getTextClasses(isRoot, isMobile, displayName.length, isTablet)}
                   style={{
                     color: getNameColor(isRoot, parentCapacity, color),
                     ...getTextStyles(isRoot, isMobile, displayName),
@@ -1193,14 +1245,20 @@ const ChildCard: React.FC<ChildCardProps> = ({
             className={`flex items-center gap-4 ${isMobile ? 'mr-2' : 'mr-4'} z-10 flex-shrink-0`}
           >
             <div className="relative" style={{ zIndex: 10, visibility: 'visible' }}>
-              {isRoot || isMobile ? renderInfoButton(24, InfoIcon) : renderInfoButton(40, InfoIcon)}
+              {isTablet
+                ? renderInfoButton(36, InfoIcon)
+                : isRoot || isMobile
+                  ? renderInfoButton(24, InfoIcon)
+                  : renderInfoButton(40, InfoIcon)}
             </div>
 
             {hasChildrenFromCache && (
               <div className="relative" style={{ zIndex: 10, visibility: 'visible' }}>
-                {isRoot || isMobile
-                  ? renderArrowButton(24, ArrowDownIcon)
-                  : renderArrowButton(40, ArrowDownIcon)}
+                {isTablet
+                  ? renderArrowButton(36, ArrowDownIcon)
+                  : isRoot || isMobile
+                    ? renderArrowButton(24, ArrowDownIcon)
+                    : renderArrowButton(40, ArrowDownIcon)}
               </div>
             )}
           </div>
