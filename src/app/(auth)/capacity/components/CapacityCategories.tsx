@@ -543,8 +543,7 @@ export default function CapacityCategories() {
       codes: [39, 38, 116, 123, 47, 48, 46, 44, 43, 49],
       icon: LanguageIcon as StaticImageData,
       bg: '#E2E4FB',
-      description:
-        pageContent['capacity-category-linguistic-equity-description'],
+      description: pageContent['capacity-category-linguistic-equity-description'],
     },
     {
       label: pageContent['capacity-category-knowledge-gaps'] || 'Knowledge gaps',
@@ -552,8 +551,7 @@ export default function CapacityCategories() {
       codes: [143, 141, 140, 139, 137, 134, 142, 131, 126, 125],
       icon: NeurologyIcon as StaticImageData,
       bg: '#FBE2EE',
-      description:
-        pageContent['capacity-category-knowledge-gaps-description'],
+      description: pageContent['capacity-category-knowledge-gaps-description'],
     },
     {
       label: pageContent['capacity-category-open-education'] || 'Open education',
@@ -561,8 +559,7 @@ export default function CapacityCategories() {
       codes: [76, 77, 91, 84, 100, 105, 110, 113, 118, 127],
       icon: BookIcon as StaticImageData,
       bg: '#E2FBE7',
-      description:
-        pageContent['capacity-category-open-education-description'],
+      description: pageContent['capacity-category-open-education-description'],
     },
   ];
   return (
