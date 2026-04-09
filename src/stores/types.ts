@@ -29,8 +29,7 @@ export interface UnifiedCache {
 // Capacity store state
 export interface CapacityStoreState extends UnifiedCache {
   isLoadingTranslations: boolean;
-  // Convenience property (delegates to getIsLoaded)
-  readonly isLoaded: boolean;
+  isLoaded: boolean;
 }
 
 // Capacity store actions
@@ -68,6 +67,7 @@ export type CapacityStore = CapacityStoreState & CapacityStoreActions;
 // App store state
 export interface AppStoreState {
   isMobile: boolean;
+  isTablet: boolean;
   mobileMenuStatus: boolean;
   language: string;
   pageContent: Record<string, string>;

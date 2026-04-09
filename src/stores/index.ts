@@ -35,6 +35,7 @@ export {
 export {
   useAppStore,
   useIsMobile,
+  useIsTablet,
   useLanguage,
   useMobileMenuStatus,
   usePageContent,
