@@ -304,7 +304,7 @@
 	"event-form-wikidata-not-found": "Не вдалося знайти дані події за цією URL-адресою",
 	"event-form-wikidata-error": "Під час пошуку даних події сталася помилка",
 	"lets-connect-success-popup-info": "Тепер, щоб завершити процес, потрібно натиснути кнопку «Зберегти профіль». Це збереже всі зміни у вашому профілі CapX.",
-	"badges-back-to-user-profile": "Повернутися до вашого профілю",
+	"badges-back-to-user-profile": "Повернутися назад",
 	"badge-selection-modal-title": "Виберіть які значки відображати у вашому профілі",
 	"body-profile-badges-edit-your-badges": "Редагуйте свої значки",
 	"body-profile-badges-no-badges": "У вас ще немає активних значків.",
