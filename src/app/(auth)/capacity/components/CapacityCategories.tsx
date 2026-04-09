@@ -368,6 +368,7 @@ function SplitDescription({
   firstClass,
   secondClass,
 }: Readonly<{ text: string; firstClass: string; secondClass: string }>) {
+  if (!text) return null;
   const dotIndex = text.indexOf('. ');
   if (dotIndex === -1) return <p className={firstClass}>{text}</p>;
   const first = text.slice(0, dotIndex + 1);

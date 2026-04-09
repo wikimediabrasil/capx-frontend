@@ -10,7 +10,11 @@ jest.mock('@/stores', () => ({
   ...jest.requireActual('@/stores'),
   useDarkMode: jest.fn(() => false),
   useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({})),
+  usePageContent: jest.fn(() => ({
+    'capacity-category-linguistic-equity-description': 'Language Diversity Hub',
+    'capacity-category-knowledge-gaps-description': 'Knowledge Gaps Description',
+    'capacity-category-open-education-description': 'WikiCamp, Week Club, Education',
+  })),
   useLanguage: jest.fn(() => 'en'),
   useCapacityStore: Object.assign(
     jest.fn(() => ({
