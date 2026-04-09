@@ -363,6 +363,23 @@ function CapacityChip({
   );
 }
 
+function SplitDescription({
+  text,
+  firstClass,
+  secondClass,
+}: Readonly<{ text: string; firstClass: string; secondClass: string }>) {
+  const dotIndex = text.indexOf('. ');
+  if (dotIndex === -1) return <p className={firstClass}>{text}</p>;
+  const first = text.slice(0, dotIndex + 1);
+  const second = text.slice(dotIndex + 2);
+  return (
+    <div className="flex flex-col gap-1">
+      <p className={firstClass}>{first}</p>
+      <p className={secondClass}>{second}</p>
+    </div>
+  );
+}
+
 function CategoryCard({
   label,
   icon,
@@ -421,7 +438,11 @@ function CategoryCard({
               <MaskedIcon src={icon} size={48} />
               <span className={`font-extrabold text-[${ICON_COLOR}] text-3xl`}>{label}</span>
             </div>
-            <p className="text-[16px] font-[Montserrat] text-[#032430] text-start">{description}</p>
+            <SplitDescription
+              text={description}
+              firstClass="text-[16px] font-[Montserrat] text-[#032430] text-start"
+              secondClass="text-[13px] font-[Montserrat] text-[#032430] text-start italic"
+            />
             <p className="text-[16px] font-[Montserrat] text-[#032430] text-start">
               {capacities.length} specialized {capacities.length === 1 ? 'capacity' : 'capacities'}
             </p>
@@ -477,12 +498,13 @@ function CategoryCard({
           rotate={isExpanded ? 180 : 0}
         />
       </button>
-      <p
-        className="text-[12px] font-[Montserrat] text-[#032430] text-start px-6 py-2"
-        style={{ backgroundColor: bg }}
-      >
-        {description}
-      </p>
+      <div className="px-6 py-2" style={{ backgroundColor: bg }}>
+        <SplitDescription
+          text={description}
+          firstClass="text-[12px] font-[Montserrat] text-[#032430] text-start"
+          secondClass="text-[11px] font-[Montserrat] text-[#032430] text-start italic"
+        />
+      </div>
       <p
         className="text-[12px] font-[Montserrat] text-[#032430] text-start px-6 pb-3"
         style={{ backgroundColor: bg }}
@@ -522,7 +544,7 @@ export default function CapacityCategories() {
       icon: LanguageIcon as StaticImageData,
       bg: '#E2E4FB',
       description:
-        pageContent['capacity-category-linguistic-equity-description'] || 'Language Diversity Hub',
+        pageContent['capacity-category-linguistic-equity-description'],
     },
     {
       label: pageContent['capacity-category-knowledge-gaps'] || 'Knowledge gaps',
@@ -531,8 +553,7 @@ export default function CapacityCategories() {
       icon: NeurologyIcon as StaticImageData,
       bg: '#FBE2EE',
       description:
-        pageContent['capacity-category-knowledge-gaps-description'] ||
-        'Knowledge gaps are the areas where we need to improve our understanding.',
+        pageContent['capacity-category-knowledge-gaps-description'],
     },
     {
       label: pageContent['capacity-category-open-education'] || 'Open education',
@@ -541,8 +562,7 @@ export default function CapacityCategories() {
       icon: BookIcon as StaticImageData,
       bg: '#E2FBE7',
       description:
-        pageContent['capacity-category-open-education-description'] ||
-        'WikiCamp, Week Club, Education',
+        pageContent['capacity-category-open-education-description'],
     },
   ];
   return (
