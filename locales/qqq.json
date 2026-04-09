@@ -282,7 +282,6 @@
 	"report-bug-title": "Field label for the report title",
 	"report-bug-title-placeholder": "Placeholder example for the report title field",
 	"report-bug-description": "Field label for the report description",
-	"report-bug-status": "Column label for the submission status",
 	"report-bug-submitted-at": "Column label for submission creation date",
 	"report-bug-updated-at": "Column label for last update date",
 	"report-bug-type": "Field label for the type of report",

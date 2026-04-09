@@ -258,7 +258,6 @@
 	"report-bug-title": "标题",
 	"report-bug-title-placeholder": "已保存的简介未在库中显示",
 	"report-bug-description": "描述",
-	"report-bug-status": "状态",
 	"report-bug-type-error": "错误",
 	"report-bug-type-feature": "新功能",
 	"report-bug-type-improvement": "改进",
