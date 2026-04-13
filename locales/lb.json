@@ -352,5 +352,8 @@
 	"analytics-map-capacity-available": "Disponibel",
 	"analytics-map-capacity-wanted": "Gesicht",
 	"analytics-map-capacity-type": "Typ",
-	"sign-in-required-title": "Loggt Iech a fir virunzefueren"
+	"sign-in-required-title": "Loggt Iech a fir virunzefueren",
+	"suggest-capacity-cancel": "Ofbriechen",
+	"suggest-capacity-description-label": "Beschreiwung",
+	"suggest-capacity-title-label": "Titel"
 }

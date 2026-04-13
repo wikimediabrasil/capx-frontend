@@ -530,6 +530,10 @@
 	"capacity-list-loading-translations": "Caricamento traduzioni...",
 	"capacity-list-loading-capacity-data": "In caricamento: dati sulle competenze per",
 	"capacity-list-context-error": "Errore di contesto",
+	"capacity-list-visualization-description-browse-cards": "Sfoglia le schede",
+	"capacity-list-visualization-description-view-tree-structure": "Visualizza la struttura ad albero",
+	"capacity-list-visualization-description-navigate-by-categories": "Naviga per categorie",
+	"capacity-category-linguistic-equity": "Equità linguistica",
 	"translation-help-text": "Per contribuire alle traduzioni, è necessario creare un account gratuito su Metabase. Clicca sul link \"Contribuisci\" per iniziare!",
 	"translation-contribute-compact": "Non vedi questa competenza nella tua lingua selezionata? Aiutaci a tradurla su Metabase!",
 	"translation-contribute-link": "Contribuisci",
@@ -579,8 +583,6 @@
 	"snackbar-edit-profile-organization-remove-event-success": "Evento rimosso correttamente",
 	"snackbar-edit-profile-organization-save-event-failed": "Errore nel salvataggio dell'evento",
 	"snackbar-edit-profile-organization-update-event-success": "Evento aggiornato con successo",
-	"capacity-visualization-title": "Visualizzazione interattiva della competenza",
-	"capacity-visualization-description": "Fare clic sulle capacità principali per espandere/comprimere e mettere a fuoco • Fare clic sulle icone per vedere i dettagli e centrare automaticamente • Utilizzare il mouse per ingrandire e trascinare • Fare clic su \"Torna alla vista iniziale\" per ripristinare la messa a fuoco",
 	"capacity-visualization-reset-button": "Torna alla vista iniziale",
 	"analytics-dashboard": "Analisi dati",
 	"analytics-bashboard-alt-banner": "Pagina di analisi dei dati delle immagini dei banner",
@@ -701,5 +703,11 @@
 	"analytics-map-legend": "Tutti i dati vengono recuperati dal database di Capx in tempo reale",
 	"analytics-map-loading-capacities": "Caricamento capacità in corso",
 	"analytics-map-capacity-type": "Tipo",
-	"sign-in-required-title": "Accedi per continuare"
+	"sign-in-required-title": "Accedi per continuare",
+	"suggest-capacity-cancel": "Annulla",
+	"suggest-capacity-description-label": "Descrizione",
+	"suggest-capacity-description-placeholder": "Descrivi la capacità e il motivo per cui dovrebbe essere aggiunta...",
+	"suggest-capacity-submit": "Invia",
+	"suggest-capacity-submitting": "Invio in corso...",
+	"suggest-capacity-title-label": "Titolo"
 }

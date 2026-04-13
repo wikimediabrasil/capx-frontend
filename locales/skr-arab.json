@@ -400,5 +400,10 @@
 	"analytics-map-south-asia": "جنوبی ایشیاء",
 	"analytics-map-north-america": "شمالی امریکہ",
 	"sign-in-required-title": "جاری رکھݨ کیتے لاگ ان تھیوو",
-	"sign-in-required-go-home": "گھر ورقے تے ونڄو"
+	"sign-in-required-go-home": "گھر ورقے تے ونڄو",
+	"suggest-capacity-cancel": "منسوخ",
+	"suggest-capacity-description-label": "تفصیل",
+	"suggest-capacity-submit": "جمع کرواؤ",
+	"suggest-capacity-submitting": "جمع کریندا پئے۔۔۔",
+	"suggest-capacity-title-label": "عنوان"
 }

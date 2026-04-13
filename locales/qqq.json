@@ -548,8 +548,6 @@
 	"snackbar-edit-profile-organization-remove-event-success": "Snackbar: event removed successfully",
 	"snackbar-edit-profile-organization-save-event-failed": "Snackbar: error saving the event",
 	"snackbar-edit-profile-organization-update-event-success": "Snackbar: event updated successfully",
-	"capacity-visualization-title": "Title of the interactive capacity visualization page",
-	"capacity-visualization-description": "Instructions on how to navigate and interact with the capacity visualization",
 	"capacity-visualization-reset-button": "Button to reset the visualization to the initial view",
 	"analytics-dashboard": "Page title: Data Analytics",
 	"analytics-bashboard-alt-banner": "Alt text for the data analytics page banner",
