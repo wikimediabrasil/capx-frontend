@@ -133,6 +133,11 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
       active: true,
     },
     {
+      title: pageContent['mentorship-programs'] || 'Mentorship Programs',
+      to: '/mentorship',
+      active: true,
+    },
+    {
       title: pageContent['navbar-link-organizations'],
       to: '/organization_list',
       active: true,

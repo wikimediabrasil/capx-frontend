@@ -176,14 +176,14 @@ export const getCapacityIcon = (code: number): string => {
     '106': TechnologyIcon,
   };
 
-  // Check for prefix matches
+  // Check for prefix matches (more specific prefixes must come first)
+  if (codeStr.startsWith('106')) return iconMap['106'];
   if (codeStr.startsWith('10')) return iconMap['10'];
   if (codeStr.startsWith('36')) return iconMap['36'];
   if (codeStr.startsWith('50')) return iconMap['50'];
   if (codeStr.startsWith('56')) return iconMap['56'];
   if (codeStr.startsWith('65')) return iconMap['65'];
   if (codeStr.startsWith('74')) return iconMap['74'];
-  if (codeStr.startsWith('106')) return iconMap['106'];
 
   return iconMap['10']; // Default fallback
 };

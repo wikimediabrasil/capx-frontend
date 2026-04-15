@@ -282,4 +282,34 @@ describe('CapacityListMainWrapper', () => {
     // Before the timer advances, it should show loading
     expect(screen.getByTestId('loading-state')).toBeInTheDocument();
   });
+
+  it('shows suggest capacity link below search box', async () => {
+    renderWithProviders(<CapacityListMainWrapper />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(50);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Can't find a capacity? Suggest a new one!")).toBeInTheDocument();
+    });
+  });
+
+  it('opens suggest modal when clicking suggest link', async () => {
+    renderWithProviders(<CapacityListMainWrapper />);
+
+    await act(async () => {
+      jest.advanceTimersByTime(50);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Can't find a capacity? Suggest a new one!")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Can't find a capacity? Suggest a new one!"));
+
+    await waitFor(() => {
+      expect(screen.getByText('Suggest a new capacity')).toBeInTheDocument();
+    });
+  });
 });

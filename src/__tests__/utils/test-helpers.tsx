@@ -86,6 +86,7 @@ export const createMockPageContent = (overrides?: Record<string, string>) => ({
   'navbar-link-feed': 'Feed',
   'navbar-link-saved': 'Saved',
   'navbar-link-report-bug': 'Report Bug',
+  'mentorship-programs': 'Mentorship Programs',
   'alt-logo-main': 'CapX - Capacity Exchange logo, navigate to homepage',
   'organization-profile-add-a-diff-tag': 'Add a news tag',
   ...overrides,

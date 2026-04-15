@@ -84,6 +84,11 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
       to: '/events',
     },
     {
+      title: pageContent['mentorship-programs'] || 'Mentorship Programs',
+      to: '/mentorship',
+      active: true,
+    },
+    {
       title: pageContent['navbar-link-organizations'],
       to: '/organization_list',
       active: true,

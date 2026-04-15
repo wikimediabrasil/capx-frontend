@@ -120,7 +120,7 @@ export interface MentorshipProgram {
   description: string;
   format: MentorshipFormat;
   capacities: (number | string)[];
-  languages: string[];
+  languageIds: number[];
   subscribers: number;
   forms?: {
     mentor?: MentorshipForm & { formId?: number };

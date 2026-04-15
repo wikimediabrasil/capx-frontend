@@ -12,13 +12,13 @@ const getHierarchyInfo = (code: number) => {
   const codeStr = code.toString();
 
   let category = '';
-  if (codeStr.startsWith('10')) category = 'organizational';
+  if (codeStr.startsWith('106')) category = 'technology';
+  else if (codeStr.startsWith('10')) category = 'organizational';
   else if (codeStr.startsWith('36')) category = 'communication';
   else if (codeStr.startsWith('50')) category = 'learning';
   else if (codeStr.startsWith('56')) category = 'community';
   else if (codeStr.startsWith('65')) category = 'social';
   else if (codeStr.startsWith('74')) category = 'strategic';
-  else if (codeStr.startsWith('106')) category = 'technology';
   else category = 'organizational';
 
   return {
@@ -434,6 +434,11 @@ export const useCapacityStore = create<CapacityStore>()(
         }),
         // Skip hydration on server
         skipHydration: typeof window === 'undefined',
+        onRehydrateStorage: () => state => {
+          if (state && Object.keys(state.capacities).length > 0) {
+            state.isLoaded = true;
+          }
+        },
       }
     ),
     { name: 'CapacityStore', enabled: process.env.NODE_ENV === 'development' }
