@@ -28,6 +28,7 @@ jest.mock('@/stores', () => ({
       getMetabaseCode: jest.fn(() => 'M9001'),
       getIcon: jest.fn(() => null),
       getRootCapacities: jest.fn(() => []),
+      isFallbackTranslation: jest.fn(() => false),
     })),
     {
       getState: () => ({
@@ -136,6 +137,7 @@ describe('CapacityCategories', () => {
       getWdCode: jest.fn(() => 'Q12345'),
       getMetabaseCode: jest.fn(() => 'M9001'),
       getIcon: jest.fn(() => null),
+      isFallbackTranslation: jest.fn(() => false),
     });
     (useSession as jest.Mock).mockReturnValue({
       data: { user: { id: '123', token: 'test-token' } },
@@ -172,6 +174,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -191,6 +194,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -206,6 +210,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -222,6 +227,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -243,6 +249,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -260,6 +267,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -279,6 +287,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -297,6 +306,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => ''),
         getMetabaseCode: jest.fn(() => ''),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -322,6 +332,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -337,6 +348,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -358,6 +370,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -380,6 +393,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
 
@@ -403,6 +417,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => 'Q12345'),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
       fireEvent.click(screen.getByText('Translation'));
@@ -438,6 +453,7 @@ describe('CapacityCategories', () => {
         getWdCode: jest.fn(() => ''),
         getMetabaseCode: jest.fn(() => 'M9001'),
         getIcon: jest.fn(() => null),
+        isFallbackTranslation: jest.fn(() => false),
       });
       render(<CapacityCategories />);
       fireEvent.click(screen.getByText('Translation'));
