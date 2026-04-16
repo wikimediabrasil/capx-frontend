@@ -25,7 +25,7 @@
     "@tanstack/react-query-devtools": "^5.60.6",
     "@tanstack/react-query-persist-client": "^5.76.1",
     "@types/d3": "^7.4.3",
-    "axios": "^1.13.5",
+    "axios": "^1.15.0",
     "d3": "^7.9.0",
     "dotenv": "^17.2.1",
     "formBuilder": "^3.21.1",
