@@ -334,8 +334,11 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
 
         // If we requested a specific language but got English back, it's a fallback
+        // Also treat missing/empty descriptions as fallback since there's nothing translated
         const isLabelFallback = language !== 'en' && labelLanguage === 'en';
-        const isDescriptionFallback = language !== 'en' && descriptionLanguage === 'en';
+        const descriptionValue = mbItem.itemDescription?.value || '';
+        const isDescriptionFallback =
+          language !== 'en' && (descriptionLanguage === 'en' || descriptionValue.trim() === '');
 
         const result = {
           wd_code: mbItem.value.value,
@@ -344,6 +347,8 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           item: mbItem.item.value,
           metabase_code: metabaseCode,
           // Track if this result is using English fallback
+          isFallbackLabel: isLabelFallback,
+          isFallbackDescription: isDescriptionFallback,
           isFallbackTranslation: isLabelFallback || isDescriptionFallback,
         };
 

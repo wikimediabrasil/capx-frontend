@@ -35,4 +35,5 @@ export interface EditableCapacityItem extends CapacityItem {
   editedDescription?: string;
   rowStatus: RowStatus;
   dirty: boolean;
+  rowError?: string;
 }
