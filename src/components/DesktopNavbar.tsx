@@ -102,7 +102,7 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
       title: pageContent['translate-page'],
       to: '/translation',
       active: true,
-    }
+    },
   ];
 
   const unauthenticatedMenuItems = [

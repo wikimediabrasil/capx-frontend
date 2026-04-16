@@ -2,6 +2,8 @@
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
+import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
+import TranslateCapacityModal from './TranslateCapacityModal';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
@@ -68,16 +70,18 @@ function CapacityInfoPanel({
 }>) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
-  const { getDescription, getWdCode, getMetabaseCode } = useCapacityStore();
+  const { getDescription, getWdCode, getMetabaseCode, isFallbackTranslation } = useCapacityStore();
   const { data: session } = useSession();
   const { showSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isAddingKnown, setIsAddingKnown] = useState(false);
   const [isAddingWanted, setIsAddingWanted] = useState(false);
+  const [translateModalOpen, setTranslateModalOpen] = useState(false);
 
   const description = getDescription(capacity.code);
   const wd_code = getWdCode(capacity.code);
   const metabase_code = getMetabaseCode(capacity.code);
+  const isUsingFallback = isFallbackTranslation(capacity.code);
 
   const {
     data: userProfile,
@@ -296,6 +300,22 @@ function CapacityInfoPanel({
           {capitalizeFirstLetter(description)}
         </p>
       )}
+
+      {/* Translation CTA */}
+      {isUsingFallback && (
+        <TranslationContributeCTA onContribute={() => setTranslateModalOpen(true)} compact />
+      )}
+
+      <TranslateCapacityModal
+        isOpen={translateModalOpen}
+        onClose={() => setTranslateModalOpen(false)}
+        capacityName={capacity.name}
+        capacityCode={capacity.code}
+        qid={wd_code}
+        metabaseCode={metabase_code}
+        fallbackLabel={capacity.name}
+        fallbackDescription={description}
+      />
 
       {/* Add buttons */}
       <div className="flex flex-col sm:flex-row gap-2">

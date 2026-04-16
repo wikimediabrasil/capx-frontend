@@ -1,24 +1,21 @@
 import InfoIcon from '@/public/static/images/info.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 import { useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
 interface TranslationContributeCTAProps {
-  capacityCode: number;
-  metabaseCode?: string;
+  onContribute: () => void;
   className?: string;
   compact?: boolean;
 }
 
 /**
  * Call-to-action component shown when a capacity falls back to English translation
- * Encourages users to contribute translations via Metabase
+ * Encourages users to contribute translations by opening the translate modal
  */
 export function TranslationContributeCTA({
-  capacityCode,
-  metabaseCode,
+  onContribute,
   className = '',
   compact = false,
 }: Readonly<TranslationContributeCTAProps>) {
@@ -49,43 +46,6 @@ export function TranslationContributeCTA({
   if (language === 'en') {
     return null;
   }
-
-  /**
-   * Generate Metabase contribution URL based on capacity code and metabase_code
-   */
-  const getMetabaseContributionUrl = (code: number, mbCode?: string): string => {
-    const baseUrl = 'https://metabase.wikibase.cloud';
-
-    if (mbCode && mbCode.trim() !== '') {
-      // If we have metabase_code, link directly to the item
-      return `${baseUrl}/wiki/Item:${mbCode}`;
-    }
-
-    // Fallback: Try to construct URL based on capacity category/code
-    const codeStr = code.toString();
-    let categoryId = '';
-
-    // Map capacity code prefixes to Metabase category items (check longer prefixes first)
-    if (codeStr.startsWith('106'))
-      categoryId = 'Q78'; // technology
-    else if (codeStr.startsWith('10'))
-      categoryId = 'Q72'; // organizational
-    else if (codeStr.startsWith('36'))
-      categoryId = 'Q73'; // communication
-    else if (codeStr.startsWith('50'))
-      categoryId = 'Q74'; // learning
-    else if (codeStr.startsWith('56'))
-      categoryId = 'Q75'; // community
-    else if (codeStr.startsWith('65'))
-      categoryId = 'Q76'; // social
-    else if (codeStr.startsWith('74'))
-      categoryId = 'Q77'; // strategic
-    else categoryId = 'Q72'; // default to organizational
-
-    return `${baseUrl}/wiki/Item:${categoryId}`;
-  };
-
-  const contributionUrl = getMetabaseContributionUrl(capacityCode, metabaseCode);
 
   // Help text for Metabase account requirement
   const helpText =
@@ -216,11 +176,10 @@ export function TranslationContributeCTA({
               </div>
             </div>
             <div className="flex justify-start pl-7">
-              <Link
-                href={contributionUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center gap-1 text-xs transition-all duration-200 hover:gap-2 ${
+              <button
+                type="button"
+                onClick={onContribute}
+                className={`flex items-center gap-1 text-xs transition-all duration-200 ${
                   darkMode
                     ? 'text-blue-300 hover:text-blue-200'
                     : 'text-blue-600 hover:text-blue-800'
@@ -229,8 +188,7 @@ export function TranslationContributeCTA({
                 <span className={`capx-text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
                   {pageContent['translation-contribute-link'] || 'Contribute'}
                 </span>
-                <span className={`text-[10px] opacity-75`}>↗</span>
-              </Link>
+              </button>
             </div>
           </>
         ) : (
@@ -252,19 +210,17 @@ export function TranslationContributeCTA({
                 "Don't see this capacity in your selected language? Help us translate it on Metabase!"}
               <HelpIcon />
             </div>
-            <Link
-              href={contributionUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-1 text-xs transition-all duration-200 hover:gap-2 ${
+            <button
+              type="button"
+              onClick={onContribute}
+              className={`flex items-center gap-1 text-xs transition-all duration-200 ${
                 darkMode ? 'text-blue-300 hover:text-blue-200' : 'text-blue-600 hover:text-blue-800'
               }`}
             >
               <span className={`capx-text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
                 {pageContent['translation-contribute-link'] || 'Contribute'}
               </span>
-              <span className={`text-[10px] opacity-75`}>↗</span>
-            </Link>
+            </button>
           </div>
         )}
       </div>
@@ -277,11 +233,10 @@ export function TranslationContributeCTA({
         darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-box-bg'
       } ${className} ${!isMobile ? 'max-w-md' : ''}`}
     >
-      <Link
-        href={contributionUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`inline-flex items-start gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 hover:gap-3 ${
+      <button
+        type="button"
+        onClick={onContribute}
+        className={`inline-flex items-start gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 w-full text-left ${
           darkMode ? 'text-blue-200' : 'text-white'
         }`}
       >
@@ -327,11 +282,10 @@ export function TranslationContributeCTA({
               <span className={`text-xs ${darkMode ? 'text-blue-300' : 'text-blue-600'}`}>
                 {pageContent['translation-contribute-link'] || 'Contribute'}
               </span>
-              <span className="text-[10px] opacity-75">↗</span>
             </div>
           </div>
         </div>
-      </Link>
+      </button>
     </div>
   );
 }

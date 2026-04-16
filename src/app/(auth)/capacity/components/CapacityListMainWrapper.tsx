@@ -325,20 +325,37 @@ function CapacityListContent() {
       <CapacityBanner />
 
       {/* Visualization description */}
-      <div className="flex flex-col lg:flex-row md:flex-col justify-center items-center md:items-start px-2 gap-2 w-full">
-        <p
-          className={`font-montserrat font-normal text-center items-center ${isMobile ? 'text-capx-font-size-mobile-3xl' : 'text-capx-font-size-desktop-4xl'} ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
-        >
-          {pageContent['capacity-list-visualization-description']}
-        </p>
+      <div className="flex flex-col justify-center items-center px-2 gap-2 w-full">
+        <div className="flex flex-row gap-2 justify-center items-center">
+          <p
+            className={`font-montserrat font-normal text-center items-center ${isMobile ? 'text-capx-font-size-mobile-2xl' : 'text-capx-font-size-desktop-4xl'} ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
+          >
+            {pageContent['capacity-list-visualization-description']}
+          </p>
+          <p
+            className={`text-center text-capx-font-size-mobile-2xl md:text-capx-font-size-desktop-4xl ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
+          >
+            <Typewriter
+              words={[' ']}
+              loop={0}
+              cursor
+              cursorStyle="_"
+              typeSpeed={120}
+              deleteSpeed={50}
+              delaySpeed={3000}
+            />
+          </p>
+        </div>
         <p
           className={`flex font-montserrat font-normal ${isMobile ? 'text-capx-font-size-mobile-2xl' : 'text-capx-font-size-desktop-4xl'} ${darkMode ? 'text-capx-dark-text' : 'text-capx-light-text'}`}
         >
           <Typewriter
             words={[
-              pageContent['capacity-list-visualization-description-browse-cards'],
-              pageContent['capacity-list-visualization-description-view-tree-structure'],
-              pageContent['capacity-list-visualization-description-navigate-by-categories'],
+              pageContent['capacity-list-visualization-description-browse-cards'] || 'Browse cards',
+              pageContent['capacity-list-visualization-description-view-tree-structure'] ||
+                'View tree structure',
+              pageContent['capacity-list-visualization-description-navigate-by-categories'] ||
+                'Navigate by categories',
             ]}
             loop={0}
             cursor

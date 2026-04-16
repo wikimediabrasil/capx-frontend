@@ -48,19 +48,37 @@ export default function TranslationWorkspace() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
 
-  // Derived: filtered items
+  // Sorting
+  const [alphaOrder, setAlphaOrder] = useState<'az' | 'za'>('az');
+  const [translationOrder, setTranslationOrder] = useState<
+    'untranslated-first' | 'translated-first'
+  >('untranslated-first');
+
+  // Derived: filtered + sorted items
   const filteredItems = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter(
-      i =>
-        i.fallback_label.toLowerCase().includes(q) ||
-        i.fallback_description.toLowerCase().includes(q) ||
-        (i.label ?? '').toLowerCase().includes(q) ||
-        (i.description ?? '').toLowerCase().includes(q) ||
-        i.qid.toLowerCase().includes(q)
-    );
-  }, [items, search]);
+    const filtered = q
+      ? items.filter(
+          i =>
+            (i.fallback_label ?? '').toLowerCase().includes(q) ||
+            (i.fallback_description ?? '').toLowerCase().includes(q) ||
+            (i.label ?? '').toLowerCase().includes(q) ||
+            (i.description ?? '').toLowerCase().includes(q) ||
+            i.qid.toLowerCase().includes(q)
+        )
+      : [...items];
+
+    return filtered.sort((a, b) => {
+      const aHasTranslation = !!(a.label || a.description);
+      const bHasTranslation = !!(b.label || b.description);
+      if (aHasTranslation !== bHasTranslation) {
+        if (translationOrder === 'untranslated-first') return aHasTranslation ? 1 : -1;
+        return aHasTranslation ? -1 : 1;
+      }
+      const cmp = a.fallback_label.localeCompare(b.fallback_label);
+      return alphaOrder === 'az' ? cmp : -cmp;
+    });
+  }, [items, search, alphaOrder, translationOrder]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
   const pagedItems = useMemo(
@@ -68,10 +86,10 @@ export default function TranslationWorkspace() {
     [filteredItems, page]
   );
 
-  // Reset to page 1 when search or language changes
+  // Reset to page 1 when search, language, or sort changes
   useEffect(() => {
     setPage(1);
-  }, [search, targetLang]);
+  }, [search, targetLang, alphaOrder, translationOrder]);
 
   // Derived stats (over full list, not just current page)
   const total = items.length;
@@ -178,7 +196,7 @@ export default function TranslationWorkspace() {
   // Capacity list helpers
   // ------------------------------------------------------------------
   const loadCapacities = useCallback(async () => {
-    if (!token) return;
+    if (!token || !targetLang) return;
     setListLoading(true);
     setListError(null);
     try {
@@ -236,9 +254,15 @@ export default function TranslationWorkspace() {
           );
         }, PENDING_REFRESH_DELAY_MS);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Save failed';
+        const apiDetail =
+          axios.isAxiosError(err) && err.response?.data?.details?.detail
+            ? err.response.data.details.detail
+            : null;
+        const msg = apiDetail ?? (err instanceof Error ? err.message : 'Save failed');
         showSnackbar(msg, 'error');
-        setItems(prev => prev.map(i => (i.qid === qid ? { ...i, rowStatus: 'error' } : i)));
+        setItems(prev =>
+          prev.map(i => (i.qid === qid ? { ...i, rowStatus: 'error', rowError: msg } : i))
+        );
       }
     },
     [items, targetLang, token, showSnackbar]
@@ -249,7 +273,7 @@ export default function TranslationWorkspace() {
       setItems(prev =>
         prev.map(i => {
           if (i.qid !== qid) return i;
-          const updated = { ...i, [field]: value };
+          const updated = { ...i, [field]: value, rowError: undefined };
           updated.dirty =
             updated.editedLabel !== (i.label ?? '') ||
             updated.editedDescription !== (i.description ?? '');
@@ -286,7 +310,7 @@ export default function TranslationWorkspace() {
   // ------------------------------------------------------------------
   // Render helpers
   // ------------------------------------------------------------------
-  const bg = darkMode ? 'bg-capx-dark-bg text-white' : 'bg-[#F6F6F6] text-gray-900';
+  const bg = darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-capx-light-bg text-gray-900';
   const cardBg = darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
   const inputBase = darkMode
     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
@@ -326,8 +350,7 @@ export default function TranslationWorkspace() {
   return (
     <section className={`w-full min-h-screen pt-24 md:pt-8 ${bg}`}>
       <div className="mx-auto max-w-[1200px] px-4 flex flex-col gap-6 pb-16">
-
-        <TranslationBanner/>
+        <TranslationBanner />
         {/* OAuth banner */}
         {!oauthLoading && (
           <div
@@ -365,7 +388,7 @@ export default function TranslationWorkspace() {
                 <button
                   onClick={handleConnectMetabase}
                   disabled={oauthConnecting}
-                  className="sm:ml-auto px-3 py-1.5 rounded text-sm font-medium bg-[#851970] text-white disabled:opacity-60 hover:bg-[#6d1460] transition-colors whitespace-nowrap"
+                  className="sm:ml-auto px-3 py-1.5 rounded text-sm font-[Montserrat] font-medium bg-[#851970] text-white disabled:opacity-60 hover:bg-[#6d1460] transition-colors whitespace-nowrap"
                 >
                   {oauthConnecting
                     ? pageContent['translation-oauth-waiting'] || 'Waiting for authorization…'
@@ -408,16 +431,89 @@ export default function TranslationWorkspace() {
               type="search"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder={pageContent['translation-search-placeholder'] || 'Filter by label, description or QID…'}
+              placeholder={
+                pageContent['translation-search-placeholder'] ||
+                'Filter by label, description or QID…'
+              }
               className={`w-full rounded border px-3 py-2 text-sm ${inputBase} focus:outline-none focus:ring-2 focus:ring-[#851970]`}
             />
+          </div>
+
+          {/* Sort: A-Z / Z-A */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium uppercase tracking-wide opacity-60">
+              {pageContent['translation-label-sort-alpha'] || 'Sort'}
+            </label>
+            <div className="flex rounded border overflow-hidden">
+              <button
+                onClick={() => setAlphaOrder('az')}
+                className={`px-3 py-2 text-sm font-[Montserrat] font-medium transition-colors ${
+                  alphaOrder === 'az'
+                    ? 'bg-[#851970] text-white'
+                    : darkMode
+                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                A→Z
+              </button>
+              <button
+                onClick={() => setAlphaOrder('za')}
+                className={`px-3 py-2 text-sm font-medium transition-colors border-l ${
+                  darkMode ? 'border-gray-600' : 'border-gray-300'
+                } ${
+                  alphaOrder === 'za'
+                    ? 'bg-[#851970] text-white'
+                    : darkMode
+                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Z→A
+              </button>
+            </div>
+          </div>
+
+          {/* Sort: translation status */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium uppercase tracking-wide opacity-60">
+              {pageContent['translation-label-sort-status'] || 'Show first'}
+            </label>
+            <div className="flex rounded border overflow-hidden">
+              <button
+                onClick={() => setTranslationOrder('untranslated-first')}
+                className={`px-3 py-2 text-sm font-[Montserrat] font-medium transition-colors ${
+                  translationOrder === 'untranslated-first'
+                    ? 'bg-[#851970] text-white'
+                    : darkMode
+                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {pageContent['translation-sort-untranslated'] || 'Untranslated'}
+              </button>
+              <button
+                onClick={() => setTranslationOrder('translated-first')}
+                className={`px-3 py-2 text-sm font-medium transition-colors border-l ${
+                  darkMode ? 'border-gray-600' : 'border-gray-300'
+                } ${
+                  translationOrder === 'translated-first'
+                    ? 'bg-[#851970] text-white'
+                    : darkMode
+                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {pageContent['translation-sort-translated'] || 'Translated'}
+              </button>
+            </div>
           </div>
 
           {/* Refresh */}
           <button
             onClick={loadCapacities}
             disabled={listLoading}
-            className="px-4 py-2 rounded text-sm font-medium bg-[#851970] text-white disabled:opacity-60 hover:bg-[#6d1460] transition-colors self-end"
+            className="px-4 py-2 rounded text-sm font-[Montserrat] font-medium bg-[#851970] text-white disabled:opacity-60 hover:bg-[#6d1460] transition-colors self-end"
           >
             {listLoading
               ? pageContent['translation-loading'] || 'Loading…'
@@ -426,8 +522,8 @@ export default function TranslationWorkspace() {
 
           {/* Stats */}
           <div className="sm:ml-auto text-sm opacity-70 whitespace-nowrap self-end">
-            {pageContent['translation-progress-summary'] || 'Translated'}: {withTranslation}/
-            {total}&nbsp;·&nbsp;{pageContent['translation-changed'] || 'Unsaved'}: {changedCount}
+            {pageContent['translation-progress-summary'] || 'Translated'}: {withTranslation}/{total}
+            &nbsp;·&nbsp;{pageContent['translation-changed'] || 'Unsaved'}: {changedCount}
           </div>
         </div>
 
@@ -444,7 +540,7 @@ export default function TranslationWorkspace() {
             <p>{listError}</p>
             <button
               onClick={loadCapacities}
-              className="mt-4 px-4 py-2 rounded text-sm font-medium bg-[#851970] text-white hover:bg-[#6d1460] transition-colors"
+              className="mt-4 px-4 py-2 rounded text-sm font-[Montserrat] font-medium bg-[#851970] text-white hover:bg-[#6d1460] transition-colors"
             >
               {pageContent['translation-retry'] || 'Retry'}
             </button>
@@ -470,8 +566,7 @@ export default function TranslationWorkspace() {
             {/* Result count when searching */}
             {search && (
               <p className="text-sm opacity-60">
-                {filteredItems.length}{' '}
-                {pageContent['translation-search-results'] || 'results'}
+                {filteredItems.length} {pageContent['translation-search-results'] || 'results'}
               </p>
             )}
 
@@ -521,7 +616,7 @@ interface PaginationProps {
 
 function Pagination({ page, totalPages, onPageChange, darkMode, pageContent }: PaginationProps) {
   const btnBase =
-    'px-3 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-40';
+    'px-3 py-1.5 rounded text-sm font-[Montserrat] font-medium transition-colors disabled:opacity-40';
   const btnActive = 'bg-[#851970] text-white';
   const btnInactive = darkMode
     ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
@@ -677,11 +772,12 @@ function TranslationRow({
               }`}
             />
           </div>
+          {item.rowError && <p className="text-xs text-red-600 mt-1">{item.rowError}</p>}
           <div className="flex justify-end">
             <button
               onClick={() => onSave(item.qid)}
               disabled={!canSave}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-[#851970] text-white disabled:opacity-40 hover:bg-[#6d1460] transition-colors"
+              className="px-4 py-1.5 rounded text-sm font-[Montserrat] font-medium bg-[#851970] text-white disabled:opacity-40 hover:bg-[#6d1460] transition-colors"
             >
               {isSaving
                 ? pageContent['translation-saving'] || 'Saving…'
