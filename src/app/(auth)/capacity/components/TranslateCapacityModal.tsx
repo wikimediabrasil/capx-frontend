@@ -137,7 +137,6 @@ export default function TranslateCapacityModal({
     setDescription(fallbackDescription);
     checkOAuthStatus();
     return () => stopPolling();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleSave = async () => {

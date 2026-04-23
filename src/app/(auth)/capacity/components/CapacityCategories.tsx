@@ -66,7 +66,7 @@ function CapacityInfoPanel({
   bg: string;
   onClose: () => void;
 }>) {
-  const darkMode = useDarkMode();
+  const _darkMode = useDarkMode();
   const pageContent = usePageContent();
   const { getDescription, getWdCode, getMetabaseCode, isFallbackTranslation } = useCapacityStore();
   const { data: session } = useSession();

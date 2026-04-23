@@ -62,7 +62,6 @@ export default function CapacitiesTreeVisualization() {
         })),
       })),
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capacitiesData]);
 
   if (isLoadingTranslations || !isLoaded) {

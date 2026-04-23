@@ -515,7 +515,6 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
     svg.on('click', event => {
       if (event.target === svgRef.current) setSelectedNode(null);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, expandedNodes, selectedNode, focusedRootId, darkMode, forceUpdate]);
 
   return (
