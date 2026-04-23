@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import CapxPeopleLogo from '@/public/static/images/capx_people_illustration.svg';
+import Image from 'next/image';
 
 import { useIsMobile, usePageContent } from '@/stores';
 export function CapacityBanner() {
@@ -28,9 +28,7 @@ export function CapacityBanner() {
           }`}
         >
           <h1
-            className={`text-white font-extrabold leading-[59px] ${
-              isMobile ? 'text-center text-[20px] justify-center' : 'text-start text-[48px]'
-            }`}
+            className={`text-white font-extrabold leading-[59px] text-center text-[28px] md:text-[48px]`}
           >
             {pageContent['capacity-banner-title']}
           </h1>

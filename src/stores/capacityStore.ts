@@ -341,6 +341,8 @@ export const useCapacityStore = create<CapacityStore>()(
                         : translation.name && translation.name !== currentCapacity.name
                           ? translation.name
                           : currentCapacity.name,
+                    isFallbackLabel: translation.isFallbackLabel || false,
+                    isFallbackDescription: translation.isFallbackDescription || false,
                     isFallbackTranslation: translation.isFallbackTranslation || false,
                     description: translation.description || currentCapacity.description,
                     metabase_code: translation.metabase_code || currentCapacity.metabase_code,
@@ -349,15 +351,29 @@ export const useCapacityStore = create<CapacityStore>()(
               });
             }
 
-            // Mark capacities without wd_code as fallback for non-English
+            // Mark capacities as fallback for non-English when translation data is missing
             if (newLanguage !== 'en') {
               Object.values(newCache.capacities).forEach(capacity => {
+                // Capacities without wd_code can't be translated via SPARQL
                 if (
                   (capacity.isFallbackTranslation === undefined ||
                     capacity.isFallbackTranslation === false) &&
                   (!capacity.wd_code || capacity.wd_code.trim() === '')
                 ) {
                   newCache.capacities[capacity.code].isFallbackTranslation = true;
+                }
+                // Capacities with wd_code that were never processed by SPARQL translations
+                // (isFallbackLabel is still undefined) — their labels may come from the backend
+                // API already translated, but the description may be untranslated
+                if (
+                  capacity.wd_code &&
+                  capacity.wd_code.trim() !== '' &&
+                  capacity.isFallbackLabel === undefined &&
+                  capacity.isFallbackDescription === undefined
+                ) {
+                  newCache.capacities[capacity.code].isFallbackTranslation = true;
+                  newCache.capacities[capacity.code].isFallbackLabel = true;
+                  newCache.capacities[capacity.code].isFallbackDescription = true;
                 }
               });
             }
@@ -380,6 +396,38 @@ export const useCapacityStore = create<CapacityStore>()(
         preloadCapacities: async (token: string) => {
           const { language, updateLanguage } = get();
           await updateLanguage(language, token);
+        },
+
+        updateCapacityTranslation: (
+          code: number,
+          name: string,
+          description: string,
+          labelChanged: boolean,
+          descriptionChanged: boolean
+        ) => {
+          const state = get();
+          if (!state.capacities[code]) return;
+          const current = state.capacities[code];
+          // When per-field flags are absent (old cache), treat both as fallback
+          // if the overall isFallbackTranslation was true
+          const overallFallback = current.isFallbackTranslation ?? false;
+          const wasLabelFallback = current.isFallbackLabel ?? overallFallback;
+          const wasDescriptionFallback = current.isFallbackDescription ?? overallFallback;
+          const newIsFallbackLabel = labelChanged ? false : wasLabelFallback;
+          const newIsFallbackDescription = descriptionChanged ? false : wasDescriptionFallback;
+          set({
+            capacities: {
+              ...state.capacities,
+              [code]: {
+                ...current,
+                name: name || current.name,
+                description: description || current.description,
+                isFallbackLabel: newIsFallbackLabel,
+                isFallbackDescription: newIsFallbackDescription,
+                isFallbackTranslation: newIsFallbackLabel || newIsFallbackDescription,
+              },
+            },
+          });
         },
 
         clearCache: () => {
@@ -425,6 +473,7 @@ export const useCapacityStore = create<CapacityStore>()(
       }),
       {
         name: 'capx-unified-cache',
+        version: 1,
         // Only persist cache data, not loading states
         partialize: state => ({
           capacities: state.capacities,

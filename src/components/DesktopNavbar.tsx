@@ -1,19 +1,19 @@
-import NextLink from 'next/link';
-import Image from 'next/image';
-import AuthButton from './AuthButton';
-import LanguageSelect from './LanguageSelect';
-import CapXLogo from '../../public/static/images/capx_minimalistic_logo.svg';
-import DarkModeButton from './DarkModeButton';
-import ProfileSelect from './ProfileSelect';
-import { Session } from 'next-auth';
-import { useState, useRef, useEffect } from 'react';
 import BurgerMenu from '@/public/static/images/burger_menu.svg';
 import BurgerMenuDarkMode from '@/public/static/images/burger_menu_light.svg';
-import IconCloseMobileMenuLightMode from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import IconCloseMobileMenuDarkMode from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import IconCloseMobileMenuLightMode from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import MoveOutIcon from '@/public/static/images/move_item.svg';
-import { AnimatePresence, motion } from 'framer-motion';
 import { useDarkMode, usePageContent } from '@/stores';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Session } from 'next-auth';
+import Image from 'next/image';
+import NextLink from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+import CapXLogo from '../../public/static/images/capx_minimalistic_logo.svg';
+import AuthButton from './AuthButton';
+import DarkModeButton from './DarkModeButton';
+import LanguageSelect from './LanguageSelect';
+import ProfileSelect from './ProfileSelect';
 export interface DesktopNavbarProps {
   language: string;
   setLanguage: (language: string) => void;
@@ -96,6 +96,11 @@ export default function DesktopNavbar({ language, setLanguage, session }: Deskto
     {
       title: pageContent['analytics-dashboard'],
       to: '/data_analytics_dashboard',
+      active: true,
+    },
+    {
+      title: pageContent['translate-page'],
+      to: '/translation',
       active: true,
     },
   ];

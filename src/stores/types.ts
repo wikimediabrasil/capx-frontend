@@ -16,6 +16,8 @@ export interface CapacityData {
   parentCapacity?: any;
   category?: string;
   isFallbackTranslation?: boolean;
+  isFallbackLabel?: boolean;
+  isFallbackDescription?: boolean;
 }
 
 // Unified cache structure for capacity data
@@ -56,6 +58,13 @@ export interface CapacityStoreActions {
   preloadCapacities: (token: string) => Promise<void>;
   clearCache: () => void;
   setCache: (cache: UnifiedCache) => void;
+  updateCapacityTranslation: (
+    code: number,
+    name: string,
+    description: string,
+    labelChanged: boolean,
+    descriptionChanged: boolean
+  ) => void;
 
   // React Query integration
   invalidateQueryCache: (queryClient: QueryClient, language: string) => void;

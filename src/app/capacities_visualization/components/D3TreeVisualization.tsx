@@ -1,6 +1,8 @@
 'use client';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import TranslateCapacityModal from '@/app/(auth)/capacity/components/TranslateCapacityModal';
+import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { getCapacityColor } from '@/lib/utils/capacitiesUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
@@ -9,7 +11,7 @@ import MetabaseIcon from '@/public/static/images/metabase_black.svg';
 import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
-import { useDarkMode, usePageContent, useSetDarkMode } from '@/stores';
+import { useCapacityStore, useDarkMode, usePageContent, useSetDarkMode } from '@/stores';
 import { UserProfile } from '@/types/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as d3 from 'd3';
@@ -76,6 +78,8 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
   const darkMode = useDarkMode();
   const setDarkMode = useSetDarkMode();
   const pageContent = usePageContent();
+  const { isFallbackTranslation, getName, getDescription } = useCapacityStore();
+  const [translateModalOpen, setTranslateModalOpen] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
 
   // Auth / profile for "Add to" buttons
@@ -511,7 +515,6 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
     svg.on('click', event => {
       if (event.target === svgRef.current) setSelectedNode(null);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, expandedNodes, selectedNode, focusedRootId, darkMode, forceUpdate]);
 
   return (
@@ -558,7 +561,7 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
             >
               {/* Name */}
               <h3 className="text-lg font-bold" style={{ color: darkMode ? '#f3f4f6' : '#111827' }}>
-                {capitalizeFirst(selectedNode.name)}
+                {capitalizeFirst(getName(selectedNode.code) || selectedNode.name)}
               </h3>
 
               {/* Metabase + Wikidata links */}
@@ -612,13 +615,21 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
               )}
 
               {/* Description */}
-              {selectedNode.description && (
+              {(getDescription(selectedNode.code) || selectedNode.description) && (
                 <p
                   className="text-sm leading-relaxed"
                   style={{ color: darkMode ? '#d1d5db' : '#374151' }}
                 >
-                  {selectedNode.description}
+                  {getDescription(selectedNode.code) || selectedNode.description}
                 </p>
+              )}
+
+              {/* Translation CTA */}
+              {isFallbackTranslation(selectedNode.code) && (
+                <TranslationContributeCTA
+                  onContribute={() => setTranslateModalOpen(true)}
+                  compact
+                />
               )}
 
               {/* Add to Known / Wanted buttons */}
@@ -696,6 +707,19 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
           </div>
         )}
       </div>
+
+      {selectedNode && (
+        <TranslateCapacityModal
+          isOpen={translateModalOpen}
+          onClose={() => setTranslateModalOpen(false)}
+          capacityName={getName(selectedNode.code) || selectedNode.name}
+          capacityCode={selectedNode.code}
+          qid={selectedNode.wd_code}
+          metabaseCode={selectedNode.metabase_code}
+          fallbackLabel={getName(selectedNode.code) || selectedNode.name}
+          fallbackDescription={getDescription(selectedNode.code) || selectedNode.description}
+        />
+      )}
     </div>
   );
 }

@@ -14,12 +14,12 @@ import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
 import {
+  useCapacityStore,
+  useDarkMode,
   useIsMobile,
   useIsTablet,
   useLanguage,
   usePageContent,
-  useDarkMode,
-  useCapacityStore,
 } from '@/stores';
 import { Capacity } from '@/types/capacity';
 import { UserProfile } from '@/types/user';
@@ -28,6 +28,7 @@ import { useSession } from 'next-auth/react';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import React, { useMemo, useRef, useState } from 'react';
+import TranslateCapacityModal from './TranslateCapacityModal';
 
 interface CapacityCardProps {
   code: number;
@@ -308,6 +309,12 @@ export function CapacityCard({
   // Check if this capacity is using fallback translation
   const isUsingFallback = isFallbackTranslation(code);
 
+  // Read description directly from the store so it updates immediately after a translation is saved
+  const liveDescription =
+    useCapacityStore(state => state.capacities[code]?.description) ?? description;
+
+  const [translateModalOpen, setTranslateModalOpen] = useState(false);
+
   // Use external control when available (main capacity view), internal for search
   const isInfoVisible = isInfoExpanded !== undefined ? isInfoExpanded : showInfo;
   const handleInfoToggle = onToggleInfo || (() => setShowInfo(!showInfo));
@@ -573,19 +580,18 @@ export function CapacityCard({
             </a>
           )}
         </div>
-        {description && (
+        {liveDescription && (
           <p
             className={`${darkMode ? 'text-gray-200' : 'text-capx-dark-box-bg'} break-words text-left ${isMobile ? 'text-[16px]' : 'text-[20px]'}`}
           >
-            {capitalizeFirstLetter(description)}
+            {capitalizeFirstLetter(liveDescription)}
           </p>
         )}
 
         {/* Translation Contribution CTA */}
         {isUsingFallback && (
           <TranslationContributeCTA
-            capacityCode={code}
-            metabaseCode={metabase_code}
+            onContribute={() => setTranslateModalOpen(true)}
             compact={isMobile}
           />
         )}
@@ -842,77 +848,99 @@ export function CapacityCard({
   // Calculate background color
   const backgroundColor = getBackgroundColor(level, color, parentCapacity);
 
+  const modal = (
+    <TranslateCapacityModal
+      isOpen={translateModalOpen}
+      onClose={() => setTranslateModalOpen(false)}
+      capacityName={name}
+      capacityCode={code}
+      qid={wd_code}
+      metabaseCode={metabase_code}
+      fallbackLabel={name}
+      fallbackDescription={liveDescription}
+    />
+  );
+
   if (isSearch) {
     return (
-      <SearchCard
-        code={code}
-        name={name}
-        icon={icon}
-        color={color}
-        level={level}
-        parentCapacity={parentCapacity}
-        isMobile={isMobile}
-        isTablet={isTablet}
-        darkMode={darkMode}
-        isInfoVisible={isInfoVisible}
-        handleCardClick={handleCardClick}
-        handleCardKeyDown={handleCardKeyDown}
-        renderIcon={renderIcon}
-        renderInfoButton={renderInfoButton}
-        renderExpandedContent={renderExpandedContent}
-      />
+      <>
+        <SearchCard
+          code={code}
+          name={name}
+          icon={icon}
+          color={color}
+          level={level}
+          parentCapacity={parentCapacity}
+          isMobile={isMobile}
+          isTablet={isTablet}
+          darkMode={darkMode}
+          isInfoVisible={isInfoVisible}
+          handleCardClick={handleCardClick}
+          handleCardKeyDown={handleCardKeyDown}
+          renderIcon={renderIcon}
+          renderInfoButton={renderInfoButton}
+          renderExpandedContent={renderExpandedContent}
+        />
+        {modal}
+      </>
     );
   }
 
   if (isRoot) {
     return (
-      <RootCard
+      <>
+        <RootCard
+          code={code}
+          name={name}
+          icon={icon}
+          color={color}
+          isMobile={isMobile}
+          isTablet={isTablet}
+          darkMode={darkMode}
+          language={language}
+          isInfoVisible={isInfoVisible}
+          isExpanded={isExpanded}
+          hasChildrenFromCache={hasChildrenFromCache}
+          handleCardClick={handleCardClick}
+          handleCardKeyDown={handleCardKeyDown}
+          renderIcon={renderIcon}
+          renderInfoButton={renderInfoButton}
+          renderArrowButton={renderArrowButton}
+          renderExpandedContent={renderExpandedContent}
+          childrenContainerRef={childrenContainerRef}
+        />
+        {modal}
+      </>
+    );
+  }
+
+  // Child capacity card (non-root)
+  return (
+    <>
+      <ChildCard
         code={code}
-        name={name}
-        icon={icon}
-        color={color}
+        displayName={displayName}
+        backgroundColor={backgroundColor}
+        isRoot={isRoot}
         isMobile={isMobile}
         isTablet={isTablet}
         darkMode={darkMode}
         language={language}
         isInfoVisible={isInfoVisible}
-        isExpanded={isExpanded}
         hasChildrenFromCache={hasChildrenFromCache}
+        parentCapacity={parentCapacity}
+        color={color}
         handleCardClick={handleCardClick}
         handleCardKeyDown={handleCardKeyDown}
         renderIcon={renderIcon}
         renderInfoButton={renderInfoButton}
         renderArrowButton={renderArrowButton}
         renderExpandedContent={renderExpandedContent}
-        childrenContainerRef={childrenContainerRef}
+        getNameColor={getNameColor}
+        icon={icon}
       />
-    );
-  }
-
-  // Child capacity card (non-root)
-  return (
-    <ChildCard
-      code={code}
-      displayName={displayName}
-      backgroundColor={backgroundColor}
-      isRoot={isRoot}
-      isMobile={isMobile}
-      isTablet={isTablet}
-      darkMode={darkMode}
-      language={language}
-      isInfoVisible={isInfoVisible}
-      hasChildrenFromCache={hasChildrenFromCache}
-      parentCapacity={parentCapacity}
-      color={color}
-      handleCardClick={handleCardClick}
-      handleCardKeyDown={handleCardKeyDown}
-      renderIcon={renderIcon}
-      renderInfoButton={renderInfoButton}
-      renderArrowButton={renderArrowButton}
-      renderExpandedContent={renderExpandedContent}
-      getNameColor={getNameColor}
-      icon={icon}
-    />
+      {modal}
+    </>
   );
 }
 
@@ -983,7 +1011,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
                 : renderIcon(85, icon))}
 
           <div className={`flex items-center flex-row ${isMobile ? 'gap-4' : 'gap-16'}`}>
-            <div className={`flex items-start ${isMobile ? 'flex-1 min-w-0' : 'w-[378px]'} h-full`}>
+            <div className={`flex items-start ${isMobile ? 'flex-1 min-w-0' : 'w-[432px]'} h-full`}>
               <Link href={`/feed?capacityId=${code}`}>
                 <h3
                   className={`font-extrabold text-white hover:underline truncate text-left ${
@@ -1038,6 +1066,7 @@ interface RootCardProps {
   renderInfoButton: (size: number, icon: string) => React.ReactNode;
   renderArrowButton: (size: number, icon: string) => React.ReactNode;
   renderExpandedContent: () => React.ReactNode;
+  renderTranslationBadge?: () => React.ReactNode;
   childrenContainerRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -1059,6 +1088,7 @@ const RootCard: React.FC<RootCardProps> = ({
   renderInfoButton,
   renderArrowButton,
   renderExpandedContent,
+  renderTranslationBadge,
   childrenContainerRef,
 }) => {
   const cardShadow = getCardShadowClass(isInfoVisible);
@@ -1094,7 +1124,7 @@ const RootCard: React.FC<RootCardProps> = ({
             className={`flex items-center flex-row ${isMobile ? 'gap-2 flex-1 min-w-0' : 'gap-16'}`}
           >
             <div
-              className={`flex items-start ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[378px] pl-8'} h-full`}
+              className={`flex items-start ${isMobile ? 'flex-1 min-w-0 pl-2' : 'w-[432px] pl-8'} h-full`}
             >
               <Link href={`/feed?capacityId=${code}`}>
                 <h3
@@ -1130,6 +1160,8 @@ const RootCard: React.FC<RootCardProps> = ({
           </div>
         </div>
       </div>
+
+      {renderTranslationBadge?.()}
 
       {isInfoVisible && (
         <div
@@ -1175,6 +1207,7 @@ interface ChildCardProps {
   renderInfoButton: (size: number, icon: string) => React.ReactNode;
   renderArrowButton: (size: number, icon: string) => React.ReactNode;
   renderExpandedContent: () => React.ReactNode;
+  renderTranslationBadge?: () => React.ReactNode;
   getNameColor: (isRoot?: boolean, parentCapacity?: Capacity, color?: string) => string;
 }
 
@@ -1198,6 +1231,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   renderInfoButton,
   renderArrowButton,
   renderExpandedContent,
+  renderTranslationBadge,
   getNameColor,
 }) => {
   return (
@@ -1262,6 +1296,8 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </div>
         </div>
       </div>
+
+      {renderTranslationBadge?.()}
 
       {isInfoVisible && (
         <div
