@@ -781,6 +781,7 @@
   "translate-capacity-original": "Original (English):",
   "translate-capacity-save": "Save Translation",
   "translate-capacity-save-success": "Translation saved successfully!",
+  "translate-capacity-both-required": "Both title and description must be filled to save the translation.",
   "suggest-capacity-link": "Can't find a capacity? Suggest a new one!",
   "suggest-capacity-cancel": "Cancel",
   "suggest-capacity-description-label": "Description",

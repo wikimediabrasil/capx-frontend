@@ -1,13 +1,13 @@
 'use client';
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import MetabaseIcon from '@/public/static/images/metabase_black.svg';
+import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { translationService } from '@/services/translationService';
-import { useDarkMode, useLanguage, usePageContent, useCapacityStore } from '@/stores';
+import { useCapacityStore, useDarkMode, useLanguage, usePageContent } from '@/stores';
 import type { OAuthStatusResponse } from '@/types/translation';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import MetabaseIcon from '@/public/static/images/metabase_black.svg';
-import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface TranslateCapacityModalProps {
@@ -141,6 +141,14 @@ export default function TranslateCapacityModal({
 
   const handleSave = async () => {
     if (!qid || !language || !token) return;
+    if (!label.trim() || !description.trim()) {
+      showSnackbar(
+        pageContent['translate-capacity-both-required'] ||
+          'Both title and description must be filled to save the translation.',
+        'error'
+      );
+      return;
+    }
     setIsSaving(true);
     try {
       const result = await translationService.saveTranslation(
@@ -176,7 +184,7 @@ export default function TranslateCapacityModal({
   if (!isOpen) return null;
 
   const isConnected = oauthStatus?.connected;
-  const canSave = isConnected && !!qid && !!label.trim() && !isSaving;
+  const canSave = isConnected && !!qid && !!label.trim() && !!description.trim() && !isSaving;
 
   return (
     <dialog
