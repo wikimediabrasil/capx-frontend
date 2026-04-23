@@ -51,11 +51,11 @@ export default function TranslateCapacityModal({
   const [oauthConnecting, setOauthConnecting] = useState(false);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const popupRef = useRef<Window | null>(null);
 
   const [label, setLabel] = useState(fallbackLabel);
   const [description, setDescription] = useState(fallbackDescription);
   const [isSaving, setIsSaving] = useState(false);
+  const [oauthIframeUrl, setOauthIframeUrl] = useState<string | null>(null);
 
   const stopPolling = useCallback(() => {
     if (pollIntervalRef.current) {
@@ -72,18 +72,13 @@ export default function TranslateCapacityModal({
     stopPolling();
 
     pollIntervalRef.current = setInterval(async () => {
-      if (popupRef.current?.closed) {
-        stopPolling();
-        setOauthConnecting(false);
-        return;
-      }
       try {
         const status = await translationService.getOAuthStatus(token);
         if (status.connected) {
           stopPolling();
           setOauthConnecting(false);
           setOauthStatus(status);
-          popupRef.current?.close();
+          setOauthIframeUrl(null);
           showSnackbar(
             pageContent['translation-oauth-connected'] || 'Metabase account connected!',
             'success'
@@ -124,12 +119,7 @@ export default function TranslateCapacityModal({
     setOauthConnecting(true);
     try {
       const begin = await translationService.beginOAuth(token);
-      const popup = window.open(
-        begin.authorization_url,
-        'metabase_oauth',
-        'width=720,height=640,noopener'
-      );
-      popupRef.current = popup;
+      setOauthIframeUrl(begin.authorization_url);
       startPolling();
     } catch (err) {
       setOauthConnecting(false);
@@ -356,6 +346,35 @@ export default function TranslateCapacityModal({
           </button>
         </div>
       </div>
+
+      {/* OAuth iframe modal */}
+      {oauthIframeUrl && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="relative w-full max-w-2xl h-[640px] rounded-lg overflow-hidden shadow-2xl bg-white flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
+              <span className="text-sm font-semibold text-gray-700">
+                {pageContent['translation-metabase-connection'] || 'Metabase Account'}
+              </span>
+              <button
+                onClick={() => {
+                  stopPolling();
+                  setOauthConnecting(false);
+                  setOauthIframeUrl(null);
+                }}
+                className="text-gray-500 hover:text-gray-800 text-xl transition-colors"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src={oauthIframeUrl}
+              className="flex-1 w-full border-0"
+              title="Metabase OAuth"
+            />
+          </div>
+        </div>
+      )}
     </dialog>
   );
 }

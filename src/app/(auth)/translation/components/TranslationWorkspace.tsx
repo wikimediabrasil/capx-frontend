@@ -351,6 +351,28 @@ export default function TranslationWorkspace() {
     <section className={`w-full min-h-screen pt-24 md:pt-8 ${bg}`}>
       <div className="mx-auto max-w-[1200px] px-4 flex flex-col gap-6 pb-16">
         <TranslationBanner />
+
+        {/* Info notice */}
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            darkMode
+              ? 'border-blue-700 bg-blue-900/20 text-blue-200'
+              : 'border-blue-200 bg-blue-50 text-blue-900'
+          }`}
+        >
+          {pageContent['translation-page-info'] ||
+            'Here you can contribute translations for individual capacity names and descriptions. To translate the entire CapX application interface, please use'}{' '}
+          <a
+            href="https://translatewiki.net/wiki/Translating:CapacityExchange"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`font-semibold underline ${darkMode ? 'text-blue-300 hover:text-blue-100' : 'text-blue-700 hover:text-blue-900'}`}
+          >
+            {pageContent['translation-page-info-link'] || 'TranslateWiki'}
+          </a>
+          {pageContent['translation-page-info-after-link'] || '.'}
+        </div>
+
         {/* OAuth banner */}
         {!oauthLoading && (
           <div

@@ -3,16 +3,13 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
-import TranslateCapacityModal from './TranslateCapacityModal';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { capitalizeFirstLetter } from '@/lib/utils/stringUtils';
 import BarCodeIcon from '@/public/static/images/barcode.svg';
-import BarCodeLightIcon from '@/public/static/images/barcode_white.svg';
 import BookIcon from '@/public/static/images/book_5.svg';
 import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down.svg';
 import LanguageIcon from '@/public/static/images/language.svg';
 import MetabaseIcon from '@/public/static/images/metabase_black.svg';
-import MetabaseLightIcon from '@/public/static/images/metabase_light.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import { profileService } from '@/services/profileService';
 import { userService } from '@/services/userService';
@@ -23,6 +20,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Image, { StaticImageData } from 'next/image';
 import { useRef, useState } from 'react';
+import TranslateCapacityModal from './TranslateCapacityModal';
 
 const ICON_COLOR = '#032430';
 
@@ -257,7 +255,7 @@ function CapacityInfoPanel({
             <div className="flex flex-row items-center gap-2 flex-shrink-0">
               <div className="relative w-[28px] h-[28px]">
                 <Image
-                  src={darkMode ? MetabaseLightIcon : MetabaseIcon}
+                  src={MetabaseIcon}
                   alt={pageContent['capacity-card-metabase-logo'] || 'Metabase logo'}
                   fill
                   priority
@@ -282,7 +280,7 @@ function CapacityInfoPanel({
             <div className="flex flex-row items-center gap-2 flex-shrink-0">
               <div className="relative w-[28px] h-[28px]">
                 <Image
-                  src={darkMode ? BarCodeLightIcon : BarCodeIcon}
+                  src={BarCodeIcon}
                   alt={pageContent['capacity-card-barcode'] || 'BarCode'}
                   fill
                   priority
