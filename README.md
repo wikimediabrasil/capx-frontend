@@ -125,9 +125,13 @@ capx-frontend/
 
 - **Capacity Profiles**: Detailed capacity information and management
 - **Capacity Search**: Advanced search and filtering capabilities
-- **Capacity Categories**: Hierarchical capacity organization
+- **Capacity Categories**: Hierarchical capacity organization with dedicated categories view
 - **Known/Available/Wanted**: Three-tier capacity classification system
 - **Capacity Feed**: Activity feed for capacity-related updates
+- **Capacity Directory Views**: Three visualization modes — Cards, D3 Tree, and Categories — switchable from the directory toolbar
+- **Suggest Capacity**: Users can propose new capacities via a built-in modal form
+- **Capacity Info Panel**: Inline panel on each capacity card to view description, Wikidata link, Metabase link, and add the capacity to known or wanted directly from the directory
+- **D3 Tree Visualization**: Redesigned interactive tree graph of the full capacity hierarchy
 
 ### 🏢 Organization Features
 
@@ -266,7 +270,7 @@ The project includes tests for:
 - Layout components (MainSection, CallToActionSection, StatisticsSection)
 
 **Feature-Specific Components**
-- **Capacity Management**: CapacityCard, CapacitySearch, CapacitySelectionModal, CapacityFeedCard, CapacityListMainWrapper
+- **Capacity Management**: CapacityCard, CapacityCategories, CapacitySearch, CapacitySelectionModal, CapacityFeedCard, CapacityListMainWrapper, SuggestCapacityModal
 - **Profile Management**: AvatarSelectionPopup, MiniBio, MiniBioTextarea, ProfileLanguageSwitching
 - **Organization Management**: OrganizationProfileEditDocuments, DocumentFormItem
 - **Event Management**: EventsEditForm with comprehensive validation
@@ -557,6 +561,9 @@ graph TD
     J --> Q[Capacity Details]
     J --> R[Capacity Search]
     J --> S[Translation Contribution CTA]
+    J --> T2[Capacity Categories View]
+    J --> U2[D3 Tree Visualization]
+    J --> V2[Suggest Capacity Modal]
 
     K --> T[Feed Items]
     K --> U[Saved Items]

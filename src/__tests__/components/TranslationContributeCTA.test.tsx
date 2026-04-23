@@ -55,24 +55,6 @@ jest.mock('@/stores', () => ({
   ),
 }));
 
-// Mock do Next.js
-jest.mock('next/navigation', () => ({
-  useRouter() {
-    return {
-      push: () => jest.fn(),
-      replace: () => jest.fn(),
-      prefetch: () => jest.fn(),
-      back: () => jest.fn(),
-    };
-  },
-  usePathname() {
-    return '/';
-  },
-  useSearchParams() {
-    return new URLSearchParams();
-  },
-}));
-
 // Mock do Next.js Image
 jest.mock('next/image', () => ({
   __esModule: true,
@@ -80,18 +62,6 @@ jest.mock('next/image', () => ({
     return <img {...props} alt={props.alt || ''} />;
   },
 }));
-
-// Mock do Next.js Link
-jest.mock('next/link', () => ({
-  __esModule: true,
-  default: ({ children, href, ...props }: any) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
-}));
-
-// Mock dos contextos
 
 describe('TranslationContributeCTA', () => {
   const mockPageContent = {
@@ -103,9 +73,7 @@ describe('TranslationContributeCTA', () => {
   };
 
   const defaultProps = {
-    capacityCode: 36,
-    capacityName: 'Communication Skills',
-    metabaseCode: 'Q123',
+    onContribute: jest.fn(),
   };
 
   beforeEach(() => {
@@ -140,8 +108,6 @@ describe('TranslationContributeCTA', () => {
 
       expect(screen.getByText('Help translate this capacity')).toBeInTheDocument();
       expect(screen.getByText('Contribute')).toBeInTheDocument();
-      expect(screen.getByAltText('Translate')).toBeInTheDocument();
-      expect(screen.getByAltText('Help')).toBeInTheDocument();
     });
 
     it('renders full version when compact=false or undefined', () => {
@@ -173,94 +139,23 @@ describe('TranslationContributeCTA', () => {
     });
   });
 
-  describe('Metabase Link Generation', () => {
-    it('generates correct URL with metabase code', () => {
-      renderWithProviders(<TranslationContributeCTA {...defaultProps} metabaseCode="Q123" />);
+  describe('Button Behavior', () => {
+    it('calls onContribute when contribute button is clicked', () => {
+      const onContribute = jest.fn();
+      renderWithProviders(<TranslationContributeCTA onContribute={onContribute} />);
 
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q123');
+      const button = screen.getByRole('button');
+      fireEvent.click(button);
+      expect(onContribute).toHaveBeenCalledTimes(1);
     });
 
-    it('generates fallback URL for communication capacity without metabase code', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={36} metabaseCode="" />
-      );
+    it('calls onContribute when contribute button is clicked in compact mode', () => {
+      const onContribute = jest.fn();
+      renderWithProviders(<TranslationContributeCTA onContribute={onContribute} compact={true} />);
 
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q73');
-    });
-
-    it('generates fallback URL for organizational capacity', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={10} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q72');
-    });
-
-    it('generates fallback URL for learning capacity', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={50} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q74');
-    });
-
-    it('generates fallback URL for community capacity', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={56} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q75');
-    });
-
-    it('generates fallback URL for social capacity', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={65} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q76');
-    });
-
-    it('generates fallback URL for strategic capacity', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={74} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q77');
-    });
-
-    it('generates fallback URL for technology capacity', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={106} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q78');
-    });
-
-    it('generates default fallback URL for unknown capacity code', () => {
-      renderWithProviders(
-        <TranslationContributeCTA {...defaultProps} capacityCode={999} metabaseCode="" />
-      );
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q72');
-    });
-  });
-
-  describe('Link Properties', () => {
-    it('opens link in new tab', () => {
-      renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('target', '_blank');
-      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      const button = screen.getByRole('button', { name: /Contribute/i });
+      fireEvent.click(button);
+      expect(onContribute).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -310,13 +205,6 @@ describe('TranslationContributeCTA', () => {
       expect(screen.getByAltText('Translation needed')).toBeInTheDocument();
       expect(screen.getByAltText('Help')).toBeInTheDocument();
     });
-
-    it('has proper link text for screen readers', () => {
-      renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
-
-      const link = screen.getByRole('link');
-      expect(link).toHaveTextContent('Contribute');
-    });
   });
 
   describe('Responsive Design', () => {
@@ -328,24 +216,6 @@ describe('TranslationContributeCTA', () => {
       const container = screen.getByText('Help translate this capacity').closest('div')
         ?.parentElement?.parentElement;
       expect(container).toHaveClass('flex-col');
-    });
-  });
-
-  describe('Event Handling', () => {
-    it('handles click on external link', () => {
-      // Mock window.open to verify external link behavior
-      const mockOpen = jest.fn();
-      Object.defineProperty(window, 'open', {
-        value: mockOpen,
-        writable: true,
-      });
-
-      renderWithProviders(<TranslationContributeCTA {...defaultProps} />);
-
-      const link = screen.getByRole('link');
-      // The link should have target="_blank" which will open in new tab
-      expect(link).toHaveAttribute('href', 'https://metabase.wikibase.cloud/wiki/Item:Q123');
-      expect(link).toHaveAttribute('target', '_blank');
     });
   });
 

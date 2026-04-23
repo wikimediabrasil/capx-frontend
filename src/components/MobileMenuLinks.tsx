@@ -133,6 +133,11 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
       active: true,
     },
     {
+      title: pageContent['mentorship-programs'] || 'Mentorship Programs',
+      to: '/mentorship',
+      active: true,
+    },
+    {
       title: pageContent['navbar-link-organizations'],
       to: '/organization_list',
       active: true,
@@ -142,7 +147,11 @@ export default function MobileMenuLinks({ session, handleMenuStatus }: MobileMen
       to: '/data_analytics_dashboard',
       active: true,
     },
-
+    {
+      title: pageContent['translate-page'],
+      to: '/translation',
+      active: true,
+    },
     {
       title: pageContent['navbar-link-dark-mode'],
       action: () => {

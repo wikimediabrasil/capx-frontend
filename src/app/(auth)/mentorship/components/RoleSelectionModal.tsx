@@ -24,6 +24,10 @@ export default function RoleSelectionModal({
 
   if (!isOpen) return null;
 
+  const registrationActive = program.status === 'open';
+  const mentorSelectable = Boolean(program.forms?.mentor && registrationActive);
+  const menteeSelectable = Boolean(program.forms?.mentee && registrationActive);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -77,10 +81,10 @@ export default function RoleSelectionModal({
           {/* Role Selection Buttons: show both; disable when form is not available for that role */}
           <div className="space-y-3 mb-6">
             <BaseButton
-              disabled={!program.forms?.mentor}
+              disabled={!mentorSelectable}
               onClick={() => onSelect('mentor', program)}
               customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold flex items-center justify-center gap-2 ${
-                program.forms?.mentor
+                mentorSelectable
                   ? 'bg-[#053749] hover:bg-[#04222F] text-white'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-70'
               }`}
@@ -89,10 +93,10 @@ export default function RoleSelectionModal({
               imageHeight={24}
             />
             <BaseButton
-              disabled={!program.forms?.mentee}
+              disabled={!menteeSelectable}
               onClick={() => onSelect('mentee', program)}
               customClass={`w-full px-4 py-3 rounded-lg text-base font-extrabold border-2 flex items-center justify-center gap-2 ${
-                program.forms?.mentee
+                menteeSelectable
                   ? darkMode
                     ? 'border-[#053749] bg-transparent text-white hover:bg-[#053749]'
                     : 'border-[#053749] bg-white text-[#053749] hover:bg-[#053749] hover:text-white'

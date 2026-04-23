@@ -90,6 +90,7 @@
 	"body-profile-wikimedia-projects-title": "وکیمیڈیا منصوبے",
 	"body-profile-contact-button": "آؤ ڳالھیں کروں",
 	"body-profile-copy-link": "لنک نقل کرو",
+	"body-profile-qr-code-close": "بند کرو",
 	"video-show-transcript": "لکھت ݙکھاؤ",
 	"video-hide-transcript": "لکھت لُکاؤ",
 	"aria-label-toggle-transcript": "وڈیو لکھت ٹوگل کرو",
@@ -186,7 +187,6 @@
 	"report-bug-submit": "جمع کرواؤ",
 	"report-bug-title": "عنوان",
 	"report-bug-description": "تفصیل",
-	"report-bug-status": "حیثیت",
 	"report-bug-submitted-at": "کوں جمع تھیا",
 	"report-bug-updated-at": "کوں اپ ڈیٹ تھیا",
 	"report-bug-type": "رپورٹ دی قسم",
@@ -267,6 +267,7 @@
 	"lets-connect-info-popup-cancel": "منسوخ",
 	"lets-connect-success-popup-close-tab": "ٹیب بند کرو",
 	"lets-connect-success-popup-title": "سوہݨا کیتے!",
+	"badges-back-to-user-profile": "واپس ڄُلو",
 	"body-profile-badges-title": "بیج",
 	"date-picker-today": "اڄ",
 	"date-picker-clear": "صاف",
@@ -399,5 +400,10 @@
 	"analytics-map-south-asia": "جنوبی ایشیاء",
 	"analytics-map-north-america": "شمالی امریکہ",
 	"sign-in-required-title": "جاری رکھݨ کیتے لاگ ان تھیوو",
-	"sign-in-required-go-home": "گھر ورقے تے ونڄو"
+	"sign-in-required-go-home": "گھر ورقے تے ونڄو",
+	"suggest-capacity-cancel": "منسوخ",
+	"suggest-capacity-description-label": "تفصیل",
+	"suggest-capacity-submit": "جمع کرواؤ",
+	"suggest-capacity-submitting": "جمع کریندا پئے۔۔۔",
+	"suggest-capacity-title-label": "عنوان"
 }

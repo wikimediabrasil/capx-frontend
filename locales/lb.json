@@ -80,6 +80,9 @@
 	"body-profile-copy-link": "Link kopéieren",
 	"body-profile-copy-link-success": "Profillink an den Tëschespäicher kopéiert!",
 	"body-profile-copy-link-error": "De Profillink konnt net kopéiert ginn",
+	"body-profile-qr-code": "QR-Code weisen",
+	"body-profile-qr-code-download": "QR-Code eroflueden",
+	"body-profile-qr-code-close": "Zoumaachen",
 	"aria-label-video-transcript": "Videotranskriptioun",
 	"edit-profile-update": "Aktualiséieren",
 	"edit-profile-welcome": "Wëllkomm!",
@@ -154,7 +157,6 @@
 	"saved-profiles-saved-profile": "Gespäichert",
 	"report-bug-title": "Titel",
 	"report-bug-description": "Beschreiwung",
-	"report-bug-status": "Status",
 	"report-bug-view": "Weisen",
 	"report-bug-hide": "Verstoppen",
 	"report-bug-type-error": "Feeler",
@@ -331,6 +333,7 @@
 	"organization-names-title": "Nimm vun der Organisatioun (Iwwersetzungen)",
 	"select-language": "Sprooch eraussichen",
 	"mentorship-programs": "Mentoreprogrammer",
+	"subscribe": "Abonéieren",
 	"select-your-role": "Wielt Är Roll",
 	"mentor": "Mentor",
 	"mentee": "Mentoréierten",
@@ -350,5 +353,8 @@
 	"analytics-map-capacity-available": "Disponibel",
 	"analytics-map-capacity-wanted": "Gesicht",
 	"analytics-map-capacity-type": "Typ",
-	"sign-in-required-title": "Loggt Iech a fir virunzefueren"
+	"sign-in-required-title": "Loggt Iech a fir virunzefueren",
+	"suggest-capacity-cancel": "Ofbriechen",
+	"suggest-capacity-description-label": "Beschreiwung",
+	"suggest-capacity-title-label": "Titel"
 }
