@@ -20,3 +20,8 @@ export { default as ProfileEditSkeleton } from './ProfileEditSkeleton';
 export { default as AnalyticsDashboardSkeleton } from './AnalyticsDashboardSkeleton';
 export { default as CapacitiesTreeSkeleton } from './CapacitiesTreeSkeleton';
 export { default as ChildCapacitiesSkeleton } from './ChildCapacitiesSkeleton';
+export { default as CapacityDirectorySkeleton } from './CapacityDirectorySkeleton';
+export { default as MessagePageSkeleton } from './MessagePageSkeleton';
+export { default as BadgesPageSkeleton } from './BadgesPageSkeleton';
+export { default as MentorshipPageSkeleton } from './MentorshipPageSkeleton';
+export { default as TranslationPageSkeleton } from './TranslationPageSkeleton';
