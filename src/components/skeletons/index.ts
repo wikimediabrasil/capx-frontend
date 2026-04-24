@@ -25,3 +25,4 @@ export { default as MessagePageSkeleton } from './MessagePageSkeleton';
 export { default as BadgesPageSkeleton } from './BadgesPageSkeleton';
 export { default as MentorshipPageSkeleton } from './MentorshipPageSkeleton';
 export { default as TranslationPageSkeleton } from './TranslationPageSkeleton';
+export { default as AnalyticsCallToActionSkeleton } from './AnalyticsCallToActionSkeleton';

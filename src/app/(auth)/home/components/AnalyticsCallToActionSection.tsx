@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import BaseButton from '@/components/BaseButton';
+import { AnalyticsCallToActionSkeleton } from '@/components/skeletons';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
 
@@ -157,76 +158,9 @@ export default function AnalyticsCallToActionSection() {
     router.push('/data_analytics_dashboard');
   };
 
-  // Show loading state
+  // Show skeleton while loading
   if (isLoading || territoriesLoading) {
-    if (isMobile) {
-      return (
-        <section
-          className={
-            (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-            ' flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-16'
-          }
-        >
-          <div className="flex flex-col items-center justify-center w-full gap-4">
-            <div className="relative min-h-[60px] flex items-center justify-center">
-              <div
-                className={
-                  (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-                  ' text-center font-[Montserrat] text-[16px] md:text-[20px] not-italic font-normal leading-[normal]'
-                }
-              >
-                <div
-                  className={
-                    'animate-spin ease-linear h-6 w-6 rounded-full border-4 mx-auto ' +
-                    (darkMode
-                      ? 'border-l-transparent border-r-transparent border-b-transparent border-t-[#FFF]'
-                      : 'border-l-transparent border-r-transparent border-b-transparent border-t-[#053749]')
-                  }
-                  role="status"
-                  aria-label="Loading statistics"
-                />
-              </div>
-            </div>
-            <div className="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] opacity-50">
-              <span className="text-white font-bold text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]">
-                {buttonLabel}
-              </span>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    return (
-      <section className="flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-16">
-        <div className="flex flex-col items-center justify-center w-full gap-6">
-          <div className="relative min-h-[80px] flex items-center justify-center">
-            <div
-              className={
-                (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-                ' text-center font-[Montserrat] text-[30px] not-italic font-normal leading-[normal]'
-              }
-            >
-              <div
-                className={
-                  'animate-spin ease-linear h-8 w-8 rounded-full border-4 mx-auto ' +
-                  (darkMode
-                    ? 'border-l-transparent border-r-transparent border-b-transparent border-t-[#FFF]'
-                    : 'border-l-transparent border-r-transparent border-b-transparent border-t-[#053749]')
-                }
-                role="status"
-                aria-label="Loading statistics"
-              />
-            </div>
-          </div>
-          <div className="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] h-[64px] opacity-50">
-            <span className="text-white font-bold text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]">
-              {buttonLabel}
-            </span>
-          </div>
-        </div>
-      </section>
-    );
+    return <AnalyticsCallToActionSkeleton />;
   }
 
   // Don't show section if no statistics

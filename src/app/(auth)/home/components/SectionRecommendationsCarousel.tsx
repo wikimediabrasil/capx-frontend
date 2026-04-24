@@ -16,6 +16,7 @@ import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { userService } from '@/services/userService';
 
 import { usePageContent } from '@/stores';
+import AnalyticsCallToActionSection from './AnalyticsCallToActionSection';
 export default function SectionRecommendationsCarousel() {
   const pageContent = usePageContent();
   const { data, isLoading, error } = useRecommendations();
@@ -173,6 +174,9 @@ export default function SectionRecommendationsCarousel() {
             <CardNoCapacities alt="No profiles to learn from" />
           )}
         </RecommendationCarousel>
+
+        {/* Analytics Call to Action */}
+        <AnalyticsCallToActionSection />
 
         {/* Same Language carousel */}
         <RecommendationCarousel

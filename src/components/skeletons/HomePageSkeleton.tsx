@@ -2,6 +2,7 @@
 
 import SkeletonBase from './SkeletonBase';
 import RecommendationCarouselSkeleton from './RecommendationCarouselSkeleton';
+import AnalyticsCallToActionSkeleton from './AnalyticsCallToActionSkeleton';
 
 export default function HomePageSkeleton() {
   return (
@@ -12,7 +13,16 @@ export default function HomePageSkeleton() {
         <SkeletonBase className="h-5 w-48" />
       </div>
 
-      {/* Profile recommendations carousel */}
+      {/* Profiles to share with carousel */}
+      <RecommendationCarouselSkeleton type="profile" cardCount={3} />
+
+      {/* Profiles to learn from carousel */}
+      <RecommendationCarouselSkeleton type="profile" cardCount={3} />
+
+      {/* Analytics CTA skeleton */}
+      <AnalyticsCallToActionSkeleton />
+
+      {/* Same language speakers carousel */}
       <RecommendationCarouselSkeleton type="profile" cardCount={3} />
 
       {/* Capacity recommendations carousel */}
