@@ -2,7 +2,6 @@
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useLanguageSync } from '@/components/LanguageSync';
-import LoadingState from '@/components/LoadingState';
 import { FeedPageSkeleton } from '@/components/skeletons';
 import { PaginationButtons } from '@/components/PaginationButtons';
 import { ProfileListWithEmpty } from '@/components/ProfileListWithEmpty';
@@ -235,7 +234,15 @@ export default function FeedPage() {
   }
 
   if (isTranslationLoading) {
-    return <LoadingState fullScreen={true} />;
+    return (
+      <div className="w-full flex flex-col items-center pt-24 md:pt-8 overflow-x-hidden">
+        <div className="container mx-auto px-4 w-full max-w-full">
+          <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
+            <FeedPageSkeleton />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Ensure save type is a single value even when the profile is multi-type

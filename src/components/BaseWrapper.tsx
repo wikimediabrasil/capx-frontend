@@ -55,12 +55,7 @@ export default function BaseWrapper({ children }: BaseWrapperProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Short delay to ensure all contexts are initialized
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 100);
-
-    return () => clearTimeout(timer);
+    setMounted(true);
   }, []);
 
   if (!mounted) {

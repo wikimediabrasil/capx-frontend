@@ -313,12 +313,13 @@ const CapacityCard: React.FC<CapacityCardProps> = ({
        hover:bg-opacity-90 transform hover:scale-[1.01] transition-all`;
 
   return (
-    <button
+    <div
       className={cardClassName}
       onClick={() => handleCategorySelect(capacity)}
       style={cardStyle}
       tabIndex={0}
       onKeyDown={e => activateOnEnterSpace(e, () => handleCategorySelect(capacity))}
+      role="button"
       aria-pressed={isSelected}
     >
       <div className="flex p-3 h-[80px] items-center justify-between">
@@ -361,7 +362,7 @@ const CapacityCard: React.FC<CapacityCardProps> = ({
         pageContent={pageContent}
         onContribute={onContribute}
       />
-    </button>
+    </div>
   );
 };
 

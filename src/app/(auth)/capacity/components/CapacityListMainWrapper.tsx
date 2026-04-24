@@ -3,8 +3,7 @@
 import CapacitiesTreeVisualization from '@/app/capacities_visualization/components/CapacitiesTreeVisualization';
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
-import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
-import { ChildCapacitiesSkeleton } from '@/components/skeletons';
+import { CapacityDirectorySkeleton, ChildCapacitiesSkeleton } from '@/components/skeletons';
 import { ScrollNavigation } from '@/components/ScrollNavigation';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
@@ -488,16 +487,11 @@ export default function CapacityListMainWrapper() {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    // Small delay to ensure context is properly initialized
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 50);
-
-    return () => clearTimeout(timer);
+    setMounted(true);
   }, []);
 
   if (!mounted) {
-    return <LoadingStateWithFallback fullScreen={true} />;
+    return <CapacityDirectorySkeleton />;
   }
 
   return (

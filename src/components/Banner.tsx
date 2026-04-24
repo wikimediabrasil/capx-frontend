@@ -35,7 +35,7 @@ export default function Banner({ image, title, alt, customClass = {} }: Readonly
         >
           <Image
             src={image}
-            alt={alt}
+            alt={alt || ''}
             width={180}
             height={180}
             className="h-auto w-[140px] md:w-auto"
@@ -54,7 +54,7 @@ export default function Banner({ image, title, alt, customClass = {} }: Readonly
                 {title.desktop && (
                   <Image
                     src={title.desktop}
-                    alt={alt}
+                    alt={alt || ''}
                     className="hidden md:block h-auto"
                     style={{ width: 'auto' }}
                     priority
@@ -63,7 +63,7 @@ export default function Banner({ image, title, alt, customClass = {} }: Readonly
                 {title.mobile && (
                   <Image
                     src={title.mobile}
-                    alt={alt}
+                    alt={alt || ''}
                     className={title.desktop ? 'block md:hidden h-auto' : 'h-auto'}
                     style={{ width: 'auto' }}
                     priority

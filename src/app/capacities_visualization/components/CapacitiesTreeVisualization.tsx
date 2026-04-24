@@ -1,6 +1,6 @@
 'use client';
 
-import LoadingState from '@/components/LoadingState';
+import { CapacitiesTreeSkeleton } from '@/components/skeletons';
 import { useCapacityStore } from '@/stores';
 import { useMemo } from 'react';
 import D3TreeVisualization from './D3TreeVisualization';
@@ -65,7 +65,7 @@ export default function CapacitiesTreeVisualization() {
   }, [capacitiesData]);
 
   if (isLoadingTranslations || !isLoaded) {
-    return <LoadingState fullScreen />;
+    return <CapacitiesTreeSkeleton />;
   }
 
   if (d3Data.length === 0) {

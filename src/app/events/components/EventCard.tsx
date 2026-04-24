@@ -1,6 +1,6 @@
 import BaseButton from '@/components/BaseButton';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import LoadingState from '@/components/LoadingState';
+import { EventCardSkeleton } from '@/components/skeletons';
 import { useIsMobile, usePageContent, useLanguage, useDarkMode, useCapacityStore } from '@/stores';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useOrganizationNames } from '@/hooks/useOrganizationNames';
@@ -238,11 +238,7 @@ export default function EventCard({
   };
 
   if (isLoading) {
-    return (
-      <div className="min-w-[280px] max-w-[320px] h-[300px] flex items-center justify-center">
-        <LoadingState />
-      </div>
-    );
+    return <EventCardSkeleton />;
   }
 
   if (error || !event) {

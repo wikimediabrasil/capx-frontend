@@ -6,7 +6,7 @@ import BaseInput from '@/components/BaseInput';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import { useEvents } from '@/hooks/useEvents';
-import LoadingState from '@/components/LoadingState';
+import { EventCardSkeleton } from '@/components/skeletons';
 import { Event } from '@/types/event';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
@@ -168,8 +168,10 @@ export function EventsSearch({
       />
 
       {(isLoading || isEventsLoading) && (
-        <div className="flex justify-center py-2 mt-2">
-          <LoadingState />
+        <div className="flex flex-col gap-4 mt-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <EventCardSkeleton key={i} />
+          ))}
         </div>
       )}
     </div>
