@@ -1,17 +1,17 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import MobileMenuLinks from '@/components/MobileMenuLinks';
 import AuthButton from '@/components/AuthButton';
-import { useDarkMode, usePageContent, useAppStore } from '@/stores';
+import MobileMenuLinks from '@/components/MobileMenuLinks';
 import MoveOutIcon from '@/public/static/images/move_item.svg';
+import { useAppStore, useDarkMode, usePageContent } from '@/stores';
+import { motion } from 'framer-motion';
 import { Session } from 'next-auth';
 
 interface MobileMenuProps {
   session: Session | null;
 }
 
-export default function MobileMenu({ session }: MobileMenuProps) {
+export default function MobileMenu({ session }: Readonly<MobileMenuProps>) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const setMobileMenuStatus = useAppStore(s => s.setMobileMenuStatus);

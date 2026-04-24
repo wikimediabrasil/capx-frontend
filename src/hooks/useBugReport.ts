@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { BugReportService } from '@/services/bugReportService';
 import { BugReport } from '@/types/report';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 export enum ReportType {
   ERROR = 'error',
@@ -30,7 +30,7 @@ export function useBugReport() {
         bugReport,
         token: session?.user.token ?? '',
       });
-      if (!response || !response.id) {
+      if (!response?.id) {
         throw new Error('Invalid project response from server');
       }
       return response;

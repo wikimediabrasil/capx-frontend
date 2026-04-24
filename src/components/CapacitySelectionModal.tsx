@@ -1,5 +1,6 @@
 import BaseButton from '@/components/BaseButton';
 import { TranslationContributeCTA } from '@/components/TranslationContributeCTA';
+import TranslateCapacityModal from '@/app/(auth)/capacity/components/TranslateCapacityModal';
 import { useDarkMode, useIsMobile, useLanguage, usePageContent, useCapacityStore } from '@/stores';
 import { getCapacityIcon } from '@/lib/utils/capacitiesUtils';
 import InfoIcon from '@/public/static/images/info.svg';
@@ -196,17 +197,19 @@ interface CapacityInfoSectionProps {
   metabase_url: string;
   capitalizeFirstLetter: (text?: string) => string;
   pageContent: any;
+  onContribute: () => void;
 }
 
 const CapacityInfoSection: React.FC<CapacityInfoSectionProps> = ({
   showInfo,
   description,
   isUsingFallback,
-  capacity,
-  metabaseCode,
+  capacity: _capacity,
+  metabaseCode: _metabaseCode,
   metabase_url,
   capitalizeFirstLetter,
   pageContent,
+  onContribute,
 }) => {
   if (!showInfo || !description) return null;
 
@@ -221,11 +224,7 @@ const CapacityInfoSection: React.FC<CapacityInfoSectionProps> = ({
       </p>
       {isUsingFallback && (
         <div onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-          <TranslationContributeCTA
-            capacityCode={capacity.code}
-            metabaseCode={metabaseCode}
-            compact={true}
-          />
+          <TranslationContributeCTA onContribute={onContribute} compact={true} />
         </div>
       )}
       <div className="text-start">
@@ -269,6 +268,7 @@ interface CapacityCardProps {
   findCapacityByCode: (code: number) => Capacity | undefined;
   getColor: (code: number) => string;
   darkMode: boolean;
+  onContribute: () => void;
 }
 
 const CapacityCard: React.FC<CapacityCardProps> = ({
@@ -291,6 +291,7 @@ const CapacityCard: React.FC<CapacityCardProps> = ({
   getTextColor,
   capitalizeFirstLetter,
   pageContent,
+  onContribute,
 }) => {
   const cardStyle = isRoot
     ? {
@@ -358,6 +359,7 @@ const CapacityCard: React.FC<CapacityCardProps> = ({
         metabase_url={metabase_url}
         capitalizeFirstLetter={capitalizeFirstLetter}
         pageContent={pageContent}
+        onContribute={onContribute}
       />
     </button>
   );
@@ -379,6 +381,8 @@ export default function CapacitySelectionModal({
   const [selectedPath, setSelectedPath] = useState<number[]>([]);
   const [selectedCapacities, setSelectedCapacities] = useState<Capacity[]>([]);
   const [showInfoMap, setShowInfoMap] = useState<Record<number, boolean>>({});
+  const [translateModalOpen, setTranslateModalOpen] = useState(false);
+  const [translateCapacity, setTranslateCapacity] = useState<Capacity | null>(null);
 
   // Get capacity data from the global cache system
   const capacityCache = useCapacityStore();
@@ -822,6 +826,10 @@ export default function CapacitySelectionModal({
                             findCapacityByCode={findCapacityByCode}
                             getColor={getColor}
                             darkMode={darkMode}
+                            onContribute={() => {
+                              setTranslateCapacity(capacity);
+                              setTranslateModalOpen(true);
+                            }}
                           />
                           {!allowMultipleSelection &&
                             selectedCapacities.length > 0 &&
@@ -874,6 +882,18 @@ export default function CapacitySelectionModal({
           </div>
         </div>
       </div>
+
+      {translateCapacity && (
+        <TranslateCapacityModal
+          isOpen={translateModalOpen}
+          onClose={() => setTranslateModalOpen(false)}
+          capacityName={translateCapacity.name}
+          capacityCode={translateCapacity.code}
+          qid={translateCapacity.skill_wikidata_item}
+          fallbackLabel={translateCapacity.name}
+          fallbackDescription={translateCapacity.description}
+        />
+      )}
     </div>
   );
 }

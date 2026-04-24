@@ -176,14 +176,14 @@ export const getCapacityIcon = (code: number): string => {
     '106': TechnologyIcon,
   };
 
-  // Check for prefix matches
+  // Check for prefix matches (more specific prefixes must come first)
+  if (codeStr.startsWith('106')) return iconMap['106'];
   if (codeStr.startsWith('10')) return iconMap['10'];
   if (codeStr.startsWith('36')) return iconMap['36'];
   if (codeStr.startsWith('50')) return iconMap['50'];
   if (codeStr.startsWith('56')) return iconMap['56'];
   if (codeStr.startsWith('65')) return iconMap['65'];
   if (codeStr.startsWith('74')) return iconMap['74'];
-  if (codeStr.startsWith('106')) return iconMap['106'];
 
   return iconMap['10']; // Default fallback
 };
@@ -334,8 +334,11 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
 
         // If we requested a specific language but got English back, it's a fallback
+        // Also treat missing/empty descriptions as fallback since there's nothing translated
         const isLabelFallback = language !== 'en' && labelLanguage === 'en';
-        const isDescriptionFallback = language !== 'en' && descriptionLanguage === 'en';
+        const descriptionValue = mbItem.itemDescription?.value || '';
+        const isDescriptionFallback =
+          language !== 'en' && (descriptionLanguage === 'en' || descriptionValue.trim() === '');
 
         const result = {
           wd_code: mbItem.value.value,
@@ -344,6 +347,8 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
           item: mbItem.item.value,
           metabase_code: metabaseCode,
           // Track if this result is using English fallback
+          isFallbackLabel: isLabelFallback,
+          isFallbackDescription: isDescriptionFallback,
           isFallbackTranslation: isLabelFallback || isDescriptionFallback,
         };
 

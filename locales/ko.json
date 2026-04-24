@@ -228,6 +228,7 @@
 	"aria-label-report-bug-title": "버그 신고 제목",
 	"capacity-list-scroll-previous": "이전",
 	"capacity-list-scroll-next": "다음",
+	"capacity-list-visualization-description-browse-cards": "카드 찾아보기",
 	"translation-alt-translate": "번역",
 	"translation-needed": "번역 필요",
 	"filters-territory": "지역",
@@ -257,5 +258,10 @@
 	"close": "닫기",
 	"mentorship-programs-alt": "멘토링 프로그램",
 	"analytics-map-select-language": "언어 선택",
-	"analytics-map-capacity-type": "유형"
+	"analytics-map-capacity-type": "유형",
+	"suggest-capacity-cancel": "취소",
+	"suggest-capacity-description-label": "설명",
+	"suggest-capacity-submit": "제출",
+	"suggest-capacity-submitting": "제출 중...",
+	"suggest-capacity-title-label": "제목"
 }

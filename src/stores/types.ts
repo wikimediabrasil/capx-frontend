@@ -16,6 +16,8 @@ export interface CapacityData {
   parentCapacity?: any;
   category?: string;
   isFallbackTranslation?: boolean;
+  isFallbackLabel?: boolean;
+  isFallbackDescription?: boolean;
 }
 
 // Unified cache structure for capacity data
@@ -29,8 +31,7 @@ export interface UnifiedCache {
 // Capacity store state
 export interface CapacityStoreState extends UnifiedCache {
   isLoadingTranslations: boolean;
-  // Convenience property (delegates to getIsLoaded)
-  readonly isLoaded: boolean;
+  isLoaded: boolean;
 }
 
 // Capacity store actions
@@ -57,6 +58,13 @@ export interface CapacityStoreActions {
   preloadCapacities: (token: string) => Promise<void>;
   clearCache: () => void;
   setCache: (cache: UnifiedCache) => void;
+  updateCapacityTranslation: (
+    code: number,
+    name: string,
+    description: string,
+    labelChanged: boolean,
+    descriptionChanged: boolean
+  ) => void;
 
   // React Query integration
   invalidateQueryCache: (queryClient: QueryClient, language: string) => void;
@@ -68,6 +76,7 @@ export type CapacityStore = CapacityStoreState & CapacityStoreActions;
 // App store state
 export interface AppStoreState {
   isMobile: boolean;
+  isTablet: boolean;
   mobileMenuStatus: boolean;
   language: string;
   pageContent: Record<string, string>;
