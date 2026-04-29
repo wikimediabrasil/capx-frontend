@@ -55,6 +55,26 @@ describe('translationService', () => {
       );
     });
 
+    it('handles items with null fallback_label and fallback_description', async () => {
+      const nullFallbackResults = [
+        {
+          qid: 'Q2',
+          metabase_id: '2',
+          lang: 'id',
+          label: null,
+          description: null,
+          fallback_label: null,
+          fallback_description: null,
+        },
+      ];
+      mockedAxios.get.mockResolvedValueOnce({ data: { results: nullFallbackResults } });
+
+      const result = await translationService.loadCapacities('id', 'en', 'tok');
+
+      expect(result[0].fallback_label).toBeNull();
+      expect(result[0].fallback_description).toBeNull();
+    });
+
     it('propagates axios errors', async () => {
       mockedAxios.get.mockRejectedValueOnce(new Error('Network error'));
 

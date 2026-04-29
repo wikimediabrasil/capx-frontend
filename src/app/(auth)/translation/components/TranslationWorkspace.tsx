@@ -75,7 +75,7 @@ export default function TranslationWorkspace() {
         if (translationOrder === 'untranslated-first') return aHasTranslation ? 1 : -1;
         return aHasTranslation ? -1 : 1;
       }
-      const cmp = a.fallback_label.localeCompare(b.fallback_label);
+      const cmp = (a.fallback_label ?? '').localeCompare(b.fallback_label ?? '');
       return alphaOrder === 'az' ? cmp : -cmp;
     });
   }, [items, search, alphaOrder, translationOrder]);
@@ -771,7 +771,7 @@ function TranslationRow({
               value={item.editedLabel ?? ''}
               disabled={isSaving}
               onChange={e => onFieldChange(item.qid, 'editedLabel', e.target.value)}
-              placeholder={item.fallback_label}
+              placeholder={item.fallback_label ?? undefined}
               className={`w-full rounded border px-3 py-1.5 text-sm ${inputBase} focus:outline-none focus:ring-2 focus:ring-[#851970] disabled:opacity-60 ${
                 item.dirty && item.editedLabel !== (item.label ?? '') ? 'border-purple-400' : ''
               }`}
@@ -785,7 +785,7 @@ function TranslationRow({
               value={item.editedDescription ?? ''}
               disabled={isSaving}
               onChange={e => onFieldChange(item.qid, 'editedDescription', e.target.value)}
-              placeholder={item.fallback_description}
+              placeholder={item.fallback_description ?? undefined}
               rows={2}
               className={`w-full rounded border px-3 py-1.5 text-sm ${inputBase} focus:outline-none focus:ring-2 focus:ring-[#851970] disabled:opacity-60 resize-none ${
                 item.dirty && item.editedDescription !== (item.description ?? '')
