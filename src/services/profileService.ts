@@ -76,6 +76,14 @@ export const profileService = {
     try {
       const payload = {
         ...profileData,
+        // Strip client-side display field 'name' from language proficiency objects.
+        // The backend only accepts {id, proficiency} — sending extra fields can cause 400.
+        language: Array.isArray(profileData.language)
+          ? profileData.language.map(({ id, proficiency }: { id: number; proficiency: string }) => ({
+              id,
+              proficiency,
+            }))
+          : profileData.language,
         user: {
           id: userId,
         },
@@ -85,8 +93,11 @@ export const profileService = {
         headers: queryData.headers,
       });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
+      if (error.response?.data?.details) {
+        console.error('Backend validation error details:', error.response.data.details);
+      }
       throw error;
     }
   },

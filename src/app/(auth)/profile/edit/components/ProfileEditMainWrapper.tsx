@@ -505,8 +505,11 @@ export default function EditProfilePage() {
       setTimeout(() => {
         router.push('/profile');
       }, 100);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
+      if (error.response?.data?.details) {
+        console.error('Profile update backend error:', error.response.data.details);
+      }
 
       // Check if this is a capacity validation error from backend
       if (isCapacityValidationError(error)) {
