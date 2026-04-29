@@ -13,6 +13,8 @@ import AccountTreeIcon from '@/public/static/images/account_tree.svg';
 import AccountTreeIconWhite from '@/public/static/images/account_tree_white.svg';
 import CollapseAllIcon from '@/public/static/images/collapse_all.svg';
 import CollapseAllIconWhite from '@/public/static/images/collapse_all_white.svg';
+import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import { useDarkMode, useIsMobile } from '@/stores';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
@@ -406,10 +408,92 @@ export default function AuthenticatedMainSection({
     </section>
   );
 
+  const translateSlide = isMobile ? (
+    <section
+      className={
+        (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
+        ' flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8'
+      }
+    >
+      <div className="flex flex-col items-center justify-center w-full gap-6">
+        <Image
+          src={darkMode ? LanguageIconWhite : LanguageIcon}
+          alt="Translate"
+          width={80}
+          height={80}
+          className="w-20 h-20"
+        />
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h2
+            className={
+              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+              ' font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]'
+            }
+          >
+            {pageContent['home-translate-cta-title'] || 'Translate capacities and add new ones'}
+          </h2>
+          <p
+            className={
+              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+              ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
+            }
+          >
+            {pageContent['home-translate-cta-description'] ||
+              'Help translate capacity names and descriptions into your language, and contribute new capacities to grow the CapX knowledge base.'}
+          </p>
+        </div>
+        <BaseButton
+          onClick={() => router.push('/translate')}
+          label={pageContent['home-translate-cta-button'] || 'Translate & contribute'}
+          customClass="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
+        />
+      </div>
+    </section>
+  ) : (
+    <section className="flex flex-col items-center justify-center w-full mx-auto">
+      <div className="flex flex-row items-center justify-between w-full py-[128px] gap-16 max-w-screen-xl mx-auto px-8">
+        <div className="flex flex-col items-start w-full lg:w-2/3 gap-6">
+          <h2
+            className={
+              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+              ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
+            }
+          >
+            {pageContent['home-translate-cta-title'] || 'Translate capacities and add new ones'}
+          </h2>
+          <p
+            className={
+              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+              ' font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]'
+            }
+          >
+            {pageContent['home-translate-cta-description'] ||
+              'Help translate capacity names and descriptions into your language, and contribute new capacities to grow the CapX knowledge base.'}
+          </p>
+          <BaseButton
+            onClick={() => router.push('/translate')}
+            label={pageContent['home-translate-cta-button'] || 'Translate & contribute'}
+            customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] h-[64px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
+          />
+        </div>
+        <div className="flex items-center justify-center w-1/3">
+          <Image
+            src={darkMode ? LanguageIconWhite : LanguageIcon}
+            alt="Translate"
+            width={220}
+            height={220}
+            className="w-full max-w-[220px] h-auto"
+          />
+        </div>
+      </div>
+    </section>
+  );
+
   const slides = [
     welcomeSlide,
     qrCodeSlide,
     capacitySlide,
+    translateSlide,
   ];
 
   useEffect(() => {
