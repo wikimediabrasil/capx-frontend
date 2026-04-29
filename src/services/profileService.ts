@@ -79,10 +79,12 @@ export const profileService = {
         // Strip client-side display field 'name' from language proficiency objects.
         // The backend only accepts {id, proficiency} — sending extra fields can cause 400.
         language: Array.isArray(profileData.language)
-          ? profileData.language.map(({ id, proficiency }: { id: number; proficiency: string }) => ({
-              id,
-              proficiency,
-            }))
+          ? profileData.language.map(
+              ({ id, proficiency }: { id: number; proficiency: string }) => ({
+                id,
+                proficiency,
+              })
+            )
           : profileData.language,
         user: {
           id: userId,
