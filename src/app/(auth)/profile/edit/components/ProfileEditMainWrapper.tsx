@@ -15,7 +15,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useProfile } from '@/hooks/useProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useWikimediaProject } from '@/hooks/useWikimediaProject';
-import { addUniqueCapacity, addUniqueItem } from '@/lib/utils/formDataUtils';
+import { addUniqueItem } from '@/lib/utils/formDataUtils';
 import { ensureArray, safeAccess } from '@/lib/utils/safeDataAccess';
 import { useProfileEditStore } from '@/stores';
 import { Profile } from '@/types/profile';
@@ -23,8 +23,6 @@ import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
 import ProfileEditView from './ProfileEditView';
 
-// Import the new capacity hooks
-import { useProfileFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 import {
   getCapacityValidationErrorMessage,
@@ -158,10 +156,6 @@ export default function EditProfilePage() {
     src: DEFAULT_AVATAR,
   });
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
-  const [showCapacityModal, setShowCapacityModal] = useState(false);
-  const [selectedCapacityType, setSelectedCapacityType] = useState<
-    'known' | 'available' | 'wanted'
-  >('known');
   const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
   const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
@@ -385,16 +379,6 @@ export default function EditProfilePage() {
     fetchAvatar();
   }, [fetchAvatar]);
 
-  // Initialize capacity selection hook before any early returns
-  const { handleCapacitySelect } = useProfileFormCapacitySelection(
-    selectedCapacityType,
-    formData,
-    setFormData,
-    addUniqueCapacity,
-    ensureArray,
-    () => setShowCapacityModal(false)
-  );
-
   // Define handler for closing delete success popup
   const handleDeleteSuccessPopupClose = () => {
     setShowDeleteSuccessPopup(false);
@@ -505,8 +489,11 @@ export default function EditProfilePage() {
       setTimeout(() => {
         router.push('/profile');
       }, 100);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
+      if (error.response?.data?.details) {
+        console.error('Profile update backend error:', error.response.data.details);
+      }
 
       // Check if this is a capacity validation error from backend
       if (isCapacityValidationError(error)) {
@@ -636,11 +623,6 @@ export default function EditProfilePage() {
     });
   };
 
-  const handleAddCapacity = (type: 'known' | 'available' | 'wanted') => {
-    setSelectedCapacityType(type);
-    setShowCapacityModal(true);
-  };
-
   const handleAddProject = () => {
     setFormData(prev => ({
       ...prev,
@@ -665,11 +647,6 @@ export default function EditProfilePage() {
     setShowAvatarPopup,
     handleWikidataClick,
     isWikidataSelected,
-    showCapacityModal,
-    setShowCapacityModal,
-    handleCapacitySelect,
-    selectedCapacityType,
-    handleAddCapacity,
     handleRemoveCapacity,
     handleRemoveLanguage,
     getCapacityName,

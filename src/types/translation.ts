@@ -4,8 +4,8 @@ export interface CapacityItem {
   lang: string;
   label: string | null;
   description: string | null;
-  fallback_label: string;
-  fallback_description: string;
+  fallback_label: string | null;
+  fallback_description: string | null;
 }
 
 export interface CapacityListResponse {
