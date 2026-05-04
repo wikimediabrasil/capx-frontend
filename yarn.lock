@@ -6245,7 +6245,6 @@ __metadata:
     next: "npm:15.5.15"
     next-auth: "npm:^4.24.12"
     path: "npm:^0.12.7"
-    postcss: "npm:^8"
     prettier: "npm:3.5.3"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
@@ -12680,7 +12679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8, postcss@npm:^8.2.14, postcss@npm:^8.4.33, postcss@npm:^8.4.38, postcss@npm:^8.4.47":
+"postcss@npm:^8.2.14, postcss@npm:^8.4.33, postcss@npm:^8.4.38, postcss@npm:^8.4.47":
   version: 8.5.10
   resolution: "postcss@npm:8.5.10"
   dependencies:
