@@ -17,22 +17,30 @@ export default function EventsList({
   onChoose,
 }: EventsListProps) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className={`${isHorizontalScroll ? 'overflow-x-auto scrollbar-hide pb-4' : ''}`}>
-        <div
-          className={`flex flex-nowrap gap-2 ${isHorizontalScroll ? '' : 'flex flex-col w-full'}`}
-        >
-          {events.map(event => (
-            <EventCard
-              key={event.id}
-              event={event}
-              isHorizontalScroll={isHorizontalScroll}
-              onDelete={onDelete}
-              onEdit={onEdit}
-              onChoose={onChoose}
-            />
-          ))}
-        </div>
+    <div
+      className={
+        isHorizontalScroll
+          ? 'overflow-x-auto scrollbar-hide pb-2'
+          : ''
+      }
+    >
+      <div
+        className={
+          isHorizontalScroll
+            ? 'flex flex-nowrap gap-3'
+            : 'flex flex-col gap-4'
+        }
+      >
+        {events.map(event => (
+          <EventCard
+            key={event.id}
+            event={event}
+            isHorizontalScroll={isHorizontalScroll}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            onChoose={onChoose}
+          />
+        ))}
       </div>
     </div>
   );
