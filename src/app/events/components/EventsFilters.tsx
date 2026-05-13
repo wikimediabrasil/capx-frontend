@@ -7,10 +7,6 @@ import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
 import CapxIconWhite from '@/public/static/images/capx_icon_white.svg';
-import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
-import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
-import SearchIcon from '@/public/static/images/search_icon.svg';
-import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
 import LocationIcon from '@/public/static/images/location_on_dark.svg';
 import LocationIconWhite from '@/public/static/images/location_on.svg';
 import CheckBoxOutlineBlankIcon from '@/public/static/images/check_box_outline_blank.svg';
@@ -18,8 +14,7 @@ import CheckBoxOutlineBlankIconWhite from '@/public/static/images/check_box_outl
 import CheckBoxIcon from '@/public/static/images/check_box.svg';
 import CheckBoxIconWhite from '@/public/static/images/check_box_light.svg';
 import BaseButton from '@/components/BaseButton';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import { useFilterCapacitySelection } from '@/hooks/useCapacitySelection';
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 
 import { useDarkMode, usePageContent } from '@/stores';
 interface EventsFiltersProps {
@@ -32,27 +27,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
 
-  const [searchCapacity, _setSearchCapacity] = useState('');
   const [filters, setFilters] = useState<EventFilterState>(initialFilters);
-  const [showCapacityModal, setShowCapacityModal] = useState(false);
-
-  const { handleCapacitySelect } = useFilterCapacitySelection(
-    filters.capacities,
-    newCapacities => {
-      setFilters(prev => ({
-        ...prev,
-        capacities: newCapacities,
-      }));
-    },
-    () => setShowCapacityModal(false)
-  );
-
-  const handleRemoveCapacity = (capacityCode: number) => {
-    setFilters(prev => ({
-      ...prev,
-      capacities: prev.capacities.filter(cap => cap.code !== capacityCode),
-    }));
-  };
 
   // TODO: Add territory section
   /* const handleAddTerritory = () => {
@@ -158,64 +133,13 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                 </h2>
               </div>
 
-              <div className="relative">
-                <input
-                  type="text"
-                  readOnly
-                  value={searchCapacity}
-                  onFocus={() => setShowCapacityModal(true)}
-                  placeholder={
-                    pageContent['filters-search-by-capacities'] || 'Search by capacities'
-                  }
-                  className={`
-                    w-full p-2 pl-3 pr-10 rounded-lg border
-                    ${
-                      darkMode
-                        ? 'bg-capx-dark-box-bg text-white border-gray-700 placeholder-gray-400'
-                        : 'bg-white border-gray-300 placeholder-gray-500'
-                    }
-                  `}
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <Image
-                    src={darkMode ? SearchIconWhite : SearchIcon}
-                    alt="Search"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              </div>
-
-              {/* Selected Capacities */}
-              {filters.capacities.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {filters.capacities.map((capacity, index) => (
-                    <div
-                      key={index}
-                      className={`
-                        inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm
-                        max-w-[150px] shrink-0
-                        ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}
-                      `}
-                    >
-                      <span className="truncate" title={capacity.name}>
-                        {capacity.name}
-                      </span>
-                      <button
-                        onClick={() => handleRemoveCapacity(capacity.code)}
-                        className="hover:opacity-80 flex-shrink-0"
-                      >
-                        <Image
-                          src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt="Remove"
-                          width={16}
-                          height={16}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <CapacitySearch
+                onSelect={capacities => setFilters(prev => ({ ...prev, capacities }))}
+                selectedCapacities={filters.capacities}
+                allowMultipleSelection={true}
+                showSelectedChips={true}
+                compact={true}
+              />
             </div>
 
             {/* Territory Section */}
@@ -504,13 +428,6 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
         </div>
       </div>
 
-      {/* Capacity Selection Modal */}
-      <CapacitySelectionModal
-        isOpen={showCapacityModal}
-        onClose={() => setShowCapacityModal(false)}
-        onSelect={handleCapacitySelect}
-        title={pageContent['select-capacity'] || 'Select capacity'}
-      />
     </div>
   );
 }

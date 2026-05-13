@@ -1,4 +1,5 @@
 import { Event } from '@/types/event';
+import { fetchEventFromWikidata, findWikidataQIDByMetaWikiTitle } from './wikidataService';
 
 const METABASE_ENDPOINT = 'https://metabase.wikibase.cloud/query/sparql';
 
@@ -98,9 +99,9 @@ export async function fetchEventDataByQID(qid: string): Promise<Partial<Event> |
       }
     }
 
-    // If we have a location, define the type as in-person
+    // If we have a location, set the type as in_person
     if (result.location?.value) {
-      eventData.type_of_location = 'in-person';
+      eventData.type_of_location = 'in_person';
 
       // If it has an OpenStreetMap ID, add it here
       // Note: This requires an additional query or a specific property
@@ -126,7 +127,11 @@ export function extractYearFromText(text: string): number | undefined {
   return undefined;
 }
 
-// Month name to number mapping (English and Portuguese)
+// DEAD CODE START — language-based date parsing removed (unreliable for multilingual content)
+// Dates are now extracted only from:
+//   1. Wikidata P580/P582 via wikidataService
+//   2. {{Start date|YYYY|M|D}} / {{End date|YYYY|M|D}} templates
+//   3. ISO-format values in named infobox parameters (YYYY-MM-DD)
 const MONTH_MAP: Record<string, string> = {
   // English
   january: '01',
@@ -505,18 +510,9 @@ export function extractDatesFromPageContent(
     }
   }
 
-  // Fallback: try to extract at least the year and create default dates
-  const yearMatch = /\b(202\d|203\d)\b/.exec(pageContent);
-  if (yearMatch) {
-    const year = yearMatch[1];
-    return {
-      time_begin: `${year}-01-01T00:00:00.000Z`,
-      time_end: `${year}-12-31T23:59:59.000Z`,
-    };
-  }
-
   return undefined;
 }
+// DEAD CODE END
 
 export function extractWikimediaTitleFromURL(url: string): string | undefined {
   if (!url) return undefined;
@@ -591,7 +587,7 @@ export async function fetchEventDataByURL(url: string): Promise<Partial<Event> |
     return null;
   }
 
-  return fetchEventDataByQID(qid);
+  return fetchEventFromWikidata(qid);
 }
 
 export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
@@ -643,6 +639,7 @@ async function fetchWikimediaPageData(url: string): Promise<{
   wikidata_qid?: string;
   infobox?: any;
   categories?: string[];
+  renderedText?: string;
 } | null> {
   try {
     // Extract domain and page title from URL
@@ -654,10 +651,10 @@ async function fetchWikimediaPageData(url: string): Promise<{
     const cleanTitle = pageTitle.replace(/_/g, ' ');
 
     // Multiple API calls to get comprehensive data
-    const [contentData, wikidataData, infoboxData] = await Promise.allSettled([
-      // 1. Get page content
+    const [contentData, wikidataData, infoboxData, parsedData] = await Promise.allSettled([
+      // 1. Get intro section only (cleaner description)
       fetch(
-        `https://${domain}/w/api.php?action=query&format=json&titles=${encodeURIComponent(cleanTitle)}&prop=extracts&explaintext=true&exsectionformat=plain&origin=*`
+        `https://${domain}/w/api.php?action=query&format=json&titles=${encodeURIComponent(cleanTitle)}&prop=extracts&explaintext=true&exintro=true&exsectionformat=plain&origin=*`
       ),
 
       // 2. Get Wikidata QID if available
@@ -669,12 +666,18 @@ async function fetchWikimediaPageData(url: string): Promise<{
       fetch(
         `https://${domain}/w/api.php?action=query&format=json&titles=${encodeURIComponent(cleanTitle)}&prop=revisions&rvprop=content&origin=*`
       ),
+
+      // 4. Get rendered HTML (resolves template transclusions like {{../Header}})
+      fetch(
+        `https://${domain}/w/api.php?action=parse&format=json&page=${encodeURIComponent(cleanTitle)}&prop=text&origin=*`
+      ),
     ]);
 
     let content: string | undefined = undefined;
     let wikidata_qid: string | undefined = undefined;
     let infobox = null;
     let categories: string[] = [];
+    let renderedText: string | undefined = undefined;
 
     // Process content
     if (contentData.status === 'fulfilled' && contentData.value.ok) {
@@ -710,11 +713,21 @@ async function fetchWikimediaPageData(url: string): Promise<{
       }
     }
 
+    // Process rendered HTML (resolves template transclusions)
+    if (parsedData.status === 'fulfilled' && parsedData.value.ok) {
+      const data = await parsedData.value.json();
+      const html = data.parse?.text?.['*'];
+      if (html) {
+        renderedText = stripHtmlTags(html);
+      }
+    }
+
     return {
       content,
       wikidata_qid,
       infobox,
       categories,
+      renderedText,
     };
   } catch (error) {
     console.error('Error fetching Wikimedia page data:', error);
@@ -723,110 +736,318 @@ async function fetchWikimediaPageData(url: string): Promise<{
 }
 
 /**
- * Extracts infobox data from wikitext
+ * Comprehensive multilingual month name → month number mapping.
+ * Covers all major languages used on Wikimedia sites.
+ * This is a data-driven lookup table, not language-specific regex logic.
  */
+const MULTILINGUAL_MONTHS: Record<string, number> = {};
+
+// Helper to populate the map without duplicate key issues
+function addMonths(entries: [string, number][]) {
+  for (const [name, num] of entries) {
+    MULTILINGUAL_MONTHS[name] = num;
+  }
+}
+
+// English
+addMonths([
+  ['january', 1], ['february', 2], ['march', 3], ['april', 4], ['may', 5], ['june', 6],
+  ['july', 7], ['august', 8], ['september', 9], ['october', 10], ['november', 11], ['december', 12],
+  ['jan', 1], ['feb', 2], ['mar', 3], ['apr', 4], ['jun', 6], ['jul', 7], ['aug', 8], ['sep', 9], ['oct', 10], ['nov', 11], ['dec', 12],
+]);
+// German
+addMonths([['januar', 1], ['februar', 2], ['märz', 3], ['mai', 5], ['juni', 6], ['juli', 7], ['oktober', 10], ['dezember', 12]]);
+// French
+addMonths([['janvier', 1], ['février', 2], ['mars', 3], ['avril', 4], ['juillet', 7], ['août', 8], ['septembre', 9], ['octobre', 10], ['novembre', 11], ['décembre', 12]]);
+// Spanish
+addMonths([['enero', 1], ['febrero', 2], ['marzo', 3], ['abril', 4], ['mayo', 5], ['junio', 6], ['julio', 7], ['agosto', 8], ['septiembre', 9], ['noviembre', 11], ['diciembre', 12]]);
+// Portuguese
+addMonths([['janeiro', 1], ['fevereiro', 2], ['março', 3], ['maio', 5], ['junho', 6], ['julho', 7], ['setembro', 9], ['outubro', 10], ['novembro', 11], ['dezembro', 12]]);
+// Italian
+addMonths([['gennaio', 1], ['febbraio', 2], ['aprile', 4], ['maggio', 5], ['giugno', 6], ['luglio', 7], ['settembre', 9], ['ottobre', 10], ['dicembre', 12]]);
+// Dutch
+addMonths([['januari', 1], ['februari', 2], ['maart', 3], ['mei', 5], ['augustus', 8]]);
+// Polish
+addMonths([
+  ['styczeń', 1], ['stycznia', 1], ['luty', 2], ['lutego', 2], ['marzec', 3], ['marca', 3], ['kwiecień', 4], ['kwietnia', 4],
+  ['maj', 5], ['maja', 5], ['czerwiec', 6], ['czerwca', 6], ['lipiec', 7], ['lipca', 7], ['sierpień', 8], ['sierpnia', 8],
+  ['wrzesień', 9], ['września', 9], ['październik', 10], ['października', 10], ['listopad', 11], ['listopada', 11], ['grudzień', 12], ['grudnia', 12],
+]);
+// Russian
+addMonths([
+  ['январь', 1], ['января', 1], ['февраль', 2], ['февраля', 2], ['март', 3], ['марта', 3], ['апрель', 4], ['апреля', 4],
+  ['мая', 5], ['июнь', 6], ['июня', 6], ['июль', 7], ['июля', 7], ['август', 8], ['августа', 8],
+  ['сентябрь', 9], ['сентября', 9], ['октябрь', 10], ['октября', 10], ['ноябрь', 11], ['ноября', 11], ['декабрь', 12], ['декабря', 12],
+]);
+// Turkish
+addMonths([['ocak', 1], ['şubat', 2], ['mart', 3], ['nisan', 4], ['mayıs', 5], ['haziran', 6], ['temmuz', 7], ['ağustos', 8], ['eylül', 9], ['ekim', 10], ['kasım', 11], ['aralık', 12]]);
+// Arabic
+addMonths([['يناير', 1], ['فبراير', 2], ['مارس', 3], ['أبريل', 4], ['مايو', 5], ['يونيو', 6], ['يوليو', 7], ['أغسطس', 8], ['سبتمبر', 9], ['أكتوبر', 10], ['نوفمبر', 11], ['ديسمبر', 12]]);
+// Indonesian/Malay
+addMonths([['maret', 3], ['agustus', 8], ['desember', 12]]);
+// Swedish/Norwegian/Danish
+addMonths([['augusti', 8]]);
+// Czech
+addMonths([
+  ['leden', 1], ['ledna', 1], ['únor', 2], ['února', 2], ['březen', 3], ['března', 3], ['duben', 4], ['dubna', 4],
+  ['květen', 5], ['května', 5], ['červen', 6], ['června', 6], ['červenec', 7], ['července', 7], ['srpen', 8], ['srpna', 8],
+  ['září', 9], ['říjen', 10], ['října', 10], ['prosinec', 12], ['prosince', 12],
+]);
+// Hungarian
+addMonths([['január', 1], ['februári', 2], ['március', 3], ['április', 4], ['május', 5], ['június', 6], ['július', 7], ['augusztus', 8], ['szeptemberi', 9], ['októberi', 10], ['novemberi', 11], ['decemberi', 12]]);
+// Romanian
+addMonths([['ianuarie', 1], ['februarie', 2], ['martie', 3], ['aprilie', 4], ['mai', 5], ['iunie', 6], ['iulie', 7], ['septembrie', 9], ['octombrie', 10], ['noiembrie', 11], ['decembrie', 12]]);
+// Finnish
+addMonths([['tammikuu', 1], ['helmikuu', 2], ['maaliskuu', 3], ['huhtikuu', 4], ['toukokuu', 5], ['kesäkuu', 6], ['heinäkuu', 7], ['elokuu', 8], ['syyskuu', 9], ['lokakuu', 10], ['marraskuu', 11], ['joulukuu', 12]]);
+// Catalan
+addMonths([['gener', 1], ['febrer', 2], ['març', 3], ['maig', 5], ['juny', 6], ['juliol', 7], ['agost', 8], ['setembre', 9]]);
+// Hindi
+addMonths([['जनवरी', 1], ['फ़रवरी', 2], ['मार्च', 3], ['अप्रैल', 4], ['मई', 5], ['जून', 6], ['जुलाई', 7], ['अगस्त', 8], ['सितंबर', 9], ['अक्टूबर', 10], ['नवंबर', 11], ['दिसंबर', 12]]);
+
+/**
+ * Strips HTML tags from a string and normalizes whitespace.
+ */
+function stripHtmlTags(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#\d+;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Extracts dates from rendered page text using multilingual month lookup.
+ * Looks for patterns like:
+ *   "19. – 22. Februar 2026"  (day–day month year)
+ *   "February 19 – 22, 2026"  (month day–day year)
+ *   "19 February – 22 February 2026" (day month – day month year)
+ * Returns { start_date, end_date } in YYYY-MM-DD format or null.
+ */
+function extractDatesFromRenderedText(text: string): { start_date: string; end_date?: string } | null {
+  if (!text) return null;
+
+  // Build a regex alternation from all known month names (sorted longest-first to avoid partial matches)
+  const monthNames = Object.keys(MULTILINGUAL_MONTHS).sort((a, b) => b.length - a.length);
+  const monthPattern = monthNames.map(m => m.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+
+  // Pattern 1: "DD. – DD. Month YYYY" or "DD – DD Month YYYY" (German-style)
+  const pattern1 = new RegExp(
+    `(\\d{1,2})\\.?\\s*[–\\-−~]\\s*(\\d{1,2})\\.?\\s+(${monthPattern})\\s+(\\d{4})`,
+    'i'
+  );
+
+  // Pattern 2: "Month DD – DD, YYYY" (English-style)
+  const pattern2 = new RegExp(
+    `(${monthPattern})\\s+(\\d{1,2})\\s*[–\\-−~]\\s*(\\d{1,2}),?\\s*(\\d{4})`,
+    'i'
+  );
+
+  // Pattern 3: "DD Month – DD Month YYYY" (cross-month range)
+  const pattern3 = new RegExp(
+    `(\\d{1,2})\\.?\\s+(${monthPattern})\\s*[–\\-−~]\\s*(\\d{1,2})\\.?\\s+(${monthPattern})\\s+(\\d{4})`,
+    'i'
+  );
+
+  // Pattern 4: "Month DD – Month DD, YYYY"
+  const pattern4 = new RegExp(
+    `(${monthPattern})\\s+(\\d{1,2})\\s*[–\\-−~]\\s*(${monthPattern})\\s+(\\d{1,2}),?\\s*(\\d{4})`,
+    'i'
+  );
+
+  // Pattern 5: "DD Month YYYY" (single date)
+  const pattern5 = new RegExp(
+    `(\\d{1,2})\\.?\\s+(${monthPattern})\\s+(\\d{4})`,
+    'i'
+  );
+
+  // Pattern 6: "Month DD, YYYY" (single date, English)
+  const pattern6 = new RegExp(
+    `(${monthPattern})\\s+(\\d{1,2}),?\\s+(\\d{4})`,
+    'i'
+  );
+
+  // Pattern 7: CJK numeric months "YYYY年M月D日"
+  const pattern7 = /(\d{4})年(\d{1,2})月(\d{1,2})日\s*[–\-−~]\s*(\d{4})年(\d{1,2})月(\d{1,2})日/;
+  const pattern7single = /(\d{4})年(\d{1,2})月(\d{1,2})日/;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const lookupMonth = (name: string) => MULTILINGUAL_MONTHS[name.toLowerCase()];
+  const isValidYear = (y: number) => y >= 2020 && y <= 2035;
+
+  // Try CJK range first
+  let match = pattern7.exec(text);
+  if (match) {
+    const [, sy, sm, sd, ey, em, ed] = match.map(Number);
+    if (isValidYear(sy) && isValidYear(ey)) {
+      return {
+        start_date: `${sy}-${pad(sm)}-${pad(sd)}`,
+        end_date: `${ey}-${pad(em)}-${pad(ed)}`,
+      };
+    }
+  }
+
+  // Pattern 3: DD Month – DD Month YYYY
+  match = pattern3.exec(text);
+  if (match) {
+    const startDay = Number(match[1]);
+    const startMonth = lookupMonth(match[2]);
+    const endDay = Number(match[3]);
+    const endMonth = lookupMonth(match[4]);
+    const year = Number(match[5]);
+    if (startMonth && endMonth && isValidYear(year)) {
+      return {
+        start_date: `${year}-${pad(startMonth)}-${pad(startDay)}`,
+        end_date: `${year}-${pad(endMonth)}-${pad(endDay)}`,
+      };
+    }
+  }
+
+  // Pattern 4: Month DD – Month DD, YYYY
+  match = pattern4.exec(text);
+  if (match) {
+    const startMonth = lookupMonth(match[1]);
+    const startDay = Number(match[2]);
+    const endMonth = lookupMonth(match[3]);
+    const endDay = Number(match[4]);
+    const year = Number(match[5]);
+    if (startMonth && endMonth && isValidYear(year)) {
+      return {
+        start_date: `${year}-${pad(startMonth)}-${pad(startDay)}`,
+        end_date: `${year}-${pad(endMonth)}-${pad(endDay)}`,
+      };
+    }
+  }
+
+  // Pattern 1: DD – DD Month YYYY
+  match = pattern1.exec(text);
+  if (match) {
+    const startDay = Number(match[1]);
+    const endDay = Number(match[2]);
+    const month = lookupMonth(match[3]);
+    const year = Number(match[4]);
+    if (month && isValidYear(year)) {
+      return {
+        start_date: `${year}-${pad(month)}-${pad(startDay)}`,
+        end_date: `${year}-${pad(month)}-${pad(endDay)}`,
+      };
+    }
+  }
+
+  // Pattern 2: Month DD – DD, YYYY
+  match = pattern2.exec(text);
+  if (match) {
+    const month = lookupMonth(match[1]);
+    const startDay = Number(match[2]);
+    const endDay = Number(match[3]);
+    const year = Number(match[4]);
+    if (month && isValidYear(year)) {
+      return {
+        start_date: `${year}-${pad(month)}-${pad(startDay)}`,
+        end_date: `${year}-${pad(month)}-${pad(endDay)}`,
+      };
+    }
+  }
+
+  // Pattern 5: DD Month YYYY (single)
+  match = pattern5.exec(text);
+  if (match) {
+    const day = Number(match[1]);
+    const month = lookupMonth(match[2]);
+    const year = Number(match[3]);
+    if (month && isValidYear(year)) {
+      return { start_date: `${year}-${pad(month)}-${pad(day)}` };
+    }
+  }
+
+  // Pattern 6: Month DD, YYYY (single)
+  match = pattern6.exec(text);
+  if (match) {
+    const month = lookupMonth(match[1]);
+    const day = Number(match[2]);
+    const year = Number(match[3]);
+    if (month && isValidYear(year)) {
+      return { start_date: `${year}-${pad(month)}-${pad(day)}` };
+    }
+  }
+
+  // CJK single date
+  match = pattern7single.exec(text);
+  if (match) {
+    const [, y, m, d] = match.map(Number);
+    if (isValidYear(y)) {
+      return { start_date: `${y}-${pad(m)}-${pad(d)}` };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Parses {{Start date|YYYY|M|D}} or {{End date|YYYY|M|D}} templates.
+ * Returns an ISO date string or null.
+ */
+function parseDateTemplate(wikitext: string, templateName: string): string | null {
+  const pattern = new RegExp(
+    `\\{\\{\\s*${templateName}\\s*\\|\\s*(\\d{4})\\s*\\|\\s*(\\d{1,2})\\s*\\|\\s*(\\d{1,2})`,
+    'i'
+  );
+  const match = pattern.exec(wikitext);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+/**
+ * Detects event format (virtual/in_person/hybrid) from wikitext keywords.
+ */
+function detectLocationTypeFromWikitext(wikitext: string): string | null {
+  const lower = wikitext.toLowerCase();
+  if (/\bonline\b|\bvirtual\b|\bremote\b/.test(lower)) return 'virtual';
+  if (/\bin.person\b|\bface.to.face\b|\bpresencial\b/.test(lower)) return 'in_person';
+  if (/\bhybrid\b|\bhíbrido\b/.test(lower)) return 'hybrid';
+  return null;
+}
+
 function extractInfoboxFromWikitext(wikitext: string): any {
   if (!wikitext) return null;
 
   try {
     const data: any = {};
 
-    // First try to find infobox - limit to prevent ReDoS
-    const infoboxMatch = wikitext.match(/\{\{[Ii]nfobox[\s\S]{1,5000}?\}\}/g);
-    if (infoboxMatch) {
-      const infoboxText = infoboxMatch[0];
+    // 1. {{Start date|YYYY|M|D}} / {{End date|YYYY|M|D}} templates — fully language-agnostic
+    const startDate =
+      parseDateTemplate(wikitext, 'Start date') ||
+      parseDateTemplate(wikitext, 'Start date and age');
+    if (startDate) data.start_date = startDate;
 
-      // Extract common date fields from infobox
-      const datePatterns = [
-        { key: 'date', regex: /\|\s*date\s*=\s*([^|\n]+)/i },
-        { key: 'dates', regex: /\|\s*dates\s*=\s*([^|\n]+)/i },
-        { key: 'start_date', regex: /\|\s*start[_\s]*date\s*=\s*([^|\n]+)/i },
-        { key: 'end_date', regex: /\|\s*end[_\s]*date\s*=\s*([^|\n]+)/i },
-        { key: 'when', regex: /\|\s*when\s*=\s*([^|\n]+)/i },
-        { key: 'time', regex: /\|\s*time\s*=\s*([^|\n]+)/i },
-      ];
+    const endDate = parseDateTemplate(wikitext, 'End date');
+    if (endDate) data.end_date = endDate;
 
-      for (const pattern of datePatterns) {
-        const match = new RegExp(pattern.regex).exec(infoboxText);
-        if (match?.[1]) {
-          data[pattern.key] = match[1].trim();
-        }
-      }
-
-      // Extract location from infobox
-      const locationMatch = new RegExp(/\|\s*location\s*=\s*([^|\n]+)/i).exec(infoboxText);
-      if (locationMatch?.[1]) {
-        data.location = locationMatch[1].trim();
-      }
-
-      // Extract description/summary from infobox
-      const summaryMatch = new RegExp(/\|\s*(summary|description)\s*=\s*([^|\n]+)/i).exec(
-        infoboxText
+    // 2. ISO-format values (YYYY-MM-DD) in named parameters — language-agnostic
+    if (!data.start_date) {
+      const m = /\|\s*(?:start_date|time_begin|begin_date|date_start|date_begin)\s*=\s*(\d{4}-\d{2}-\d{2})/i.exec(
+        wikitext
       );
-      if (summaryMatch?.[2]) {
-        data.description = summaryMatch[2].trim();
-      }
+      if (m?.[1]) data.start_date = m[1];
+    }
+    if (!data.end_date) {
+      const m = /\|\s*(?:end_date|time_end|date_end)\s*=\s*(\d{4}-\d{2}-\d{2})/i.exec(wikitext);
+      if (m?.[1]) data.end_date = m[1];
     }
 
-    // If no infobox or missing data, try to extract from the main content
-    if (!data.date && !data.dates && !data.when) {
-      // Look for date patterns in the main content
-      const datePatterns = [
-        // "19 e 20 de julho de 2025"
-        /(\d{1,2})\s+e\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
-        // "19 e 20 de julho"
-        /(\d{1,2})\s+e\s+(\d{1,2})\s+de\s+(\w{3,12})/gi,
-        // "19-20 de julho de 2025"
-        /(\d{1,2})-(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
-        // "19 a 20 de julho de 2025"
-        /(\d{1,2})\s+a\s+(\d{1,2})\s+de\s+(\w{3,12})\s+de\s+(\d{4})/gi,
-        // "julho de 2025"
-        /(\w{3,12})\s+de\s+(\d{4})/gi,
-      ];
+    // 3. Location field (used to infer in_person)
+    const locationMatch = /\|\s*location\s*=\s*([^|\n\}]{1,200})/i.exec(wikitext);
+    if (locationMatch?.[1]?.trim()) data.location = locationMatch[1].trim();
 
-      for (const pattern of datePatterns) {
-        const match = new RegExp(pattern).exec(wikitext);
-        if (match) {
-          data.dates = match[0];
-          break;
-        }
-      }
-    }
-
-    // Extract location from content if not found in infobox
+    // 4. Location type from a small set of universally understood English keywords
+    //    used in Wikimedia event templates (online/virtual/hybrid).
     if (!data.location) {
-      const locationPatterns = [
-        /\*\*Local\*\*:\s*([^|\n]{1,200})/i,
-        /Local:\s*([^|\n]{1,200})/i,
-        /em\s+([^,]{1,100}),\s+([^|\n]{1,200})/i,
-      ];
-
-      for (const pattern of locationPatterns) {
-        const match = new RegExp(pattern).exec(wikitext);
-        if (match?.[1]) {
-          data.location = match[1].trim();
-          break;
-        }
-      }
-    }
-
-    // Extract description from content if not found in infobox
-    if (!data.description) {
-      // Look for the first substantial paragraph that describes the event
-      const paragraphs = wikitext.split('\n').filter(p => p.trim().length > 50);
-      for (const paragraph of paragraphs) {
-        // Skip paragraphs that are just navigation or technical info
-        if (
-          !paragraph.includes('==') &&
-          !paragraph.includes('{{') &&
-          !paragraph.includes('[[') &&
-          !paragraph.includes('*') &&
-          paragraph.length > 100
-        ) {
-          data.description = paragraph.trim();
-          break;
-        }
-      }
+      const detectedType = detectLocationTypeFromWikitext(wikitext);
+      if (detectedType) data.locationType = detectedType;
     }
 
     return Object.keys(data).length > 0 ? data : null;
@@ -855,57 +1076,35 @@ function extractDescriptionFromContent(content: string): string {
 }
 
 /**
- * Processes infobox data to extract event information
+ * Processes infobox data to extract event information.
+ * Only uses language-agnostic structured data — no natural language parsing.
  */
 function processInfoboxData(infobox: any, eventData: Partial<Event>): void {
-  if (infobox.description) {
-    eventData.description = infobox.description;
+  // Dates come only from ISO-format values or {{Start/End date}} templates
+  if (infobox.start_date) {
+    eventData.time_begin = `${infobox.start_date}T00:00:00.000Z`;
   }
-
-  const infoboxDateText = [
-    infobox.date,
-    infobox.dates,
-    infobox.start_date,
-    infobox.end_date,
-    infobox.when,
-    infobox.time,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  if (infoboxDateText) {
-    const dateInfo = extractDatesFromPageContent(infoboxDateText);
-    if (dateInfo) {
-      eventData.time_begin = dateInfo.time_begin;
-      if (dateInfo.time_end) {
-        eventData.time_end = dateInfo.time_end;
-      }
-    }
+  if (infobox.end_date) {
+    eventData.time_end = `${infobox.end_date}T23:59:59.000Z`;
   }
 
   if (infobox.location) {
-    eventData.type_of_location = 'in-person';
+    eventData.type_of_location = 'in_person';
+  } else if (infobox.locationType) {
+    eventData.type_of_location = infobox.locationType;
   }
 }
 
 /**
- * Processes page content to extract missing event information
+ * Extracts description from page content.
+ * Does NOT attempt to parse dates from plain text — dates must come from
+ * structured sources (Wikidata or wikitext templates) to be reliable.
  */
 function processPageContent(content: string, eventData: Partial<Event>): void {
   if (!eventData.description) {
     const description = extractDescriptionFromContent(content);
     if (description) {
       eventData.description = description;
-    }
-  }
-
-  if (!eventData.time_begin) {
-    const dateInfo = extractDatesFromPageContent(content);
-    if (dateInfo) {
-      eventData.time_begin = dateInfo.time_begin;
-      if (dateInfo.time_end) {
-        eventData.time_end = dateInfo.time_end;
-      }
     }
   }
 }
@@ -930,7 +1129,7 @@ function determineEventTypeAndLocation(
   } else if (lowerPageTitle.includes('wikimania')) {
     eventData.name = `Wikimania ${extractedYear}`;
     if (!eventData.type_of_location) {
-      eventData.type_of_location = 'in-person';
+      eventData.type_of_location = 'in_person';
     }
   } else {
     if (!eventData.type_of_location) {
@@ -982,10 +1181,31 @@ export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial
   try {
     const pageData = await fetchWikimediaPageData(url);
 
-    if (pageData?.wikidata_qid) {
-      const wikidataResult = await fetchEventDataByQID(pageData.wikidata_qid);
+    // Try Wikidata lookup: first via pageprops wikibase_item, then via sitelink
+    const wikidataQid =
+      pageData?.wikidata_qid || (await findWikidataQIDByMetaWikiTitle(pageTitle));
+
+    if (wikidataQid) {
+      const wikidataResult = await fetchEventFromWikidata(wikidataQid);
       if (wikidataResult) {
         wikidataResult.url = url;
+        // Use the page intro as description if Wikidata only has a short tagline
+        if (
+          pageData?.content &&
+          (!wikidataResult.description || wikidataResult.description.length < 80)
+        ) {
+          wikidataResult.description = extractDescriptionFromContent(pageData.content);
+        }
+        // Fallback: if Wikidata has no dates, try rendered HTML
+        if (!wikidataResult.time_begin && pageData?.renderedText) {
+          const renderedDates = extractDatesFromRenderedText(pageData.renderedText);
+          if (renderedDates) {
+            wikidataResult.time_begin = `${renderedDates.start_date}T00:00:00.000Z`;
+            if (renderedDates.end_date) {
+              wikidataResult.time_end = `${renderedDates.end_date}T23:59:59.000Z`;
+            }
+          }
+        }
         return wikidataResult;
       }
     }
@@ -1002,6 +1222,17 @@ export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial
 
     if (pageData?.content && (!eventData.description || !eventData.time_begin)) {
       processPageContent(pageData.content, eventData);
+    }
+
+    // Fallback: extract dates from rendered HTML (resolves template transclusions)
+    if (!eventData.time_begin && pageData?.renderedText) {
+      const renderedDates = extractDatesFromRenderedText(pageData.renderedText);
+      if (renderedDates) {
+        eventData.time_begin = `${renderedDates.start_date}T00:00:00.000Z`;
+        if (renderedDates.end_date) {
+          eventData.time_end = `${renderedDates.end_date}T23:59:59.000Z`;
+        }
+      }
     }
 
     determineEventTypeAndLocation(pageTitle, extractedYear, eventData);
@@ -1081,26 +1312,13 @@ export async function fetchEventDataByLearnWikiURL(url: string): Promise<Partial
       type_of_location: 'virtual',
     };
 
-    // Process dates from the page data
+    // pageData.dates is a plain ISO date derived from the URL (YYYY-01-01)
     if (pageData.dates) {
-      // Try to extract structured date information
-      const dateInfo = extractDatesFromPageContent(pageData.dates);
-      if (dateInfo) {
-        eventData.time_begin = dateInfo.time_begin;
-        if (dateInfo.time_end) {
-          eventData.time_end = dateInfo.time_end;
-        }
-      } else {
-        // If structured extraction fails, try to parse as simple date
-        const simpleDateMatch = new RegExp(/(\d{4})-(\d{2})-(\d{2})/).exec(pageData.dates);
-        if (simpleDateMatch) {
-          const [, year, month, day] = simpleDateMatch;
-          const startDate = `${year}-${month}-${day}T00:00:00.000Z`;
-          const endDate = `${year}-${month}-${day}T23:59:59.000Z`;
-
-          eventData.time_begin = startDate;
-          eventData.time_end = endDate;
-        }
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(pageData.dates);
+      if (m) {
+        const [, year, month, day] = m;
+        eventData.time_begin = `${year}-${month}-${day}T00:00:00.000Z`;
+        eventData.time_end = `${year}-${month}-${day}T23:59:59.000Z`;
       }
     }
 
@@ -1147,7 +1365,7 @@ export async function fetchEventDataByGenericURL(url: string): Promise<Partial<E
   // First, try as Wikidata URL
   const qid = extractQIDFromURL(url);
   if (qid) {
-    return fetchEventDataByQID(qid);
+    return fetchEventFromWikidata(qid);
   }
 
   // If it's not a Wikidata URL, try as Wikimedia URL
