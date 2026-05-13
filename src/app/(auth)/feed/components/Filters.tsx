@@ -220,7 +220,7 @@ export function Filters({
                   <CheckboxButton
                     icon={NeurologyIcon}
                     iconDark={NeurologyIconWhite}
-                    label={pageContent['filters-known']}
+                    label={pageContent['filters-proficients']}
                     checked={
                       filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
                     }
