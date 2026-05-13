@@ -216,15 +216,17 @@ export function Filters({
                   }
                   onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Sharer)}
                 />
-                <CheckboxButton
-                  icon={NeurologyIcon}
-                  iconDark={NeurologyIconWhite}
-                  label={pageContent['filters-known']}
-                  checked={
-                    filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
-                  }
-                  onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Known)}
-                />
+                {!isOnlyOrganization && (
+                  <CheckboxButton
+                    icon={NeurologyIcon}
+                    iconDark={NeurologyIconWhite}
+                    label={pageContent['filters-known']}
+                    checked={
+                      filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
+                    }
+                    onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Known)}
+                  />
+                )}
               </div>
             </div>
 
