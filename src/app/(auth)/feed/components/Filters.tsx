@@ -114,6 +114,13 @@ export function Filters({
     });
   };
 
+  const handleIncludeIncompleteProfilesToggle = () => {
+    setFilters(prev => ({
+      ...prev,
+      includeIncompleteProfiles: !prev.includeIncompleteProfiles,
+    }));
+  };
+
   const handleNameChange = (name: string) => {
     setFilters(prev => ({
       ...prev,
@@ -225,6 +232,15 @@ export function Filters({
                       filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
                     }
                     onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Known)}
+                  />
+                )}
+                {!isOnlyOrganization && (
+                  <CheckboxButton
+                    icon={UserIcon}
+                    iconDark={UserIconWhite}
+                    label={pageContent['feed-toggle-incomplete-profiles'] || 'Incomplete profiles'}
+                    checked={filters.includeIncompleteProfiles}
+                    onClick={handleIncludeIncompleteProfilesToggle}
                   />
                 )}
               </div>

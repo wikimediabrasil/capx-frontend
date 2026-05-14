@@ -19,8 +19,9 @@ export const fetchAffiliations = async (queryData: QueryData): Promise<Affiliati
       headers: queryData.headers,
     });
     return response.data;
-  } catch (error) {
-    console.error('Error fetching affiliations:', error);
-    throw error;
+  } catch (error: unknown) {
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    console.warn(`fetchAffiliations failed${status != null ? ` (${status})` : ''}`);
+    return {};
   }
 };
