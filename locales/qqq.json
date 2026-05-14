@@ -143,7 +143,6 @@
 	"edit-profile-mini-bio": "Where user will write their short bios",
 	"edit-profile-mini-bio-tooltip": "Further explains field purpose, including guiding questions for possible expected information",
 	"edit-profile-select-skills": "Instructs user to select skills they have from a pre-set directory.",
-	"edit-profile-add-capacities": "Action button to add the capacities",
 	"edit-profile-available-capacities": "Instructs user to select skills that are available to share from the ones they listed in the \"known capacities\" field.",
 	"edit-profile-wanted-capacities": "Instructs user to select skills that they are willing to learn from a pre-set directory.",
 	"edit-profile-language-tooltip": "Instructs user to select the languages they are capable of contributing.",

@@ -5,8 +5,10 @@ import AddIcon from '@/public/static/images/add.svg';
 import AddIconDark from '@/public/static/images/add_dark.svg';
 import { ResponsiveIcon } from './ResponsiveIcon';
 import { RESPONSIVE_TEXT_SIZES, RESPONSIVE_PADDING, RESPONSIVE_BORDER_RADIUS } from './utils';
+import { CapacityInputChip } from './CapacityInputChip';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
+
 interface CapacitySectionProps {
   type: 'known' | 'available' | 'wanted';
   title: string;
@@ -15,7 +17,7 @@ interface CapacitySectionProps {
   capacities: number[];
   getCapacityName: (id: number) => string;
   onRemove: (type: 'known' | 'available' | 'wanted', index: number) => void;
-  onAdd: (type: 'known' | 'available' | 'wanted') => void;
+  onSelectCapacity: (capacity: { code: number; name: string }) => void;
   helpText: string;
   showImportButton?: boolean;
   onImport?: () => void;
@@ -29,7 +31,7 @@ export function CapacitySection({
   capacities,
   getCapacityName,
   onRemove,
-  onAdd,
+  onSelectCapacity,
   helpText,
   showImportButton,
   onImport,
@@ -41,13 +43,10 @@ export function CapacitySection({
 
   const textColor = darkMode ? 'text-white' : 'text-[#053749]';
   const bgColor = darkMode ? 'bg-[#04222F]' : 'bg-[#EFEFEF]';
-  const buttonColorClass = darkMode
-    ? 'bg-capx-light-box-bg text-[#04222F]'
-    : 'bg-[#053749] text-white';
-  const closeIcon = darkMode ? CloseIconWhite : CloseIcon;
   const addIcon = darkMode ? AddIconDark : AddIcon;
-  const closeIconSize = isMobile ? 16 : 24;
   const addIconSize = isMobile ? 20 : 30;
+  const closeIcon = darkMode ? CloseIconWhite : CloseIcon;
+  const closeIconSize = isMobile ? 16 : 24;
 
   return (
     <div className="flex flex-col gap-4">
@@ -94,18 +93,10 @@ export function CapacitySection({
             </div>
           );
         })}
+        <CapacityInputChip type={type} onSelect={onSelectCapacity} alreadySelected={capacities} />
       </div>
-      <div className="flex flex-col md:flex-row gap-2">
-        <BaseButton
-          onClick={() => onAdd(type)}
-          label={pageContent['edit-profile-add-capacities']}
-          customClass={`w-full md:w-fit flex ${buttonColorClass} ${RESPONSIVE_BORDER_RADIUS.button} py-2 font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} not-italic font-extrabold leading-[normal] mb-0 pb-[6px] ${RESPONSIVE_PADDING.medium} items-center gap-[4px]`}
-          imageUrl={addIcon}
-          imageAlt="Add capacity"
-          imageWidth={addIconSize}
-          imageHeight={addIconSize}
-        />
-        {showImportButton && onImport && (
+      {showImportButton && onImport && (
+        <div className="flex">
           <BaseButton
             onClick={onImport}
             label={pageContent['edit-profile-import-known-capacities'] || 'Import Known Capacities'}
@@ -119,8 +110,8 @@ export function CapacitySection({
             imageWidth={addIconSize}
             imageHeight={addIconSize}
           />
-        )}
-      </div>
+        </div>
+      )}
       <span
         className={`${RESPONSIVE_TEXT_SIZES.small} font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${textColor}`}
       >

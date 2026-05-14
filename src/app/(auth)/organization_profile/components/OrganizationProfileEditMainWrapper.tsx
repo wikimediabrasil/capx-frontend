@@ -4,7 +4,6 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import LoadingState from '@/components/LoadingState';
 import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useAvatars } from '@/hooks/useAvatars';
-import { useFormCapacitySelection } from '@/hooks/useCapacitySelection';
 import { useDocument } from '@/hooks/useDocument';
 import { useOrganizationEvents } from '@/hooks/useOrganizationEvents';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
@@ -205,9 +204,6 @@ export default function EditOrganizationProfilePage() {
   const [, setLoadingChooseEvent] = useState(false);
 
   // State for capacities
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  type CapacityType = 'known' | 'available' | 'wanted';
-  const [currentCapacityType, setCurrentCapacityType] = useState<CapacityType>('known');
 
   /* Setters */
 
@@ -1144,35 +1140,6 @@ export default function EditOrganizationProfilePage() {
   };
 
   // Capacities handlers
-  const handleAddCapacity = (type: 'known' | 'available' | 'wanted') => {
-    setCurrentCapacityType(type);
-    setIsModalOpen(true);
-  };
-
-  // Memoize the current capacities to avoid hook dependency changes
-  const currentCapacities = useMemo(() => {
-    const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
-    return (formData[capacityField] as number[]) || [];
-  }, [formData, currentCapacityType]);
-
-  // Memoize the update function to avoid recreating it on every render
-  const updateCapacities = useCallback(
-    (updatedCapacities: number[]) => {
-      const capacityField = `${currentCapacityType}_capacities` as keyof typeof formData;
-      setFormData(prev => ({
-        ...prev,
-        [capacityField]: updatedCapacities,
-      }));
-    },
-    [currentCapacityType, setFormData]
-  );
-
-  const { handleCapacitySelect } = useFormCapacitySelection(
-    currentCapacities,
-    updateCapacities,
-    () => setIsModalOpen(false)
-  );
-
   const handleRemoveCapacity = (type: 'known' | 'available' | 'wanted', index: number) => {
     setFormData(prev => {
       const capacityField = `${type}_capacities` as keyof typeof prev;
@@ -1237,7 +1204,6 @@ export default function EditOrganizationProfilePage() {
       <OrganizationProfileEditView
         handleSubmit={handleSubmit}
         handleRemoveCapacity={handleRemoveCapacity}
-        handleAddCapacity={handleAddCapacity}
         handleAddDocument={handleAddDocument}
         handleDeleteEvent={handleDeleteEvent}
         getCapacityName={getCapacityName}
@@ -1247,10 +1213,6 @@ export default function EditOrganizationProfilePage() {
         setContactsData={setContactsData}
         documentsData={documentsData}
         setDocumentsData={setDocumentsData}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        currentCapacityType={currentCapacityType}
-        handleCapacitySelect={handleCapacitySelect}
         projectsData={projectsData}
         handleDeleteProject={handleDeleteProject}
         handleProjectChange={handleProjectChange}
@@ -1264,7 +1226,6 @@ export default function EditOrganizationProfilePage() {
         handleAddEvent={handleAddEvent}
         handleDeleteDocument={handleDeleteDocument}
         handleDocumentChange={handleDocumentChange}
-        capacities={capacityCache.getRootCapacities()}
         handleEditEvent={handleEditEvent}
         handleChooseEvent={handleChooseEvent}
         handleViewAllEvents={handleViewAllEvents}
