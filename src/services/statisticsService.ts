@@ -22,8 +22,12 @@ export const statisticsService = {
         total_organizations: 0,
         new_organizations: 0,
         active_users: 0,
+        users_with_territory: 0,
+        users_with_language: 0,
+        users_with_capacities: 0,
         territory_user_counts: {},
         language_user_counts: {},
+        skill_known_user_counts: {},
         skill_available_user_counts: {},
         skill_wanted_user_counts: {},
       };
