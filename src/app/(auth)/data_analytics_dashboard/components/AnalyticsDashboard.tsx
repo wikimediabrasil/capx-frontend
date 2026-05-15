@@ -141,11 +141,7 @@ function DropdownHeader({
 }: Readonly<DropdownHeaderProps>) {
   const arrowIcon = darkMode ? ArrowDownIconWhite : ArrowDownIcon;
   const hasSectionIcon = icon != null;
-  const sectionIcon = hasSectionIcon
-    ? darkMode && iconWhite != null
-      ? iconWhite
-      : icon
-    : null;
+  const sectionIcon = hasSectionIcon ? (darkMode && iconWhite != null ? iconWhite : icon) : null;
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {

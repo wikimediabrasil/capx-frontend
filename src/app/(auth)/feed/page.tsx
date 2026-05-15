@@ -92,10 +92,7 @@ export default function FeedPage() {
         ...profile,
         isSaved: isProfileSaved(profile.id),
       }))
-      .filter(
-        profile =>
-          activeFilters.includeIncompleteProfiles || !profile.hasIncompleteProfile
-      )
+      .filter(profile => activeFilters.includeIncompleteProfiles || !profile.hasIncompleteProfile)
       .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
   }, [allUsers, savedItems, activeFilters.includeIncompleteProfiles]);
 

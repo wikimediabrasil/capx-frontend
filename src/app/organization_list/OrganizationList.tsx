@@ -70,6 +70,7 @@ export default function OrganizationList() {
     profileCapacityTypes: [],
     territories: activeFilters.territories,
     languages: activeFilters.languages,
+    includeIncompleteProfiles: activeFilters.includeIncompleteProfiles,
     // Don't send name - backend doesn't support it
   });
 

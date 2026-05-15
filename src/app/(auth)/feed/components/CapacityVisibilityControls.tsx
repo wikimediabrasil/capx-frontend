@@ -146,7 +146,12 @@ export function CapacityVisibilityControls({
             </span>
           </div>
           <div className="ml-auto shrink-0">
-            <input type="checkbox" checked={includeIncompleteProfiles} readOnly className="h-4 w-4" />
+            <input
+              type="checkbox"
+              checked={includeIncompleteProfiles}
+              readOnly
+              className="h-4 w-4"
+            />
           </div>
         </button>
       </div>
