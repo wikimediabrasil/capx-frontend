@@ -94,14 +94,20 @@ export default function EventCardSkeleton({ isHorizontalScroll }: EventCardSkele
     <div className="animate-pulse w-full flex flex-col gap-4">
       {/* Banner skeleton */}
       <div className="md:max-w-[1200px] w-full max-w-sm mx-auto px-4 md:px-4">
-        <div className={`w-full h-[200px] md:h-[350px] rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`} />
+        <div
+          className={`w-full h-[200px] md:h-[350px] rounded-lg ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`}
+        />
       </div>
 
       <div className="w-full max-w-screen-xl mx-auto px-4 flex flex-col gap-4">
         {/* Search bar + filter button skeleton */}
         <div className="flex gap-2 items-stretch">
-          <div className={`flex-1 h-14 rounded-xl ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`} />
-          <div className={`w-14 h-14 rounded-xl shrink-0 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`} />
+          <div
+            className={`flex-1 h-14 rounded-xl ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`}
+          />
+          <div
+            className={`w-14 h-14 rounded-xl shrink-0 ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#EFEFEF]'}`}
+          />
         </div>
 
         {/* Card skeletons */}

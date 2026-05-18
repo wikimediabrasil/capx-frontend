@@ -273,9 +273,7 @@ export default function EventsMainWrapper() {
               }`}
             >
               <p
-                className={`text-sm font-medium mb-1 ${
-                  darkMode ? 'text-red-400' : 'text-red-600'
-                }`}
+                className={`text-sm font-medium mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}
               >
                 {pageContent['events-search-results-error'] || 'Error loading events'}
               </p>
@@ -299,11 +297,7 @@ export default function EventsMainWrapper() {
                 darkMode ? 'bg-white/[0.02]' : 'bg-capx-dark-box-bg/[0.02]'
               }`}
             >
-              <p
-                className={`text-sm ${
-                  darkMode ? 'text-white/40' : 'text-capx-dark-box-bg/40'
-                }`}
-              >
+              <p className={`text-sm ${darkMode ? 'text-white/40' : 'text-capx-dark-box-bg/40'}`}>
                 {isSearchMode
                   ? pageContent['events-search-results-no-results'] || 'No events found'
                   : hasActiveFilters

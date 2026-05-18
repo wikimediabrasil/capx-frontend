@@ -751,58 +751,286 @@ function addMonths(entries: [string, number][]) {
 
 // English
 addMonths([
-  ['january', 1], ['february', 2], ['march', 3], ['april', 4], ['may', 5], ['june', 6],
-  ['july', 7], ['august', 8], ['september', 9], ['october', 10], ['november', 11], ['december', 12],
-  ['jan', 1], ['feb', 2], ['mar', 3], ['apr', 4], ['jun', 6], ['jul', 7], ['aug', 8], ['sep', 9], ['oct', 10], ['nov', 11], ['dec', 12],
+  ['january', 1],
+  ['february', 2],
+  ['march', 3],
+  ['april', 4],
+  ['may', 5],
+  ['june', 6],
+  ['july', 7],
+  ['august', 8],
+  ['september', 9],
+  ['october', 10],
+  ['november', 11],
+  ['december', 12],
+  ['jan', 1],
+  ['feb', 2],
+  ['mar', 3],
+  ['apr', 4],
+  ['jun', 6],
+  ['jul', 7],
+  ['aug', 8],
+  ['sep', 9],
+  ['oct', 10],
+  ['nov', 11],
+  ['dec', 12],
 ]);
 // German
-addMonths([['januar', 1], ['februar', 2], ['märz', 3], ['mai', 5], ['juni', 6], ['juli', 7], ['oktober', 10], ['dezember', 12]]);
+addMonths([
+  ['januar', 1],
+  ['februar', 2],
+  ['märz', 3],
+  ['mai', 5],
+  ['juni', 6],
+  ['juli', 7],
+  ['oktober', 10],
+  ['dezember', 12],
+]);
 // French
-addMonths([['janvier', 1], ['février', 2], ['mars', 3], ['avril', 4], ['juillet', 7], ['août', 8], ['septembre', 9], ['octobre', 10], ['novembre', 11], ['décembre', 12]]);
+addMonths([
+  ['janvier', 1],
+  ['février', 2],
+  ['mars', 3],
+  ['avril', 4],
+  ['juillet', 7],
+  ['août', 8],
+  ['septembre', 9],
+  ['octobre', 10],
+  ['novembre', 11],
+  ['décembre', 12],
+]);
 // Spanish
-addMonths([['enero', 1], ['febrero', 2], ['marzo', 3], ['abril', 4], ['mayo', 5], ['junio', 6], ['julio', 7], ['agosto', 8], ['septiembre', 9], ['noviembre', 11], ['diciembre', 12]]);
+addMonths([
+  ['enero', 1],
+  ['febrero', 2],
+  ['marzo', 3],
+  ['abril', 4],
+  ['mayo', 5],
+  ['junio', 6],
+  ['julio', 7],
+  ['agosto', 8],
+  ['septiembre', 9],
+  ['noviembre', 11],
+  ['diciembre', 12],
+]);
 // Portuguese
-addMonths([['janeiro', 1], ['fevereiro', 2], ['março', 3], ['maio', 5], ['junho', 6], ['julho', 7], ['setembro', 9], ['outubro', 10], ['novembro', 11], ['dezembro', 12]]);
+addMonths([
+  ['janeiro', 1],
+  ['fevereiro', 2],
+  ['março', 3],
+  ['maio', 5],
+  ['junho', 6],
+  ['julho', 7],
+  ['setembro', 9],
+  ['outubro', 10],
+  ['novembro', 11],
+  ['dezembro', 12],
+]);
 // Italian
-addMonths([['gennaio', 1], ['febbraio', 2], ['aprile', 4], ['maggio', 5], ['giugno', 6], ['luglio', 7], ['settembre', 9], ['ottobre', 10], ['dicembre', 12]]);
+addMonths([
+  ['gennaio', 1],
+  ['febbraio', 2],
+  ['aprile', 4],
+  ['maggio', 5],
+  ['giugno', 6],
+  ['luglio', 7],
+  ['settembre', 9],
+  ['ottobre', 10],
+  ['dicembre', 12],
+]);
 // Dutch
-addMonths([['januari', 1], ['februari', 2], ['maart', 3], ['mei', 5], ['augustus', 8]]);
+addMonths([
+  ['januari', 1],
+  ['februari', 2],
+  ['maart', 3],
+  ['mei', 5],
+  ['augustus', 8],
+]);
 // Polish
 addMonths([
-  ['styczeń', 1], ['stycznia', 1], ['luty', 2], ['lutego', 2], ['marzec', 3], ['marca', 3], ['kwiecień', 4], ['kwietnia', 4],
-  ['maj', 5], ['maja', 5], ['czerwiec', 6], ['czerwca', 6], ['lipiec', 7], ['lipca', 7], ['sierpień', 8], ['sierpnia', 8],
-  ['wrzesień', 9], ['września', 9], ['październik', 10], ['października', 10], ['listopad', 11], ['listopada', 11], ['grudzień', 12], ['grudnia', 12],
+  ['styczeń', 1],
+  ['stycznia', 1],
+  ['luty', 2],
+  ['lutego', 2],
+  ['marzec', 3],
+  ['marca', 3],
+  ['kwiecień', 4],
+  ['kwietnia', 4],
+  ['maj', 5],
+  ['maja', 5],
+  ['czerwiec', 6],
+  ['czerwca', 6],
+  ['lipiec', 7],
+  ['lipca', 7],
+  ['sierpień', 8],
+  ['sierpnia', 8],
+  ['wrzesień', 9],
+  ['września', 9],
+  ['październik', 10],
+  ['października', 10],
+  ['listopad', 11],
+  ['listopada', 11],
+  ['grudzień', 12],
+  ['grudnia', 12],
 ]);
 // Russian
 addMonths([
-  ['январь', 1], ['января', 1], ['февраль', 2], ['февраля', 2], ['март', 3], ['марта', 3], ['апрель', 4], ['апреля', 4],
-  ['мая', 5], ['июнь', 6], ['июня', 6], ['июль', 7], ['июля', 7], ['август', 8], ['августа', 8],
-  ['сентябрь', 9], ['сентября', 9], ['октябрь', 10], ['октября', 10], ['ноябрь', 11], ['ноября', 11], ['декабрь', 12], ['декабря', 12],
+  ['январь', 1],
+  ['января', 1],
+  ['февраль', 2],
+  ['февраля', 2],
+  ['март', 3],
+  ['марта', 3],
+  ['апрель', 4],
+  ['апреля', 4],
+  ['мая', 5],
+  ['июнь', 6],
+  ['июня', 6],
+  ['июль', 7],
+  ['июля', 7],
+  ['август', 8],
+  ['августа', 8],
+  ['сентябрь', 9],
+  ['сентября', 9],
+  ['октябрь', 10],
+  ['октября', 10],
+  ['ноябрь', 11],
+  ['ноября', 11],
+  ['декабрь', 12],
+  ['декабря', 12],
 ]);
 // Turkish
-addMonths([['ocak', 1], ['şubat', 2], ['mart', 3], ['nisan', 4], ['mayıs', 5], ['haziran', 6], ['temmuz', 7], ['ağustos', 8], ['eylül', 9], ['ekim', 10], ['kasım', 11], ['aralık', 12]]);
+addMonths([
+  ['ocak', 1],
+  ['şubat', 2],
+  ['mart', 3],
+  ['nisan', 4],
+  ['mayıs', 5],
+  ['haziran', 6],
+  ['temmuz', 7],
+  ['ağustos', 8],
+  ['eylül', 9],
+  ['ekim', 10],
+  ['kasım', 11],
+  ['aralık', 12],
+]);
 // Arabic
-addMonths([['يناير', 1], ['فبراير', 2], ['مارس', 3], ['أبريل', 4], ['مايو', 5], ['يونيو', 6], ['يوليو', 7], ['أغسطس', 8], ['سبتمبر', 9], ['أكتوبر', 10], ['نوفمبر', 11], ['ديسمبر', 12]]);
+addMonths([
+  ['يناير', 1],
+  ['فبراير', 2],
+  ['مارس', 3],
+  ['أبريل', 4],
+  ['مايو', 5],
+  ['يونيو', 6],
+  ['يوليو', 7],
+  ['أغسطس', 8],
+  ['سبتمبر', 9],
+  ['أكتوبر', 10],
+  ['نوفمبر', 11],
+  ['ديسمبر', 12],
+]);
 // Indonesian/Malay
-addMonths([['maret', 3], ['agustus', 8], ['desember', 12]]);
+addMonths([
+  ['maret', 3],
+  ['agustus', 8],
+  ['desember', 12],
+]);
 // Swedish/Norwegian/Danish
 addMonths([['augusti', 8]]);
 // Czech
 addMonths([
-  ['leden', 1], ['ledna', 1], ['únor', 2], ['února', 2], ['březen', 3], ['března', 3], ['duben', 4], ['dubna', 4],
-  ['květen', 5], ['května', 5], ['červen', 6], ['června', 6], ['červenec', 7], ['července', 7], ['srpen', 8], ['srpna', 8],
-  ['září', 9], ['říjen', 10], ['října', 10], ['prosinec', 12], ['prosince', 12],
+  ['leden', 1],
+  ['ledna', 1],
+  ['únor', 2],
+  ['února', 2],
+  ['březen', 3],
+  ['března', 3],
+  ['duben', 4],
+  ['dubna', 4],
+  ['květen', 5],
+  ['května', 5],
+  ['červen', 6],
+  ['června', 6],
+  ['červenec', 7],
+  ['července', 7],
+  ['srpen', 8],
+  ['srpna', 8],
+  ['září', 9],
+  ['říjen', 10],
+  ['října', 10],
+  ['prosinec', 12],
+  ['prosince', 12],
 ]);
 // Hungarian
-addMonths([['január', 1], ['februári', 2], ['március', 3], ['április', 4], ['május', 5], ['június', 6], ['július', 7], ['augusztus', 8], ['szeptemberi', 9], ['októberi', 10], ['novemberi', 11], ['decemberi', 12]]);
+addMonths([
+  ['január', 1],
+  ['februári', 2],
+  ['március', 3],
+  ['április', 4],
+  ['május', 5],
+  ['június', 6],
+  ['július', 7],
+  ['augusztus', 8],
+  ['szeptemberi', 9],
+  ['októberi', 10],
+  ['novemberi', 11],
+  ['decemberi', 12],
+]);
 // Romanian
-addMonths([['ianuarie', 1], ['februarie', 2], ['martie', 3], ['aprilie', 4], ['mai', 5], ['iunie', 6], ['iulie', 7], ['septembrie', 9], ['octombrie', 10], ['noiembrie', 11], ['decembrie', 12]]);
+addMonths([
+  ['ianuarie', 1],
+  ['februarie', 2],
+  ['martie', 3],
+  ['aprilie', 4],
+  ['mai', 5],
+  ['iunie', 6],
+  ['iulie', 7],
+  ['septembrie', 9],
+  ['octombrie', 10],
+  ['noiembrie', 11],
+  ['decembrie', 12],
+]);
 // Finnish
-addMonths([['tammikuu', 1], ['helmikuu', 2], ['maaliskuu', 3], ['huhtikuu', 4], ['toukokuu', 5], ['kesäkuu', 6], ['heinäkuu', 7], ['elokuu', 8], ['syyskuu', 9], ['lokakuu', 10], ['marraskuu', 11], ['joulukuu', 12]]);
+addMonths([
+  ['tammikuu', 1],
+  ['helmikuu', 2],
+  ['maaliskuu', 3],
+  ['huhtikuu', 4],
+  ['toukokuu', 5],
+  ['kesäkuu', 6],
+  ['heinäkuu', 7],
+  ['elokuu', 8],
+  ['syyskuu', 9],
+  ['lokakuu', 10],
+  ['marraskuu', 11],
+  ['joulukuu', 12],
+]);
 // Catalan
-addMonths([['gener', 1], ['febrer', 2], ['març', 3], ['maig', 5], ['juny', 6], ['juliol', 7], ['agost', 8], ['setembre', 9]]);
+addMonths([
+  ['gener', 1],
+  ['febrer', 2],
+  ['març', 3],
+  ['maig', 5],
+  ['juny', 6],
+  ['juliol', 7],
+  ['agost', 8],
+  ['setembre', 9],
+]);
 // Hindi
-addMonths([['जनवरी', 1], ['फ़रवरी', 2], ['मार्च', 3], ['अप्रैल', 4], ['मई', 5], ['जून', 6], ['जुलाई', 7], ['अगस्त', 8], ['सितंबर', 9], ['अक्टूबर', 10], ['नवंबर', 11], ['दिसंबर', 12]]);
+addMonths([
+  ['जनवरी', 1],
+  ['फ़रवरी', 2],
+  ['मार्च', 3],
+  ['अप्रैल', 4],
+  ['मई', 5],
+  ['जून', 6],
+  ['जुलाई', 7],
+  ['अगस्त', 8],
+  ['सितंबर', 9],
+  ['अक्टूबर', 10],
+  ['नवंबर', 11],
+  ['दिसंबर', 12],
+]);
 
 /**
  * Strips HTML tags from a string and normalizes whitespace.
@@ -827,7 +1055,9 @@ function stripHtmlTags(html: string): string {
  *   "19 February – 22 February 2026" (day month – day month year)
  * Returns { start_date, end_date } in YYYY-MM-DD format or null.
  */
-function extractDatesFromRenderedText(text: string): { start_date: string; end_date?: string } | null {
+function extractDatesFromRenderedText(
+  text: string
+): { start_date: string; end_date?: string } | null {
   if (!text) return null;
 
   // Build a regex alternation from all known month names (sorted longest-first to avoid partial matches)
@@ -859,16 +1089,10 @@ function extractDatesFromRenderedText(text: string): { start_date: string; end_d
   );
 
   // Pattern 5: "DD Month YYYY" (single date)
-  const pattern5 = new RegExp(
-    `(\\d{1,2})\\.?\\s+(${monthPattern})\\s+(\\d{4})`,
-    'i'
-  );
+  const pattern5 = new RegExp(`(\\d{1,2})\\.?\\s+(${monthPattern})\\s+(\\d{4})`, 'i');
 
   // Pattern 6: "Month DD, YYYY" (single date, English)
-  const pattern6 = new RegExp(
-    `(${monthPattern})\\s+(\\d{1,2}),?\\s+(\\d{4})`,
-    'i'
-  );
+  const pattern6 = new RegExp(`(${monthPattern})\\s+(\\d{1,2}),?\\s+(\\d{4})`, 'i');
 
   // Pattern 7: CJK numeric months "YYYY年M月D日"
   const pattern7 = /(\d{4})年(\d{1,2})月(\d{1,2})日\s*[–\-−~]\s*(\d{4})年(\d{1,2})月(\d{1,2})日/;
@@ -1029,9 +1253,10 @@ function extractInfoboxFromWikitext(wikitext: string): any {
 
     // 2. ISO-format values (YYYY-MM-DD) in named parameters — language-agnostic
     if (!data.start_date) {
-      const m = /\|\s*(?:start_date|time_begin|begin_date|date_start|date_begin)\s*=\s*(\d{4}-\d{2}-\d{2})/i.exec(
-        wikitext
-      );
+      const m =
+        /\|\s*(?:start_date|time_begin|begin_date|date_start|date_begin)\s*=\s*(\d{4}-\d{2}-\d{2})/i.exec(
+          wikitext
+        );
       if (m?.[1]) data.start_date = m[1];
     }
     if (!data.end_date) {
@@ -1040,7 +1265,7 @@ function extractInfoboxFromWikitext(wikitext: string): any {
     }
 
     // 3. Location field (used to infer in_person)
-    const locationMatch = /\|\s*location\s*=\s*([^|\n\}]{1,200})/i.exec(wikitext);
+    const locationMatch = /\|\s*location\s*=\s*([^|\n}]{1,200})/i.exec(wikitext);
     if (locationMatch?.[1]?.trim()) data.location = locationMatch[1].trim();
 
     // 4. Location type from a small set of universally understood English keywords
@@ -1182,8 +1407,7 @@ export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial
     const pageData = await fetchWikimediaPageData(url);
 
     // Try Wikidata lookup: first via pageprops wikibase_item, then via sitelink
-    const wikidataQid =
-      pageData?.wikidata_qid || (await findWikidataQIDByMetaWikiTitle(pageTitle));
+    const wikidataQid = pageData?.wikidata_qid || (await findWikidataQIDByMetaWikiTitle(pageTitle));
 
     if (wikidataQid) {
       const wikidataResult = await fetchEventFromWikidata(wikidataQid);

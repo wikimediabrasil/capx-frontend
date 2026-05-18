@@ -427,7 +427,6 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
           />
         </div>
       </div>
-
     </div>
   );
 }

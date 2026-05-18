@@ -1257,9 +1257,11 @@ export default function EditOrganizationProfilePage() {
             }`}
           >
             {/* Header */}
-            <div className={`flex items-center justify-between px-5 py-4 shrink-0 border-b ${
-              darkMode ? 'border-white/10' : 'border-black/5'
-            }`}>
+            <div
+              className={`flex items-center justify-between px-5 py-4 shrink-0 border-b ${
+                darkMode ? 'border-white/10' : 'border-black/5'
+              }`}
+            >
               <h1
                 className={`text-lg font-Montserrat font-extrabold ${
                   darkMode ? 'text-white' : 'text-capx-dark-box-bg'
@@ -1309,9 +1311,11 @@ export default function EditOrganizationProfilePage() {
             </div>
 
             {/* Footer with buttons */}
-            <div className={`flex justify-end gap-3 px-5 py-4 shrink-0 border-t ${
-              darkMode ? 'border-white/10' : 'border-black/5'
-            }`}>
+            <div
+              className={`flex justify-end gap-3 px-5 py-4 shrink-0 border-t ${
+                darkMode ? 'border-white/10' : 'border-black/5'
+              }`}
+            >
               <button
                 onClick={() => {
                   setShowEventModal(false);

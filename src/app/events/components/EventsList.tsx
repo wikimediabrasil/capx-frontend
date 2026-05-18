@@ -17,20 +17,8 @@ export default function EventsList({
   onChoose,
 }: EventsListProps) {
   return (
-    <div
-      className={
-        isHorizontalScroll
-          ? 'overflow-x-auto scrollbar-hide pb-2'
-          : ''
-      }
-    >
-      <div
-        className={
-          isHorizontalScroll
-            ? 'flex flex-nowrap gap-3'
-            : 'flex flex-col gap-4'
-        }
-      >
+    <div className={isHorizontalScroll ? 'overflow-x-auto scrollbar-hide pb-2' : ''}>
+      <div className={isHorizontalScroll ? 'flex flex-nowrap gap-3' : 'flex flex-col gap-4'}>
         {events.map(event => (
           <EventCard
             key={event.id}

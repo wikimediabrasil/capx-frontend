@@ -173,11 +173,7 @@ export default function EventCard({
         className={`
           flex flex-col rounded-[4px] p-4 relative
           ${isHorizontalScroll ? 'min-w-[300px] max-w-[350px] flex-shrink-0' : 'w-full'}
-          ${
-            darkMode
-              ? 'bg-capx-dark-bg text-white'
-              : 'bg-[#EFEFEF] text-capx-dark-box-bg'
-          }
+          ${darkMode ? 'bg-capx-dark-bg text-white' : 'bg-[#EFEFEF] text-capx-dark-box-bg'}
         `}
       >
         {/* Admin controls */}
@@ -281,9 +277,7 @@ export default function EventCard({
           {/* Time range */}
           {event.time_begin && event.time_end && !isHorizontalScroll && (
             <p
-              className={`font-Montserrat text-sm ${
-                darkMode ? 'text-white/50' : 'text-[#507380]'
-              }`}
+              className={`font-Montserrat text-sm ${darkMode ? 'text-white/50' : 'text-[#507380]'}`}
             >
               {formatTimeRange(event.time_begin, event.time_end)}
             </p>

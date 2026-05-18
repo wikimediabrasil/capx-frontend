@@ -14,14 +14,7 @@ import { organizationProfileService } from '@/services/organizationProfileServic
 import { Event } from '@/types/event';
 import { useSession } from 'next-auth/react';
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface EventFormItemProps {
   eventData: Event;
@@ -117,7 +110,9 @@ const EventsForm = memo(
     const isMobile = useIsMobile();
     const pageContent = usePageContent();
     const { capacityNames } = useCapacityDetails();
-    const [selectedCapacities, setSelectedCapacities] = useState<Array<{ code: number; name: string }>>([]);
+    const [selectedCapacities, setSelectedCapacities] = useState<
+      Array<{ code: number; name: string }>
+    >([]);
     const [isLoading, setIsLoading] = useState(false);
     const [urlError, setUrlError] = useState<string | null>(null);
     const [urlInput, setUrlInput] = useState(eventData.url || '');
@@ -308,7 +303,8 @@ const EventsForm = memo(
         } catch (error) {
           console.error('Error fetching event data:', error);
           setUrlError(
-            pageContent['event-form-wikidata-error'] || 'An error occurred while fetching event data'
+            pageContent['event-form-wikidata-error'] ||
+              'An error occurred while fetching event data'
           );
         } finally {
           setIsLoading(false);
@@ -363,9 +359,7 @@ const EventsForm = memo(
         : 'text-capx-dark-box-bg placeholder-[#829BA4] border-capx-dark-box-bg/30 focus:border-capx-dark-box-bg/60'
     }`;
 
-    const hintClass = `text-xs mt-1 ${
-      darkMode ? 'text-white/50' : 'text-[#829BA4]'
-    }`;
+    const hintClass = `text-xs mt-1 ${darkMode ? 'text-white/50' : 'text-[#829BA4]'}`;
 
     return (
       <div className="flex flex-col gap-5">
@@ -404,9 +398,7 @@ const EventsForm = memo(
             </p>
           )}
           {urlError && (
-            <p className={`text-xs ${darkMode ? 'text-red-300' : 'text-red-600'}`}>
-              {urlError}
-            </p>
+            <p className={`text-xs ${darkMode ? 'text-red-300' : 'text-red-600'}`}>{urlError}</p>
           )}
           <p className={hintClass}>
             {pageContent['organization-profile-event-url-tooltip-updated'] ||
@@ -470,9 +462,7 @@ const EventsForm = memo(
                 }
               }}
               className={inputClass}
-              placeholder={
-                pageContent['organization-profile-event-start-date'] || 'Start date'
-              }
+              placeholder={pageContent['organization-profile-event-start-date'] || 'Start date'}
             />
             <p className={hintClass}>
               {pageContent['organization-profile-event-start-date-tooltip']}
@@ -496,9 +486,7 @@ const EventsForm = memo(
                 }
               }}
               className={inputClass}
-              placeholder={
-                pageContent['organization-profile-event-end-date'] || 'End date'
-              }
+              placeholder={pageContent['organization-profile-event-end-date'] || 'End date'}
             />
             <p className={hintClass}>
               {pageContent['organization-profile-event-end-date-tooltip']}
@@ -508,9 +496,7 @@ const EventsForm = memo(
 
         {/* --- Format --- */}
         <div className="flex flex-col gap-2">
-          <label className={labelClass}>
-            {pageContent['organization-profile-event-format']}
-          </label>
+          <label className={labelClass}>{pageContent['organization-profile-event-format']}</label>
           <select
             className={`${inputClass} cursor-pointer`}
             value={localLocationType}

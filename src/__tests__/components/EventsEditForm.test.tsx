@@ -50,5 +50,4 @@ describe('EventsForm Service Tests', () => {
       expect(isValidEventURL(undefined as any)).toBe(false);
     });
   });
-
 });
