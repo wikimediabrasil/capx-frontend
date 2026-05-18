@@ -1,22 +1,23 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
+import CapacityRecommendationsCarousels from '@/app/(auth)/home/components/CapacityRecommendationsCarousels';
 import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations';
 import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
 import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
 import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
-import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
 import RecommendationsSection from '@/app/(auth)/home/components/RecommendationsSection';
-import CapacityRecommendationsCarousels from '@/app/(auth)/home/components/CapacityRecommendationsCarousels';
+import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
 import { RecommendationCarouselSkeleton } from '@/components/skeletons';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { userService } from '@/services/userService';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useMemo } from 'react';
 
 import { usePageContent } from '@/stores';
 import AnalyticsCallToActionSection from './AnalyticsCallToActionSection';
+
 export default function SectionRecommendationsCarousel() {
   const pageContent = usePageContent();
   const { data, isLoading, error } = useRecommendations();
@@ -175,9 +176,6 @@ export default function SectionRecommendationsCarousel() {
           )}
         </RecommendationCarousel>
 
-        {/* Analytics Call to Action */}
-        <AnalyticsCallToActionSection />
-
         {/* Same Language carousel */}
         <RecommendationCarousel
           title={pageContent['recommendations-same-language'] || 'Same language speakers'}
@@ -224,6 +222,8 @@ export default function SectionRecommendationsCarousel() {
             ))}
           </RecommendationCarousel>
         )}
+
+        <AnalyticsCallToActionSection />
       </div>
     </RecommendationsSection>
   );

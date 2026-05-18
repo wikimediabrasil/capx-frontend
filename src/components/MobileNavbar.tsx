@@ -32,7 +32,7 @@ export default function MobileNavbar({ session, language, setLanguage }: MobileN
   const setMobileMenuStatus = useAppStore(s => s.setMobileMenuStatus);
   const pageContent = usePageContent();
   const darkMode = useDarkMode();
-  const navbarClasses = `fixed top-0 left-0 right-0 z-50 mb-16 ${
+  const navbarClasses = `fixed top-0 left-0 right-0 z-50 ${
     darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'
   } ${mobileMenuStatus ? 'shadow-lg' : ''}`;
 
@@ -86,6 +86,7 @@ export default function MobileNavbar({ session, language, setLanguage }: MobileN
             </div>
           </div>
         </div>
+        <div className="h-[72px]" />
         <AnimatePresence mode="wait">
           {isMobile && mobileMenuStatus && session && <MobileMenu session={session} />}
         </AnimatePresence>
@@ -149,7 +150,7 @@ export default function MobileNavbar({ session, language, setLanguage }: MobileN
           </div>
         </div>
       </div>
-
+      <div className="h-[72px]" />
       <AnimatePresence mode="wait">
         {isMobile && mobileMenuStatus && <MobileMenu session={session} />}
       </AnimatePresence>

@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import BaseButton from '@/components/BaseButton';
-import { AnalyticsCallToActionSkeleton } from '@/components/skeletons';
+import { AnalyticsCallToActionSkeleton } from './AuthenticatedMainSection';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useTerritories } from '@/hooks/useTerritories';
 
@@ -46,7 +46,7 @@ export default function AnalyticsCallToActionSection() {
         name: territories[territoryId] || `Territory ${territoryId}`,
         count: count,
       }))
-      .sort((a, b) => b.count - a.count); // Sort by count descending
+      .sort((a, b) => b.count - a.count);
   }, [data?.territory_user_counts, territories]);
 
   // Build statistics array
@@ -57,7 +57,6 @@ export default function AnalyticsCallToActionSection() {
         value: languagesWithUsers,
         key: 'languages',
       },
-      // Add one territory statistic entry (will be replaced with individual territories)
       {
         text:
           pageContent['home-analytics-cta-territories'] ||

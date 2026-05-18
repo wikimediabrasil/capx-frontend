@@ -2,7 +2,7 @@
 
 import SkeletonBase from './SkeletonBase';
 import RecommendationCarouselSkeleton from './RecommendationCarouselSkeleton';
-import AnalyticsCallToActionSkeleton from './AnalyticsCallToActionSkeleton';
+import { AnalyticsCallToActionSkeleton } from '@/app/(auth)/home/components/AuthenticatedMainSection';
 
 export default function HomePageSkeleton() {
   return (

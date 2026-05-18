@@ -3,17 +3,15 @@
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
 import { useProfile } from '@/hooks/useProfile';
-import MainSectionIllustration from '@/public/static/images/capx_loggedin_home_illustration.svg';
-import MainSectionIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
-import QrCodeIcon from '@/public/static/images/icons/qr_code.svg';
-import QrCodeIconWhite from '@/public/static/images/icons/qr_code_white.svg';
-import CreditCardIcon from '@/public/static/images/credit_card.svg';
-import CreditCardIconDark from '@/public/static/images/credit_card_dark.svg';
 import AccountTreeIcon from '@/public/static/images/account_tree.svg';
 import AccountTreeIconWhite from '@/public/static/images/account_tree_white.svg';
+import MainSectionIllustration from '@/public/static/images/capx_loggedin_home_illustration.svg';
+import MainSectionIllustrationDark from '@/public/static/images/capx_loggedin_home_illustration_dark.svg';
+import CapxQrCode from '@/public/static/images/capx_qr_code.svg';
+import CapxQrCodeWhite from '@/public/static/images/capx_qr_code_white.svg';
 import CollapseAllIcon from '@/public/static/images/collapse_all.svg';
 import CollapseAllIconWhite from '@/public/static/images/collapse_all_white.svg';
-import LanguageIcon from '@/public/static/images/language.svg';
+import LanguageIcon from '@/public/static/images/language_black.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import { useDarkMode, useIsMobile } from '@/stores';
 import { LanguageProficiency } from '@/types/language';
@@ -28,7 +26,7 @@ interface AuthenticatedMainSectionProps {
   slideInterval?: number;
 }
 
-function ChevronLeft({ className }: { className?: string }) {
+function ChevronLeft({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -44,7 +42,7 @@ function ChevronLeft({ className }: { className?: string }) {
   );
 }
 
-function ChevronRight({ className }: { className?: string }) {
+function ChevronRight({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -60,10 +58,54 @@ function ChevronRight({ className }: { className?: string }) {
   );
 }
 
+function StackedCardsIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="3" width="18" height="5" rx="1.5" fill="currentColor" />
+      <rect x="3" y="9.5" width="18" height="5" rx="1.5" fill="currentColor" />
+      <rect x="3" y="16" width="18" height="5" rx="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function AnalyticsCallToActionSkeleton() {
+  const isMobile = useIsMobile();
+  const darkMode = useDarkMode();
+
+  if (isMobile) {
+    return (
+      <section
+        className={
+          (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
+          ' flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-16'
+        }
+      >
+        <div className="flex flex-col items-center justify-center w-full gap-4">
+          <div className="relative min-h-[60px] flex items-center justify-center w-full">
+            <div className={`animate-pulse rounded h-5 w-3/4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+          </div>
+          <div className={`animate-pulse rounded h-9 w-36 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-16">
+      <div className="flex flex-col items-center justify-center w-full gap-6">
+        <div className="relative min-h-[80px] flex items-center justify-center w-full">
+          <div className={`animate-pulse rounded h-8 w-2/3 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+        </div>
+        <div className={`animate-pulse rounded h-16 w-56 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+      </div>
+    </section>
+  );
+}
+
 export default function AuthenticatedMainSection({
   pageContent,
   slideInterval = 5000,
-}: AuthenticatedMainSectionProps) {
+}: Readonly<AuthenticatedMainSectionProps>) {
   const isMobile = useIsMobile();
   const darkMode = useDarkMode();
   const router = useRouter();
@@ -76,6 +118,7 @@ export default function AuthenticatedMainSection({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const showcaseSliderRef = useRef<HTMLElement | null>(null);
 
   const _fd = {
     skills_known: [] as number[],
@@ -208,11 +251,11 @@ export default function AuthenticatedMainSection({
     >
       <div className="flex flex-col items-center justify-center w-full gap-6">
         <Image
-          src={darkMode ? QrCodeIconWhite : QrCodeIcon}
-          alt="QR Code"
-          width={80}
-          height={80}
-          className="w-20 h-20"
+          src={darkMode ? CapxQrCodeWhite : CapxQrCode}
+          alt="QR code linking to capx.toolforge.org"
+          width={120}
+          height={120}
+          className="w-30 h-30"
         />
         <div className="flex flex-col items-center gap-2 text-center">
           <h2
@@ -269,8 +312,8 @@ export default function AuthenticatedMainSection({
         </div>
         <div className="flex items-center justify-center w-1/3">
           <Image
-            src={darkMode ? QrCodeIconWhite : QrCodeIcon}
-            alt="QR Code"
+            src={darkMode ? CapxQrCodeWhite : CapxQrCode}
+            alt="QR code linking to capx.toolforge.org"
             width={220}
             height={220}
             className="w-full max-w-[220px] h-auto"
@@ -280,9 +323,10 @@ export default function AuthenticatedMainSection({
     </section>
   );
 
+  const stackedCardsColor = darkMode ? '#FFF' : '#053749';
   const capacityVisualizationModes = [
     {
-      icon: darkMode ? CreditCardIconDark : CreditCardIcon,
+      node: <StackedCardsIcon className="w-full h-full" />,
       label: pageContent['capacity-list-visualization-description-browse-cards'] || 'Browse Cards',
     },
     {
@@ -303,57 +347,58 @@ export default function AuthenticatedMainSection({
     <section
       className={
         (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-        ' flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8'
+        ' flex flex-col items-center justify-between w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-6 h-full'
       }
     >
-      <div className="flex flex-col items-center justify-center w-full gap-6">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]'
-            }
-          >
-            {pageContent['home-capacity-cta-title'] || 'Three new ways to explore capacities'}
-          </h2>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
-            }
-          >
-            {pageContent['home-capacity-cta-description'] ||
-              'Find the view that works best for you.'}
-          </p>
-        </div>
-        <div className="flex flex-row items-start justify-center gap-4 w-full">
-          {capacityVisualizationModes.map((mode, i) => (
-            <div key={i} className="flex flex-col items-center gap-2 flex-1">
-              <div
-                className={
-                  (darkMode ? 'bg-[#053749]' : 'bg-white') +
-                  ' rounded-[12px] p-3 flex items-center justify-center shadow-sm'
-                }
-              >
-                <Image src={mode.icon} alt={mode.label} width={28} height={28} className="w-7 h-7" />
-              </div>
-              <span
-                className={
-                  (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-                  ' font-[Montserrat] text-[11px] font-semibold text-center leading-tight'
-                }
-              >
-                {mode.label}
-              </span>
-            </div>
-          ))}
-        </div>
-        <BaseButton
-          onClick={() => router.push('/capacity')}
-          label={pageContent['home-capacity-cta-button'] || 'Explore capacities'}
-          customClass="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-        />
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h2
+          className={
+            (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+            ' font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]'
+          }
+        >
+          {pageContent['home-capacity-cta-title'] || 'Three new ways to explore capacities'}
+        </h2>
+        <p
+          className={
+            (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+            ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
+          }
+        >
+          {pageContent['home-capacity-cta-description'] ||
+            'Find the view that works best for you.'}
+        </p>
       </div>
+      <div className="flex flex-col gap-3 w-full">
+        {capacityVisualizationModes.map((mode, i) => (
+          <div
+            key={i}
+            className={
+              (darkMode ? 'bg-[#053749]' : 'bg-white') +
+              ' flex flex-row items-center gap-3 rounded-[12px] px-4 py-3 shadow-sm'
+            }
+          >
+            {mode.node ? (
+              <div className="w-6 h-6 flex-shrink-0" style={{ color: stackedCardsColor }}>{mode.node}</div>
+            ) : (
+              <Image src={mode.icon} alt={mode.label} width={24} height={24} className="w-6 h-6 flex-shrink-0" />
+            )}
+            <span
+              className={
+                (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
+                ' font-[Montserrat] text-[14px] font-semibold leading-tight'
+              }
+            >
+              {mode.label}
+            </span>
+          </div>
+        ))}
+      </div>
+      <BaseButton
+        onClick={() => router.push('/capacity')}
+        label={pageContent['home-capacity-cta-button'] || 'Explore capacities'}
+        customClass="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
+      />
     </section>
   ) : (
     <section className="flex flex-col items-center justify-center w-full mx-auto">
@@ -391,7 +436,11 @@ export default function AuthenticatedMainSection({
                   ' rounded-[16px] p-5 flex items-center justify-center shadow-md'
                 }
               >
-                <Image src={mode.icon} alt={mode.label} width={40} height={40} className="w-10 h-10" />
+                {mode.node ? (
+                  <div className="w-10 h-10" style={{ color: stackedCardsColor }}>{mode.node}</div>
+                ) : (
+                  <Image src={mode.icon} alt={mode.label} width={40} height={40} className="w-10 h-10" />
+                )}
               </div>
               <span
                 className={
@@ -497,6 +546,32 @@ export default function AuthenticatedMainSection({
   ];
 
   useEffect(() => {
+    const el = showcaseSliderRef.current;
+    if (!el) return;
+
+    const pause = () => setIsPaused(true);
+    const resume = () => setIsPaused(false);
+
+    const handleFocusOut = (e: FocusEvent) => {
+      const next = e.relatedTarget;
+      if (next instanceof Node && el.contains(next)) return;
+      resume();
+    };
+
+    el.addEventListener('pointerenter', pause);
+    el.addEventListener('pointerleave', resume);
+    el.addEventListener('focusin', pause);
+    el.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      el.removeEventListener('pointerenter', pause);
+      el.removeEventListener('pointerleave', resume);
+      el.removeEventListener('focusin', pause);
+      el.removeEventListener('focusout', handleFocusOut);
+    };
+  }, []);
+
+  useEffect(() => {
     if (isPaused) return;
     intervalRef.current = setInterval(() => {
       setCurrentSlide(i => (i + 1) % slides.length);
@@ -595,22 +670,23 @@ export default function AuthenticatedMainSection({
   return (
     <>
       {/* Showcase slider */}
-      <div
+      <section
+        ref={showcaseSliderRef}
         className="relative w-full overflow-hidden"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
+        aria-roledescription="carousel"
+        aria-label={pageContent['body-loggedin-home-main-section-title'] || 'Home highlights'}
       >
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-500 ease-in-out "
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
           {slides.map((slide, i) => (
-            <div key={i} className="w-full flex-shrink-0 min-w-0">
+            <div key={i} className="flex w-full flex-shrink-0 min-w-0">
               {slide}
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Slider navigation */}
       <div
