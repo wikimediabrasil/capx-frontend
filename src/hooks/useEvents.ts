@@ -1,4 +1,4 @@
-import { EventFilterState } from '@/app/events/types';
+import { EventFilterState, EventLocationType } from '@/app/events/types';
 import { eventsService } from '@/services/eventService';
 import { Event } from '@/types/event';
 import { useEffect, useState } from 'react';
@@ -103,15 +103,53 @@ export function useEvents(
   // Stable string dep for capacities array to avoid refetching on reference changes
   const capacitiesDep = filters?.capacities?.map(c => c.code).join(',') ?? '';
 
+  const hasClientFilters =
+    (filters?.capacities && filters.capacities.length > 0) ||
+    (filters?.locationType && filters.locationType !== EventLocationType.All);
+
   useEffect(() => {
     const fetchEvents = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await eventsService.getEvents(limit, offset, filters);
-        const eventsData = Array.isArray(response) ? response : response.results || [];
-        const totalCount = Array.isArray(response) ? eventsData.length : response.count || 0;
+        // When client-side filters are active, fetch all events so we can filter properly
+        const fetchLimit = hasClientFilters ? undefined : limit;
+        const fetchOffset = hasClientFilters ? undefined : offset;
+
+        const response = await eventsService.getEvents(fetchLimit, fetchOffset, filters);
+        let eventsData = Array.isArray(response) ? response : response.results || [];
+
+        // Apply client-side filtering
+        if (filters?.locationType && filters.locationType !== EventLocationType.All) {
+          const locationMap: Record<string, string> = {
+            [EventLocationType.Online]: 'virtual',
+            [EventLocationType.InPerson]: 'in_person',
+            [EventLocationType.Hybrid]: 'hybrid',
+          };
+          const targetLocation = locationMap[filters.locationType];
+          if (targetLocation) {
+            eventsData = eventsData.filter(
+              (event: Event) => event.type_of_location === targetLocation
+            );
+          }
+        }
+
+        if (filters?.capacities && filters.capacities.length > 0) {
+          const capacityCodes = filters.capacities.map(c => c.code);
+          eventsData = eventsData.filter(
+            (event: Event) =>
+              event.related_skills &&
+              event.related_skills.some(skillId => capacityCodes.includes(skillId))
+          );
+        }
+
+        const totalCount = eventsData.length;
+
+        // Apply client-side pagination when we fetched all events
+        if (hasClientFilters && limit !== undefined && offset !== undefined) {
+          eventsData = eventsData.slice(offset, offset + limit);
+        }
 
         setEvents(eventsData);
         setCount(totalCount);
@@ -135,6 +173,7 @@ export function useEvents(
     filters?.organizationId,
     filters?.dateRange?.startDate,
     filters?.dateRange?.endDate,
+    hasClientFilters,
   ]);
 
   const fetchEventsByIds = async (eventIds: number[]) => {
