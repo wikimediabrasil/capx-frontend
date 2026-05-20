@@ -74,6 +74,14 @@ function getProfileRoute(isOrganization: boolean, id: string, username: string) 
   return isOrganization ? `/organization_profile/${id}` : `/profile/${toProfileSlug(username)}`;
 }
 
+const PROFILE_INCOMPLETE_USER_I18N_KEY = 'profile-incomplete-description-user';
+
+function getIncompleteProfileUserDescription(pageContent: Record<string, string>): string {
+  const raw = pageContent[PROFILE_INCOMPLETE_USER_I18N_KEY];
+  if (raw && raw !== PROFILE_INCOMPLETE_USER_I18N_KEY) return raw;
+  return 'This user has not yet defined their available or wanted capacities.';
+}
+
 export const ProfileCard = ({
   id,
   username,
@@ -261,7 +269,9 @@ export const ProfileCard = ({
                 darkMode ? 'text-orange-200' : 'text-orange-600'
               }`}
             >
-              {pageContent['profile-incomplete-description']}
+              {isOrganization
+                ? pageContent['profile-incomplete-description']
+                : getIncompleteProfileUserDescription(pageContent)}
             </p>
           </div>
         </div>

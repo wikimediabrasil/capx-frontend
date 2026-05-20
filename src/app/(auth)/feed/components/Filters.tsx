@@ -114,6 +114,13 @@ export function Filters({
     });
   };
 
+  const handleIncludeIncompleteProfilesToggle = () => {
+    setFilters(prev => ({
+      ...prev,
+      includeIncompleteProfiles: !prev.includeIncompleteProfiles,
+    }));
+  };
+
   const handleNameChange = (name: string) => {
     setFilters(prev => ({
       ...prev,
@@ -216,15 +223,26 @@ export function Filters({
                   }
                   onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Sharer)}
                 />
-                <CheckboxButton
-                  icon={NeurologyIcon}
-                  iconDark={NeurologyIconWhite}
-                  label={pageContent['filters-known']}
-                  checked={
-                    filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
-                  }
-                  onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Known)}
-                />
+                {!isOnlyOrganization && (
+                  <CheckboxButton
+                    icon={NeurologyIcon}
+                    iconDark={NeurologyIconWhite}
+                    label={pageContent['filters-proficients']}
+                    checked={
+                      filters.profileCapacityTypes?.includes(ProfileCapacityType.Known) ?? false
+                    }
+                    onClick={() => handleProfileCapacityTypeToggle(ProfileCapacityType.Known)}
+                  />
+                )}
+                {!isOnlyOrganization && (
+                  <CheckboxButton
+                    icon={UserIcon}
+                    iconDark={UserIconWhite}
+                    label={pageContent['feed-toggle-incomplete-profiles'] || 'Incomplete profiles'}
+                    checked={filters.includeIncompleteProfiles}
+                    onClick={handleIncludeIncompleteProfilesToggle}
+                  />
+                )}
               </div>
             </div>
 

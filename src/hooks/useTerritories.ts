@@ -18,7 +18,7 @@ export const useTerritories = (token: string | undefined) => {
         const data = await fetchTerritories(token);
         setTerritories(data || []);
       } catch (err) {
-        console.error('Error loading territories:', err);
+        console.warn('Error loading territories:', err instanceof Error ? err.message : err);
         setError(err instanceof Error ? err.message : 'Failed to load territories');
         setTerritories([]);
       } finally {

@@ -11,6 +11,8 @@ export interface UseAllUsersParams {
   offset?: number;
   activeFilters?: FilterState;
   ordering?: string;
+  /** When true, do not send has_skills_* query params so users without capacities are included */
+  includeUsersWithoutSkills?: boolean;
 }
 
 export function useUserProfile() {
@@ -145,10 +147,14 @@ export function useAllUsers(params: UseAllUsersParams) {
           }),
           ...(name && { name }),
           ...(affiliations.length > 0 && { affiliations }),
-          has_skills_available: hasSharer || undefined,
-          has_skills_wanted: hasLearner || undefined,
-          has_skills_known: hasKnown || undefined,
         };
+
+        if (!params.includeUsersWithoutSkills) {
+          filters.has_any_skills = true;
+          if (hasSharer) filters.has_skills_available = true;
+          if (hasLearner) filters.has_skills_wanted = true;
+          if (hasKnown) filters.has_skills_known = true;
+        }
 
         const data = await userService.fetchAllUsers({
           token: session.user.token,
@@ -181,6 +187,7 @@ export function useAllUsers(params: UseAllUsersParams) {
     hasSharer,
     hasLearner,
     hasKnown,
+    params.includeUsersWithoutSkills,
   ]);
 
   return { allUsers, isLoading, error, count };

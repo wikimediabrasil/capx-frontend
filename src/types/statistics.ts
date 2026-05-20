@@ -8,8 +8,12 @@ export interface Statistics {
   total_organizations: number;
   new_organizations: number;
   active_users: number;
+  users_with_territory: number;
+  users_with_language: number;
+  users_with_capacities: number;
   territory_user_counts: Count;
   language_user_counts: Count;
+  skill_known_user_counts: Count;
   skill_available_user_counts: Count;
   skill_wanted_user_counts: Count;
 }

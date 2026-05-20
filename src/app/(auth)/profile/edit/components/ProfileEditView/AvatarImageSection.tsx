@@ -13,8 +13,8 @@ import CheckIcon from '@/public/static/images/check_box_outline_blank.svg';
 import CheckIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import Image from 'next/image';
-import { JSX } from 'react';
 import AvatarSelectionPopup from '../../../components/AvatarSelectionPopup';
+import { renderTextWithLink } from './textHelpers';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 const getAvatarAltText = (src: string, pageContent: any): string => {
@@ -23,31 +23,6 @@ const getAvatarAltText = (src: string, pageContent: any): string => {
     return pageContent['alt-profile-picture-default'] || 'Default user profile picture';
   }
   return 'Selected avatar';
-};
-
-const renderTextWithLink = (
-  text: string,
-  linkText: string,
-  darkMode: boolean
-): (string | JSX.Element)[] => {
-  const parts = text.split('$1');
-  const nodes: (string | JSX.Element)[] = [];
-  parts.forEach(part => {
-    nodes.push(
-      <a
-        key={`link-${part.toString()}`}
-        href="https://www.wikidata.org/wiki/Wikidata:Notability"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`underline ${darkMode ? 'text-blue-300' : 'text-blue-600'} hover:opacity-80`}
-      >
-        {linkText}
-      </a>
-    );
-
-    nodes.push(part);
-  });
-  return nodes;
 };
 
 interface AvatarImageSectionProps {
@@ -186,7 +161,12 @@ export function AvatarImageSection({
           <span
             className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${consentTextColor}`}
           >
-            {renderTextWithLink(wikidataText, wikidataLinkText, darkMode)}
+            {renderTextWithLink(
+              wikidataText,
+              wikidataLinkText,
+              'https://www.wikidata.org/wiki/Wikidata:Notability',
+              darkMode
+            )}
           </span>
         </div>
 

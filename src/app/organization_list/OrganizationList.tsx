@@ -38,6 +38,7 @@ export default function OrganizationList() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
+    includeIncompleteProfiles: true,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,6 +70,7 @@ export default function OrganizationList() {
     profileCapacityTypes: [],
     territories: activeFilters.territories,
     languages: activeFilters.languages,
+    includeIncompleteProfiles: activeFilters.includeIncompleteProfiles,
     // Don't send name - backend doesn't support it
   });
 
