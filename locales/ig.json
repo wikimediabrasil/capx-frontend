@@ -230,7 +230,6 @@
 	"filters-to-date": "Na:",
 	"filters-learners": "Ndị mmụta",
 	"filters-sharers": "Ndị na-ekekọrịta ihe",
-	"filters-known": "A maara",
 	"filters-search-by-capacities": "Nchọgharị site na ikike",
 	"aria-label-search-by-capacities": "Nchọgharị site na ikike",
 	"filters-capacities": "Ikike",
@@ -377,5 +376,6 @@
 	"error-fallback-try-again": "Nwaa ọzọ",
 	"lets-connect-info-popup-link": "nkwupụta màkà nzuzo",
 	"lets-connect-info-popup-cancel": "Kagbuo",
-	"lets-connect-success-popup-title": "Ị mere nke ọma!"
+	"lets-connect-success-popup-title": "Ị mere nke ọma!",
+	"analytics-bashboard-capacities-card-known": "A maara"
 }

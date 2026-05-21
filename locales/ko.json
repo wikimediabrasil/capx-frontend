@@ -3,6 +3,7 @@
 		"authors": [
 			"Bisang",
 			"Suleiman the Magnificent Television",
+			"Tensama0415",
 			"YeBoy371",
 			"Ykhwong",
 			"解浪"
@@ -11,6 +12,8 @@
 	"empty-field": "아직 이 필드를 채우지 않았습니다",
 	"profile-item-more": "더 보기",
 	"loading": "불러오는 중...",
+	"complete-your-profile": "더 나은 경험을 위해 프로필을 완성해 주세요",
+	"auth-dialog-content": "메타위키 통합 로그인 페이지로 이동합니다.",
 	"auth-dialog-button-continue": "계속",
 	"auth-dialog-button-close": "탭 닫기",
 	"navbar-link-organizations": "단체 목록",
@@ -26,6 +29,7 @@
 	"navbar-link-messages": "메시지",
 	"body-home-section01-title-carousel": "능력, 지식, 기술, 서비스",
 	"body-home-section01-title-template": "$1을(를) 교환할 수 있는 공간",
+	"body-home-section01-description": "위키미디어 운동을 위해, 그리고 위키미디어 운동에 의해 만들어진 플랫폼에서 동료들과 소통하고, 배우고, 기술을 공유하세요.",
 	"body-home-section01-about-button": "CapX 정보",
 	"body-home-main-section-carrousel-description-more-projects": "...",
 	"body-home-section01-call-to-action-button02": "계정 만들기",
