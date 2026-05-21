@@ -27,7 +27,7 @@ export default function IncompleteProfilePopup({
       continueButtonLabel={pageContent['profile-incomplete-popup-button-edit'] || 'Edit Profile'}
       closeButtonLabel={pageContent['auth-dialog-button-close'] || 'Close'}
     >
-      <p className={`text-center text-lg ${darkMode ? 'text-white' : 'text-[#053749]'}`}>
+      <p className={`text-center ${darkMode ? 'text-white' : 'text-[#053749]'}`}>
         {pageContent['profile-incomplete-popup-description'] ||
           'Your profile is missing some important information. Please add your territory, language, and known capacities to help others find you.'}
       </p>

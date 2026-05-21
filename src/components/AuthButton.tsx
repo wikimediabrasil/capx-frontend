@@ -128,10 +128,12 @@ export default function AuthButton({
           onContinue={handleAuth}
           onClose={() => setShowPopup(false)}
           image={capxPersonIcon}
-          title={pageContent['auth-dialog-content']}
+          title={message}
           closeButtonLabel={pageContent['auth-dialog-button-close']}
           continueButtonLabel={pageContent['auth-dialog-button-continue']}
-        />
+        >
+          <p className="text-center">{pageContent['auth-dialog-content']}</p>
+        </Popup>
       )}
     </div>
   );
