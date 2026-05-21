@@ -800,8 +800,8 @@ export default function EditOrganizationProfilePage() {
       type_of_location: 'virtual',
       url: '',
       image_url: '',
-      time_begin: new Date().toISOString(),
-      time_end: new Date().toISOString(),
+      time_begin: '',
+      time_end: '',
       organization: Number(organizationId),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -1234,10 +1234,11 @@ export default function EditOrganizationProfilePage() {
       />
 
       {showEventModal && editingEventRef.current && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+          {/* Blur overlay */}
           <button
             type="button"
-            className="absolute inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => {
               setShowEventModal(false);
               setCurrentEditingEvent(null);
@@ -1248,30 +1249,53 @@ export default function EditOrganizationProfilePage() {
             }
             style={{ cursor: 'pointer' }}
           />
+
+          {/* Modal container */}
           <div
-            className={`relative rounded-lg p-6 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto ${
+            className={`relative flex flex-col w-full md:w-11/12 md:max-w-2xl h-[95vh] md:h-auto md:max-h-[90vh] rounded-t-2xl md:rounded-2xl ${
               darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'
             }`}
           >
-            <button
-              onClick={() => {
-                setShowEventModal(false);
-                setCurrentEditingEvent(null);
-                editingEventRef.current = null;
-              }}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            {/* Header */}
+            <div
+              className={`flex items-center justify-between px-5 py-4 shrink-0 border-b ${
+                darkMode ? 'border-white/10' : 'border-black/5'
+              }`}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+              <h1
+                className={`text-lg font-Montserrat font-extrabold ${
+                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+                }`}
+              >
+                {editingEventRef.current?.id === 0
+                  ? pageContent['organization-profile-new-event'] || 'New event'
+                  : pageContent['organization-profile-edit-event'] || 'Edit event'}
+              </h1>
+              <button
+                onClick={() => {
+                  setShowEventModal(false);
+                  setCurrentEditingEvent(null);
+                  editingEventRef.current = null;
+                }}
+                className={`p-1.5 rounded-full transition-colors ${
+                  darkMode
+                    ? 'text-white/60 hover:text-white hover:bg-white/10'
+                    : 'text-capx-dark-box-bg/40 hover:text-capx-dark-box-bg hover:bg-black/5'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
 
-            <div className="mb-6">
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-5 py-5">
               <EventsForm
                 key={`${editingEventRef.current.id}-${editingEventRef.current.organization}`}
                 eventData={editingEventRef.current}
@@ -1286,24 +1310,29 @@ export default function EditOrganizationProfilePage() {
               />
             </div>
 
-            <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+            {/* Footer with buttons */}
+            <div
+              className={`flex justify-end gap-3 px-5 py-4 shrink-0 border-t ${
+                darkMode ? 'border-white/10' : 'border-black/5'
+              }`}
+            >
               <button
                 onClick={() => {
                   setShowEventModal(false);
                   setCurrentEditingEvent(null);
                   editingEventRef.current = null;
                 }}
-                className={`px-4 py-2 font-extrabold rounded-md border border-gray-300 hover:border-gray-400 ${
+                className={`px-5 py-2.5 font-bold text-sm rounded-lg border transition-colors duration-150 ${
                   darkMode
-                    ? 'bg-capx-dark-box-bg text-white hover:text-black hover:bg-white'
-                    : 'bg-white border-capx-dark-box-bg text-capx-dark-box-bg hover:text-capx-dark-box-bg'
+                    ? 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                    : 'bg-white border-capx-dark-box-bg/20 text-capx-dark-box-bg hover:border-capx-dark-box-bg/40'
                 }`}
               >
                 {pageContent['organization-profile-event-popup-cancel'] || 'Cancel'}
               </button>
               <button
                 onClick={handleSaveEventChanges}
-                className="px-4 py-2 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-extrabold rounded-md"
+                className="px-5 py-2.5 bg-capx-secondary-purple text-white hover:bg-capx-primary-green hover:text-black font-bold text-sm rounded-lg transition-colors duration-150"
               >
                 {editingEventRef.current?.id === 0
                   ? pageContent['organization-profile-event-popup-create-event'] || 'Create event'

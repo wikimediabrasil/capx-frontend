@@ -17,9 +17,9 @@ export async function GET(request: NextRequest) {
   // Parâmetros específicos para garantir que estejam sendo enviados
   const limit = searchParams.get('limit');
   const offset = searchParams.get('offset');
-  const capacities = searchParams.get('capacities');
+  const related_skills = searchParams.get('related_skills');
   const territories = searchParams.get('territories');
-  const location_type = searchParams.get('location_type');
+  const type_of_location = searchParams.get('type_of_location');
   const start_date = searchParams.get('start_date');
   const end_date = searchParams.get('end_date');
   const organization_id = searchParams.get('organization_id');
@@ -27,10 +27,10 @@ export async function GET(request: NextRequest) {
   // Garantir que todos os parâmetros estejam incluídos
   if (limit) params.limit = limit;
   if (offset) params.offset = offset;
-  if (capacities) params.capacities = capacities;
+  if (related_skills) params.related_skills = related_skills;
   if (territories) params.territories = territories;
-  if (location_type) {
-    params.location_type = location_type;
+  if (type_of_location) {
+    params.type_of_location = type_of_location;
   }
   if (start_date) params.start_date = start_date;
   if (end_date) params.end_date = end_date;

@@ -96,107 +96,16 @@ export function useEvents(
   filters?: EventFilterState
 ) {
   const [events, setEvents] = useState<Event[]>([]);
-  const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const filterEventsLocally = (eventsToFilter: Event[], currentFilters?: EventFilterState) => {
-    if (!currentFilters) return eventsToFilter;
+  // Stable string dep for capacities array to avoid refetching on reference changes
+  const capacitiesDep = filters?.capacities?.map(c => c.code).join(',') ?? '';
 
-    const frontendToBackendLocationMap = {
-      [EventLocationType.Online]: 'virtual',
-      [EventLocationType.InPerson]: 'in_person',
-      [EventLocationType.Hybrid]: 'hybrid',
-      [EventLocationType.All]: 'all',
-    };
-
-    // Filter events based on all criteria
-    return eventsToFilter.filter(event => {
-      // 1. Capacities filter
-      let passedCapacitiesFilter = true;
-      if (currentFilters.capacities && currentFilters.capacities.length > 0) {
-        // If the event doesn't have related_skills, fail the filter
-        if (
-          !event.related_skills ||
-          !Array.isArray(event.related_skills) ||
-          event.related_skills.length === 0
-        ) {
-          passedCapacitiesFilter = false;
-        } else {
-          // Extract capacity codes from the filter and ensure they are numbers
-          const filterCapacityCodes = currentFilters.capacities.map(cap => Number(cap.code));
-
-          // Ensure the event's related_skills are numbers
-          const eventSkillCodes = event.related_skills.map(skill =>
-            typeof skill === 'number' ? skill : Number(skill)
-          );
-
-          // Check intersection between event capacities and filter capacities
-          const eventHasMatchingCapacity = filterCapacityCodes.some(code =>
-            eventSkillCodes.includes(code)
-          );
-
-          passedCapacitiesFilter = eventHasMatchingCapacity;
-        }
-      }
-
-      // 2. Location type filter
-      let passedLocationFilter = true;
-      if (currentFilters.locationType && currentFilters.locationType !== EventLocationType.All) {
-        // Get the value that the backend uses for this filter
-        const expectedLocationValue = frontendToBackendLocationMap[currentFilters.locationType];
-
-        // Handle special cases for 'hybrid' and 'in_person'
-        if (currentFilters.locationType === EventLocationType.InPerson) {
-          // For InPerson filter, ensure it's ONLY in_person (not hybrid)
-          passedLocationFilter = event.type_of_location === 'in_person';
-        } else if (currentFilters.locationType === EventLocationType.Hybrid) {
-          // For Hybrid filter, ensure it's ONLY hybrid
-          passedLocationFilter = event.type_of_location === 'hybrid';
-        } else {
-          // For other types (like Online/virtual), use normal equality check
-          passedLocationFilter = event.type_of_location === expectedLocationValue;
-        }
-      }
-
-      // 3. Organization filter
-      let passedOrganizationFilter = true;
-      if (currentFilters.organizationId) {
-        passedOrganizationFilter = event.organization === currentFilters.organizationId;
-      }
-
-      // 4. Date filter
-      let passedDateFilter = true;
-      if (currentFilters.dateRange) {
-        const eventDate = new Date(event.time_begin);
-
-        // Filter by start date
-        if (currentFilters.dateRange.startDate) {
-          const startDate = new Date(currentFilters.dateRange.startDate);
-          if (eventDate < startDate) {
-            passedDateFilter = false;
-          }
-        }
-
-        // Filter by end date
-        if (currentFilters.dateRange.endDate) {
-          const endDate = new Date(currentFilters.dateRange.endDate);
-          endDate.setHours(23, 59, 59); // End of day
-          if (eventDate > endDate) {
-            passedDateFilter = false;
-          }
-        }
-      }
-
-      return (
-        passedCapacitiesFilter &&
-        passedLocationFilter &&
-        passedOrganizationFilter &&
-        passedDateFilter
-      );
-    });
-  };
+  const hasClientFilters =
+    (filters?.capacities && filters.capacities.length > 0) ||
+    (filters?.locationType && filters.locationType !== EventLocationType.All);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -204,27 +113,46 @@ export function useEvents(
       setError(null);
 
       try {
-        // Fetch ALL events without limit/offset to ensure we have the complete set for filtering
-        // We'll handle pagination after filtering
-        const response = await eventsService.getEvents(undefined, undefined, filters);
-        const eventsData = Array.isArray(response) ? response : response.results || [];
+        // When client-side filters are active, fetch all events so we can filter properly
+        const fetchLimit = hasClientFilters ? undefined : limit;
+        const fetchOffset = hasClientFilters ? undefined : offset;
 
-        // Store all unfiltered events
-        setAllEvents(eventsData);
+        const response = await eventsService.getEvents(fetchLimit, fetchOffset, filters);
+        let eventsData = Array.isArray(response) ? response : response.results || [];
 
-        // Apply all filters locally
-        const filteredEvents = filterEventsLocally(eventsData, filters);
-
-        // Update count based on filtered events
-        setCount(filteredEvents.length);
-
-        // Apply pagination after filtering - only needed when limit and offset are provided
-        if (limit !== undefined && offset !== undefined) {
-          const paginatedEvents = filteredEvents.slice(offset, offset + limit);
-          setEvents(paginatedEvents);
-        } else {
-          setEvents(filteredEvents);
+        // Apply client-side filtering
+        if (filters?.locationType && filters.locationType !== EventLocationType.All) {
+          const locationMap: Record<string, string> = {
+            [EventLocationType.Online]: 'virtual',
+            [EventLocationType.InPerson]: 'in_person',
+            [EventLocationType.Hybrid]: 'hybrid',
+          };
+          const targetLocation = locationMap[filters.locationType];
+          if (targetLocation) {
+            eventsData = eventsData.filter(
+              (event: Event) => event.type_of_location === targetLocation
+            );
+          }
         }
+
+        if (filters?.capacities && filters.capacities.length > 0) {
+          const capacityCodes = filters.capacities.map(c => c.code);
+          eventsData = eventsData.filter(
+            (event: Event) =>
+              event.related_skills &&
+              event.related_skills.some(skillId => capacityCodes.includes(skillId))
+          );
+        }
+
+        const totalCount = eventsData.length;
+
+        // Apply client-side pagination when we fetched all events
+        if (hasClientFilters && limit !== undefined && offset !== undefined) {
+          eventsData = eventsData.slice(offset, offset + limit);
+        }
+
+        setEvents(eventsData);
+        setCount(totalCount);
       } catch (err) {
         console.error('Error fetching events:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch events'));
@@ -240,34 +168,13 @@ export function useEvents(
     token,
     limit,
     offset,
-    // Refetch when these filters change
     filters?.locationType,
-    filters?.capacities,
+    capacitiesDep,
     filters?.organizationId,
     filters?.dateRange?.startDate,
     filters?.dateRange?.endDate,
+    hasClientFilters,
   ]);
-
-  // Re-apply filters locally when filters change
-  useEffect(() => {
-    if (allEvents.length > 0 && filters) {
-      try {
-        const filteredEvents = filterEventsLocally(allEvents, filters);
-        setCount(filteredEvents.length);
-
-        // Apply pagination locally
-        if (limit !== undefined && offset !== undefined) {
-          const paginatedEvents = filteredEvents.slice(offset, offset + limit);
-          setEvents(paginatedEvents);
-        } else {
-          setEvents(filteredEvents);
-        }
-      } catch (err) {
-        console.error('Error applying filters:', err);
-        setError(err instanceof Error ? err : new Error('Error filtering events'));
-      }
-    }
-  }, [filters, allEvents, limit, offset]);
 
   const fetchEventsByIds = async (eventIds: number[]) => {
     if (!token || !eventIds.length) {

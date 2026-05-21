@@ -85,7 +85,7 @@ export const createMockEventData = (overrides?: any) => ({
   url: 'https://meta.wikimedia.org/wiki/Wikimania_2025',
   time_begin: '2025-07-19T00:00:00.000Z',
   time_end: '2025-07-21T23:59:59.000Z',
-  type_of_location: 'in-person',
+  type_of_location: 'in_person',
   ...overrides,
 });
 

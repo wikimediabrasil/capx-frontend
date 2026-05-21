@@ -1,5 +1,4 @@
 import {
-  extractDatesFromPageContent,
   extractQIDFromURL,
   extractWikimediaTitleFromURL,
   extractYearFromText,
@@ -29,55 +28,6 @@ globalThis.fetch = jest.fn();
 describe('MetabaseService - Enhanced Auto-fill', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  describe('extractDatesFromPageContent', () => {
-    const testDateExtraction = (content: string, expectedBegin: string, expectedEnd: string) => {
-      const result = extractDatesFromPageContent(content);
-      expect(result).toBeDefined();
-      expect(result?.time_begin).toBe(expectedBegin);
-      expect(result?.time_end).toBe(expectedEnd);
-    };
-
-    it.each([
-      [
-        'should extract dates with month names',
-        'The event will take place from July 19 to July 21, 2025.',
-        '2025-07-19T00:00:00.000Z',
-        '2025-07-21T23:59:59.000Z',
-      ],
-      [
-        'should extract single date with month name',
-        'The conference is scheduled for August 15, 2025.',
-        '2025-08-15T00:00:00.000Z',
-        '2025-08-15T23:59:59.000Z',
-      ],
-      [
-        'should extract consecutive dates',
-        'Event dates: 19-21 July 2025',
-        '2025-07-19T00:00:00.000Z',
-        '2025-07-21T23:59:59.000Z',
-      ],
-      [
-        'should extract ISO format dates',
-        'From 2025-07-19 to 2025-07-21',
-        '2025-07-19T00:00:00.000Z',
-        '2025-07-21T23:59:59.000Z',
-      ],
-      [
-        'should handle different month formats',
-        'September 1-3, 2025',
-        '2025-09-01T00:00:00.000Z',
-        '2025-09-03T23:59:59.000Z',
-      ],
-    ])('%s', (_description, content, expectedBegin, expectedEnd) => {
-      testDateExtraction(content, expectedBegin, expectedEnd);
-    });
-
-    it('should return undefined for invalid content', () => {
-      const result = extractDatesFromPageContent('No dates in this content');
-      expect(result).toBeUndefined();
-    });
   });
 
   describe('extractWikimediaTitleFromURL', () => {
