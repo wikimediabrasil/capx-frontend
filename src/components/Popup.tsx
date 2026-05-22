@@ -33,7 +33,7 @@ const Popup = ({
   titleClassName,
   closeButtonClassName,
   footerClassName,
-  minHeight = 'min-h-[300px] md:min-h-[400px]',
+  minHeight = 'min-h-0 md:min-h-[400px]',
   contentScrollable = false,
 }: PopupProps) => {
   const darkMode = useDarkMode();
@@ -86,6 +86,23 @@ const Popup = ({
     };
   }, [isOpen]);
 
+  const defaultCloseButtonClass = `
+    bg-capx-light-bg hover:bg-capx-primary-green
+    border-capx-dark-box-bg border-2
+    text-capx-dark-box-bg font-extrabold rounded-lg
+    text-sm md:text-lg
+    py-2.5 px-4 md:py-3 md:px-6
+    w-full md:w-auto md:min-w-[150px] md:flex-none
+  `;
+
+  const defaultContinueButtonClass = `
+    bg-capx-secondary-purple hover:bg-capx-primary-green
+    text-white hover:text-capx-dark-bg font-extrabold rounded-lg
+    text-sm md:text-lg
+    py-2.5 px-4 md:py-3 md:px-6
+    w-full md:w-auto md:min-w-[150px] md:flex-none
+  `;
+
   return (
     <div className={customClass}>
       {isOpen && (
@@ -98,91 +115,74 @@ const Popup = ({
             border-0 p-0 backdrop:bg-black backdrop:bg-opacity-50`}
           aria-modal="true"
           aria-labelledby="popup-title"
-          aria-describedby="popup-content"
+          aria-describedby={children ? 'popup-content' : undefined}
           onClose={onCloseTab}
         >
           <div
-            className={`flex flex-col h-full p-4 md:p-10 min-h-0 box-border ${contentScrollable ? 'max-h-[90vh]' : ''}`}
+            className="flex flex-col h-full max-h-[90vh] md:max-h-[95vh] min-h-0 box-border"
             style={{ maxWidth: '100%', overflowX: 'hidden' }}
           >
-            {/* Header */}
-            <div className="flex-none">
-              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-                {image && (
-                  <div className="md:w-1/2 flex justify-center items-center flex-shrink-0">
-                    <Image
-                      src={image}
-                      alt={pageContent['alt-illustration'] || 'Popup illustration'}
-                      className={`${imageSize} h-auto max-h-[150px] md:max-h-none object-contain`}
-                      priority
-                    />
+            {/* Scrollable header + content */}
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 pt-4 md:px-10 md:pt-10">
+              <div className="flex flex-col gap-3 md:gap-6">
+                {/* Header */}
+                <div className="shrink-0">
+                  <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+                    {image && (
+                      <div className="md:w-1/2 flex justify-center items-center flex-shrink-0">
+                        <Image
+                          src={image}
+                          alt={pageContent['alt-illustration'] || 'Popup illustration'}
+                          className={`${imageSize} h-auto max-h-[150px] md:max-h-none object-contain`}
+                          priority
+                        />
+                      </div>
+                    )}
+                    <div
+                      className={`${image ? 'md:w-1/2' : 'w-full'} flex items-center justify-center`}
+                    >
+                      <h2
+                        id="popup-title"
+                        className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-snug pb-1 text-center ${
+                          darkMode ? 'text-white' : 'text-[#053749]'
+                        } ${titleClassName || ''}`}
+                      >
+                        {title}
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                {children && (
+                  <div
+                    id="popup-content"
+                    className={`w-full max-w-full text-center text-base md:text-lg shrink-0 ${
+                      darkMode ? 'text-white' : 'text-[#053749]'
+                    }`}
+                    style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                  >
+                    {children}
                   </div>
                 )}
-                <div
-                  className={`${image ? 'md:w-1/2' : 'w-full'} flex items-center justify-center`}
-                >
-                  <h2
-                    id="popup-title"
-                    className={`text-xl md:text-3xl xl:text-4xl font-extrabold font-[Montserrat] leading-normal text-center ${
-                      darkMode ? 'text-white' : 'text-[#053749]'
-                    } ${titleClassName || ''}`}
-                  >
-                    {title}
-                  </h2>
-                </div>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div
-              className={`flex-grow min-h-0 ${contentScrollable ? 'overflow-y-auto custom-scrollbar' : 'flex items-center justify-center'} ${
-                children ? 'my-2 md:my-6' : 'my-2'
-              }`}
-            >
-              <div
-                id="popup-content"
-                className={`w-full max-w-full text-center text-base md:text-lg ${
-                  darkMode ? 'text-white' : 'text-[#053749]'
-                }`}
-                style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}
-              >
-                {children}
               </div>
             </div>
 
             {/* Footer */}
-            <div className="flex-none w-full max-w-full box-border overflow-hidden">
+            <div className="flex-none w-full max-w-full box-border px-4 pb-4 pt-3 md:px-10 md:pb-10 md:pt-4">
               <div
-                className={`flex flex-row justify-center md:justify-start gap-2 md:gap-4 w-full max-w-full ${footerClassName || ''}`}
+                className={`flex flex-col md:flex-row justify-center md:justify-start gap-3 md:gap-4 w-full max-w-full ${footerClassName || ''}`}
               >
                 {closeButtonLabel && (
                   <BaseButton
-                    customClass={
-                      closeButtonClassName ||
-                      `
-                        bg-capx-light-bg hover:bg-capx-primary-green
-                        border-capx-dark-box-bg border-2
-                        text-capx-dark-box-bg font-extrabold rounded-lg
-                        text-xs md:text-lg
-                        py-2 px-2 md:py-3 md:px-6
-                        min-w-0 flex-1 md:min-w-[150px] md:flex-none
-                        shrink
-                      `
-                    }
+                    customClass={closeButtonClassName || defaultCloseButtonClass}
                     label={closeButtonLabel}
                     onClick={onCloseTab}
                   />
                 )}
                 {continueButtonLabel && (
                   <BaseButton
-                    customClass={`
-                        bg-capx-secondary-purple hover:bg-capx-primary-green
-                        text-white hover:text-capx-dark-bg font-extrabold rounded-lg
-                        text-xs md:text-lg
-                        py-2 px-2 md:py-3 md:px-6
-                        min-w-0 flex-1 md:min-w-[150px] md:flex-none
-                        shrink
-                      `}
+                    customClass={defaultContinueButtonClass}
                     label={continueButtonLabel}
                     onClick={onContinue ?? noop}
                   />
