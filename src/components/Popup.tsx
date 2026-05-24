@@ -34,7 +34,7 @@ const Popup = ({
   closeButtonClassName,
   footerClassName,
   minHeight = 'min-h-0 md:min-h-[400px]',
-  contentScrollable = false,
+  contentScrollable: _contentScrollable = false,
 }: PopupProps) => {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();

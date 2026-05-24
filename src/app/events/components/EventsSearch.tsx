@@ -62,13 +62,8 @@ export function EventsSearch({
   const pageContent = usePageContent();
   const darkMode = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    events,
-    isLoading: isEventsLoading,
-    error: _eventsError,
-  } = useEvents(session?.user?.token, 100, 0, organizationId);
+  const { events, error: _eventsError } = useEvents(session?.user?.token, 100, 0, organizationId);
 
   const lastSearchRef = useRef<string>('');
 
@@ -94,7 +89,6 @@ export function EventsSearch({
         return;
       }
 
-      setIsLoading(true);
       onSearchStart?.();
 
       try {
@@ -118,7 +112,6 @@ export function EventsSearch({
         console.error('Error:', error);
         onSearchResults?.([]);
       } finally {
-        setIsLoading(false);
         onSearchEnd?.();
       }
     },

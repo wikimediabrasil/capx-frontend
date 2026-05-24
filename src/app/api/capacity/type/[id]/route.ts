@@ -1,6 +1,10 @@
 export const dynamic = 'force-dynamic';
 
-import { fetchCapacitiesWithFallback, fetchWikidata } from '@/lib/utils/capacitiesUtils';
+import {
+  fetchCapacitiesWithFallback,
+  fetchWikidata,
+  sanitizeCapacityName,
+} from '@/lib/utils/capacitiesUtils';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -81,7 +85,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       const wikidataMatch = wikidataResults.find(item => item?.wd_code === code.wd_code);
 
       // Priority: Metabase name > Wikidata name > original name
-      const finalName = metabaseMatch?.name || wikidataMatch?.name || code.name;
+      const rawFinalName = metabaseMatch?.name || wikidataMatch?.name || code.name;
+      const finalName = sanitizeCapacityName(rawFinalName, code.code);
 
       finalResponse[code.code] = {
         name: finalName,
