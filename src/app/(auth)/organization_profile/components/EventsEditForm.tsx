@@ -105,7 +105,7 @@ OrganizationLoader.displayName = 'OrganizationLoader';
 
 // Memoize the EventsForm component to avoid unnecessary renders
 const EventsForm = memo(
-  ({ eventData, index, onChange, eventType }: EventFormItemProps) => {
+  ({ eventData, index, onChange, eventType: _eventType }: EventFormItemProps) => {
     const darkMode = useDarkMode();
     const isMobile = useIsMobile();
     const pageContent = usePageContent();

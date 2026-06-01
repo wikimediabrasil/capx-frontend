@@ -53,7 +53,7 @@ const ChildCapacities = ({
   const { data: rootCapacities = [] } = useRootCapacities(language);
   const isMobile = useIsMobile();
 
-  const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityStore();
+  const { getName, getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityStore();
 
   if (isLoadingChildren) {
     return <LoadingState />;
@@ -133,7 +133,7 @@ const ChildCapacities = ({
         >
           <CapacityCard
             code={child.code}
-            name={child.name}
+            name={getName(child.code) || child.name}
             icon={child.icon}
             color={child.color}
             isExpanded={!!expandedCapacities[child.code]}
