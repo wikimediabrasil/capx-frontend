@@ -57,3 +57,11 @@ export function getCurrentAppUrl(): string {
       );
   }
 }
+
+/** Base URL for same-origin API routes (avoids env mismatch on client). */
+export function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return getCurrentAppUrl();
+}

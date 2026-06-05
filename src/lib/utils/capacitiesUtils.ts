@@ -5,11 +5,10 @@ import CommunityIcon from '@/public/static/images/communities.svg';
 import OrganizationalIcon from '@/public/static/images/corporate_fare.svg';
 import LearningIcon from '@/public/static/images/local_library.svg';
 import TechnologyIcon from '@/public/static/images/wifi_tethering.svg';
-import { WIKIMEDIA_USER_AGENT } from '@/constants/wikimedia';
 import { Capacity } from '@/types/capacity';
 import axios from 'axios';
 import { Dispatch, SetStateAction } from 'react';
-import { getCurrentAppUrl } from './environment';
+import { getApiBaseUrl } from './environment';
 
 /**
  * Consolidated utility functions for handling capacity operations
@@ -30,6 +29,12 @@ const colorMap: Record<string, string> = {
   social: '#D35400',
   strategic: '#3498DB',
   technology: '#27AE60',
+};
+
+export const isInvalidCapacityLabel = (name: string | undefined): boolean => {
+  if (!name || !name.trim()) return true;
+  const n = name.trim();
+  return n.startsWith('http') || n.includes('entity/') || /^Q\d+$/i.test(n);
 };
 
 const filterMap: Record<string, string> = {
@@ -98,26 +103,31 @@ export const fetchCapacitiesWithFallback = async (
             const wikidataMatch = wikidataResults.find(wd => wd.wd_code === metabaseResult.wd_code);
 
             if (wikidataMatch && wikidataMatch.description) {
+              const resolvedName = isInvalidCapacityLabel(metabaseResult.name)
+                ? isInvalidCapacityLabel(wikidataMatch.name)
+                  ? sanitizeCapacityName(
+                      metabaseResult.name,
+                      metabaseResult.code ?? metabaseResult.wd_code
+                    )
+                  : wikidataMatch.name
+                : metabaseResult.name;
               return {
-                ...metabaseResult, // Keep metabase_code and other Metabase data
-                // Only use Wikidata description if Metabase description is empty
+                ...metabaseResult,
                 description: wikidataMatch.description,
-                // Keep Metabase name unless it's empty
-                name: metabaseResult.name || wikidataMatch.name,
+                name: resolvedName,
               };
             }
 
-            return metabaseResult; // No Wikidata match or description, use Metabase as-is
+            return metabaseResult;
           });
 
-          return mergedResults;
+          return applyWikidataNameFallback(mergedResults, language);
         } catch {
-          // If Wikidata fails, just use Metabase results as-is
+          // If Wikidata fails, continue with name fallback below
         }
       }
 
-      // All descriptions are present in Metabase results, return them
-      return metabaseResults;
+      return applyWikidataNameFallback(metabaseResults, language);
     }
 
     // Step 3: If no results from Metabase, try Wikidata as final fallback
@@ -213,6 +223,54 @@ export const toggleChildCapacities = async (
   setExpandedCapacities(prev => ({ ...prev, [parentCode]: true }));
 };
 
+/** Fetches human-readable labels via Wikidata Action API (reliable when SPARQL returns entity URIs). */
+export const fetchWikidataLabelsViaApi = async (
+  codes: Array<{ code?: number; wd_code: string }>,
+  language: string
+): Promise<Array<{ wd_code: string; name: string; code?: number; description: string }>> => {
+  const wdIds = codes.map(c => c.wd_code).filter(Boolean);
+  if (wdIds.length === 0) return [];
+
+  const langBase = language.split('-')[0];
+  const languageCandidates = [language, langBase, 'en'].filter(
+    (v, i, arr) => v && arr.indexOf(v) === i
+  );
+  const BATCH_SIZE = 50;
+  const results: Array<{ wd_code: string; name: string; code?: number; description: string }> = [];
+
+  const baseUrl = getApiBaseUrl();
+
+  for (let i = 0; i < wdIds.length; i += BATCH_SIZE) {
+    const batch = wdIds.slice(i, i + BATCH_SIZE);
+    let labelRows: Array<{ wd_code: string; name: string; description?: string }> = [];
+    try {
+      const response = await axios.get(`${baseUrl}/api/wikidata-labels`, {
+        params: {
+          ids: batch.join(','),
+          languages: languageCandidates.join('|'),
+        },
+      });
+      labelRows = response.data?.labels ?? [];
+    } catch {
+      // Proxy unavailable; skip batch
+    }
+
+    for (const row of labelRows) {
+      const codeEntry = codes.find(c => c.wd_code?.toUpperCase() === row.wd_code?.toUpperCase());
+      if (row.name && !isInvalidCapacityLabel(row.name)) {
+        results.push({
+          wd_code: row.wd_code,
+          name: row.name,
+          code: codeEntry?.code,
+          description: row.description || '',
+        });
+      }
+    }
+  }
+
+  return results;
+};
+
 export const fetchWikidata = async (codes: any, language: string) => {
   try {
     if (!codes || codes.length === 0 || !codes[0].wd_code) {
@@ -220,32 +278,73 @@ export const fetchWikidata = async (codes: any, language: string) => {
       return [];
     }
 
-    // Continue with Wikidata query...
     const wdCodeList = codes.map((code: any) => 'wd:' + code.wd_code);
     const queryText = `SELECT ?item ?itemLabel ?itemDescription WHERE {VALUES ?item {${wdCodeList.join(
       ' '
     )}} SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'.}}`;
 
-    const wikidataResponse = await axios.get(
-      `https://query.wikidata.org/bigdata/namespace/wdq/sparql?format=json&query=${queryText}`,
-      { headers: { 'User-Agent': WIKIMEDIA_USER_AGENT } }
-    );
+    const baseUrl = getApiBaseUrl();
+    const wikidataResponse = await axios.get(`${baseUrl}/api/wikidata-sparql`, {
+      params: { format: 'json', query: queryText },
+    });
 
-    const results = (wikidataResponse.data.results.bindings || [])
+    const sparqlResults = (wikidataResponse.data.results.bindings || [])
       .filter(
         (wdItem: any) =>
           wdItem.item && wdItem.item.value && wdItem.itemLabel && wdItem.itemLabel.value
       )
-      .map((wdItem: any) => ({
-        wd_code: wdItem.item.value.split('/').slice(-1)[0],
-        name: wdItem.itemLabel.value,
-        description: wdItem.itemDescription?.value || '',
-      }));
+      .map((wdItem: any) => {
+        const rawLabel = wdItem.itemLabel.value;
+        const wd_code = wdItem.item.value.split('/').slice(-1)[0];
+        const codeEntry = codes.find(
+          (c: { wd_code: string }) => c.wd_code?.toUpperCase() === wd_code.toUpperCase()
+        );
+        return {
+          wd_code,
+          code: codeEntry?.code,
+          name: isInvalidCapacityLabel(rawLabel) ? '' : rawLabel,
+          description: wdItem.itemDescription?.value || '',
+        };
+      });
 
-    return results;
+    const stillNeedingLabels = codes.filter((code: { wd_code: string; code?: number }) => {
+      const match = sparqlResults.find(
+        (r: { wd_code: string }) => r.wd_code?.toUpperCase() === code.wd_code?.toUpperCase()
+      );
+      return !match || isInvalidCapacityLabel(match.name);
+    });
+
+    if (stillNeedingLabels.length === 0) {
+      return sparqlResults;
+    }
+
+    const apiLabels = await fetchWikidataLabelsViaApi(stillNeedingLabels, language);
+    const mergedByWdCode = new Map<string, (typeof sparqlResults)[0]>();
+
+    sparqlResults.forEach((r: { wd_code: string }) =>
+      mergedByWdCode.set(r.wd_code.toUpperCase(), r)
+    );
+    apiLabels.forEach(apiResult => {
+      mergedByWdCode.set(apiResult.wd_code.toUpperCase(), {
+        ...mergedByWdCode.get(apiResult.wd_code.toUpperCase()),
+        wd_code: apiResult.wd_code,
+        code: apiResult.code ?? mergedByWdCode.get(apiResult.wd_code.toUpperCase())?.code,
+        name: apiResult.name,
+        description:
+          apiResult.description ||
+          mergedByWdCode.get(apiResult.wd_code.toUpperCase())?.description ||
+          '',
+      });
+    });
+
+    return Array.from(mergedByWdCode.values());
   } catch (error) {
     console.error('❌ Error in fetchWikidata:', error);
-    return [];
+    try {
+      return await fetchWikidataLabelsViaApi(codes, language);
+    } catch {
+      return [];
+    }
   }
 };
 
@@ -300,7 +399,7 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
       SERVICE wikibase:label { bd:serviceParam wikibase:language '${language},en'. }}`;
 
     // Use environment-specific URL for server-side requests
-    const baseUrl = getCurrentAppUrl();
+    const baseUrl = getApiBaseUrl();
     const response = await axios.get(`${baseUrl}/api/metabase-sparql`, {
       params: {
         format: 'json',
@@ -340,9 +439,15 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
         const isDescriptionFallback =
           language !== 'en' && (descriptionLanguage === 'en' || descriptionValue.trim() === '');
 
+        const rawLabel = mbItem.itemLabel.value;
+        const wd_code = mbItem.value.value;
+        const codeEntry = codes.find(
+          (c: { wd_code: string }) => c.wd_code?.toUpperCase() === wd_code?.toUpperCase()
+        );
         const result = {
-          wd_code: mbItem.value.value,
-          name: mbItem.itemLabel.value,
+          code: codeEntry?.code,
+          wd_code,
+          name: isInvalidCapacityLabel(rawLabel) ? '' : rawLabel,
           description: mbItem.itemDescription?.value || '',
           item: mbItem.item.value,
           metabase_code: metabaseCode,
@@ -355,8 +460,6 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
         return result;
       });
 
-    // Language fallback detection is now handled above using SPARQL response metadata
-
     return results;
   } catch {
     // Silently handle errors
@@ -366,17 +469,51 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
 };
 
 export const sanitizeCapacityName = (name: string | undefined, code: string | number): string => {
-  // Case where the name is not defined or is empty
-  if (!name || name.trim() === '') {
+  if (isInvalidCapacityLabel(name)) {
     return `Capacity ${code}`;
   }
+  return name!.trim();
+};
 
-  // Check if the name looks like a QID (common format with Q followed by numbers)
-  if (name.startsWith('Q') && /^Q\d+$/.test(name)) {
-    return `Capacity ${code}`;
+/** Replaces Metabase URI/QID labels with Wikidata labels when available. */
+export const applyWikidataNameFallback = async (
+  results: Array<{ wd_code: string; name: string; code?: number; [key: string]: unknown }>,
+  language: string
+) => {
+  const needingNames = results.filter(r => isInvalidCapacityLabel(r.name));
+  if (needingNames.length === 0) {
+    return results;
   }
 
-  return name;
+  try {
+    const codes = needingNames.map(r => ({ code: r.code, wd_code: r.wd_code }));
+
+    // Prefer Action API proxy (reliable labels); SPARQL often returns entity URIs
+    const apiLabels = await fetchWikidataLabelsViaApi(codes, language);
+
+    return results.map(r => {
+      if (!isInvalidCapacityLabel(r.name)) {
+        return r;
+      }
+
+      const apiMatch = apiLabels.find(a => a.wd_code?.toUpperCase() === r.wd_code?.toUpperCase());
+      if (apiMatch && !isInvalidCapacityLabel(apiMatch.name)) {
+        return { ...r, name: apiMatch.name, code: r.code ?? apiMatch.code };
+      }
+
+      return {
+        ...r,
+        name: sanitizeCapacityName(r.name, r.code ?? 0),
+        code: r.code,
+      };
+    });
+  } catch {
+    return results.map(r =>
+      isInvalidCapacityLabel(r.name)
+        ? { ...r, name: sanitizeCapacityName(r.name, r.code ?? r.wd_code) }
+        : r
+    );
+  }
 };
 
 // =============================================================================
