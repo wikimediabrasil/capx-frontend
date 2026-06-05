@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TranslationBanner from './TranslationBanner';
+import TranslationPageSkeleton from '@/components/skeletons/TranslationPageSkeleton';
 
 const OAUTH_POLL_INTERVAL_MS = 2500;
 const OAUTH_TIMEOUT_MS = 90_000;
@@ -310,6 +311,10 @@ export default function TranslationWorkspace() {
   // ------------------------------------------------------------------
   // Render helpers
   // ------------------------------------------------------------------
+  if (oauthLoading || listLoading) {
+    return <TranslationPageSkeleton />;
+  }
+
   const bg = darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-capx-light-bg text-gray-900';
   const cardBg = darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
   const inputBase = darkMode
@@ -550,14 +555,7 @@ export default function TranslationWorkspace() {
         </div>
 
         {/* List */}
-        {listLoading ? (
-          <div className="flex justify-center py-16">
-            <div
-              className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-[#851970]"
-              aria-label="Loading"
-            />
-          </div>
-        ) : listError ? (
+        {listError ? (
           <div className="text-center py-12 text-red-600">
             <p>{listError}</p>
             <button
