@@ -1,10 +1,9 @@
 'use client';
 
-import { useDarkMode, useIsMobile } from '@/stores';
+import { useIsMobile } from '@/stores';
 import SkeletonBase from './SkeletonBase';
 
 export default function ProfileHeaderSkeleton() {
-  const darkMode = useDarkMode();
   const isMobile = useIsMobile();
 
   if (isMobile) {

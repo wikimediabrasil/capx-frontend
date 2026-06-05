@@ -1,12 +1,9 @@
 'use client';
 
-import { useDarkMode } from '@/stores';
 import SkeletonBase from './SkeletonBase';
 import ProfileCardSkeleton from './ProfileCardSkeleton';
 
 export default function FeedPageSkeleton() {
-  const darkMode = useDarkMode();
-
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Search bar */}
