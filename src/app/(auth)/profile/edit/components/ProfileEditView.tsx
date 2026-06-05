@@ -1,10 +1,8 @@
 'use client';
 
-import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
 import BadgeSelectionModal from '@/components/BadgeSelectionModal';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
-import Popup from '@/components/Popup';
 import { useBadgesStore } from '@/stores';
 import {
   addAffiliationToFormData,
@@ -24,7 +22,6 @@ import TargetIconWhite from '@/public/static/images/target_white.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 
-import { Capacity } from '@/types/capacity';
 import { Profile } from '@/types/profile';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -52,11 +49,6 @@ interface ProfileEditViewProps {
   readonly setShowAvatarPopup: (show: boolean) => void;
   readonly handleWikidataClick: (newWikidataSelected: boolean) => void;
   readonly isWikidataSelected: boolean;
-  readonly showCapacityModal: boolean;
-  readonly setShowCapacityModal: (show: boolean) => void;
-  readonly handleCapacitySelect: (capacities: Capacity[]) => void;
-  readonly selectedCapacityType: 'known' | 'available' | 'wanted';
-  readonly handleAddCapacity: (type: 'known' | 'available' | 'wanted') => void;
   readonly handleRemoveCapacity: (type: 'known' | 'available' | 'wanted', index: number) => void;
   readonly handleRemoveLanguage: (index: number) => void;
   readonly getCapacityName: (id: number) => string;
@@ -87,11 +79,6 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     setShowAvatarPopup,
     handleWikidataClick,
     isWikidataSelected,
-    showCapacityModal,
-    setShowCapacityModal,
-    handleCapacitySelect,
-    selectedCapacityType,
-    handleAddCapacity,
     handleRemoveCapacity,
     handleRemoveLanguage,
     getCapacityName,
@@ -109,6 +96,17 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     isImageLoading,
     hasLetsConnectAccount,
   } = props;
+
+  const handleDirectCapacityAdd = (
+    type: 'known' | 'available' | 'wanted',
+    capacity: { code: number; name: string }
+  ) => {
+    const key = `skills_${type}` as 'skills_known' | 'skills_available' | 'skills_wanted';
+    const current = (formData[key] as number[]) || [];
+    if (!current.includes(capacity.code)) {
+      setFormData({ ...formData, [key]: [...current, capacity.code] });
+    }
+  };
 
   const router = useRouter();
   const { data: session } = useSession();
@@ -260,7 +258,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 capacities={formData?.skills_known || []}
                 getCapacityName={getCapacityName}
                 onRemove={handleRemoveCapacity}
-                onAdd={handleAddCapacity}
+                onSelectCapacity={capacity => handleDirectCapacityAdd('known', capacity)}
                 helpText={pageContent['edit-profile-select-skills']}
               />
 
@@ -273,7 +271,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 capacities={formData?.skills_available || []}
                 getCapacityName={getCapacityName}
                 onRemove={handleRemoveCapacity}
-                onAdd={handleAddCapacity}
+                onSelectCapacity={capacity => handleDirectCapacityAdd('available', capacity)}
                 helpText={
                   isMobile
                     ? 'From your known capacities, choose those you are available to share.'
@@ -292,7 +290,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 capacities={formData?.skills_wanted || []}
                 getCapacityName={getCapacityName}
                 onRemove={handleRemoveCapacity}
-                onAdd={handleAddCapacity}
+                onSelectCapacity={capacity => handleDirectCapacityAdd('wanted', capacity)}
                 helpText={pageContent['edit-profile-wanted-capacities']}
               />
 
@@ -415,27 +413,6 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
         </section>
       </div>
 
-      {showCapacityModal && (
-        <Popup
-          onClose={() => setShowCapacityModal(false)}
-          title={`Choose ${selectedCapacityType} capacity`}
-          minHeight="min-h-[200px] md:min-h-[250px]"
-          contentScrollable={true}
-        >
-          <div className="p-4">
-            <CapacitySearch
-              onSelect={capacities => {
-                handleCapacitySelect(capacities as Capacity[]);
-                setShowCapacityModal(false);
-              }}
-              selectedCapacities={[]}
-              allowMultipleSelection={true}
-              showSelectedChips={false}
-              compact={true}
-            />
-          </div>
-        </Popup>
-      )}
       {showBadgeModal && (
         <BadgeSelectionModal
           badges={completedBadges}

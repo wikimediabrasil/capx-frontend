@@ -13,7 +13,16 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(queryResponse.data);
-  } catch {
-    return NextResponse.json({ error: 'Failed to fetch user data' }, { status: 500 });
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      const { status, data } = error.response;
+      console.warn(`[api/users/${userId}] upstream`, status, data);
+      return NextResponse.json(
+        typeof data === 'object' && data !== null ? data : { error: String(data) },
+        { status }
+      );
+    }
+    console.warn(`[api/users/${userId}] proxy unreachable or misconfigured`, error);
+    return NextResponse.json({ error: 'Failed to fetch user data' }, { status: 502 });
   }
 }

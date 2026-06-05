@@ -7,13 +7,6 @@ interface EventsResponse {
   count: number;
 }
 
-const locationTypeToAPIMapping: Record<string, string> = {
-  [EventLocationType.Online]: 'virtual',
-  [EventLocationType.InPerson]: 'in_person',
-  [EventLocationType.Hybrid]: 'hybrid',
-  [EventLocationType.All]: 'all',
-};
-
 export const eventsService = {
   async getEvents(
     limit?: number,
@@ -32,7 +25,7 @@ export const eventsService = {
       if (filters.capacities && filters.capacities.length > 0) {
         // Convert codes to string for the API
         const capacityCodes = filters.capacities.map(cap => cap.code.toString()).join(',');
-        params.capacities = capacityCodes;
+        params.related_skills = capacityCodes;
       }
 
       // Add territories
@@ -42,19 +35,12 @@ export const eventsService = {
 
       // Add location type filter (online, physical, hybrid)
       if (filters.locationType && filters.locationType !== EventLocationType.All) {
-        // Convert frontend to API format
-        const locationValue =
-          locationTypeToAPIMapping[filters.locationType] || filters.locationType;
-
-        // For specific types, use specific values for backend
         if (filters.locationType === EventLocationType.InPerson) {
-          params.location_type = 'in_person';
+          params.type_of_location = 'in_person';
         } else if (filters.locationType === EventLocationType.Hybrid) {
-          params.location_type = 'hybrid';
+          params.type_of_location = 'hybrid';
         } else if (filters.locationType === EventLocationType.Online) {
-          params.location_type = 'virtual';
-        } else {
-          params.location_type = locationValue;
+          params.type_of_location = 'virtual';
         }
       }
 

@@ -13,13 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Filters } from './components/Filters';
 import { CapacityVisibilityControls } from './components/CapacityVisibilityControls';
 import { usePageContent } from '@/stores';
-import {
-  createProfilesFromUsers,
-  createUnifiedProfiles,
-  FilterState,
-  ProfileCapacityType,
-  Skill,
-} from './types';
+import { createUnifiedProfiles, FilterState, ProfileCapacityType, Skill } from './types';
 
 export default function FeedPage() {
   const pageContent = usePageContent();
@@ -34,18 +28,20 @@ export default function FeedPage() {
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [showWanted, setShowWanted] = useState(true);
   const [showAvailable, setShowAvailable] = useState(true);
-  const [showKnown, setShowKnown] = useState(false);
+  const [showKnown, setShowKnown] = useState(true);
 
   const [activeFilters, setActiveFilters] = useState<FilterState>({
     capacities: [] as Skill[],
     profileCapacityTypes: [
       ProfileCapacityType.Learner,
       ProfileCapacityType.Sharer,
+      ProfileCapacityType.Known,
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
     name: undefined,
     affiliations: [] as string[],
+    includeIncompleteProfiles: true,
   });
 
   // Update activeFilters with debounced search term
@@ -57,85 +53,29 @@ export default function FeedPage() {
   }, [debouncedSearchTerm]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerList = 5;
   const itemsPerPage = 10;
-  const offset = (currentPage - 1) * itemsPerList;
+  const offset = (currentPage - 1) * itemsPerPage;
 
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
 
-  const shouldFetchLearnerUsers = activeFilters.profileCapacityTypes.includes(
-    ProfileCapacityType.Learner
-  );
   const {
-    allUsers: usersLearner,
-    count: usersLearnerCount,
-    isLoading: isUsersLearnerLoading,
+    allUsers,
+    count: totalRecords,
+    isLoading: isUsersLoading,
   } = useAllUsers({
-    limit: shouldFetchLearnerUsers ? itemsPerList : 0,
-    offset: shouldFetchLearnerUsers ? offset : 0,
-    activeFilters: shouldFetchLearnerUsers
-      ? {
-          ...activeFilters,
-          profileCapacityTypes: [ProfileCapacityType.Learner],
-        }
-      : undefined,
+    limit: itemsPerPage,
+    offset,
+    activeFilters,
     ordering: '-last_update',
-  });
-
-  const shouldFetchSharerUsers = activeFilters.profileCapacityTypes.includes(
-    ProfileCapacityType.Sharer
-  );
-  const {
-    allUsers: usersSharer,
-    count: usersSharerCount,
-    isLoading: isUsersSharerLoading,
-  } = useAllUsers({
-    limit: shouldFetchSharerUsers ? itemsPerList : 0,
-    offset: shouldFetchSharerUsers ? offset : 0,
-    activeFilters: shouldFetchSharerUsers
-      ? {
-          ...activeFilters,
-          profileCapacityTypes: [ProfileCapacityType.Sharer],
-        }
-      : undefined,
-    ordering: '-last_update',
-  });
-
-  const shouldFetchKnownUsers = activeFilters.profileCapacityTypes.includes(
-    ProfileCapacityType.Known
-  );
-  const {
-    allUsers: usersKnown,
-    count: usersKnownCount,
-    isLoading: isUsersKnownLoading,
-  } = useAllUsers({
-    limit: shouldFetchKnownUsers ? itemsPerList : 0,
-    offset: shouldFetchKnownUsers ? offset : 0,
-    activeFilters: shouldFetchKnownUsers
-      ? {
-          ...activeFilters,
-          profileCapacityTypes: [ProfileCapacityType.Known],
-        }
-      : undefined,
-    ordering: '-last_update',
+    includeUsersWithoutSkills: activeFilters.includeIncompleteProfiles,
   });
 
   // Mark as loaded once data is fetched
   useEffect(() => {
-    if (!isUsersLearnerLoading && !isUsersSharerLoading && !isUsersKnownLoading) {
+    if (!isUsersLoading) {
       setHasLoadedOnce(true);
     }
-  }, [isUsersLearnerLoading, isUsersSharerLoading, isUsersKnownLoading]);
-
-  // Total of records according to the profileFilter
-  const totalRecords =
-    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Learner)
-      ? usersLearnerCount
-      : 0) +
-    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Sharer)
-      ? usersSharerCount
-      : 0) +
-    (activeFilters.profileCapacityTypes.includes(ProfileCapacityType.Known) ? usersKnownCount : 0);
+  }, [isUsersLoading]);
 
   const isProfileSaved = (profileId: number) => {
     if (!savedItems) return false;
@@ -143,57 +83,21 @@ export default function FeedPage() {
     return savedItems.some(item => item.entity_id === profileId && item.entity === 'user');
   };
 
-  // Create profiles (to create cards) from users
+  // Create profiles (to create cards) from users — includes incomplete profiles (no capacities)
   const filteredProfiles = useMemo(() => {
-    const selectedTypes = activeFilters.profileCapacityTypes;
-    const hasLearner = selectedTypes.includes(ProfileCapacityType.Learner);
-    const hasSharer = selectedTypes.includes(ProfileCapacityType.Sharer);
-    const hasKnown = selectedTypes.includes(ProfileCapacityType.Known);
-    const multipleTypesSelected = [hasLearner, hasSharer, hasKnown].filter(Boolean).length > 1;
+    if (!allUsers?.length) return [];
 
-    if (multipleTypesSelected) {
-      // When multiple types are selected, use unified profiles to avoid duplicates
-      const allUsers = [
-        ...(hasLearner ? usersLearner || [] : []),
-        ...(hasSharer ? usersSharer || [] : []),
-        ...(hasKnown ? usersKnown || [] : []),
-      ];
-      // Remove duplicates based on user ID
-      const uniqueUsers = allUsers.filter(
-        (user, index, self) => index === self.findIndex(u => u.user.id === user.user.id)
-      );
-
-      return createUnifiedProfiles(uniqueUsers)
-        .map(profile => ({
-          ...profile,
-          isSaved: isProfileSaved(profile.id),
-        }))
-        .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
-    } else {
-      // When only one type is selected, use the original logic
-      const wantedUserProfiles = hasLearner
-        ? createProfilesFromUsers(usersLearner || [], ProfileCapacityType.Learner)
-        : [];
-
-      const availableUserProfiles = hasSharer
-        ? createProfilesFromUsers(usersSharer || [], ProfileCapacityType.Sharer)
-        : [];
-
-      const knownUserProfiles = hasKnown
-        ? createProfilesFromUsers(usersKnown || [], ProfileCapacityType.Known)
-        : [];
-
-      const userProfiles = [...wantedUserProfiles, ...availableUserProfiles, ...knownUserProfiles];
-
-      return userProfiles.map(profile => ({
+    return createUnifiedProfiles(allUsers)
+      .map(profile => ({
         ...profile,
         isSaved: isProfileSaved(profile.id),
-      }));
-    }
-  }, [activeFilters, usersLearner, usersSharer, usersKnown, savedItems, isProfileSaved]);
+      }))
+      .filter(profile => activeFilters.includeIncompleteProfiles || !profile.hasIncompleteProfile)
+      .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
+  }, [allUsers, savedItems, activeFilters.includeIncompleteProfiles]);
 
   // Calculate total of pages based on total profiles
-  const numberOfPages = Math.ceil(totalRecords / itemsPerPage);
+  const numberOfPages = Math.ceil(totalRecords / itemsPerPage) || 1;
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -217,9 +121,9 @@ export default function FeedPage() {
     }
   };
 
-  const isInitialLoading =
-    !hasLoadedOnce && (isUsersLearnerLoading || isUsersSharerLoading || isUsersKnownLoading);
+  const isInitialLoading = !hasLoadedOnce && isUsersLoading;
   const isTranslationLoading = isLoadingTranslations || isLanguageChanging;
+
 
   if (isInitialLoading) {
     return (
@@ -246,9 +150,11 @@ export default function FeedPage() {
   }
 
   // Ensure save type is a single value even when the profile is multi-type
-  // To avoid errors when saving the profile
   // TODO: Fix this in the future, removing type from backend
   const resolveSaveType = (type: any) => {
+    if (type === ProfileCapacityType.Incomplete) {
+      return ProfileCapacityType.Learner;
+    }
     if (Array.isArray(type)) {
       // Prefer Sharer if present; otherwise use the first
       return type.includes(ProfileCapacityType.Sharer) ? ProfileCapacityType.Sharer : type[0];
@@ -291,9 +197,16 @@ export default function FeedPage() {
             showWanted={showWanted}
             showAvailable={showAvailable}
             showKnown={showKnown}
+            includeIncompleteProfiles={activeFilters.includeIncompleteProfiles}
             onToggleWanted={() => setShowWanted(!showWanted)}
             onToggleAvailable={() => setShowAvailable(!showAvailable)}
             onToggleKnown={() => setShowKnown(!showKnown)}
+            onToggleIncludeIncompleteProfiles={() =>
+              setActiveFilters(prev => ({
+                ...prev,
+                includeIncompleteProfiles: !prev.includeIncompleteProfiles,
+              }))
+            }
           />
 
           <ProfileListWithEmpty

@@ -1,7 +1,6 @@
 import EventsList from '@/app/events/components/EventsList';
 import BaseButton from '@/components/BaseButton';
-import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
-import Popup from '@/components/Popup';
+import { CapacityInputChip } from '@/app/(auth)/profile/edit/components/ProfileEditView/CapacityInputChip';
 import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useAvatars } from '@/hooks/useAvatars';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -50,7 +49,6 @@ import { useDarkMode, usePageContent } from '@/stores';
 export default function OrganizationProfileEditView({
   handleSubmit,
   handleRemoveCapacity,
-  handleAddCapacity,
   handleAddDocument,
   handleDeleteEvent,
   getCapacityName,
@@ -60,10 +58,6 @@ export default function OrganizationProfileEditView({
   setContactsData,
   documentsData,
   setDocumentsData: _setDocumentsData,
-  isModalOpen,
-  setIsModalOpen,
-  currentCapacityType,
-  handleCapacitySelect,
   projectsData,
   handleDeleteProject,
   handleProjectChange,
@@ -77,7 +71,6 @@ export default function OrganizationProfileEditView({
   handleAddEvent,
   handleDeleteDocument,
   handleDocumentChange,
-  capacities: _capacities,
   handleEditEvent,
   handleChooseEvent,
   handleViewAllEvents,
@@ -97,6 +90,17 @@ export default function OrganizationProfileEditView({
     avatar: userProfile?.avatar,
     wikidataQid: userProfile?.wikidata_qid,
   });
+
+  const handleDirectCapacityAdd = (
+    type: 'known' | 'available' | 'wanted',
+    capacity: { code: number; name: string }
+  ) => {
+    const field = `${type}_capacities` as keyof typeof formData;
+    const current = (formData[field] as number[]) || [];
+    if (!current.includes(capacity.code)) {
+      setFormData({ ...formData, [field]: [...current, capacity.code] });
+    }
+  };
 
   // Helper function to import known capacities to available
   const handleImportKnownCapacities = () => {
@@ -512,21 +516,17 @@ export default function OrganizationProfileEditView({
                         </div>
                       );
                     })}
+                    <CapacityInputChip
+                      type={type}
+                      onSelect={capacity => handleDirectCapacityAdd(type, capacity)}
+                      alreadySelected={capacities}
+                      paddingClassName="p-1 !pb-1 md:!p-[8px]"
+                      borderWidthClassName=""
+                    />
                   </div>
 
-                  <div className="flex flex-col md:flex-row gap-2 mt-2">
-                    <BaseButton
-                      onClick={() => handleAddCapacity(type)}
-                      label={pageContent['edit-profile-add-capacities']}
-                      customClass={`rounded-[8px] w-full md:w-fit flex px-3 py-2 md:!px-[32px] md:!py-[16px] md:!pb-[16px] items-center gap-3 text-center font-[Montserrat] text-sm md:text-[24px] not-italic font-extrabold leading-[normal] ${
-                        darkMode ? 'text-[#053749] bg-[#EFEFEF]' : 'text-white bg-capx-dark-box-bg'
-                      }`}
-                      imageUrl={darkMode ? AddIcon : AddIconWhite}
-                      imageAlt="Add icon"
-                      imageWidth={20}
-                      imageHeight={20}
-                    />
-                    {showImport && (
+                  {showImport && (
+                    <div className="flex mt-2">
                       <BaseButton
                         onClick={handleImportKnownCapacities}
                         label={
@@ -543,8 +543,8 @@ export default function OrganizationProfileEditView({
                         imageWidth={20}
                         imageHeight={20}
                       />
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <p
                     className={`text-xs md:text-[20px] md:leading-relaxed ${darkMode ? 'text-white' : 'text-[#053749]'} mt-1`}
                   >
@@ -989,30 +989,6 @@ export default function OrganizationProfileEditView({
           </div>
         </div>
       </section>
-      {isModalOpen && (
-        <Popup
-          onClose={() => setIsModalOpen(false)}
-          title={
-            pageContent['edit-profile-select-capacities']?.replace(
-              '$1',
-              pageContent[currentCapacityType]
-            ) || 'Select capacities'
-          }
-        >
-          <div className="p-4">
-            <CapacitySearch
-              onSelect={capacities => {
-                handleCapacitySelect(capacities as any);
-                setIsModalOpen(false);
-              }}
-              selectedCapacities={[]}
-              allowMultipleSelection={true}
-              showSelectedChips={false}
-              compact={true}
-            />
-          </div>
-        </Popup>
-      )}
     </div>
   );
 }
