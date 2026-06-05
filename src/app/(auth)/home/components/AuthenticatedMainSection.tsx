@@ -131,7 +131,9 @@ function FeatureSlide({
           >
             {title}
           </h2>
-          <p className={`${textClass} font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}>
+          <p
+            className={`${textClass} font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+          >
             {description}
           </p>
           <BaseButton onClick={onButtonClick} label={buttonLabel} customClass={DESKTOP_CTA_CLASS} />
@@ -279,7 +281,9 @@ export default function AuthenticatedMainSection({
           >
             {pageContent['body-home-section01-description']}
           </p>
-          <p className={`${textClass} font-[Montserrat] text-[20px] not-italic font-normal leading-[normal]`}>
+          <p
+            className={`${textClass} font-[Montserrat] text-[20px] not-italic font-normal leading-[normal]`}
+          >
             {pageContent['body-home-section01-description-unified-login-info']}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full items-start mt-[24px]">
@@ -300,7 +304,9 @@ export default function AuthenticatedMainSection({
           <Image
             priority={true}
             src={darkMode ? MainSectionIllustrationDark : MainSectionIllustration}
-            alt={pageContent['alt-illustration'] || 'Main illustration showing people collaborating'}
+            alt={
+              pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
+            }
             height={520}
             width={520}
             className="w-full h-auto"
@@ -358,7 +364,9 @@ export default function AuthenticatedMainSection({
         >
           {pageContent['home-capacity-cta-title'] || 'Three new ways to explore capacities'}
         </h2>
-        <p className={`${textClass} font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]`}>
+        <p
+          className={`${textClass} font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]`}
+        >
           {pageContent['home-capacity-cta-description'] || 'Find the view that works best for you.'}
         </p>
       </div>
@@ -381,7 +389,9 @@ export default function AuthenticatedMainSection({
                 className="w-6 h-6 flex-shrink-0"
               />
             )}
-            <span className={`${textClass} font-[Montserrat] text-[14px] font-semibold leading-tight`}>
+            <span
+              className={`${textClass} font-[Montserrat] text-[14px] font-semibold leading-tight`}
+            >
               {mode.label}
             </span>
           </div>
@@ -402,7 +412,9 @@ export default function AuthenticatedMainSection({
           >
             {pageContent['home-capacity-cta-title'] || 'Three new ways to explore capacities'}
           </h2>
-          <p className={`${textClass} font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}>
+          <p
+            className={`${textClass} font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}
+          >
             {pageContent['home-capacity-cta-description'] ||
               'Browse cards, navigate a tree structure, or explore by categories. Find the view that works best for you.'}
           </p>
@@ -568,9 +580,7 @@ export default function AuthenticatedMainSection({
       </section>
 
       {/* Slider navigation */}
-      <div
-        className={`${bgClass} flex items-center justify-center gap-4 py-4 w-full`}
-      >
+      <div className={`${bgClass} flex items-center justify-center gap-4 py-4 w-full`}>
         <button
           onClick={prevSlide}
           aria-label="Previous slide"
