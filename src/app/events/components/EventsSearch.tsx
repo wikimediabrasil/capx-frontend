@@ -64,7 +64,10 @@ export function EventsSearch({
   const darkMode = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { events, error: _eventsError } = useEvents(session?.user?.token, 100, 0, organizationId);
+  const eventsQuery = useEvents(session?.user?.token, 100, 0, organizationId);
+  const events = eventsQuery.events;
+  const isEventsLoading = eventsQuery.isLoading;
+  const _eventsError = eventsQuery.error;
 
   const lastSearchRef = useRef<string>('');
 
