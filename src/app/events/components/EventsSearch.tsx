@@ -147,7 +147,7 @@ export function EventsSearch({
         iconPosition="right"
       />
 
-      {(isLoading || isEventsLoading) && (
+      {isEventsLoading && (
         <div className="flex flex-col gap-4 mt-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <EventCardSkeleton key={i} />
