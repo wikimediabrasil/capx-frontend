@@ -1,10 +1,17 @@
 'use client';
 import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
+import { getCurrentEnvironment } from '@/lib/utils/environment';
 import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useCapacityStore } from '@/stores';
+
+const ALLOWED_REDIRECT_HOSTS = ['capx.toolforge.org', 'capx-test.toolforge.org'];
+function getAllowedHosts(): string[] {
+  const env = getCurrentEnvironment();
+  return env !== 'production' ? [...ALLOWED_REDIRECT_HOSTS, 'localhost'] : ALLOWED_REDIRECT_HOSTS;
+}
 
 function OAuthContent() {
   const router = useRouter();
@@ -21,8 +28,8 @@ function OAuthContent() {
       // Set login timestamp when authentication is successful
       localStorage.setItem('login_timestamp', Date.now().toString());
       // Clean up OAuth tokens after successful authentication
-      localStorage.removeItem('oauth_token');
-      localStorage.removeItem('oauth_token_secret');
+      sessionStorage.removeItem('oauth_token');
+      sessionStorage.removeItem('oauth_token_secret');
 
       // Prefetch capacities immediately so they're ready by the time
       // the user lands on /home (the fetch continues through client-side navigation)
@@ -46,8 +53,8 @@ function OAuthContent() {
       // Set the flag to prevent concurrent execution
       isHandlingLoginRef.current = true;
 
-      const oauth_token = localStorage.getItem('oauth_token');
-      const oauth_token_secret = localStorage.getItem('oauth_token_secret');
+      const oauth_token = sessionStorage.getItem('oauth_token');
+      const oauth_token_secret = sessionStorage.getItem('oauth_token_secret');
 
       if (!oauth_token || !oauth_token_secret) {
         throw new Error('Missing OAuth tokens');
@@ -111,12 +118,12 @@ function OAuthContent() {
             hostname += `:${document.location.port}`;
           }
 
-          if (localStorage.getItem('oauth_token') !== oauth_token_request) {
-            localStorage.setItem('oauth_token', oauth_token_request);
+          if (sessionStorage.getItem('oauth_token') !== oauth_token_request) {
+            sessionStorage.setItem('oauth_token', oauth_token_request);
             await new Promise(resolve => setTimeout(resolve, 100));
           }
 
-          const stored_secret = localStorage.getItem('oauth_token_secret');
+          const stored_secret = sessionStorage.getItem('oauth_token_secret');
           // Check the hostname and tokens before proceeding
 
           if (result.extra === hostname) {
@@ -134,6 +141,15 @@ function OAuthContent() {
               router.push('/home');
             }
           } else {
+            const allowedHosts = getAllowedHosts();
+            const isAllowed = allowedHosts.some(
+              h => result.extra === h || result.extra.startsWith(`${h}:`)
+            );
+            if (!isAllowed) {
+              console.error('Blocked redirect to untrusted host:', result.extra);
+              router.push('/');
+              return;
+            }
             let protocol = result.extra.includes('toolforge.org') ? 'https' : 'http';
             router.push(
               `${protocol}://${result.extra}/oauth?oauth_token=${oauth_token_request}&oauth_verifier=${oauth_verifier}`

@@ -12,25 +12,24 @@ const getSignOut = async (): Promise<typeof SignOutType> => {
   const { signOut } = await import('next-auth/react');
   return signOut;
 };
-// Function to check if the session has exceeded 1 week
+// Function to check if the session has exceeded 10 days
 const checkSessionExpiration = (): boolean => {
   if (typeof window === 'undefined') return false;
   const loginTimestamp = localStorage.getItem('login_timestamp');
   if (!loginTimestamp) {
-    // If there's no timestamp, consider it expired to force re-login
-    return true;
+    return false; // No timestamp; defer to JWT expiry
   }
   const loginTime = parseInt(loginTimestamp, 10);
   const currentTime = Date.now();
-  const ONE_WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
-  return currentTime - loginTime > ONE_WEEK_IN_MS;
+  const TEN_DAYS_IN_MS = 10 * 24 * 60 * 60 * 1000; // 10 days in milliseconds
+  return currentTime - loginTime > TEN_DAYS_IN_MS;
 };
 // Function to check if the token is still valid by making a test request
 const checkTokenValidity = async (token: string): Promise<boolean> => {
   try {
-    // First check if the session has expired (1 week)
+    // First check if the session has expired (10 days)
     if (checkSessionExpiration()) {
-      console.warn('Session expired: 1 week limit reached');
+      console.warn('Session expired: 10 day limit reached');
       return false;
     }
     // Make a simple request to check if the token is still valid
@@ -57,8 +56,8 @@ const checkTokenValidity = async (token: string): Promise<boolean> => {
 const checkOAuthTokensChange = (): boolean => {
   if (typeof window === 'undefined') return false;
   const currentTokens = {
-    oauth_token: localStorage.getItem('oauth_token') || '',
-    oauth_token_secret: localStorage.getItem('oauth_token_secret') || '',
+    oauth_token: sessionStorage.getItem('oauth_token') || '',
+    oauth_token_secret: sessionStorage.getItem('oauth_token_secret') || '',
   };
   // If both tokens were removed (were present and now absent)
   const werePresent = lastOAuthTokens.oauth_token || lastOAuthTokens.oauth_token_secret;
@@ -75,8 +74,8 @@ const checkOAuthTokensChange = (): boolean => {
 const initializeOAuthTokensState = () => {
   if (typeof window === 'undefined') return;
   lastOAuthTokens = {
-    oauth_token: localStorage.getItem('oauth_token') || '',
-    oauth_token_secret: localStorage.getItem('oauth_token_secret') || '',
+    oauth_token: sessionStorage.getItem('oauth_token') || '',
+    oauth_token_secret: sessionStorage.getItem('oauth_token_secret') || '',
   };
 };
 // Function to completely clear the application state
@@ -86,8 +85,8 @@ const clearApplicationState = (preserveOAuthTokens = false) => {
     if (!preserveOAuthTokens) {
       // Only remove OAuth tokens if not preserving
       // (preserves during logout to allow new login)
-      localStorage.removeItem('oauth_token');
-      localStorage.removeItem('oauth_token_secret');
+      sessionStorage.removeItem('oauth_token');
+      sessionStorage.removeItem('oauth_token_secret');
     }
     // Clear other authentication data that may exist
     localStorage.removeItem('nextauth.message');
@@ -163,9 +162,9 @@ export const startAuthMonitoring = (authState: AuthState) => {
       forceLogout('OAuth tokens removed from localStorage');
       return;
     }
-    // Check if the session has expired (1 week)
+    // Check if the session has expired (10 days)
     if (checkSessionExpiration()) {
-      forceLogout('Session expired: 1 week limit reached');
+      forceLogout('Session expired: 10 day limit reached');
     }
   }, 2000); // 2 seconds for quick detection
   // Check the validity of the token every 30 seconds
@@ -207,8 +206,8 @@ export const simulateTokenRemoval = () => {
     localStorage.removeItem('oauth_token_secret');
   }
 };
-// Add global functions for testing in the console (only in the client)
-if (typeof window !== 'undefined') {
+// Add global functions for testing in the console (only in development)
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
   (window as any).testTokenExpiration = testTokenExpiration;
   (window as any).clearAuthState = clearAuthState;
   (window as any).simulateTokenRemoval = simulateTokenRemoval;
