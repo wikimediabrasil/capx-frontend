@@ -16,7 +16,7 @@ import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import { useDarkMode, useIsMobile } from '@/stores';
 import { LanguageProficiency } from '@/types/language';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import SectionRecommendationsCarousel from './SectionRecommendationsCarousel';
@@ -65,6 +65,88 @@ function StackedCardsIcon({ className }: Readonly<{ className?: string }>) {
       <rect x="3" y="9.5" width="18" height="5" rx="1.5" fill="currentColor" />
       <rect x="3" y="16" width="18" height="5" rx="1.5" fill="currentColor" />
     </svg>
+  );
+}
+
+const MOBILE_CTA_CLASS =
+  'w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]';
+const DESKTOP_CTA_CLASS =
+  'rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] h-[64px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]';
+
+interface FeatureSlideProps {
+  title: string;
+  description: string;
+  buttonLabel: string;
+  onButtonClick: () => void;
+  visualSrc: StaticImageData;
+  visualAlt: string;
+  isMobile: boolean;
+  darkMode: boolean;
+}
+
+function FeatureSlide({
+  title,
+  description,
+  buttonLabel,
+  onButtonClick,
+  visualSrc,
+  visualAlt,
+  isMobile,
+  darkMode,
+}: Readonly<FeatureSlideProps>) {
+  const textClass = darkMode ? 'text-[#FFF]' : 'text-[#053749]';
+  const bgClass = darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg';
+
+  if (isMobile) {
+    return (
+      <section
+        className={`${bgClass} flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8`}
+      >
+        <div className="flex flex-col items-center justify-center w-full gap-6">
+          <Image src={visualSrc} alt={visualAlt} width={120} height={120} className="w-30 h-30" />
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h2
+              className={`${textClass} font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]`}
+            >
+              {title}
+            </h2>
+            <p
+              className={`${textClass} font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]`}
+            >
+              {description}
+            </p>
+          </div>
+          <BaseButton onClick={onButtonClick} label={buttonLabel} customClass={MOBILE_CTA_CLASS} />
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="flex flex-col items-center justify-center w-full mx-auto">
+      <div className="flex flex-row items-center justify-between w-full py-[128px] gap-16 max-w-screen-xl mx-auto px-8">
+        <div className="flex flex-col items-start w-full lg:w-2/3 gap-6">
+          <h2
+            className={`${textClass} font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]`}
+          >
+            {title}
+          </h2>
+          <p className={`${textClass} font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}>
+            {description}
+          </p>
+          <BaseButton onClick={onButtonClick} label={buttonLabel} customClass={DESKTOP_CTA_CLASS} />
+        </div>
+        <div className="flex items-center justify-center w-1/3">
+          <Image
+            src={visualSrc}
+            alt={visualAlt}
+            width={220}
+            height={220}
+            className="w-full max-w-[220px] h-auto"
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -136,29 +218,21 @@ export default function AuthenticatedMainSection({
     ...(profile ?? {}),
   };
 
+  const textClass = darkMode ? 'text-[#FFF]' : 'text-[#053749]';
+  const bgClass = darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg';
+
   const welcomeSlide = isMobile ? (
     <section
-      className={
-        (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-        ' flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 mt-8'
-      }
+      className={`${bgClass} flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 mt-8`}
     >
       <div className="flex flex-col md:flex-row items-center justify-between w-full pb-4 pt-8 md:pb-8 pt-16 gap-8">
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 pb-4 md:pb-0">
           <h1
-            className={
-              (darkMode ? 'text-capx-dark-text' : 'text-capx-light-text') +
-              ' text-center text-[24px] not-italic font-extrabold leading-[29px]'
-            }
+            className={`${textClass} text-center text-[24px] not-italic font-extrabold leading-[29px]`}
           >
             {pageContent['body-loggedin-home-main-section-title']}
           </h1>
-          <h2
-            className={
-              (darkMode ? 'text-capx-dark-text' : 'text-capx-light-text') +
-              ' text-[16px] not-italic font-normal leading-[20px]'
-            }
-          >
+          <h2 className={`${textClass} text-[16px] not-italic font-normal leading-[20px]`}>
             {pageContent['body-loggedin-home-main-section-description']}
           </h2>
         </div>
@@ -191,35 +265,21 @@ export default function AuthenticatedMainSection({
       <div className="flex flex-row items-center justify-between w-full pb-4 pt-8 md:pb-2 pt-4 gap-8 max-w-screen-xl mx-auto px-8">
         <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
           <h1
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[72px] not-italic font-extrabold leading-[88px]'
-            }
+            className={`${textClass} font-[Montserrat] text-[72px] not-italic font-extrabold leading-[88px]`}
           >
             {pageContent['body-loggedin-home-main-section-title']}
           </h1>
           <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
-            }
+            className={`${textClass} font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]`}
           >
             {pageContent['body-loggedin-home-main-section-description']}
           </h2>
           <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[30px] not-italic font-normal leading-[normal] my-[24px]'
-            }
+            className={`${textClass} font-[Montserrat] text-[30px] not-italic font-normal leading-[normal] my-[24px]`}
           >
             {pageContent['body-home-section01-description']}
           </p>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[20px] not-italic font-normal leading-[normal]'
-            }
-          >
+          <p className={`${textClass} font-[Montserrat] text-[20px] not-italic font-normal leading-[normal]`}>
             {pageContent['body-home-section01-description-unified-login-info']}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full items-start mt-[24px]">
@@ -240,9 +300,7 @@ export default function AuthenticatedMainSection({
           <Image
             priority={true}
             src={darkMode ? MainSectionIllustrationDark : MainSectionIllustration}
-            alt={
-              pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
-            }
+            alt={pageContent['alt-illustration'] || 'Main illustration showing people collaborating'}
             height={520}
             width={520}
             className="w-full h-auto"
@@ -252,85 +310,22 @@ export default function AuthenticatedMainSection({
     </section>
   );
 
-  const qrCodeSlide = isMobile ? (
-    <section
-      className={
-        (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-        ' flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8'
+  const qrCodeSlide = (
+    <FeatureSlide
+      title={pageContent['home-qr-cta-title'] || 'Share your CapX profile'}
+      description={
+        pageContent['home-qr-cta-description'] ||
+        (isMobile
+          ? 'Generate a QR code from your profile and share it anywhere.'
+          : 'Generate a QR code from your profile and share it anywhere — events, wikis, business cards.')
       }
-    >
-      <div className="flex flex-col items-center justify-center w-full gap-6">
-        <Image
-          src={darkMode ? CapxQrCodeWhite : CapxQrCode}
-          alt="QR code linking to capx.toolforge.org"
-          width={120}
-          height={120}
-          className="w-30 h-30"
-        />
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]'
-            }
-          >
-            {pageContent['home-qr-cta-title'] || 'Share your CapX profile'}
-          </h2>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
-            }
-          >
-            {pageContent['home-qr-cta-description'] ||
-              'Generate a QR code from your profile and share it anywhere.'}
-          </p>
-        </div>
-        <BaseButton
-          onClick={() => router.push('/profile')}
-          label={pageContent['home-qr-cta-button'] || 'Go to my profile'}
-          customClass="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-        />
-      </div>
-    </section>
-  ) : (
-    <section className="flex flex-col items-center justify-center w-full mx-auto">
-      <div className="flex flex-row items-center justify-between w-full py-[128px] gap-16 max-w-screen-xl mx-auto px-8">
-        <div className="flex flex-col items-start w-full lg:w-2/3 gap-6">
-          <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
-            }
-          >
-            {pageContent['home-qr-cta-title'] || 'Share your CapX profile'}
-          </h2>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]'
-            }
-          >
-            {pageContent['home-qr-cta-description'] ||
-              'Generate a QR code from your profile and share it anywhere — events, wikis, business cards.'}
-          </p>
-          <BaseButton
-            onClick={() => router.push('/profile')}
-            label={pageContent['home-qr-cta-button'] || 'Go to my profile'}
-            customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] h-[64px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
-          />
-        </div>
-        <div className="flex items-center justify-center w-1/3">
-          <Image
-            src={darkMode ? CapxQrCodeWhite : CapxQrCode}
-            alt="QR code linking to capx.toolforge.org"
-            width={220}
-            height={220}
-            className="w-full max-w-[220px] h-auto"
-          />
-        </div>
-      </div>
-    </section>
+      buttonLabel={pageContent['home-qr-cta-button'] || 'Go to my profile'}
+      onButtonClick={() => router.push('/profile')}
+      visualSrc={darkMode ? CapxQrCodeWhite : CapxQrCode}
+      visualAlt="QR code linking to capx.toolforge.org"
+      isMobile={isMobile}
+      darkMode={darkMode}
+    />
   );
 
   const stackedCardsColor = darkMode ? '#FFF' : '#053749';
@@ -355,26 +350,15 @@ export default function AuthenticatedMainSection({
 
   const capacitySlide = isMobile ? (
     <section
-      className={
-        (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-        ' flex flex-col items-center justify-between w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-6 h-full'
-      }
+      className={`${bgClass} flex flex-col items-center justify-between w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-6 h-full`}
     >
       <div className="flex flex-col items-center gap-2 text-center">
         <h2
-          className={
-            (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-            ' font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]'
-          }
+          className={`${textClass} font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]`}
         >
           {pageContent['home-capacity-cta-title'] || 'Three new ways to explore capacities'}
         </h2>
-        <p
-          className={
-            (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-            ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
-          }
-        >
+        <p className={`${textClass} font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]`}>
           {pageContent['home-capacity-cta-description'] || 'Find the view that works best for you.'}
         </p>
       </div>
@@ -382,10 +366,7 @@ export default function AuthenticatedMainSection({
         {capacityVisualizationModes.map((mode, i) => (
           <div
             key={i}
-            className={
-              (darkMode ? 'bg-[#053749]' : 'bg-white') +
-              ' flex flex-row items-center gap-3 rounded-[12px] px-4 py-3 shadow-sm'
-            }
+            className={`${darkMode ? 'bg-[#053749]' : 'bg-white'} flex flex-row items-center gap-3 rounded-[12px] px-4 py-3 shadow-sm`}
           >
             {mode.node ? (
               <div className="w-6 h-6 flex-shrink-0" style={{ color: stackedCardsColor }}>
@@ -400,12 +381,7 @@ export default function AuthenticatedMainSection({
                 className="w-6 h-6 flex-shrink-0"
               />
             )}
-            <span
-              className={
-                (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-                ' font-[Montserrat] text-[14px] font-semibold leading-tight'
-              }
-            >
+            <span className={`${textClass} font-[Montserrat] text-[14px] font-semibold leading-tight`}>
               {mode.label}
             </span>
           </div>
@@ -414,7 +390,7 @@ export default function AuthenticatedMainSection({
       <BaseButton
         onClick={() => router.push('/capacity')}
         label={pageContent['home-capacity-cta-button'] || 'Explore capacities'}
-        customClass="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
+        customClass={MOBILE_CTA_CLASS}
       />
     </section>
   ) : (
@@ -422,36 +398,25 @@ export default function AuthenticatedMainSection({
       <div className="flex flex-row items-center justify-between w-full py-[128px] gap-16 max-w-screen-xl mx-auto px-8">
         <div className="flex flex-col items-start w-full lg:w-2/3 gap-8">
           <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
-            }
+            className={`${textClass} font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]`}
           >
             {pageContent['home-capacity-cta-title'] || 'Three new ways to explore capacities'}
           </h2>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]'
-            }
-          >
+          <p className={`${textClass} font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]`}>
             {pageContent['home-capacity-cta-description'] ||
               'Browse cards, navigate a tree structure, or explore by categories. Find the view that works best for you.'}
           </p>
           <BaseButton
             onClick={() => router.push('/capacity')}
             label={pageContent['home-capacity-cta-button'] || 'Explore capacities'}
-            customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] h-[64px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
+            customClass={DESKTOP_CTA_CLASS}
           />
         </div>
         <div className="flex flex-row items-center justify-center gap-6 w-1/3">
           {capacityVisualizationModes.map((mode, i) => (
             <div key={i} className="flex flex-col items-center gap-3">
               <div
-                className={
-                  (darkMode ? 'bg-[#053749]' : 'bg-white') +
-                  ' rounded-[16px] p-5 flex items-center justify-center shadow-md'
-                }
+                className={`${darkMode ? 'bg-[#053749]' : 'bg-white'} rounded-[16px] p-5 flex items-center justify-center shadow-md`}
               >
                 {mode.node ? (
                   <div className="w-10 h-10" style={{ color: stackedCardsColor }}>
@@ -468,10 +433,7 @@ export default function AuthenticatedMainSection({
                 )}
               </div>
               <span
-                className={
-                  (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-                  ' font-[Montserrat] text-[13px] font-semibold text-center leading-tight max-w-[80px]'
-                }
+                className={`${textClass} font-[Montserrat] text-[13px] font-semibold text-center leading-tight max-w-[80px]`}
               >
                 {mode.label}
               </span>
@@ -482,85 +444,20 @@ export default function AuthenticatedMainSection({
     </section>
   );
 
-  const translateSlide = isMobile ? (
-    <section
-      className={
-        (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-        ' flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12 py-8'
+  const translateSlide = (
+    <FeatureSlide
+      title={pageContent['home-translate-cta-title'] || 'Translate capacities and add new ones'}
+      description={
+        pageContent['home-translate-cta-description'] ||
+        'Help translate capacity names and descriptions into your language, and contribute new capacities to grow the CapX knowledge base.'
       }
-    >
-      <div className="flex flex-col items-center justify-center w-full gap-6">
-        <Image
-          src={darkMode ? LanguageIconWhite : LanguageIcon}
-          alt="Translate"
-          width={80}
-          height={80}
-          className="w-20 h-20"
-        />
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[20px] not-italic font-extrabold leading-[normal]'
-            }
-          >
-            {pageContent['home-translate-cta-title'] || 'Translate capacities and add new ones'}
-          </h2>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
-            }
-          >
-            {pageContent['home-translate-cta-description'] ||
-              'Help translate capacity names and descriptions into your language, and contribute new capacities to grow the CapX knowledge base.'}
-          </p>
-        </div>
-        <BaseButton
-          onClick={() => router.push('/translate')}
-          label={pageContent['home-translate-cta-button'] || 'Translate & contribute'}
-          customClass="w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] py-[8px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-        />
-      </div>
-    </section>
-  ) : (
-    <section className="flex flex-col items-center justify-center w-full mx-auto">
-      <div className="flex flex-row items-center justify-between w-full py-[128px] gap-16 max-w-screen-xl mx-auto px-8">
-        <div className="flex flex-col items-start w-full lg:w-2/3 gap-6">
-          <h2
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
-            }
-          >
-            {pageContent['home-translate-cta-title'] || 'Translate capacities and add new ones'}
-          </h2>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' font-[Montserrat] text-[24px] not-italic font-normal leading-[normal]'
-            }
-          >
-            {pageContent['home-translate-cta-description'] ||
-              'Help translate capacity names and descriptions into your language, and contribute new capacities to grow the CapX knowledge base.'}
-          </p>
-          <BaseButton
-            onClick={() => router.push('/translate')}
-            label={pageContent['home-translate-cta-button'] || 'Translate & contribute'}
-            customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] h-[64px] justify-center items-center gap-[8px] text-[#F6F6F6] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
-          />
-        </div>
-        <div className="flex items-center justify-center w-1/3">
-          <Image
-            src={darkMode ? LanguageIconWhite : LanguageIcon}
-            alt="Translate"
-            width={220}
-            height={220}
-            className="w-full max-w-[220px] h-auto"
-          />
-        </div>
-      </div>
-    </section>
+      buttonLabel={pageContent['home-translate-cta-button'] || 'Translate & contribute'}
+      onButtonClick={() => router.push('/translate')}
+      visualSrc={darkMode ? LanguageIconWhite : LanguageIcon}
+      visualAlt="Translate"
+      isMobile={isMobile}
+      darkMode={darkMode}
+    />
   );
 
   const slides = [welcomeSlide, qrCodeSlide, capacitySlide, translateSlide];
@@ -616,59 +513,20 @@ export default function AuthenticatedMainSection({
     setCurrentSlide(i);
   };
 
-  const thirdSection = isMobile ? (
-    <section
-      className={
-        (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-        ' flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12'
-      }
-    >
-      <div className="flex flex-col md:flex-row items-center justify-between w-full pt-8 md:py-32 gap-8">
-        <div className="mx-auto flex flex-col items-center md:items-start w-full md:w-1/2">
-          <h1
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' text-center font-[Montserrat] text-[24px] not-italic font-extrabold '
-            }
-          >
-            {pageContent['body-loggedin-home-third-section-title']}
-          </h1>
-          <p
-            className={
-              (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-              ' text-center font-[Montserrat] text-[16px] not-italic font-normal leading-[normal] my-[24px]'
-            }
-          >
-            {pageContent['body-loggedin-home-third-section-description']}
-          </p>
-          <BaseButton
-            onClick={() => {
-              navigator.clipboard.writeText('capx@wmnobrasil.org');
-              showSnackbar(
-                pageContent['body-loggedin-home-third-section-button-success'],
-                'success'
-              );
-            }}
-            label={pageContent['body-loggedin-home-third-section-button']}
-            customClass="w-fit sm:w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] text-white font-bold py-[8px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]"
-          />
-        </div>
-      </div>
-    </section>
-  ) : (
-    <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
+  const thirdSectionContent = (
+    <>
       <h1
         className={
-          (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-          ' font-[Montserrat] text-[48px] not-italic font-extrabold leading-[59px]'
+          (isMobile ? 'text-center ' : '') +
+          `${textClass} font-[Montserrat] ${isMobile ? 'text-[24px]' : 'text-[48px] leading-[59px]'} not-italic font-extrabold`
         }
       >
         {pageContent['body-loggedin-home-third-section-title']}
       </h1>
       <p
         className={
-          (darkMode ? 'text-[#FFF]' : 'text-[#053749]') +
-          ' font-[Montserrat] text-[30px] not-italic font-normal leading-[normal] my-[24px]'
+          (isMobile ? 'text-center ' : '') +
+          `${textClass} font-[Montserrat] ${isMobile ? 'text-[16px]' : 'text-[30px]'} not-italic font-normal leading-[normal] my-[24px]`
         }
       >
         {pageContent['body-loggedin-home-third-section-description']}
@@ -679,9 +537,13 @@ export default function AuthenticatedMainSection({
           showSnackbar(pageContent['body-loggedin-home-third-section-button-success'], 'success');
         }}
         label={pageContent['body-loggedin-home-third-section-button']}
-        customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] text-white font-bold h-[64px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
+        customClass={
+          isMobile
+            ? 'w-fit sm:w-fit rounded-[6px] bg-[#851970] inline-flex px-[16px] text-white font-bold py-[8px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal]'
+            : 'rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] text-white font-bold h-[64px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]'
+        }
       />
-    </div>
+    </>
   );
 
   return (
@@ -707,10 +569,7 @@ export default function AuthenticatedMainSection({
 
       {/* Slider navigation */}
       <div
-        className={
-          (darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg') +
-          ' flex items-center justify-center gap-4 py-4 w-full'
-        }
+        className={`${bgClass} flex items-center justify-center gap-4 py-4 w-full`}
       >
         <button
           onClick={prevSlide}
@@ -756,10 +615,18 @@ export default function AuthenticatedMainSection({
       <SectionRecommendationsCarousel />
 
       {isMobile ? (
-        thirdSection
+        <section
+          className={`${bgClass} flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-12`}
+        >
+          <div className="mx-auto flex flex-col items-center w-full pt-8 gap-0">
+            {thirdSectionContent}
+          </div>
+        </section>
       ) : (
         <section className="flex flex-col items-center justify-start w-full mx-auto">
-          {thirdSection}
+          <div className="flex flex-col items-center md:items-start w-full md:w-1/2 lg:w-2/3">
+            {thirdSectionContent}
+          </div>
         </section>
       )}
     </>
