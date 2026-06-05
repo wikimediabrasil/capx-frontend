@@ -48,7 +48,10 @@ export default function ProfilePageSkeleton() {
           <SkeletonBase className="h-5 w-24" />
           <div className="flex flex-row gap-3 overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonBase key={i} className="w-16 h-16 md:w-20 md:h-20 rounded-full flex-shrink-0" />
+              <SkeletonBase
+                key={i}
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full flex-shrink-0"
+              />
             ))}
           </div>
         </div>

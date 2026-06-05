@@ -16,7 +16,9 @@ export default function DocumentCardSkeleton({ isSingle = false }: DocumentCardS
     >
       {/* Image area */}
       <div className="p-6 flex items-center justify-center h-[250px]">
-        <SkeletonBase className={`${isSingle ? 'w-[70vw] max-w-[280px] h-[200px]' : 'w-[200px] h-[200px]'} rounded`} />
+        <SkeletonBase
+          className={`${isSingle ? 'w-[70vw] max-w-[280px] h-[200px]' : 'w-[200px] h-[200px]'} rounded`}
+        />
       </div>
       {/* Content */}
       <div className="p-4 flex flex-col gap-3">

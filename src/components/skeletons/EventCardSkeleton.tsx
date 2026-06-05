@@ -13,9 +13,7 @@ export default function EventCardSkeleton({ isHorizontalScroll = false }: EventC
   return (
     <div
       className={`flex flex-col rounded rounded-[4px] p-4 min-w-[300px] h-fit ${
-        darkMode
-          ? 'bg-capx-dark-box-bg border border-white'
-          : 'bg-capx-light-box-bg'
+        darkMode ? 'bg-capx-dark-box-bg border border-white' : 'bg-capx-light-box-bg'
       }`}
     >
       <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">

@@ -82,9 +82,13 @@ export function AnalyticsCallToActionSkeleton() {
       >
         <div className="flex flex-col items-center justify-center w-full gap-4">
           <div className="relative min-h-[60px] flex items-center justify-center w-full">
-            <div className={`animate-pulse rounded h-5 w-3/4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+            <div
+              className={`animate-pulse rounded h-5 w-3/4 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
+            />
           </div>
-          <div className={`animate-pulse rounded h-9 w-36 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+          <div
+            className={`animate-pulse rounded h-9 w-36 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
+          />
         </div>
       </section>
     );
@@ -94,9 +98,13 @@ export function AnalyticsCallToActionSkeleton() {
     <section className="flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-16">
       <div className="flex flex-col items-center justify-center w-full gap-6">
         <div className="relative min-h-[80px] flex items-center justify-center w-full">
-          <div className={`animate-pulse rounded h-8 w-2/3 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+          <div
+            className={`animate-pulse rounded h-8 w-2/3 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
+          />
         </div>
-        <div className={`animate-pulse rounded h-16 w-56 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`} />
+        <div
+          className={`animate-pulse rounded h-16 w-56 rounded-md ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}
+        />
       </div>
     </section>
   );
@@ -232,7 +240,9 @@ export default function AuthenticatedMainSection({
           <Image
             priority={true}
             src={darkMode ? MainSectionIllustrationDark : MainSectionIllustration}
-            alt={pageContent['alt-illustration'] || 'Main illustration showing people collaborating'}
+            alt={
+              pageContent['alt-illustration'] || 'Main illustration showing people collaborating'
+            }
             height={520}
             width={520}
             className="w-full h-auto"
@@ -365,8 +375,7 @@ export default function AuthenticatedMainSection({
             ' font-[Montserrat] text-[14px] not-italic font-normal leading-[normal]'
           }
         >
-          {pageContent['home-capacity-cta-description'] ||
-            'Find the view that works best for you.'}
+          {pageContent['home-capacity-cta-description'] || 'Find the view that works best for you.'}
         </p>
       </div>
       <div className="flex flex-col gap-3 w-full">
@@ -379,9 +388,17 @@ export default function AuthenticatedMainSection({
             }
           >
             {mode.node ? (
-              <div className="w-6 h-6 flex-shrink-0" style={{ color: stackedCardsColor }}>{mode.node}</div>
+              <div className="w-6 h-6 flex-shrink-0" style={{ color: stackedCardsColor }}>
+                {mode.node}
+              </div>
             ) : (
-              <Image src={mode.icon} alt={mode.label} width={24} height={24} className="w-6 h-6 flex-shrink-0" />
+              <Image
+                src={mode.icon}
+                alt={mode.label}
+                width={24}
+                height={24}
+                className="w-6 h-6 flex-shrink-0"
+              />
             )}
             <span
               className={
@@ -437,9 +454,17 @@ export default function AuthenticatedMainSection({
                 }
               >
                 {mode.node ? (
-                  <div className="w-10 h-10" style={{ color: stackedCardsColor }}>{mode.node}</div>
+                  <div className="w-10 h-10" style={{ color: stackedCardsColor }}>
+                    {mode.node}
+                  </div>
                 ) : (
-                  <Image src={mode.icon} alt={mode.label} width={40} height={40} className="w-10 h-10" />
+                  <Image
+                    src={mode.icon}
+                    alt={mode.label}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10"
+                  />
                 )}
               </div>
               <span
@@ -538,12 +563,7 @@ export default function AuthenticatedMainSection({
     </section>
   );
 
-  const slides = [
-    welcomeSlide,
-    qrCodeSlide,
-    capacitySlide,
-    translateSlide,
-  ];
+  const slides = [welcomeSlide, qrCodeSlide, capacitySlide, translateSlide];
 
   useEffect(() => {
     const el = showcaseSliderRef.current;
@@ -656,10 +676,7 @@ export default function AuthenticatedMainSection({
       <BaseButton
         onClick={() => {
           navigator.clipboard.writeText('capx@wmnobrasil.org');
-          showSnackbar(
-            pageContent['body-loggedin-home-third-section-button-success'],
-            'success'
-          );
+          showSnackbar(pageContent['body-loggedin-home-third-section-button-success'], 'success');
         }}
         label={pageContent['body-loggedin-home-third-section-button']}
         customClass="rounded-[6px] bg-[#851970] inline-flex px-[32px] py-[16px] text-white font-bold h-[64px] justify-center items-center gap-[8px] text-center font-[Montserrat] text-[24px] not-italic font-extrabold leading-[normal]"
@@ -699,9 +716,7 @@ export default function AuthenticatedMainSection({
           onClick={prevSlide}
           aria-label="Previous slide"
           className={
-            (darkMode
-              ? 'text-[#FFF] hover:bg-white/10'
-              : 'text-[#053749] hover:bg-black/5') +
+            (darkMode ? 'text-[#FFF] hover:bg-white/10' : 'text-[#053749] hover:bg-black/5') +
             ' rounded-full p-2 transition-colors duration-200'
           }
         >
@@ -718,9 +733,9 @@ export default function AuthenticatedMainSection({
                 'rounded-full transition-all duration-300 ' +
                 (i === currentSlide
                   ? 'w-6 h-2 bg-[#851970]'
-                  : (darkMode
-                      ? 'w-2 h-2 bg-white/30 hover:bg-white/50'
-                      : 'w-2 h-2 bg-[#053749]/30 hover:bg-[#053749]/50'))
+                  : darkMode
+                    ? 'w-2 h-2 bg-white/30 hover:bg-white/50'
+                    : 'w-2 h-2 bg-[#053749]/30 hover:bg-[#053749]/50')
               }
             />
           ))}
@@ -730,9 +745,7 @@ export default function AuthenticatedMainSection({
           onClick={nextSlide}
           aria-label="Next slide"
           className={
-            (darkMode
-              ? 'text-[#FFF] hover:bg-white/10'
-              : 'text-[#053749] hover:bg-black/5') +
+            (darkMode ? 'text-[#FFF] hover:bg-white/10' : 'text-[#053749] hover:bg-black/5') +
             ' rounded-full p-2 transition-colors duration-200'
           }
         >

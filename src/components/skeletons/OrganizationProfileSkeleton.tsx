@@ -46,10 +46,11 @@ export default function OrganizationProfileSkeleton() {
   const darkMode = useDarkMode();
 
   return (
-    <div className={`relative w-full overflow-x-hidden ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}>
+    <div
+      className={`relative w-full overflow-x-hidden ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
+    >
       <section className="w-full max-w-screen-xl mx-auto px-4 py-8 mt-[80px]">
         <div className="flex flex-col gap-6 md:gap-8">
-
           {/* Header section */}
           <div className="flex flex-col md:flex-row gap-6">
             <div className="w-full flex flex-col gap-4 justify-center">
@@ -143,7 +144,6 @@ export default function OrganizationProfileSkeleton() {
             <SkeletonBase className="h-9 w-28 rounded-lg" />
             <SkeletonBase className="h-9 w-28 rounded-lg" />
           </div>
-
         </div>
       </section>
     </div>

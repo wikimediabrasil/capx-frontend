@@ -95,7 +95,9 @@ export default function EventsSection({
       >
         {isLoading ? (
           <>
-            {Array.from({ length: 3 }).map((_, i) => <EventCardSkeleton key={i} isHorizontalScroll />)}
+            {Array.from({ length: 3 }).map((_, i) => (
+              <EventCardSkeleton key={i} isHorizontalScroll />
+            ))}
           </>
         ) : error ? (
           <p className="text-center py-4 text-red-500">{error}</p>

@@ -124,7 +124,6 @@ export default function FeedPage() {
   const isInitialLoading = !hasLoadedOnce && isUsersLoading;
   const isTranslationLoading = isLoadingTranslations || isLanguageChanging;
 
-
   if (isInitialLoading) {
     return (
       <div className="w-full flex flex-col items-center pt-24 md:pt-8 overflow-x-hidden">
