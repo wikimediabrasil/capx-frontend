@@ -1,6 +1,6 @@
 'use client';
-import LoadingState from '@/components/LoadingState';
-import { useCapacityStore, useDarkMode, useLanguage, usePageContent } from '@/stores';
+import { CapacityDirectorySkeleton } from '@/components/skeletons';
+import { useCapacityStore, useLanguage } from '@/stores';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 
@@ -25,10 +25,8 @@ export function LanguageChangeHandler({ children }: Readonly<{ children: React.R
 function LanguageChangeHandlerInternal({ children }: Readonly<{ children: React.ReactNode }>) {
   const language = useLanguage();
   const { updateLanguage, isLoadingTranslations, language: cacheLanguage } = useCapacityStore();
-  const darkMode = useDarkMode();
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const pageContent = usePageContent();
 
   // Update language when app language changes
   useEffect(() => {
@@ -37,22 +35,9 @@ function LanguageChangeHandlerInternal({ children }: Readonly<{ children: React.
     }
   }, [language, cacheLanguage, updateLanguage, isLoadingTranslations, token]);
 
-  // Show loading when actively loading translations
+  // Show skeleton when actively loading translations
   if (isLoadingTranslations) {
-    return (
-      <div
-        className={`flex flex-col items-center justify-center min-h-screen ${darkMode ? 'bg-capx-dark-box-bg text-white' : 'bg-capx-light-bg text-gray-900'}`}
-      >
-        <LoadingState fullScreen={false} />
-        <div className="mt-8 text-center">
-          <p
-            className={`text-lg font-medium ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-capx-light-bg'}`}
-          >
-            {pageContent['capacity-list-loading-translations'] || 'Loading translations...'}
-          </p>
-        </div>
-      </div>
-    );
+    return <CapacityDirectorySkeleton />;
   }
 
   return <>{children}</>;

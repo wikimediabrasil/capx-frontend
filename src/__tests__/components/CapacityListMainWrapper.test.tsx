@@ -277,10 +277,16 @@ describe('CapacityListMainWrapper', () => {
   });
 
   it('shows loading state when isLoading.root is true', () => {
-    renderWithProviders(<CapacityListMainWrapper />);
+    const mockedHooks = jest.requireMock('@/hooks/useCapacitiesQuery');
+    const originalImpl = mockedHooks.useRootCapacities;
+    mockedHooks.useRootCapacities = () => ({ data: [], isLoading: true });
 
-    // Before the timer advances, it should show loading
-    expect(screen.getByTestId('loading-state')).toBeInTheDocument();
+    const { container } = renderWithProviders(<CapacityListMainWrapper />);
+
+    const skeletons = container.querySelectorAll('.animate-pulse');
+    expect(skeletons.length).toBeGreaterThan(0);
+
+    mockedHooks.useRootCapacities = originalImpl;
   });
 
   it('shows suggest capacity link below search box', async () => {

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
 import BaseInput from '@/components/BaseInput';
+import { EventCardSkeleton } from '@/components/skeletons';
+import { useEvents } from '@/hooks/useEvents';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
-import { useEvents } from '@/hooks/useEvents';
 import { Event } from '@/types/event';
+import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface EventsSearchProps {
@@ -63,7 +64,10 @@ export function EventsSearch({
   const darkMode = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { events, error: _eventsError } = useEvents(session?.user?.token, 100, 0, organizationId);
+  const eventsQuery = useEvents(session?.user?.token, 100, 0, organizationId);
+  const events = eventsQuery.events;
+  const isEventsLoading = eventsQuery.isLoading;
+  const _eventsError = eventsQuery.error;
 
   const lastSearchRef = useRef<string>('');
 
@@ -145,6 +149,14 @@ export function EventsSearch({
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />
+
+      {isEventsLoading && (
+        <div className="flex flex-col gap-4 mt-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <EventCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

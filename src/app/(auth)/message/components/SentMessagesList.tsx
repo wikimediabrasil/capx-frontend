@@ -3,7 +3,7 @@ import { PaginationButtons } from '@/components/PaginationButtons';
 import { useState, useEffect } from 'react';
 import { Message } from '@/types/message';
 
-import LoadingState from '@/components/LoadingState';
+import { MessageListSkeleton } from '@/components/skeletons';
 import SentMessageCard from './SentMessageCard';
 import ActionButtons from '@/components/ActionButton';
 import SendIcon from '@/public/static/images/send.svg';
@@ -44,7 +44,7 @@ export default function SentMessagesList({ setCurrentView }: SentMessagesListPro
   }, [currentPage, messages]);
 
   if (isLoading) {
-    return <LoadingState />;
+    return <MessageListSkeleton />;
   }
 
   if (error) {

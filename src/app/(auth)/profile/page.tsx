@@ -1,6 +1,6 @@
 'use client';
 
-import LoadingState from '@/components/LoadingState';
+import { ProfilePageSkeleton } from '@/components/skeletons';
 import ProfilePage from './components/ProfilePage';
 
 import { useProfile } from '@/hooks/useProfile';
@@ -43,7 +43,7 @@ export default function ProfileByUserName() {
 
   // Show loading while loading the profile, session or capacity translations
   if (isLoading || sessionStatus === 'loading' || !profile || isLoadingTranslations) {
-    return <LoadingState fullScreen={true} />;
+    return <ProfilePageSkeleton />;
   }
 
   // Handle error state

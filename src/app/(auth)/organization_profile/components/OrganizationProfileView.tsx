@@ -2,7 +2,7 @@
 
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import BaseButton from '@/components/BaseButton';
-import LoadingState from '@/components/LoadingState';
+import { OrganizationProfileSkeleton } from '@/components/skeletons';
 import { ProfileItem } from '@/components/ProfileItem';
 import { getDefaultOrganizationLogo } from '@/constants/images';
 import { useOrganizationNames } from '@/hooks/useOrganizationNames';
@@ -266,7 +266,7 @@ export default function OrganizationProfileView({
   const { showSnackbar } = useSnackbar();
 
   if (isOrganizationLoading) {
-    return <LoadingState fullScreen={true} />;
+    return <OrganizationProfileSkeleton />;
   }
 
   return (

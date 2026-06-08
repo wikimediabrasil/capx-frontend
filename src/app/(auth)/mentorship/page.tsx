@@ -5,6 +5,7 @@ import MentorshipProgramCard from './components/MentorshipProgramCard';
 import { MentorshipProgram, MentorshipStatus } from '@/types/mentorship';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import Banner from '@/components/Banner';
+import { MentorshipProgramCardSkeleton } from '@/components/skeletons';
 import MentorshipProgramsIcon from '@/public/static/images/mentorship_programs.svg';
 import { mentorshipService } from '@/services/mentorshipService';
 import { formBuilderJsonToMentorshipForm } from '@/utils/formBuilderToMentorshipForm';
@@ -141,12 +142,10 @@ export default function MentorshipPage() {
         <div className="container mx-auto px-4 max-w-screen-xl">
           {/* Programs Grid */}
           {loading ? (
-            <div className="flex justify-center py-12">
-              <div
-                className="animate-spin h-8 w-8 rounded-full border-4 border-l-gray-300 border-r-gray-300 border-b-gray-300 border-t-[#851970]"
-                data-testid="loading-spinner"
-                aria-label="Loading"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <MentorshipProgramCardSkeleton key={i} />
+              ))}
             </div>
           ) : loadError ? (
             <div className="text-center py-12 text-red-600">

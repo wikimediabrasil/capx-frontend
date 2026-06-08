@@ -1,5 +1,5 @@
 'use client';
-import LoadingState from '@/components/LoadingState';
+import { OrganizationProfileSkeleton } from '@/components/skeletons';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useTerritories } from '@/hooks/useTerritories';
 import { useSession } from 'next-auth/react';
@@ -73,7 +73,7 @@ export default function OrganizationProfilePage() {
   }, [error]);
 
   if (isOrganizationLoading || isLoadingTranslations) {
-    return <LoadingState fullScreen={true} />;
+    return <OrganizationProfileSkeleton />;
   }
 
   return (

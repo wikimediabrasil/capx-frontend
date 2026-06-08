@@ -2,7 +2,7 @@
 
 import Banner from '@/components/Banner';
 import { PaginationButtons } from '@/components/PaginationButtons';
-import EventCardSkeleton from './EventCardSkeleton';
+import { EventCardSkeleton } from '@/components/skeletons';
 import { useEvents } from '@/hooks/useEvents';
 import CapxPersonEvent from '@/public/static/images/capx_person_events.svg';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';

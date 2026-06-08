@@ -270,12 +270,11 @@ describe('AvatarSelectionPopup', () => {
     });
 
     it('shows loading state when avatars are loading', () => {
-      renderWithProviders(<AvatarSelectionPopup {...defaultProps} />);
+      const { container } = renderWithProviders(<AvatarSelectionPopup {...defaultProps} />);
 
-      // CompactLoading renders a spinner without text
-      const spinner = screen.getByTestId('loading-spinner');
-      expect(spinner).toBeInTheDocument();
-      expect(spinner).toHaveClass('animate-spin');
+      // Skeleton loading renders animate-pulse elements instead of a spinner
+      const skeletons = container.querySelectorAll('.animate-pulse');
+      expect(skeletons.length).toBeGreaterThan(0);
     });
   });
 

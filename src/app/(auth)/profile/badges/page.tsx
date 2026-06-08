@@ -1,5 +1,6 @@
 'use client';
 
+import BadgesPageSkeleton from '@/components/skeletons/BadgesPageSkeleton';
 import BaseButton from '@/components/BaseButton';
 import ProgressBar from '@/components/ProgressBar';
 import { DEFAULT_AVATAR, DEFAULT_AVATAR_WHITE, getDefaultAvatar } from '@/constants/images';
@@ -24,7 +25,7 @@ export default function BadgesPage() {
   const token = session?.user?.token;
   const userId = session?.user?.id;
 
-  const { profile } = useProfile(token, Number(userId));
+  const { profile, isLoading: isProfileLoading } = useProfile(token, Number(userId));
 
   const { getAvatarById } = useAvatars();
   const [avatarUrl, setAvatarUrl] = useState<string>(getDefaultAvatar());
@@ -62,6 +63,10 @@ export default function BadgesPage() {
   useEffect(() => {
     loadAvatar();
   }, [loadAvatar]);
+
+  if (isProfileLoading || allBadges.length === 0) {
+    return <BadgesPageSkeleton />;
+  }
 
   return (
     <main
