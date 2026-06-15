@@ -138,6 +138,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
+    const MAX_TOKEN_LENGTH = 512;
+    if (
+      oauth_token.length > MAX_TOKEN_LENGTH ||
+      oauth_verifier.length > MAX_TOKEN_LENGTH ||
+      token_secret.length > MAX_TOKEN_LENGTH
+    ) {
+      return NextResponse.json({ error: 'Invalid token format' }, { status: 400 });
+    }
+
     // Create execution lock for these tokens
     const executionPromise = executeLoginWithTokens(
       oauth_token,

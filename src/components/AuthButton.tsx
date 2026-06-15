@@ -42,8 +42,8 @@ export default function AuthButton({
 
     try {
       // Clean old tokens before starting new flow
-      localStorage.removeItem('oauth_token');
-      localStorage.removeItem('oauth_token_secret');
+      sessionStorage.removeItem('oauth_token');
+      sessionStorage.removeItem('oauth_token_secret');
 
       const response = await axios.post('/api/login', null, {
         headers: {
@@ -54,8 +54,8 @@ export default function AuthButton({
 
       if (response.data?.redirect_url) {
         // Store new tokens and login timestamp
-        localStorage.setItem('oauth_token', response.data.oauth_token);
-        localStorage.setItem('oauth_token_secret', response.data.oauth_token_secret);
+        sessionStorage.setItem('oauth_token', response.data.oauth_token);
+        sessionStorage.setItem('oauth_token_secret', response.data.oauth_token_secret);
         localStorage.setItem('login_timestamp', Date.now().toString());
         window.location.href = response.data.redirect_url;
       } else {

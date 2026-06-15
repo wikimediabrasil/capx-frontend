@@ -74,10 +74,10 @@ const setupAxiosInterceptor = () => {
             // If signOut fails, manually redirect
             window.location.href = '/';
           } finally {
-            // Reset the flag after a small delay to allow the logout
+            // Reset the flag after enough time for the redirect to complete
             setTimeout(() => {
               isLoggedOut = false;
-            }, 1000);
+            }, 5000);
           }
         }
       }

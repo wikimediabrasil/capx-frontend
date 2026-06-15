@@ -122,7 +122,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 10 * 24 * 60 * 60, // 10 days — matches auth-monitor.ts
   },
   callbacks: {
     async signIn({ user }) {
