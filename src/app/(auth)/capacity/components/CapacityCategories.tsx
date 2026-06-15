@@ -575,7 +575,7 @@ export default function CapacityCategories() {
     {
       label: pageContent['capacity-category-open-education'] || 'Open education',
       // Education programs and core Wikimedia technology
-      codes: [76, 77, 91, 84, 100, 105, 110, 113, 118, 127],
+      codes: [76, 77, 91, 84, 100, 105, 99, 50, 69, 78],
       icon: BookIcon as StaticImageData,
       bg: '#E2FBE7',
       description: pageContent['capacity-category-open-education-description'],
