@@ -207,7 +207,7 @@ export const simulateTokenRemoval = () => {
   }
 };
 // Add global functions for testing in the console (only in development)
-if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+if (typeof globalThis.window !== 'undefined' && process.env.NODE_ENV !== 'production') {
   (window as any).testTokenExpiration = testTokenExpiration;
   (window as any).clearAuthState = clearAuthState;
   (window as any).simulateTokenRemoval = simulateTokenRemoval;
