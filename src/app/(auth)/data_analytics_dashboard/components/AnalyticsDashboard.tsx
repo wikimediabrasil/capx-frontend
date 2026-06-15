@@ -19,6 +19,8 @@ import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down_light_mode
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import learner from '@/public/static/images/learner_icon_white.svg';
+import AddIcon from '@/public/static/images/add_dark.svg';
+import AddIconWhite from '@/public/static/images/add.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import technology from '@/public/static/images/wifi_tethering.svg';
@@ -495,6 +497,8 @@ export default function AnalyticsDashboardPage() {
       {/* Additional statistics — accordion like Languages / Territory; below Capacities when that block is shown */}
       <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
         <DropdownHeader
+          icon={AddIcon}
+          iconWhite={AddIconWhite}
           title={
             pageContent['analytics-bashboard-database-details-section-title'] ||
             pageContent['analytics-bashboard-load-more-stats']
@@ -508,7 +512,7 @@ export default function AnalyticsDashboardPage() {
           <div
             className={`mt-8 gap-4 ${
               darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
-            } overflow-hidden flex flex-col`}
+            } overflow-hidden`}
           >
             {(
               [
@@ -570,23 +574,27 @@ export default function AnalyticsDashboardPage() {
             ).map(row => (
               <div
                 key={row.id}
-                className="flex flex-col md:flex-row md:justify-between md:items-center gap-1 md:gap-4"
+                className="flex flex-col md:flex-row md:justify-between md:items-start gap-1 md:gap-4"
               >
                 <div
-                  className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold ${
+                  className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold min-w-0 md:max-w-[50%] ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
                   {row.label}
                 </div>
                 <div
-                  className={`font-[Montserrat] text-[12px] md:text-[24px] mb-4 md:mb-4 md:mr-[80px] flex flex-col md:items-end gap-0.5 ${
+                  className={`font-[Montserrat] mb-4 mr-[80px] md:mb-4 min-w-0 md:max-w-[45%] flex flex-col gap-0.5 md:items-end md:text-right ${
                     darkMode ? 'text-white' : 'text-[#053749]'
                   }`}
                 >
-                  <span className="font-bold tabular-nums">{formatNumber(row.value)}</span>
+                  <span className="text-[12px] md:text-[24px] font-bold tabular-nums">
+                    {formatNumber(row.value)}
+                  </span>
                   <span
-                    className={`text-[11px] md:text-[16px] font-normal ${darkMode ? 'text-gray-300' : 'text-[#053749]/80'}`}
+                    className={`text-[11px] md:text-[12px] font-normal leading-snug ${
+                      darkMode ? 'text-gray-300' : 'text-[#053749]/80'
+                    }`}
                   >
                     {row.hint}
                   </span>
