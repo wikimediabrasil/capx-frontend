@@ -12,8 +12,9 @@ import {
   createMockQueryClient,
   createMockRouter,
   createMockSnackbar,
+  createMockUserProfile,
   renderWithProviders,
-  setupCommonMocks,
+  setupRecommendationCardMocks,
 } from '../helpers/recommendationTestHelpers';
 
 jest.mock('@/stores', () => {
@@ -56,54 +57,37 @@ const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendatio
   ...overrides,
 });
 
-const createMockUserProfile = () => ({
-  id: 123,
-  username: 'testuser',
-  skills_known: [],
-  skills_available: [],
-  skills_wanted: [],
-  language: ['en'],
-});
+const pageContent = {
+  'add-to-profile': 'Add to Profile',
+  added: 'Added',
+  view: 'View',
+  loading: 'Loading...',
+  'capacity-added-success': 'Capacity added to profile',
+  'capacity-icon': 'Capacity icon',
+};
 
 describe('RecommendationKnownAndAvailableCapacityCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockRouter = createMockRouter();
   const mockQueryClient = createMockQueryClient();
-  const mockUserProfile = createMockUserProfile();
+  const mockUserProfile = createMockUserProfile({ id: 123 });
   const mockCapacityCache = createMockCapacityCache();
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    const { useRouter } = require('next/navigation');
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    setupCommonMocks(useSession as jest.Mock);
-
-    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
-    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
-    (stores.usePageContent as jest.Mock).mockReturnValue({
-      'add-to-profile': 'Add to Profile',
-      added: 'Added',
-      view: 'View',
-      loading: 'Loading...',
-      'capacity-added-success': 'Capacity added to profile',
-      'capacity-icon': 'Capacity icon',
+    setupRecommendationCardMocks({
+      useSession: useSession as jest.Mock,
+      useSnackbar: useSnackbar as jest.Mock,
+      useQuery: useQuery as jest.Mock,
+      useQueryClient: useQueryClient as jest.Mock,
+      stores,
+      mockRouter,
+      mockSnackbar,
+      mockQueryClient,
+      mockCapacityCache,
+      mockUserProfile,
+      pageContent,
     });
-
-    (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityCache);
-    (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
-    (useQuery as jest.Mock).mockReturnValue({
-      data: mockUserProfile,
-      isLoading: false,
-    });
-
-    mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
-      if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-        return mockUserProfile;
-      }
-      return undefined;
-    });
-    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
   });
 
   afterEach(cleanupMocks);
@@ -174,11 +158,7 @@ describe('RecommendationKnownAndAvailableCapacityCard', () => {
   });
 
   it('shows Added button when capacity is already in known and available lists', async () => {
-    const profileWithCapacity = {
-      ...mockUserProfile,
-      skills_known: ['42'],
-      skills_available: ['42'],
-    };
+    const profileWithCapacity = { ...mockUserProfile, skills_known: ['42'], skills_available: ['42'] };
     mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
       if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
         return profileWithCapacity;

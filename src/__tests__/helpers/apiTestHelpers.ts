@@ -54,3 +54,61 @@ export function createAuthenticatedRequest(
     headers: { authorization: 'Token test', ...options.headers },
   });
 }
+
+/**
+ * Generates standard GET route tests (success + error).
+ */
+export function testGetRoute(config: {
+  mockAxios: jest.Mock;
+  handler: Function;
+  path: string;
+  axiosData: any;
+  expected: any;
+  errorMsg: string;
+  errorPayload?: any;
+  noRequest?: boolean;
+}) {
+  const {
+    mockAxios, handler, path, axiosData, expected, errorMsg,
+    errorPayload = { response: { status: 500 } },
+    noRequest = false,
+  } = config;
+
+  describe('GET', () => {
+    it('returns data', async () => {
+      mockAxios.mockResolvedValue({ data: axiosData });
+      await handler(noRequest ? undefined : createAuthenticatedRequest(path));
+      expect((await import('next/server')).NextResponse.json).toHaveBeenCalledWith(expected);
+    });
+
+    it('returns error on failure', async () => {
+      mockAxios.mockRejectedValue(errorPayload);
+      await handler(noRequest ? undefined : createAuthenticatedRequest(path));
+      expect((await import('next/server')).NextResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: errorMsg }),
+        expect.objectContaining({ status: 500 })
+      );
+    });
+  });
+}
+
+/**
+ * Generates a standard mutation (POST/PUT) success test.
+ */
+export function testMutationRoute(config: {
+  mockAxios: jest.Mock;
+  handler: Function;
+  path: string;
+  body: any;
+  axiosData: any;
+  expected: any;
+  label?: string;
+}) {
+  const { mockAxios, handler, path, body, axiosData, expected, label = 'creates data' } = config;
+
+  it(label, async () => {
+    mockAxios.mockResolvedValue({ data: axiosData });
+    await handler(createAuthenticatedRequest(path, { body }));
+    expect((await import('next/server')).NextResponse.json).toHaveBeenCalledWith(expected);
+  });
+}

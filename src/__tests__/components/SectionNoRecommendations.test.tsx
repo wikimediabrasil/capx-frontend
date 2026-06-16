@@ -5,13 +5,8 @@ import * as stores from '@/stores';
 
 jest.mock('@/stores', () => {
   const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock({
-    pageContent: {
-      'home-carousel-suggestions-title-no-capacities': 'No capacities found',
-      'home-carousel-suggestions-description-no-capacities': 'Add capacities to your profile',
-      'home-carousel-suggestions-description-no-capacities-button': 'Edit Profile',
-    },
-  });
+  const { noRecommendationsPageContent } = require('../helpers/recommendationTestHelpers');
+  return createStoresMock({ pageContent: noRecommendationsPageContent });
 });
 
 jest.mock('next/navigation', () => {

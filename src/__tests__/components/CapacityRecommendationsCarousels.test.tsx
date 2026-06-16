@@ -9,12 +9,13 @@ import * as stores from '@/stores';
 import {
   renderWithProviders,
   cleanupMocks,
-  setupCommonMocks,
   createMockCapacityCache,
   createMockQueryClient,
   createMockSnackbar,
   createMockRouter,
+  createMockUserProfile,
   mockScrollMethods,
+  setupRecommendationCardMocks,
 } from '../helpers/recommendationTestHelpers';
 
 jest.mock('@/stores', () => {
@@ -58,36 +59,28 @@ const makeCapacity = (id: number, name: string): CapacityRecommendation => ({
   color: 'learning',
 });
 
-const mockUserProfile = {
-  id: 1,
-  username: 'user',
-  skills_known: [],
-  skills_available: [],
-  skills_wanted: [],
-  language: ['en'],
-};
-
 describe('CapacityRecommendationsCarousels', () => {
   const mockSnackbar = createMockSnackbar();
   const mockQueryClient = createMockQueryClient();
   const mockCapacityCache = createMockCapacityCache();
   const mockRouter = createMockRouter();
+  const mockUserProfile = createMockUserProfile();
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockScrollMethods();
-
-    const { useRouter } = require('next/navigation');
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    setupCommonMocks(useSession as jest.Mock);
-
-    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
-    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
-    (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityCache);
-    (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
-    (useQuery as jest.Mock).mockReturnValue({ data: mockUserProfile, isLoading: false });
-    mockQueryClient.getQueryData.mockReturnValue(mockUserProfile);
-    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+    setupRecommendationCardMocks({
+      useSession: useSession as jest.Mock,
+      useSnackbar: useSnackbar as jest.Mock,
+      useQuery: useQuery as jest.Mock,
+      useQueryClient: useQueryClient as jest.Mock,
+      stores,
+      mockRouter,
+      mockSnackbar,
+      mockQueryClient,
+      mockCapacityCache,
+      mockUserProfile,
+    });
   });
 
   afterEach(cleanupMocks);
@@ -100,7 +93,6 @@ describe('CapacityRecommendationsCarousels', () => {
         userProfile={null}
       />
     );
-    // When both lists are empty, nothing is rendered
     expect(container.firstChild).toBeNull();
   });
 

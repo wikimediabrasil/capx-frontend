@@ -3,7 +3,7 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/projects/route';
 import { NextResponse } from 'next/server';
-import { createAuthenticatedRequest, setupApiTest } from '../helpers/apiTestHelpers';
+import { createAuthenticatedRequest, setupApiTest, testGetRoute, testMutationRoute } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
@@ -11,28 +11,25 @@ const mockAxiosPost = axios.post as jest.Mock;
 describe('/api/projects', () => {
   beforeEach(() => setupApiTest());
 
-  describe('GET', () => {
-    it('returns projects', async () => {
-      mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });
-      await GET(createAuthenticatedRequest('/api/projects'));
-      expect(NextResponse.json).toHaveBeenCalledWith([{ id: 1 }]);
-    });
-
-    it('returns error on failure', async () => {
-      mockAxiosGet.mockRejectedValue({ message: 'fail' });
-      await GET(createAuthenticatedRequest('/api/projects'));
-      expect(NextResponse.json).toHaveBeenCalledWith(
-        expect.objectContaining({ error: 'Failed to fetch projects' }),
-        expect.objectContaining({ status: 500 })
-      );
-    });
+  testGetRoute({
+    mockAxios: mockAxiosGet,
+    handler: GET,
+    path: '/api/projects',
+    axiosData: { results: [{ id: 1 }] },
+    expected: [{ id: 1 }],
+    errorMsg: 'Failed to fetch projects',
+    errorPayload: { message: 'fail' },
   });
 
   describe('POST', () => {
-    it('creates a project', async () => {
-      mockAxiosPost.mockResolvedValue({ data: { id: 1, display_name: 'New' } });
-      await POST(createAuthenticatedRequest('/api/projects', { body: { display_name: 'New' } }));
-      expect(NextResponse.json).toHaveBeenCalledWith({ id: 1, display_name: 'New' });
+    testMutationRoute({
+      mockAxios: mockAxiosPost,
+      handler: POST,
+      path: '/api/projects',
+      body: { display_name: 'New' },
+      axiosData: { id: 1, display_name: 'New' },
+      expected: { id: 1, display_name: 'New' },
+      label: 'creates a project',
     });
 
     it('returns error for invalid response', async () => {

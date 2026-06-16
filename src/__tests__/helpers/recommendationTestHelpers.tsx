@@ -182,6 +182,62 @@ export const mockScrollMethods = () => {
   Element.prototype.scrollTo = jest.fn();
 };
 
+// Mock factory for user profile (used in recommendation card tests)
+export const createMockUserProfile = (overrides = {}) => ({
+  id: 1,
+  username: 'testuser',
+  skills_known: [] as string[],
+  skills_available: [] as string[],
+  skills_wanted: [] as string[],
+  language: ['en'],
+  ...overrides,
+});
+
+/**
+ * Shared beforeEach setup for recommendation card/carousel tests.
+ * Call this inside beforeEach() after jest.clearAllMocks().
+ */
+export const setupRecommendationCardMocks = (deps: {
+  useSession: jest.Mock;
+  useSnackbar: jest.Mock;
+  useQuery: jest.Mock;
+  useQueryClient: jest.Mock;
+  stores: any;
+  mockRouter: ReturnType<typeof createMockRouter>;
+  mockSnackbar: ReturnType<typeof createMockSnackbar>;
+  mockQueryClient: ReturnType<typeof createMockQueryClient>;
+  mockCapacityCache: ReturnType<typeof createMockCapacityCache>;
+  mockUserProfile: ReturnType<typeof createMockUserProfile>;
+  pageContent?: Record<string, string>;
+}) => {
+  const { useRouter } = require('next/navigation');
+  (useRouter as jest.Mock).mockReturnValue(deps.mockRouter);
+  setupCommonMocks(deps.useSession);
+
+  (deps.stores.useDarkMode as jest.Mock).mockReturnValue(false);
+  (deps.stores.useIsMobile as jest.Mock).mockReturnValue(false);
+  if (deps.pageContent) {
+    (deps.stores.usePageContent as jest.Mock).mockReturnValue(deps.pageContent);
+  }
+  (deps.stores.useCapacityStore as jest.Mock).mockReturnValue(deps.mockCapacityCache);
+  (deps.useSnackbar as jest.Mock).mockReturnValue(deps.mockSnackbar);
+  (deps.useQuery as jest.Mock).mockReturnValue({ data: deps.mockUserProfile, isLoading: false });
+  deps.mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
+    if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
+      return deps.mockUserProfile;
+    }
+    return undefined;
+  });
+  (deps.useQueryClient as jest.Mock).mockReturnValue(deps.mockQueryClient);
+};
+
+// No-recommendations page content (shared between SectionNoRecommendations and CardNoRecommendations)
+export const noRecommendationsPageContent = {
+  'home-carousel-suggestions-title-no-capacities': 'No capacities found',
+  'home-carousel-suggestions-description-no-capacities': 'Add capacities to your profile',
+  'home-carousel-suggestions-description-no-capacities-button': 'Edit Profile',
+};
+
 // Setup scrollable container state
 export const setupScrollableContainer = (
   container: HTMLElement,
