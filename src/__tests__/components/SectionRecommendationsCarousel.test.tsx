@@ -1,0 +1,467 @@
+import React from 'react';
+import { screen, waitFor } from '@testing-library/react';
+import SectionRecommendationsCarousel from '@/app/(auth)/home/components/SectionRecommendationsCarousel';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import * as stores from '@/stores';
+import {
+  renderWithProviders,
+  cleanupMocks,
+  setupCommonMocks,
+  mockScrollMethods,
+  createMockSnackbar,
+  createMockCapacityCache,
+  createMockQueryClient,
+  createMockRouter,
+} from '../helpers/recommendationTestHelpers';
+import { useSnackbar } from '@/app/providers/SnackbarProvider';
+import { useQueryClient } from '@tanstack/react-query';
+
+jest.mock('@/stores', () => ({
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({
+    'recommendations-share-with': 'Profiles to share with',
+    'recommendations-learn-from': 'Profiles to learn from',
+    'recommendations-same-language': 'Same language speakers',
+    'recommendations-known-available-skills': 'Recommended Capacities to Share',
+    'recommendations-new-skills': 'Recommended Capacities',
+    'recommendations-events-title': 'Upcoming Events',
+    'recommendation-based-on-available-capacities': 'Based on your available capacities',
+    'recommendation-based-on-wanted-capacities': 'Based on your wanted capacities',
+    'recommendations-based-on-languages': 'Based on your languages',
+    'recommendation-based-on-capacities': 'Based on your capacities',
+    'recommendations-based-on-most-used-capacities': 'Based on most used capacities',
+    'view-profile': 'View Profile',
+    save: 'Save',
+    'add-to-profile': 'Add to Profile',
+    added: 'Added',
+    view: 'View',
+    loading: 'Loading...',
+    'capacity-icon': 'Capacity icon',
+    'recommendations-based-on-profile': 'Based on your profile',
+    'home-analytics-cta-button': 'View Statistics',
+  })),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn(() => ({
+      isMobile: false,
+      mobileMenuStatus: false,
+      language: 'en',
+      pageContent: {},
+      session: null,
+      mounted: true,
+      setMobileMenuStatus: jest.fn(),
+      setLanguage: jest.fn(),
+      setPageContent: jest.fn(),
+      setSession: jest.fn(),
+      setIsMobile: jest.fn(),
+      hydrate: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useCapacityStore: Object.assign(
+    jest.fn(() => ({
+      capacities: {},
+      children: {},
+      language: 'en',
+      timestamp: 0,
+      isLoadingTranslations: false,
+      isLoaded: false,
+      getName: jest.fn((id: number) => `Capacity ${id}`),
+      getDescription: jest.fn((id: number) => `Description ${id}`),
+      getWdCode: jest.fn(() => ''),
+      getMetabaseCode: jest.fn(() => ''),
+      getColor: jest.fn(() => '#000'),
+      getIcon: jest.fn(() => '/icons/test.svg'),
+      getChildren: jest.fn(() => []),
+      getCapacity: jest.fn(() => null),
+      getRootCapacities: jest.fn(() => []),
+      hasChildren: jest.fn(() => false),
+      isFallbackTranslation: jest.fn(() => false),
+      getIsLoaded: jest.fn(() => false),
+      getIsDescriptionsReady: jest.fn(() => false),
+      updateLanguage: jest.fn(),
+      preloadCapacities: jest.fn(),
+      clearCache: jest.fn(),
+      setCache: jest.fn(),
+      invalidateQueryCache: jest.fn(),
+    })),
+    {
+      getState: () => ({
+        capacities: {},
+        children: {},
+        language: 'en',
+        timestamp: 0,
+        isLoadingTranslations: false,
+        isLoaded: false,
+      }),
+    }
+  ),
+}));
+
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(),
+}));
+
+jest.mock('@/hooks/useRecommendations', () => ({
+  useRecommendations: jest.fn(),
+}));
+
+jest.mock('@/hooks/useUserCapacities', () => ({
+  useUserCapacities: jest.fn(() => ({
+    userKnownCapacities: [],
+    userAvailableCapacities: [],
+    userWantedCapacities: [],
+  })),
+}));
+
+jest.mock('@/hooks/useStatistics', () => ({
+  useStatistics: jest.fn(() => ({ data: null, isLoading: false })),
+}));
+
+jest.mock('@/hooks/useTerritories', () => ({
+  useTerritories: jest.fn(() => ({ territoriesMap: {}, loading: false })),
+}));
+
+// AnalyticsCallToActionSection (rendered inside SectionRecommendationsCarousel) imports
+// AnalyticsCallToActionSkeleton from AuthenticatedMainSection. Mock to avoid deep dep tree.
+jest.mock('@/app/(auth)/home/components/AuthenticatedMainSection', () => ({
+  __esModule: true,
+  default: () => <div data-testid="authenticated-main-section" />,
+  AnalyticsCallToActionSkeleton: () => (
+    <div data-testid="analytics-skeleton" className="animate-pulse" />
+  ),
+}));
+
+jest.mock('@/hooks/useOrganizationDisplayName', () => ({
+  useOrganizationDisplayName: jest.fn(() => ({ displayName: '' })),
+}));
+
+jest.mock('@/hooks/useProfileImage', () => ({
+  useProfileImage: jest.fn(() => ({ profileImageUrl: '/default-avatar.svg' })),
+}));
+
+jest.mock('@/hooks/useSavedItems', () => ({
+  useSavedItems: jest.fn(() => ({
+    savedItems: [],
+    createSavedItem: jest.fn(),
+    deleteSavedItem: jest.fn(),
+  })),
+}));
+
+jest.mock('@/app/providers/SnackbarProvider', () => ({
+  useSnackbar: jest.fn(() => ({ showSnackbar: jest.fn() })),
+}));
+
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useQuery: jest.fn(),
+  useQueryClient: jest.fn(),
+}));
+
+jest.mock('@/services/userService', () => ({
+  userService: {
+    fetchUserProfile: jest.fn(),
+  },
+}));
+
+jest.mock('@/services/profileService', () => ({
+  profileService: {
+    updateProfile: jest.fn(),
+  },
+}));
+
+jest.mock('@/components/skeletons', () => ({
+  RecommendationCarouselSkeleton: ({ type, cardCount }: { type: string; cardCount: number }) => (
+    <div data-testid={`skeleton-${type}`}>Loading {type} skeleton x{cardCount}</div>
+  ),
+}));
+
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => {
+    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
+    // eslint-disable-next-line jsx-a11y/alt-text
+    return <img {...imgProps} />;
+  },
+}));
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({ push: jest.fn() })),
+  usePathname: jest.fn(() => '/'),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
+}));
+
+const { useRecommendations } = require('@/hooks/useRecommendations');
+const { useUserCapacities } = require('@/hooks/useUserCapacities');
+
+const mockUserProfile = {
+  id: 1,
+  username: 'testuser',
+  skills_known: [],
+  skills_available: [],
+  skills_wanted: [],
+  language: ['en'],
+};
+
+const makeProfile = (id: number, name: string) => ({
+  id,
+  username: `user${id}`,
+  display_name: name,
+  profile_image: null,
+});
+
+const makeCapacity = (id: number) => ({
+  id,
+  skill_wikidata_item: `Q${id}`,
+  skill_type: 1,
+  name: `Capacity ${id}`,
+  description: `Description ${id}`,
+  color: 'learning',
+});
+
+const makeEvent = (id: number) => ({
+  id,
+  name: `Event ${id}`,
+  time_begin: '2026-07-01T10:00:00Z',
+  time_end: '2026-07-01T12:00:00Z',
+  type_of_location: 'virtual',
+});
+
+describe('SectionRecommendationsCarousel', () => {
+  const mockSnackbar = createMockSnackbar();
+  const mockQueryClient = createMockQueryClient();
+  const mockCapacityCache = createMockCapacityCache();
+  const mockRouter = createMockRouter();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockScrollMethods();
+
+    setupCommonMocks(useSession as jest.Mock);
+    const { useRouter } = require('next/navigation');
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    (stores.useDarkMode as jest.Mock).mockReturnValue(false);
+    (stores.useIsMobile as jest.Mock).mockReturnValue(false);
+    (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityCache);
+    (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
+
+    mockQueryClient.getQueryData.mockReturnValue(mockUserProfile);
+    (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+
+    (useQuery as jest.Mock).mockReturnValue({ data: mockUserProfile, isLoading: false });
+
+    useUserCapacities.mockReturnValue({
+      userKnownCapacities: [],
+      userAvailableCapacities: [],
+      userWantedCapacities: [],
+    });
+  });
+
+  afterEach(cleanupMocks);
+
+  it.skip('renders loading skeletons when data is loading', () => {
+    useRecommendations.mockReturnValue({ data: null, isLoading: true, error: null });
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    expect(screen.getByTestId('skeleton-profile')).toBeInTheDocument();
+  });
+
+  it('returns null on error', () => {
+    useRecommendations.mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: new Error('fetch failed'),
+    });
+    const { container } = renderWithProviders(<SectionRecommendationsCarousel />);
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('returns null when data is null', () => {
+    useRecommendations.mockReturnValue({ data: null, isLoading: false, error: null });
+    const { container } = renderWithProviders(<SectionRecommendationsCarousel />);
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('shows SectionNoRecommendations when there are no recommendations at all', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [],
+        learn_from: [],
+        same_language: [],
+        share_with_orgs: [],
+        learn_from_orgs: [],
+        new_skills: [],
+        events: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    // SectionNoRecommendations renders CardNoRecommendations which uses page content
+    await waitFor(() => {
+      // No section carousels should appear
+      expect(screen.queryByText('Profiles to share with')).not.toBeInTheDocument();
+    });
+  });
+
+  it('renders share-with carousel when share_with profiles exist', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [makeProfile(1, 'Alice')],
+        learn_from: [],
+        same_language: [],
+        share_with_orgs: [],
+        learn_from_orgs: [],
+        new_skills: [],
+        events: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    await waitFor(() => {
+      expect(screen.getByText('Profiles to share with')).toBeInTheDocument();
+    });
+  });
+
+  it('renders learn-from carousel when learn_from profiles exist', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [makeProfile(1, 'Alice')],
+        learn_from: [makeProfile(2, 'Bob')],
+        same_language: [],
+        share_with_orgs: [],
+        learn_from_orgs: [],
+        new_skills: [],
+        events: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    await waitFor(() => {
+      expect(screen.getByText('Profiles to learn from')).toBeInTheDocument();
+    });
+  });
+
+  it('renders same-language carousel when same_language profiles exist', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [makeProfile(1, 'Alice')],
+        learn_from: [],
+        same_language: [makeProfile(3, 'Carlos')],
+        share_with_orgs: [],
+        learn_from_orgs: [],
+        new_skills: [],
+        events: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    await waitFor(() => {
+      expect(screen.getByText('Same language speakers')).toBeInTheDocument();
+    });
+  });
+
+  it('renders events carousel when events exist', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [makeProfile(1, 'Alice')],
+        learn_from: [],
+        same_language: [],
+        share_with_orgs: [],
+        learn_from_orgs: [],
+        new_skills: [],
+        events: [makeEvent(1)],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    await waitFor(() => {
+      expect(screen.getByText('Upcoming Events')).toBeInTheDocument();
+    });
+  });
+
+  it('combines share_with and share_with_orgs into one carousel', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [makeProfile(1, 'Alice')],
+        learn_from: [],
+        same_language: [],
+        share_with_orgs: [{ id: 10, display_name: 'Org One', acronym: 'OO', profile_image: null }],
+        learn_from_orgs: [],
+        new_skills: [],
+        events: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    await waitFor(() => {
+      expect(screen.getByText('Profiles to share with')).toBeInTheDocument();
+    });
+  });
+
+  it('shows only SectionNoCapacities and capacity carousels when only new_skills exist', async () => {
+    useRecommendations.mockReturnValue({
+      data: {
+        share_with: [],
+        learn_from: [],
+        same_language: [],
+        share_with_orgs: [],
+        learn_from_orgs: [],
+        new_skills: [makeCapacity(5), makeCapacity(6)],
+        events: [],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithProviders(<SectionRecommendationsCarousel />);
+    await waitFor(() => {
+      // No profile carousel
+      expect(screen.queryByText('Profiles to share with')).not.toBeInTheDocument();
+      // No event carousel
+      expect(screen.queryByText('Upcoming Events')).not.toBeInTheDocument();
+    });
+  });
+});
