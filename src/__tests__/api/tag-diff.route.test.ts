@@ -9,12 +9,20 @@ describe('/api/tag_diff', () => {
   beforeEach(() => setupApiTest());
   it('GET returns tag diffs', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });
-    await GET(createMockNextRequest('https://localhost:3000/api/tag_diff', { headers: { authorization: 'Token t' } }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/tag_diff', {
+        headers: { authorization: 'Token t' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith([{ id: 1 }]);
   });
   it('GET returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail', response: { status: 500 } });
-    await GET(createMockNextRequest('https://localhost:3000/api/tag_diff', { headers: { authorization: 'Token t' } }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/tag_diff', {
+        headers: { authorization: 'Token t' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Failed to fetch news' }),
       expect.objectContaining({ status: 500 })
@@ -23,12 +31,22 @@ describe('/api/tag_diff', () => {
   it('POST creates tag diff', async () => {
     mockAxiosGet.mockRejectedValue(new Error('not found'));
     mockAxiosPost.mockResolvedValue({ data: { id: 1, tag: 'test' } });
-    await POST(createMockNextRequest('https://localhost:3000/api/tag_diff', { headers: { authorization: 'Token t' }, body: { tag: 'test' } }));
+    await POST(
+      createMockNextRequest('https://localhost:3000/api/tag_diff', {
+        headers: { authorization: 'Token t' },
+        body: { tag: 'test' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith({ id: 1, tag: 'test' });
   });
   it('POST returns existing tag if found', async () => {
     mockAxiosGet.mockResolvedValue({ data: [{ id: 1, tag: 'test' }] });
-    await POST(createMockNextRequest('https://localhost:3000/api/tag_diff', { headers: { authorization: 'Token t' }, body: { tag: 'test' } }));
+    await POST(
+      createMockNextRequest('https://localhost:3000/api/tag_diff', {
+        headers: { authorization: 'Token t' },
+        body: { tag: 'test' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith({ id: 1, tag: 'test' });
   });
 });

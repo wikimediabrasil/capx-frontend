@@ -25,7 +25,11 @@ describe('GET /api/lets_connect/exists', () => {
   });
   it('returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ response: { status: 500 } });
-    await GET(createMockNextRequest('https://localhost:3000/api/lets_connect/exists', { url: 'https://localhost:3000/api/lets_connect/exists?username=testuser' }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/lets_connect/exists', {
+        url: 'https://localhost:3000/api/lets_connect/exists?username=testuser',
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: expect.stringContaining('Failed') }),
       expect.objectContaining({ status: 500 })

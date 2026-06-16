@@ -19,12 +19,12 @@ describe('sanitizeUrl', () => {
     expect(sanitizeUrl(input)).toBe(expected);
   });
 
-  it.each([
-    ['https://example.com'],
-    ['ftp://files.example.com'],
-  ])('preserves existing protocol in %p', (url) => {
-    expect(sanitizeUrl(url)).toBe(url);
-  });
+  it.each([['https://example.com'], ['ftp://files.example.com']])(
+    'preserves existing protocol in %p',
+    url => {
+      expect(sanitizeUrl(url)).toBe(url);
+    }
+  );
 });
 
 describe('sanitizeContactUrls', () => {

@@ -52,7 +52,10 @@ jest.mock('@/hooks/useRecommendations', () => ({
   useRecommendations: jest.fn(),
 }));
 
-jest.mock('@/hooks/useUserCapacities', () => require('../helpers/homeTestMocks').useUserCapacitiesMock);
+jest.mock(
+  '@/hooks/useUserCapacities',
+  () => require('../helpers/homeTestMocks').useUserCapacitiesMock
+);
 jest.mock('@/hooks/useStatistics', () => require('../helpers/homeTestMocks').useStatisticsMock);
 jest.mock('@/hooks/useTerritories', () => require('../helpers/homeTestMocks').useTerritoriesMock);
 
@@ -66,18 +69,27 @@ jest.mock('@/app/(auth)/home/components/AuthenticatedMainSection', () => ({
   ),
 }));
 
-jest.mock('@/hooks/useOrganizationDisplayName', () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock);
+jest.mock(
+  '@/hooks/useOrganizationDisplayName',
+  () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock
+);
 
 jest.mock('@/hooks/useProfileImage', () => ({
   useProfileImage: jest.fn(() => ({ profileImageUrl: '/default-avatar.svg' })),
 }));
 
 jest.mock('@/hooks/useSavedItems', () => require('../helpers/homeTestMocks').useSavedItemsMock);
-jest.mock('@/app/providers/SnackbarProvider', () => require('../helpers/homeTestMocks').snackbarProviderMock);
+jest.mock(
+  '@/app/providers/SnackbarProvider',
+  () => require('../helpers/homeTestMocks').snackbarProviderMock
+);
 
 jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryCardMock());
 jest.mock('@/services/userService', () => require('../helpers/homeTestMocks').userServiceMock);
-jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
+jest.mock(
+  '@/services/profileService',
+  () => require('../helpers/homeTestMocks').profileServiceMock
+);
 
 jest.mock('@/components/skeletons', () => ({
   RecommendationCarouselSkeleton: ({ type, cardCount }: { type: string; cardCount: number }) => (

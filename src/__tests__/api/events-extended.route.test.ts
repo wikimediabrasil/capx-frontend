@@ -57,7 +57,12 @@ describe('POST /api/events - extended', () => {
       related_skills: [1, 2],
       openstreetmap_id: '12345',
     };
-    await POST(createMockNextRequest('https://localhost:3000/api/events', { headers: { authorization: 'Token test' }, body }));
+    await POST(
+      createMockNextRequest('https://localhost:3000/api/events', {
+        headers: { authorization: 'Token test' },
+        body,
+      })
+    );
     const sentData = mockAxiosPost.mock.calls[0][1];
     expect(sentData).toEqual(
       expect.objectContaining({

@@ -19,13 +19,20 @@ describe('/api/lets_connect/profile', () => {
   });
   it('POST creates profile', async () => {
     mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-    await POST(createMockNextRequest('https://localhost:3000/api/lets_connect/profile', { headers: { authorization: 'Token t' }, body: { type: 'mentor' } }));
+    await POST(
+      createMockNextRequest('https://localhost:3000/api/lets_connect/profile', {
+        headers: { authorization: 'Token t' },
+        body: { type: 'mentor' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
   });
   it('GET returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ response: { status: 500 } });
     await GET(
-      createMockNextRequest('https://localhost:3000/api/lets_connect/profile', { url: 'https://localhost:3000/api/lets_connect/profile?username=test' })
+      createMockNextRequest('https://localhost:3000/api/lets_connect/profile', {
+        url: 'https://localhost:3000/api/lets_connect/profile?username=test',
+      })
     );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: expect.stringContaining('Failed') }),

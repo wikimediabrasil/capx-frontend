@@ -12,7 +12,11 @@ describe('GET /api/users', () => {
 
   it('returns users', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });
-    await GET(createMockNextRequest('https://localhost:3000/api/users', { headers: { authorization: 'Token test' } }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/users', {
+        headers: { authorization: 'Token test' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith({ results: [{ id: 1 }] });
   });
 
@@ -26,7 +30,11 @@ describe('GET /api/users', () => {
 
   it('returns 500 on error', async () => {
     mockAxiosGet.mockRejectedValue(new Error('fail'));
-    await GET(createMockNextRequest('https://localhost:3000/api/users', { headers: { authorization: 'Token test' } }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/users', {
+        headers: { authorization: 'Token test' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Failed to fetch user data' }),
       expect.objectContaining({ status: 500 })

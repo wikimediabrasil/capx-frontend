@@ -15,13 +15,21 @@ describe('GET /api/profile_image', () => {
     mockAxiosGet.mockResolvedValue({
       data: { query: { search: [{ title: 'File:Image.png' }] } },
     });
-    await GET(createMockNextRequest('https://localhost:3000/api/profile_image', { url: 'https://localhost:3000/api/profile_image?query=cat' }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/profile_image', {
+        url: 'https://localhost:3000/api/profile_image?query=cat',
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith(['File:Image.png']);
   });
 
   it('returns 404 when no images found', async () => {
     mockAxiosGet.mockResolvedValue({ data: {} });
-    await GET(createMockNextRequest('https://localhost:3000/api/profile_image', { url: 'https://localhost:3000/api/profile_image?query=xxx' }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/profile_image', {
+        url: 'https://localhost:3000/api/profile_image?query=xxx',
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'No images found' }),
       expect.objectContaining({ status: 404 })
@@ -32,7 +40,11 @@ describe('GET /api/profile_image', () => {
     mockAxiosGet.mockResolvedValue({
       request: { res: { responseUrl: 'https://example.com/image.png' } },
     });
-    await GET(createMockNextRequest('https://localhost:3000/api/profile_image', { url: 'https://localhost:3000/api/profile_image?title=File:Image.png' }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/profile_image', {
+        url: 'https://localhost:3000/api/profile_image?title=File:Image.png',
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith({ image: 'https://example.com/image.png' });
   });
 

@@ -9,11 +9,15 @@ import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 const mockAxiosGet = axios.get as jest.Mock;
 
 describe('/api/messages/check_emailable', () => {
-  beforeEach(() => { jest.clearAllMocks(); });
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('POST', () => {
     it('returns 400 without receiver', async () => {
-      await POST(createMockNextRequest('https://localhost:3000/api/messages/check_emailable', { body: {} }));
+      await POST(
+        createMockNextRequest('https://localhost:3000/api/messages/check_emailable', { body: {} })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Receiver username is required' }),
         expect.objectContaining({ status: 400 })
@@ -28,7 +32,11 @@ describe('/api/messages/check_emailable', () => {
           },
         },
       });
-      await POST(createMockNextRequest('https://localhost:3000/api/messages/check_emailable', { body: { receiver: 'receiver_user' } }));
+      await POST(
+        createMockNextRequest('https://localhost:3000/api/messages/check_emailable', {
+          body: { receiver: 'receiver_user' },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
           sender_emailable: true,
@@ -50,7 +58,11 @@ describe('/api/messages/check_emailable', () => {
           },
         },
       });
-      await POST(createMockNextRequest('https://localhost:3000/api/messages/check_emailable', { body: { receiver: 'receiver_user', sender: 'sender_user' } }));
+      await POST(
+        createMockNextRequest('https://localhost:3000/api/messages/check_emailable', {
+          body: { receiver: 'receiver_user', sender: 'sender_user' },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
           sender_emailable: true,
@@ -68,7 +80,11 @@ describe('/api/messages/check_emailable', () => {
           },
         },
       });
-      await POST(createMockNextRequest('https://localhost:3000/api/messages/check_emailable', { body: { receiver: 'receiver_user' } }));
+      await POST(
+        createMockNextRequest('https://localhost:3000/api/messages/check_emailable', {
+          body: { receiver: 'receiver_user' },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
           receiver_exists: false,
@@ -79,7 +95,11 @@ describe('/api/messages/check_emailable', () => {
 
     it('returns 500 on error', async () => {
       mockAxiosGet.mockRejectedValue(new Error('Network error'));
-      await POST(createMockNextRequest('https://localhost:3000/api/messages/check_emailable', { body: { receiver: 'user' } }));
+      await POST(
+        createMockNextRequest('https://localhost:3000/api/messages/check_emailable', {
+          body: { receiver: 'user' },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Failed to check email availability' }),
         expect.objectContaining({ status: 500 })

@@ -15,7 +15,9 @@ describe('GET /api/recommendation', () => {
 
   it('returns recommendations', async () => {
     mockAxiosGet.mockResolvedValue({ data: { profiles: [] } });
-    const req = createMockNextRequest('https://localhost:3000/api/recommendation', { headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/recommendation', {
+      headers: { authorization: 'Token test' },
+    });
     await GET(req);
     expect(NextResponse.json).toHaveBeenCalledWith({ profiles: [] });
   });
@@ -32,7 +34,9 @@ describe('GET /api/recommendation', () => {
   it('calls handleApiError on failure', async () => {
     const { handleApiError } = require('@/lib/utils/api-error-handler');
     mockAxiosGet.mockRejectedValue(new Error('fail'));
-    const req = createMockNextRequest('https://localhost:3000/api/recommendation', { headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/recommendation', {
+      headers: { authorization: 'Token test' },
+    });
     await GET(req);
     expect(handleApiError).toHaveBeenCalled();
   });

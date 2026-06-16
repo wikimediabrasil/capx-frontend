@@ -12,7 +12,9 @@ describe('DELETE /api/saved_item/[id]', () => {
 
   it('deletes saved item', async () => {
     mockAxiosDelete.mockResolvedValue({});
-    const req = createMockNextRequest('https://localhost:3000/api/saved_item/42', { headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item/42', {
+      headers: { authorization: 'Token test' },
+    });
     await DELETE(req, { params: Promise.resolve({ id: '42' }) });
     expect(mockAxiosDelete).toHaveBeenCalledWith(
       'https://test-api.com/saved_item/42/',

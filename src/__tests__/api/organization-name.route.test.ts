@@ -9,7 +9,11 @@ describe('/api/organization_name', () => {
   beforeEach(() => setupApiTest());
   it('GET returns names', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1, name: 'Test' }] } });
-    await GET(createMockNextRequest('https://localhost:3000/api/organization_name', { headers: { authorization: 'Token t' } }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/organization_name', {
+        headers: { authorization: 'Token t' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith({ results: [{ id: 1, name: 'Test' }] });
   });
   it('POST creates name', async () => {
@@ -27,7 +31,11 @@ describe('/api/organization_name', () => {
   });
   it('GET returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail', response: { status: 500 } });
-    await GET(createMockNextRequest('https://localhost:3000/api/organization_name', { headers: { authorization: 'Token t' } }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/organization_name', {
+        headers: { authorization: 'Token t' },
+      })
+    );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: expect.stringContaining('Failed') }),
       expect.objectContaining({ status: 500 })

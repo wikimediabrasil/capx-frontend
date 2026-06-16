@@ -28,17 +28,32 @@ jest.mock('@/stores', () => {
 
 jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/hooks/useProfile', () => require('../helpers/homeTestMocks').useProfileMock);
-jest.mock('@/hooks/useRecommendations', () => require('../helpers/homeTestMocks').useRecommendationsMock);
-jest.mock('@/hooks/useUserCapacities', () => require('../helpers/homeTestMocks').useUserCapacitiesMock);
+jest.mock(
+  '@/hooks/useRecommendations',
+  () => require('../helpers/homeTestMocks').useRecommendationsMock
+);
+jest.mock(
+  '@/hooks/useUserCapacities',
+  () => require('../helpers/homeTestMocks').useUserCapacitiesMock
+);
 jest.mock('@/hooks/useStatistics', () => require('../helpers/homeTestMocks').useStatisticsMock);
 jest.mock('@/hooks/useTerritories', () => require('../helpers/homeTestMocks').useTerritoriesMock);
-jest.mock('@/hooks/useOrganizationDisplayName', () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock);
+jest.mock(
+  '@/hooks/useOrganizationDisplayName',
+  () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock
+);
 jest.mock('@/hooks/useProfileImage', () => require('../helpers/homeTestMocks').useProfileImageMock);
 jest.mock('@/hooks/useSavedItems', () => require('../helpers/homeTestMocks').useSavedItemsMock);
-jest.mock('@/app/providers/SnackbarProvider', () => require('../helpers/homeTestMocks').snackbarProviderMock);
+jest.mock(
+  '@/app/providers/SnackbarProvider',
+  () => require('../helpers/homeTestMocks').snackbarProviderMock
+);
 jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryMock());
 jest.mock('@/services/userService', () => require('../helpers/homeTestMocks').userServiceMock);
-jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
+jest.mock(
+  '@/services/profileService',
+  () => require('../helpers/homeTestMocks').profileServiceMock
+);
 
 jest.mock('@/components/skeletons', () => ({
   RecommendationCarouselSkeleton: () => <div>Loading skeleton</div>,
@@ -138,16 +153,21 @@ describe('AuthenticatedHomeWrapper', () => {
     expect(mockPush).toHaveBeenCalledWith('/profile/edit');
   });
 
-  it('does NOT show incomplete profile popup when profile is complete', async () => {
+  function setupProfileMocks(incomplete: boolean, loading = false) {
     const { useProfile } = require('@/hooks/useProfile');
     const { isProfileIncomplete } = require('@/utils/checkProfileCompleteness');
-
+    const skills = incomplete ? [] : [1];
     (useProfile as jest.Mock).mockReturnValue({
-      profile: { id: 1, username: 'user', skills_known: [1], skills_available: [1] },
-      isLoading: false,
+      profile: loading
+        ? null
+        : { id: 1, username: 'user', skills_known: skills, skills_available: skills },
+      isLoading: loading,
     });
-    (isProfileIncomplete as jest.Mock).mockReturnValue(false);
+    (isProfileIncomplete as jest.Mock).mockReturnValue(incomplete);
+  }
 
+  it('does NOT show incomplete profile popup when profile is complete', async () => {
+    setupProfileMocks(false);
     renderWrapper(false);
     await waitFor(() => {
       expect(screen.queryByTestId('incomplete-profile-popup')).not.toBeInTheDocument();
@@ -155,15 +175,7 @@ describe('AuthenticatedHomeWrapper', () => {
   });
 
   it('shows incomplete profile popup when profile is incomplete', async () => {
-    const { useProfile } = require('@/hooks/useProfile');
-    const { isProfileIncomplete } = require('@/utils/checkProfileCompleteness');
-
-    (useProfile as jest.Mock).mockReturnValue({
-      profile: { id: 1, username: 'user', skills_known: [], skills_available: [] },
-      isLoading: false,
-    });
-    (isProfileIncomplete as jest.Mock).mockReturnValue(true);
-
+    setupProfileMocks(true);
     renderWrapper(false);
     await waitFor(() => {
       expect(screen.getByTestId('incomplete-profile-popup')).toBeInTheDocument();
@@ -174,18 +186,9 @@ describe('AuthenticatedHomeWrapper', () => {
     const { useRouter } = require('next/navigation');
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
-
-    const { useProfile } = require('@/hooks/useProfile');
-    const { isProfileIncomplete } = require('@/utils/checkProfileCompleteness');
-
-    (useProfile as jest.Mock).mockReturnValue({
-      profile: { id: 1, username: 'user', skills_known: [], skills_available: [] },
-      isLoading: false,
-    });
-    (isProfileIncomplete as jest.Mock).mockReturnValue(true);
+    setupProfileMocks(true);
 
     renderWrapper(false);
-
     await waitFor(() => {
       expect(screen.getByTestId('incomplete-profile-popup')).toBeInTheDocument();
     });
@@ -195,13 +198,7 @@ describe('AuthenticatedHomeWrapper', () => {
   });
 
   it('does not show popup when profile is still loading', async () => {
-    const { useProfile } = require('@/hooks/useProfile');
-
-    (useProfile as jest.Mock).mockReturnValue({
-      profile: null,
-      isLoading: true,
-    });
-
+    setupProfileMocks(false, true);
     renderWrapper(false);
     await waitFor(() => {
       expect(screen.queryByTestId('incomplete-profile-popup')).not.toBeInTheDocument();

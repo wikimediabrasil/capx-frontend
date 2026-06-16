@@ -69,7 +69,12 @@ export function testGetRoute(config: {
   noRequest?: boolean;
 }) {
   const {
-    mockAxios, handler, path, axiosData, expected, errorMsg,
+    mockAxios,
+    handler,
+    path,
+    axiosData,
+    expected,
+    errorMsg,
     errorPayload = { response: { status: 500 } },
     noRequest = false,
   } = config;

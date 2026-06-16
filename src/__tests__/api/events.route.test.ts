@@ -78,7 +78,9 @@ describe('POST /api/events', () => {
 
   it('returns 400 for invalid JSON', async () => {
     const req = {
-      ...createMockNextRequest('https://localhost:3000/api/events', { headers: { authorization: 'Token test' } }),
+      ...createMockNextRequest('https://localhost:3000/api/events', {
+        headers: { authorization: 'Token test' },
+      }),
       json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
     } as any;
     await POST(req);

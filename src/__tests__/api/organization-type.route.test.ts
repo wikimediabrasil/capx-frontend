@@ -9,14 +9,18 @@ describe('GET /api/organization_type', () => {
   it('returns org types', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });
     await GET(
-      createMockNextRequest('https://localhost:3000/api/organization_type', { headers: { authorization: 'Token t' } })
+      createMockNextRequest('https://localhost:3000/api/organization_type', {
+        headers: { authorization: 'Token t' },
+      })
     );
     expect(NextResponse.json).toHaveBeenCalledWith([{ id: 1 }]);
   });
   it('returns 500 on error', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail' });
     await GET(
-      createMockNextRequest('https://localhost:3000/api/organization_type', { headers: { authorization: 'Token t' } })
+      createMockNextRequest('https://localhost:3000/api/organization_type', {
+        headers: { authorization: 'Token t' },
+      })
     );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: expect.stringContaining('Failed') }),

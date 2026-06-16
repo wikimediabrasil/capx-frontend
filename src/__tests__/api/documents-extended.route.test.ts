@@ -32,7 +32,11 @@ describe('/api/documents - extended', () => {
       mockAxiosGet.mockRejectedValue({
         response: { status: 503, data: 'Service unavailable' },
       });
-      await GET(createMockNextRequest('https://localhost:3000/api/documents', { headers: { authorization: 'Token test' } }));
+      await GET(
+        createMockNextRequest('https://localhost:3000/api/documents', {
+          headers: { authorization: 'Token test' },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Failed to fetch documents' }),
         expect.objectContaining({ status: 503 })

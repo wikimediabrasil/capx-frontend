@@ -18,9 +18,11 @@ describe('GET /api/organizations', () => {
 
   it('passes search params', async () => {
     mockAxiosGet.mockResolvedValue({ data: [] });
-    await GET(createMockNextRequest('https://localhost:3000/api/organizations', {
-      url: 'https://localhost:3000/api/organizations?search=test&limit=10',
-    }));
+    await GET(
+      createMockNextRequest('https://localhost:3000/api/organizations', {
+        url: 'https://localhost:3000/api/organizations?search=test&limit=10',
+      })
+    );
     expect(mockAxiosGet).toHaveBeenCalledWith(
       'https://test-api.com/organizations/',
       expect.objectContaining({ params: expect.objectContaining({ search: 'test', limit: '10' }) })

@@ -15,9 +15,17 @@ jest.mock('@/stores', () => {
   const { createStoresMock, createCapacityState } = require('../helpers/componentTestHelpers');
   const base = createStoresMock();
   const capacityState = createCapacityState();
-  base.useCapacityStore = Object.assign(jest.fn(() => capacityState), {
-    getState: () => ({ capacities: {}, isLoaded: true, isLoadingTranslations: false, language: 'en' }),
-  });
+  base.useCapacityStore = Object.assign(
+    jest.fn(() => capacityState),
+    {
+      getState: () => ({
+        capacities: {},
+        isLoaded: true,
+        isLoadingTranslations: false,
+        language: 'en',
+      }),
+    }
+  );
   return base;
 });
 

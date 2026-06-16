@@ -35,7 +35,10 @@ jest.mock('@/stores', () => {
 jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/app/providers/SnackbarProvider');
 jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryCardMock());
-jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
+jest.mock(
+  '@/services/profileService',
+  () => require('../helpers/homeTestMocks').profileServiceMock
+);
 jest.mock('@/services/userService');
 jest.mock('next/image', () => require('../helpers/componentTestHelpers').nextImageMock());
 jest.mock('next/navigation');
@@ -151,7 +154,11 @@ describe('RecommendationKnownAndAvailableCapacityCard', () => {
   });
 
   it('shows Added button when capacity is already in known and available lists', async () => {
-    const profileWithCapacity = { ...mockUserProfile, skills_known: ['42'], skills_available: ['42'] };
+    const profileWithCapacity = {
+      ...mockUserProfile,
+      skills_known: ['42'],
+      skills_available: ['42'],
+    };
     mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
       if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
         return profileWithCapacity;

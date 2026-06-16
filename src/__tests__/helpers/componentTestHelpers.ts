@@ -61,16 +61,22 @@ export function createStoresMock(
     ...jest.requireActual('@/stores'),
     useDarkMode: jest.fn(() => darkMode),
     useSetDarkMode: jest.fn(() => jest.fn()),
-    useThemeStore: Object.assign(jest.fn(() => themeStoreState), {
-      getState: () => themeStoreState,
-    }),
+    useThemeStore: Object.assign(
+      jest.fn(() => themeStoreState),
+      {
+        getState: () => themeStoreState,
+      }
+    ),
     useIsMobile: jest.fn(() => isMobile),
     usePageContent: jest.fn(() => pageContent),
     useLanguage: jest.fn(() => language),
     useMobileMenuStatus: jest.fn(() => false),
-    useAppStore: Object.assign(jest.fn(() => appStoreState), {
-      getState: () => appStoreState,
-    }),
+    useAppStore: Object.assign(
+      jest.fn(() => appStoreState),
+      {
+        getState: () => appStoreState,
+      }
+    ),
   };
 
   if (capacityStore) {
@@ -102,9 +108,7 @@ export function createStoresMock(
       updateCapacityTranslation: jest.fn(),
     };
     base.useCapacityStore = Object.assign(
-      jest.fn((selector?: any) =>
-        selector ? selector(capacityStoreState) : capacityStoreState
-      ),
+      jest.fn((selector?: any) => (selector ? selector(capacityStoreState) : capacityStoreState)),
       { getState: () => capacityStoreState }
     );
   }

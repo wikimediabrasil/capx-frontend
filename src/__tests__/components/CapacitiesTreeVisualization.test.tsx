@@ -26,7 +26,14 @@ jest.mock('@/stores', () => {
   });
   base.useCapacityStore = Object.assign(
     jest.fn((selector?: any) => (selector ? selector(defaultState) : defaultState)),
-    { getState: () => ({ capacities: {}, isLoaded: true, isLoadingTranslations: false, language: 'en' }) }
+    {
+      getState: () => ({
+        capacities: {},
+        isLoaded: true,
+        isLoadingTranslations: false,
+        language: 'en',
+      }),
+    }
   );
   return base;
 });

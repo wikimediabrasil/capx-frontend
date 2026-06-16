@@ -13,7 +13,9 @@ describe('GET /api/saved_item', () => {
 
   it('returns saved items', async () => {
     mockAxiosGet.mockResolvedValue({ data: [{ id: 1 }] });
-    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', {
+      headers: { authorization: 'Token test' },
+    });
     await GET(req);
     expect(NextResponse.json).toHaveBeenCalledWith([{ id: 1 }]);
   });
@@ -29,7 +31,9 @@ describe('GET /api/saved_item', () => {
 
   it('returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail', response: { status: 500 } });
-    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', {
+      headers: { authorization: 'Token test' },
+    });
     await GET(req);
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Failed to fetch saved items' }),
@@ -43,13 +47,18 @@ describe('POST /api/saved_item', () => {
 
   it('creates saved item', async () => {
     mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { headers: { authorization: 'Token test' }, body: { profile: 1 } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', {
+      headers: { authorization: 'Token test' },
+      body: { profile: 1 },
+    });
     await POST(req);
     expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
   });
 
   it('returns 401 without auth', async () => {
-    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { body: { profile: 1 } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', {
+      body: { profile: 1 },
+    });
     await POST(req);
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Unauthorized' }),

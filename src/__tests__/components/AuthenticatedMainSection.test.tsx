@@ -36,17 +36,32 @@ jest.mock('@/stores', () => {
 
 jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/hooks/useProfile', () => require('../helpers/homeTestMocks').useProfileMock);
-jest.mock('@/hooks/useRecommendations', () => require('../helpers/homeTestMocks').useRecommendationsMock);
-jest.mock('@/hooks/useUserCapacities', () => require('../helpers/homeTestMocks').useUserCapacitiesMock);
+jest.mock(
+  '@/hooks/useRecommendations',
+  () => require('../helpers/homeTestMocks').useRecommendationsMock
+);
+jest.mock(
+  '@/hooks/useUserCapacities',
+  () => require('../helpers/homeTestMocks').useUserCapacitiesMock
+);
 jest.mock('@/hooks/useStatistics', () => require('../helpers/homeTestMocks').useStatisticsMock);
 jest.mock('@/hooks/useTerritories', () => require('../helpers/homeTestMocks').useTerritoriesMock);
-jest.mock('@/hooks/useOrganizationDisplayName', () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock);
+jest.mock(
+  '@/hooks/useOrganizationDisplayName',
+  () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock
+);
 jest.mock('@/hooks/useProfileImage', () => require('../helpers/homeTestMocks').useProfileImageMock);
 jest.mock('@/hooks/useSavedItems', () => require('../helpers/homeTestMocks').useSavedItemsMock);
-jest.mock('@/app/providers/SnackbarProvider', () => require('../helpers/homeTestMocks').snackbarProviderMock);
+jest.mock(
+  '@/app/providers/SnackbarProvider',
+  () => require('../helpers/homeTestMocks').snackbarProviderMock
+);
 jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryMock());
 jest.mock('@/services/userService', () => require('../helpers/homeTestMocks').userServiceMock);
-jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
+jest.mock(
+  '@/services/profileService',
+  () => require('../helpers/homeTestMocks').profileServiceMock
+);
 
 jest.mock('@/components/skeletons', () => ({
   RecommendationCarouselSkeleton: ({ type }: { type: string }) => (
