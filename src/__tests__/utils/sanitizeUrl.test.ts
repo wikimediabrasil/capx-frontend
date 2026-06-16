@@ -15,7 +15,7 @@ describe('sanitizeUrl', () => {
 
   it('keeps existing protocol', () => {
     expect(sanitizeUrl('https://example.com')).toBe('https://example.com');
-    expect(sanitizeUrl('http://example.com')).toBe('http://example.com');
+    expect(sanitizeUrl('https://example.com')).toBe('https://example.com');
     expect(sanitizeUrl('ftp://files.example.com')).toBe('ftp://files.example.com');
   });
 

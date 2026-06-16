@@ -14,14 +14,14 @@ function createRequest(headers: Record<string, string> = {}) {
 }
 
 describe('DELETE /api/saved_item/[id]', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'http://test-api.com'; });
+  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
 
   it('deletes saved item', async () => {
     mockAxiosDelete.mockResolvedValue({});
     const req = createRequest({ authorization: 'Token test' });
     await DELETE(req, { params: Promise.resolve({ id: '42' }) });
     expect(mockAxiosDelete).toHaveBeenCalledWith(
-      'http://test-api.com/saved_item/42/',
+      'https://test-api.com/saved_item/42/',
       expect.any(Object)
     );
     expect(NextResponse.json).toHaveBeenCalledWith({ success: true });

@@ -18,13 +18,13 @@ describe('GET /api/profile_image', () => {
     mockAxiosGet.mockResolvedValue({
       data: { query: { search: [{ title: 'File:Image.png' }] } },
     });
-    await GET(createRequest('http://localhost:3000/api/profile_image?query=cat'));
+    await GET(createRequest('https://localhost:3000/api/profile_image?query=cat'));
     expect(NextResponse.json).toHaveBeenCalledWith(['File:Image.png']);
   });
 
   it('returns 404 when no images found', async () => {
     mockAxiosGet.mockResolvedValue({ data: {} });
-    await GET(createRequest('http://localhost:3000/api/profile_image?query=xxx'));
+    await GET(createRequest('https://localhost:3000/api/profile_image?query=xxx'));
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'No images found' }),
       expect.objectContaining({ status: 404 })
@@ -35,12 +35,12 @@ describe('GET /api/profile_image', () => {
     mockAxiosGet.mockResolvedValue({
       request: { res: { responseUrl: 'https://example.com/image.png' } },
     });
-    await GET(createRequest('http://localhost:3000/api/profile_image?title=File:Image.png'));
+    await GET(createRequest('https://localhost:3000/api/profile_image?title=File:Image.png'));
     expect(NextResponse.json).toHaveBeenCalledWith({ image: 'https://example.com/image.png' });
   });
 
   it('returns 400 for invalid query', async () => {
-    await GET(createRequest('http://localhost:3000/api/profile_image'));
+    await GET(createRequest('https://localhost:3000/api/profile_image'));
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Invalid query' }),
       expect.objectContaining({ status: 400 })

@@ -291,10 +291,12 @@ describe('SectionRecommendationsCarousel', () => {
 
   afterEach(cleanupMocks);
 
-  it.skip('renders loading skeletons when data is loading', () => {
+  it('renders loading skeletons when data is loading', () => {
     useRecommendations.mockReturnValue({ data: null, isLoading: true, error: null });
     renderWithProviders(<SectionRecommendationsCarousel />);
-    expect(screen.getByTestId('skeleton-profile')).toBeInTheDocument();
+    // Component renders multiple skeletons including two "profile" types
+    const profileSkeletons = screen.getAllByTestId('skeleton-profile');
+    expect(profileSkeletons.length).toBeGreaterThanOrEqual(1);
   });
 
   it('returns null on error', () => {

@@ -18,18 +18,18 @@ function createRequest(url: string, headers: Record<string, string> = {}) {
 describe('GET /api/territory', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('returns territory data on success', async () => {
     const mockData = [{ id: 1, name: 'SSA' }];
     mockAxiosGet.mockResolvedValue({ data: mockData });
 
-    const req = createRequest('http://localhost:3000/api/territory', { authorization: 'Token test' });
+    const req = createRequest('https://localhost:3000/api/territory', { authorization: 'Token test' });
     await GET(req);
 
     expect(mockAxiosGet).toHaveBeenCalledWith(
-      expect.stringContaining('http://test-api.com/territory/'),
+      expect.stringContaining('https://test-api.com/territory/'),
       expect.any(Object)
     );
     expect(NextResponse.json).toHaveBeenCalledWith(mockData);
@@ -38,7 +38,7 @@ describe('GET /api/territory', () => {
   it('passes query params to backend', async () => {
     mockAxiosGet.mockResolvedValue({ data: [] });
 
-    const req = createRequest('http://localhost:3000/api/territory?limit=10', { authorization: 'Token test' });
+    const req = createRequest('https://localhost:3000/api/territory?limit=10', { authorization: 'Token test' });
     await GET(req);
 
     expect(mockAxiosGet).toHaveBeenCalledWith(
@@ -50,7 +50,7 @@ describe('GET /api/territory', () => {
   it('returns 500 on error', async () => {
     mockAxiosGet.mockRejectedValue(new Error('fail'));
 
-    const req = createRequest('http://localhost:3000/api/territory');
+    const req = createRequest('https://localhost:3000/api/territory');
     await GET(req);
 
     expect(NextResponse.json).toHaveBeenCalledWith(

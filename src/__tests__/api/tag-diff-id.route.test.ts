@@ -9,7 +9,7 @@ function createRequest(headers: Record<string, string> = {}) {
 }
 const params = { params: Promise.resolve({ id: '1' }) };
 describe('/api/tag_diff/[id]', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'http://test-api.com'; });
+  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
   it('GET returns tag diff', async () => {
     mockAxiosGet.mockResolvedValue({ data: { id: 1 } });
     await GET(createRequest({ authorization: 'Token t' }), params);

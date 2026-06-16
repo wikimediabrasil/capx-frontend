@@ -11,7 +11,7 @@ function createMockNextRequest(options: {
   headers?: Record<string, string>;
   body?: any;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/profile');
+  const url = new URL(options.url || 'https://localhost:3000/api/profile');
   if (options.searchParams) {
     Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
   }
@@ -29,7 +29,7 @@ function createMockNextRequest(options: {
 describe('GET /api/profile', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('fetches user profile successfully', async () => {
@@ -44,7 +44,7 @@ describe('GET /api/profile', () => {
     await GET(request);
 
     expect(axios.get).toHaveBeenCalledWith(
-      'http://test-api.com/profile/42',
+      'https://test-api.com/profile/42',
       { headers: { Authorization: 'Token abc123' } }
     );
     expect(NextResponse.json).toHaveBeenCalledWith(mockResults);
@@ -91,7 +91,7 @@ describe('GET /api/profile', () => {
     await GET(request);
 
     expect(axios.get).toHaveBeenCalledWith(
-      'http://test-api.com/profile/user%20name',
+      'https://test-api.com/profile/user%20name',
       expect.any(Object)
     );
   });
@@ -100,7 +100,7 @@ describe('GET /api/profile', () => {
 describe('PUT /api/profile', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('updates user profile successfully', async () => {
@@ -160,7 +160,7 @@ describe('PUT /api/profile', () => {
 describe('OPTIONS /api/profile', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('fetches form fields from options endpoint successfully', async () => {
@@ -183,7 +183,7 @@ describe('OPTIONS /api/profile', () => {
 
     await OPTIONS(request);
 
-    expect(axios.options).toHaveBeenCalledWith('http://test-api.com/profile/42', {
+    expect(axios.options).toHaveBeenCalledWith('https://test-api.com/profile/42', {
       headers: { Authorization: 'Token abc123' },
     });
     // The "user" key should be stripped
@@ -214,7 +214,7 @@ describe('OPTIONS /api/profile', () => {
 describe('DELETE /api/profile', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('deletes user profile successfully with status 200', async () => {
@@ -228,7 +228,7 @@ describe('DELETE /api/profile', () => {
 
     await DELETE(request);
 
-    expect(axios.delete).toHaveBeenCalledWith('http://test-api.com/profile/42/', {
+    expect(axios.delete).toHaveBeenCalledWith('https://test-api.com/profile/42/', {
       headers: { Authorization: 'Token abc123' },
     });
     expect(NextResponse.json).toHaveBeenCalledWith({ success: true });

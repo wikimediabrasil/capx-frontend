@@ -10,7 +10,7 @@ function createRequest(headers: Record<string, string> = {}, body?: any) {
 }
 const params = { params: Promise.resolve({ id: '42' }) };
 describe('/api/organization_name/[id]', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'http://test-api.com'; });
+  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
   it('GET returns name', async () => {
     mockAxiosGet.mockResolvedValue({ data: { id: 42, name: 'Test' } });
     await GET(createRequest({ authorization: 'Token t' }), params);

@@ -49,9 +49,10 @@ describe('SuggestCapacityModal', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it.skip('renders the modal when isOpen is true', () => {
+  it('renders the modal when isOpen is true', () => {
     render(<SuggestCapacityModal {...defaultProps} />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    const dialog = document.querySelector('dialog');
+    expect(dialog).toBeInTheDocument();
   });
 
   it('renders the modal title', () => {
@@ -199,12 +200,13 @@ describe('SuggestCapacityModal', () => {
     expect(screen.getByText('Cancel')).toBeDisabled();
   });
 
-  it.skip('renders with dark mode styles', () => {
+  it('renders with dark mode styles', () => {
     const stores = jest.requireMock('@/stores');
     stores.useDarkMode.mockReturnValue(true);
 
     render(<SuggestCapacityModal {...defaultProps} />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    const dialog = document.querySelector('dialog');
+    expect(dialog).toBeInTheDocument();
 
     stores.useDarkMode.mockReturnValue(false);
   });
@@ -226,15 +228,16 @@ describe('SuggestCapacityModal', () => {
     stores.usePageContent.mockReturnValue({});
   });
 
-  it.skip('has accessible aria-modal attribute', () => {
+  it('has accessible aria-modal attribute', () => {
     render(<SuggestCapacityModal {...defaultProps} />);
-    expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
+    const dialog = document.querySelector('dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
   });
 
-  it.skip('has aria-labelledby attribute pointing to title', () => {
+  it('has aria-labelledby attribute pointing to title', () => {
     render(<SuggestCapacityModal {...defaultProps} />);
-    const dialog = screen.getByRole('dialog');
+    const dialog = document.querySelector('dialog');
     expect(dialog).toHaveAttribute('aria-labelledby', 'suggest-capacity-modal-title');
-    expect(screen.getByRole('heading', { name: /Suggest a new capacity/i })).toBeInTheDocument();
+    expect(screen.getByText('Suggest a new capacity')).toBeInTheDocument();
   });
 });

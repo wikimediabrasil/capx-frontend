@@ -10,7 +10,7 @@ function createMockNextRequest(options: {
   headers?: Record<string, string>;
   body?: any;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/skill');
+  const url = new URL(options.url || 'https://localhost:3000/api/skill');
   if (options.searchParams) {
     Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
   }
@@ -27,7 +27,7 @@ function createMockNextRequest(options: {
 
 describe('GET /api/skill', () => {
   beforeEach(() => {
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
     jest.clearAllMocks();
   });
 
@@ -41,7 +41,7 @@ describe('GET /api/skill', () => {
 
     const response = await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/skill', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/skill', {
       headers: { Authorization: 'Token abc123' },
       params: { limit: null, offset: null },
     });
@@ -59,7 +59,7 @@ describe('GET /api/skill', () => {
 
     await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/skill', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/skill', {
       headers: { Authorization: 'Token abc123' },
       params: { limit: '10', offset: '20' },
     });

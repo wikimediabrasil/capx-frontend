@@ -11,7 +11,7 @@ function createMockNextRequest(options: {
   headers?: Record<string, string>;
   body?: any;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/badges');
+  const url = new URL(options.url || 'https://localhost:3000/api/badges');
   if (options.searchParams) {
     Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
   }
@@ -29,7 +29,7 @@ function createMockNextRequest(options: {
 describe('GET /api/badges', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('fetches all badges when no badgeId is provided', async () => {
@@ -42,7 +42,7 @@ describe('GET /api/badges', () => {
 
     await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/badges', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/badges', {
       headers: { Authorization: 'Token abc123' },
       params: { limit: null, offset: null },
     });
@@ -60,7 +60,7 @@ describe('GET /api/badges', () => {
 
     await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/badges/5', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/badges/5', {
       headers: { Authorization: 'Token abc123' },
       params: { limit: null, offset: null },
     });
@@ -77,7 +77,7 @@ describe('GET /api/badges', () => {
 
     await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/badges', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/badges', {
       headers: { Authorization: 'Token abc123' },
       params: { limit: '10', offset: '20' },
     });
@@ -123,7 +123,7 @@ describe('GET /api/badges', () => {
 
     await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/badges', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/badges', {
       headers: { Authorization: null },
       params: { limit: null, offset: null },
     });

@@ -11,7 +11,7 @@ function createMockNextRequest(options: {
   headers?: Record<string, string>;
   body?: any;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/profile/42');
+  const url = new URL(options.url || 'https://localhost:3000/api/profile/42');
   if (options.searchParams) {
     Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
   }
@@ -29,7 +29,7 @@ function createMockNextRequest(options: {
 describe('GET /api/profile/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('fetches user profile by id successfully', async () => {
@@ -43,7 +43,7 @@ describe('GET /api/profile/[id]', () => {
 
     await GET(request, { params });
 
-    expect(axios.get).toHaveBeenCalledWith('http://test-api.com/profile/42/', {
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/profile/42/', {
       headers: { Authorization: 'Token abc123' },
     });
     expect(NextResponse.json).toHaveBeenCalledWith(mockData);
@@ -90,7 +90,7 @@ describe('GET /api/profile/[id]', () => {
 describe('PUT /api/profile/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('updates user profile by id successfully', async () => {
@@ -107,7 +107,7 @@ describe('PUT /api/profile/[id]', () => {
     await PUT(request, { params });
 
     expect(axios.put).toHaveBeenCalledWith(
-      'http://test-api.com/profile/42/',
+      'https://test-api.com/profile/42/',
       { username: 'updateduser', bio: 'Hello', user: { id: 42 } },
       { headers: { Authorization: 'Token abc123' } }
     );

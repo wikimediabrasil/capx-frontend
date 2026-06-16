@@ -19,7 +19,7 @@ jest.mock('next/server', () => {
 describe('middleware', () => {
   it('adds x-url, x-origin, and x-pathname headers', () => {
     const mockRequest = {
-      url: 'http://localhost:3000/profile/test-user',
+      url: 'https://localhost:3000/profile/test-user',
       headers: new Headers({ host: 'localhost:3000' }),
     };
 

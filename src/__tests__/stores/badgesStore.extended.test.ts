@@ -171,7 +171,7 @@ describe('badgesStore - extended', () => {
       expect(mockedUserBadgeService.getUserBadges).toHaveBeenCalledWith('token');
     });
 
-    it.skip('sets error and rethrows on failure', async () => {
+    it('sets error and rethrows on failure', async () => {
       mockedUserBadgeService.updateUserBadge.mockRejectedValueOnce(new Error('Update failed'));
 
       // Ensure state has userBadges so the map actually calls updateUserBadge
@@ -182,12 +182,17 @@ describe('badgesStore - extended', () => {
         });
       });
 
-      await expect(
-        act(async () => {
+      let thrownError: Error | undefined;
+      try {
+        await act(async () => {
           await useBadgesStore.getState().updateUserBadges([1], 'token');
-        })
-      ).rejects.toThrow('Update failed');
+        });
+      } catch (e) {
+        thrownError = e as Error;
+      }
 
+      expect(thrownError).toBeDefined();
+      expect(thrownError!.message).toBe('Update failed');
       expect(useBadgesStore.getState().error).toBe('Failed to update badges display status');
       expect(useBadgesStore.getState().isLoading).toBe(false);
     });

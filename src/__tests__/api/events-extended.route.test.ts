@@ -13,7 +13,7 @@ function createRequest(options: {
   body?: any;
   jsonError?: boolean;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/events');
+  const url = new URL(options.url || 'https://localhost:3000/api/events');
   return {
     url: url.toString(),
     nextUrl: url,
@@ -27,16 +27,16 @@ function createRequest(options: {
 describe('GET /api/events - extended', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('passes all query params to backend', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [], count: 0 } });
     const url =
-      'http://localhost:3000/api/events?limit=10&offset=5&related_skills=1,2&territories=18&type_of_location=virtual&start_date=2024-01-01&end_date=2024-12-31&organization_id=5';
+      'https://localhost:3000/api/events?limit=10&offset=5&related_skills=1,2&territories=18&type_of_location=virtual&start_date=2024-01-01&end_date=2024-12-31&organization_id=5';
     await GET(createRequest({ url }));
     expect(mockAxiosGet).toHaveBeenCalledWith(
-      'http://test-api.com/events/',
+      'https://test-api.com/events/',
       expect.objectContaining({
         params: expect.objectContaining({
           limit: '10',
@@ -62,7 +62,7 @@ describe('GET /api/events - extended', () => {
 describe('POST /api/events - extended', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('includes optional fields when provided', async () => {

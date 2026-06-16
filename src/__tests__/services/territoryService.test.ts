@@ -50,7 +50,7 @@ describe('fetchTerritories', () => {
       .mockResolvedValueOnce({
         data: {
           results: page1,
-          next: 'http://example.com/api/territory/?limit=2&offset=2',
+          next: 'https://example.com/api/territory/?limit=2&offset=2',
         },
       })
       .mockResolvedValueOnce({
@@ -68,7 +68,7 @@ describe('fetchTerritories', () => {
       .mockResolvedValueOnce({
         data: {
           results: [{ id: 1 }],
-          next: 'http://example.com/api/territory/?limit=1&offset=1',
+          next: 'https://example.com/api/territory/?limit=1&offset=1',
         },
       })
       .mockResolvedValueOnce({
@@ -89,10 +89,10 @@ describe('fetchTerritories', () => {
 
     mockedAxios.get
       .mockResolvedValueOnce({
-        data: { results: page1, next: 'http://example.com/api/territory/?offset=2' },
+        data: { results: page1, next: 'https://example.com/api/territory/?offset=2' },
       })
       .mockResolvedValueOnce({
-        data: { results: page2, next: 'http://example.com/api/territory/?offset=4' },
+        data: { results: page2, next: 'https://example.com/api/territory/?offset=4' },
       })
       .mockResolvedValueOnce({
         data: { results: page3, next: null },

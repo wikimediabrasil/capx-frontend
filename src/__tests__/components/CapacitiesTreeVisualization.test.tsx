@@ -63,6 +63,28 @@ jest.mock('@/stores', () => ({
 describe('CapacitiesTreeVisualization', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Restore default mock (clearAllMocks doesn't reset mockImplementation from prior tests)
+    const stores = jest.requireMock('@/stores');
+    stores.useCapacityStore.mockImplementation((selector?: any) => {
+      const state = {
+        capacities: {},
+        isLoaded: true,
+        isLoadingTranslations: false,
+        language: 'en',
+        getName: jest.fn((code: number) => `Capacity ${code}`),
+        getDescription: jest.fn(() => 'Description'),
+        getWdCode: jest.fn(() => ''),
+        getMetabaseCode: jest.fn(() => ''),
+        getColor: jest.fn(() => 'organizational'),
+        getChildren: jest.fn(() => []),
+        getRootCapacities: jest.fn(() => [
+          { code: 10, name: 'organizational', color: 'organizational' },
+          { code: 36, name: 'communication', color: 'communication' },
+        ]),
+        isFallbackTranslation: jest.fn(() => false),
+      };
+      return selector ? selector(state) : state;
+    });
   });
 
   it('renders the D3TreeVisualization when data is available and cache is loaded', () => {
@@ -142,7 +164,7 @@ describe('CapacitiesTreeVisualization', () => {
     expect(screen.getByText('Nenhuma capacidade encontrada.')).toBeInTheDocument();
   });
 
-  it.skip('passes the correct number of root capacities to D3TreeVisualization', () => {
+  it('passes the correct number of root capacities to D3TreeVisualization', () => {
     render(<CapacitiesTreeVisualization />);
     const d3Tree = screen.getByTestId('d3-tree');
     // 2 root capacities from mock: codes 10 and 36

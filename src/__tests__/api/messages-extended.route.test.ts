@@ -9,7 +9,7 @@ const mockAxiosPost = axios.post as jest.Mock;
 const mockAxiosOptions = axios.options as jest.Mock;
 
 function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/messages');
+  const url = new URL(options.url || 'https://localhost:3000/api/messages');
   return {
     nextUrl: url,
     headers: { get: (name: string) => options.headers?.[name] || null },
@@ -20,7 +20,7 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 describe('/api/messages - extended', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   describe('GET', () => {
@@ -28,12 +28,12 @@ describe('/api/messages - extended', () => {
       mockAxiosGet.mockResolvedValue({ data: { results: { id: 1, content: 'Hello' } } });
       await GET(
         createRequest({
-          url: 'http://localhost:3000/api/messages?messageId=42',
+          url: 'https://localhost:3000/api/messages?messageId=42',
           headers: { authorization: 'Token test' },
         })
       );
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://test-api.com/messages/42',
+        'https://test-api.com/messages/42',
         expect.anything()
       );
     });
@@ -42,12 +42,12 @@ describe('/api/messages - extended', () => {
       mockAxiosGet.mockResolvedValue({ data: { results: [] } });
       await GET(
         createRequest({
-          url: 'http://localhost:3000/api/messages?limit=10&offset=20',
+          url: 'https://localhost:3000/api/messages?limit=10&offset=20',
           headers: { authorization: 'Token test' },
         })
       );
       expect(mockAxiosGet).toHaveBeenCalledWith(
-        'http://test-api.com/messages',
+        'https://test-api.com/messages',
         expect.objectContaining({
           params: expect.objectContaining({ limit: '10', offset: '20' }),
         })
@@ -86,7 +86,7 @@ describe('/api/messages - extended', () => {
       });
       await OPTIONS(
         createRequest({
-          url: 'http://localhost:3000/api/messages?messageId=42',
+          url: 'https://localhost:3000/api/messages?messageId=42',
           headers: { authorization: 'Token test' },
         })
       );
@@ -100,7 +100,7 @@ describe('/api/messages - extended', () => {
       mockAxiosOptions.mockRejectedValue({ response: { status: 500 } });
       await OPTIONS(
         createRequest({
-          url: 'http://localhost:3000/api/messages?messageId=42',
+          url: 'https://localhost:3000/api/messages?messageId=42',
           headers: { authorization: 'Token test' },
         })
       );

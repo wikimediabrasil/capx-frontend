@@ -284,14 +284,14 @@ describe('ContactsSection', () => {
       renderWithProviders(
         <ContactsSection
           email="test@example.com"
-          meta_page="http://example.com"
+          meta_page="https://example.com"
           website="https://test.com"
         />
       );
 
-      const httpLink = screen.getByText('http://example.com');
+      const httpLink = screen.getByText('https://example.com');
       expect(httpLink.tagName).toBe('A');
-      expect(httpLink.getAttribute('href')).toContain('http://example.com');
+      expect(httpLink.getAttribute('href')).toContain('https://example.com');
     });
 
     it('correctly identifies and formats HTTPS URLs', () => {

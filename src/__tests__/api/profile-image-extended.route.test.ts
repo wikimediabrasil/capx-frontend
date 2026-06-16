@@ -16,7 +16,7 @@ describe('GET /api/profile_image - extended', () => {
 
   it('returns 500 on query search error', async () => {
     mockAxiosGet.mockRejectedValue(new Error('Network error'));
-    await GET(createRequest('http://localhost:3000/api/profile_image?query=cat'));
+    await GET(createRequest('https://localhost:3000/api/profile_image?query=cat'));
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Failed to fetch images' }),
       expect.objectContaining({ status: 500 })
@@ -25,7 +25,7 @@ describe('GET /api/profile_image - extended', () => {
 
   it('returns 500 on title fetch error', async () => {
     mockAxiosGet.mockRejectedValue(new Error('Network error'));
-    await GET(createRequest('http://localhost:3000/api/profile_image?title=File:Test.png'));
+    await GET(createRequest('https://localhost:3000/api/profile_image?title=File:Test.png'));
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Failed to fetch image' }),
       expect.objectContaining({ status: 500 })
@@ -37,7 +37,7 @@ describe('GET /api/profile_image - extended', () => {
       request: { res: { responseUrl: 'https://example.com/thumb.png' } },
     });
     await GET(
-      createRequest('http://localhost:3000/api/profile_image?title=File:Test.png&thumb=true')
+      createRequest('https://localhost:3000/api/profile_image?title=File:Test.png&thumb=true')
     );
     expect(mockAxiosGet).toHaveBeenCalledWith(
       expect.stringContaining('width=100&height=50'),

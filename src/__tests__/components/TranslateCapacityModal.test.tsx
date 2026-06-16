@@ -80,11 +80,12 @@ describe('TranslateCapacityModal', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it.skip('renders the modal dialog when isOpen is true', async () => {
+  it('renders the modal dialog when isOpen is true', async () => {
     await act(async () => {
       render(<TranslateCapacityModal {...defaultProps} />);
     });
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    const dialog = document.querySelector('dialog');
+    expect(dialog).toBeInTheDocument();
   });
 
   it('renders the modal title', async () => {
@@ -275,16 +276,14 @@ describe('TranslateCapacityModal', () => {
     });
   });
 
-  it.skip('renders Metabase icon', async () => {
+  it('renders Metabase icon', async () => {
     await act(async () => {
       render(<TranslateCapacityModal {...defaultProps} />);
     });
-    const images = screen.getAllByRole('img');
-    const metabaseImg = images.find(img => img.getAttribute('alt') === 'Metabase');
-    expect(metabaseImg).toBeInTheDocument();
+    expect(screen.getByAltText('Metabase')).toBeInTheDocument();
   });
 
-  it.skip('shows dark mode styles when darkMode is true', async () => {
+  it('shows dark mode styles when darkMode is true', async () => {
     const stores = jest.requireMock('@/stores');
     stores.useDarkMode.mockReturnValue(true);
 
@@ -292,7 +291,7 @@ describe('TranslateCapacityModal', () => {
       render(<TranslateCapacityModal {...defaultProps} />);
     });
 
-    const dialog = screen.getByRole('dialog');
+    const dialog = document.querySelector('dialog');
     expect(dialog).toBeInTheDocument();
 
     stores.useDarkMode.mockReturnValue(false);

@@ -6,13 +6,13 @@ import { NextResponse } from 'next/server';
 
 const mockAxiosGet = axios.get as jest.Mock;
 
-function createRequest(url = 'http://localhost:3000/api/organizations') {
+function createRequest(url = 'https://localhost:3000/api/organizations') {
   const parsedUrl = new URL(url);
   return { nextUrl: parsedUrl, headers: { get: () => null } } as any;
 }
 
 describe('GET /api/organizations', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'http://test-api.com'; });
+  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
 
   it('returns organizations', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });
@@ -22,9 +22,9 @@ describe('GET /api/organizations', () => {
 
   it('passes search params', async () => {
     mockAxiosGet.mockResolvedValue({ data: [] });
-    await GET(createRequest('http://localhost:3000/api/organizations?search=test&limit=10'));
+    await GET(createRequest('https://localhost:3000/api/organizations?search=test&limit=10'));
     expect(mockAxiosGet).toHaveBeenCalledWith(
-      'http://test-api.com/organizations/',
+      'https://test-api.com/organizations/',
       expect.objectContaining({ params: expect.objectContaining({ search: 'test', limit: '10' }) })
     );
   });

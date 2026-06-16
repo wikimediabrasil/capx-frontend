@@ -88,8 +88,11 @@ describe('auth-monitor', () => {
     setLocation('/home', '');
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     stopAuthMonitoring();
+    // Flush pending timers (e.g. the 2000ms isCheckingAuth reset inside forceLogout)
+    // so the module-level flag doesn't leak between tests.
+    await jest.runAllTimersAsync();
     jest.useRealTimers();
   });
 
@@ -228,7 +231,7 @@ describe('auth-monitor', () => {
   // 2-second watcher: OAuth token removal detection
   // -------------------------------------------------------------------------
   describe('2-second watcher - OAuth token removal', () => {
-    it.skip('triggers forceLogout when OAuth tokens are removed mid-session', async () => {
+    it('triggers forceLogout when OAuth tokens are removed mid-session', async () => {
       // Initially present
       sessionStorageMock.getItem.mockImplementation((key: string) => {
         if (key === 'oauth_token') return 'token123';
@@ -278,7 +281,7 @@ describe('auth-monitor', () => {
   // 30-second watcher: token validity
   // -------------------------------------------------------------------------
   describe('30-second watcher - token validity', () => {
-    it.skip('triggers forceLogout when token validity check returns 401 with "Invalid token."', async () => {
+    it('triggers forceLogout when token validity check returns 401 with "Invalid token."', async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 401,
@@ -292,7 +295,7 @@ describe('auth-monitor', () => {
       expect(mockedSignOut).toHaveBeenCalled();
     });
 
-    it.skip('triggers forceLogout when shouldLogout=true in 401 response', async () => {
+    it('triggers forceLogout when shouldLogout=true in 401 response', async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 401,
@@ -332,7 +335,7 @@ describe('auth-monitor', () => {
       expect(mockedSignOut).not.toHaveBeenCalled();
     });
 
-    it.skip('triggers logout when checkTokenValidity fetch throws', async () => {
+    it('triggers logout when checkTokenValidity fetch throws', async () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
@@ -343,7 +346,7 @@ describe('auth-monitor', () => {
       expect(mockedSignOut).toHaveBeenCalled();
     });
 
-    it.skip('also returns false (and triggers logout) when session is expired during token check', async () => {
+    it('also returns false (and triggers logout) when session is expired during token check', async () => {
       const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
       const oldTimestamp = Date.now() - TEN_DAYS_MS - 1;
       localStorageMock.getItem.mockImplementation((key: string) =>
@@ -423,7 +426,7 @@ describe('auth-monitor', () => {
   // testTokenExpiration
   // -------------------------------------------------------------------------
   describe('testTokenExpiration', () => {
-    it.skip('calls forceLogout and redirects to /', async () => {
+    it('calls forceLogout and redirects to /', async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: true,
         status: 200,

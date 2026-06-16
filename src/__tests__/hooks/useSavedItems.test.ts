@@ -116,8 +116,7 @@ describe('useSavedItems', () => {
     expect(result.current.getSavedItemId(999, false)).toBeNull();
   });
 
-  // Skipped: depends on mockReturnValueOnce ordering with multiple useQuery calls
-  it.skip('paginatedProfiles returns correct slice', () => {
+  it('paginatedProfiles returns correct slice', () => {
     const mockProfiles = Array.from({ length: 10 }, (_, i) => ({
       id: i + 1,
       username: `user${i + 1}`,
@@ -126,9 +125,17 @@ describe('useSavedItems', () => {
       savedItemId: i + 1,
     }));
 
-    mockUseQuery
-      .mockReturnValueOnce({ data: mockSavedItems, isLoading: false, error: null })
-      .mockReturnValueOnce({ data: mockProfiles, isLoading: false, error: null });
+    // mockReset clears the mockReturnValueOnce queue set by beforeEach
+    mockUseQuery.mockReset().mockImplementation((options: any) => {
+      const key = options.queryKey?.[0];
+      if (key === 'savedItems') {
+        return { data: mockSavedItems, isLoading: false, error: null };
+      }
+      if (key === 'savedItemProfiles') {
+        return { data: mockProfiles, isLoading: false, error: null };
+      }
+      return { data: undefined, isLoading: false, error: null };
+    });
 
     const { result } = renderHook(() => useSavedItems());
 
@@ -224,15 +231,23 @@ describe('useSavedItems', () => {
     expect(success).toBe(false);
   });
 
-  it.skip('count reflects number of all profiles', () => {
+  it('count reflects number of all profiles', () => {
     const mockProfiles = [
       { id: 1, username: 'user1', type: 'learner', isOrganization: false, savedItemId: 1 },
       { id: 2, username: 'user2', type: 'sharer', isOrganization: false, savedItemId: 2 },
     ];
 
-    mockUseQuery
-      .mockReturnValueOnce({ data: mockSavedItems, isLoading: false, error: null })
-      .mockReturnValueOnce({ data: mockProfiles, isLoading: false, error: null });
+    // mockReset clears the mockReturnValueOnce queue set by beforeEach
+    mockUseQuery.mockReset().mockImplementation((options: any) => {
+      const key = options.queryKey?.[0];
+      if (key === 'savedItems') {
+        return { data: mockSavedItems, isLoading: false, error: null };
+      }
+      if (key === 'savedItemProfiles') {
+        return { data: mockProfiles, isLoading: false, error: null };
+      }
+      return { data: undefined, isLoading: false, error: null };
+    });
 
     const { result } = renderHook(() => useSavedItems());
 

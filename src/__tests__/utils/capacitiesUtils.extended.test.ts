@@ -10,7 +10,7 @@ jest.mock('@/public/static/images/local_library.svg', () => 'local_library.svg')
 jest.mock('@/public/static/images/wifi_tethering.svg', () => 'wifi_tethering.svg');
 
 jest.mock('@/lib/utils/environment', () => ({
-  getApiBaseUrl: jest.fn(() => 'http://localhost:3000'),
+  getApiBaseUrl: jest.fn(() => 'https://localhost:3000'),
 }));
 
 jest.mock('axios');

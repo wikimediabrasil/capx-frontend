@@ -8,7 +8,7 @@ const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPut = axios.put as jest.Mock;
 
 function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/user_badge');
+  const url = new URL(options.url || 'https://localhost:3000/api/user_badge');
   return {
     nextUrl: url,
     headers: { get: (name: string) => options.headers?.[name] || null },
@@ -17,7 +17,7 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 }
 
 describe('/api/user_badge', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'http://test-api.com'; });
+  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
 
   describe('GET', () => {
     it('returns user badges', async () => {

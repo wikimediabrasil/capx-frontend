@@ -19,7 +19,7 @@ function createRequest(options: { headers?: Record<string, string>; body?: any }
 describe('POST /api/check-auth', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('returns 401 when no authorization header', async () => {

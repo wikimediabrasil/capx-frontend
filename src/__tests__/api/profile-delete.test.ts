@@ -9,7 +9,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 describe('DELETE /api/profile', () => {
   const mockUserId = 123;
   const mockToken = 'test-token-123';
-  const mockBaseUrl = 'http://localhost:8000';
+  const mockBaseUrl = 'https://localhost:8000';
 
   beforeAll(() => {
     process.env.BASE_URL = mockBaseUrl;

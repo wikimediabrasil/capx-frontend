@@ -10,7 +10,7 @@ function createMockNextRequest(options: {
   headers?: Record<string, string>;
   body?: any;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/tag');
+  const url = new URL(options.url || 'https://localhost:3000/api/tag');
   if (options.searchParams) {
     Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
   }
@@ -27,7 +27,7 @@ function createMockNextRequest(options: {
 
 describe('GET /api/tag', () => {
   beforeEach(() => {
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
     jest.clearAllMocks();
   });
 

@@ -57,10 +57,10 @@ describe('environment utils', () => {
   describe('getApiBaseUrl', () => {
     it('returns window.location.origin when available', () => {
       Object.defineProperty(window, 'location', {
-        value: { hostname: 'localhost', origin: 'http://localhost:3000' },
+        value: { hostname: 'localhost', origin: 'https://localhost:3000' },
         writable: true,
       });
-      expect(getApiBaseUrl()).toBe('http://localhost:3000');
+      expect(getApiBaseUrl()).toBe('https://localhost:3000');
     });
   });
 });

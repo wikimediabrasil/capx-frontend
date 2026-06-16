@@ -12,7 +12,7 @@ function createRequest(options: {
   headers?: Record<string, string>;
   body?: any;
 }) {
-  const url = new URL(options.url || 'http://localhost:3000/api/events');
+  const url = new URL(options.url || 'https://localhost:3000/api/events');
   return {
     url: url.toString(),
     nextUrl: url,
@@ -24,7 +24,7 @@ function createRequest(options: {
 describe('GET /api/events', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('returns events on success', async () => {
@@ -55,7 +55,7 @@ describe('GET /api/events', () => {
 describe('POST /api/events', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.BASE_URL = 'http://test-api.com';
+    process.env.BASE_URL = 'https://test-api.com';
   });
 
   it('creates event on success', async () => {
