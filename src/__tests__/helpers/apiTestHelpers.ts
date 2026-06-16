@@ -60,7 +60,7 @@ export function createAuthenticatedRequest(
  */
 export function testGetRoute(config: {
   mockAxios: jest.Mock;
-  handler: Function;
+  handler: (...args: any[]) => any;
   path: string;
   axiosData: any;
   expected: any;
@@ -102,7 +102,7 @@ export function testGetRoute(config: {
  */
 export function testMutationRoute(config: {
   mockAxios: jest.Mock;
-  handler: Function;
+  handler: (...args: any[]) => any;
   path: string;
   body: any;
   axiosData: any;
