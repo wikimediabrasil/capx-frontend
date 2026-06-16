@@ -93,6 +93,10 @@ const validSession: Session = {
   expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
 };
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('MobileMenu', () => {
   beforeEach(() => {
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
@@ -101,10 +105,6 @@ describe('MobileMenu', () => {
       'sign-out-button': 'Logout',
     });
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   it('renders sign in button when not logged in', () => {
     renderWithProviders(<MobileMenu session={null} />);

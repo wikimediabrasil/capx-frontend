@@ -126,6 +126,20 @@ const mockCapacities: Record<number, ReturnType<typeof makeCapacity>> = {
   76: makeCapacity(76, 'E-Learning'),
 };
 
+const openTranslationPanel = () => {
+  (useCapacityStore as unknown as jest.Mock).mockReturnValue({
+    capacities: { 39: makeCapacity(39, 'Translation') },
+    getName: jest.fn(() => ''),
+    getDescription: jest.fn(() => 'Test capacity description'),
+    getWdCode: jest.fn(() => 'Q12345'),
+    getMetabaseCode: jest.fn(() => 'M9001'),
+    getIcon: jest.fn(() => null),
+    isFallbackTranslation: jest.fn(() => false),
+  });
+  render(<CapacityCategories />);
+  fireEvent.click(screen.getByText('Translation'));
+};
+
 describe('CapacityCategories', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -409,20 +423,6 @@ describe('CapacityCategories', () => {
   });
 
   describe('CapacityInfoPanel', () => {
-    const openTranslationPanel = () => {
-      (useCapacityStore as unknown as jest.Mock).mockReturnValue({
-        capacities: { 39: makeCapacity(39, 'Translation') },
-        getName: jest.fn(() => ''),
-        getDescription: jest.fn(() => 'Test capacity description'),
-        getWdCode: jest.fn(() => 'Q12345'),
-        getMetabaseCode: jest.fn(() => 'M9001'),
-        getIcon: jest.fn(() => null),
-        isFallbackTranslation: jest.fn(() => false),
-      });
-      render(<CapacityCategories />);
-      fireEvent.click(screen.getByText('Translation'));
-    };
-
     it('displays the capacity name in the panel header', () => {
       openTranslationPanel();
       // The capacity name appears as a heading in the panel

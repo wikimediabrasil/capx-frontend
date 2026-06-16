@@ -13,11 +13,11 @@ const TestComponent = () => {
   );
 };
 
-describe('SnackbarProvider', () => {
-  const renderWithProvider = (component: React.ReactNode) => {
-    return render(<SnackbarProvider>{component}</SnackbarProvider>);
-  };
+const renderWithProvider = (component: React.ReactNode) => {
+  return render(<SnackbarProvider>{component}</SnackbarProvider>);
+};
 
+describe('SnackbarProvider', () => {
   beforeEach(() => {
     // Mock window.innerWidth for mobile detection
     Object.defineProperty(window, 'innerWidth', {

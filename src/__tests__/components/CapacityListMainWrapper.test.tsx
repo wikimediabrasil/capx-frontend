@@ -216,6 +216,26 @@ const mockPageContent = {
   loading: 'Loading...',
 };
 
+const renderWithProviders = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <SnackbarProvider>{ui}</SnackbarProvider>
+    </QueryClientProvider>
+  );
+};
+
+// Helper to mount and fast-forward past the mounting effect
+const mountAndSettle = async (ui: React.ReactElement) => {
+  const result = renderWithProviders(ui);
+  await act(async () => {
+    jest.advanceTimersByTime(50);
+  });
+  return result;
+};
+
 describe('CapacityListMainWrapper', () => {
   const mockSession = {
     status: 'authenticated',
@@ -237,26 +257,6 @@ describe('CapacityListMainWrapper', () => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
-
-  const renderWithProviders = (ui: React.ReactElement) => {
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false, gcTime: 0 } },
-    });
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <SnackbarProvider>{ui}</SnackbarProvider>
-      </QueryClientProvider>
-    );
-  };
-
-  // Helper to mount and fast-forward past the mounting effect
-  const mountAndSettle = async (ui: React.ReactElement) => {
-    const result = renderWithProviders(ui);
-    await act(async () => {
-      jest.advanceTimersByTime(50);
-    });
-    return result;
-  };
 
   // ----- Basic rendering -----
   it('renders root capacities correctly', async () => {

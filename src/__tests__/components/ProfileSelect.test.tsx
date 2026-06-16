@@ -114,14 +114,14 @@ const mockPageContent = {
 
 // Mock AppContext
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<SessionProvider>{component}</SessionProvider>);
+};
+
 describe('ProfileSelect', () => {
   beforeEach(() => {
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<SessionProvider>{component}</SessionProvider>);
-  };
 
   it('renders with default text correctly', () => {
     renderWithProviders(<ProfileSelect />);

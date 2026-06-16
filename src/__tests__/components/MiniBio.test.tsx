@@ -253,9 +253,9 @@ describe('MiniBio', () => {
 
     // Verifica se as linhas estão separadas
     const lines = textWithNewlines.split('\n');
-    lines.forEach(line => {
+    for (const line of lines) {
       expect(screen.getByText(line)).toBeInTheDocument();
-    });
+    }
   });
 
   it('has full width in mobile mode', () => {

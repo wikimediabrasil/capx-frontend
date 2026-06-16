@@ -85,6 +85,10 @@ const mockPageContent = {
   'edit-profile-update': 'Update',
 };
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('AvatarSelectionPopup', () => {
   const defaultProps = {
     onClose: jest.fn(),
@@ -102,10 +106,6 @@ describe('AvatarSelectionPopup', () => {
     (stores.useIsMobile as jest.Mock).mockReturnValue(false);
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   describe('Desktop View', () => {
     it('renders the popup with title', () => {

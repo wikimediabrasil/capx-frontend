@@ -85,7 +85,7 @@ describe('validateCapXDocumentUrl', () => {
   });
 
   it('returns too-long error when URL exceeds 200 characters', () => {
-    const longUrl = 'https://commons.wikimedia.org/' + 'a'.repeat(200);
+    const longUrl = `https://commons.wikimedia.org/${'a'.repeat(200)}`;
     const result = validateCapXDocumentUrl(longUrl);
     expect(result.isValid).toBe(false);
     expect(result.error).toBe('snackbar-edit-profile-organization-document-url-too-long');

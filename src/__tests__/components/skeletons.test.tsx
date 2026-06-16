@@ -257,9 +257,9 @@ describe('ChildCapacitiesSkeleton', () => {
   it('each row contains two skeleton elements', () => {
     const { container } = render(<ChildCapacitiesSkeleton />);
     const rows = container.querySelectorAll('.flex.items-center.gap-3');
-    rows.forEach(row => {
+    for (const row of rows) {
       expect(row.querySelectorAll('.animate-pulse').length).toBe(2);
-    });
+    }
   });
 });
 

@@ -67,6 +67,10 @@ jest.mock('next/image', () => ({
   ),
 }));
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('ContactsSection', () => {
   beforeEach(() => {
     (stores.useIsMobile as jest.Mock).mockReturnValue(false);
@@ -74,10 +78,6 @@ describe('ContactsSection', () => {
     (stores.useLanguage as jest.Mock).mockReturnValue('en');
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   describe('when no contacts are provided', () => {
     it('renders empty contacts section with ProfileItem', () => {

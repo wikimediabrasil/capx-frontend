@@ -56,6 +56,8 @@ jest.mock('@/stores', () => ({
   ),
 }));
 
+const getTextarea = () => screen.getByPlaceholderText('Digite sua minibio...');
+
 describe('MiniBioTextarea', () => {
   const defaultOnChange = jest.fn();
   const defaultProps = {
@@ -72,11 +74,10 @@ describe('MiniBioTextarea', () => {
     });
   });
 
-  const renderTextarea = (props: any = {}) => {
+  const DEFAULT_PROPS = {};
+  const renderTextarea = (props: any = DEFAULT_PROPS) => {
     return renderWithProviders(<MiniBioTextarea {...defaultProps} {...props} />);
   };
-
-  const getTextarea = () => screen.getByPlaceholderText('Digite sua minibio...');
 
   const testCharacterCount = (value: string, maxLength = 2000) => {
     const charCount = value.length;

@@ -88,7 +88,8 @@ describe('RecommendationKnownAndAvailableCapacityCard', () => {
 
   afterEach(cleanupMocks);
 
-  function renderCard(props: Record<string, any> = {}) {
+  const DEFAULT_PROPS: Record<string, any> = {};
+  function renderCard(props: Record<string, any> = DEFAULT_PROPS) {
     return renderWithProviders(
       <RecommendationKnownAndAvailableCapacityCard
         recommendation={createMockCapacityRecommendation()}

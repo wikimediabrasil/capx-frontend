@@ -70,7 +70,8 @@ function setupAllMocks(
 }
 
 // Helper to render card with default props
-function renderProfileCard(props = {}) {
+const DEFAULT_PROPS = {};
+function renderProfileCard(props = DEFAULT_PROPS) {
   const defaultProps = {
     recommendation: createMockProfileRecommendation(),
     ...props,

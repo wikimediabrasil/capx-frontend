@@ -88,11 +88,8 @@ function checkGeneralFailure(errorType: ErrorType, shouldFail: boolean) {
 }
 
 // Helper to process new items (documents, projects, events)
-function processNewItems(items: Array<{ id: number }>, itemType: string) {
-  const newItems = items.filter(item => item.id === 0);
-  if (newItems.length > 0) {
-    console.log(`Creating new ${itemType}:`, newItems);
-  }
+function processNewItems(items: Array<{ id: number }>, _itemType: string) {
+  return items.filter(item => item.id === 0);
 }
 
 // Helper to translate error messages
@@ -103,100 +100,100 @@ function translateErrorMessage(errorMessage: string): string {
   return errorMessage;
 }
 
-describe('Organization Profile Form Submission', () => {
-  const OrganizationFormComponent = ({
-    shouldFail = false,
-    errorType = 'general',
-    componentFailure = null,
-  }: OrganizationFormProps) => {
-    const { showSnackbar } = useSnackbar();
-    const mockOrganizationData = createMockOrganizationData();
+const OrganizationFormComponent = ({
+  shouldFail = false,
+  errorType = 'general',
+  componentFailure = null,
+}: OrganizationFormProps) => {
+  const { showSnackbar } = useSnackbar();
+  const mockOrganizationData = createMockOrganizationData();
 
-    const handleSubmit = async () => {
-      try {
-        checkComponentFailure(componentFailure, shouldFail);
-        checkGeneralFailure(errorType, shouldFail);
+  const handleSubmit = async () => {
+    try {
+      checkComponentFailure(componentFailure, shouldFail);
+      checkGeneralFailure(errorType, shouldFail);
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-        processNewItems(mockOrganizationData.documents, 'documents');
-        processNewItems(mockOrganizationData.projects, 'projects');
-        processNewItems(mockOrganizationData.events, 'events');
+      processNewItems(mockOrganizationData.documents, 'documents');
+      processNewItems(mockOrganizationData.projects, 'projects');
+      processNewItems(mockOrganizationData.events, 'events');
 
-        showSnackbar('Organization profile updated successfully!', 'success');
-      } catch (error: any) {
-        const errorMessage = error.message || 'Unknown error';
-        const translatedMessage = translateErrorMessage(errorMessage);
-        showSnackbar(translatedMessage, 'error');
-      }
-    };
+      showSnackbar('Organization profile updated successfully!', 'success');
+    } catch (error: any) {
+      const errorMessage = error.message || 'Unknown error';
+      const translatedMessage = translateErrorMessage(errorMessage);
+      showSnackbar(translatedMessage, 'error');
+    }
+  };
 
-    return (
-      <div data-testid="organization-form">
-        <div data-testid="contacts-section">
-          <h3>Contacts</h3>
-          <input type="email" value={mockOrganizationData.email} placeholder="Email" readOnly />
-          <input
-            type="url"
-            value={mockOrganizationData.meta_page}
-            placeholder="Meta Page"
-            readOnly
-          />
-          <input type="url" value={mockOrganizationData.website} placeholder="Website" readOnly />
-        </div>
-
-        <div data-testid="documents-section">
-          <h3>Documents ({mockOrganizationData.documents.length})</h3>
-          {mockOrganizationData.documents.map((doc, index) => (
-            <input key={index} type="url" value={doc.url} placeholder="Document URL" readOnly />
-          ))}
-        </div>
-
-        <div data-testid="projects-section">
-          <h3>Projects ({mockOrganizationData.projects.length})</h3>
-          {mockOrganizationData.projects.map((project, index) => (
-            <div key={index}>
-              <input type="text" value={project.display_name} placeholder="Project Name" readOnly />
-              <input type="url" value={project.url} placeholder="Project URL" readOnly />
-            </div>
-          ))}
-        </div>
-
-        <div data-testid="events-section">
-          <h3>Events ({mockOrganizationData.events.length})</h3>
-          {mockOrganizationData.events.map((event, index) => (
-            <div key={index}>
-              <input type="text" value={event.title} placeholder="Event Title" readOnly />
-              <input type="date" value={event.date} readOnly />
-            </div>
-          ))}
-        </div>
-
-        <div data-testid="news-section">
-          <h3>News ({mockOrganizationData.news.length})</h3>
-          {mockOrganizationData.news.map((news, index) => (
-            <input key={index} type="text" value={news.tag} placeholder="News Tag" readOnly />
-          ))}
-        </div>
-
-        <div data-testid="capacities-section">
-          <h3>Capacities</h3>
-          <div>Known: {mockOrganizationData.known_capacities.join(', ')}</div>
-          <div>Available: {mockOrganizationData.available_capacities.join(', ')}</div>
-          <div>Wanted: {mockOrganizationData.wanted_capacities.join(', ')}</div>
-        </div>
-
-        <button onClick={handleSubmit} data-testid="submit-button">
-          Save Organization Profile
-        </button>
+  return (
+    <div data-testid="organization-form">
+      <div data-testid="contacts-section">
+        <h3>Contacts</h3>
+        <input type="email" value={mockOrganizationData.email} placeholder="Email" readOnly />
+        <input
+          type="url"
+          value={mockOrganizationData.meta_page}
+          placeholder="Meta Page"
+          readOnly
+        />
+        <input type="url" value={mockOrganizationData.website} placeholder="Website" readOnly />
       </div>
-    );
-  };
 
-  const renderWithSnackbar = (component: React.ReactNode) => {
-    return render(<SnackbarProvider>{component}</SnackbarProvider>);
-  };
+      <div data-testid="documents-section">
+        <h3>Documents ({mockOrganizationData.documents.length})</h3>
+        {mockOrganizationData.documents.map((doc, index) => (
+          <input key={index} type="url" value={doc.url} placeholder="Document URL" readOnly />
+        ))}
+      </div>
 
+      <div data-testid="projects-section">
+        <h3>Projects ({mockOrganizationData.projects.length})</h3>
+        {mockOrganizationData.projects.map((project, index) => (
+          <div key={index}>
+            <input type="text" value={project.display_name} placeholder="Project Name" readOnly />
+            <input type="url" value={project.url} placeholder="Project URL" readOnly />
+          </div>
+        ))}
+      </div>
+
+      <div data-testid="events-section">
+        <h3>Events ({mockOrganizationData.events.length})</h3>
+        {mockOrganizationData.events.map((event, index) => (
+          <div key={index}>
+            <input type="text" value={event.title} placeholder="Event Title" readOnly />
+            <input type="date" value={event.date} readOnly />
+          </div>
+        ))}
+      </div>
+
+      <div data-testid="news-section">
+        <h3>News ({mockOrganizationData.news.length})</h3>
+        {mockOrganizationData.news.map((news, index) => (
+          <input key={index} type="text" value={news.tag} placeholder="News Tag" readOnly />
+        ))}
+      </div>
+
+      <div data-testid="capacities-section">
+        <h3>Capacities</h3>
+        <div>Known: {mockOrganizationData.known_capacities.join(', ')}</div>
+        <div>Available: {mockOrganizationData.available_capacities.join(', ')}</div>
+        <div>Wanted: {mockOrganizationData.wanted_capacities.join(', ')}</div>
+      </div>
+
+      <button onClick={handleSubmit} data-testid="submit-button">
+        Save Organization Profile
+      </button>
+    </div>
+  );
+};
+
+const renderWithSnackbar = (component: React.ReactNode) => {
+  return render(<SnackbarProvider>{component}</SnackbarProvider>);
+};
+
+describe('Organization Profile Form Submission', () => {
   it('shows success snackbar when organization profile is saved successfully', async () => {
     renderWithSnackbar(<OrganizationFormComponent />);
 

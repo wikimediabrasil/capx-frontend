@@ -121,6 +121,25 @@ const grandChildCapacity = {
   parentCapacity: { code: 2, color: 'green', parentCapacity: { code: 1, color: 'blue' } },
 };
 
+const renderWithProviders = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: 0 } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <SnackbarProvider>{ui}</SnackbarProvider>
+    </QueryClientProvider>
+  );
+};
+
+// Helper to type and advance debounce
+const typeAndDebounce = async (input: HTMLElement, value: string) => {
+  fireEvent.change(input, { target: { value } });
+  await act(async () => {
+    jest.advanceTimersByTime(500);
+  });
+};
+
 describe('CapacitySearch', () => {
   const mockSession = {
     data: { user: { token: 'test-token' } },
@@ -140,25 +159,6 @@ describe('CapacitySearch', () => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
-
-  const renderWithProviders = (ui: React.ReactElement) => {
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false, gcTime: 0 } },
-    });
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <SnackbarProvider>{ui}</SnackbarProvider>
-      </QueryClientProvider>
-    );
-  };
-
-  // Helper to type and advance debounce
-  const typeAndDebounce = async (input: HTMLElement, value: string) => {
-    fireEvent.change(input, { target: { value } });
-    await act(async () => {
-      jest.advanceTimersByTime(500);
-    });
-  };
 
   // ----- Basic rendering -----
   it('renders search input correctly', () => {

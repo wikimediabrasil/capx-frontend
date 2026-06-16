@@ -63,18 +63,18 @@ jest.mock('@/stores', () => ({
   ),
 }));
 
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+    },
+  });
+
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+};
+
 // Simple test to verify the cache integration works
 describe('Profile Language Switching Integration', () => {
-  const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false, gcTime: 0 },
-      },
-    });
-
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });

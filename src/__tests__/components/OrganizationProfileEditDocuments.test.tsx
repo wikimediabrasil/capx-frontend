@@ -284,7 +284,7 @@ describe('Organization Profile Edit - Documents CRUD', () => {
     });
 
     it('should handle very long URLs', () => {
-      const longUrl = 'https://example.com/' + 'a'.repeat(1000);
+      const longUrl = `https://example.com/${'a'.repeat(1000)}`;
 
       handleDocumentChange(0, 'url', longUrl);
 

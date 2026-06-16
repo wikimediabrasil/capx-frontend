@@ -13,7 +13,7 @@ const mentorshipRoutes = [
 describe('Mentorship API routes', () => {
   beforeEach(() => setupApiTest());
 
-  mentorshipRoutes.forEach(({ name }) => {
+  for (const { name } of mentorshipRoutes) {
     describe(`/api/${name}`, () => {
       testGetRoute({
         mockAxios: mockAxiosGet,
@@ -26,5 +26,5 @@ describe('Mentorship API routes', () => {
         noRequest: true,
       });
     });
-  });
+  }
 });

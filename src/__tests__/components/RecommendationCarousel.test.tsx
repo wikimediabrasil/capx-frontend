@@ -86,7 +86,8 @@ describe('RecommendationCarousel', () => {
 
   afterEach(cleanupMocks);
 
-  const renderCarousel = (props = {}) => {
+  const DEFAULT_PROPS = {};
+  const renderCarousel = (props = DEFAULT_PROPS) => {
     const defaultProps = {
       title: 'Test Carousel',
       children: [<div key="1">Item 1</div>, <div key="2">Item 2</div>, <div key="3">Item 3</div>],

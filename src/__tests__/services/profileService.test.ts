@@ -113,9 +113,9 @@ describe('profileService', () => {
         { id: 1, proficiency: '5' },
         { id: 25, proficiency: '3' },
       ]);
-      sentPayload.language.forEach((lang: any) => {
+      for (const lang of sentPayload.language) {
         expect(lang).not.toHaveProperty('name');
-      });
+      }
     });
 
     it('should set user.id to userId in the payload', async () => {

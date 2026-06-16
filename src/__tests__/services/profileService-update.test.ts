@@ -49,9 +49,9 @@ describe('profileService.updateProfile', () => {
     await profileService.updateProfile(mockUserId, profileData, queryData);
 
     const sentPayload = mockedAxios.put.mock.calls[0][1];
-    (sentPayload as any).language.forEach((lang: any) => {
+    for (const lang of (sentPayload as any).language) {
       expect(lang).not.toHaveProperty('name');
-    });
+    }
   });
 
   it('should preserve language id and proficiency when stripping name', async () => {

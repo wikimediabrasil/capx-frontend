@@ -52,7 +52,8 @@ const createMockUserProfile = () => ({
 });
 
 // Helper to render card with default props
-function renderCapacityCard(props = {}) {
+const DEFAULT_PROPS = {};
+function renderCapacityCard(props = DEFAULT_PROPS) {
   const defaultProps = {
     recommendation: createMockCapacityRecommendation(),
     ...props,

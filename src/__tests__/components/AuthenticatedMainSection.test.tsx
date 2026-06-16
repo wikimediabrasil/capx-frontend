@@ -95,7 +95,9 @@ const defaultPageContent = {
   'body-loggedin-home-third-section-button-success': 'Email copied!',
 };
 
-function renderComponent(pageContentOverrides = {}, props = {}) {
+const DEFAULT_PAGE_CONTENT_OVERRIDES = {};
+const DEFAULT_PROPS = {};
+function renderComponent(pageContentOverrides = DEFAULT_PAGE_CONTENT_OVERRIDES, props = DEFAULT_PROPS) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
