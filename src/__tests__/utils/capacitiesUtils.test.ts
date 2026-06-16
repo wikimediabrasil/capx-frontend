@@ -259,8 +259,14 @@ describe('addUniqueCapacities (CapacityItem version)', () => {
   });
 
   it('returns existing array unchanged when no new items are unique', () => {
-    const existing = [{ code: 1, name: 'A' }, { code: 2, name: 'B' }];
-    const result = addUniqueCapacities(existing, [{ code: 1, name: 'A' }, { code: 2, name: 'B' }] as any[]);
+    const existing = [
+      { code: 1, name: 'A' },
+      { code: 2, name: 'B' },
+    ];
+    const result = addUniqueCapacities(existing, [
+      { code: 1, name: 'A' },
+      { code: 2, name: 'B' },
+    ] as any[]);
     expect(result).toHaveLength(2);
   });
 
@@ -275,10 +281,10 @@ describe('addUniqueCapacities (CapacityItem version)', () => {
   });
 
   it('adds multiple new unique capacities at once', () => {
-    const result = addUniqueCapacities(
-      [{ code: 1, name: 'A' }],
-      [{ code: 2, name: 'B' }, { code: 3, name: 'C' }] as any[]
-    );
+    const result = addUniqueCapacities([{ code: 1, name: 'A' }], [
+      { code: 2, name: 'B' },
+      { code: 3, name: 'C' },
+    ] as any[]);
     expect(result).toHaveLength(3);
   });
 });

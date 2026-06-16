@@ -94,9 +94,7 @@ describe('useOrganizationNames', () => {
   });
 
   it('calls useQuery with correct parameters when token and org id present', () => {
-    renderHook(() =>
-      useOrganizationNames({ organizationId: 10, token: 'test-token' })
-    );
+    renderHook(() => useOrganizationNames({ organizationId: 10, token: 'test-token' }));
 
     expect(mockUseQuery).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -221,9 +219,9 @@ describe('useOrganizationNames', () => {
 
     renderHook(() => useOrganizationNames());
 
-    await expect(
-      capturedMutationFn!({ languageCode: 'en', name: 'Test' })
-    ).rejects.toThrow('Token is required');
+    await expect(capturedMutationFn!({ languageCode: 'en', name: 'Test' })).rejects.toThrow(
+      'Token is required'
+    );
   });
 
   it('updateName mutationFn throws when no token', async () => {
@@ -258,25 +256,29 @@ describe('useOrganizationNames', () => {
 
   it('createName mutationFn throws when no orgId', async () => {
     let capturedMutationFn: ((args: any) => Promise<any>) | undefined;
-    mockUseMutation.mockImplementationOnce(options => {
-      capturedMutationFn = options.mutationFn;
-      return { mutateAsync: mockMutateAsync };
-    }).mockReturnValue({ mutateAsync: mockMutateAsync });
+    mockUseMutation
+      .mockImplementationOnce(options => {
+        capturedMutationFn = options.mutationFn;
+        return { mutateAsync: mockMutateAsync };
+      })
+      .mockReturnValue({ mutateAsync: mockMutateAsync });
 
     renderHook(() => useOrganizationNames({ token: 'test-token' }));
 
-    await expect(
-      capturedMutationFn!({ languageCode: 'en', name: 'Test' })
-    ).rejects.toThrow('Organization ID and token are required');
+    await expect(capturedMutationFn!({ languageCode: 'en', name: 'Test' })).rejects.toThrow(
+      'Organization ID and token are required'
+    );
   });
 
   it('createName mutationFn posts and returns data when org and token present', async () => {
     const newName = { id: 3, organization: 10, language_code: 'en', name: 'New' };
     let capturedMutationFn: ((args: any) => Promise<any>) | undefined;
-    mockUseMutation.mockImplementationOnce(options => {
-      capturedMutationFn = options.mutationFn;
-      return { mutateAsync: mockMutateAsync };
-    }).mockReturnValue({ mutateAsync: mockMutateAsync });
+    mockUseMutation
+      .mockImplementationOnce(options => {
+        capturedMutationFn = options.mutationFn;
+        return { mutateAsync: mockMutateAsync };
+      })
+      .mockReturnValue({ mutateAsync: mockMutateAsync });
 
     mockAxios.post.mockResolvedValueOnce({ data: newName });
 
@@ -293,10 +295,12 @@ describe('useOrganizationNames', () => {
 
   it('createName mutationFn onSuccess invalidates queries', async () => {
     let capturedOnSuccess: (() => void) | undefined;
-    mockUseMutation.mockImplementationOnce(options => {
-      capturedOnSuccess = options.onSuccess;
-      return { mutateAsync: mockMutateAsync };
-    }).mockReturnValue({ mutateAsync: mockMutateAsync });
+    mockUseMutation
+      .mockImplementationOnce(options => {
+        capturedOnSuccess = options.onSuccess;
+        return { mutateAsync: mockMutateAsync };
+      })
+      .mockReturnValue({ mutateAsync: mockMutateAsync });
 
     renderHook(() => useOrganizationNames({ organizationId: 10, token: 'test-token' }));
 
@@ -357,10 +361,9 @@ describe('useOrganizationNames', () => {
     const deleteFn = mutationFns[2];
     const result = await deleteFn(1);
     expect(result).toEqual({});
-    expect(mockAxios.delete).toHaveBeenCalledWith(
-      '/api/organization_name/1/',
-      { headers: { Authorization: 'Token test-token' } }
-    );
+    expect(mockAxios.delete).toHaveBeenCalledWith('/api/organization_name/1/', {
+      headers: { Authorization: 'Token test-token' },
+    });
   });
 
   it('deleteName mutationFn onSuccess invalidates queries', async () => {

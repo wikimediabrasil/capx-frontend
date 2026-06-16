@@ -17,7 +17,10 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 }
 
 describe('GET /api/saved_item', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('returns saved items', async () => {
     mockAxiosGet.mockResolvedValue({ data: [{ id: 1 }] });
@@ -47,7 +50,10 @@ describe('GET /api/saved_item', () => {
 });
 
 describe('POST /api/saved_item', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('creates saved item', async () => {
     mockAxiosPost.mockResolvedValue({ data: { id: 1 } });

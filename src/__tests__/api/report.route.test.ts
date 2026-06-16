@@ -18,7 +18,10 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 }
 
 describe('/api/report', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET', () => {
     it('returns reports', async () => {
@@ -42,7 +45,10 @@ describe('/api/report', () => {
   describe('POST', () => {
     it('creates a report', async () => {
       mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-      const req = createRequest({ headers: { authorization: 'Token test' }, body: { title: 'Bug' } });
+      const req = createRequest({
+        headers: { authorization: 'Token test' },
+        body: { title: 'Bug' },
+      });
       await POST(req);
       expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
     });

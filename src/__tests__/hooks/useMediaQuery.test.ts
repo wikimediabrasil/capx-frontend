@@ -145,10 +145,9 @@ describe('useMediaQuery', () => {
   });
 
   it('re-runs when the query changes', () => {
-    const { result, rerender } = renderHook(
-      ({ query }) => useMediaQuery(query),
-      { initialProps: { query: '(min-width: 768px)' } }
-    );
+    const { result, rerender } = renderHook(({ query }) => useMediaQuery(query), {
+      initialProps: { query: '(min-width: 768px)' },
+    });
 
     expect(mockMatchMedia).toHaveBeenCalledWith('(min-width: 768px)');
 
@@ -158,10 +157,9 @@ describe('useMediaQuery', () => {
   });
 
   it('cleans up previous listener when query changes', () => {
-    const { rerender } = renderHook(
-      ({ query }) => useMediaQuery(query),
-      { initialProps: { query: '(min-width: 768px)' } }
-    );
+    const { rerender } = renderHook(({ query }) => useMediaQuery(query), {
+      initialProps: { query: '(min-width: 768px)' },
+    });
 
     rerender({ query: '(min-width: 1024px)' });
 

@@ -59,9 +59,7 @@ describe('OrganizationTypeService', () => {
       const error = { response: { status: 401, data: { detail: 'Unauthorized' } } };
       mockedAxios.get.mockRejectedValueOnce(error);
 
-      await expect(OrganizationTypeService.getOrganizationType('bad-token')).rejects.toEqual(
-        error
-      );
+      await expect(OrganizationTypeService.getOrganizationType('bad-token')).rejects.toEqual(error);
     });
   });
 

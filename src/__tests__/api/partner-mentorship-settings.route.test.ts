@@ -6,7 +6,10 @@ import { NextResponse } from 'next/server';
 const mockAxiosGet = axios.get as jest.Mock;
 
 describe('GET /api/partner_mentorship_settings', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('returns settings (array format)', async () => {
     mockAxiosGet.mockResolvedValue({ data: [{ id: 1, organization: null }] });
@@ -15,9 +18,13 @@ describe('GET /api/partner_mentorship_settings', () => {
   });
 
   it('returns settings (paginated format)', async () => {
-    mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1, organization: null }], count: 1 } });
+    mockAxiosGet.mockResolvedValue({
+      data: { results: [{ id: 1, organization: null }], count: 1 },
+    });
     await GET();
-    expect(NextResponse.json).toHaveBeenCalledWith(expect.objectContaining({ results: expect.any(Array) }));
+    expect(NextResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({ results: expect.any(Array) })
+    );
   });
 
   it('enriches with organization data when missing', async () => {

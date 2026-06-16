@@ -58,27 +58,27 @@ describe('LetsConnectExistsService', () => {
       const error = new Error('Network error');
       mockedAxios.get.mockRejectedValueOnce(error);
 
-      await expect(
-        LetsConnectExistsService.checkUserExists('alice', 'test-token')
-      ).rejects.toThrow('Network error');
+      await expect(LetsConnectExistsService.checkUserExists('alice', 'test-token')).rejects.toThrow(
+        'Network error'
+      );
     });
 
     it('should throw on 401 unauthorized', async () => {
       const error = { response: { status: 401, data: { detail: 'Unauthorized' } } };
       mockedAxios.get.mockRejectedValueOnce(error);
 
-      await expect(
-        LetsConnectExistsService.checkUserExists('alice', 'bad-token')
-      ).rejects.toEqual(error);
+      await expect(LetsConnectExistsService.checkUserExists('alice', 'bad-token')).rejects.toEqual(
+        error
+      );
     });
 
     it('should throw on 500 server error', async () => {
       const error = { response: { status: 500, data: { detail: 'Internal Server Error' } } };
       mockedAxios.get.mockRejectedValueOnce(error);
 
-      await expect(
-        LetsConnectExistsService.checkUserExists('alice', 'test-token')
-      ).rejects.toEqual(error);
+      await expect(LetsConnectExistsService.checkUserExists('alice', 'test-token')).rejects.toEqual(
+        error
+      );
     });
   });
 });

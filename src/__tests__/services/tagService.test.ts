@@ -38,7 +38,12 @@ describe('tagService', () => {
       await tagService.fetchTagById('Q5', 'territory', extendedQueryData);
 
       const [, config] = mockedAxios.get.mock.calls[0];
-      expect(config?.params).toMatchObject({ id: 'Q5', category: 'territory', limit: 20, offset: 0 });
+      expect(config?.params).toMatchObject({
+        id: 'Q5',
+        category: 'territory',
+        limit: 20,
+        offset: 0,
+      });
     });
 
     it('should return tag data on success', async () => {

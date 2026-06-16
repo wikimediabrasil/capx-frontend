@@ -25,7 +25,9 @@ describe('GET /api/territory', () => {
     const mockData = [{ id: 1, name: 'SSA' }];
     mockAxiosGet.mockResolvedValue({ data: mockData });
 
-    const req = createRequest('https://localhost:3000/api/territory', { authorization: 'Token test' });
+    const req = createRequest('https://localhost:3000/api/territory', {
+      authorization: 'Token test',
+    });
     await GET(req);
 
     expect(mockAxiosGet).toHaveBeenCalledWith(
@@ -38,7 +40,9 @@ describe('GET /api/territory', () => {
   it('passes query params to backend', async () => {
     mockAxiosGet.mockResolvedValue({ data: [] });
 
-    const req = createRequest('https://localhost:3000/api/territory?limit=10', { authorization: 'Token test' });
+    const req = createRequest('https://localhost:3000/api/territory?limit=10', {
+      authorization: 'Token test',
+    });
     await GET(req);
 
     expect(mockAxiosGet).toHaveBeenCalledWith(

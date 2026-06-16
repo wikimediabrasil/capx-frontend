@@ -16,7 +16,9 @@ describe('eventsService', () => {
       mockedAxios.get.mockResolvedValueOnce({ data: mockData });
 
       const result = await eventsService.getEvents(10, 0);
-      expect(mockedAxios.get).toHaveBeenCalledWith('/api/events/', { params: { limit: 10, offset: 0 } });
+      expect(mockedAxios.get).toHaveBeenCalledWith('/api/events/', {
+        params: { limit: 10, offset: 0 },
+      });
       expect(result).toEqual(mockData);
     });
 
@@ -252,7 +254,10 @@ describe('eventsService', () => {
       const mockData = { id: 1, name: 'New Event', type_of_location: 'in_person' };
       mockedAxios.post.mockResolvedValueOnce({ data: mockData });
 
-      await eventsService.createEvent({ name: 'New Event', type_of_location: 'in_person' }, 'token');
+      await eventsService.createEvent(
+        { name: 'New Event', type_of_location: 'in_person' },
+        'token'
+      );
       expect(mockedAxios.post).toHaveBeenCalledWith(
         '/api/events/',
         { name: 'New Event', type_of_location: 'in_person' },

@@ -126,10 +126,7 @@ describe('RecommendationEventCard', () => {
 
   it('renders hint message when provided', () => {
     render(
-      <RecommendationEventCard
-        recommendation={createMockEvent()}
-        hintMessage="Recommended event"
-      />
+      <RecommendationEventCard recommendation={createMockEvent()} hintMessage="Recommended event" />
     );
     expect(screen.getByText('Recommended event')).toBeInTheDocument();
   });

@@ -14,7 +14,10 @@ function createRequest(headers: Record<string, string> = {}) {
 }
 
 describe('DELETE /api/saved_item/[id]', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('deletes saved item', async () => {
     mockAxiosDelete.mockResolvedValue({});

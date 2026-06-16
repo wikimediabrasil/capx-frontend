@@ -17,7 +17,10 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 }
 
 describe('/api/messages', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET', () => {
     it('returns messages', async () => {
@@ -39,7 +42,9 @@ describe('/api/messages', () => {
   describe('POST', () => {
     it('creates a message', async () => {
       mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-      await POST(createRequest({ headers: { authorization: 'Token test' }, body: { content: 'Hello' } }));
+      await POST(
+        createRequest({ headers: { authorization: 'Token test' }, body: { content: 'Hello' } })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
     });
   });

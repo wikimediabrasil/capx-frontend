@@ -9,7 +9,10 @@ function createRequest(headers: Record<string, string> = {}) {
 }
 
 describe('Statistics territory routes', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET /api/statistics/capacities-by-territory', () => {
     it('returns data', async () => {

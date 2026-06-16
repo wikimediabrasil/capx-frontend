@@ -7,9 +7,7 @@ import React from 'react';
 
 // Mock CapacityCard to keep search tests focused
 jest.mock('@/app/(auth)/capacity/components/CapacityCard', () => ({
-  CapacityCard: ({ name }: { name: string }) => (
-    <div data-testid="capacity-card">{name}</div>
-  ),
+  CapacityCard: ({ name }: { name: string }) => <div data-testid="capacity-card">{name}</div>,
 }));
 
 const mockUseDarkMode = jest.fn(() => false);
@@ -106,7 +104,14 @@ storesMock.useCapacityStore = Object.assign(
 
 // Root capacities used across multiple tests
 const rootCapacity = { code: 1, name: 'Test Capacity', color: 'blue', icon: '', level: 1 };
-const childCapacity = { code: 2, name: 'Child Capacity', color: 'green', icon: '', level: 2, parentCapacity: { code: 1, color: 'blue' } };
+const childCapacity = {
+  code: 2,
+  name: 'Child Capacity',
+  color: 'green',
+  icon: '',
+  level: 2,
+  parentCapacity: { code: 1, color: 'blue' },
+};
 const grandChildCapacity = {
   code: 3,
   name: 'Grandchild Capacity',
@@ -150,7 +155,9 @@ describe('CapacitySearch', () => {
   // Helper to type and advance debounce
   const typeAndDebounce = async (input: HTMLElement, value: string) => {
     fireEvent.change(input, { target: { value } });
-    await act(async () => { jest.advanceTimersByTime(500); });
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
   };
 
   // ----- Basic rendering -----
@@ -237,9 +244,7 @@ describe('CapacitySearch', () => {
     renderWithProviders(<CapacitySearch />);
     const input = screen.getByPlaceholderText('Search capacities...');
     await typeAndDebounce(input, 'zzznomatch');
-    await waitFor(() =>
-      expect(screen.queryByTestId('capacity-card')).not.toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.queryByTestId('capacity-card')).not.toBeInTheDocument());
   });
 
   it('searches through children of root capacities', async () => {
@@ -337,11 +342,7 @@ describe('CapacitySearch', () => {
   it('calls onSelect with multiple items on result click (multiple selection)', async () => {
     const onSelect = jest.fn();
     renderWithProviders(
-      <CapacitySearch
-        onSelect={onSelect}
-        allowMultipleSelection={true}
-        selectedCapacities={[]}
-      />
+      <CapacitySearch onSelect={onSelect} allowMultipleSelection={true} selectedCapacities={[]} />
     );
     const input = screen.getByPlaceholderText('Search capacities...');
     await typeAndDebounce(input, 'Test');

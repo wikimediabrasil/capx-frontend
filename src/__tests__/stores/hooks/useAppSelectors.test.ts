@@ -23,7 +23,7 @@ const resetStore = () => {
       language: 'en',
       pageContent: {
         'capacity-card-explore-capacity': 'Explore capacity',
-        'hello': 'Hello',
+        hello: 'Hello',
       },
       session: null,
       mounted: false,
@@ -127,7 +127,7 @@ describe('useAppSelectors hooks', () => {
       expect(result.current).toBe('Hello');
 
       act(() => {
-        useAppStore.getState().setPageContent({ 'hello': 'Bonjour' });
+        useAppStore.getState().setPageContent({ hello: 'Bonjour' });
       });
       rerender();
 
@@ -216,7 +216,7 @@ describe('useAppSelectors hooks', () => {
   describe('useLanguageState', () => {
     it('returns combined language state', () => {
       act(() => {
-        useAppStore.setState({ language: 'ja', pageContent: { 'key': 'value' } });
+        useAppStore.setState({ language: 'ja', pageContent: { key: 'value' } });
       });
       const { result } = renderHook(() => useLanguageState());
 
@@ -228,7 +228,7 @@ describe('useAppSelectors hooks', () => {
 
     it('setPageContent action works through hook', () => {
       const { result } = renderHook(() => useLanguageState());
-      const newContent = { 'title': 'Titulo' };
+      const newContent = { title: 'Titulo' };
 
       act(() => {
         result.current.setPageContent(newContent);

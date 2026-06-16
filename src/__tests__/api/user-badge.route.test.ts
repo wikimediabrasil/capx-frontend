@@ -17,7 +17,10 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 }
 
 describe('/api/user_badge', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET', () => {
     it('returns user badges', async () => {
@@ -41,7 +44,10 @@ describe('/api/user_badge', () => {
   describe('PUT', () => {
     it('updates user badge', async () => {
       mockAxiosPut.mockResolvedValue({ data: { id: 1, badge: 'updated' } });
-      const req = createRequest({ headers: { authorization: 'Token test' }, body: { id: 1, badge: 'updated' } });
+      const req = createRequest({
+        headers: { authorization: 'Token test' },
+        body: { id: 1, badge: 'updated' },
+      });
       await PUT(req);
       expect(NextResponse.json).toHaveBeenCalledWith({ id: 1, badge: 'updated' });
     });

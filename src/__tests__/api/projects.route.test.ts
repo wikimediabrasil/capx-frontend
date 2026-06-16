@@ -17,7 +17,10 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
 }
 
 describe('/api/projects', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET', () => {
     it('returns projects', async () => {
@@ -39,13 +42,17 @@ describe('/api/projects', () => {
   describe('POST', () => {
     it('creates a project', async () => {
       mockAxiosPost.mockResolvedValue({ data: { id: 1, display_name: 'New' } });
-      await POST(createRequest({ headers: { authorization: 'Token test' }, body: { display_name: 'New' } }));
+      await POST(
+        createRequest({ headers: { authorization: 'Token test' }, body: { display_name: 'New' } })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith({ id: 1, display_name: 'New' });
     });
 
     it('returns error for invalid response', async () => {
       mockAxiosPost.mockResolvedValue({ data: {} });
-      await POST(createRequest({ headers: { authorization: 'Token test' }, body: { display_name: 'Bad' } }));
+      await POST(
+        createRequest({ headers: { authorization: 'Token test' }, body: { display_name: 'Bad' } })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ status: 500 }),
         expect.objectContaining({ status: 500 })

@@ -29,7 +29,11 @@ jest.mock('@tanstack/react-query', () => ({
   }),
 }));
 
-import { useRootCapacities, useCapacitiesByParent, CAPACITY_CACHE_KEYS } from '@/hooks/useCapacitiesQuery';
+import {
+  useRootCapacities,
+  useCapacitiesByParent,
+  CAPACITY_CACHE_KEYS,
+} from '@/hooks/useCapacitiesQuery';
 import { renderHook } from '@testing-library/react';
 
 describe('CAPACITY_CACHE_KEYS', () => {
@@ -38,7 +42,12 @@ describe('CAPACITY_CACHE_KEYS', () => {
   });
 
   it('generates byParent key', () => {
-    expect(CAPACITY_CACHE_KEYS.byParent('10', 'en')).toEqual(['capacities', 'byParent', '10', 'en']);
+    expect(CAPACITY_CACHE_KEYS.byParent('10', 'en')).toEqual([
+      'capacities',
+      'byParent',
+      '10',
+      'en',
+    ]);
   });
 
   it('generates byId key', () => {

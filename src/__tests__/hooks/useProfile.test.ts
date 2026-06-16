@@ -245,19 +245,17 @@ describe('useProfile', () => {
       await result.current.updateProfile({});
     });
 
-    expect(mockSetQueryData).toHaveBeenCalledWith(
-      ['profile', 'test-token', 42],
-      { user: { id: 42 }, avatar: 7 }
-    );
+    expect(mockSetQueryData).toHaveBeenCalledWith(['profile', 'test-token', 42], {
+      user: { id: 42 },
+      avatar: 7,
+    });
   });
 
   it('deleteProfile throws when no token', async () => {
     const { result } = renderHook(() => useProfile(undefined, 42));
 
     await act(async () => {
-      await expect(result.current.deleteProfile()).rejects.toThrow(
-        'No token or userId available'
-      );
+      await expect(result.current.deleteProfile()).rejects.toThrow('No token or userId available');
     });
   });
 

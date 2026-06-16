@@ -33,7 +33,10 @@ describe('GET /api/badges', () => {
   });
 
   it('fetches all badges when no badgeId is provided', async () => {
-    const mockData = [{ id: 1, name: 'Badge 1' }, { id: 2, name: 'Badge 2' }];
+    const mockData = [
+      { id: 1, name: 'Badge 1' },
+      { id: 2, name: 'Badge 2' },
+    ];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: mockData });
 
     const request = createMockNextRequest({

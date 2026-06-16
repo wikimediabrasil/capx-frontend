@@ -106,7 +106,9 @@ describe('projectsService', () => {
     });
 
     it('should throw on 400 validation error', async () => {
-      const error = { response: { status: 400, data: { display_name: ['This field is required.'] } } };
+      const error = {
+        response: { status: 400, data: { display_name: ['This field is required.'] } },
+      };
       mockedAxios.put.mockRejectedValueOnce(error);
 
       await expect(projectsService.updateProject(1, token, {})).rejects.toEqual(error);

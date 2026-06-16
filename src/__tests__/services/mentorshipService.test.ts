@@ -11,7 +11,10 @@ describe('mentorshipService', () => {
 
   describe('getPartners', () => {
     it('should GET /api/partners/ and return an array', async () => {
-      const mockPartners = [{ id: 1, name: 'Partner A' }, { id: 2, name: 'Partner B' }];
+      const mockPartners = [
+        { id: 1, name: 'Partner A' },
+        { id: 2, name: 'Partner B' },
+      ];
       mockedAxios.get.mockResolvedValueOnce({ data: mockPartners });
 
       const result = await mentorshipService.getPartners();

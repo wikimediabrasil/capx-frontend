@@ -142,7 +142,9 @@ describe('capacityService - additional coverage', () => {
 
     it('should throw on error', async () => {
       mockedAxios.get.mockRejectedValueOnce(new Error('Type fetch failed'));
-      await expect(capacityService.fetchCapacitiesByType('10')).rejects.toThrow('Type fetch failed');
+      await expect(capacityService.fetchCapacitiesByType('10')).rejects.toThrow(
+        'Type fetch failed'
+      );
     });
   });
 

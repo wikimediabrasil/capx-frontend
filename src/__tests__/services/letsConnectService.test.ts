@@ -94,7 +94,9 @@ describe('LetsConnectService', () => {
     });
 
     it('should throw on 400 validation error', async () => {
-      const error = { response: { status: 400, data: { email: ['Enter a valid email address.'] } } };
+      const error = {
+        response: { status: 400, data: { email: ['Enter a valid email address.'] } },
+      };
       mockedAxios.post.mockRejectedValueOnce(error);
 
       await expect(

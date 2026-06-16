@@ -32,7 +32,10 @@ describe('fetchTerritories', () => {
   });
 
   it('should return all results from a single page response', async () => {
-    const mockTerritories = [{ id: 1, name: 'NWE' }, { id: 2, name: 'LAC' }];
+    const mockTerritories = [
+      { id: 1, name: 'NWE' },
+      { id: 2, name: 'LAC' },
+    ];
     mockedAxios.get.mockResolvedValueOnce({
       data: { results: mockTerritories, next: null },
     });
@@ -43,8 +46,14 @@ describe('fetchTerritories', () => {
   });
 
   it('should paginate through all pages when next URL is present', async () => {
-    const page1 = [{ id: 1, name: 'NWE' }, { id: 2, name: 'LAC' }];
-    const page2 = [{ id: 3, name: 'ESEAP' }, { id: 4, name: 'SA' }];
+    const page1 = [
+      { id: 1, name: 'NWE' },
+      { id: 2, name: 'LAC' },
+    ];
+    const page2 = [
+      { id: 3, name: 'ESEAP' },
+      { id: 4, name: 'SA' },
+    ];
 
     mockedAxios.get
       .mockResolvedValueOnce({
@@ -125,10 +134,9 @@ describe('fetchTerritories', () => {
   });
 
   it('should handle invalid next URL gracefully and stop pagination', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({
-        data: { results: [{ id: 1 }], next: 'not-a-valid-url' },
-      });
+    mockedAxios.get.mockResolvedValueOnce({
+      data: { results: [{ id: 1 }], next: 'not-a-valid-url' },
+    });
 
     // Should not throw, should stop after first page since URL parsing fails
     const result = await fetchTerritories('token');

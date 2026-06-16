@@ -202,9 +202,7 @@ describe('capacityStore', () => {
 
     it('does nothing for non-existent capacity', () => {
       act(() => {
-        useCapacityStore
-          .getState()
-          .updateCapacityTranslation(999, 'Name', 'Desc', true, true);
+        useCapacityStore.getState().updateCapacityTranslation(999, 'Name', 'Desc', true, true);
       });
       expect(useCapacityStore.getState().capacities[999]).toBeUndefined();
     });

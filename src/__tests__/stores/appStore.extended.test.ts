@@ -192,9 +192,7 @@ describe('appStore - extended', () => {
       });
 
       // setState should not be called for isMobile/isTablet since nothing changed
-      const mobileCalls = setStateSpy.mock.calls.filter(
-        call => 'isMobile' in (call[0] as object)
-      );
+      const mobileCalls = setStateSpy.mock.calls.filter(call => 'isMobile' in (call[0] as object));
       expect(mobileCalls).toHaveLength(0);
 
       addEventListenerSpy.mockRestore();
@@ -250,7 +248,7 @@ describe('appStore - extended', () => {
     });
 
     it('usePageContent reflects pageContent', () => {
-      const content = { 'key': 'value' };
+      const content = { key: 'value' };
       act(() => {
         useAppStore.setState({ pageContent: content });
       });

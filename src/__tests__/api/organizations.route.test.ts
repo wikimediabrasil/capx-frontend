@@ -12,7 +12,10 @@ function createRequest(url = 'https://localhost:3000/api/organizations') {
 }
 
 describe('GET /api/organizations', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('returns organizations', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });

@@ -17,7 +17,13 @@ const mockedBadgeService = BadgeService as jest.Mocked<typeof BadgeService>;
 const mockedUserBadgeService = UserBadgeService as jest.Mocked<typeof UserBadgeService>;
 
 const sampleBadges = [
-  { id: 1, name: 'First Edit', description: 'Made first edit', icon: '/badges/1.png', criteria: '' },
+  {
+    id: 1,
+    name: 'First Edit',
+    description: 'Made first edit',
+    icon: '/badges/1.png',
+    criteria: '',
+  },
   { id: 2, name: 'Prolific', description: '100 edits', icon: '/badges/2.png', criteria: '' },
 ];
 

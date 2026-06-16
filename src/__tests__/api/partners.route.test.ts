@@ -7,7 +7,10 @@ import { NextResponse } from 'next/server';
 const mockAxiosGet = axios.get as jest.Mock;
 
 describe('GET /api/partners', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('returns partners', async () => {
     mockAxiosGet.mockResolvedValue({ data: [{ id: 1 }] });

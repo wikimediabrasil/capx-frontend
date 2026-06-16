@@ -32,7 +32,10 @@ describe('GET /api/skill', () => {
   });
 
   it('returns skill results on success', async () => {
-    const mockResults = [{ id: 1, name: 'JavaScript' }, { id: 2, name: 'Python' }];
+    const mockResults = [
+      { id: 1, name: 'JavaScript' },
+      { id: 2, name: 'Python' },
+    ];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: mockResults } });
 
     const request = createMockNextRequest({

@@ -51,8 +51,8 @@ const makeCapacity = (overrides: Partial<any> = {}) => ({
   description: 'Org skills',
   wd_code: 'Q1',
   metabase_code: 'M1',
-  color: '',       // empty — forces hierarchy lookup
-  icon: '',        // empty — forces hierarchy lookup
+  color: '', // empty — forces hierarchy lookup
+  icon: '', // empty — forces hierarchy lookup
   hasChildren: false,
   level: 1,
   category: 'organizational',
@@ -82,8 +82,20 @@ describe('capacityStore - extended', () => {
       useCapacityStore.setState({
         capacities: {
           10: makeCapacity({ color: '', icon: '' }),
-          36: makeCapacity({ code: 36, name: 'Communication', category: 'communication', color: '', icon: '' }),
-          106: makeCapacity({ code: 106, name: 'Technology', category: 'technology', color: '', icon: '' }),
+          36: makeCapacity({
+            code: 36,
+            name: 'Communication',
+            category: 'communication',
+            color: '',
+            icon: '',
+          }),
+          106: makeCapacity({
+            code: 106,
+            name: 'Technology',
+            category: 'technology',
+            color: '',
+            icon: '',
+          }),
         },
       });
     });
@@ -342,7 +354,15 @@ describe('capacityStore - extended', () => {
 
     it('fetches root capacities when no cache exists', async () => {
       const rootCapacities = [
-        { code: 10, name: 'Organizational', description: '', wd_code: 'Q1', metabase_code: '', hasChildren: true, level: 1 },
+        {
+          code: 10,
+          name: 'Organizational',
+          description: '',
+          wd_code: 'Q1',
+          metabase_code: '',
+          hasChildren: true,
+          level: 1,
+        },
       ];
 
       mockedCapacityService.fetchCapacities.mockResolvedValueOnce(rootCapacities as any);

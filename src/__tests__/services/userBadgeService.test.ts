@@ -133,7 +133,9 @@ describe('UserBadgeService', () => {
       const error = { response: { status: 400, data: { id: ['Invalid pk'] } } };
       mockedAxios.put.mockRejectedValueOnce(error);
 
-      await expect(UserBadgeService.updateUserBadge({ id: -1, is_displayed: true }, 'token')).rejects.toEqual(error);
+      await expect(
+        UserBadgeService.updateUserBadge({ id: -1, is_displayed: true }, 'token')
+      ).rejects.toEqual(error);
     });
   });
 });

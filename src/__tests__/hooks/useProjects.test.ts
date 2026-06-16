@@ -91,7 +91,9 @@ describe('useProject', () => {
       response = await result.current.createProject({ display_name: 'New Project' });
     });
 
-    expect(mockProjectsService.createProject).toHaveBeenCalledWith('test-token', { display_name: 'New Project' });
+    expect(mockProjectsService.createProject).toHaveBeenCalledWith('test-token', {
+      display_name: 'New Project',
+    });
     expect(response).toEqual(mockProject);
     expect(result.current.project).toEqual(mockProject);
   });
@@ -131,7 +133,9 @@ describe('useProject', () => {
       await result.current.updateProject(1, { display_name: 'Updated Project' });
     });
 
-    expect(mockProjectsService.updateProject).toHaveBeenCalledWith(1, 'test-token', { display_name: 'Updated Project' });
+    expect(mockProjectsService.updateProject).toHaveBeenCalledWith(1, 'test-token', {
+      display_name: 'Updated Project',
+    });
     expect(result.current.project).toEqual(updatedProject);
   });
 

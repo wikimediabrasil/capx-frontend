@@ -16,7 +16,10 @@ function createRequest(headers: Record<string, string> = {}) {
 }
 
 describe('GET /api/recommendation', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   it('returns recommendations', async () => {
     mockAxiosGet.mockResolvedValue({ data: { profiles: [] } });

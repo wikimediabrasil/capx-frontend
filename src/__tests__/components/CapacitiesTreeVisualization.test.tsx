@@ -211,9 +211,7 @@ describe('CapacitiesTreeVisualization', () => {
         getMetabaseCode: jest.fn(() => 'M1'),
         getColor: jest.fn(() => 'organizational'),
         getChildren: jest.fn((code: number) =>
-          code === 10
-            ? [{ code: 11, name: 'child', color: 'organizational' }]
-            : []
+          code === 10 ? [{ code: 11, name: 'child', color: 'organizational' }] : []
         ),
         getRootCapacities: jest.fn(() => [{ code: 10, name: 'org', color: 'organizational' }]),
         isFallbackTranslation: jest.fn(() => false),

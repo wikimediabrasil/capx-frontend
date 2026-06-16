@@ -11,13 +11,19 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
   const url = new URL(options.url || 'https://localhost:3000/api/documents');
   return {
     nextUrl: url,
-    headers: { get: (name: string) => options.headers?.[name.toLowerCase()] || options.headers?.[name] || null },
+    headers: {
+      get: (name: string) =>
+        options.headers?.[name.toLowerCase()] || options.headers?.[name] || null,
+    },
     json: jest.fn().mockResolvedValue(options.body || {}),
   } as any;
 }
 
 describe('/api/documents', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET', () => {
     it('returns documents', async () => {
@@ -38,7 +44,12 @@ describe('/api/documents', () => {
   describe('POST', () => {
     it('creates a document', async () => {
       mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-      await POST(createRequest({ headers: { Authorization: 'Token test' }, body: { url: 'https://example.com', organization: 1 } }));
+      await POST(
+        createRequest({
+          headers: { Authorization: 'Token test' },
+          body: { url: 'https://example.com', organization: 1 },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
     });
 
@@ -59,10 +70,12 @@ describe('/api/documents', () => {
     });
 
     it('returns 400 for invalid organization', async () => {
-      await POST(createRequest({
-        headers: { Authorization: 'Token test' },
-        body: { url: 'https://example.com', organization: -1 },
-      }));
+      await POST(
+        createRequest({
+          headers: { Authorization: 'Token test' },
+          body: { url: 'https://example.com', organization: -1 },
+        })
+      );
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Invalid organization ID' }),
         expect.objectContaining({ status: 400 })

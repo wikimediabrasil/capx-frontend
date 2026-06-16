@@ -203,7 +203,9 @@ jest.mock('@/services/profileService', () => ({
 
 jest.mock('@/components/skeletons', () => ({
   RecommendationCarouselSkeleton: ({ type, cardCount }: { type: string; cardCount: number }) => (
-    <div data-testid={`skeleton-${type}`}>Loading {type} skeleton x{cardCount}</div>
+    <div data-testid={`skeleton-${type}`}>
+      Loading {type} skeleton x{cardCount}
+    </div>
   ),
 }));
 

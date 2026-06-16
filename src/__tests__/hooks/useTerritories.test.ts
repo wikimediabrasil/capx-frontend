@@ -121,7 +121,9 @@ describe('useTerritories', () => {
     mockFetchTerritories.mockResolvedValue([{ id: 4, territory_name: 'Asia' }]);
     rerender({ token: 'token-2' });
 
-    await waitFor(() => expect(result.current.territories).toEqual([{ id: 4, territory_name: 'Asia' }]));
+    await waitFor(() =>
+      expect(result.current.territories).toEqual([{ id: 4, territory_name: 'Asia' }])
+    );
     expect(mockFetchTerritories).toHaveBeenCalledWith('token-2');
   });
 });

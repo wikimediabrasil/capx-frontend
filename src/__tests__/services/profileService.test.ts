@@ -50,12 +50,12 @@ describe('profileService', () => {
   describe('fetchProfileData', () => {
     it('should call all 6 endpoints in parallel', async () => {
       mockedAxios.get
-        .mockResolvedValueOnce({ data: { id: 1 } })         // /api/profile
-        .mockResolvedValueOnce({ data: ['territory1'] })     // /api/list/territory
-        .mockResolvedValueOnce({ data: ['lang1'] })          // /api/list/language
-        .mockResolvedValueOnce({ data: ['affil1'] })         // /api/list/affiliation
-        .mockResolvedValueOnce({ data: ['proj1'] })          // /api/list/wikimedia_project
-        .mockResolvedValueOnce({ data: ['skill1'] });        // /api/capacity
+        .mockResolvedValueOnce({ data: { id: 1 } }) // /api/profile
+        .mockResolvedValueOnce({ data: ['territory1'] }) // /api/list/territory
+        .mockResolvedValueOnce({ data: ['lang1'] }) // /api/list/language
+        .mockResolvedValueOnce({ data: ['affil1'] }) // /api/list/affiliation
+        .mockResolvedValueOnce({ data: ['proj1'] }) // /api/list/wikimedia_project
+        .mockResolvedValueOnce({ data: ['skill1'] }); // /api/capacity
 
       const result = await profileService.fetchProfileData(queryData);
 
@@ -64,7 +64,10 @@ describe('profileService', () => {
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/list/territory', expect.any(Object));
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/list/language', expect.any(Object));
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/list/affiliation', expect.any(Object));
-      expect(mockedAxios.get).toHaveBeenCalledWith('/api/list/wikimedia_project', expect.any(Object));
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        '/api/list/wikimedia_project',
+        expect.any(Object)
+      );
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/capacity', expect.any(Object));
 
       expect(result).toEqual({
@@ -129,11 +132,9 @@ describe('profileService', () => {
 
       await profileService.updateProfile(userId, { language: [] }, queryData);
 
-      expect(mockedAxios.put).toHaveBeenCalledWith(
-        `/api/profile/${userId}`,
-        expect.any(Object),
-        { headers: queryData.headers }
-      );
+      expect(mockedAxios.put).toHaveBeenCalledWith(`/api/profile/${userId}`, expect.any(Object), {
+        headers: queryData.headers,
+      });
     });
 
     it('should handle non-array language field gracefully', async () => {

@@ -49,7 +49,13 @@ describe('toggleChildCapacities', () => {
     const fetchChildren = jest.fn().mockResolvedValue(children);
     const fetchDescription = jest.fn().mockResolvedValue(undefined);
 
-    await toggleChildCapacities('10', { '10': false }, setExpanded, fetchChildren, fetchDescription);
+    await toggleChildCapacities(
+      '10',
+      { '10': false },
+      setExpanded,
+      fetchChildren,
+      fetchDescription
+    );
 
     expect(fetchChildren).toHaveBeenCalledWith('10');
     expect(fetchDescription).toHaveBeenCalledWith(101);
@@ -103,16 +109,11 @@ describe('fetchWikidataLabelsViaApi', () => {
   it('fetches labels from API and maps code entries', async () => {
     mockedAxios.get = jest.fn().mockResolvedValue({
       data: {
-        labels: [
-          { wd_code: 'Q123', name: 'Communication', description: 'Ability to communicate' },
-        ],
+        labels: [{ wd_code: 'Q123', name: 'Communication', description: 'Ability to communicate' }],
       },
     });
 
-    const result = await fetchWikidataLabelsViaApi(
-      [{ code: 36, wd_code: 'Q123' }],
-      'en'
-    );
+    const result = await fetchWikidataLabelsViaApi([{ code: 36, wd_code: 'Q123' }], 'en');
 
     expect(result).toHaveLength(1);
     expect(result[0].name).toBe('Communication');
@@ -131,7 +132,10 @@ describe('fetchWikidataLabelsViaApi', () => {
     });
 
     const result = await fetchWikidataLabelsViaApi(
-      [{ code: 50, wd_code: 'Q456' }, { code: 51, wd_code: 'Q789' }],
+      [
+        { code: 50, wd_code: 'Q456' },
+        { code: 51, wd_code: 'Q789' },
+      ],
       'en'
     );
 
@@ -142,10 +146,7 @@ describe('fetchWikidataLabelsViaApi', () => {
   it('skips batch silently when axios throws', async () => {
     mockedAxios.get = jest.fn().mockRejectedValue(new Error('Proxy unavailable'));
 
-    const result = await fetchWikidataLabelsViaApi(
-      [{ code: 10, wd_code: 'Q001' }],
-      'en'
-    );
+    const result = await fetchWikidataLabelsViaApi([{ code: 10, wd_code: 'Q001' }], 'en');
 
     expect(result).toEqual([]);
   });
@@ -222,7 +223,8 @@ describe('fetchWikidata', () => {
 
     // First call: SPARQL returns URI label (invalid)
     // Second call: API labels lookup also returns nothing
-    mockedAxios.get = jest.fn()
+    mockedAxios.get = jest
+      .fn()
       .mockResolvedValueOnce({ data: sparqlResponse })
       .mockResolvedValueOnce({ data: { labels: [] } });
 
@@ -410,10 +412,7 @@ describe('fetchCapacitiesWithFallback', () => {
     // Make axios throw to simulate complete failure
     mockedAxios.get = jest.fn().mockRejectedValue(new Error('All failed'));
 
-    const result = await fetchCapacitiesWithFallback(
-      [{ code: 10, wd_code: 'Q001' }],
-      'en'
-    );
+    const result = await fetchCapacitiesWithFallback([{ code: 10, wd_code: 'Q001' }], 'en');
 
     expect(Array.isArray(result)).toBe(true);
   });
@@ -434,10 +433,7 @@ describe('fetchCapacitiesWithFallback', () => {
 
     mockedAxios.get = jest.fn().mockResolvedValue({ data: mbResponse });
 
-    const result = await fetchCapacitiesWithFallback(
-      [{ code: 10, wd_code: 'Q001' }],
-      'en'
-    );
+    const result = await fetchCapacitiesWithFallback([{ code: 10, wd_code: 'Q001' }], 'en');
 
     expect(result.length).toBeGreaterThan(0);
     expect(result[0].name).toBe('Organizational');

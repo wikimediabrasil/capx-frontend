@@ -14,9 +14,7 @@ jest.mock('@/stores', () => ({
 // which itself uses useDarkMode / useIsMobile — mock the whole module so we
 // avoid pulling in heavy page-level dependencies.
 jest.mock('@/app/(auth)/home/components/AuthenticatedMainSection', () => ({
-  AnalyticsCallToActionSkeleton: () => (
-    <div data-testid="analytics-cta-skeleton" />
-  ),
+  AnalyticsCallToActionSkeleton: () => <div data-testid="analytics-cta-skeleton" />,
 }));
 
 // ---------------------------------------------------------------------------

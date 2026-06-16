@@ -5,7 +5,10 @@ import { NextResponse } from 'next/server';
 const mockAxiosGet = axios.get as jest.Mock;
 
 describe('Mentorship API routes', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
 
   describe('GET /api/mentorship_form_mentor', () => {
     it('returns mentor forms', async () => {

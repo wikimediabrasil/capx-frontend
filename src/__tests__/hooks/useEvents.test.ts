@@ -86,7 +86,12 @@ describe('useEvent', () => {
 
     let response: any;
     await act(async () => {
-      response = await result.current.createEvent({ name: 'New Event', organization: 1, time_begin: '2024-01-01T00:00:00Z', type_of_location: 'virtual' });
+      response = await result.current.createEvent({
+        name: 'New Event',
+        organization: 1,
+        time_begin: '2024-01-01T00:00:00Z',
+        type_of_location: 'virtual',
+      });
     });
 
     expect(mockEventsService.createEvent).toHaveBeenCalled();
@@ -127,7 +132,11 @@ describe('useEvent', () => {
       response = await result.current.updateEvent(1, { name: 'Updated Event' });
     });
 
-    expect(mockEventsService.updateEvent).toHaveBeenCalledWith(1, { name: 'Updated Event' }, 'test-token');
+    expect(mockEventsService.updateEvent).toHaveBeenCalledWith(
+      1,
+      { name: 'Updated Event' },
+      'test-token'
+    );
     expect(response).toEqual(updatedEvent);
   });
 

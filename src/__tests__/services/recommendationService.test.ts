@@ -26,7 +26,10 @@ describe('recommendationService', () => {
 
     it('should return the recommendations data on success', async () => {
       const mockData = {
-        users: [{ id: 1, username: 'bob' }, { id: 2, username: 'carol' }],
+        users: [
+          { id: 1, username: 'bob' },
+          { id: 2, username: 'carol' },
+        ],
         organizations: [{ id: 5, name: 'Wikimedia' }],
       };
       mockedAxios.get.mockResolvedValueOnce({ data: mockData });
@@ -45,7 +48,12 @@ describe('recommendationService', () => {
     });
 
     it('should throw on 401 unauthorized', async () => {
-      const error = { response: { status: 401, data: { detail: 'Authentication credentials were not provided.' } } };
+      const error = {
+        response: {
+          status: 401,
+          data: { detail: 'Authentication credentials were not provided.' },
+        },
+      };
       mockedAxios.get.mockRejectedValueOnce(error);
 
       await expect(recommendationService.getRecommendations('bad-token')).rejects.toEqual(error);

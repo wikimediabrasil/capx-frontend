@@ -167,9 +167,7 @@ describe('useMessage', () => {
       await result.current.sendMessage({ receiver: 1, body: 'Hello' });
     });
 
-    expect(mockSendMessage).toHaveBeenCalledWith(
-      expect.objectContaining({ token: '' })
-    );
+    expect(mockSendMessage).toHaveBeenCalledWith(expect.objectContaining({ token: '' }));
   });
 
   it('toggles showMethodSelector correctly', () => {

@@ -40,7 +40,11 @@ describe('documentService', () => {
       mockedAxios.post.mockResolvedValueOnce({ data: mockData });
 
       const result = await documentService.createDocument('test-token', { name: 'New Doc' } as any);
-      expect(mockedAxios.post).toHaveBeenCalledWith('/api/documents', { name: 'New Doc' }, expect.any(Object));
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/documents',
+        { name: 'New Doc' },
+        expect.any(Object)
+      );
       expect(result).toEqual(mockData);
     });
 

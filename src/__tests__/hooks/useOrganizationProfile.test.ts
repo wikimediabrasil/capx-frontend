@@ -141,7 +141,10 @@ describe('useOrganization', () => {
 
     await waitFor(() => expect(result.current.isPermissionsLoaded).toBe(true));
 
-    mockOrgService.updateOrganizationProfile.mockResolvedValue({ ...mockOrg, display_name: 'Updated' } as any);
+    mockOrgService.updateOrganizationProfile.mockResolvedValue({
+      ...mockOrg,
+      display_name: 'Updated',
+    } as any);
 
     await act(() => result.current.updateOrganization({ display_name: 'Updated' }));
 

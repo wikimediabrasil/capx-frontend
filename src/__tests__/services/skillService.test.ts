@@ -17,7 +17,10 @@ describe('skillService', () => {
     };
 
     it('should GET api/skill with auth header and pagination params', async () => {
-      const mockSkills = [{ id: 1, name: 'JavaScript' }, { id: 2, name: 'Python' }];
+      const mockSkills = [
+        { id: 1, name: 'JavaScript' },
+        { id: 2, name: 'Python' },
+      ];
       mockedAxios.get.mockResolvedValueOnce({ data: mockSkills });
 
       const result = await skillService.fetchSkills(queryData);

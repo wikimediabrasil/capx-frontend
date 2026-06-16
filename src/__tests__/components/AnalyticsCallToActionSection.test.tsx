@@ -29,8 +29,7 @@ jest.mock('@/stores', () => ({
     'home-analytics-cta-total-capacities':
       'There are {count} capacities for you to choose from on CapX.',
     'home-analytics-cta-total-messages': 'The CapX community has exchanged {count} messages.',
-    'home-analytics-cta-territories':
-      '{territoryname} is represented by {count} users on CapX.',
+    'home-analytics-cta-territories': '{territoryname} is represented by {count} users on CapX.',
   })),
   useLanguage: jest.fn(() => 'en'),
   useMobileMenuStatus: jest.fn(() => false),

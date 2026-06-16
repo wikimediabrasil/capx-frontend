@@ -43,10 +43,9 @@ describe('GET /api/profile', () => {
 
     await GET(request);
 
-    expect(axios.get).toHaveBeenCalledWith(
-      'https://test-api.com/profile/42',
-      { headers: { Authorization: 'Token abc123' } }
-    );
+    expect(axios.get).toHaveBeenCalledWith('https://test-api.com/profile/42', {
+      headers: { Authorization: 'Token abc123' },
+    });
     expect(NextResponse.json).toHaveBeenCalledWith(mockResults);
   });
 

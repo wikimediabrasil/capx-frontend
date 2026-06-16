@@ -12,7 +12,8 @@ function createRequest(options: { url?: string; headers?: Record<string, string>
   return {
     nextUrl: url,
     headers: {
-      get: (name: string) => options.headers?.[name.toLowerCase()] || options.headers?.[name] || null,
+      get: (name: string) =>
+        options.headers?.[name.toLowerCase()] || options.headers?.[name] || null,
     },
     json: jest.fn().mockResolvedValue(options.body || {}),
   } as any;

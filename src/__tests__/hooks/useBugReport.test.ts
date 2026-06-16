@@ -105,9 +105,7 @@ describe('useBugReport', () => {
       await result.current.submitBugReport({ title: 'Test' });
     });
 
-    expect(mockSubmitReport).toHaveBeenCalledWith(
-      expect.objectContaining({ token: '' })
-    );
+    expect(mockSubmitReport).toHaveBeenCalledWith(expect.objectContaining({ token: '' }));
   });
 
   it('returns response on successful submission', async () => {

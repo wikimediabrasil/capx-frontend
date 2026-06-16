@@ -79,9 +79,7 @@ describe('POST /api/events - extended', () => {
       related_skills: [1, 2],
       openstreetmap_id: '12345',
     };
-    await POST(
-      createRequest({ headers: { authorization: 'Token test' }, body })
-    );
+    await POST(createRequest({ headers: { authorization: 'Token test' }, body }));
     const sentData = mockAxiosPost.mock.calls[0][1];
     expect(sentData).toEqual(
       expect.objectContaining({
@@ -105,7 +103,10 @@ describe('POST /api/events - extended', () => {
       })
     );
     expect(NextResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Backend API error', details: { detail: 'Validation error' } }),
+      expect.objectContaining({
+        error: 'Backend API error',
+        details: { detail: 'Validation error' },
+      }),
       expect.objectContaining({ status: 422 })
     );
   });

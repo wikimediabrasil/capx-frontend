@@ -36,7 +36,8 @@ describe('fetchWikimediaData', () => {
             imageinfo: [
               {
                 url: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Example.jpg',
-                thumburl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/200px-Example.jpg',
+                thumburl:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/200px-Example.jpg',
                 metadata: [{ name: 'DateTime', value: '2020:01:01 00:00:00' }],
               },
             ],
@@ -69,7 +70,8 @@ describe('fetchWikimediaData', () => {
             imageinfo: [
               {
                 url: 'https://upload.wikimedia.org/wikipedia/commons/x/xx/Special.jpg',
-                thumburl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/x/xx/Special.jpg/200px-Special.jpg',
+                thumburl:
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/x/xx/Special.jpg/200px-Special.jpg',
                 metadata: [],
               },
             ],
@@ -107,9 +109,7 @@ describe('fetchWikimediaData', () => {
 
     global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
-    await fetchWikimediaData(
-      'https://upload.wikimedia.org/wikipedia/commons/u/up/Upload.jpg'
-    );
+    await fetchWikimediaData('https://upload.wikimedia.org/wikipedia/commons/u/up/Upload.jpg');
 
     const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
     expect(fetchUrl).toContain('Upload.jpg');
@@ -185,9 +185,7 @@ describe('fetchWikimediaData', () => {
 
     global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
-    await fetchWikimediaData(
-      'https://commons.wikimedia.org/wiki/File:Teoria_da_Mudan%C3%A7a.pdf'
-    );
+    await fetchWikimediaData('https://commons.wikimedia.org/wiki/File:Teoria_da_Mudan%C3%A7a.pdf');
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;

@@ -6,11 +6,17 @@ const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPut = axios.put as jest.Mock;
 const mockAxiosDelete = axios.delete as jest.Mock;
 function createRequest(headers: Record<string, string> = {}, body?: any) {
-  return { headers: { get: (n: string) => headers[n] || null }, json: jest.fn().mockResolvedValue(body || {}) } as any;
+  return {
+    headers: { get: (n: string) => headers[n] || null },
+    json: jest.fn().mockResolvedValue(body || {}),
+  } as any;
 }
 const params = { params: Promise.resolve({ id: '42' }) };
 describe('/api/organization_name/[id]', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
   it('GET returns name', async () => {
     mockAxiosGet.mockResolvedValue({ data: { id: 42, name: 'Test' } });
     await GET(createRequest({ authorization: 'Token t' }), params);
@@ -24,11 +30,17 @@ describe('/api/organization_name/[id]', () => {
   it('DELETE deletes name', async () => {
     mockAxiosDelete.mockResolvedValue({});
     await DELETE(createRequest({ authorization: 'Token t' }), params);
-    expect(NextResponse.json).toHaveBeenCalledWith({ success: true }, expect.objectContaining({ status: 200 }));
+    expect(NextResponse.json).toHaveBeenCalledWith(
+      { success: true },
+      expect.objectContaining({ status: 200 })
+    );
   });
   it('GET returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail', response: { status: 404 } });
     await GET(createRequest({ authorization: 'Token t' }), params);
-    expect(NextResponse.json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('Failed') }), expect.objectContaining({ status: 404 }));
+    expect(NextResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({ error: expect.stringContaining('Failed') }),
+      expect.objectContaining({ status: 404 })
+    );
   });
 });

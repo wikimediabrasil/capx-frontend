@@ -66,10 +66,9 @@ describe('useProfileForm', () => {
     const { result } = renderHook(() => useProfileForm(initialData, session));
 
     act(() => {
-      result.current.handleMultiSelectInputChange(
-        [{ value: 1 }, { value: 4 }],
-        { name: 'skills_known' }
-      );
+      result.current.handleMultiSelectInputChange([{ value: 1 }, { value: 4 }], {
+        name: 'skills_known',
+      });
     });
 
     expect(result.current.formData.userData.skills_known).toEqual([1, 4]);
@@ -80,10 +79,9 @@ describe('useProfileForm', () => {
 
     act(() => {
       // Remove skill 2 from skills_known (was [1,2,3], now [1,3])
-      result.current.handleMultiSelectInputChange(
-        [{ value: 1 }, { value: 3 }],
-        { name: 'skills_known' }
-      );
+      result.current.handleMultiSelectInputChange([{ value: 1 }, { value: 3 }], {
+        name: 'skills_known',
+      });
     });
 
     // skills_available should have skill 2 removed (was [1,2], now [1])
@@ -215,10 +213,9 @@ describe('useProfileForm', () => {
     const { result } = renderHook(() => useProfileForm(initialData, session));
 
     act(() => {
-      result.current.handleMultiSelectInputChange(
-        [{ value: 'CEECA' }, { value: 'LAC' }],
-        { name: 'territory' }
-      );
+      result.current.handleMultiSelectInputChange([{ value: 'CEECA' }, { value: 'LAC' }], {
+        name: 'territory',
+      });
     });
 
     expect(result.current.formData.userData.territory).toEqual(['CEECA', 'LAC']);

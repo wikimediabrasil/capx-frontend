@@ -1,5 +1,8 @@
 import axios from 'axios';
-import { fetchWikimediaProjects, fetchWikimediaProjectImages } from '@/services/wikimediaProjectService';
+import {
+  fetchWikimediaProjects,
+  fetchWikimediaProjectImages,
+} from '@/services/wikimediaProjectService';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -81,9 +84,7 @@ describe('wikimediaProjectService', () => {
     });
 
     it('should throw when token is undefined', async () => {
-      await expect(fetchWikimediaProjectImages(1, undefined)).rejects.toThrow(
-        'Token is required'
-      );
+      await expect(fetchWikimediaProjectImages(1, undefined)).rejects.toThrow('Token is required');
       expect(mockedAxios.get).not.toHaveBeenCalled();
     });
 

@@ -30,7 +30,9 @@ import { ensureCommonsPageUrl } from '@/lib/utils/convertWikimediaUrl';
 
 const mockDocumentService = documentService as jest.Mocked<typeof documentService>;
 const mockFetchWikimediaData = fetchWikimediaData as jest.MockedFunction<typeof fetchWikimediaData>;
-const mockValidateCapXDocumentUrl = validateCapXDocumentUrl as jest.MockedFunction<typeof validateCapXDocumentUrl>;
+const mockValidateCapXDocumentUrl = validateCapXDocumentUrl as jest.MockedFunction<
+  typeof validateCapXDocumentUrl
+>;
 
 describe('useDocument', () => {
   const token = 'test-token';
@@ -52,7 +54,10 @@ describe('useDocument', () => {
     jest.clearAllMocks();
     mockDocumentService.fetchAllDocuments.mockResolvedValue([]);
     mockDocumentService.fetchSingleDocument.mockResolvedValue(null);
-    mockDocumentService.createDocument.mockResolvedValue({ id: 1, url: 'https://commons.wikimedia.org/wiki/File:Test.jpg' });
+    mockDocumentService.createDocument.mockResolvedValue({
+      id: 1,
+      url: 'https://commons.wikimedia.org/wiki/File:Test.jpg',
+    });
     mockDocumentService.deleteDocument.mockResolvedValue(undefined);
     mockFetchWikimediaData.mockResolvedValue(mockWikimediaData as any);
     mockValidateCapXDocumentUrl.mockReturnValue({ isValid: true });
@@ -128,7 +133,9 @@ describe('useDocument', () => {
     const { result } = renderHook(() => useDocument(undefined));
 
     await act(async () => {
-      await result.current.createDocument({ url: 'https://commons.wikimedia.org/wiki/File:Test.jpg' });
+      await result.current.createDocument({
+        url: 'https://commons.wikimedia.org/wiki/File:Test.jpg',
+      });
     });
 
     expect(mockDocumentService.createDocument).not.toHaveBeenCalled();
@@ -160,7 +167,9 @@ describe('useDocument', () => {
     const { result } = renderHook(() => useDocument(token));
 
     await act(async () => {
-      await result.current.createDocument({ url: 'https://commons.wikimedia.org/wiki/File:Test.jpg' });
+      await result.current.createDocument({
+        url: 'https://commons.wikimedia.org/wiki/File:Test.jpg',
+      });
     });
 
     expect(mockDocumentService.createDocument).toHaveBeenCalled();

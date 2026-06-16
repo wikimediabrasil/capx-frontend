@@ -47,7 +47,13 @@ jest.mock('@/app/(auth)/capacity/components/SuggestCapacityModal', () => ({
 }));
 
 jest.mock('@/app/(auth)/capacity/components/CapacitySearch', () => ({
-  CapacitySearch: ({ onSearch, onSearchEnd }: { onSearch?: (t: string) => void; onSearchEnd?: () => void }) => (
+  CapacitySearch: ({
+    onSearch,
+    onSearchEnd,
+  }: {
+    onSearch?: (t: string) => void;
+    onSearchEnd?: () => void;
+  }) => (
     <input
       data-testid="capacity-search"
       placeholder="Search capacities"
@@ -287,7 +293,9 @@ describe('CapacityListMainWrapper', () => {
   // Helper to mount and fast-forward past the mounting effect
   const mountAndSettle = async (ui: React.ReactElement) => {
     const result = renderWithProviders(ui);
-    await act(async () => { jest.advanceTimersByTime(50); });
+    await act(async () => {
+      jest.advanceTimersByTime(50);
+    });
     return result;
   };
 
@@ -331,7 +339,9 @@ describe('CapacityListMainWrapper', () => {
 
     const { container } = renderWithProviders(<CapacityListMainWrapper />);
     // advance past mounted check
-    act(() => { jest.advanceTimersByTime(50); });
+    act(() => {
+      jest.advanceTimersByTime(50);
+    });
 
     const skeletons = container.querySelectorAll('.animate-pulse');
     expect(skeletons.length).toBeGreaterThan(0);
@@ -359,11 +369,11 @@ describe('CapacityListMainWrapper', () => {
     });
 
     renderWithProviders(<CapacityListMainWrapper />);
-    await act(async () => { jest.advanceTimersByTime(50); });
+    await act(async () => {
+      jest.advanceTimersByTime(50);
+    });
 
-    await waitFor(() =>
-      expect(screen.getByText('Loading translations...')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText('Loading translations...')).toBeInTheDocument());
 
     mockedHooks.useRootCapacities = originalRootCapacities;
     stores.useCapacityStore = origStore;
@@ -452,8 +462,24 @@ describe('CapacityListMainWrapper', () => {
     const original = mockedHooks.useRootCapacities;
     mockedHooks.useRootCapacities = () => ({
       data: [
-        { code: 1, name: 'Capacity A', color: 'blue', icon: '', hasChildren: true, skill_type: [], skill_wikidata_item: '' },
-        { code: 2, name: 'Capacity B', color: 'red', icon: '', hasChildren: false, skill_type: [], skill_wikidata_item: '' },
+        {
+          code: 1,
+          name: 'Capacity A',
+          color: 'blue',
+          icon: '',
+          hasChildren: true,
+          skill_type: [],
+          skill_wikidata_item: '',
+        },
+        {
+          code: 2,
+          name: 'Capacity B',
+          color: 'red',
+          icon: '',
+          hasChildren: false,
+          skill_type: [],
+          skill_wikidata_item: '',
+        },
       ],
       isLoading: false,
     });
@@ -471,12 +497,16 @@ describe('CapacityListMainWrapper', () => {
   it('renders error boundary fallback when a child throws', async () => {
     const mockedHooks = jest.requireMock('@/hooks/useCapacitiesQuery');
     const original = mockedHooks.useRootCapacities;
-    mockedHooks.useRootCapacities = () => { throw new Error('Test error'); };
+    mockedHooks.useRootCapacities = () => {
+      throw new Error('Test error');
+    };
 
     // Suppress console.error for this test
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     renderWithProviders(<CapacityListMainWrapper />);
-    await act(async () => { jest.advanceTimersByTime(50); });
+    await act(async () => {
+      jest.advanceTimersByTime(50);
+    });
 
     await waitFor(() => expect(screen.getByText('Try again')).toBeInTheDocument());
 

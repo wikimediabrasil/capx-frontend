@@ -375,7 +375,8 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
 
     it('should fall back to page content for description when Wikidata description is short', async () => {
       // Sequence: content, wikidata pageprops (with QID), infobox, parsed HTML
-      const longDescription = 'A very long description about this event that exceeds 80 characters in length for sure.';
+      const longDescription =
+        'A very long description about this event that exceeds 80 characters in length for sure.';
       (globalThis.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
@@ -445,8 +446,7 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
         // Wikidata fetch - event without dates
         .mockResolvedValueOnce({
           ok: true,
-          json: async () =>
-            createWikidataResponse([createWikidataBinding({ name: 'Event' })]),
+          json: async () => createWikidataResponse([createWikidataBinding({ name: 'Event' })]),
         });
 
       const result = await fetchEventDataByWikimediaURL(
@@ -593,9 +593,7 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
     it('should fetch from Wikidata URL directly', async () => {
       mockFetchSequence(createWikidataResponse([createStandardEventBinding()]));
 
-      const result = await fetchEventDataByGenericURL(
-        'https://www.wikidata.org/wiki/Q123456'
-      );
+      const result = await fetchEventDataByGenericURL('https://www.wikidata.org/wiki/Q123456');
 
       // fetchEventFromWikidata is called - result may be null if mock doesn't satisfy
       // but the code path through isValidEventURL -> extractQIDFromURL -> fetchEventFromWikidata is exercised

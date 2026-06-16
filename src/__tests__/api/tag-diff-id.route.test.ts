@@ -9,7 +9,10 @@ function createRequest(headers: Record<string, string> = {}) {
 }
 const params = { params: Promise.resolve({ id: '1' }) };
 describe('/api/tag_diff/[id]', () => {
-  beforeEach(() => { jest.clearAllMocks(); process.env.BASE_URL = 'https://test-api.com'; });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.BASE_URL = 'https://test-api.com';
+  });
   it('GET returns tag diff', async () => {
     mockAxiosGet.mockResolvedValue({ data: { id: 1 } });
     await GET(createRequest({ authorization: 'Token t' }), params);
@@ -23,6 +26,9 @@ describe('/api/tag_diff/[id]', () => {
   it('GET returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue(new Error('fail'));
     await GET(createRequest({ authorization: 'Token t' }), params);
-    expect(NextResponse.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Failed to fetch news' }), expect.objectContaining({ status: 500 }));
+    expect(NextResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({ error: 'Failed to fetch news' }),
+      expect.objectContaining({ status: 500 })
+    );
   });
 });

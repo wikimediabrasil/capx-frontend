@@ -164,10 +164,7 @@ describe('SuggestCapacityModal', () => {
     fireEvent.click(screen.getByText('Submit'));
 
     await waitFor(() => {
-      expect(mockShowSnackbar).toHaveBeenCalledWith(
-        expect.stringContaining('Failed'),
-        'error'
-      );
+      expect(mockShowSnackbar).toHaveBeenCalledWith(expect.stringContaining('Failed'), 'error');
     });
   });
 
