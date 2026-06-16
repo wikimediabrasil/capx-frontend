@@ -3,34 +3,10 @@ jest.mock('axios');
 import axios from 'axios';
 import { NextResponse } from 'next/server';
 import { GET } from '@/app/api/badges/route';
-
-function createMockNextRequest(options: {
-  method?: string;
-  url?: string;
-  searchParams?: Record<string, string>;
-  headers?: Record<string, string>;
-  body?: any;
-}) {
-  const url = new URL(options.url || 'https://localhost:3000/api/badges');
-  if (options.searchParams) {
-    Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
-  }
-  return {
-    method: options.method || 'GET',
-    url: url.toString(),
-    nextUrl: url,
-    headers: {
-      get: jest.fn((name: string) => options.headers?.[name] || null),
-    },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 describe('GET /api/badges', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('fetches all badges when no badgeId is provided', async () => {
     const mockData = [
@@ -39,7 +15,7 @@ describe('GET /api/badges', () => {
     ];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: mockData });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/badges', {
       headers: { authorization: 'Token abc123' },
     });
 
@@ -56,7 +32,7 @@ describe('GET /api/badges', () => {
     const mockData = { id: 5, name: 'Special Badge' };
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: mockData });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/badges', {
       searchParams: { badgeId: '5' },
       headers: { authorization: 'Token abc123' },
     });
@@ -73,7 +49,7 @@ describe('GET /api/badges', () => {
   it('passes limit and offset params to the backend', async () => {
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: [] });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/badges', {
       searchParams: { limit: '10', offset: '20' },
       headers: { authorization: 'Token abc123' },
     });
@@ -90,7 +66,7 @@ describe('GET /api/badges', () => {
     const error = { response: { status: 500 } };
     (axios.get as jest.Mock).mockRejectedValueOnce(error);
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/badges', {
       headers: { authorization: 'Token abc123' },
     });
 
@@ -106,7 +82,7 @@ describe('GET /api/badges', () => {
     const error = { response: { status: 403 } };
     (axios.get as jest.Mock).mockRejectedValueOnce(error);
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/badges', {
       headers: { authorization: 'Token abc123' },
     });
 
@@ -122,7 +98,7 @@ describe('GET /api/badges', () => {
     const mockData = [{ id: 1, name: 'Badge 1' }];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: mockData });
 
-    const request = createMockNextRequest({});
+    const request = createMockNextRequest('https://localhost:3000/api/badges', {});
 
     await GET(request);
 

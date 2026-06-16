@@ -3,30 +3,19 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET } from '@/app/api/territory/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 
-function createRequest(url: string, headers: Record<string, string> = {}) {
-  const parsedUrl = new URL(url);
-  return {
-    url,
-    nextUrl: parsedUrl,
-    headers: { get: (name: string) => headers[name] || null },
-  } as any;
-}
-
 describe('GET /api/territory', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('returns territory data on success', async () => {
     const mockData = [{ id: 1, name: 'SSA' }];
     mockAxiosGet.mockResolvedValue({ data: mockData });
 
-    const req = createRequest('https://localhost:3000/api/territory', {
-      authorization: 'Token test',
+    const req = createMockNextRequest('https://localhost:3000/api/territory', {
+      headers: { authorization: 'Token test' },
     });
     await GET(req);
 
@@ -40,8 +29,9 @@ describe('GET /api/territory', () => {
   it('passes query params to backend', async () => {
     mockAxiosGet.mockResolvedValue({ data: [] });
 
-    const req = createRequest('https://localhost:3000/api/territory?limit=10', {
-      authorization: 'Token test',
+    const req = createMockNextRequest('https://localhost:3000/api/territory', {
+      url: 'https://localhost:3000/api/territory?limit=10',
+      headers: { authorization: 'Token test' },
     });
     await GET(req);
 
@@ -54,7 +44,7 @@ describe('GET /api/territory', () => {
   it('returns 500 on error', async () => {
     mockAxiosGet.mockRejectedValue(new Error('fail'));
 
-    const req = createRequest('https://localhost:3000/api/territory');
+    const req = createMockNextRequest('https://localhost:3000/api/territory', {});
     await GET(req);
 
     expect(NextResponse.json).toHaveBeenCalledWith(

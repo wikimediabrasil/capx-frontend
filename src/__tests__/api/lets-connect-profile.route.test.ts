@@ -2,25 +2,15 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/lets_connect/profile/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
-function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'https://localhost:3000/api/lets_connect/profile');
-  return {
-    nextUrl: url,
-    headers: { get: (n: string) => options.headers?.[n] || null },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
 describe('/api/lets_connect/profile', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
   it('GET returns profile', async () => {
     mockAxiosGet.mockResolvedValue({ data: { username: 'test' } });
     await GET(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/lets_connect/profile', {
         url: 'https://localhost:3000/api/lets_connect/profile?username=test',
         headers: { authorization: 'Token t' },
       })
@@ -29,13 +19,13 @@ describe('/api/lets_connect/profile', () => {
   });
   it('POST creates profile', async () => {
     mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-    await POST(createRequest({ headers: { authorization: 'Token t' }, body: { type: 'mentor' } }));
+    await POST(createMockNextRequest('https://localhost:3000/api/lets_connect/profile', { headers: { authorization: 'Token t' }, body: { type: 'mentor' } }));
     expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
   });
   it('GET returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ response: { status: 500 } });
     await GET(
-      createRequest({ url: 'https://localhost:3000/api/lets_connect/profile?username=test' })
+      createMockNextRequest('https://localhost:3000/api/lets_connect/profile', { url: 'https://localhost:3000/api/lets_connect/profile?username=test' })
     );
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: expect.stringContaining('Failed') }),

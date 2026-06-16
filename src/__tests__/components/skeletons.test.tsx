@@ -4,11 +4,10 @@ import * as stores from '@/stores';
 // ---------------------------------------------------------------------------
 // Store mocks
 // ---------------------------------------------------------------------------
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useIsMobile: jest.fn(() => false),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  return createStoresMock();
+});
 
 // HomePageSkeleton imports AnalyticsCallToActionSkeleton from this module,
 // which itself uses useDarkMode / useIsMobile — mock the whole module so we

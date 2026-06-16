@@ -5,67 +5,21 @@ import AnalyticsCallToActionSection from '@/app/(auth)/home/components/Analytics
 import { useSession } from 'next-auth/react';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({
-    'home-analytics-cta-button': 'View Statistics',
-    'home-analytics-cta-text': '{count}+ languages are spoken on CapX.',
-    'home-analytics-cta-total-users': "CapX's network has {count} users today.",
-    'home-analytics-cta-total-organizations': '{count} organizations are active on CapX today.',
-    'home-analytics-cta-total-capacities':
-      'There are {count} capacities for you to choose from on CapX.',
-    'home-analytics-cta-total-messages': 'The CapX community has exchanged {count} messages.',
-    'home-analytics-cta-territories': '{territoryname} is represented by {count} users on CapX.',
-  })),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({
-      isMobile: false,
-      mobileMenuStatus: false,
-      language: 'en',
-      pageContent: {},
-      session: null,
-      mounted: true,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      setSession: jest.fn(),
-      setIsMobile: jest.fn(),
-      hydrate: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  return createStoresMock({
+    pageContent: {
+      'home-analytics-cta-button': 'View Statistics',
+      'home-analytics-cta-text': '{count}+ languages are spoken on CapX.',
+      'home-analytics-cta-total-users': "CapX's network has {count} users today.",
+      'home-analytics-cta-total-organizations': '{count} organizations are active on CapX today.',
+      'home-analytics-cta-total-capacities':
+        'There are {count} capacities for you to choose from on CapX.',
+      'home-analytics-cta-total-messages': 'The CapX community has exchanged {count} messages.',
+      'home-analytics-cta-territories': '{territoryname} is represented by {count} users on CapX.',
+    },
+  });
+});
 
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),

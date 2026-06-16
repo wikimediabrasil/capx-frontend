@@ -5,110 +5,27 @@ import { useSession } from 'next-auth/react';
 import * as stores from '@/stores';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({
-    'body-loggedin-home-main-section-title': 'Welcome to CapX',
-    'body-loggedin-home-main-section-description': 'Connect with peers',
-    'body-loggedin-home-main-section-button01': 'Browse Feed',
-    'body-loggedin-home-main-section-button02': 'My Profile',
-    'body-home-section01-description': 'Discover',
-    'body-home-section01-description-unified-login-info': 'Login info',
-    'body-loggedin-home-third-section-title': 'Contact',
-    'body-loggedin-home-third-section-description': 'Email us',
-    'body-loggedin-home-third-section-button': 'Copy',
-    'body-loggedin-home-third-section-button-success': 'Copied!',
-    'complete-your-profile': 'Complete your profile',
-    'auth-dialog-button-close': 'Close',
-    'auth-dialog-button-continue': 'Continue',
-  })),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({
-      isMobile: false,
-      mobileMenuStatus: false,
-      language: 'en',
-      pageContent: {},
-      session: null,
-      mounted: true,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      setSession: jest.fn(),
-      setIsMobile: jest.fn(),
-      hydrate: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useCapacityStore: Object.assign(
-    jest.fn(() => ({
-      capacities: {},
-      children: {},
-      language: 'en',
-      timestamp: 0,
-      isLoadingTranslations: false,
-      isLoaded: false,
-      getName: jest.fn(() => ''),
-      getDescription: jest.fn(() => ''),
-      getWdCode: jest.fn(() => ''),
-      getMetabaseCode: jest.fn(() => ''),
-      getColor: jest.fn(() => '#000'),
-      getIcon: jest.fn(() => '/icons/test.svg'),
-      getChildren: jest.fn(() => []),
-      getCapacity: jest.fn(() => null),
-      getRootCapacities: jest.fn(() => []),
-      hasChildren: jest.fn(() => false),
-      isFallbackTranslation: jest.fn(() => false),
-      getIsLoaded: jest.fn(() => false),
-      getIsDescriptionsReady: jest.fn(() => false),
-      updateLanguage: jest.fn(),
-      preloadCapacities: jest.fn(),
-      clearCache: jest.fn(),
-      setCache: jest.fn(),
-      invalidateQueryCache: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        capacities: {},
-        children: {},
-        language: 'en',
-        timestamp: 0,
-        isLoadingTranslations: false,
-        isLoaded: false,
-      }),
-    }
-  ),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  return createStoresMock({
+    pageContent: {
+      'body-loggedin-home-main-section-title': 'Welcome to CapX',
+      'body-loggedin-home-main-section-description': 'Connect with peers',
+      'body-loggedin-home-main-section-button01': 'Browse Feed',
+      'body-loggedin-home-main-section-button02': 'My Profile',
+      'body-home-section01-description': 'Discover',
+      'body-home-section01-description-unified-login-info': 'Login info',
+      'body-loggedin-home-third-section-title': 'Contact',
+      'body-loggedin-home-third-section-description': 'Email us',
+      'body-loggedin-home-third-section-button': 'Copy',
+      'body-loggedin-home-third-section-button-success': 'Copied!',
+      'complete-your-profile': 'Complete your profile',
+      'auth-dialog-button-close': 'Close',
+      'auth-dialog-button-continue': 'Continue',
+    },
+    capacityStore: true,
+  });
+});
 
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),

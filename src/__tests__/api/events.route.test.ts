@@ -3,31 +3,19 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/events/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
 
-function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'https://localhost:3000/api/events');
-  return {
-    url: url.toString(),
-    nextUrl: url,
-    headers: { get: (name: string) => options.headers?.[name] || null },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('GET /api/events', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('returns events on success', async () => {
     const mockData = { results: [{ id: 1 }], count: 1 };
     mockAxiosGet.mockResolvedValue({ data: mockData });
 
-    const req = createRequest({});
+    const req = createMockNextRequest('https://localhost:3000/api/events', {});
     await GET(req);
 
     expect(NextResponse.json).toHaveBeenCalledWith(
@@ -38,7 +26,7 @@ describe('GET /api/events', () => {
   it('returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail', response: { status: 500, data: 'error' } });
 
-    const req = createRequest({});
+    const req = createMockNextRequest('https://localhost:3000/api/events', {});
     await GET(req);
 
     expect(NextResponse.json).toHaveBeenCalledWith(
@@ -49,15 +37,12 @@ describe('GET /api/events', () => {
 });
 
 describe('POST /api/events', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('creates event on success', async () => {
     mockAxiosPost.mockResolvedValue({ status: 201, data: { id: 1, name: 'Test' } });
 
-    const req = createRequest({
+    const req = createMockNextRequest('https://localhost:3000/api/events', {
       headers: { authorization: 'Token test' },
       body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
     });
@@ -67,7 +52,7 @@ describe('POST /api/events', () => {
   });
 
   it('returns 401 when no authorization', async () => {
-    const req = createRequest({
+    const req = createMockNextRequest('https://localhost:3000/api/events', {
       body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
     });
     await POST(req);
@@ -79,7 +64,7 @@ describe('POST /api/events', () => {
   });
 
   it('returns 400 for missing required fields', async () => {
-    const req = createRequest({
+    const req = createMockNextRequest('https://localhost:3000/api/events', {
       headers: { authorization: 'Token test' },
       body: { name: 'Test' },
     });
@@ -93,7 +78,7 @@ describe('POST /api/events', () => {
 
   it('returns 400 for invalid JSON', async () => {
     const req = {
-      ...createRequest({ headers: { authorization: 'Token test' } }),
+      ...createMockNextRequest('https://localhost:3000/api/events', { headers: { authorization: 'Token test' } }),
       json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
     } as any;
     await POST(req);

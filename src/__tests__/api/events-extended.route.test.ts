@@ -3,38 +3,19 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/events/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
 
-function createRequest(options: {
-  url?: string;
-  headers?: Record<string, string>;
-  body?: any;
-  jsonError?: boolean;
-}) {
-  const url = new URL(options.url || 'https://localhost:3000/api/events');
-  return {
-    url: url.toString(),
-    nextUrl: url,
-    headers: { get: (name: string) => options.headers?.[name] || null },
-    json: options.jsonError
-      ? jest.fn().mockRejectedValue(new Error('Invalid JSON'))
-      : jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('GET /api/events - extended', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('passes all query params to backend', async () => {
     mockAxiosGet.mockResolvedValue({ data: { results: [], count: 0 } });
     const url =
       'https://localhost:3000/api/events?limit=10&offset=5&related_skills=1,2&territories=18&type_of_location=virtual&start_date=2024-01-01&end_date=2024-12-31&organization_id=5';
-    await GET(createRequest({ url }));
+    await GET(createMockNextRequest('https://localhost:3000/api/events', { url }));
     expect(mockAxiosGet).toHaveBeenCalledWith(
       'https://test-api.com/events/',
       expect.objectContaining({
@@ -54,16 +35,13 @@ describe('GET /api/events - extended', () => {
 
   it('handles missing results in response', async () => {
     mockAxiosGet.mockResolvedValue({ data: {} });
-    await GET(createRequest({}));
+    await GET(createMockNextRequest('https://localhost:3000/api/events', {}));
     expect(NextResponse.json).toHaveBeenCalledWith({ results: [], count: 0 });
   });
 });
 
 describe('POST /api/events - extended', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('includes optional fields when provided', async () => {
     mockAxiosPost.mockResolvedValue({ status: 201, data: { id: 1 } });
@@ -79,7 +57,7 @@ describe('POST /api/events - extended', () => {
       related_skills: [1, 2],
       openstreetmap_id: '12345',
     };
-    await POST(createRequest({ headers: { authorization: 'Token test' }, body }));
+    await POST(createMockNextRequest('https://localhost:3000/api/events', { headers: { authorization: 'Token test' }, body }));
     const sentData = mockAxiosPost.mock.calls[0][1];
     expect(sentData).toEqual(
       expect.objectContaining({
@@ -97,7 +75,7 @@ describe('POST /api/events - extended', () => {
   it('handles backend non-2xx response', async () => {
     mockAxiosPost.mockResolvedValue({ status: 422, data: { detail: 'Validation error' } });
     await POST(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/events', {
         headers: { authorization: 'Token test' },
         body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
       })
@@ -116,7 +94,7 @@ describe('POST /api/events - extended', () => {
     error.code = 'ENOTFOUND';
     mockAxiosPost.mockRejectedValue(error);
     await POST(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/events', {
         headers: { authorization: 'Token test' },
         body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
       })
@@ -132,7 +110,7 @@ describe('POST /api/events - extended', () => {
     error.code = 'ETIMEDOUT';
     mockAxiosPost.mockRejectedValue(error);
     await POST(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/events', {
         headers: { authorization: 'Token test' },
         body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
       })
@@ -148,7 +126,7 @@ describe('POST /api/events - extended', () => {
     error.response = { status: 400, data: { detail: 'Invalid data' } };
     mockAxiosPost.mockRejectedValue(error);
     await POST(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/events', {
         headers: { authorization: 'Token test' },
         body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
       })
@@ -162,7 +140,7 @@ describe('POST /api/events - extended', () => {
   it('handles generic server error', async () => {
     mockAxiosPost.mockRejectedValue(new Error('Something went wrong'));
     await POST(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/events', {
         headers: { authorization: 'Token test' },
         body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
       })
@@ -176,7 +154,7 @@ describe('POST /api/events - extended', () => {
   it('defaults time_end when not provided', async () => {
     mockAxiosPost.mockResolvedValue({ status: 201, data: { id: 1 } });
     await POST(
-      createRequest({
+      createMockNextRequest('https://localhost:3000/api/events', {
         headers: { authorization: 'Token test' },
         body: { name: 'Test', organization: 1, time_begin: '2024-01-01T00:00:00Z' },
       })

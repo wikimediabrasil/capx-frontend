@@ -13,41 +13,32 @@ jest.mock('@/components/LanguageChangeHandler', () => ({
   LanguageChangeHandler: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useIsMobile: jest.fn(() => false),
-  useCapacityStore: Object.assign(
-    jest.fn(() => ({
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  const base = createStoresMock();
+  const capacityState = {
+    capacities: {},
+    isLoaded: true,
+    isLoadingTranslations: false,
+    language: 'en',
+    getName: jest.fn(() => ''),
+    getDescription: jest.fn(() => ''),
+    getWdCode: jest.fn(() => ''),
+    getMetabaseCode: jest.fn(() => ''),
+    getColor: jest.fn(() => ''),
+    getChildren: jest.fn(() => []),
+    getRootCapacities: jest.fn(() => []),
+  };
+  base.useCapacityStore = Object.assign(jest.fn(() => capacityState), {
+    getState: () => ({
       capacities: {},
       isLoaded: true,
       isLoadingTranslations: false,
       language: 'en',
-      getName: jest.fn(() => ''),
-      getDescription: jest.fn(() => ''),
-      getWdCode: jest.fn(() => ''),
-      getMetabaseCode: jest.fn(() => ''),
-      getColor: jest.fn(() => ''),
-      getChildren: jest.fn(() => []),
-      getRootCapacities: jest.fn(() => []),
-    })),
-    {
-      getState: () => ({
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-      }),
-    }
-  ),
-  useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, language: 'en', pageContent: {} })),
-    { getState: () => ({ isMobile: false, language: 'en', pageContent: {} }) }
-  ),
-}));
+    }),
+  });
+  return base;
+});
 
 describe('CapacitiesVisualizationWrapper', () => {
   beforeEach(() => {

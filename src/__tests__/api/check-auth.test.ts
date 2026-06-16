@@ -6,24 +6,15 @@ jest.mock('@/lib/utils/api-error-handler', () => ({
 import axios from 'axios';
 import { POST } from '@/app/api/check-auth/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 
-function createRequest(options: { headers?: Record<string, string>; body?: any }) {
-  return {
-    headers: { get: (name: string) => options.headers?.[name] || null },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('POST /api/check-auth', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('returns 401 when no authorization header', async () => {
-    const req = createRequest({ headers: {} });
+    const req = createMockNextRequest('https://localhost:3000/api/check-auth', { headers: {} });
     await POST(req);
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: expect.any(String) }),
@@ -33,7 +24,7 @@ describe('POST /api/check-auth', () => {
 
   it('returns valid:true when auth is valid', async () => {
     mockAxiosGet.mockResolvedValue({ data: { id: 1 } });
-    const req = createRequest({
+    const req = createMockNextRequest('https://localhost:3000/api/check-auth', {
       headers: { authorization: 'Token test-token' },
       body: { userId: 1 },
     });
@@ -45,7 +36,7 @@ describe('POST /api/check-auth', () => {
 
   it('returns 401 when backend returns 401', async () => {
     mockAxiosGet.mockRejectedValue({ response: { status: 401 } });
-    const req = createRequest({
+    const req = createMockNextRequest('https://localhost:3000/api/check-auth', {
       headers: { authorization: 'Token invalid' },
       body: {},
     });

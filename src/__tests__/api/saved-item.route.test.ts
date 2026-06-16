@@ -3,34 +3,23 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/saved_item/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
 
-function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'https://localhost:3000/api/saved_item');
-  return {
-    nextUrl: url,
-    headers: { get: (name: string) => options.headers?.[name] || null },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('GET /api/saved_item', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('returns saved items', async () => {
     mockAxiosGet.mockResolvedValue({ data: [{ id: 1 }] });
-    const req = createRequest({ headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { headers: { authorization: 'Token test' } });
     await GET(req);
     expect(NextResponse.json).toHaveBeenCalledWith([{ id: 1 }]);
   });
 
   it('returns 401 without auth', async () => {
-    const req = createRequest({});
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', {});
     await GET(req);
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Unauthorized' }),
@@ -40,7 +29,7 @@ describe('GET /api/saved_item', () => {
 
   it('returns error on failure', async () => {
     mockAxiosGet.mockRejectedValue({ message: 'fail', response: { status: 500 } });
-    const req = createRequest({ headers: { authorization: 'Token test' } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { headers: { authorization: 'Token test' } });
     await GET(req);
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Failed to fetch saved items' }),
@@ -50,20 +39,17 @@ describe('GET /api/saved_item', () => {
 });
 
 describe('POST /api/saved_item', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('creates saved item', async () => {
     mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
-    const req = createRequest({ headers: { authorization: 'Token test' }, body: { profile: 1 } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { headers: { authorization: 'Token test' }, body: { profile: 1 } });
     await POST(req);
     expect(NextResponse.json).toHaveBeenCalledWith({ id: 1 });
   });
 
   it('returns 401 without auth', async () => {
-    const req = createRequest({ body: { profile: 1 } });
+    const req = createMockNextRequest('https://localhost:3000/api/saved_item', { body: { profile: 1 } });
     await POST(req);
     expect(NextResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({ error: 'Unauthorized' }),

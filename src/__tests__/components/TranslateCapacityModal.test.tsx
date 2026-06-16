@@ -2,36 +2,25 @@ import TranslateCapacityModal from '@/app/(auth)/capacity/components/TranslateCa
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useIsMobile: jest.fn(() => false),
-  useCapacityStore: Object.assign(
-    jest.fn((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: jest.fn(() => ''),
-        getDescription: jest.fn(() => ''),
-        updateCapacityTranslation: jest.fn(),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
-    }),
-    {
-      getState: () => ({ capacities: {}, isLoaded: true }),
-    }
-  ),
-  useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, language: 'en', pageContent: {} })),
-    { getState: () => ({ isMobile: false, language: 'en', pageContent: {} }) }
-  ),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  const base = createStoresMock();
+  const capacityState = {
+    capacities: {},
+    isLoaded: true,
+    isLoadingTranslations: false,
+    language: 'en',
+    getName: jest.fn(() => ''),
+    getDescription: jest.fn(() => ''),
+    updateCapacityTranslation: jest.fn(),
+    isFallbackTranslation: jest.fn(() => false),
+  };
+  base.useCapacityStore = Object.assign(
+    jest.fn((selector?: any) => (selector ? selector(capacityState) : capacityState)),
+    { getState: () => ({ capacities: {}, isLoaded: true }) }
+  );
+  return base;
+});
 
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({

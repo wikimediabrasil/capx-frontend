@@ -3,40 +3,16 @@ jest.mock('axios');
 import axios from 'axios';
 import { NextResponse } from 'next/server';
 import { GET, PUT, OPTIONS, DELETE } from '@/app/api/profile/route';
-
-function createMockNextRequest(options: {
-  method?: string;
-  url?: string;
-  searchParams?: Record<string, string>;
-  headers?: Record<string, string>;
-  body?: any;
-}) {
-  const url = new URL(options.url || 'https://localhost:3000/api/profile');
-  if (options.searchParams) {
-    Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
-  }
-  return {
-    method: options.method || 'GET',
-    url: url.toString(),
-    nextUrl: url,
-    headers: {
-      get: jest.fn((name: string) => options.headers?.[name] || null),
-    },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 describe('GET /api/profile', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('fetches user profile successfully', async () => {
     const mockResults = [{ id: 1, username: 'testuser' }];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: mockResults } });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
     });
@@ -52,7 +28,7 @@ describe('GET /api/profile', () => {
   it('returns 404 when response data is falsy', async () => {
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: null });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
     });
@@ -66,7 +42,7 @@ describe('GET /api/profile', () => {
     const error = { message: 'Network error', response: { data: 'Bad request' } };
     (axios.get as jest.Mock).mockRejectedValueOnce(error);
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
     });
@@ -82,7 +58,7 @@ describe('GET /api/profile', () => {
   it('encodes userId in URL', async () => {
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: [] } });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       searchParams: { userId: 'user name' },
       headers: { authorization: 'Token abc123' },
     });
@@ -97,16 +73,13 @@ describe('GET /api/profile', () => {
 });
 
 describe('PUT /api/profile', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('updates user profile successfully', async () => {
     const mockResponseData = { id: 42, username: 'updateduser' };
     (axios.put as jest.Mock).mockResolvedValueOnce({ status: 200, data: mockResponseData });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'PUT',
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
@@ -122,7 +95,7 @@ describe('PUT /api/profile', () => {
   it('returns error response when status is not 200', async () => {
     (axios.put as jest.Mock).mockResolvedValueOnce({ status: 400, data: {} });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'PUT',
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
@@ -140,7 +113,7 @@ describe('PUT /api/profile', () => {
   it('returns 500 on axios error', async () => {
     (axios.put as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'PUT',
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
@@ -157,10 +130,7 @@ describe('PUT /api/profile', () => {
 });
 
 describe('OPTIONS /api/profile', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('fetches form fields from options endpoint successfully', async () => {
     const mockActionsData = {
@@ -174,7 +144,7 @@ describe('OPTIONS /api/profile', () => {
     };
     (axios.options as jest.Mock).mockResolvedValueOnce({ data: mockActionsData });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'OPTIONS',
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
@@ -195,7 +165,7 @@ describe('OPTIONS /api/profile', () => {
   it('returns 500 on axios error', async () => {
     (axios.options as jest.Mock).mockRejectedValueOnce(new Error('Options error'));
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'OPTIONS',
       searchParams: { userId: '42' },
       headers: { authorization: 'Token abc123' },
@@ -211,15 +181,12 @@ describe('OPTIONS /api/profile', () => {
 });
 
 describe('DELETE /api/profile', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   it('deletes user profile successfully with status 200', async () => {
     (axios.delete as jest.Mock).mockResolvedValueOnce({ status: 200 });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'DELETE',
       headers: { authorization: 'Token abc123' },
       body: { user: { id: 42 } },
@@ -236,7 +203,7 @@ describe('DELETE /api/profile', () => {
   it('deletes user profile successfully with status 204', async () => {
     (axios.delete as jest.Mock).mockResolvedValueOnce({ status: 204 });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'DELETE',
       headers: { authorization: 'Token abc123' },
       body: { user: { id: 42 } },
@@ -250,7 +217,7 @@ describe('DELETE /api/profile', () => {
   it('returns error when delete fails with non-200 status', async () => {
     (axios.delete as jest.Mock).mockResolvedValueOnce({ status: 400 });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'DELETE',
       headers: { authorization: 'Token abc123' },
       body: { user: { id: 42 } },
@@ -268,7 +235,7 @@ describe('DELETE /api/profile', () => {
     const error = { message: 'Network error' };
     (axios.delete as jest.Mock).mockRejectedValueOnce(error);
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/profile', {
       method: 'DELETE',
       headers: { authorization: 'Token abc123' },
       body: { user: { id: 42 } },

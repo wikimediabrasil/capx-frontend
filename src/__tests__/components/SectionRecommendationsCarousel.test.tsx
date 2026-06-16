@@ -17,117 +17,34 @@ import {
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import { useQueryClient } from '@tanstack/react-query';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({
-    'recommendations-share-with': 'Profiles to share with',
-    'recommendations-learn-from': 'Profiles to learn from',
-    'recommendations-same-language': 'Same language speakers',
-    'recommendations-known-available-skills': 'Recommended Capacities to Share',
-    'recommendations-new-skills': 'Recommended Capacities',
-    'recommendations-events-title': 'Upcoming Events',
-    'recommendation-based-on-available-capacities': 'Based on your available capacities',
-    'recommendation-based-on-wanted-capacities': 'Based on your wanted capacities',
-    'recommendations-based-on-languages': 'Based on your languages',
-    'recommendation-based-on-capacities': 'Based on your capacities',
-    'recommendations-based-on-most-used-capacities': 'Based on most used capacities',
-    'view-profile': 'View Profile',
-    save: 'Save',
-    'add-to-profile': 'Add to Profile',
-    added: 'Added',
-    view: 'View',
-    loading: 'Loading...',
-    'capacity-icon': 'Capacity icon',
-    'recommendations-based-on-profile': 'Based on your profile',
-    'home-analytics-cta-button': 'View Statistics',
-  })),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({
-      isMobile: false,
-      mobileMenuStatus: false,
-      language: 'en',
-      pageContent: {},
-      session: null,
-      mounted: true,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      setSession: jest.fn(),
-      setIsMobile: jest.fn(),
-      hydrate: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useCapacityStore: Object.assign(
-    jest.fn(() => ({
-      capacities: {},
-      children: {},
-      language: 'en',
-      timestamp: 0,
-      isLoadingTranslations: false,
-      isLoaded: false,
-      getName: jest.fn((id: number) => `Capacity ${id}`),
-      getDescription: jest.fn((id: number) => `Description ${id}`),
-      getWdCode: jest.fn(() => ''),
-      getMetabaseCode: jest.fn(() => ''),
-      getColor: jest.fn(() => '#000'),
-      getIcon: jest.fn(() => '/icons/test.svg'),
-      getChildren: jest.fn(() => []),
-      getCapacity: jest.fn(() => null),
-      getRootCapacities: jest.fn(() => []),
-      hasChildren: jest.fn(() => false),
-      isFallbackTranslation: jest.fn(() => false),
-      getIsLoaded: jest.fn(() => false),
-      getIsDescriptionsReady: jest.fn(() => false),
-      updateLanguage: jest.fn(),
-      preloadCapacities: jest.fn(),
-      clearCache: jest.fn(),
-      setCache: jest.fn(),
-      invalidateQueryCache: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        capacities: {},
-        children: {},
-        language: 'en',
-        timestamp: 0,
-        isLoadingTranslations: false,
-        isLoaded: false,
-      }),
-    }
-  ),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  return createStoresMock({
+    pageContent: {
+      'recommendations-share-with': 'Profiles to share with',
+      'recommendations-learn-from': 'Profiles to learn from',
+      'recommendations-same-language': 'Same language speakers',
+      'recommendations-known-available-skills': 'Recommended Capacities to Share',
+      'recommendations-new-skills': 'Recommended Capacities',
+      'recommendations-events-title': 'Upcoming Events',
+      'recommendation-based-on-available-capacities': 'Based on your available capacities',
+      'recommendation-based-on-wanted-capacities': 'Based on your wanted capacities',
+      'recommendations-based-on-languages': 'Based on your languages',
+      'recommendation-based-on-capacities': 'Based on your capacities',
+      'recommendations-based-on-most-used-capacities': 'Based on most used capacities',
+      'view-profile': 'View Profile',
+      save: 'Save',
+      'add-to-profile': 'Add to Profile',
+      added: 'Added',
+      view: 'View',
+      loading: 'Loading...',
+      'capacity-icon': 'Capacity icon',
+      'recommendations-based-on-profile': 'Based on your profile',
+      'home-analytics-cta-button': 'View Statistics',
+    },
+    capacityStore: true,
+  });
+});
 
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),

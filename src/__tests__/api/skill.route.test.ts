@@ -1,35 +1,11 @@
 import axios from 'axios';
 import { GET } from '@/app/api/skill/route';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 jest.mock('axios');
 
-function createMockNextRequest(options: {
-  method?: string;
-  url?: string;
-  searchParams?: Record<string, string>;
-  headers?: Record<string, string>;
-  body?: any;
-}) {
-  const url = new URL(options.url || 'https://localhost:3000/api/skill');
-  if (options.searchParams) {
-    Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
-  }
-  return {
-    method: options.method || 'GET',
-    url: url.toString(),
-    nextUrl: url,
-    headers: {
-      get: jest.fn((name: string) => options.headers?.[name] || null),
-    },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('GET /api/skill', () => {
-  beforeEach(() => {
-    process.env.BASE_URL = 'https://test-api.com';
-    jest.clearAllMocks();
-  });
+  beforeEach(() => setupApiTest());
 
   it('returns skill results on success', async () => {
     const mockResults = [
@@ -38,7 +14,7 @@ describe('GET /api/skill', () => {
     ];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: mockResults } });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/skill', {
       headers: { authorization: 'Token abc123' },
     });
 
@@ -55,7 +31,7 @@ describe('GET /api/skill', () => {
     const mockResults = [{ id: 1, name: 'JavaScript' }];
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: { results: mockResults } });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/skill', {
       searchParams: { limit: '10', offset: '20' },
       headers: { authorization: 'Token abc123' },
     });
@@ -71,7 +47,7 @@ describe('GET /api/skill', () => {
   it('returns 500 error when response has no results', async () => {
     (axios.get as jest.Mock).mockResolvedValueOnce({ data: {} });
 
-    const request = createMockNextRequest({});
+    const request = createMockNextRequest('https://localhost:3000/api/skill', {});
 
     const response = await GET(request);
 
@@ -81,7 +57,7 @@ describe('GET /api/skill', () => {
   it('returns 500 error on axios failure', async () => {
     (axios.get as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    const request = createMockNextRequest({});
+    const request = createMockNextRequest('https://localhost:3000/api/skill', {});
 
     const response = await GET(request);
 

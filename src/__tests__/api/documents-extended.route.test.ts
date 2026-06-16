@@ -3,33 +3,19 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/documents/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
 
-function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'https://localhost:3000/api/documents');
-  return {
-    nextUrl: url,
-    headers: {
-      get: (name: string) =>
-        options.headers?.[name.toLowerCase()] || options.headers?.[name] || null,
-    },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('/api/documents - extended', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   describe('GET', () => {
     it('passes limit and offset params', async () => {
       mockAxiosGet.mockResolvedValue({ data: { results: [] } });
       await GET(
-        createRequest({
+        createMockNextRequest('https://localhost:3000/api/documents', {
           url: 'https://localhost:3000/api/documents?limit=5&offset=10',
           headers: { authorization: 'Token test' },
         })
@@ -46,7 +32,7 @@ describe('/api/documents - extended', () => {
       mockAxiosGet.mockRejectedValue({
         response: { status: 503, data: 'Service unavailable' },
       });
-      await GET(createRequest({ headers: { authorization: 'Token test' } }));
+      await GET(createMockNextRequest('https://localhost:3000/api/documents', { headers: { authorization: 'Token test' } }));
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Failed to fetch documents' }),
         expect.objectContaining({ status: 503 })
@@ -57,7 +43,7 @@ describe('/api/documents - extended', () => {
   describe('POST', () => {
     it('returns 400 for invalid creator', async () => {
       await POST(
-        createRequest({
+        createMockNextRequest('https://localhost:3000/api/documents', {
           headers: { authorization: 'Token test' },
           body: { url: 'https://example.com', creator: -1 },
         })
@@ -71,7 +57,7 @@ describe('/api/documents - extended', () => {
     it('returns 500 when BASE_URL not configured', async () => {
       delete process.env.BASE_URL;
       await POST(
-        createRequest({
+        createMockNextRequest('https://localhost:3000/api/documents', {
           headers: { authorization: 'Token test' },
           body: { url: 'https://example.com' },
         })
@@ -89,7 +75,7 @@ describe('/api/documents - extended', () => {
         isAxiosError: true,
       });
       await POST(
-        createRequest({
+        createMockNextRequest('https://localhost:3000/api/documents', {
           headers: { authorization: 'Token test' },
           body: { url: 'https://example.com' },
         })

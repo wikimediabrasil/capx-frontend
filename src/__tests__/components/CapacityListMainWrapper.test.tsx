@@ -105,58 +105,16 @@ const makeCapacityStoreMock = (overrides: Record<string, any> = {}) => ({
   ...overrides,
 });
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: (...args: any[]) => mockUseDarkMode(...args),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: (...args: any[]) => mockUseIsMobile(...args),
-  usePageContent: (...args: any[]) => mockUsePageContent(...args),
-  useLanguage: (...args: any[]) => mockUseLanguage(...args),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({
-      isMobile: false,
-      mobileMenuStatus: false,
-      language: 'en',
-      pageContent: {},
-      session: null,
-      mounted: true,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      setSession: jest.fn(),
-      setIsMobile: jest.fn(),
-      hydrate: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useCapacityStore: Object.assign(
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  const base = createStoresMock({ capacityStore: true });
+  // Override with module-level refs so tests can call mockReturnValue on them
+  base.useDarkMode = (...args: any[]) => mockUseDarkMode(...args);
+  base.useIsMobile = (...args: any[]) => mockUseIsMobile(...args);
+  base.usePageContent = (...args: any[]) => mockUsePageContent(...args);
+  base.useLanguage = (...args: any[]) => mockUseLanguage(...args);
+  // Override capacity store to use local makeCapacityStoreMock (supports isLoaded: true)
+  base.useCapacityStore = Object.assign(
     jest.fn((selector?: any) => {
       const state = makeCapacityStoreMock();
       return selector ? selector(state) : state;
@@ -171,8 +129,9 @@ jest.mock('@/stores', () => ({
         isLoaded: true,
       }),
     }
-  ),
-}));
+  );
+  return base;
+});
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({

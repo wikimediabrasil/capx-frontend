@@ -1,38 +1,14 @@
 import axios from 'axios';
 import { GET } from '@/app/api/tag/route';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 jest.mock('axios');
 
-function createMockNextRequest(options: {
-  method?: string;
-  url?: string;
-  searchParams?: Record<string, string>;
-  headers?: Record<string, string>;
-  body?: any;
-}) {
-  const url = new URL(options.url || 'https://localhost:3000/api/tag');
-  if (options.searchParams) {
-    Object.entries(options.searchParams).forEach(([k, v]) => url.searchParams.set(k, v));
-  }
-  return {
-    method: options.method || 'GET',
-    url: url.toString(),
-    nextUrl: url,
-    headers: {
-      get: jest.fn((name: string) => options.headers?.[name] || null),
-    },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('GET /api/tag', () => {
-  beforeEach(() => {
-    process.env.BASE_URL = 'https://test-api.com';
-    jest.clearAllMocks();
-  });
+  beforeEach(() => setupApiTest());
 
   it('returns 400 when category parameter is missing', async () => {
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/tag', {
       headers: { authorization: 'Token abc123' },
     });
 
@@ -42,7 +18,7 @@ describe('GET /api/tag', () => {
   });
 
   it('returns 401 when authorization header is missing', async () => {
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/tag', {
       searchParams: { category: 'skill' },
     });
 
@@ -60,7 +36,7 @@ describe('GET /api/tag', () => {
       .mockResolvedValueOnce({ data: codeListData })
       .mockResolvedValueOnce({ data: userListData });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/tag', {
       searchParams: { category: 'skill', id: tagId },
       headers: { authorization: 'Token abc123' },
     });
@@ -79,7 +55,7 @@ describe('GET /api/tag', () => {
       .mockResolvedValueOnce({ data: codeListData })
       .mockResolvedValueOnce({ data: userListData });
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/tag', {
       searchParams: { category: 'skill', id: '42' },
       headers: { authorization: 'Token abc123' },
     });
@@ -92,7 +68,7 @@ describe('GET /api/tag', () => {
   it('returns 500 on axios failure', async () => {
     (axios.get as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    const request = createMockNextRequest({
+    const request = createMockNextRequest('https://localhost:3000/api/tag', {
       searchParams: { category: 'skill', id: '42' },
       headers: { authorization: 'Token abc123' },
     });

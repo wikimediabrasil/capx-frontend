@@ -3,37 +3,23 @@ jest.mock('axios');
 import axios from 'axios';
 import { GET, POST } from '@/app/api/documents/route';
 import { NextResponse } from 'next/server';
+import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 const mockAxiosPost = axios.post as jest.Mock;
 
-function createRequest(options: { url?: string; headers?: Record<string, string>; body?: any }) {
-  const url = new URL(options.url || 'https://localhost:3000/api/documents');
-  return {
-    nextUrl: url,
-    headers: {
-      get: (name: string) =>
-        options.headers?.[name.toLowerCase()] || options.headers?.[name] || null,
-    },
-    json: jest.fn().mockResolvedValue(options.body || {}),
-  } as any;
-}
-
 describe('/api/documents', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.BASE_URL = 'https://test-api.com';
-  });
+  beforeEach(() => setupApiTest());
 
   describe('GET', () => {
     it('returns documents', async () => {
       mockAxiosGet.mockResolvedValue({ data: { results: [{ id: 1 }] } });
-      await GET(createRequest({ headers: { Authorization: 'Token test' } }));
+      await GET(createMockNextRequest('https://localhost:3000/api/documents', { headers: { Authorization: 'Token test' } }));
       expect(NextResponse.json).toHaveBeenCalledWith([{ id: 1 }]);
     });
 
     it('returns 401 without auth', async () => {
-      await GET(createRequest({}));
+      await GET(createMockNextRequest('https://localhost:3000/api/documents', {}));
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'No authorization token provided' }),
         expect.objectContaining({ status: 401 })
@@ -45,7 +31,7 @@ describe('/api/documents', () => {
     it('creates a document', async () => {
       mockAxiosPost.mockResolvedValue({ data: { id: 1 } });
       await POST(
-        createRequest({
+        createMockNextRequest('https://localhost:3000/api/documents', {
           headers: { Authorization: 'Token test' },
           body: { url: 'https://example.com', organization: 1 },
         })
@@ -54,7 +40,7 @@ describe('/api/documents', () => {
     });
 
     it('returns 401 without auth', async () => {
-      await POST(createRequest({ body: { url: 'https://example.com' } }));
+      await POST(createMockNextRequest('https://localhost:3000/api/documents', { body: { url: 'https://example.com' } }));
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'No authorization token provided' }),
         expect.objectContaining({ status: 401 })
@@ -62,7 +48,7 @@ describe('/api/documents', () => {
     });
 
     it('returns 400 for missing url', async () => {
-      await POST(createRequest({ headers: { Authorization: 'Token test' }, body: {} }));
+      await POST(createMockNextRequest('https://localhost:3000/api/documents', { headers: { Authorization: 'Token test' }, body: {} }));
       expect(NextResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Invalid request body' }),
         expect.objectContaining({ status: 400 })
@@ -71,7 +57,7 @@ describe('/api/documents', () => {
 
     it('returns 400 for invalid organization', async () => {
       await POST(
-        createRequest({
+        createMockNextRequest('https://localhost:3000/api/documents', {
           headers: { Authorization: 'Token test' },
           body: { url: 'https://example.com', organization: -1 },
         })

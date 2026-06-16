@@ -17,34 +17,30 @@ jest.mock('@/components/skeletons', () => ({
   CapacitiesTreeSkeleton: () => <div data-testid="tree-skeleton">Loading tree...</div>,
 }));
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useIsMobile: jest.fn(() => false),
-  useCapacityStore: Object.assign(
-    jest.fn((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: jest.fn((code: number) => `Capacity ${code}`),
-        getDescription: jest.fn(() => 'Description'),
-        getWdCode: jest.fn(() => ''),
-        getMetabaseCode: jest.fn(() => ''),
-        getColor: jest.fn(() => 'organizational'),
-        getChildren: jest.fn(() => []),
-        getRootCapacities: jest.fn(() => [
-          { code: 10, name: 'organizational', color: 'organizational' },
-          { code: 36, name: 'communication', color: 'communication' },
-        ]),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
-    }),
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  const base = createStoresMock();
+  const defaultCapacityState = {
+    capacities: {},
+    isLoaded: true,
+    isLoadingTranslations: false,
+    language: 'en',
+    getName: jest.fn((code: number) => `Capacity ${code}`),
+    getDescription: jest.fn(() => 'Description'),
+    getWdCode: jest.fn(() => ''),
+    getMetabaseCode: jest.fn(() => ''),
+    getColor: jest.fn(() => 'organizational'),
+    getChildren: jest.fn(() => []),
+    getRootCapacities: jest.fn(() => [
+      { code: 10, name: 'organizational', color: 'organizational' },
+      { code: 36, name: 'communication', color: 'communication' },
+    ]),
+    isFallbackTranslation: jest.fn(() => false),
+  };
+  base.useCapacityStore = Object.assign(
+    jest.fn((selector?: any) =>
+      selector ? selector(defaultCapacityState) : defaultCapacityState
+    ),
     {
       getState: () => ({
         capacities: {},
@@ -53,12 +49,9 @@ jest.mock('@/stores', () => ({
         language: 'en',
       }),
     }
-  ),
-  useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, language: 'en', pageContent: {} })),
-    { getState: () => ({ isMobile: false, language: 'en', pageContent: {} }) }
-  ),
-}));
+  );
+  return base;
+});
 
 describe('CapacitiesTreeVisualization', () => {
   beforeEach(() => {
