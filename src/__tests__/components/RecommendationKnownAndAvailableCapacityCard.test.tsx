@@ -88,89 +88,47 @@ describe('RecommendationKnownAndAvailableCapacityCard', () => {
 
   afterEach(cleanupMocks);
 
-  it('renders without crashing', async () => {
-    const { container } = renderWithProviders(
+  function renderCard(props: Record<string, any> = {}) {
+    return renderWithProviders(
       <RecommendationKnownAndAvailableCapacityCard
         recommendation={createMockCapacityRecommendation()}
+        {...props}
       />
     );
+  }
+
+  it('renders without crashing', async () => {
+    const { container } = renderCard();
     expect(container.firstChild).toBeInTheDocument();
   });
 
-  it('renders capacity name', async () => {
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
+  it.each([
+    ['capacity name', 'Teaching'],
+    ['capacity description', 'Teaching capability'],
+    ['Add to Profile button', 'Add to Profile'],
+    ['View button', 'View'],
+  ])('renders %s', async (_label, text) => {
+    renderCard();
     await waitFor(() => {
-      expect(screen.getByText('Teaching')).toBeInTheDocument();
-    });
-  });
-
-  it('renders capacity description', async () => {
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
-    await waitFor(() => {
-      expect(screen.getByText('Teaching capability')).toBeInTheDocument();
-    });
-  });
-
-  it('renders Add to Profile button', async () => {
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
-    await waitFor(() => {
-      expect(screen.getByText('Add to Profile')).toBeInTheDocument();
-    });
-  });
-
-  it('renders View button', async () => {
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
-    await waitFor(() => {
-      expect(screen.getByText('View')).toBeInTheDocument();
+      expect(screen.getByText(text)).toBeInTheDocument();
     });
   });
 
   it('renders hint message when provided', async () => {
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-        hintMessage="Share this capacity"
-      />
-    );
+    renderCard({ hintMessage: 'Share this capacity' });
     await waitFor(() => {
       expect(screen.getByText('Share this capacity')).toBeInTheDocument();
     });
   });
 
   it('shows Added button when capacity is already in known and available lists', async () => {
-    const profileWithCapacity = {
-      ...mockUserProfile,
-      skills_known: ['42'],
-      skills_available: ['42'],
-    };
     mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
       if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-        return profileWithCapacity;
+        return { ...mockUserProfile, skills_known: ['42'], skills_available: ['42'] };
       }
       return undefined;
     });
-
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
+    renderCard();
     await waitFor(() => {
       expect(screen.getByText('✓ Added')).toBeInTheDocument();
     });
@@ -178,23 +136,14 @@ describe('RecommendationKnownAndAvailableCapacityCard', () => {
 
   it('renders in dark mode', async () => {
     (stores.useDarkMode as jest.Mock).mockReturnValue(true);
-    const { container } = renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
+    const { container } = renderCard();
     await waitFor(() => {
-      const card = container.querySelector('.bg-gray-800');
-      expect(card).toBeInTheDocument();
+      expect(container.querySelector('.bg-gray-800')).toBeInTheDocument();
     });
   });
 
   it('renders capacity icon', async () => {
-    renderWithProviders(
-      <RecommendationKnownAndAvailableCapacityCard
-        recommendation={createMockCapacityRecommendation()}
-      />
-    );
+    renderCard();
     await waitFor(() => {
       expect(screen.getByAltText('Capacity icon')).toBeInTheDocument();
     });

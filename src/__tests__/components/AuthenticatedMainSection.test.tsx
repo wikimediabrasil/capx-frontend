@@ -89,8 +89,6 @@ const defaultPageContent = {
   'body-loggedin-home-main-section-description': 'Connect with peers',
   'body-loggedin-home-main-section-button01': 'Browse Feed',
   'body-loggedin-home-main-section-button02': 'My Profile',
-  'body-home-section01-description': 'Discover capacities',
-  'body-home-section01-description-unified-login-info': 'Login with your Wikimedia account',
   'body-loggedin-home-third-section-title': 'Get in Touch',
   'body-loggedin-home-third-section-description': 'Contact us at capx@wmnobrasil.org',
   'body-loggedin-home-third-section-button': 'Copy Email',
@@ -245,42 +243,28 @@ describe('AuthenticatedMainSection', () => {
   });
 
   describe('Router navigation', () => {
-    it('navigates to /feed when Browse Feed is clicked', () => {
+    it.each([
+      ['Browse Feed', '/feed'],
+      ['My Profile', '/profile'],
+    ])('navigates to %s route when clicked', (buttonText, route) => {
       const { useRouter } = require('next/navigation');
       const mockPush = jest.fn();
       (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
       renderComponent();
-      fireEvent.click(screen.getByText('Browse Feed'));
-      expect(mockPush).toHaveBeenCalledWith('/feed');
-    });
-
-    it('navigates to /profile when My Profile is clicked', () => {
-      const { useRouter } = require('next/navigation');
-      const mockPush = jest.fn();
-      (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
-
-      renderComponent();
-      fireEvent.click(screen.getByText('My Profile'));
-      expect(mockPush).toHaveBeenCalledWith('/profile');
+      fireEvent.click(screen.getByText(buttonText));
+      expect(mockPush).toHaveBeenCalledWith(route);
     });
   });
 
   describe('Third section', () => {
-    it('renders third section title', () => {
-      renderComponent();
-      expect(screen.getByText('Get in Touch')).toBeInTheDocument();
-    });
-
-    it('renders third section description', () => {
-      renderComponent();
-      expect(screen.getByText('Contact us at capx@wmnobrasil.org')).toBeInTheDocument();
-    });
-
-    it('renders copy email button', () => {
-      renderComponent();
-      expect(screen.getByText('Copy Email')).toBeInTheDocument();
-    });
+    it.each(['Get in Touch', 'Contact us at capx@wmnobrasil.org', 'Copy Email'])(
+      'renders %s',
+      text => {
+        renderComponent();
+        expect(screen.getByText(text)).toBeInTheDocument();
+      }
+    );
 
     it('shows snackbar after copying email', () => {
       const mockShowSnackbar = jest.fn();

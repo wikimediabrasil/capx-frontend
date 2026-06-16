@@ -22,47 +22,25 @@ import {
 // isInvalidCapacityLabel
 // ---------------------------------------------------------------------------
 describe('isInvalidCapacityLabel', () => {
-  it('returns true for undefined', () => {
-    expect(isInvalidCapacityLabel(undefined)).toBe(true);
-  });
-
-  it('returns true for empty string', () => {
-    expect(isInvalidCapacityLabel('')).toBe(true);
-  });
-
-  it('returns true for whitespace-only string', () => {
-    expect(isInvalidCapacityLabel('   ')).toBe(true);
-  });
-
-  it('returns true for strings starting with http', () => {
-    expect(isInvalidCapacityLabel('https://www.wikidata.org/entity/Q12345')).toBe(true);
-    expect(isInvalidCapacityLabel('https://example.com/label')).toBe(true);
-  });
-
-  it('returns true for strings containing "entity/"', () => {
-    expect(isInvalidCapacityLabel('wikidata entity/Q123')).toBe(true);
-    expect(isInvalidCapacityLabel('some entity/identifier')).toBe(true);
-  });
-
-  it('returns true for QID-matching strings (Q followed by digits)', () => {
-    expect(isInvalidCapacityLabel('Q12345')).toBe(true);
-    expect(isInvalidCapacityLabel('Q1')).toBe(true);
-    expect(isInvalidCapacityLabel('q9999')).toBe(true); // case-insensitive flag i
-  });
-
-  it('returns false for a normal human-readable label', () => {
-    expect(isInvalidCapacityLabel('Communication')).toBe(false);
-    expect(isInvalidCapacityLabel('Strategic Planning')).toBe(false);
-    expect(isInvalidCapacityLabel('Wiki editing')).toBe(false);
-  });
-
-  it('returns false for a label that starts with Q but has non-digit characters', () => {
-    expect(isInvalidCapacityLabel('Quality Assurance')).toBe(false);
-    expect(isInvalidCapacityLabel('Querying Data')).toBe(false);
-  });
-
-  it('returns false for a label with leading/trailing spaces but valid content', () => {
-    expect(isInvalidCapacityLabel('  Community Building  ')).toBe(false);
+  it.each([
+    [undefined, true],
+    ['', true],
+    ['   ', true],
+    ['https://www.wikidata.org/entity/Q12345', true],
+    ['https://example.com/label', true],
+    ['wikidata entity/Q123', true],
+    ['some entity/identifier', true],
+    ['Q12345', true],
+    ['Q1', true],
+    ['q9999', true],
+    ['Communication', false],
+    ['Strategic Planning', false],
+    ['Wiki editing', false],
+    ['Quality Assurance', false],
+    ['Querying Data', false],
+    ['  Community Building  ', false],
+  ])('returns %p for %p', (input, expected) => {
+    expect(isInvalidCapacityLabel(input as any)).toBe(expected);
   });
 });
 
@@ -70,45 +48,32 @@ describe('isInvalidCapacityLabel', () => {
 // getHueRotate
 // ---------------------------------------------------------------------------
 describe('getHueRotate', () => {
-  it('returns empty string for undefined', () => {
-    expect(getHueRotate(undefined)).toBe('');
+  it.each([undefined, ''])('returns empty string for %p', input => {
+    expect(getHueRotate(input)).toBe('');
   });
 
-  it('returns empty string for empty string', () => {
-    expect(getHueRotate('')).toBe('');
-  });
-
-  it('returns a CSS filter string for known hex colours', () => {
-    // organisational blue
+  it('returns a CSS filter string containing hue-rotate for known hex', () => {
     const filter = getHueRotate('#0078D4');
-    expect(typeof filter).toBe('string');
-    expect(filter.length).toBeGreaterThan(0);
     expect(filter).toContain('hue-rotate');
   });
 
-  it('returns a CSS filter string for each known hex colour', () => {
-    const hexColors = ['#0078D4', '#BE0078', '#00965A', '#8E44AD', '#D35400', '#3498DB', '#27AE60'];
-    hexColors.forEach(hex => {
-      const result = getHueRotate(hex);
-      expect(result.length).toBeGreaterThan(0);
-    });
-  });
+  it.each(['#0078D4', '#BE0078', '#00965A', '#8E44AD', '#D35400', '#3498DB', '#27AE60'])(
+    'returns non-empty filter for hex %s',
+    hex => {
+      expect(getHueRotate(hex).length).toBeGreaterThan(0);
+    }
+  );
 
-  it('returns a filter string for known category names', () => {
-    const categories = [
-      'organizational',
-      'communication',
-      'learning',
-      'community',
-      'social',
-      'strategic',
-      'technology',
-    ];
-    categories.forEach(cat => {
-      const result = getHueRotate(cat);
-      expect(typeof result).toBe('string');
-      expect(result.length).toBeGreaterThan(0);
-    });
+  it.each([
+    'organizational',
+    'communication',
+    'learning',
+    'community',
+    'social',
+    'strategic',
+    'technology',
+  ])('returns non-empty filter for category %s', cat => {
+    expect(getHueRotate(cat).length).toBeGreaterThan(0);
   });
 
   it('returns empty string for unknown category name', () => {
@@ -124,44 +89,19 @@ describe('getHueRotate', () => {
 // getCapacityColor
 // ---------------------------------------------------------------------------
 describe('getCapacityColor', () => {
-  it('returns hex for "organizational"', () => {
-    expect(getCapacityColor('organizational')).toBe('#0078D4');
-  });
-
-  it('returns hex for "communication"', () => {
-    expect(getCapacityColor('communication')).toBe('#BE0078');
-  });
-
-  it('returns hex for "learning"', () => {
-    expect(getCapacityColor('learning')).toBe('#00965A');
-  });
-
-  it('returns hex for "community"', () => {
-    expect(getCapacityColor('community')).toBe('#8E44AD');
-  });
-
-  it('returns hex for "social"', () => {
-    expect(getCapacityColor('social')).toBe('#D35400');
-  });
-
-  it('returns hex for "strategic"', () => {
-    expect(getCapacityColor('strategic')).toBe('#3498DB');
-  });
-
-  it('returns hex for "technology"', () => {
-    expect(getCapacityColor('technology')).toBe('#27AE60');
-  });
-
-  it('passes through an explicit hex colour unchanged', () => {
-    expect(getCapacityColor('#FF0000')).toBe('#FF0000');
-  });
-
-  it('returns #000000 for empty string', () => {
-    expect(getCapacityColor('')).toBe('#000000');
-  });
-
-  it('passes through an unknown string', () => {
-    expect(getCapacityColor('unknown')).toBe('unknown');
+  it.each([
+    ['organizational', '#0078D4'],
+    ['communication', '#BE0078'],
+    ['learning', '#00965A'],
+    ['community', '#8E44AD'],
+    ['social', '#D35400'],
+    ['strategic', '#3498DB'],
+    ['technology', '#27AE60'],
+    ['#FF0000', '#FF0000'],
+    ['', '#000000'],
+    ['unknown', 'unknown'],
+  ])('returns %p for %p', (input, expected) => {
+    expect(getCapacityColor(input)).toBe(expected);
   });
 });
 
@@ -198,40 +138,18 @@ describe('getCapacityIcon', () => {
 // sanitizeCapacityName
 // ---------------------------------------------------------------------------
 describe('sanitizeCapacityName', () => {
-  it('returns "Capacity {code}" for undefined name', () => {
-    expect(sanitizeCapacityName(undefined, 42)).toBe('Capacity 42');
-  });
-
-  it('returns "Capacity {code}" for empty string name', () => {
-    expect(sanitizeCapacityName('', 10)).toBe('Capacity 10');
-  });
-
-  it('returns "Capacity {code}" for whitespace-only name', () => {
-    expect(sanitizeCapacityName('   ', 7)).toBe('Capacity 7');
-  });
-
-  it('returns "Capacity {code}" for http-prefixed name', () => {
-    expect(sanitizeCapacityName('https://wikidata.org/entity/Q1', 99)).toBe('Capacity 99');
-  });
-
-  it('returns "Capacity {code}" for entity/-containing name', () => {
-    expect(sanitizeCapacityName('entity/Q999', 55)).toBe('Capacity 55');
-  });
-
-  it('returns "Capacity {code}" for QID name', () => {
-    expect(sanitizeCapacityName('Q12345', 33)).toBe('Capacity 33');
-  });
-
-  it('returns trimmed name for a valid label', () => {
-    expect(sanitizeCapacityName('  Communication  ', 36)).toBe('Communication');
-  });
-
-  it('returns the name as-is (trimmed) for normal input', () => {
-    expect(sanitizeCapacityName('Strategic Planning', 74)).toBe('Strategic Planning');
-  });
-
-  it('works with string code', () => {
-    expect(sanitizeCapacityName(undefined, 'Q99')).toBe('Capacity Q99');
+  it.each([
+    [undefined, 42, 'Capacity 42'],
+    ['', 10, 'Capacity 10'],
+    ['   ', 7, 'Capacity 7'],
+    ['https://wikidata.org/entity/Q1', 99, 'Capacity 99'],
+    ['entity/Q999', 55, 'Capacity 55'],
+    ['Q12345', 33, 'Capacity 33'],
+    ['  Communication  ', 36, 'Communication'],
+    ['Strategic Planning', 74, 'Strategic Planning'],
+    [undefined, 'Q99', 'Capacity Q99'],
+  ])('sanitizeCapacityName(%p, %p) => %p', (name, code, expected) => {
+    expect(sanitizeCapacityName(name as any, code as any)).toBe(expected);
   });
 });
 
@@ -298,22 +216,8 @@ describe('ensureArray', () => {
     expect(ensureArray(arr)).toBe(arr);
   });
 
-  it('returns empty array for undefined', () => {
-    expect(ensureArray(undefined)).toEqual([]);
-  });
-
-  it('returns empty array for null', () => {
-    expect(ensureArray(null as any)).toEqual([]);
-  });
-
-  it('returns empty array for a non-array value', () => {
-    expect(ensureArray('string' as any)).toEqual([]);
-    expect(ensureArray(42 as any)).toEqual([]);
-    expect(ensureArray({} as any)).toEqual([]);
-  });
-
-  it('returns empty array for an empty array', () => {
-    expect(ensureArray([])).toEqual([]);
+  it.each([undefined, null, 'string', 42, {}, []])('returns empty array for %p', input => {
+    expect(ensureArray(input as any)).toEqual([]);
   });
 });
 
@@ -321,26 +225,18 @@ describe('ensureArray', () => {
 // sanitizeCapacityCode
 // ---------------------------------------------------------------------------
 describe('sanitizeCapacityCode', () => {
-  it('parses a string to a number', () => {
-    expect(sanitizeCapacityCode('42')).toBe(42);
-    expect(sanitizeCapacityCode('10')).toBe(10);
-  });
-
-  it('returns the number unchanged when already a number', () => {
-    expect(sanitizeCapacityCode(99)).toBe(99);
-    expect(sanitizeCapacityCode(0)).toBe(0);
+  it.each([
+    ['42', 42],
+    ['10', 10],
+    [99, 99],
+    [0, 0],
+    ['0', 0],
+    ['123abc', 123],
+  ])('sanitizeCapacityCode(%p) => %p', (input, expected) => {
+    expect(sanitizeCapacityCode(input as any)).toBe(expected);
   });
 
   it('returns NaN for a non-numeric string', () => {
     expect(sanitizeCapacityCode('abc')).toBeNaN();
-  });
-
-  it('parses the leading numeric part of a mixed string', () => {
-    // parseInt('123abc') === 123
-    expect(sanitizeCapacityCode('123abc')).toBe(123);
-  });
-
-  it('handles string "0"', () => {
-    expect(sanitizeCapacityCode('0')).toBe(0);
   });
 });

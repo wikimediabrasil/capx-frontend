@@ -69,22 +69,37 @@ async function waitForCardLoaded() {
   });
 }
 
-// Helper to click add to profile button
-async function clickAddToProfileButton() {
-  await waitFor(() => {
-    expect(screen.getByText('Add to Profile')).toBeInTheDocument();
-  });
-
-  const addButton = screen.getByText('Add to Profile');
-  fireEvent.click(addButton);
-}
-
 describe('RecommendationCapacityCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockRouter = createMockRouter();
   const mockQueryClient = createMockQueryClient();
   const mockUserProfile = createMockUserProfile();
   const mockCapacityCache = createMockCapacityCache();
+
+  function mockProfileWithSkills(skills: string[]) {
+    mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
+      if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
+        return { ...mockUserProfile, skills_wanted: skills };
+      }
+      return undefined;
+    });
+  }
+
+  async function waitForCardReady() {
+    await waitFor(() => {
+      expect(screen.getByText('Learning')).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Add to Profile')).toBeEnabled();
+    });
+  }
+
+  async function clickAddToProfileButton() {
+    await waitFor(() => {
+      expect(screen.getByText('Add to Profile')).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText('Add to Profile'));
+  }
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -154,20 +169,9 @@ describe('RecommendationCapacityCard', () => {
       profileService.updateProfile = jest.fn().mockResolvedValue({});
 
       renderCapacityCard();
+      await waitForCardReady();
 
-      // Wait for component to finish loading and render
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-
-      // Wait for button to be enabled (means userProfile is loaded)
-      await waitFor(() => {
-        const addButton = screen.getByText('Add to Profile');
-        expect(addButton).toBeEnabled();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      fireEvent.click(screen.getByText('Add to Profile'));
 
       await waitFor(() => {
         expect(profileService.updateProfile).toHaveBeenCalledWith(
@@ -189,19 +193,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should show "Added" button when capacity is already in wanted list', async () => {
-      const profileWithCapacity = {
-        ...mockUserProfile,
-        skills_wanted: ['50'], // Capacity ID 50 is already in the list
-      };
-
-      // Update the mock to return the profile with the capacity
-      mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
-        if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-          return profileWithCapacity;
-        }
-        return undefined;
-      });
-
+      mockProfileWithSkills(['50']);
       renderCapacityCard();
 
       await waitFor(() => {
@@ -250,18 +242,9 @@ describe('RecommendationCapacityCard', () => {
       profileService.updateProfile.mockImplementation(() => delayedResponse);
 
       renderCapacityCard();
+      await waitForCardReady();
 
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const addButton = screen.getByText('Add to Profile');
-        expect(addButton).toBeEnabled();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      fireEvent.click(screen.getByText('Add to Profile'));
 
       await waitFor(() => {
         expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -271,19 +254,7 @@ describe('RecommendationCapacityCard', () => {
     it('should not add duplicate capacity', async () => {
       const { profileService } = require('@/services/profileService');
       profileService.updateProfile = jest.fn().mockResolvedValue({});
-
-      const profileWithCapacity = {
-        ...mockUserProfile,
-        skills_wanted: ['50'], // Capacity ID 50 is already in the list
-      };
-
-      // Update the mock to return the profile with the capacity
-      mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
-        if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-          return profileWithCapacity;
-        }
-        return undefined;
-      });
+      mockProfileWithSkills(['50']);
 
       renderCapacityCard();
 
@@ -309,60 +280,22 @@ describe('RecommendationCapacityCard', () => {
   });
 
   describe('Capacity data', () => {
-    it('should use recommendation name if provided', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          name: 'Custom Capacity Name',
-        }),
-      });
-
+    it.each([
+      ['recommendation name', { name: 'Custom Capacity Name' }, 'Custom Capacity Name'],
+      ['cached name for empty name', { name: '' }, 'Learning'],
+      ['recommendation description', { description: 'Custom description' }, 'Custom description'],
+      ['cached description for empty desc', { description: '' }, 'Learning capability'],
+    ])('should use %s', async (_label, overrides, expectedText) => {
+      renderCapacityCard({ recommendation: createMockCapacityRecommendation(overrides) });
       await waitFor(() => {
-        expect(screen.getByText('Custom Capacity Name')).toBeInTheDocument();
-      });
-    });
-
-    it('should use cached name if recommendation name is empty', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          name: '',
-        }),
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-    });
-
-    it('should use recommendation description if provided', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          description: 'Custom description',
-        }),
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Custom description')).toBeInTheDocument();
-      });
-    });
-
-    it('should use cached description if recommendation description is empty', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          description: '',
-        }),
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Learning capability')).toBeInTheDocument();
+        expect(screen.getByText(expectedText)).toBeInTheDocument();
       });
     });
 
     it('should display capacity icon with correct styling', async () => {
       renderCapacityCard();
-
       await waitFor(() => {
-        const icon = screen.getByAltText('Capacity icon');
-        expect(icon).toBeInTheDocument();
+        expect(screen.getByAltText('Capacity icon')).toBeInTheDocument();
       });
     });
   });
@@ -396,18 +329,9 @@ describe('RecommendationCapacityCard', () => {
       userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
 
       renderCapacityCard();
+      await waitForCardReady();
 
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const addButton = screen.getByText('Add to Profile');
-        expect(addButton).toBeEnabled();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      fireEvent.click(screen.getByText('Add to Profile'));
 
       // Should update cache optimistically with setQueryData
       await waitFor(

@@ -72,6 +72,22 @@ const setLocation = (pathname: string, search = '') => {
   });
 };
 
+function mockFetchOk() {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    status: 200,
+    json: jest.fn().mockResolvedValue({}),
+  });
+}
+
+function mockFetch401(body: Record<string, any>) {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: false,
+    status: 401,
+    json: jest.fn().mockResolvedValue(body),
+  });
+}
+
 describe('auth-monitor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -177,33 +193,20 @@ describe('auth-monitor', () => {
       localStorageMock.getItem.mockImplementation((key: string) =>
         key === 'login_timestamp' ? String(oldTimestamp) : null
       );
-
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
+      mockFetchOk();
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(2001);
-      // forceLogout calls signOut then after a setTimeout(500) sets window.location.href
-      // Advance past the 500ms delay
       await jest.advanceTimersByTimeAsync(600);
 
       expect(mockedSignOut).toHaveBeenCalled();
     });
 
     it('does NOT trigger logout when session is within 10 days', async () => {
-      const recentTimestamp = Date.now() - 1000;
       localStorageMock.getItem.mockImplementation((key: string) =>
-        key === 'login_timestamp' ? String(recentTimestamp) : null
+        key === 'login_timestamp' ? String(Date.now() - 1000) : null
       );
-
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
+      mockFetchOk();
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(2001);
@@ -212,13 +215,7 @@ describe('auth-monitor', () => {
     });
 
     it('does NOT trigger logout when no login_timestamp present', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
-
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
+      mockFetchOk();
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(2001);
@@ -232,26 +229,17 @@ describe('auth-monitor', () => {
   // -------------------------------------------------------------------------
   describe('2-second watcher - OAuth token removal', () => {
     it('triggers forceLogout when OAuth tokens are removed mid-session', async () => {
-      // Initially present
       sessionStorageMock.getItem.mockImplementation((key: string) => {
         if (key === 'oauth_token') return 'token123';
         if (key === 'oauth_token_secret') return 'secret456';
         return null;
       });
-
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
+      mockFetchOk();
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
-
-      // Tokens get removed
       sessionStorageMock.getItem.mockImplementation(() => null);
 
       await jest.advanceTimersByTimeAsync(2001);
-
       await jest.advanceTimersByTimeAsync(600);
       expect(mockedSignOut).toHaveBeenCalled();
     });
@@ -262,13 +250,7 @@ describe('auth-monitor', () => {
         if (key === 'oauth_token_secret') return 'present_secret';
         return null;
       });
-      localStorageMock.getItem.mockReturnValue(null);
-
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
+      mockFetchOk();
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(2001);
@@ -281,87 +263,48 @@ describe('auth-monitor', () => {
   // 30-second watcher: token validity
   // -------------------------------------------------------------------------
   describe('30-second watcher - token validity', () => {
-    it('triggers forceLogout when token validity check returns 401 with "Invalid token."', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 401,
-        json: jest.fn().mockResolvedValue({ detail: 'Invalid token.' }),
-      });
-
+    it.each([
+      ['401 with Invalid token', { detail: 'Invalid token.' }],
+      ['401 with shouldLogout=true', { shouldLogout: true }],
+    ])('triggers forceLogout on %s', async (_label, body) => {
+      mockFetch401(body);
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(30001);
-
-      await jest.advanceTimersByTimeAsync(600);
-      expect(mockedSignOut).toHaveBeenCalled();
-    });
-
-    it('triggers forceLogout when shouldLogout=true in 401 response', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 401,
-        json: jest.fn().mockResolvedValue({ shouldLogout: true }),
-      });
-
-      startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
-      await jest.advanceTimersByTimeAsync(30001);
-
       await jest.advanceTimersByTimeAsync(600);
       expect(mockedSignOut).toHaveBeenCalled();
     });
 
     it('does NOT logout when token validity returns 200 ok', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
-
+      mockFetchOk();
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(30001);
-
       expect(mockedSignOut).not.toHaveBeenCalled();
     });
 
     it('does NOT logout when 401 response has shouldLogout=false', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: false,
-        status: 401,
-        json: jest.fn().mockResolvedValue({ shouldLogout: false }),
-      });
-
+      mockFetch401({ shouldLogout: false });
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(30001);
-
       expect(mockedSignOut).not.toHaveBeenCalled();
     });
 
     it('triggers logout when checkTokenValidity fetch throws', async () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
-
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(30001);
-
-      // checkTokenValidity returns false on error → forceLogout
       await jest.advanceTimersByTimeAsync(600);
       expect(mockedSignOut).toHaveBeenCalled();
     });
 
-    it('also returns false (and triggers logout) when session is expired during token check', async () => {
+    it('triggers logout when session is expired during token check', async () => {
       const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
-      const oldTimestamp = Date.now() - TEN_DAYS_MS - 1;
       localStorageMock.getItem.mockImplementation((key: string) =>
-        key === 'login_timestamp' ? String(oldTimestamp) : null
+        key === 'login_timestamp' ? String(Date.now() - TEN_DAYS_MS - 1) : null
       );
-
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
+      mockFetchOk();
 
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(30001);
-
       await jest.advanceTimersByTimeAsync(600);
       expect(mockedSignOut).toHaveBeenCalled();
     });
@@ -427,12 +370,7 @@ describe('auth-monitor', () => {
   // -------------------------------------------------------------------------
   describe('testTokenExpiration', () => {
     it('calls forceLogout and redirects to /', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: jest.fn().mockResolvedValue({}),
-      });
-
+      mockFetchOk();
       const promise = testTokenExpiration();
       await jest.runAllTimersAsync();
       await promise;
