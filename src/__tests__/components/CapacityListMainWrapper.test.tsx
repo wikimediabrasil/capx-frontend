@@ -40,7 +40,7 @@ jest.mock('@/app/(auth)/capacity/components/SuggestCapacityModal', () => ({
   default: ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) =>
     isOpen ? (
       <div data-testid="suggest-modal">
-        Suggest a new capacity
+        <span>Suggest a new capacity</span>
         <button onClick={onClose}>Close</button>
       </div>
     ) : null,

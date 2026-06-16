@@ -64,7 +64,7 @@ describe('useDocument', () => {
   });
 
   it('has correct initial state', () => {
-    const { result } = renderHook(() => useDocument(undefined));
+    const { result } = renderHook(() => useDocument());
 
     expect(result.current.documents).toEqual([]);
     expect(result.current.document).toBeNull();
@@ -85,7 +85,7 @@ describe('useDocument', () => {
   });
 
   it('does not fetch when no token provided', async () => {
-    renderHook(() => useDocument(undefined));
+    renderHook(() => useDocument());
 
     await waitFor(() => {
       expect(mockDocumentService.fetchAllDocuments).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe('useDocument', () => {
   });
 
   it('createDocument throws when no token', async () => {
-    const { result } = renderHook(() => useDocument(undefined));
+    const { result } = renderHook(() => useDocument());
 
     await act(async () => {
       await result.current.createDocument({
@@ -187,7 +187,7 @@ describe('useDocument', () => {
   });
 
   it('deleteDocument does nothing when no token', async () => {
-    const { result } = renderHook(() => useDocument(undefined));
+    const { result } = renderHook(() => useDocument());
 
     await act(async () => {
       await result.current.deleteDocument(1);

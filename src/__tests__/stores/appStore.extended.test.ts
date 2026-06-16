@@ -218,11 +218,11 @@ describe('appStore - extended', () => {
   // -------------------------------------------------------------------------
   describe('exported selector hooks', () => {
     it('useIsMobile reflects isMobile state', () => {
-      const { useIsMobile } = require('@/stores/appStore');
+      const appStoreExports = require('@/stores/appStore');
+      expect(appStoreExports.useIsMobile).toBeDefined();
       act(() => {
         useAppStore.setState({ isMobile: true });
       });
-      // Direct state check (hooks must be used in renderHook)
       expect(useAppStore.getState().isMobile).toBe(true);
     });
 

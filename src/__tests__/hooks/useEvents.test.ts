@@ -51,7 +51,7 @@ describe('useEvent', () => {
   });
 
   it('does not fetch when no token', async () => {
-    renderHook(() => useEvent(1, undefined));
+    renderHook(() => useEvent(1));
 
     await waitFor(() => {
       expect(mockEventsService.getEventById).not.toHaveBeenCalled();

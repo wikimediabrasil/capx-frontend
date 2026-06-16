@@ -69,6 +69,22 @@ async function waitForCardLoaded() {
   });
 }
 
+async function waitForCardReady() {
+  await waitFor(() => {
+    expect(screen.getByText('Learning')).toBeInTheDocument();
+  });
+  await waitFor(() => {
+    expect(screen.getByText('Add to Profile')).toBeEnabled();
+  });
+}
+
+async function clickAddToProfileButton() {
+  await waitFor(() => {
+    expect(screen.getByText('Add to Profile')).toBeInTheDocument();
+  });
+  fireEvent.click(screen.getByText('Add to Profile'));
+}
+
 describe('RecommendationCapacityCard', () => {
   const mockSnackbar = createMockSnackbar();
   const mockRouter = createMockRouter();
@@ -83,22 +99,6 @@ describe('RecommendationCapacityCard', () => {
       }
       return undefined;
     });
-  }
-
-  async function waitForCardReady() {
-    await waitFor(() => {
-      expect(screen.getByText('Learning')).toBeInTheDocument();
-    });
-    await waitFor(() => {
-      expect(screen.getByText('Add to Profile')).toBeEnabled();
-    });
-  }
-
-  async function clickAddToProfileButton() {
-    await waitFor(() => {
-      expect(screen.getByText('Add to Profile')).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByText('Add to Profile'));
   }
 
   beforeEach(() => {

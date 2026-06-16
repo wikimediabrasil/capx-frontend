@@ -54,7 +54,7 @@ describe('useProject', () => {
   });
 
   it('does not fetch when no token', () => {
-    const { result } = renderHook(() => useProject(1, undefined));
+    const { result } = renderHook(() => useProject(1));
 
     // isLoading stays true because effect returns early without setting it
     expect(result.current.isLoading).toBe(true);
@@ -202,7 +202,7 @@ describe('useProjects', () => {
   });
 
   it('does not fetch when no token', () => {
-    const { result } = renderHook(() => useProjects([1, 2], undefined));
+    const { result } = renderHook(() => useProjects([1, 2]));
 
     expect(result.current.isLoading).toBe(false);
     expect(mockProjectsService.getProjectById).not.toHaveBeenCalled();

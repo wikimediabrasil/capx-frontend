@@ -134,7 +134,7 @@ describe('useMediaQuery', () => {
   });
 
   it('re-runs when the query changes', () => {
-    const { result, rerender } = renderHook(({ query }) => useMediaQuery(query), {
+    const { rerender } = renderHook(({ query }) => useMediaQuery(query), {
       initialProps: { query: '(min-width: 768px)' },
     });
 

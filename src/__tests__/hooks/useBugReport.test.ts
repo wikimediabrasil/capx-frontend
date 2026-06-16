@@ -20,7 +20,9 @@ function setupHook() {
   return renderHook(() => useBugReport());
 }
 
-async function submitWith(result: any, report = { title: 'Test' }) {
+const DEFAULT_REPORT = { title: 'Test' };
+
+async function submitWith(result: any, report = DEFAULT_REPORT) {
   let response: any;
   await act(async () => {
     response = await result.current.submitBugReport(report);

@@ -109,6 +109,19 @@ function renderWrapper(isFirstLogin = false) {
   );
 }
 
+function setupProfileMocks(incomplete: boolean, loading = false) {
+  const { useProfile } = require('@/hooks/useProfile');
+  const { isProfileIncomplete } = require('@/utils/checkProfileCompleteness');
+  const skills = incomplete ? [] : [1];
+  (useProfile as jest.Mock).mockReturnValue({
+    profile: loading
+      ? null
+      : { id: 1, username: 'user', skills_known: skills, skills_available: skills },
+    isLoading: loading,
+  });
+  (isProfileIncomplete as jest.Mock).mockReturnValue(incomplete);
+}
+
 describe('AuthenticatedHomeWrapper', () => {
   beforeEach(() => {
     (useSession as jest.Mock).mockReturnValue({
@@ -152,19 +165,6 @@ describe('AuthenticatedHomeWrapper', () => {
     screen.getByText('Continue').click();
     expect(mockPush).toHaveBeenCalledWith('/profile/edit');
   });
-
-  function setupProfileMocks(incomplete: boolean, loading = false) {
-    const { useProfile } = require('@/hooks/useProfile');
-    const { isProfileIncomplete } = require('@/utils/checkProfileCompleteness');
-    const skills = incomplete ? [] : [1];
-    (useProfile as jest.Mock).mockReturnValue({
-      profile: loading
-        ? null
-        : { id: 1, username: 'user', skills_known: skills, skills_available: skills },
-      isLoading: loading,
-    });
-    (isProfileIncomplete as jest.Mock).mockReturnValue(incomplete);
-  }
 
   it('does NOT show incomplete profile popup when profile is complete', async () => {
     setupProfileMocks(false);

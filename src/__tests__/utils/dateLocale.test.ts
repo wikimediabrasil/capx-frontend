@@ -144,7 +144,7 @@ describe('dateTimeLocalToDate', () => {
   it('converts a valid datetime-local string to a Date', () => {
     const result = dateTimeLocalToDate('2024-06-15T14:30');
     expect(result).toBeInstanceOf(Date);
-    expect(isNaN(result.getTime())).toBe(false);
+    expect(Number.isNaN(result.getTime())).toBe(false);
   });
 
   it('treats the input as UTC (appends :00.000Z)', () => {
@@ -230,7 +230,7 @@ describe('applyLocaleToDateInput', () => {
   });
 
   afterEach(() => {
-    document.body.removeChild(grandparent);
+    grandparent.remove();
   });
 
   it('sets the lang attribute on the input element', () => {
@@ -248,8 +248,8 @@ describe('applyLocaleToDateInput', () => {
 
   it('sets data-locale and data-language attributes', () => {
     applyLocaleToDateInput(input, 'de');
-    expect(input.getAttribute('data-locale')).toBe('de-DE');
-    expect(input.getAttribute('data-language')).toBe('de');
+    expect(input.dataset.locale).toBe('de-DE');
+    expect(input.dataset.language).toBe('de');
   });
 
   it('dispatches a change event on the element', () => {

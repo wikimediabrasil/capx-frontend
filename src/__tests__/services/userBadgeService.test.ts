@@ -29,7 +29,7 @@ describe('UserBadgeService', () => {
       const mockResponse = { count: 0, results: [] };
       mockedAxios.get.mockResolvedValueOnce({ data: mockResponse });
 
-      const result = await UserBadgeService.getUserBadges(undefined);
+      const result = await UserBadgeService.getUserBadges();
 
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/user_badge', {
         headers: {
@@ -110,7 +110,7 @@ describe('UserBadgeService', () => {
     it('should work when no token is provided (undefined)', async () => {
       mockedAxios.put.mockResolvedValueOnce({ data: {} });
 
-      await UserBadgeService.updateUserBadge(params, undefined);
+      await UserBadgeService.updateUserBadge(params);
 
       expect(mockedAxios.put).toHaveBeenCalledWith(
         '/api/user_badge',

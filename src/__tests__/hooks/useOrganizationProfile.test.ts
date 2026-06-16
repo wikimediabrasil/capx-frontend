@@ -32,7 +32,7 @@ describe('useOrganization', () => {
   });
 
   it('sets isLoading false immediately when no token', async () => {
-    const { result } = renderHook(() => useOrganization(undefined));
+    const { result } = renderHook(() => useOrganization());
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.organizations).toEqual([]);

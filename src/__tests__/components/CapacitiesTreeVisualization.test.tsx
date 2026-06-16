@@ -84,7 +84,7 @@ describe('CapacitiesTreeVisualization', () => {
   it('passes the correct number of root capacities to D3TreeVisualization', () => {
     render(<CapacitiesTreeVisualization />);
     const d3Tree = screen.getByTestId('d3-tree');
-    expect(d3Tree.getAttribute('data-count')).toBe('2');
+    expect(d3Tree.dataset.count).toBe('2');
   });
 
   it('maps root capacity names through getName', () => {
