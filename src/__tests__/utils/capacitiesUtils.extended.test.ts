@@ -188,7 +188,7 @@ describe('fetchWikidata', () => {
       results: {
         bindings: [
           {
-            item: { value: 'http://www.wikidata.org/entity/Q123' },
+            item: { value: 'https://www.wikidata.org/entity/Q123' },
             itemLabel: { value: 'Communication' },
             itemDescription: { value: 'Ability to communicate effectively' },
           },
@@ -213,8 +213,8 @@ describe('fetchWikidata', () => {
       results: {
         bindings: [
           {
-            item: { value: 'http://www.wikidata.org/entity/Q456' },
-            itemLabel: { value: 'http://www.wikidata.org/entity/Q456' }, // URI label
+            item: { value: 'https://www.wikidata.org/entity/Q456' },
+            itemLabel: { value: 'https://www.wikidata.org/entity/Q456' }, // URI label
             itemDescription: { value: '' },
           },
         ],
@@ -390,7 +390,7 @@ describe('applyWikidataNameFallback', () => {
   });
 
   it('handles API error gracefully by sanitizing names', async () => {
-    const results = [{ wd_code: 'Q111', name: 'http://wikidata.org/entity/Q111', code: 99 }];
+    const results = [{ wd_code: 'Q111', name: 'https://wikidata.org/entity/Q111', code: 99 }];
 
     mockedAxios.get = jest.fn().mockRejectedValue(new Error('API down'));
 

@@ -2,7 +2,6 @@ import CapacitiesTreeVisualization from '@/app/capacities_visualization/componen
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-// Mock D3TreeVisualization to avoid jsdom / d3 issues
 jest.mock('@/app/capacities_visualization/components/D3TreeVisualization', () => ({
   __esModule: true,
   default: ({ data }: { data: any[] }) => (
@@ -12,71 +11,43 @@ jest.mock('@/app/capacities_visualization/components/D3TreeVisualization', () =>
   ),
 }));
 
-// Mock the skeleton component
 jest.mock('@/components/skeletons', () => ({
   CapacitiesTreeSkeleton: () => <div data-testid="tree-skeleton">Loading tree...</div>,
 }));
 
 jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  const { createStoresMock, createCapacityState } = require('../helpers/componentTestHelpers');
   const base = createStoresMock();
-  const defaultCapacityState = {
-    capacities: {},
-    isLoaded: true,
-    isLoadingTranslations: false,
-    language: 'en',
-    getName: jest.fn((code: number) => `Capacity ${code}`),
-    getDescription: jest.fn(() => 'Description'),
-    getWdCode: jest.fn(() => ''),
-    getMetabaseCode: jest.fn(() => ''),
-    getColor: jest.fn(() => 'organizational'),
-    getChildren: jest.fn(() => []),
+  const defaultState = createCapacityState({
     getRootCapacities: jest.fn(() => [
       { code: 10, name: 'organizational', color: 'organizational' },
       { code: 36, name: 'communication', color: 'communication' },
     ]),
-    isFallbackTranslation: jest.fn(() => false),
-  };
+  });
   base.useCapacityStore = Object.assign(
-    jest.fn((selector?: any) =>
-      selector ? selector(defaultCapacityState) : defaultCapacityState
-    ),
-    {
-      getState: () => ({
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-      }),
-    }
+    jest.fn((selector?: any) => (selector ? selector(defaultState) : defaultState)),
+    { getState: () => ({ capacities: {}, isLoaded: true, isLoadingTranslations: false, language: 'en' }) }
   );
   return base;
 });
 
+function mockStoreState(overrides: Record<string, any> = {}) {
+  const { createCapacityState } = require('../helpers/componentTestHelpers');
+  const stores = jest.requireMock('@/stores');
+  const state = createCapacityState(overrides);
+  stores.useCapacityStore.mockImplementation((selector?: any) =>
+    selector ? selector(state) : state
+  );
+}
+
 describe('CapacitiesTreeVisualization', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Restore default mock (clearAllMocks doesn't reset mockImplementation from prior tests)
-    const stores = jest.requireMock('@/stores');
-    stores.useCapacityStore.mockImplementation((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: jest.fn((code: number) => `Capacity ${code}`),
-        getDescription: jest.fn(() => 'Description'),
-        getWdCode: jest.fn(() => ''),
-        getMetabaseCode: jest.fn(() => ''),
-        getColor: jest.fn(() => 'organizational'),
-        getChildren: jest.fn(() => []),
-        getRootCapacities: jest.fn(() => [
-          { code: 10, name: 'organizational', color: 'organizational' },
-          { code: 36, name: 'communication', color: 'communication' },
-        ]),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
+    mockStoreState({
+      getRootCapacities: jest.fn(() => [
+        { code: 10, name: 'organizational', color: 'organizational' },
+        { code: 36, name: 'communication', color: 'communication' },
+      ]),
     });
   });
 
@@ -86,73 +57,19 @@ describe('CapacitiesTreeVisualization', () => {
   });
 
   it('shows skeleton when isLoadingTranslations is true', () => {
-    const stores = jest.requireMock('@/stores');
-    stores.useCapacityStore.mockImplementation((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: true,
-        language: 'en',
-        getName: jest.fn(() => ''),
-        getDescription: jest.fn(() => ''),
-        getWdCode: jest.fn(() => ''),
-        getMetabaseCode: jest.fn(() => ''),
-        getColor: jest.fn(() => ''),
-        getChildren: jest.fn(() => []),
-        getRootCapacities: jest.fn(() => []),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
-    });
-
+    mockStoreState({ isLoadingTranslations: true });
     render(<CapacitiesTreeVisualization />);
     expect(screen.getByTestId('tree-skeleton')).toBeInTheDocument();
   });
 
   it('shows skeleton when isLoaded is false', () => {
-    const stores = jest.requireMock('@/stores');
-    stores.useCapacityStore.mockImplementation((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: false,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: jest.fn(() => ''),
-        getDescription: jest.fn(() => ''),
-        getWdCode: jest.fn(() => ''),
-        getMetabaseCode: jest.fn(() => ''),
-        getColor: jest.fn(() => ''),
-        getChildren: jest.fn(() => []),
-        getRootCapacities: jest.fn(() => []),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
-    });
-
+    mockStoreState({ isLoaded: false });
     render(<CapacitiesTreeVisualization />);
     expect(screen.getByTestId('tree-skeleton')).toBeInTheDocument();
   });
 
   it('shows empty state message when no root capacities exist', () => {
-    const stores = jest.requireMock('@/stores');
-    stores.useCapacityStore.mockImplementation((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: jest.fn(() => ''),
-        getDescription: jest.fn(() => ''),
-        getWdCode: jest.fn(() => ''),
-        getMetabaseCode: jest.fn(() => ''),
-        getColor: jest.fn(() => ''),
-        getChildren: jest.fn(() => []),
-        getRootCapacities: jest.fn(() => []),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
-    });
-
+    mockStoreState();
     render(<CapacitiesTreeVisualization />);
     expect(screen.getByText('Nenhuma capacidade encontrada.')).toBeInTheDocument();
   });
@@ -160,29 +77,14 @@ describe('CapacitiesTreeVisualization', () => {
   it('passes the correct number of root capacities to D3TreeVisualization', () => {
     render(<CapacitiesTreeVisualization />);
     const d3Tree = screen.getByTestId('d3-tree');
-    // 2 root capacities from mock: codes 10 and 36
     expect(d3Tree.getAttribute('data-count')).toBe('2');
   });
 
   it('maps root capacity names through getName', () => {
-    const stores = jest.requireMock('@/stores');
     const mockGetName = jest.fn((code: number) => `Translated ${code}`);
-    stores.useCapacityStore.mockImplementation((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: mockGetName,
-        getDescription: jest.fn(() => ''),
-        getWdCode: jest.fn(() => ''),
-        getMetabaseCode: jest.fn(() => ''),
-        getColor: jest.fn(() => 'organizational'),
-        getChildren: jest.fn(() => []),
-        getRootCapacities: jest.fn(() => [{ code: 10, name: 'fallback', color: 'organizational' }]),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
+    mockStoreState({
+      getName: mockGetName,
+      getRootCapacities: jest.fn(() => [{ code: 10, name: 'fallback', color: 'organizational' }]),
     });
 
     render(<CapacitiesTreeVisualization />);
@@ -191,25 +93,15 @@ describe('CapacitiesTreeVisualization', () => {
   });
 
   it('includes children in the tree data', () => {
-    const stores = jest.requireMock('@/stores');
-    stores.useCapacityStore.mockImplementation((selector?: any) => {
-      const state = {
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-        getName: jest.fn((code: number) => `Name ${code}`),
-        getDescription: jest.fn(() => 'desc'),
-        getWdCode: jest.fn(() => 'Q1'),
-        getMetabaseCode: jest.fn(() => 'M1'),
-        getColor: jest.fn(() => 'organizational'),
-        getChildren: jest.fn((code: number) =>
-          code === 10 ? [{ code: 11, name: 'child', color: 'organizational' }] : []
-        ),
-        getRootCapacities: jest.fn(() => [{ code: 10, name: 'org', color: 'organizational' }]),
-        isFallbackTranslation: jest.fn(() => false),
-      };
-      return selector ? selector(state) : state;
+    mockStoreState({
+      getName: jest.fn((code: number) => `Name ${code}`),
+      getDescription: jest.fn(() => 'desc'),
+      getWdCode: jest.fn(() => 'Q1'),
+      getMetabaseCode: jest.fn(() => 'M1'),
+      getChildren: jest.fn((code: number) =>
+        code === 10 ? [{ code: 11, name: 'child', color: 'organizational' }] : []
+      ),
+      getRootCapacities: jest.fn(() => [{ code: 10, name: 'org', color: 'organizational' }]),
     });
 
     render(<CapacitiesTreeVisualization />);

@@ -111,3 +111,68 @@ export function createStoresMock(
 
   return base;
 }
+
+/**
+ * Shared mock factory for jest.mock('next/image').
+ * Usage: jest.mock('next/image', () => {
+ *   const { nextImageMock } = require('../helpers/componentTestHelpers');
+ *   return nextImageMock();
+ * });
+ */
+export function nextImageMock() {
+  return {
+    __esModule: true,
+    default: (props: any) => {
+      const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
+      return require('react').createElement('img', imgProps);
+    },
+  };
+}
+
+/**
+ * Shared mock factory for jest.mock('next/navigation').
+ * Usage: jest.mock('next/navigation', () => {
+ *   const { nextNavigationMock } = require('../helpers/componentTestHelpers');
+ *   return nextNavigationMock();
+ * });
+ */
+export function nextNavigationMock() {
+  return {
+    useRouter: jest.fn(() => ({
+      push: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+    })),
+    usePathname: jest.fn(() => '/'),
+    useSearchParams: jest.fn(() => new URLSearchParams()),
+  };
+}
+
+/**
+ * Factory for capacity store state objects (used in CapacitiesTree/Visualization tests).
+ */
+export function createCapacityState(overrides: Record<string, any> = {}) {
+  return {
+    capacities: {},
+    isLoaded: true,
+    isLoadingTranslations: false,
+    language: 'en',
+    getName: jest.fn((code: number) => `Capacity ${code}`),
+    getDescription: jest.fn(() => 'Description'),
+    getWdCode: jest.fn(() => ''),
+    getMetabaseCode: jest.fn(() => ''),
+    getColor: jest.fn(() => 'organizational'),
+    getChildren: jest.fn(() => []),
+    getRootCapacities: jest.fn(() => []),
+    isFallbackTranslation: jest.fn(() => false),
+    ...overrides,
+  };
+}
+
+/**
+ * Creates a mock useCapacityStore implementation backed by createCapacityState.
+ */
+export function mockCapacityStoreSelector(stateOverrides: Record<string, any> = {}) {
+  const state = createCapacityState(stateOverrides);
+  return (selector?: any) => (selector ? selector(state) : state);
+}

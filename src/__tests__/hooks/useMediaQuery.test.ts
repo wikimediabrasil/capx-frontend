@@ -1,6 +1,23 @@
 import { renderHook, act } from '@testing-library/react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
+function createMockMediaQueryList(
+  matches: boolean,
+  addEventListener: jest.Mock,
+  removeEventListener: jest.Mock
+) {
+  return {
+    matches,
+    media: '',
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener,
+    removeEventListener,
+    dispatchEvent: jest.fn(),
+  };
+}
+
 describe('useMediaQuery', () => {
   let mockMatchMedia: jest.Mock;
   let mockAddEventListener: jest.Mock;
@@ -18,14 +35,8 @@ describe('useMediaQuery', () => {
     mockRemoveEventListener = jest.fn();
 
     mockMatchMedia = jest.fn((query: string) => ({
-      matches: mockMatches,
+      ...createMockMediaQueryList(mockMatches, mockAddEventListener, mockRemoveEventListener),
       media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: mockAddEventListener,
-      removeEventListener: mockRemoveEventListener,
-      dispatchEvent: jest.fn(),
     }));
 
     Object.defineProperty(window, 'matchMedia', {
@@ -39,27 +50,21 @@ describe('useMediaQuery', () => {
     jest.clearAllMocks();
   });
 
-  it('returns false initially before mounting (SSR behaviour)', () => {
-    // The hook initializes matches as false and mounted as false
-    // On first render, before useEffect runs, it should return false
-    mockMatches = true;
-    mockMatchMedia = jest.fn(() => ({
-      matches: true,
-      media: '(min-width: 768px)',
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: mockAddEventListener,
-      removeEventListener: mockRemoveEventListener,
-      dispatchEvent: jest.fn(),
+  function setMatchMedia(matches: boolean) {
+    mockMatches = matches;
+    mockMatchMedia = jest.fn((query: string) => ({
+      ...createMockMediaQueryList(matches, mockAddEventListener, mockRemoveEventListener),
+      media: query,
     }));
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: mockMatchMedia,
     });
+  }
 
+  it('returns false initially before mounting (SSR behaviour)', () => {
+    setMatchMedia(true);
     const { result } = renderHook(() => useMediaQuery('(min-width: 768px)'));
-
     // After mount (useEffect runs), value should be true
     expect(result.current).toBe(true);
   });
@@ -72,28 +77,12 @@ describe('useMediaQuery', () => {
 
   it('returns false when matchMedia does not match', () => {
     mockMatches = false;
-
     const { result } = renderHook(() => useMediaQuery('(min-width: 768px)'));
     expect(result.current).toBe(false);
   });
 
   it('returns true when matchMedia matches', () => {
-    mockMatches = true;
-    mockMatchMedia = jest.fn(() => ({
-      matches: true,
-      media: '(min-width: 768px)',
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: mockAddEventListener,
-      removeEventListener: mockRemoveEventListener,
-      dispatchEvent: jest.fn(),
-    }));
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: mockMatchMedia,
-    });
-
+    setMatchMedia(true);
     const { result } = renderHook(() => useMediaQuery('(min-width: 768px)'));
     expect(result.current).toBe(true);
   });

@@ -43,24 +43,15 @@ jest.mock('@/app/(auth)/home/components/AuthenticatedMainSection', () => ({
   ),
 }));
 
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(() => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-  })),
-  usePathname: jest.fn(() => '/'),
-  useSearchParams: jest.fn(() => new URLSearchParams()),
-}));
+jest.mock('next/navigation', () => {
+  const { nextNavigationMock } = require('../helpers/componentTestHelpers');
+  return nextNavigationMock();
+});
 
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...imgProps} />;
-  },
-}));
+jest.mock('next/image', () => {
+  const { nextImageMock } = require('../helpers/componentTestHelpers');
+  return nextImageMock();
+});
 
 const { useStatistics } = require('@/hooks/useStatistics');
 const { useTerritories } = require('@/hooks/useTerritories');

@@ -228,7 +228,7 @@ describe('capacityStore - extended', () => {
     it('returns sanitized name when name is a URL', () => {
       useCapacityStore.setState({
         capacities: {
-          10: makeCapacity({ name: 'http://wikidata.org/entity/Q10' }),
+          10: makeCapacity({ name: 'https://wikidata.org/entity/Q10' }),
         },
       });
       expect(useCapacityStore.getState().getName(10)).toBe('Capacity 10');

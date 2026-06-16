@@ -31,30 +31,19 @@ jest.mock('@/stores', () => {
   });
 });
 
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(),
-}));
-
+jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/app/providers/SnackbarProvider');
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
   useQuery: jest.fn(),
   useQueryClient: jest.fn(),
 }));
-jest.mock('@/services/profileService', () => ({
-  profileService: {
-    updateProfile: jest.fn(),
-  },
-}));
+jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
 jest.mock('@/services/userService');
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...imgProps} />;
-  },
-}));
+jest.mock('next/image', () => {
+  const { nextImageMock } = require('../helpers/componentTestHelpers');
+  return nextImageMock();
+});
 jest.mock('next/navigation');
 
 const createMockCapacityRecommendation = (overrides = {}): CapacityRecommendation => ({

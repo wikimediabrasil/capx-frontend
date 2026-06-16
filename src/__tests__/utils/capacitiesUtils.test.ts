@@ -35,7 +35,7 @@ describe('isInvalidCapacityLabel', () => {
   });
 
   it('returns true for strings starting with http', () => {
-    expect(isInvalidCapacityLabel('http://www.wikidata.org/entity/Q12345')).toBe(true);
+    expect(isInvalidCapacityLabel('https://www.wikidata.org/entity/Q12345')).toBe(true);
     expect(isInvalidCapacityLabel('https://example.com/label')).toBe(true);
   });
 
@@ -211,7 +211,7 @@ describe('sanitizeCapacityName', () => {
   });
 
   it('returns "Capacity {code}" for http-prefixed name', () => {
-    expect(sanitizeCapacityName('http://wikidata.org/entity/Q1', 99)).toBe('Capacity 99');
+    expect(sanitizeCapacityName('https://wikidata.org/entity/Q1', 99)).toBe('Capacity 99');
   });
 
   it('returns "Capacity {code}" for entity/-containing name', () => {

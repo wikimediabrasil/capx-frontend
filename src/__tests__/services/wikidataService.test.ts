@@ -63,7 +63,7 @@ describe('wikidataService', () => {
             bindings: [
               {
                 name: { value: 'Event' },
-                location: { value: 'http://www.wikidata.org/entity/Q60' },
+                location: { value: 'https://www.wikidata.org/entity/Q60' },
               },
             ],
           },

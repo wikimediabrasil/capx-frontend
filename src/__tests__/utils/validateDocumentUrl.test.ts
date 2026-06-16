@@ -46,8 +46,8 @@ describe('validateDocumentUrl', () => {
     expect(result.normalizedUrl).toBe(url);
   });
 
-  it('returns valid for http:// URL', () => {
-    const url = 'http://commons.wikimedia.org/wiki/File:Example.jpg';
+  it('returns valid for https:// URL (alt)', () => {
+    const url = 'https://commons.wikimedia.org/wiki/File:Example.jpg';
     const result = validateDocumentUrl(url);
     expect(result.isValid).toBe(true);
     expect(result.normalizedUrl).toBe(url);
@@ -173,8 +173,8 @@ describe('normalizeDocumentUrl', () => {
     expect(result).toBe('');
   });
 
-  it('returns trimmed URL for valid http:// URL', () => {
-    const url = '  http://commons.wikimedia.org/wiki/File:Test.jpg  ';
-    expect(normalizeDocumentUrl(url)).toBe('http://commons.wikimedia.org/wiki/File:Test.jpg');
+  it('returns trimmed URL for valid https:// URL', () => {
+    const url = '  https://commons.wikimedia.org/wiki/File:Test.jpg  ';
+    expect(normalizeDocumentUrl(url)).toBe('https://commons.wikimedia.org/wiki/File:Test.jpg');
   });
 });

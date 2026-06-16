@@ -125,15 +125,10 @@ jest.mock('@/services/profileService', () => ({
   },
 }));
 jest.mock('@/services/userService');
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    // Remove Next.js specific props that are not valid HTML attributes
-    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...imgProps} />;
-  },
-}));
+jest.mock('next/image', () => {
+  const { nextImageMock } = require('../helpers/componentTestHelpers');
+  return nextImageMock();
+});
 jest.mock('next/navigation');
 
 // Test data factory

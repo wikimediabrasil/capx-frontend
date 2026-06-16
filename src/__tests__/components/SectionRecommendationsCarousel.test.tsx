@@ -46,29 +46,15 @@ jest.mock('@/stores', () => {
   });
 });
 
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(),
-}));
+jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 
 jest.mock('@/hooks/useRecommendations', () => ({
   useRecommendations: jest.fn(),
 }));
 
-jest.mock('@/hooks/useUserCapacities', () => ({
-  useUserCapacities: jest.fn(() => ({
-    userKnownCapacities: [],
-    userAvailableCapacities: [],
-    userWantedCapacities: [],
-  })),
-}));
-
-jest.mock('@/hooks/useStatistics', () => ({
-  useStatistics: jest.fn(() => ({ data: null, isLoading: false })),
-}));
-
-jest.mock('@/hooks/useTerritories', () => ({
-  useTerritories: jest.fn(() => ({ territoriesMap: {}, loading: false })),
-}));
+jest.mock('@/hooks/useUserCapacities', () => require('../helpers/homeTestMocks').useUserCapacitiesMock);
+jest.mock('@/hooks/useStatistics', () => require('../helpers/homeTestMocks').useStatisticsMock);
+jest.mock('@/hooks/useTerritories', () => require('../helpers/homeTestMocks').useTerritoriesMock);
 
 // AnalyticsCallToActionSection (rendered inside SectionRecommendationsCarousel) imports
 // AnalyticsCallToActionSkeleton from AuthenticatedMainSection. Mock to avoid deep dep tree.
@@ -80,25 +66,14 @@ jest.mock('@/app/(auth)/home/components/AuthenticatedMainSection', () => ({
   ),
 }));
 
-jest.mock('@/hooks/useOrganizationDisplayName', () => ({
-  useOrganizationDisplayName: jest.fn(() => ({ displayName: '' })),
-}));
+jest.mock('@/hooks/useOrganizationDisplayName', () => require('../helpers/homeTestMocks').useOrganizationDisplayNameMock);
 
 jest.mock('@/hooks/useProfileImage', () => ({
   useProfileImage: jest.fn(() => ({ profileImageUrl: '/default-avatar.svg' })),
 }));
 
-jest.mock('@/hooks/useSavedItems', () => ({
-  useSavedItems: jest.fn(() => ({
-    savedItems: [],
-    createSavedItem: jest.fn(),
-    deleteSavedItem: jest.fn(),
-  })),
-}));
-
-jest.mock('@/app/providers/SnackbarProvider', () => ({
-  useSnackbar: jest.fn(() => ({ showSnackbar: jest.fn() })),
-}));
+jest.mock('@/hooks/useSavedItems', () => require('../helpers/homeTestMocks').useSavedItemsMock);
+jest.mock('@/app/providers/SnackbarProvider', () => require('../helpers/homeTestMocks').snackbarProviderMock);
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
@@ -106,17 +81,8 @@ jest.mock('@tanstack/react-query', () => ({
   useQueryClient: jest.fn(),
 }));
 
-jest.mock('@/services/userService', () => ({
-  userService: {
-    fetchUserProfile: jest.fn(),
-  },
-}));
-
-jest.mock('@/services/profileService', () => ({
-  profileService: {
-    updateProfile: jest.fn(),
-  },
-}));
+jest.mock('@/services/userService', () => require('../helpers/homeTestMocks').userServiceMock);
+jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
 
 jest.mock('@/components/skeletons', () => ({
   RecommendationCarouselSkeleton: ({ type, cardCount }: { type: string; cardCount: number }) => (
@@ -126,20 +92,15 @@ jest.mock('@/components/skeletons', () => ({
   ),
 }));
 
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...imgProps} />;
-  },
-}));
+jest.mock('next/image', () => {
+  const { nextImageMock } = require('../helpers/componentTestHelpers');
+  return nextImageMock();
+});
 
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(() => ({ push: jest.fn() })),
-  usePathname: jest.fn(() => '/'),
-  useSearchParams: jest.fn(() => new URLSearchParams()),
-}));
+jest.mock('next/navigation', () => {
+  const { nextNavigationMock } = require('../helpers/componentTestHelpers');
+  return nextNavigationMock();
+});
 
 const { useRecommendations } = require('@/hooks/useRecommendations');
 const { useUserCapacities } = require('@/hooks/useUserCapacities');

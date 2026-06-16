@@ -39,3 +39,18 @@ export function setupApiTest(baseUrl = 'https://test-api.com') {
   jest.clearAllMocks();
   process.env.BASE_URL = baseUrl;
 }
+
+/**
+ * Shorthand for creating an authenticated request with Token header.
+ */
+export function createAuthenticatedRequest(
+  path: string,
+  options: Omit<Parameters<typeof createMockNextRequest>[1], 'headers'> & {
+    headers?: Record<string, string>;
+  } = {}
+) {
+  return createMockNextRequest(`https://localhost:3000${path}`, {
+    ...options,
+    headers: { authorization: 'Token test', ...options.headers },
+  });
+}
