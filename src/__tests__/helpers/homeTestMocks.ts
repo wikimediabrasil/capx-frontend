@@ -72,3 +72,11 @@ export const profileServiceMock = {
 export const nextAuthMock = {
   useSession: jest.fn(),
 };
+
+export function reactQueryCardMock() {
+  return {
+    ...jest.requireActual('@tanstack/react-query'),
+    useQuery: jest.fn(),
+    useQueryClient: jest.fn(),
+  };
+}

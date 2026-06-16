@@ -1,27 +1,29 @@
 import { sanitizeUrl, sanitizeContactUrls } from '@/lib/utils/sanitizeUrl';
 
 describe('sanitizeUrl', () => {
-  it('returns empty string for null/undefined/empty', () => {
-    expect(sanitizeUrl(null)).toBe('');
-    expect(sanitizeUrl(undefined)).toBe('');
-    expect(sanitizeUrl('')).toBe('');
-    expect(sanitizeUrl('   ')).toBe('');
+  it.each([
+    [null, ''],
+    [undefined, ''],
+    ['', ''],
+    ['   ', ''],
+  ])('returns empty string for %p', (input, expected) => {
+    expect(sanitizeUrl(input)).toBe(expected);
   });
 
-  it('adds https:// when no protocol', () => {
-    expect(sanitizeUrl('example.com')).toBe('https://example.com');
-    expect(sanitizeUrl('www.example.com/path')).toBe('https://www.example.com/path');
+  it.each([
+    ['example.com', 'https://example.com'],
+    ['www.example.com/path', 'https://www.example.com/path'],
+    ['  example.com  ', 'https://example.com'],
+    ['  https://example.com  ', 'https://example.com'],
+  ])('sanitizes %p to %p', (input, expected) => {
+    expect(sanitizeUrl(input)).toBe(expected);
   });
 
-  it('keeps existing protocol', () => {
-    expect(sanitizeUrl('https://example.com')).toBe('https://example.com');
-    expect(sanitizeUrl('https://example.com')).toBe('https://example.com');
-    expect(sanitizeUrl('ftp://files.example.com')).toBe('ftp://files.example.com');
-  });
-
-  it('trims whitespace', () => {
-    expect(sanitizeUrl('  https://example.com  ')).toBe('https://example.com');
-    expect(sanitizeUrl('  example.com  ')).toBe('https://example.com');
+  it.each([
+    ['https://example.com'],
+    ['ftp://files.example.com'],
+  ])('preserves existing protocol in %p', (url) => {
+    expect(sanitizeUrl(url)).toBe(url);
   });
 });
 
@@ -32,16 +34,19 @@ describe('sanitizeContactUrls', () => {
       website: 'example.com',
       meta_page: 'meta.wikimedia.org',
     });
-    expect(result.email).toBe('test@example.com');
-    expect(result.website).toBe('https://example.com');
-    expect(result.meta_page).toBe('https://meta.wikimedia.org');
+    expect(result).toEqual({
+      email: 'test@example.com',
+      website: 'https://example.com',
+      meta_page: 'https://meta.wikimedia.org',
+    });
   });
 
   it('handles empty contacts', () => {
-    const result = sanitizeContactUrls({});
-    expect(result.email).toBe('');
-    expect(result.website).toBe('');
-    expect(result.meta_page).toBe('');
+    expect(sanitizeContactUrls({})).toEqual({
+      email: '',
+      website: '',
+      meta_page: '',
+    });
   });
 
   it('preserves URLs that already have protocols', () => {

@@ -108,27 +108,12 @@ import {
   setupCommonMocks,
 } from '../helpers/recommendationTestHelpers';
 
-// Mock dependencies
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(),
-}));
-
+jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/app/providers/SnackbarProvider');
-jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
-  useQuery: jest.fn(),
-  useQueryClient: jest.fn(),
-}));
-jest.mock('@/services/profileService', () => ({
-  profileService: {
-    updateProfile: jest.fn(),
-  },
-}));
+jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryCardMock());
+jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
 jest.mock('@/services/userService');
-jest.mock('next/image', () => {
-  const { nextImageMock } = require('../helpers/componentTestHelpers');
-  return nextImageMock();
-});
+jest.mock('next/image', () => require('../helpers/componentTestHelpers').nextImageMock());
 jest.mock('next/navigation');
 
 // Test data factory

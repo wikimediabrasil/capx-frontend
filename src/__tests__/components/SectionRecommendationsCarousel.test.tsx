@@ -75,12 +75,7 @@ jest.mock('@/hooks/useProfileImage', () => ({
 jest.mock('@/hooks/useSavedItems', () => require('../helpers/homeTestMocks').useSavedItemsMock);
 jest.mock('@/app/providers/SnackbarProvider', () => require('../helpers/homeTestMocks').snackbarProviderMock);
 
-jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
-  useQuery: jest.fn(),
-  useQueryClient: jest.fn(),
-}));
-
+jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryCardMock());
 jest.mock('@/services/userService', () => require('../helpers/homeTestMocks').userServiceMock);
 jest.mock('@/services/profileService', () => require('../helpers/homeTestMocks').profileServiceMock);
 
@@ -92,11 +87,7 @@ jest.mock('@/components/skeletons', () => ({
   ),
 }));
 
-jest.mock('next/image', () => {
-  const { nextImageMock } = require('../helpers/componentTestHelpers');
-  return nextImageMock();
-});
-
+jest.mock('next/image', () => require('../helpers/componentTestHelpers').nextImageMock());
 jest.mock('next/navigation', () => {
   const { nextNavigationMock } = require('../helpers/componentTestHelpers');
   return nextNavigationMock();
