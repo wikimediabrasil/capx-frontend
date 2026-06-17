@@ -46,12 +46,12 @@ describe('fetchWikimediaData', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await fetchWikimediaData('https://commons.wikimedia.org/wiki/File:Example.jpg');
 
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    const fetchUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
     expect(fetchUrl).toContain('commons.wikimedia.org/w/api.php');
     expect(fetchUrl).toContain('Example.jpg');
 
@@ -80,7 +80,7 @@ describe('fetchWikimediaData', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await fetchWikimediaData(
       'https://commons.wikimedia.org/wiki/Special:FilePath/Special.jpg?width=384'
@@ -107,11 +107,11 @@ describe('fetchWikimediaData', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     await fetchWikimediaData('https://upload.wikimedia.org/wikipedia/commons/u/up/Upload.jpg');
 
-    const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+    const fetchUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
     expect(fetchUrl).toContain('Upload.jpg');
   });
 
@@ -127,7 +127,7 @@ describe('fetchWikimediaData', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await fetchWikimediaData('File:Raw.jpg');
     expect(result.title).toBe('Raw.jpg');
@@ -145,7 +145,7 @@ describe('fetchWikimediaData', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await fetchWikimediaData('https://commons.wikimedia.org/wiki/File:NoUrl.jpg');
 
@@ -154,7 +154,7 @@ describe('fetchWikimediaData', () => {
 
   it('returns empty document when API response has no pages', async () => {
     const mockData = { query: { pages: [] } };
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await fetchWikimediaData('https://commons.wikimedia.org/wiki/File:Missing.jpg');
     expect(result.title).toBe('');
@@ -162,7 +162,7 @@ describe('fetchWikimediaData', () => {
   });
 
   it('returns empty document when fetch throws', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('Network failure'));
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('Network failure'));
 
     const result = await fetchWikimediaData('https://commons.wikimedia.org/wiki/File:Error.jpg');
     expect(result.title).toBe('');
@@ -183,12 +183,12 @@ describe('fetchWikimediaData', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     await fetchWikimediaData('https://commons.wikimedia.org/wiki/File:Teoria_da_Mudan%C3%A7a.pdf');
 
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    const fetchUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
     // The filename should be re-encoded in the API URL
     expect(fetchUrl).toContain('api.php');
   });
@@ -215,7 +215,7 @@ describe('getWikiBirthday', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await getWikiBirthday('TestUser');
 
@@ -224,7 +224,7 @@ describe('getWikiBirthday', () => {
 
   it('returns null when merged array is missing', async () => {
     const mockData = { query: { globaluserinfo: {} } };
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await getWikiBirthday('UnknownUser');
     expect(result).toBeNull();
@@ -232,7 +232,7 @@ describe('getWikiBirthday', () => {
 
   it('returns null when merged array is empty', async () => {
     const mockData = { query: { globaluserinfo: { merged: [] } } };
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await getWikiBirthday('NewUser');
     expect(result).toBeUndefined(); // .sort()[0] of empty array is undefined
@@ -250,14 +250,14 @@ describe('getWikiBirthday', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     const result = await getWikiBirthday('PartialUser');
     expect(result).toBe('2015-06-01T00:00:00Z');
   });
 
   it('returns null when fetch throws', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
 
     const result = await getWikiBirthday('ErrorUser');
     expect(result).toBeNull();
@@ -271,11 +271,11 @@ describe('getWikiBirthday', () => {
         },
       },
     };
-    global.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
+    globalThis.fetch = jest.fn().mockResolvedValue(makeFetchResponse(mockData));
 
     await getWikiBirthday('User With Spaces');
 
-    const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+    const fetchUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
     expect(fetchUrl).toContain('meta.wikimedia.org/w/api.php');
     expect(fetchUrl).toContain('User%20With%20Spaces');
   });

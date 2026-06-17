@@ -2,7 +2,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import SectionRecommendationsCarousel from '@/app/(auth)/home/components/SectionRecommendationsCarousel';
 import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as stores from '@/stores';
 import {
   renderWithProviders,
@@ -15,7 +15,6 @@ import {
   createMockRouter,
 } from '../helpers/recommendationTestHelpers';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
-import { useQueryClient } from '@tanstack/react-query';
 
 jest.mock('@/stores', () => {
   const { createStoresMock } = require('../helpers/componentTestHelpers');

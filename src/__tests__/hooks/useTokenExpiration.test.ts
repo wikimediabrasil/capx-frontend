@@ -122,7 +122,7 @@ describe('useTokenExpiration', () => {
         await result.current.handleTokenExpiration();
       });
 
-      expect(window.location.href).toBe('/');
+      expect(globalThis.location.href).toBe('/');
     });
   });
 

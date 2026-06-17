@@ -40,7 +40,7 @@ describe('fetchWikidataImage', () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
@@ -52,7 +52,7 @@ describe('fetchWikidataImage', () => {
   it('returns null when SPARQL returns no bindings', async () => {
     const mockData = { results: { bindings: [] } };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
@@ -62,7 +62,7 @@ describe('fetchWikidataImage', () => {
   });
 
   it('returns null when fetch throws an error', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
 
     const result = await fetchWikidataImage('Q000');
     expect(result).toBeNull();
@@ -74,7 +74,7 @@ describe('fetchWikidataImage', () => {
       results: { bindings: [{ image: { value: imageUrl } }] },
     };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
@@ -90,7 +90,7 @@ describe('fetchWikidataImage', () => {
   it('caches null result in sessionStorage when no image found', async () => {
     const mockData = { results: { bindings: [] } };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
@@ -109,7 +109,7 @@ describe('fetchWikidataImage', () => {
       results: { bindings: [{ image: { value: imageUrl } }] },
     };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
@@ -118,7 +118,7 @@ describe('fetchWikidataImage', () => {
     const result2 = await fetchWikidataImage('Q_cached');
 
     // fetch should only be called once; second call uses in-memory cache
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     expect(result1).toBe(imageUrl);
     expect(result2).toBe(imageUrl);
   });
@@ -133,12 +133,12 @@ describe('fetchWikidataImage', () => {
       return null;
     });
 
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
 
     const result = await fetchWikidataImage('Q_session');
 
     // Should NOT call fetch when sessionStorage cache is valid
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
     expect(result).toBe(imageUrl);
   });
 
@@ -156,34 +156,34 @@ describe('fetchWikidataImage', () => {
     const freshUrl = 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Fresh.jpg';
     const mockData = { results: { bindings: [{ image: { value: freshUrl } }] } };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
 
     const result = await fetchWikidataImage('Q_expired');
 
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     expect(result).toBe(freshUrl);
   });
 
   it('builds the correct SPARQL query URL', async () => {
     const mockData = { results: { bindings: [] } };
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockData),
     });
 
     await fetchWikidataImage('Q107707826');
 
-    const fetchUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+    const fetchUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
     expect(fetchUrl).toContain('query.wikidata.org/sparql');
     expect(fetchUrl).toContain('Q107707826');
     expect(fetchUrl).toContain('format=json');
   });
 
   it('caches null on fetch error and returns null', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('timeout'));
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('timeout'));
 
     const result = await fetchWikidataImage('Q_error');
 

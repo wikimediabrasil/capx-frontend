@@ -1,5 +1,5 @@
 // Mock ResizeObserver
-global.ResizeObserver = class {
+globalThis.ResizeObserver = class {
   observe() { /* noop for test */ }
   unobserve() { /* noop for test */ }
   disconnect() { /* noop for test */ }

@@ -3,7 +3,7 @@ import { fetchEventFromWikidata, findWikidataQIDByMetaWikiTitle } from '@/servic
 describe('wikidataService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
   });
 
   describe('fetchEventFromWikidata', () => {
@@ -14,7 +14,7 @@ describe('wikidataService', () => {
     });
 
     it('fetches event data from SPARQL', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           results: {
@@ -42,7 +42,7 @@ describe('wikidataService', () => {
     });
 
     it('returns null when no results', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ results: { bindings: [] } }),
       });
@@ -51,12 +51,12 @@ describe('wikidataService', () => {
     });
 
     it('returns null on fetch error', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network'));
+      (globalThis.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network'));
       expect(await fetchEventFromWikidata('Q12345')).toBeNull();
     });
 
     it('sets location type when location exists', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           results: {
@@ -81,7 +81,7 @@ describe('wikidataService', () => {
     });
 
     it('finds QID by meta wiki title', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ entities: { Q12345: { type: 'item' } } }),
       });
@@ -91,7 +91,7 @@ describe('wikidataService', () => {
     });
 
     it('returns null when entity is -1', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ entities: { '-1': {} } }),
       });
@@ -100,7 +100,7 @@ describe('wikidataService', () => {
     });
 
     it('returns null on error', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network'));
+      (globalThis.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network'));
       expect(await findWikidataQIDByMetaWikiTitle('Test')).toBeNull();
     });
   });

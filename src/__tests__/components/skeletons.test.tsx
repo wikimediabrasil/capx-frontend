@@ -127,7 +127,7 @@ describe('AnalyticsDashboardSkeleton', () => {
 
   it('applies light card bg in light mode', () => {
     const { container } = render(<AnalyticsDashboardSkeleton />);
-    const lightCards = container.querySelectorAll('.bg-\\[\\#EFEFEF\\]');
+    const lightCards = container.querySelectorAll(String.raw`.bg-\[\#EFEFEF\]`);
     expect(lightCards.length).toBeGreaterThan(0);
   });
 });
@@ -477,7 +477,7 @@ describe('MentorshipPageSkeleton', () => {
 
   it('renders light mode programs section bg by default', () => {
     const { container } = render(<MentorshipPageSkeleton />);
-    expect(container.querySelector('.bg-\\[\\#F6F6F6\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.bg-\[\#F6F6F6\]`)).not.toBeNull();
   });
 
   it('renders dark mode programs section bg when darkMode is true', () => {
@@ -607,13 +607,13 @@ describe('OrganizationProfileSkeleton', () => {
 
   it('renders the report activity banner skeleton', () => {
     const { container } = render(<OrganizationProfileSkeleton />);
-    expect(container.querySelector('.w-full.h-\\[120px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-full.h-\[120px\]`)).not.toBeNull();
   });
 
   it('renders 3 project card skeletons in the projects row', () => {
     const { container } = render(<OrganizationProfileSkeleton />);
     // CardRowSkeleton uses a flex-row with 3 children of w-[350px]
-    const projectCards = container.querySelectorAll('.w-\\[350px\\].flex-shrink-0.flex.flex-col');
+    const projectCards = container.querySelectorAll(String.raw`.w-\[350px\].flex-shrink-0.flex.flex-col`);
     expect(projectCards.length).toBe(3);
   });
 
@@ -651,7 +651,7 @@ describe('ProfileCardSkeleton', () => {
 
   it('renders the avatar skeleton', () => {
     const { container } = render(<ProfileCardSkeleton />);
-    expect(container.querySelector('.w-\\[100px\\].h-\\[100px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-\[100px\].h-\[100px\]`)).not.toBeNull();
   });
 });
 
@@ -666,7 +666,7 @@ describe('ProfileEditSkeleton', () => {
 
   it('renders the avatar skeleton', () => {
     const { container } = render(<ProfileEditSkeleton />);
-    expect(container.querySelector('.w-\\[100px\\].h-\\[100px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-\[100px\].h-\[100px\]`)).not.toBeNull();
   });
 
   it('renders 6 capacity tag skeletons', () => {
@@ -695,14 +695,14 @@ describe('ProfileHeaderSkeleton', () => {
     mockUseIsMobile.mockReturnValue(false);
     const { container } = render(<ProfileHeaderSkeleton />);
     // Desktop: large avatar w-[200px]
-    expect(container.querySelector('.w-\\[200px\\].h-\\[200px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-\[200px\].h-\[200px\]`)).not.toBeNull();
   });
 
   it('renders mobile layout when isMobile is true', () => {
     mockUseIsMobile.mockReturnValue(true);
     const { container } = render(<ProfileHeaderSkeleton />);
     // Mobile: smaller avatar w-[100px]
-    expect(container.querySelector('.w-\\[100px\\].h-\\[100px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-\[100px\].h-\[100px\]`)).not.toBeNull();
   });
 
   it('renders 3 button skeletons in mobile layout', () => {
@@ -761,7 +761,7 @@ describe('ProjectCardSkeleton', () => {
 
   it('renders the image area skeleton', () => {
     const { container } = render(<ProjectCardSkeleton />);
-    expect(container.querySelector('.w-full.h-\\[200px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-full.h-\[200px\]`)).not.toBeNull();
   });
 
   it('renders the action button skeleton', () => {
@@ -781,7 +781,7 @@ describe('RecommendationCapacityCardSkeleton', () => {
 
   it('renders the colored icon box skeleton', () => {
     const { container } = render(<RecommendationCapacityCardSkeleton />);
-    expect(container.querySelector('.w-\\[60px\\].h-\\[60px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-\[60px\].h-\[60px\]`)).not.toBeNull();
   });
 
   it('renders two action button skeletons', () => {
@@ -829,7 +829,7 @@ describe('RecommendationCarouselSkeleton', () => {
     const row = container.querySelector('.flex.flex-row.gap-4.overflow-hidden');
     expect(row!.children.length).toBe(2);
     // Capacity cards have min-h-[250px]
-    expect(container.querySelector('.min-h-\\[250px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.min-h-\[250px\]`)).not.toBeNull();
   });
 
   it('renders event mini cards when type=event', () => {
@@ -837,7 +837,7 @@ describe('RecommendationCarouselSkeleton', () => {
     const row = container.querySelector('.flex.flex-row.gap-4.overflow-hidden');
     expect(row!.children.length).toBe(2);
     // Event mini cards have min-w-[300px]
-    expect(container.querySelector('.min-w-\\[300px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.min-w-\[300px\]`)).not.toBeNull();
   });
 
   it('respects the cardCount prop', () => {
@@ -858,7 +858,7 @@ describe('RecommendationProfileCardSkeleton', () => {
 
   it('renders the profile image skeleton', () => {
     const { container } = render(<RecommendationProfileCardSkeleton />);
-    expect(container.querySelector('.h-\\[115px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.h-\[115px\]`)).not.toBeNull();
   });
 
   it('renders two action button skeletons', () => {
@@ -896,7 +896,7 @@ describe('ReportBugPageSkeleton', () => {
 
   it('renders the banner image skeleton', () => {
     const { container } = render(<ReportBugPageSkeleton />);
-    expect(container.querySelector('.w-\\[140px\\].h-\\[140px\\]')).not.toBeNull();
+    expect(container.querySelector(String.raw`.w-\[140px\].h-\[140px\]`)).not.toBeNull();
   });
 
   it('renders two nav tab skeletons', () => {
@@ -913,7 +913,7 @@ describe('ReportBugPageSkeleton', () => {
 
   it('renders the mobile button pair', () => {
     const { container } = render(<ReportBugPageSkeleton />);
-    const mobileBtns = container.querySelector('.flex.flex-col.gap-2.md\\:hidden');
+    const mobileBtns = container.querySelector(String.raw`.flex.flex-col.gap-2.md\:hidden`);
     expect(mobileBtns).not.toBeNull();
     expect(mobileBtns!.children.length).toBe(2);
   });
@@ -949,7 +949,7 @@ describe('SavedItemsSkeleton', () => {
 
   it('renders card thumbnails', () => {
     const { container } = render(<SavedItemsSkeleton />);
-    const thumbs = container.querySelectorAll('.w-\\[80px\\].h-\\[80px\\]');
+    const thumbs = container.querySelectorAll(String.raw`.w-\[80px\].h-\[80px\]`);
     expect(thumbs.length).toBe(5);
   });
 

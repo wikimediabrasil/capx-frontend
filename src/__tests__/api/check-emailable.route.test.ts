@@ -2,9 +2,9 @@ jest.mock('axios');
 jest.mock('@/constants/wikimedia', () => ({ WIKIMEDIA_USER_AGENT: 'TestAgent/1.0' }));
 
 import axios from 'axios';
-import { POST, OPTIONS } from '@/app/api/messages/check_emailable/route';
+import { POST } from '@/app/api/messages/check_emailable/route';
 import { NextResponse } from 'next/server';
-import { createMockNextRequest, setupApiTest } from '../helpers/apiTestHelpers';
+import { createMockNextRequest } from '../helpers/apiTestHelpers';
 
 const mockAxiosGet = axios.get as jest.Mock;
 

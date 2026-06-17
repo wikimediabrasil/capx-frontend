@@ -1,7 +1,7 @@
 import { getCurrentEnvironment, getCurrentAppUrl, getApiBaseUrl } from '@/lib/utils/environment';
 
 describe('environment utils', () => {
-  const originalWindow = global.window;
+  const originalWindow = globalThis.window;
   const originalEnv = process.env;
 
   beforeEach(() => {
@@ -12,8 +12,7 @@ describe('environment utils', () => {
   afterEach(() => {
     process.env = originalEnv;
     if (!originalWindow) {
-      // @ts-ignore
-      delete global.window;
+      delete (globalThis as any).window;
     }
   });
 

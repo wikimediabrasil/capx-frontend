@@ -73,7 +73,7 @@ const setLocation = (pathname: string, search = '') => {
 };
 
 function mockFetchOk() {
-  global.fetch = jest.fn().mockResolvedValue({
+  globalThis.fetch = jest.fn().mockResolvedValue({
     ok: true,
     status: 200,
     json: jest.fn().mockResolvedValue({}),
@@ -81,7 +81,7 @@ function mockFetchOk() {
 }
 
 function mockFetch401(body: Record<string, any>) {
-  global.fetch = jest.fn().mockResolvedValue({
+  globalThis.fetch = jest.fn().mockResolvedValue({
     ok: false,
     status: 401,
     json: jest.fn().mockResolvedValue(body),
@@ -289,7 +289,7 @@ describe('auth-monitor', () => {
     });
 
     it('triggers logout when checkTokenValidity fetch throws', async () => {
-      global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+      globalThis.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       await jest.advanceTimersByTimeAsync(30001);
       await jest.advanceTimersByTimeAsync(600);

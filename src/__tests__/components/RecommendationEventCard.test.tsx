@@ -106,7 +106,7 @@ describe('RecommendationEventCard', () => {
   });
 
   it('opens external URL when View Event is clicked with url', () => {
-    const windowOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    const windowOpenSpy = jest.spyOn(globalThis, 'open').mockImplementation(() => null);
     render(
       <RecommendationEventCard
         recommendation={createMockEvent({ url: 'https://example.com/event' })}

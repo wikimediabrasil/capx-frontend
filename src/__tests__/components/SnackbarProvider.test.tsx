@@ -95,7 +95,7 @@ describe('SnackbarProvider', () => {
     });
 
     // Trigger resize event
-    window.dispatchEvent(new Event('resize'));
+    globalThis.dispatchEvent(new Event('resize'));
 
     renderWithProvider(<TestComponent />);
 

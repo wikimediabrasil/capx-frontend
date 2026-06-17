@@ -495,7 +495,7 @@ describe('MetabaseService - Enhanced Auto-fill', () => {
 
   describe('fetchEventDataByLearnWikiURL', () => {
     it('should fetch event data from Learn Wiki page', async () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (globalThis.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           title: 'Wikimedia Training Course',
