@@ -220,15 +220,15 @@ export const setupRecommendationCardMocks = (deps: {
     (deps.stores.usePageContent as jest.Mock).mockReturnValue(deps.pageContent);
   }
   (deps.stores.useCapacityStore as jest.Mock).mockReturnValue(deps.mockCapacityCache);
-  (deps.useSnackbar as jest.Mock).mockReturnValue(deps.mockSnackbar);
-  (deps.useQuery as jest.Mock).mockReturnValue({ data: deps.mockUserProfile, isLoading: false });
+  deps.useSnackbar.mockReturnValue(deps.mockSnackbar);
+  deps.useQuery.mockReturnValue({ data: deps.mockUserProfile, isLoading: false });
   deps.mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
     if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
       return deps.mockUserProfile;
     }
     return undefined;
   });
-  (deps.useQueryClient as jest.Mock).mockReturnValue(deps.mockQueryClient);
+  deps.useQueryClient.mockReturnValue(deps.mockQueryClient);
 };
 
 // No-recommendations page content (shared between SectionNoRecommendations and CardNoRecommendations)

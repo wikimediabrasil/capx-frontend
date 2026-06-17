@@ -21,7 +21,7 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true });
+Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
 
 import { useCapacityStore } from '@/stores/capacityStore';
 import { act } from '@testing-library/react';

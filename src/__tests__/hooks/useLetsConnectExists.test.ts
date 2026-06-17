@@ -34,7 +34,6 @@ jest.mock('@/services/letsConnectExistsService', () => ({
 
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
-import { LetsConnectExistsService } from '@/services/letsConnectExistsService';
 
 const mockUseSession = useSession as jest.Mock;
 const mockUseQuery = useQuery as jest.Mock;

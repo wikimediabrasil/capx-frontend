@@ -40,7 +40,7 @@ describe('isInvalidCapacityLabel', () => {
     ['Querying Data', false],
     ['  Community Building  ', false],
   ])('returns %p for %p', (input, expected) => {
-    expect(isInvalidCapacityLabel(input as any)).toBe(expected);
+    expect(isInvalidCapacityLabel(input)).toBe(expected);
   });
 });
 
@@ -149,7 +149,7 @@ describe('sanitizeCapacityName', () => {
     ['Strategic Planning', 74, 'Strategic Planning'],
     [undefined, 'Q99', 'Capacity Q99'],
   ])('sanitizeCapacityName(%p, %p) => %p', (name, code, expected) => {
-    expect(sanitizeCapacityName(name as any, code as any)).toBe(expected);
+    expect(sanitizeCapacityName(name, code)).toBe(expected);
   });
 });
 
@@ -217,7 +217,7 @@ describe('ensureArray', () => {
   });
 
   it.each([undefined, null, 'string', 42, {}, []])('returns empty array for %p', input => {
-    expect(ensureArray(input as any)).toEqual([]);
+    expect(ensureArray(input)).toEqual([]);
   });
 });
 
@@ -233,7 +233,7 @@ describe('sanitizeCapacityCode', () => {
     ['0', 0],
     ['123abc', 123],
   ])('sanitizeCapacityCode(%p) => %p', (input, expected) => {
-    expect(sanitizeCapacityCode(input as any)).toBe(expected);
+    expect(sanitizeCapacityCode(input)).toBe(expected);
   });
 
   it('returns NaN for a non-numeric string', () => {

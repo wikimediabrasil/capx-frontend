@@ -39,7 +39,7 @@ describe('fromProfileSlug', () => {
 
 describe('getPublicProfileUrl', () => {
   beforeEach(() => {
-    Object.defineProperty(window, 'location', {
+    Object.defineProperty(globalThis, 'location', {
       value: { origin: 'https://capx.toolforge.org' },
       writable: true,
     });

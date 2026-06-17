@@ -18,7 +18,7 @@ describe('environment utils', () => {
 
   describe('getCurrentEnvironment', () => {
     it('returns local for localhost (client-side)', () => {
-      Object.defineProperty(window, 'location', {
+      Object.defineProperty(globalThis, 'location', {
         value: { hostname: 'localhost' },
         writable: true,
       });
@@ -26,7 +26,7 @@ describe('environment utils', () => {
     });
 
     it('returns production for capx.toolforge.org', () => {
-      Object.defineProperty(window, 'location', {
+      Object.defineProperty(globalThis, 'location', {
         value: { hostname: 'capx.toolforge.org' },
         writable: true,
       });
@@ -34,7 +34,7 @@ describe('environment utils', () => {
     });
 
     it('returns test for capx-test.toolforge.org', () => {
-      Object.defineProperty(window, 'location', {
+      Object.defineProperty(globalThis, 'location', {
         value: { hostname: 'capx-test.toolforge.org' },
         writable: true,
       });
@@ -44,7 +44,7 @@ describe('environment utils', () => {
 
   describe('getCurrentAppUrl', () => {
     it('returns localhost URL for local environment', () => {
-      Object.defineProperty(window, 'location', {
+      Object.defineProperty(globalThis, 'location', {
         value: { hostname: 'localhost' },
         writable: true,
       });
@@ -54,8 +54,8 @@ describe('environment utils', () => {
   });
 
   describe('getApiBaseUrl', () => {
-    it('returns window.location.origin when available', () => {
-      Object.defineProperty(window, 'location', {
+    it('returns globalThis.location.origin when available', () => {
+      Object.defineProperty(globalThis, 'location', {
         value: { hostname: 'localhost', origin: 'https://localhost:3000' },
         writable: true,
       });

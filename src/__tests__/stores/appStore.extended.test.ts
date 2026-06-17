@@ -44,8 +44,8 @@ describe('appStore - extended', () => {
       expect(typeof cleanup).toBe('function');
     });
 
-    it('detects mobile when window.innerWidth <= 768', () => {
-      Object.defineProperty(window, 'innerWidth', { value: 375, writable: true });
+    it('detects mobile when globalThis.innerWidth <= 768', () => {
+      Object.defineProperty(globalThis, 'innerWidth', { value: 375, writable: true });
 
       act(() => {
         useAppStore.getState().hydrate();
@@ -55,8 +55,8 @@ describe('appStore - extended', () => {
       expect(useAppStore.getState().mounted).toBe(true);
     });
 
-    it('detects tablet when window.innerWidth is between 768 and 1024', () => {
-      Object.defineProperty(window, 'innerWidth', { value: 900, writable: true });
+    it('detects tablet when globalThis.innerWidth is between 768 and 1024', () => {
+      Object.defineProperty(globalThis, 'innerWidth', { value: 900, writable: true });
 
       act(() => {
         useAppStore.getState().hydrate();
@@ -66,7 +66,7 @@ describe('appStore - extended', () => {
     });
 
     it('detects desktop (not mobile, not tablet) for wide screens', () => {
-      Object.defineProperty(window, 'innerWidth', { value: 1440, writable: true });
+      Object.defineProperty(globalThis, 'innerWidth', { value: 1440, writable: true });
 
       act(() => {
         useAppStore.getState().hydrate();
@@ -105,7 +105,7 @@ describe('appStore - extended', () => {
     });
 
     it('returns a cleanup function that removes resize event listener', () => {
-      const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+      const removeEventListenerSpy = jest.spyOn(globalThis, 'removeEventListener');
 
       let cleanup: (() => void) | undefined;
       act(() => {
@@ -121,9 +121,9 @@ describe('appStore - extended', () => {
     });
 
     it('updates mobile/tablet state on window resize', () => {
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+      const addEventListenerSpy = jest.spyOn(globalThis, 'addEventListener');
 
-      Object.defineProperty(window, 'innerWidth', { value: 1440, writable: true });
+      Object.defineProperty(globalThis, 'innerWidth', { value: 1440, writable: true });
 
       act(() => {
         useAppStore.getState().hydrate();
@@ -132,7 +132,7 @@ describe('appStore - extended', () => {
       expect(useAppStore.getState().isMobile).toBe(false);
 
       // Simulate resize to mobile
-      Object.defineProperty(window, 'innerWidth', { value: 375, writable: true });
+      Object.defineProperty(globalThis, 'innerWidth', { value: 375, writable: true });
       const resizeHandler = addEventListenerSpy.mock.calls.find(
         call => call[0] === 'resize'
       )?.[1] as EventListener;
@@ -146,9 +146,9 @@ describe('appStore - extended', () => {
     });
 
     it('auto-closes mobile menu on resize to desktop', () => {
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+      const addEventListenerSpy = jest.spyOn(globalThis, 'addEventListener');
 
-      Object.defineProperty(window, 'innerWidth', { value: 375, writable: true });
+      Object.defineProperty(globalThis, 'innerWidth', { value: 375, writable: true });
 
       act(() => {
         useAppStore.getState().hydrate();
@@ -158,7 +158,7 @@ describe('appStore - extended', () => {
       expect(useAppStore.getState().mobileMenuStatus).toBe(true);
 
       // Resize to desktop
-      Object.defineProperty(window, 'innerWidth', { value: 1440, writable: true });
+      Object.defineProperty(globalThis, 'innerWidth', { value: 1440, writable: true });
       const resizeHandler = addEventListenerSpy.mock.calls.find(
         call => call[0] === 'resize'
       )?.[1] as EventListener;
@@ -172,9 +172,9 @@ describe('appStore - extended', () => {
     });
 
     it('does not update state when dimensions have not changed on resize', () => {
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+      const addEventListenerSpy = jest.spyOn(globalThis, 'addEventListener');
 
-      Object.defineProperty(window, 'innerWidth', { value: 1440, writable: true });
+      Object.defineProperty(globalThis, 'innerWidth', { value: 1440, writable: true });
 
       act(() => {
         useAppStore.getState().hydrate();

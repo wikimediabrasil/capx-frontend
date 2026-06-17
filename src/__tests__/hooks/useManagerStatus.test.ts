@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useManagerStatus } from '@/hooks/useManagerStatus';
 
 jest.mock('@/hooks/useUserProfile', () => ({

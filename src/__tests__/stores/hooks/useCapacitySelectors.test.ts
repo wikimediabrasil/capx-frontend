@@ -21,7 +21,7 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true });
+Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true });
 
 import { renderHook, act } from '@testing-library/react';
 import { useCapacityStore } from '@/stores/capacityStore';
@@ -31,8 +31,6 @@ import {
   useCapacityColor,
   useCapacityIcon,
   useCapacity,
-  useCapacityChildrenOf,
-  useRootCapacities,
   useHasChildren,
   useIsFallbackTranslation,
   useIsCapacitiesLoaded,

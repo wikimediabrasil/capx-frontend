@@ -82,7 +82,7 @@ describe('POST /api/events', () => {
         headers: { authorization: 'Token test' },
       }),
       json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
-    } as any;
+    };
     await POST(req);
 
     expect(NextResponse.json).toHaveBeenCalledWith(

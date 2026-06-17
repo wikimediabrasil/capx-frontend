@@ -25,8 +25,7 @@ jest.mock('@/lib/utils/convertWikimediaUrl', () => ({
 
 import { documentService } from '@/services/documentService';
 import { fetchWikimediaData } from '@/lib/utils/fetchWikimediaData';
-import { validateCapXDocumentUrl, normalizeDocumentUrl } from '@/lib/utils/validateDocumentUrl';
-import { ensureCommonsPageUrl } from '@/lib/utils/convertWikimediaUrl';
+import { validateCapXDocumentUrl } from '@/lib/utils/validateDocumentUrl';
 
 const mockDocumentService = documentService as jest.Mocked<typeof documentService>;
 const mockFetchWikimediaData = fetchWikimediaData as jest.MockedFunction<typeof fetchWikimediaData>;

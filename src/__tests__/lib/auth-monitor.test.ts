@@ -30,7 +30,7 @@ const sessionStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'sessionStorage', {
+Object.defineProperty(globalThis, 'sessionStorage', {
   value: sessionStorageMock,
   writable: true,
 });
@@ -44,7 +44,7 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
   writable: true,
 });
@@ -59,7 +59,7 @@ import {
 
 // Helper to set window.location to a non-OAuth path
 const setLocation = (pathname: string, search = '') => {
-  Object.defineProperty(window, 'location', {
+  Object.defineProperty(globalThis, 'location', {
     writable: true,
     value: {
       href: '',
@@ -121,7 +121,7 @@ describe('auth-monitor', () => {
     });
 
     it('clears intervals started by startAuthMonitoring', () => {
-      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      const clearIntervalSpy = jest.spyOn(globalThis, 'clearInterval');
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       stopAuthMonitoring();
       expect(clearIntervalSpy).toHaveBeenCalled();
@@ -142,21 +142,21 @@ describe('auth-monitor', () => {
   // -------------------------------------------------------------------------
   describe('startAuthMonitoring - guard conditions', () => {
     it('does nothing when isAuthenticated is false', () => {
-      const setIntervalSpy = jest.spyOn(global, 'setInterval');
+      const setIntervalSpy = jest.spyOn(globalThis, 'setInterval');
       startAuthMonitoring({ isAuthenticated: false, token: 'tok' });
       expect(setIntervalSpy).not.toHaveBeenCalled();
       setIntervalSpy.mockRestore();
     });
 
     it('does nothing when token is missing', () => {
-      const setIntervalSpy = jest.spyOn(global, 'setInterval');
+      const setIntervalSpy = jest.spyOn(globalThis, 'setInterval');
       startAuthMonitoring({ isAuthenticated: true });
       expect(setIntervalSpy).not.toHaveBeenCalled();
       setIntervalSpy.mockRestore();
     });
 
     it('starts two intervals when authenticated with a token', () => {
-      const setIntervalSpy = jest.spyOn(global, 'setInterval');
+      const setIntervalSpy = jest.spyOn(globalThis, 'setInterval');
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       // one for OAuth tokens / session expiry (2s), one for token validity (30s)
       expect(setIntervalSpy).toHaveBeenCalledTimes(2);
@@ -164,7 +164,7 @@ describe('auth-monitor', () => {
     });
 
     it('stops previous monitoring before starting new one', () => {
-      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      const clearIntervalSpy = jest.spyOn(globalThis, 'clearInterval');
       startAuthMonitoring({ isAuthenticated: true, token: 'tok' });
       startAuthMonitoring({ isAuthenticated: true, token: 'tok2' });
       expect(clearIntervalSpy).toHaveBeenCalled();

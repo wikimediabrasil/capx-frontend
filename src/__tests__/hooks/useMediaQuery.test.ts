@@ -39,7 +39,7 @@ describe('useMediaQuery', () => {
       media: query,
     }));
 
-    Object.defineProperty(window, 'matchMedia', {
+    Object.defineProperty(globalThis, 'matchMedia', {
       writable: true,
       value: mockMatchMedia,
     });
@@ -56,7 +56,7 @@ describe('useMediaQuery', () => {
       ...createMockMediaQueryList(matches, mockAddEventListener, mockRemoveEventListener),
       media: query,
     }));
-    Object.defineProperty(window, 'matchMedia', {
+    Object.defineProperty(globalThis, 'matchMedia', {
       writable: true,
       value: mockMatchMedia,
     });
@@ -117,7 +117,7 @@ describe('useMediaQuery', () => {
       dispatchEvent: jest.fn(),
     };
 
-    Object.defineProperty(window, 'matchMedia', {
+    Object.defineProperty(globalThis, 'matchMedia', {
       writable: true,
       value: jest.fn(() => mediaQueryObject),
     });

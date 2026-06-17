@@ -145,7 +145,7 @@ describe('useProfileForm', () => {
   });
 
   it('handleDelete alerts when usernames do not match', async () => {
-    const mockAlert = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const mockAlert = jest.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const { result } = renderHook(() => useProfileForm(initialData, session));
 
     // confirmationUsername is '' by default, doesn't match 'testuser'
@@ -159,7 +159,7 @@ describe('useProfileForm', () => {
   });
 
   it('handleDelete alerts when session is not authenticated', async () => {
-    const mockAlert = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    const mockAlert = jest.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const unauthSession = { ...session, sessionStatus: 'unauthenticated' };
     const { result } = renderHook(() => useProfileForm(initialData, unauthSession));
 
