@@ -3,12 +3,46 @@
  * Tests tag formatting and handling without API dependencies
  */
 
-describe('News API Tag Validation', () => {
-  // Test tag formatting logic directly
-  const formatTag = (tag: string): string => {
-    return tag.toLowerCase().replace(/\s+/g, '-');
-  };
+// Test tag formatting logic directly
+const formatTag = (tag: string): string => {
+  return tag.toLowerCase().replace(/\s+/g, '-');
+};
 
+// Helper function to validate a tag
+function validateTagFormat(tag: string) {
+  // Validate that each tag follows expected format
+  expect(tag).toMatch(/^[a-z0-9-/+.]+$/);
+  // Validate that tags don't start or end with hyphens
+  expect(tag).not.toMatch(/(^-)|(-$)/);
+  // Validate reasonable length
+  expect(tag.length).toBeLessThanOrEqual(50);
+  expect(tag.length).toBeGreaterThan(0);
+}
+
+const isValidTag = (tag: string): boolean => {
+  if (!tag || tag.trim().length === 0) return false;
+  if (tag.length > 100) return false;
+  if (tag.includes('..')) return false; // No double dots
+  if (tag.includes('//')) return false; // No double slashes
+  return true;
+};
+
+const normalizeTag = (tag: string): string => {
+  return tag
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-./+]/g, '') // Remove invalid characters
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .replace(/(^-)|(-$)/g, ''); // Remove leading/trailing hyphens
+};
+
+const createTagUrl = (tag: string): string => {
+  const formattedTag = formatTag(tag);
+  return `https://diffapi.toolforge.org/tags/${formattedTag}/`;
+};
+
+describe('News API Tag Validation', () => {
   describe('Tag Formatting', () => {
     const testCases = [
       { input: 'Medicine', expected: 'medicine' },
@@ -98,30 +132,14 @@ describe('News API Tag Validation', () => {
       ],
     };
 
-    // Helper function to validate a tag
-    function validateTagFormat(tag: string) {
-      // Validate that each tag follows expected format
-      expect(tag).toMatch(/^[a-z0-9-/+.]+$/);
-      // Validate that tags don't start or end with hyphens
-      expect(tag).not.toMatch(/(^-)|(-$)/);
-      // Validate reasonable length
-      expect(tag.length).toBeLessThanOrEqual(50);
-      expect(tag.length).toBeGreaterThan(0);
-    }
-
-    Object.entries(tagCategories).forEach(([category, tags]) => {
+    for (const [category, tags] of Object.entries(tagCategories)) {
       it(`should validate ${category} category tags`, () => {
         tags.forEach(validateTagFormat);
       });
-    });
+    }
   });
 
   describe('URL Construction', () => {
-    const createTagUrl = (tag: string): string => {
-      const formattedTag = formatTag(tag);
-      return `https://diffapi.toolforge.org/tags/${formattedTag}/`;
-    };
-
     it('should construct valid URLs for various tags', () => {
       const testTags = [
         'Medicine',
@@ -132,10 +150,10 @@ describe('News API Tag Validation', () => {
         '.NET',
       ];
 
-      testTags.forEach(tag => {
+      for (const tag of testTags) {
         const url = createTagUrl(tag);
         expect(url).toMatch(/^https:\/\/diffapi\.toolforge\.org\/tags\/[a-z0-9\-/.+]+\/$/);
-      });
+      }
     });
   });
 
@@ -168,14 +186,6 @@ describe('News API Tag Validation', () => {
   });
 
   describe('Validation Functions', () => {
-    const isValidTag = (tag: string): boolean => {
-      if (!tag || tag.trim().length === 0) return false;
-      if (tag.length > 100) return false;
-      if (tag.includes('..')) return false; // No double dots
-      if (tag.includes('//')) return false; // No double slashes
-      return true;
-    };
-
     it('should validate tag input correctly', () => {
       const validTags = ['medicine', 'health-care', 'covid-19', 'ai/ml', 'c++', '.net', 'web-3.0'];
 
@@ -187,27 +197,17 @@ describe('News API Tag Validation', () => {
         'a'.repeat(101), // Too long
       ];
 
-      validTags.forEach(tag => {
+      for (const tag of validTags) {
         expect(isValidTag(tag)).toBe(true);
-      });
+      }
 
-      invalidTags.forEach(tag => {
+      for (const tag of invalidTags) {
         expect(isValidTag(tag)).toBe(false);
-      });
+      }
     });
   });
 
   describe('Tag Normalization', () => {
-    const normalizeTag = (tag: string): string => {
-      return tag
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-./+]/g, '') // Remove invalid characters
-        .replace(/-+/g, '-') // Replace multiple hyphens with single
-        .replace(/(^-)|(-$)/g, ''); // Remove leading/trailing hyphens
-    };
-
     it('should normalize various tag formats', () => {
       const normalizationCases = [
         { input: '  Medicine  ', expected: 'medicine' },
@@ -218,9 +218,9 @@ describe('News API Tag Validation', () => {
         { input: '.NET Framework@#$', expected: '.net-framework' },
       ];
 
-      normalizationCases.forEach(({ input, expected }) => {
+      for (const { input, expected } of normalizationCases) {
         expect(normalizeTag(input)).toBe(expected);
-      });
+      }
     });
   });
 });

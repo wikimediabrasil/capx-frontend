@@ -171,6 +171,69 @@ const mockChildCapacities = [createMockChildCapacity()];
 const TIMEOUT_CONFIG = { timeout: 3000 };
 const QUICK_TIMEOUT_CONFIG = { timeout: 1000 };
 
+const waitForModalToLoad = async () => {
+  await waitFor(() => {
+    expect(screen.getByText('Learning')).toBeInTheDocument();
+    expect(screen.getByText('Communication')).toBeInTheDocument();
+  }, TIMEOUT_CONFIG);
+};
+
+const clickCapacityCard = (capacityName: string) => {
+  const card = screen.getByText(capacityName).closest('div');
+  fireEvent.click(card!);
+};
+
+const clickConfirmButton = () => {
+  const buttons = screen.getAllByRole('button');
+  const confirmButton = buttons[buttons.length - 1];
+  fireEvent.click(confirmButton);
+};
+
+const expandCapacity = async (capacityName: string) => {
+  // The component uses pageContent['alt-expand'] || 'Expand to show more details' as aria-label
+  const expandButtons = screen.getAllByLabelText('Expand to show more details');
+  fireEvent.click(expandButtons[0]);
+
+  // Wait for the children to be loaded and displayed
+  await waitFor(
+    () => {
+      // Check if the child capacity is displayed after expanding
+      // This assumes that 'Active Learning' is a child capacity that should be shown after expanding
+      expect(screen.getByText('Active Learning')).toBeInTheDocument();
+    },
+    { timeout: 3000 }
+  );
+};
+
+const clickInfoButton = () => {
+  // The component uses 'Information icon, view additional details' as aria-label
+  const infoButtons = screen.getAllByLabelText('Information icon, view additional details');
+  fireEvent.click(infoButtons[0]);
+};
+
+const expectCapacityInfoToBeVisible = async () => {
+  await waitFor(() => {
+    expect(screen.getByText('Learning capability')).toBeInTheDocument();
+  }, TIMEOUT_CONFIG);
+
+  await waitFor(() => {
+    const titleElements = screen.getAllByText('Learning');
+    expect(titleElements.length).toBeGreaterThanOrEqual(1);
+  }, TIMEOUT_CONFIG);
+};
+
+const expectCheckmarkToBeVisible = async () => {
+  await waitFor(() => {
+    expect(screen.getByText('✓')).toBeInTheDocument();
+  }, QUICK_TIMEOUT_CONFIG);
+};
+
+const expectCheckmarkToBeHidden = async () => {
+  await waitFor(() => {
+    expect(screen.queryByText('✓')).not.toBeInTheDocument();
+  }, QUICK_TIMEOUT_CONFIG);
+};
+
 // Query client configuration
 const createTestQueryClient = () =>
   new QueryClient({
@@ -312,7 +375,8 @@ describe('CapacitySelectionModal', () => {
   });
 
   // Helper functions for common test actions
-  const renderModalWithProviders = (props = {}) => {
+  const DEFAULT_PROPS = {};
+  const renderModalWithProviders = (props = DEFAULT_PROPS) => {
     const defaultProps = {
       isOpen: true,
       onClose: mockOnClose,
@@ -330,69 +394,6 @@ describe('CapacitySelectionModal', () => {
         </SessionProvider>
       ),
     });
-  };
-
-  const waitForModalToLoad = async () => {
-    await waitFor(() => {
-      expect(screen.getByText('Learning')).toBeInTheDocument();
-      expect(screen.getByText('Communication')).toBeInTheDocument();
-    }, TIMEOUT_CONFIG);
-  };
-
-  const clickCapacityCard = (capacityName: string) => {
-    const card = screen.getByText(capacityName).closest('div');
-    fireEvent.click(card!);
-  };
-
-  const clickConfirmButton = () => {
-    const buttons = screen.getAllByRole('button');
-    const confirmButton = buttons[buttons.length - 1];
-    fireEvent.click(confirmButton);
-  };
-
-  const expandCapacity = async (capacityName: string) => {
-    // The component uses pageContent['alt-expand'] || 'Expand to show more details' as aria-label
-    const expandButtons = screen.getAllByLabelText('Expand to show more details');
-    fireEvent.click(expandButtons[0]);
-
-    // Wait for the children to be loaded and displayed
-    await waitFor(
-      () => {
-        // Check if the child capacity is displayed after expanding
-        // This assumes that 'Active Learning' is a child capacity that should be shown after expanding
-        expect(screen.getByText('Active Learning')).toBeInTheDocument();
-      },
-      { timeout: 3000 }
-    );
-  };
-
-  const clickInfoButton = () => {
-    // The component uses 'Information icon, view additional details' as aria-label
-    const infoButtons = screen.getAllByLabelText('Information icon, view additional details');
-    fireEvent.click(infoButtons[0]);
-  };
-
-  const expectCapacityInfoToBeVisible = async () => {
-    await waitFor(() => {
-      expect(screen.getByText('Learning capability')).toBeInTheDocument();
-    }, TIMEOUT_CONFIG);
-
-    await waitFor(() => {
-      const titleElements = screen.getAllByText('Learning');
-      expect(titleElements.length).toBeGreaterThanOrEqual(1);
-    }, TIMEOUT_CONFIG);
-  };
-
-  const expectCheckmarkToBeVisible = async () => {
-    await waitFor(() => {
-      expect(screen.getByText('✓')).toBeInTheDocument();
-    }, QUICK_TIMEOUT_CONFIG);
-  };
-
-  const expectCheckmarkToBeHidden = async () => {
-    await waitFor(() => {
-      expect(screen.queryByText('✓')).not.toBeInTheDocument();
-    }, QUICK_TIMEOUT_CONFIG);
   };
 
   it('should render the modal correctly when open', async () => {

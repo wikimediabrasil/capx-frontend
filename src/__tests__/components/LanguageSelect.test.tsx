@@ -105,6 +105,10 @@ const mockSetPageContent = jest.fn();
 
 // Mocking AppContext
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('LanguageSelect', () => {
   const mockSetLanguage = jest.fn();
 
@@ -127,10 +131,6 @@ describe('LanguageSelect', () => {
       error: null,
     });
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   test('deve renderizar o componente corretamente', async () => {
     renderWithProviders(

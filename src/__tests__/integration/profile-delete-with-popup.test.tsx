@@ -15,8 +15,8 @@ describe('Profile Delete Flow with Success Popup', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    delete (window as any).location;
-    window.location = { href: '' } as any;
+    delete (globalThis as any).location;
+    globalThis.location = { href: '' } as any;
   });
 
   afterEach(() => {
@@ -50,7 +50,7 @@ describe('Profile Delete Flow with Success Popup', () => {
       jest.advanceTimersByTime(100);
 
       await mockedSignOut({ redirect: false });
-      window.location.href = '/';
+      globalThis.location.href = '/';
       callOrder.push('redirect');
 
       expect(callOrder).toEqual(['delete', 'popup-shown', 'popup-closed', 'signOut', 'redirect']);
@@ -141,10 +141,10 @@ describe('Profile Delete Flow with Success Popup', () => {
         await signOut({ redirect: false });
       } catch (error) {
         // Even if signOut fails, we should still redirect
-        window.location.href = '/';
+        globalThis.location.href = '/';
       }
 
-      expect(window.location.href).toBe('/');
+      expect(globalThis.location.href).toBe('/');
     });
   });
 
@@ -207,9 +207,9 @@ describe('Profile Delete Flow with Success Popup', () => {
 
       // Verify redirect happened
       await signOut({ redirect: false });
-      window.location.href = '/';
+      globalThis.location.href = '/';
 
-      expect(window.location.href).toBe('/');
+      expect(globalThis.location.href).toBe('/');
 
       // No pending timers should remain
       expect(jest.getTimerCount()).toBe(0);
@@ -225,7 +225,7 @@ describe('Profile Delete Flow with Success Popup', () => {
       await profileService.deleteProfile(mockUserId.toString(), mockToken);
       jest.advanceTimersByTime(3100);
       await signOut({ redirect: false });
-      window.location.href = '/';
+      globalThis.location.href = '/';
 
       expect(mockedProfileService.deleteProfile).toHaveBeenCalledTimes(1);
       expect(mockedSignOut).toHaveBeenCalledTimes(1);

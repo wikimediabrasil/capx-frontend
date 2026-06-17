@@ -238,7 +238,7 @@ describe('DocumentFormItem', () => {
   });
 
   it('shows snackbar for URLs that are too long', async () => {
-    const longUrl = 'https://commons.wikimedia.org/wiki/File:' + 'A'.repeat(200) + '.pdf';
+    const longUrl = `https://commons.wikimedia.org/wiki/File:${'A'.repeat(200)}.pdf`;
     renderWithProviders(<DocumentFormItem {...defaultProps} />);
 
     const input = screen.getByDisplayValue('https://example.com/document');

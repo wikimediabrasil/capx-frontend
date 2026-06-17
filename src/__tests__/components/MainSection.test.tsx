@@ -64,6 +64,10 @@ jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('MainSection', () => {
   const mockPageContent = {
     'body-home-section01-title-template': 'Sebuah ruang untuk $1',
@@ -84,10 +88,6 @@ describe('MainSection', () => {
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   it('renders title without text overflow', () => {
     const { container } = renderWithProviders(<MainSection />);

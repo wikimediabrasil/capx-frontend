@@ -50,10 +50,10 @@ describe('convertWikimediaUrl', () => {
         },
       ];
 
-      testCases.forEach(({ input, expected }) => {
+      for (const { input, expected } of testCases) {
         const result = convertToCommonsPageUrl(input);
         expect(result.commonsPageUrl).toBe(expected);
-      });
+      }
     });
 
     it('should handle URLs with special characters', () => {
@@ -142,7 +142,7 @@ describe('convertWikimediaUrl', () => {
     });
 
     it('should reject URLs longer than 200 characters', () => {
-      const longUrl = 'https://commons.wikimedia.org/wiki/File:' + 'A'.repeat(200) + '.pdf';
+      const longUrl = `https://commons.wikimedia.org/wiki/File:${'A'.repeat(200)}.pdf`;
       const result = validateCapXDocumentUrl(longUrl);
 
       expect(result.isValid).toBe(false);
@@ -170,8 +170,8 @@ describe('convertWikimediaUrl', () => {
     it('should handle valid URLs of exactly 200 characters', () => {
       // Create a URL of exactly 200 characters
       const baseUrl = 'https://commons.wikimedia.org/wiki/File:';
-      const filename = 'A'.repeat(200 - baseUrl.length - 4) + '.pdf'; // -4 for .pdf extension
-      const exactUrl = baseUrl + filename;
+      const filename = `${'A'.repeat(200 - baseUrl.length - 4)}.pdf`; // -4 for .pdf extension
+      const exactUrl = `${baseUrl}${filename}`;
 
       expect(exactUrl.length).toBe(200);
 

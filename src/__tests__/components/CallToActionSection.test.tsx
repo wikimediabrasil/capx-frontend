@@ -85,11 +85,11 @@ jest.mock('next-auth/react', () => ({
   SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-describe('CallToActionSection', () => {
-  const renderWithProviders = (component: React.ReactElement) => {
-    return render(<>{component}</>);
-  };
+const renderWithProviders = (component: React.ReactElement) => {
+  return render(<>{component}</>);
+};
 
+describe('CallToActionSection', () => {
   it('renders main content correctly', () => {
     (stores.usePageContent as jest.Mock).mockReturnValue({
       'body-home-section01-call-to-action-title': 'Join the Exchange',

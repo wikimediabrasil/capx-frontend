@@ -7,96 +7,10 @@ import { useSession } from 'next-auth/react';
 import React from 'react';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({
-      isMobile: false,
-      mobileMenuStatus: false,
-      language: 'en',
-      pageContent: {},
-      session: null,
-      mounted: true,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      setSession: jest.fn(),
-      setIsMobile: jest.fn(),
-      hydrate: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useCapacityStore: Object.assign(
-    jest.fn(() => ({
-      capacities: {},
-      children: {},
-      language: 'en',
-      timestamp: 0,
-      isLoadingTranslations: false,
-      isLoaded: false,
-      getName: jest.fn(() => ''),
-      getDescription: jest.fn(() => ''),
-      getWdCode: jest.fn(() => ''),
-      getMetabaseCode: jest.fn(() => ''),
-      getColor: jest.fn(() => '#000'),
-      getIcon: jest.fn(() => ''),
-      getChildren: jest.fn(() => []),
-      getCapacity: jest.fn(() => null),
-      getRootCapacities: jest.fn(() => []),
-      hasChildren: jest.fn(() => false),
-      isFallbackTranslation: jest.fn(() => false),
-      getIsLoaded: jest.fn(() => false),
-      getIsDescriptionsReady: jest.fn(() => false),
-      updateLanguage: jest.fn(),
-      preloadCapacities: jest.fn(),
-      clearCache: jest.fn(),
-      setCache: jest.fn(),
-      invalidateQueryCache: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        capacities: {},
-        children: {},
-        language: 'en',
-        timestamp: 0,
-        isLoadingTranslations: false,
-        isLoaded: false,
-      }),
-    }
-  ),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  return createStoresMock({ capacityStore: true });
+});
 
 import {
   cleanupMocks,
@@ -105,35 +19,18 @@ import {
   createMockRouter,
   createMockSnackbar,
   renderWithProviders,
-  setupCommonMocks,
+  setupRecommendationCardMocks,
 } from '../helpers/recommendationTestHelpers';
 
-// Mock dependencies
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(),
-}));
-
+jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/app/providers/SnackbarProvider');
-jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
-  useQuery: jest.fn(),
-  useQueryClient: jest.fn(),
-}));
-jest.mock('@/services/profileService', () => ({
-  profileService: {
-    updateProfile: jest.fn(),
-  },
-}));
+jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryCardMock());
+jest.mock(
+  '@/services/profileService',
+  () => require('../helpers/homeTestMocks').profileServiceMock
+);
 jest.mock('@/services/userService');
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    // Remove Next.js specific props that are not valid HTML attributes
-    const { fill, priority, quality, placeholder, blurDataURL, ...imgProps } = props;
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...imgProps} />;
-  },
-}));
+jest.mock('next/image', () => require('../helpers/componentTestHelpers').nextImageMock());
 jest.mock('next/navigation');
 
 // Test data factory
@@ -154,44 +51,9 @@ const createMockUserProfile = () => ({
   language: ['en'],
 });
 
-// Helper to setup all mocks
-function setupAllMocks(
-  mockSnackbar: ReturnType<typeof createMockSnackbar>,
-  mockRouter: ReturnType<typeof createMockRouter>,
-  mockQueryClient: ReturnType<typeof createMockQueryClient>,
-  mockUserProfile: ReturnType<typeof createMockUserProfile>,
-  mockCapacityCache: ReturnType<typeof createMockCapacityCache>
-) {
-  const { useRouter } = require('next/navigation');
-  (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  setupCommonMocks(useSession as jest.Mock);
-
-  // Setup store mocks
-  (stores.useDarkMode as jest.Mock).mockReturnValue(false);
-  (stores.useIsMobile as jest.Mock).mockReturnValue(false);
-  (stores.usePageContent as jest.Mock).mockReturnValue({});
-  (stores.useLanguage as jest.Mock).mockReturnValue('en');
-
-  (stores.useCapacityStore as jest.Mock).mockReturnValue(mockCapacityCache);
-  (useSnackbar as jest.Mock).mockReturnValue(mockSnackbar);
-  (useQuery as jest.Mock).mockReturnValue({
-    data: mockUserProfile,
-    isLoading: false,
-  });
-
-  // Setup queryClient.getQueryData to return user profile
-  mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
-    if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-      return mockUserProfile;
-    }
-    return undefined;
-  });
-
-  (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
-}
-
 // Helper to render card with default props
-function renderCapacityCard(props = {}) {
+const DEFAULT_PROPS = {};
+function renderCapacityCard(props = DEFAULT_PROPS) {
   const defaultProps = {
     recommendation: createMockCapacityRecommendation(),
     ...props,
@@ -208,14 +70,20 @@ async function waitForCardLoaded() {
   });
 }
 
-// Helper to click add to profile button
+async function waitForCardReady() {
+  await waitFor(() => {
+    expect(screen.getByText('Learning')).toBeInTheDocument();
+  });
+  await waitFor(() => {
+    expect(screen.getByText('Add to Profile')).toBeEnabled();
+  });
+}
+
 async function clickAddToProfileButton() {
   await waitFor(() => {
     expect(screen.getByText('Add to Profile')).toBeInTheDocument();
   });
-
-  const addButton = screen.getByText('Add to Profile');
-  fireEvent.click(addButton);
+  fireEvent.click(screen.getByText('Add to Profile'));
 }
 
 describe('RecommendationCapacityCard', () => {
@@ -225,9 +93,29 @@ describe('RecommendationCapacityCard', () => {
   const mockUserProfile = createMockUserProfile();
   const mockCapacityCache = createMockCapacityCache();
 
+  function mockProfileWithSkills(skills: string[]) {
+    mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
+      if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
+        return { ...mockUserProfile, skills_wanted: skills };
+      }
+      return undefined;
+    });
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
-    setupAllMocks(mockSnackbar, mockRouter, mockQueryClient, mockUserProfile, mockCapacityCache);
+    setupRecommendationCardMocks({
+      useSession: useSession as jest.Mock,
+      useSnackbar: useSnackbar as jest.Mock,
+      useQuery: useQuery as jest.Mock,
+      useQueryClient: useQueryClient as jest.Mock,
+      stores,
+      mockRouter,
+      mockSnackbar,
+      mockQueryClient,
+      mockCapacityCache,
+      mockUserProfile: mockUserProfile as any,
+    });
   });
 
   afterEach(cleanupMocks);
@@ -282,20 +170,9 @@ describe('RecommendationCapacityCard', () => {
       profileService.updateProfile = jest.fn().mockResolvedValue({});
 
       renderCapacityCard();
+      await waitForCardReady();
 
-      // Wait for component to finish loading and render
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-
-      // Wait for button to be enabled (means userProfile is loaded)
-      await waitFor(() => {
-        const addButton = screen.getByText('Add to Profile');
-        expect(addButton).toBeEnabled();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      fireEvent.click(screen.getByText('Add to Profile'));
 
       await waitFor(() => {
         expect(profileService.updateProfile).toHaveBeenCalledWith(
@@ -317,19 +194,7 @@ describe('RecommendationCapacityCard', () => {
     });
 
     it('should show "Added" button when capacity is already in wanted list', async () => {
-      const profileWithCapacity = {
-        ...mockUserProfile,
-        skills_wanted: ['50'], // Capacity ID 50 is already in the list
-      };
-
-      // Update the mock to return the profile with the capacity
-      mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
-        if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-          return profileWithCapacity;
-        }
-        return undefined;
-      });
-
+      mockProfileWithSkills(['50']);
       renderCapacityCard();
 
       await waitFor(() => {
@@ -378,18 +243,9 @@ describe('RecommendationCapacityCard', () => {
       profileService.updateProfile.mockImplementation(() => delayedResponse);
 
       renderCapacityCard();
+      await waitForCardReady();
 
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const addButton = screen.getByText('Add to Profile');
-        expect(addButton).toBeEnabled();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      fireEvent.click(screen.getByText('Add to Profile'));
 
       await waitFor(() => {
         expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -399,19 +255,7 @@ describe('RecommendationCapacityCard', () => {
     it('should not add duplicate capacity', async () => {
       const { profileService } = require('@/services/profileService');
       profileService.updateProfile = jest.fn().mockResolvedValue({});
-
-      const profileWithCapacity = {
-        ...mockUserProfile,
-        skills_wanted: ['50'], // Capacity ID 50 is already in the list
-      };
-
-      // Update the mock to return the profile with the capacity
-      mockQueryClient.getQueryData.mockImplementation((queryKey: any) => {
-        if (Array.isArray(queryKey) && queryKey[0] === 'userProfile') {
-          return profileWithCapacity;
-        }
-        return undefined;
-      });
+      mockProfileWithSkills(['50']);
 
       renderCapacityCard();
 
@@ -437,60 +281,22 @@ describe('RecommendationCapacityCard', () => {
   });
 
   describe('Capacity data', () => {
-    it('should use recommendation name if provided', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          name: 'Custom Capacity Name',
-        }),
-      });
-
+    it.each([
+      ['recommendation name', { name: 'Custom Capacity Name' }, 'Custom Capacity Name'],
+      ['cached name for empty name', { name: '' }, 'Learning'],
+      ['recommendation description', { description: 'Custom description' }, 'Custom description'],
+      ['cached description for empty desc', { description: '' }, 'Learning capability'],
+    ])('should use %s', async (_label, overrides, expectedText) => {
+      renderCapacityCard({ recommendation: createMockCapacityRecommendation(overrides) });
       await waitFor(() => {
-        expect(screen.getByText('Custom Capacity Name')).toBeInTheDocument();
-      });
-    });
-
-    it('should use cached name if recommendation name is empty', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          name: '',
-        }),
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-    });
-
-    it('should use recommendation description if provided', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          description: 'Custom description',
-        }),
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Custom description')).toBeInTheDocument();
-      });
-    });
-
-    it('should use cached description if recommendation description is empty', async () => {
-      renderCapacityCard({
-        recommendation: createMockCapacityRecommendation({
-          description: '',
-        }),
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Learning capability')).toBeInTheDocument();
+        expect(screen.getByText(expectedText)).toBeInTheDocument();
       });
     });
 
     it('should display capacity icon with correct styling', async () => {
       renderCapacityCard();
-
       await waitFor(() => {
-        const icon = screen.getByAltText('Capacity icon');
-        expect(icon).toBeInTheDocument();
+        expect(screen.getByAltText('Capacity icon')).toBeInTheDocument();
       });
     });
   });
@@ -524,18 +330,9 @@ describe('RecommendationCapacityCard', () => {
       userService.fetchUserProfile = jest.fn().mockResolvedValue(mockUserProfile);
 
       renderCapacityCard();
+      await waitForCardReady();
 
-      await waitFor(() => {
-        expect(screen.getByText('Learning')).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const addButton = screen.getByText('Add to Profile');
-        expect(addButton).toBeEnabled();
-      });
-
-      const addButton = screen.getByText('Add to Profile');
-      fireEvent.click(addButton);
+      fireEvent.click(screen.getByText('Add to Profile'));
 
       // Should update cache optimistically with setQueryData
       await waitFor(

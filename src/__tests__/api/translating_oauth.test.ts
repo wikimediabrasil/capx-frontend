@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = 'https://localhost:8000';
 
 function mockReq(token?: string): NextRequest {
   return {
