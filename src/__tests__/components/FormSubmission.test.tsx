@@ -132,12 +132,7 @@ const OrganizationFormComponent = ({
       <div data-testid="contacts-section">
         <h3>Contacts</h3>
         <input type="email" value={mockOrganizationData.email} placeholder="Email" readOnly />
-        <input
-          type="url"
-          value={mockOrganizationData.meta_page}
-          placeholder="Meta Page"
-          readOnly
-        />
+        <input type="url" value={mockOrganizationData.meta_page} placeholder="Meta Page" readOnly />
         <input type="url" value={mockOrganizationData.website} placeholder="Website" readOnly />
       </div>
 

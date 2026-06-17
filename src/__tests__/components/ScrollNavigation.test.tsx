@@ -1,8 +1,14 @@
 // Mock ResizeObserver
 globalThis.ResizeObserver = class {
-  observe() { /* noop for test */ }
-  unobserve() { /* noop for test */ }
-  disconnect() { /* noop for test */ }
+  observe() {
+    /* noop for test */
+  }
+  unobserve() {
+    /* noop for test */
+  }
+  disconnect() {
+    /* noop for test */
+  }
 } as any;
 
 jest.mock('@/stores', () => ({

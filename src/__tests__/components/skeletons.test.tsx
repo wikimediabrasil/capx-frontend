@@ -613,7 +613,9 @@ describe('OrganizationProfileSkeleton', () => {
   it('renders 3 project card skeletons in the projects row', () => {
     const { container } = render(<OrganizationProfileSkeleton />);
     // CardRowSkeleton uses a flex-row with 3 children of w-[350px]
-    const projectCards = container.querySelectorAll(String.raw`.w-\[350px\].flex-shrink-0.flex.flex-col`);
+    const projectCards = container.querySelectorAll(
+      String.raw`.w-\[350px\].flex-shrink-0.flex.flex-col`
+    );
     expect(projectCards.length).toBe(3);
   });
 
