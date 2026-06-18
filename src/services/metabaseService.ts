@@ -492,7 +492,7 @@ const PATTERNS: Array<{ pattern: RegExp; handler: DatePatternHandler }> = [
 export function extractDatesFromPageContent(
   pageContent: string
 ): { time_begin: string; time_end?: string } | undefined {
-  if (!pageContent) return undefined;
+  if (!pageContent || pageContent.length > 50_000) return undefined;
 
   for (const { pattern, handler } of PATTERNS) {
     const matches = Array.from(pageContent.matchAll(pattern));
@@ -520,9 +520,9 @@ export function extractWikimediaTitleFromURL(url: string): string | undefined {
   try {
     // URL patterns for Wikimedia - Updated to handle Event: namespace, special characters, and mobile URLs
     const patterns = [
-      /(m\.)?wikimedia\.org\/wiki\/(.+)/i,
-      /(m\.)?wikipedia\.org\/wiki\/(.+)/i,
-      /meta\.(m\.)?wikimedia\.org\/wiki\/(.+)/i,
+      /(m\.)?wikimedia\.org\/wiki\/([^#?\s]+)/i,
+      /(m\.)?wikipedia\.org\/wiki\/([^#?\s]+)/i,
+      /meta\.(m\.)?wikimedia\.org\/wiki\/([^#?\s]+)/i,
     ];
 
     for (const pattern of patterns) {
@@ -1058,7 +1058,7 @@ function stripHtmlTags(html: string): string {
 function extractDatesFromRenderedText(
   text: string
 ): { start_date: string; end_date?: string } | null {
-  if (!text) return null;
+  if (!text || text.length > 100_000) return null;
 
   // Build a regex alternation from all known month names (sorted longest-first to avoid partial matches)
   const monthNames = Object.keys(MULTILINGUAL_MONTHS).sort((a, b) => b.length - a.length);
@@ -1560,18 +1560,17 @@ export function isValidEventURL(url: string): boolean {
 
   const validPatterns = [
     // Meta Wikimedia URLs (desktop and mobile)
-    { name: 'Meta Wikimedia', pattern: /^https?:\/\/meta\.(m\.)?wikimedia\.org\/wiki\/.+/i },
+    { name: 'Meta Wikimedia', pattern: /^https?:\/\/meta\.(m\.)?wikimedia\.org\/wiki\/[^#?\s]+/i },
     // Local Wikimedia URLs (like br.wikimedia.org, desktop and mobile)
-    { name: 'Local Wikimedia', pattern: /^https?:\/\/[a-z]{2}\.(m\.)?wikimedia\.org\/wiki\/.+/i },
+    { name: 'Local Wikimedia', pattern: /^https?:\/\/[a-z]{2}\.(m\.)?wikimedia\.org\/wiki\/[^#?\s]+/i },
     // WikiLearn URLs
-    { name: 'WikiLearn', pattern: /^https?:\/\/app\.learn\.wiki\/learning\/course\/.+/i },
+    { name: 'WikiLearn', pattern: /^https?:\/\/app\.learn\.wiki\/learning\/course\/[^#?\s]+/i },
     // Wikidata URLs (for events)
     { name: 'Wikidata', pattern: /^https?:\/\/www\.wikidata\.org\/(wiki|entity)\/Q\d+/i },
   ];
 
   for (const { pattern } of validPatterns) {
-    const matches = new RegExp(pattern).exec(url);
-    if (matches) {
+    if (pattern.test(url)) {
       return true;
     }
   }
