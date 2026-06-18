@@ -6,34 +6,6 @@ import * as stores from '@/stores';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSnackbar } from '@/app/providers/SnackbarProvider';
 
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock({
-    pageContent: {
-      'body-loggedin-home-main-section-title': 'Welcome to CapX',
-      'body-loggedin-home-main-section-description': 'Connect with peers',
-      'body-loggedin-home-main-section-button01': 'Browse Feed',
-      'body-loggedin-home-main-section-button02': 'My Profile',
-      'body-home-section01-description': 'Discover capacities',
-      'body-home-section01-description-unified-login-info': 'Login with your Wikimedia account',
-      'body-loggedin-home-third-section-title': 'Get in Touch',
-      'body-loggedin-home-third-section-description': 'Contact us at capx@wmnobrasil.org',
-      'body-loggedin-home-third-section-button': 'Copy Email',
-      'body-loggedin-home-third-section-button-success': 'Email copied!',
-      'home-qr-cta-title': 'Share your CapX profile',
-      'home-qr-cta-description': 'Generate a QR code',
-      'home-qr-cta-button': 'Go to my profile',
-      'home-capacity-cta-title': 'Three new ways to explore capacities',
-      'home-capacity-cta-description': 'Find the view that works best for you.',
-      'home-capacity-cta-button': 'Explore capacities',
-      'home-translate-cta-title': 'Translate capacities',
-      'home-translate-cta-description': 'Help translate',
-      'home-translate-cta-button': 'Translate & contribute',
-    },
-    capacityStore: true,
-  });
-});
-
 jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/hooks/useProfile', () => require('../helpers/homeTestMocks').useProfileMock);
 jest.mock(

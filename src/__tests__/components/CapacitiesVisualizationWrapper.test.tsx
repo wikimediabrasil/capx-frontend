@@ -11,24 +11,6 @@ jest.mock('@/components/LanguageChangeHandler', () => ({
   LanguageChangeHandler: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/stores', () => {
-  const { createStoresMock, createCapacityState } = require('../helpers/componentTestHelpers');
-  const base = createStoresMock();
-  const capacityState = createCapacityState();
-  base.useCapacityStore = Object.assign(
-    jest.fn(() => capacityState),
-    {
-      getState: () => ({
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-      }),
-    }
-  );
-  return base;
-});
-
 describe('CapacitiesVisualizationWrapper', () => {
   beforeEach(() => {
     jest.clearAllMocks();

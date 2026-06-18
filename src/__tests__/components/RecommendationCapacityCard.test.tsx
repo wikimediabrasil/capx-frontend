@@ -7,11 +7,6 @@ import { useSession } from 'next-auth/react';
 import React from 'react';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock({ capacityStore: true });
-});
-
 import {
   cleanupMocks,
   createMockCapacityCache,

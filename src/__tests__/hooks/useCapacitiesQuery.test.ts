@@ -1,15 +1,6 @@
 const mockGetRootCapacities = jest.fn(() => [{ code: 10, name: 'Root' }]);
 const mockGetChildren = jest.fn(() => [{ code: 100, name: 'Child' }]);
 
-jest.mock('@/stores', () => ({
-  useCapacityStore: jest.fn(() => ({
-    isLoaded: true,
-    language: 'en',
-    getRootCapacities: mockGetRootCapacities,
-    getChildren: mockGetChildren,
-  })),
-}));
-
 jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn((options: any) => {
     // Simulate calling queryFn for coverage

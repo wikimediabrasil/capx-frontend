@@ -2,11 +2,6 @@ import { render, screen } from '@testing-library/react';
 import CapacityDirectorySkeleton from '@/components/skeletons/CapacityDirectorySkeleton';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-}));
-
 describe('CapacityDirectorySkeleton', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -19,13 +19,6 @@ jest.mock('@/hooks/useCapacitiesQuery', () => ({
   CAPACITY_CACHE_KEYS: { root: ['capacities', 'root'] },
   useRootCapacities: jest.fn(() => ({ data: [{ code: 10, name: 'Cap1' }] })),
 }));
-jest.mock('@/stores', () => ({
-  useCapacityStore: jest.fn(() => ({
-    preloadCapacities: jest.fn(),
-    clearCache: jest.fn(),
-  })),
-}));
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';

@@ -3,11 +3,6 @@ import { render, screen } from '@testing-library/react';
 import RecommendationsSection from '@/app/(auth)/home/components/RecommendationsSection';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock();
-});
-
 describe('RecommendationsSection', () => {
   afterEach(() => {
     jest.clearAllMocks();

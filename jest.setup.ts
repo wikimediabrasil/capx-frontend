@@ -1,6 +1,99 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 
+// Global store mock — applies to all test files automatically
+jest.mock('@/stores', () => {
+  const defaultCapacityStoreState = {
+    capacities: {},
+    children: {},
+    language: 'en',
+    timestamp: 0,
+    isLoadingTranslations: false,
+    isLoaded: true,
+    getName: jest.fn((id: number) => `Capacity ${id}`),
+    getDescription: jest.fn((id: number) => `Description ${id}`),
+    getWdCode: jest.fn(() => ''),
+    getMetabaseCode: jest.fn(() => ''),
+    getColor: jest.fn(() => '#000'),
+    getIcon: jest.fn(() => '/icons/test.svg'),
+    getChildren: jest.fn(() => []),
+    getCapacity: jest.fn(() => null),
+    getRootCapacities: jest.fn(() => []),
+    hasChildren: jest.fn(() => false),
+    isFallbackTranslation: jest.fn(() => false),
+    getIsLoaded: jest.fn(() => true),
+    getIsDescriptionsReady: jest.fn(() => true),
+    updateLanguage: jest.fn(),
+    preloadCapacities: jest.fn(),
+    clearCache: jest.fn(),
+    setCache: jest.fn(),
+    invalidateQueryCache: jest.fn(),
+    updateCapacityTranslation: jest.fn(),
+  };
+
+  return {
+  ...jest.requireActual('@/stores'),
+  useDarkMode: jest.fn(() => false),
+  useSetDarkMode: jest.fn(() => jest.fn()),
+  useThemeStore: Object.assign(
+    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
+    {
+      getState: () => ({
+        darkMode: false,
+        setDarkMode: jest.fn(),
+        mounted: true,
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useIsMobile: jest.fn(() => false),
+  usePageContent: jest.fn(() => ({})),
+  useLanguage: jest.fn(() => 'en'),
+  useMobileMenuStatus: jest.fn(() => false),
+  useAppStore: Object.assign(
+    jest.fn((selector?: any) => {
+      const state = {
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: () => ({
+        isMobile: false,
+        mobileMenuStatus: false,
+        language: 'en',
+        pageContent: {},
+        session: null,
+        mounted: true,
+        setMobileMenuStatus: jest.fn(),
+        setLanguage: jest.fn(),
+        setPageContent: jest.fn(),
+        setSession: jest.fn(),
+        setIsMobile: jest.fn(),
+        hydrate: jest.fn(),
+      }),
+    }
+  ),
+  useCapacityStore: Object.assign(
+    jest.fn((selector?: any) =>
+      selector ? selector(defaultCapacityStoreState) : defaultCapacityStoreState
+    ),
+    { getState: () => defaultCapacityStoreState }
+  ),
+  };
+});
+
 // Mock react-error-boundary
 jest.mock('react-error-boundary', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => children,

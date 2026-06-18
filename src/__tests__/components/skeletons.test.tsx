@@ -4,11 +4,6 @@ import * as stores from '@/stores';
 // ---------------------------------------------------------------------------
 // Store mocks
 // ---------------------------------------------------------------------------
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock();
-});
-
 // HomePageSkeleton imports AnalyticsCallToActionSkeleton from this module,
 // which itself uses useDarkMode / useIsMobile — mock the whole module so we
 // avoid pulling in heavy page-level dependencies.

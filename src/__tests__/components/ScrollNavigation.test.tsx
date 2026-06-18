@@ -11,11 +11,6 @@ globalThis.ResizeObserver = class {
   }
 } as any;
 
-jest.mock('@/stores', () => ({
-  useIsMobile: jest.fn(),
-  usePageContent: jest.fn(() => ({})),
-}));
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ScrollNavigation } from '@/components/ScrollNavigation';
