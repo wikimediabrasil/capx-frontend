@@ -1562,7 +1562,10 @@ export function isValidEventURL(url: string): boolean {
     // Meta Wikimedia URLs (desktop and mobile)
     { name: 'Meta Wikimedia', pattern: /^https?:\/\/meta\.(m\.)?wikimedia\.org\/wiki\/[^#?\s]+/i },
     // Local Wikimedia URLs (like br.wikimedia.org, desktop and mobile)
-    { name: 'Local Wikimedia', pattern: /^https?:\/\/[a-z]{2}\.(m\.)?wikimedia\.org\/wiki\/[^#?\s]+/i },
+    {
+      name: 'Local Wikimedia',
+      pattern: /^https?:\/\/[a-z]{2}\.(m\.)?wikimedia\.org\/wiki\/[^#?\s]+/i,
+    },
     // WikiLearn URLs
     { name: 'WikiLearn', pattern: /^https?:\/\/app\.learn\.wiki\/learning\/course\/[^#?\s]+/i },
     // Wikidata URLs (for events)
