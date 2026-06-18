@@ -32,27 +32,27 @@ jest.mock('@/stores', () => {
   };
 
   return {
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
+    ...jest.requireActual('@/stores'),
+    useDarkMode: jest.fn(() => false),
+    useSetDarkMode: jest.fn(() => jest.fn()),
+    useThemeStore: (() => {
+      const themeState = {
         darkMode: false,
         setDarkMode: jest.fn(),
         mounted: true,
         hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn((selector?: any) => {
-      const state = {
+      };
+      return Object.assign(
+        jest.fn(() => themeState),
+        { getState: () => themeState }
+      );
+    })(),
+    useIsMobile: jest.fn(() => false),
+    usePageContent: jest.fn(() => ({})),
+    useLanguage: jest.fn(() => 'en'),
+    useMobileMenuStatus: jest.fn(() => false),
+    useAppStore: (() => {
+      const appState = {
         isMobile: false,
         mobileMenuStatus: false,
         language: 'en',
@@ -66,31 +66,17 @@ jest.mock('@/stores', () => {
         setIsMobile: jest.fn(),
         hydrate: jest.fn(),
       };
-      return selector ? selector(state) : state;
-    }),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useCapacityStore: Object.assign(
-    jest.fn((selector?: any) =>
-      selector ? selector(defaultCapacityStoreState) : defaultCapacityStoreState
+      return Object.assign(
+        jest.fn((selector?: any) => (selector ? selector(appState) : appState)),
+        { getState: () => appState }
+      );
+    })(),
+    useCapacityStore: Object.assign(
+      jest.fn((selector?: any) =>
+        selector ? selector(defaultCapacityStoreState) : defaultCapacityStoreState
+      ),
+      { getState: () => defaultCapacityStoreState }
     ),
-    { getState: () => defaultCapacityStoreState }
-  ),
   };
 });
 
