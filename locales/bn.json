@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Bodhisattwa",
 			"Borhan",
 			"আজিজ",
 			"আফতাবুজ্জামান"
@@ -58,7 +59,7 @@
 	"profiency-level-not-proficient": "পারদর্শি নয়",
 	"profiency-level-basic": "মৌলিক",
 	"profiency-level-intermediate": "মধ্যবর্তী",
-	"profiency-level-advanced": "উচ্চতর",
+	"profiency-level-advanced": "উন্নত",
 	"profiency-level-almost-native": "প্রায় স্থানীয়",
 	"profiency-level-professional": "পেশাদার পারদর্শিতা",
 	"profiency-level-native": "অধিবাসী স্তরের",
