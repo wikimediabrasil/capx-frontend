@@ -1,5 +1,5 @@
 import BaseButton from '@/components/BaseButton';
-import LoadingState from '@/components/LoadingState';
+import { DocumentCardSkeleton } from '@/components/skeletons';
 import { useDocument } from '@/hooks/useDocument';
 import Image from 'next/image';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
@@ -23,7 +23,7 @@ export const DocumentCard = ({
   const pageContent = usePageContent();
 
   if (loading) {
-    return <LoadingState />;
+    return <DocumentCardSkeleton isSingle={isSingle} />;
   }
 
   if (!loading && (error || !document || (!document.imageUrl && !document.url))) {

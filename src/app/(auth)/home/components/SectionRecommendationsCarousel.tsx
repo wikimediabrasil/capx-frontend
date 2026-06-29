@@ -1,21 +1,23 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
+import CapacityRecommendationsCarousels from '@/app/(auth)/home/components/CapacityRecommendationsCarousels';
 import CardNoCapacities from '@/app/(auth)/home/components/CardNoRecommendations';
 import RecommendationCarousel from '@/app/(auth)/home/components/RecommendationCarousel';
 import RecommendationEventCard from '@/app/(auth)/home/components/RecommendationEventCard';
 import RecommendationProfileCard from '@/app/(auth)/home/components/RecommendationProfileCard';
-import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
 import RecommendationsSection from '@/app/(auth)/home/components/RecommendationsSection';
-import CapacityRecommendationsCarousels from '@/app/(auth)/home/components/CapacityRecommendationsCarousels';
-import LoadingState from '@/components/LoadingState';
+import SectionNoCapacities from '@/app/(auth)/home/components/SectionNoRecommendations';
+import { RecommendationCarouselSkeleton } from '@/components/skeletons';
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useUserCapacities } from '@/hooks/useUserCapacities';
 import { userService } from '@/services/userService';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useMemo } from 'react';
 
 import { usePageContent } from '@/stores';
+import AnalyticsCallToActionSection from './AnalyticsCallToActionSection';
+
 export default function SectionRecommendationsCarousel() {
   const pageContent = usePageContent();
   const { data, isLoading, error } = useRecommendations();
@@ -67,8 +69,11 @@ export default function SectionRecommendationsCarousel() {
 
   if (isLoading) {
     return (
-      <section className="flex flex-col items-center justify-center w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 bg-transparent">
-        <LoadingState />
+      <section className="flex flex-col items-center justify-start w-full max-w-screen-xl mx-auto px-8 py-8 lg:px-12 bg-transparent gap-12">
+        <RecommendationCarouselSkeleton type="profile" cardCount={3} />
+        <RecommendationCarouselSkeleton type="profile" cardCount={3} />
+        <RecommendationCarouselSkeleton type="capacity" cardCount={3} />
+        <RecommendationCarouselSkeleton type="event" cardCount={3} />
       </section>
     );
   }
@@ -217,6 +222,8 @@ export default function SectionRecommendationsCarousel() {
             ))}
           </RecommendationCarousel>
         )}
+
+        <AnalyticsCallToActionSection />
       </div>
     </RecommendationsSection>
   );

@@ -20,6 +20,8 @@ export interface FilterState {
   languages: string[];
   name?: string;
   affiliations?: string[];
+  /** When true, API omits has_skills_* so users with no capacities still appear (Explore). */
+  includeIncompleteProfiles: boolean;
 }
 
 export const createProfilesFromOrganizations = (
@@ -104,6 +106,25 @@ export const createUnifiedProfiles = (users: UserProfile[]) => {
         avatar: user.avatar,
         wikidataQid: user.wikidata_qid,
         isOrganization: false,
+        hasIncompleteProfile: false,
+        last_update: user.last_update,
+      });
+    } else {
+      profiles.push({
+        id: user.user.id,
+        username: user.user.username,
+        capacities: [],
+        wantedCapacities: user.skills_wanted || [],
+        availableCapacities: user.skills_available || [],
+        knownCapacities: user.skills_known || [],
+        type: ProfileCapacityType.Incomplete,
+        languages: user.language,
+        territory: user.territory?.[0],
+        avatar: user.avatar,
+        wikidataQid: user.wikidata_qid,
+        isOrganization: false,
+        hasIncompleteProfile: true,
+        last_update: user.last_update,
       });
     }
   });

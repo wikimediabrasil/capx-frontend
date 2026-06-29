@@ -46,7 +46,8 @@ describe('BaseButton', () => {
     jest.clearAllMocks();
   });
 
-  const renderButton = (props: any = {}) => {
+  const DEFAULT_PROPS = {};
+  const renderButton = (props: any = DEFAULT_PROPS) => {
     return renderWithProviders(
       <BaseButton label="Test Button" onClick={defaultOnClick} {...props} />
     );

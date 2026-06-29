@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
 import BaseInput from '@/components/BaseInput';
+import { EventCardSkeleton } from '@/components/skeletons';
+import { useEvents } from '@/hooks/useEvents';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
-import { useEvents } from '@/hooks/useEvents';
-import LoadingState from '@/components/LoadingState';
 import { Event } from '@/types/event';
+import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useDarkMode, useIsMobile, usePageContent } from '@/stores';
 interface EventsSearchProps {
@@ -34,7 +34,6 @@ function useDebounce<T extends (...args: any[]) => any>(callback: T, delay: numb
     [callback, delay]
   );
 
-  // Function to cancel the debounce
   const cancel = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -42,7 +41,6 @@ function useDebounce<T extends (...args: any[]) => any>(callback: T, delay: numb
     }
   }, []);
 
-  // Clear the timeout when the component is unmounted
   useEffect(() => {
     return () => {
       cancel();
@@ -65,34 +63,25 @@ export function EventsSearch({
   const pageContent = usePageContent();
   const darkMode = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Search all events to enable search
-  const {
-    events,
-    isLoading: isEventsLoading,
-    error: _eventsError,
-  } = useEvents(session?.user?.token, 100, 0, organizationId);
+  const eventsQuery = useEvents(session?.user?.token, 100, 0, organizationId);
+  const events = eventsQuery.events;
+  const isEventsLoading = eventsQuery.isLoading;
+  const _eventsError = eventsQuery.error;
 
-  // Store the last search term to avoid duplicate requests
   const lastSearchRef = useRef<string>('');
 
-  // Search function
   const search = useCallback(
     async (term: string) => {
-      // Notify search status
       onSearchStatusChange?.(!!term);
 
-      // If the search term is the same as the last search, do nothing
       if (term === lastSearchRef.current) {
         return;
       }
 
-      // Store the current search term
       lastSearchRef.current = term;
 
       if (!term) {
-        // No search term, clear results
         onSearchResults?.([]);
         onSearchEnd?.();
         return;
@@ -104,49 +93,41 @@ export function EventsSearch({
         return;
       }
 
-      setIsLoading(true);
       onSearchStart?.();
 
       try {
-        // Safely check for null/undefined values during filtering
         const filtered = events.filter(event => {
           const name = (event.name || '').toLowerCase();
           const desc = (event.description || '').toLowerCase();
           const loc = (event.type_of_location || '').toLowerCase();
           const termLower = term.toLowerCase();
 
-          // Enhanced check for specific types
           const matchesLocationType =
-            loc === termLower || // Exact match
-            (termLower === 'in-person' && loc === 'in_person') || // Special mapping for in-person/in_person
-            (termLower === 'on-site' && loc === 'in_person') || // Mapping for on-site/in_person
-            loc.includes(termLower); // Keep substring search
+            loc === termLower ||
+            (termLower === 'in-person' && loc === 'in_person') ||
+            (termLower === 'on-site' && loc === 'in_person') ||
+            loc.includes(termLower);
 
           return name.includes(termLower) || desc.includes(termLower) || matchesLocationType;
         });
 
-        // Send results to parent component (even if empty)
         onSearchResults?.(filtered);
       } catch (error) {
-        console.error('🔍 Error:', error);
+        console.error('Error:', error);
         onSearchResults?.([]);
       } finally {
-        setIsLoading(false);
         onSearchEnd?.();
       }
     },
     [events, onSearchStart, onSearchEnd, onSearchResults, onSearchStatusChange]
   );
 
-  // Use the custom debounce hook
   const { debouncedFunction: debouncedSearch } = useDebounce(search, 300);
 
-  // Effect to call the debounce function when the search term changes
   useEffect(() => {
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
 
-  // When component unmounts or search is cleared, reset search state
   useEffect(() => {
     return () => {
       onSearchStatusChange?.(false);
@@ -160,16 +141,20 @@ export function EventsSearch({
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
         placeholder={pageContent?.['events-search-placeholder'] || 'Search for events...'}
-        className={`w-full h-16 py-6 px-3 rounded-[16px] opacity-50 ${
-          darkMode ? 'text-white border-white' : 'text-capx-dark-box-bg border-capx-dark-box-bg '
-        } ${isMobile ? 'text-[12px]' : 'text-[24px]'}`}
+        className={`w-full h-14 py-4 px-4 rounded-xl border transition-colors duration-150 ${
+          darkMode
+            ? 'text-white border-white/10 focus:border-white/20 bg-capx-dark-box-bg placeholder-white/30'
+            : 'text-capx-dark-box-bg border-capx-dark-box-bg/10 focus:border-capx-dark-box-bg/20 bg-white placeholder-capx-dark-box-bg/30'
+        } ${isMobile ? 'text-sm' : 'text-base'}`}
         icon={darkMode ? SearchIconWhite : SearchIcon}
         iconPosition="right"
       />
 
-      {(isLoading || isEventsLoading) && (
-        <div className="flex justify-center py-2 mt-2">
-          <LoadingState />
+      {isEventsLoading && (
+        <div className="flex flex-col gap-4 mt-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <EventCardSkeleton key={i} />
+          ))}
         </div>
       )}
     </div>

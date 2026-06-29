@@ -3,8 +3,7 @@
 import CapacitiesTreeVisualization from '@/app/capacities_visualization/components/CapacitiesTreeVisualization';
 import CapacityCacheDebug from '@/components/CapacityCacheDebug';
 import { LanguageChangeHandler } from '@/components/LanguageChangeHandler';
-import LoadingState from '@/components/LoadingState';
-import LoadingStateWithFallback from '@/components/LoadingStateWithFallback';
+import { CapacityDirectorySkeleton, ChildCapacitiesSkeleton } from '@/components/skeletons';
 import { ScrollNavigation } from '@/components/ScrollNavigation';
 import { useCapacitiesByParent, useRootCapacities } from '@/hooks/useCapacitiesQuery';
 import { Capacity } from '@/types/capacity';
@@ -53,10 +52,10 @@ const ChildCapacities = ({
   const { data: rootCapacities = [] } = useRootCapacities(language);
   const isMobile = useIsMobile();
 
-  const { getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityStore();
+  const { getName, getDescription, getWdCode, getMetabaseCode, getColor } = useCapacityStore();
 
   if (isLoadingChildren) {
-    return <LoadingState />;
+    return <ChildCapacitiesSkeleton />;
   }
 
   // First, find the actual parent capacity from root capacities or existing children
@@ -133,7 +132,7 @@ const ChildCapacities = ({
         >
           <CapacityCard
             code={child.code}
-            name={child.name}
+            name={getName(child.code) || child.name}
             icon={child.icon}
             color={child.color}
             isExpanded={!!expandedCapacities[child.code]}
@@ -304,7 +303,7 @@ function CapacityListContent() {
   if (isLoadingRoot || !isCacheReady) {
     return (
       <div className="flex flex-col justify-center items-center h-[400px]">
-        <LoadingState fullScreen={false} />
+        <ChildCapacitiesSkeleton />
         {!isCacheReady && (
           <div className="mt-8 text-center">
             <p className={`text-lg font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>
@@ -488,16 +487,11 @@ export default function CapacityListMainWrapper() {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    // Small delay to ensure context is properly initialized
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 50);
-
-    return () => clearTimeout(timer);
+    setMounted(true);
   }, []);
 
   if (!mounted) {
-    return <LoadingStateWithFallback fullScreen={true} />;
+    return <CapacityDirectorySkeleton />;
   }
 
   return (

@@ -133,6 +133,16 @@ const validSession: Session = {
 
 // Mocking AppContext
 
+const renderWithProviders = (component: React.ReactNode) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+    },
+  });
+
+  return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
+};
+
 describe('MobileMenuLinks', () => {
   beforeEach(() => {
     (stores.usePageContent as jest.Mock).mockReturnValue(mockPageContent);
@@ -151,16 +161,6 @@ describe('MobileMenuLinks', () => {
       organizationId: '1',
     });
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false, gcTime: 0 },
-      },
-    });
-
-    return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
-  };
 
   it('renders menu links when logged in', () => {
     const handleMenuStatus = jest.fn();
@@ -193,9 +193,9 @@ describe('MobileMenuLinks', () => {
     renderWithProviders(<MobileMenuLinks session={validSession} handleMenuStatus={() => {}} />);
 
     const links = screen.getAllByRole('link');
-    links.forEach(link => {
+    for (const link of links) {
       expect(link).toHaveClass('text-capx-light-bg');
-    });
+    }
   });
 
   it('renders organization profiles for org managers', async () => {

@@ -67,6 +67,10 @@ jest.mock('next/image', () => ({
   ),
 }));
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('ContactsSection', () => {
   beforeEach(() => {
     (stores.useIsMobile as jest.Mock).mockReturnValue(false);
@@ -74,10 +78,6 @@ describe('ContactsSection', () => {
     (stores.useLanguage as jest.Mock).mockReturnValue('en');
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   describe('when no contacts are provided', () => {
     it('renders empty contacts section with ProfileItem', () => {
@@ -284,14 +284,14 @@ describe('ContactsSection', () => {
       renderWithProviders(
         <ContactsSection
           email="test@example.com"
-          meta_page="http://example.com"
+          meta_page="https://example.com"
           website="https://test.com"
         />
       );
 
-      const httpLink = screen.getByText('http://example.com');
+      const httpLink = screen.getByText('https://example.com');
       expect(httpLink.tagName).toBe('A');
-      expect(httpLink.getAttribute('href')).toContain('http://example.com');
+      expect(httpLink.getAttribute('href')).toContain('https://example.com');
     });
 
     it('correctly identifies and formats HTTPS URLs', () => {

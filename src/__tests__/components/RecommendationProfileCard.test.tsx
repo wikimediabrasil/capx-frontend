@@ -8,58 +8,10 @@ import { useSession } from 'next-auth/react';
 import React from 'react';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({
-      isMobile: false,
-      mobileMenuStatus: false,
-      language: 'en',
-      pageContent: {},
-      session: null,
-      mounted: true,
-      setMobileMenuStatus: jest.fn(),
-      setLanguage: jest.fn(),
-      setPageContent: jest.fn(),
-      setSession: jest.fn(),
-      setIsMobile: jest.fn(),
-      hydrate: jest.fn(),
-    })),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-}));
+jest.mock('@/stores', () => {
+  const { createStoresMock } = require('../helpers/componentTestHelpers');
+  return createStoresMock();
+});
 
 import {
   cleanupMocks,
@@ -71,22 +23,12 @@ import {
   setupCommonMocks,
 } from '../helpers/recommendationTestHelpers';
 
-// Mock dependencies
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(),
-}));
-
+jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/hooks/useAvatars');
 jest.mock('@/hooks/useSavedItems');
 jest.mock('@/app/providers/SnackbarProvider');
 jest.mock('next/navigation');
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...props} />;
-  },
-}));
+jest.mock('next/image', () => require('../helpers/componentTestHelpers').nextImageMock());
 
 // Test data factory functions
 const createMockProfileRecommendation = (overrides = {}): ProfileRecommendation => ({
@@ -128,7 +70,8 @@ function setupAllMocks(
 }
 
 // Helper to render card with default props
-function renderProfileCard(props = {}) {
+const DEFAULT_PROPS = {};
+function renderProfileCard(props = DEFAULT_PROPS) {
   const defaultProps = {
     recommendation: createMockProfileRecommendation(),
     ...props,

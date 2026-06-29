@@ -223,7 +223,7 @@ The application features a sophisticated multi-layered caching system designed f
 
 ## Testing
 
-The project includes comprehensive testing setup with Jest and React Testing Library, achieving excellent test coverage across all major features.
+The project includes comprehensive testing setup with Jest and React Testing Library, achieving extensive coverage across all layers of the application.
 
 ### Running Tests
 
@@ -246,48 +246,35 @@ yarn lint
 
 ### Test Structure
 
-- **Component Tests**: Located in `src/__tests__/components/` (25+ component test suites)
-- **Service Tests**: Located in `src/__tests__/services/` (API and service layer tests)
-- **Utility Tests**: Located in `src/__tests__/utils/` (Helper function tests)
-- **Hook Tests**: Integration tests for custom React hooks
-- **Test Configuration**: `jest.config.ts` and `jest.setup.ts`
+```
+src/__tests__/
+├── components/     # 60 component test suites
+├── api/            # 42 API route test suites
+├── services/       # 31 service layer test suites
+├── hooks/          # 29 custom hook test suites
+├── utils/          # 20 utility function test suites
+├── stores/         # 18 Zustand store test suites
+├── integration/    # 2 integration test suites
+├── lib/            # 2 library test suites
+└── helpers/        # Shared test helpers and factories
+```
 
-### Test Coverage Statistics
+### Test Statistics
 
-- **Total Test Suites**: 50
-- **Total Tests**: 620+
+- **Total Test Suites**: 199
+- **Total Tests**: 2,510
 - **Pass Rate**: 100%
-- **Coverage Areas**: All major components and features
+- **Code Quality**: SonarCloud-clean (no code smells in test files)
 
-### Comprehensive Test Coverage
+### Test Conventions
 
-The project includes tests for:
-
-**Core Components & UI**
-- Authentication components (AuthButton, login flows)
-- Navigation (DesktopNavbar, MobileNavbar, MobileMenu)
-- Form components (BaseButton, ProgressBar, language/profile selects)
-- Layout components (MainSection, CallToActionSection, StatisticsSection)
-
-**Feature-Specific Components**
-- **Capacity Management**: CapacityCard, CapacityCategories, CapacitySearch, CapacitySelectionModal, CapacityFeedCard, CapacityListMainWrapper, SuggestCapacityModal
-- **Profile Management**: AvatarSelectionPopup, MiniBio, MiniBioTextarea, ProfileLanguageSwitching
-- **Organization Management**: OrganizationProfileEditDocuments, DocumentFormItem
-- **Event Management**: EventsEditForm with comprehensive validation
-- **Translation System**: TranslationContributeCTA with dark mode and responsive design
-
-**Services & Utilities**
-- **API Services**: metabaseService with Wikidata integration
-- **Utility Functions**: capacityValidation, convertWikimediaUrl, fetchWikimediaData, getProfileImage
-- **Infrastructure**: axios-interceptor for API communication
-
-**Advanced Features**
-- Cache management and invalidation
-- Multi-language translation fallbacks
-- Dark mode support
-- Mobile-responsive design
-- Accessibility compliance
-- Error boundary handling
+- **`globalThis`** over `window`/`global` for portability
+- **`for...of`** over `.forEach()` for iteration
+- **`String.raw`** for CSS selectors with escaped characters
+- **`.dataset`** over `getAttribute('data-...')` for data attributes
+- **Shared helpers** in `src/__tests__/helpers/` to reduce duplication
+- **`it.each`** table-driven tests for repetitive assertions
+- Helper functions defined at **module scope**, not inside `describe` blocks
 
 
 ## Storybook

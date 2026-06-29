@@ -139,9 +139,9 @@ describe('NewsFormItem', () => {
     (stores.useDarkMode as jest.Mock).mockReturnValue(darkMode);
     renderWithProviders(<NewsFormItem {...mockProps} />);
     const tagInput = screen.getByDisplayValue('Breaking News');
-    expectedClasses.forEach(className => {
+    for (const className of expectedClasses) {
       expect(tagInput).toHaveClass(className);
-    });
+    }
   };
 
   it('applies dark mode styling', () => {

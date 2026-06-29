@@ -1,32 +1,25 @@
+'use client';
+
 import BaseButton from '@/components/BaseButton';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import LoadingState from '@/components/LoadingState';
-import { useIsMobile, usePageContent, useLanguage, useDarkMode, useCapacityStore } from '@/stores';
-import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useOrganizationNames } from '@/hooks/useOrganizationNames';
-import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
+import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { getLocaleFromLanguage } from '@/lib/utils/dateLocale';
-import AlarmLightIcon from '@/public/static/images/alarm.svg';
-import AlarmDarkIcon from '@/public/static/images/alarm_dark.svg';
-import ArrowDropDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
-import CalendarLightIcon from '@/public/static/images/calendar_month.svg';
-import CalendarDarkIcon from '@/public/static/images/calendar_month_dark.svg';
+import { getOrganizationDisplayName } from '@/lib/utils/getOrganizationDisplayName';
 import CheckBoxIcon from '@/public/static/images/check_box.svg';
 import CheckBoxOutlineBlankIconLight from '@/public/static/images/check_box_outline_blank_light.svg';
 import DeleteIcon from '@/public/static/images/delete.svg';
 import EditIcon from '@/public/static/images/edit.svg';
 import EditIconLight from '@/public/static/images/edit_white.svg';
-import EmojiObjectsDarkIcon from '@/public/static/images/emoji_objects_events.svg';
-import EmojiObjectsLightIcon from '@/public/static/images/emoji_objects_white.svg';
-import LocationLightIcon from '@/public/static/images/location_on.svg';
-import LocationDarkIcon from '@/public/static/images/location_on_dark.svg';
 import MoreHorizIcon from '@/public/static/images/more_horiz.svg';
-import MoreHorizLightIcon from '@/public/static/images/more_horiz_light.svg';
+import MoreHorizIconLight from '@/public/static/images/more_horiz_light.svg';
+import { useCapacityStore, useDarkMode, useIsMobile, useLanguage, usePageContent } from '@/stores';
 import { Event } from '@/types/event';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import EventCardSkeleton from './EventCardSkeleton';
 
 interface EventCardProps {
   event: Partial<Event>;
@@ -63,510 +56,309 @@ export default function EventCard({
 
   const [showAllCapacities, setShowAllCapacities] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
-  const [visibleCapacities, setVisibleCapacities] = useState(3);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [showEventDetails, setShowEventDetails] = useState(false);
-
   const capacitiesContainerRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState(false);
 
-  // Update capacity cache language when component language changes
+  const visibleCapacities = 3;
+
   useEffect(() => {
-    if (language && token) {
-      updateLanguage(language, token);
-    }
+    if (language && token) updateLanguage(language, token);
   }, [language, token, updateLanguage]);
 
-  // Check if the event is in the organization's choose_events list
   useEffect(() => {
     if (organization && event.id) {
-      const isEventChosen =
-        Array.isArray(organization.choose_events) && organization.choose_events.includes(event.id);
-      setIsSelected(isEventChosen);
+      setIsSelected(
+        Array.isArray(organization.choose_events) && organization.choose_events.includes(event.id)
+      );
     }
   }, [organization, event.id]);
 
-  // Detect overflow of capacities
   useEffect(() => {
     const checkOverflow = () => {
       if (capacitiesContainerRef.current) {
-        const container = capacitiesContainerRef.current;
-        setOverflowing(
-          container.scrollHeight > container.clientHeight ||
-            container.scrollWidth > container.clientWidth
-        );
-
-        if (!showAllCapacities && event.related_skills && event.related_skills.length > 2) {
-          let optimal = event.related_skills.length;
-          for (let i = event.related_skills.length; i > 0; i--) {
-            setVisibleCapacities(i);
-            setTimeout(() => {
-              if (
-                container.scrollHeight <= container.clientHeight &&
-                container.scrollWidth <= container.clientWidth
-              ) {
-                optimal = i;
-              }
-            }, 0);
-          }
-          if (optimal < event.related_skills.length) {
-            setVisibleCapacities(Math.max(1, optimal - 1));
-          }
-        }
+        const c = capacitiesContainerRef.current;
+        setOverflowing(c.scrollHeight > c.clientHeight || c.scrollWidth > c.clientWidth);
       }
     };
-
     checkOverflow();
     window.addEventListener('resize', checkOverflow);
-
-    return () => {
-      window.removeEventListener('resize', checkOverflow);
-    };
+    return () => window.removeEventListener('resize', checkOverflow);
   }, [event.related_skills, showAllCapacities]);
 
-  // Function to format time in the desired format using locale
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      const locale = getLocaleFromLanguage(language);
+      return date.toLocaleDateString(locale, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC',
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   const formatTimeRange = (startDateStr: string, endDateStr: string) => {
     try {
-      // Create date objects from the strings
       const startDate = new Date(startDateStr);
       const endDate = new Date(endDateStr);
-
-      // Verify if the dates are valid
-      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        throw new Error('Invalid date');
-      }
-
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) throw new Error('Invalid date');
       const locale = getLocaleFromLanguage(language);
       const use12Hour = locale.startsWith('en-');
-
-      // Format time using locale
-      const formatTime = (date: Date) => {
-        return date.toLocaleTimeString(locale, {
+      const fmt = (d: Date) =>
+        d.toLocaleTimeString(locale, {
           hour: '2-digit',
           minute: '2-digit',
           hour12: use12Hour,
           timeZone: 'UTC',
         });
-      };
-
-      // Format start and end times
-      const startTime = formatTime(startDate);
-      const endTime = formatTime(endDate);
-
-      // Return the desired format
-      return `${startTime} - ${endTime} (UTC)`;
-    } catch (error) {
-      console.error('Error formatting dates:', error);
-      return `${startDateStr} - ${endDateStr}`;
+      return `${fmt(startDate)} – ${fmt(endDate)} (UTC)`;
+    } catch (err) {
+      console.error('Error formatting dates:', err);
+      return `${startDateStr} – ${endDateStr}`;
     }
   };
 
-  // Function to format date using locale
-  const formatMonthYear = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-
-      // Verify if the date is valid
-      if (isNaN(date.getTime())) {
-        throw new Error('Invalid date');
-      }
-
-      const locale = getLocaleFromLanguage(language);
-
-      // Format date using locale
-      return date.toLocaleDateString(locale, {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return dateString;
-    }
-  };
-
-  // Function to handle the event choice
-  const handleChoose = (event: Event) => {
-    if (!event.id) return;
-
-    // Update local state immediately for visual feedback
+  const handleChoose = (evt: Event) => {
+    if (!evt.id) return;
     setIsSelected(!isSelected);
-
-    // If the onChoose callback is available, use it to update the organization
-    if (onChoose) {
-      onChoose(event);
-    }
+    if (onChoose) onChoose(evt);
   };
 
-  const toggleCapacitiesView = () => {
-    setShowAllCapacities(!showAllCapacities);
-  };
-
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
-  };
-
+  const toggleCapacitiesView = () => setShowAllCapacities(v => !v);
+  const handleDeleteClick = () => setIsDeleteModalOpen(true);
   const handleConfirmDelete = () => {
-    if (onDelete && event.id) {
-      onDelete(event.id);
-    }
-  };
-
-  const handleDetailsEvent = (clicked: boolean) => {
-    setShowEventDetails(clicked);
+    if (onDelete && event.id) onDelete(event.id);
   };
 
   const handleContactClick = () => {
     if (organization?.email) {
       const subject = encodeURIComponent(`About event: ${event.name || ''}`);
-
-      // Try to detect if we're in a browser that handles mailto links
       const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-
       if (isChrome) {
-        // For Chrome, open Gmail directly
         window.open(
           `https://mail.google.com/mail/?view=cm&fs=1&to=${organization.email}&su=${subject}`,
           '_blank'
         );
       } else {
-        // For other browsers, try the mailto protocol
         window.location.href = `mailto:${organization.email}?subject=${subject}`;
       }
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="min-w-[280px] max-w-[320px] h-[300px] flex items-center justify-center">
-        <LoadingState />
-      </div>
-    );
+    return <EventCardSkeleton isHorizontalScroll={isHorizontalScroll} />;
   }
 
-  if (error || !event) {
-    return null;
-  }
+  if (error || !event) return null;
+
+  const loc = event.type_of_location;
+
+  const locationLabel =
+    loc === 'virtual'
+      ? pageContent['events-location-online'] || 'Online'
+      : loc === 'in_person'
+        ? pageContent['events-location-in-person'] || 'In-person'
+        : pageContent['events-location-hybrid'] || 'Hybrid';
+
+  const showAllSkills = showAllCapacities || (!isMobile && !isHorizontalScroll);
 
   return (
     <>
       <div
-        className={`flex flex-col ${
-          darkMode
-            ? 'bg-capx-dark-box-bg text-white border border-white'
-            : 'bg-capx-light-box-bg text-capx-dark-box-bg'
-        } rounded rounded-[4px] p-4 min-w-[300px] h-fit`}
+        className={`
+          flex flex-col rounded-[4px] p-4 relative
+          ${isHorizontalScroll ? 'min-w-[300px] max-w-[350px] flex-shrink-0' : 'w-full'}
+          ${darkMode ? 'bg-capx-dark-bg text-white' : 'bg-[#EFEFEF] text-capx-dark-box-bg'}
+        `}
       >
-        <div className="flex flex-col gap-4 pr-5 mx-4 my-4 w-full">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-row py-2">
-              <h2
-                className={`font-extrabold mb-2 ${
-                  isMobile ? 'text-md' : 'text-xl'
-                } ${isHorizontalScroll ? 'min-h-[60px]' : ''} font-Montserrat ${
-                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-                }`}
-              >
-                {event.name}
-              </h2>
-            </div>
-            {organization && !isHorizontalScroll && (
-              <p
-                className={`text-md mb-2 ${isMobile ? 'text-sm' : 'text-md'} ${
-                  darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-                }`}
-              >
-                <span className="font-Montserrat">
-                  {pageContent['organization-profile-event-organized-by'] || 'Organized by: '} {''}
-                </span>
-                <Link
-                  href={`/organization_profile/${organization.id}`}
-                  className={`${
-                    darkMode
-                      ? 'text-capx-dark-link hover:text-capx-light-bg'
-                      : 'text-blue-600 hover:text-blue-800 visited:text-blue-800'
-                  }`}
-                >
-                  {getOrganizationDisplayName(
-                    organization.display_name || '',
-                    organizationNames,
-                    language
-                  )}
-                </Link>
-              </p>
-            )}
+        {/* Admin controls */}
+        {onEdit && onDelete && onChoose && (
+          <div className="flex gap-2 mb-3 flex-wrap">
+            <BaseButton
+              label={pageContent['organization-profile-edit-event'] || 'Edit'}
+              onClick={() => onEdit(event as Event)}
+              customClass={`font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold flex flex-row items-center gap-1 !mb-0 transition-opacity hover:opacity-90 ${
+                darkMode
+                  ? 'bg-transparent border border-white/20 text-white'
+                  : 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
+              }`}
+              imageUrl={darkMode ? EditIconLight : EditIcon}
+              imageAlt={pageContent['alt-edit-event'] || 'Edit event'}
+              imageWidth={16}
+              imageHeight={16}
+            />
+            <BaseButton
+              label={
+                isSelected
+                  ? pageContent['organization-profile-hide-event'] || 'Hide'
+                  : pageContent['organization-profile-choose-event'] || 'Feature'
+              }
+              onClick={() => handleChoose(event as Event)}
+              customClass={`font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold flex flex-row items-center gap-1 !mb-0 transition-opacity hover:opacity-90 ${
+                isSelected
+                  ? 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
+                  : 'bg-capx-dark-box-bg text-white'
+              }`}
+              imageUrl={isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight}
+              imageAlt={
+                isSelected
+                  ? pageContent['alt-checked'] || 'Option is selected'
+                  : pageContent['alt-unchecked'] || 'Option is not selected'
+              }
+              imageWidth={16}
+              imageHeight={16}
+            />
+            <BaseButton
+              label={pageContent['organization-profile-delete-event'] || 'Delete'}
+              onClick={handleDeleteClick}
+              customClass="font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold bg-red-500 hover:bg-red-600 flex flex-row items-center gap-1 !mb-0 text-white transition-colors"
+              imageUrl={DeleteIcon}
+              imageAlt={pageContent['alt-delete-event'] || 'Delete event'}
+              imageWidth={16}
+              imageHeight={16}
+            />
+          </div>
+        )}
 
-            <div
-              className={`flex ${
-                !isHorizontalScroll && !isMobile ? 'flex-row gap-8' : 'flex-col gap-4'
+        {/* Card content */}
+        <div className="flex flex-col gap-4 flex-1">
+          {/* Title */}
+          <div className={`flex flex-col gap-1 ${isHorizontalScroll ? 'min-h-[80px]' : ''}`}>
+            <h2
+              className={`font-Montserrat font-extrabold ${
+                isMobile ? 'text-lg' : 'text-xl'
+              } ${darkMode ? 'text-white' : 'text-capx-dark-box-bg'} ${
+                isHorizontalScroll ? 'line-clamp-3' : ''
               }`}
             >
-              <div className={`flex gap-4 flex-col min-w-fit`}>
-                {event.time_begin && event.time_end && (
-                  <div className="flex flex-row gap-2">
-                    <Image
-                      src={darkMode ? AlarmLightIcon : AlarmDarkIcon}
-                      width={isMobile ? 16 : 24}
-                      height={isMobile ? 16 : 24}
-                      alt={pageContent['alt-alarm'] || 'Time icon, view time information'}
-                    />
-                    <p
-                      className={`font-extrabold ${
-                        darkMode ? 'text-white' : 'text-[#507380]'
-                      } ${isMobile ? 'text-sm' : 'text-md'}`}
-                    >
-                      {formatTimeRange(event.time_begin, event.time_end)}
-                    </p>
-                  </div>
-                )}
+              {event.name}
+            </h2>
 
-                {event.time_begin && (
-                  <div className="flex flex-row gap-2">
-                    <Image
-                      src={darkMode ? CalendarLightIcon : CalendarDarkIcon}
-                      width={isMobile ? 16 : 24}
-                      height={isMobile ? 16 : 24}
-                      alt={pageContent['alt-calendar'] || 'Calendar icon, view date information'}
-                    />
-                    <p
-                      className={`font-extrabold ${
-                        darkMode ? 'text-white' : 'text-[#507380]'
-                      } ${isMobile ? 'text-sm' : 'text-md'}`}
-                    >
-                      {formatMonthYear(event.time_begin)}
-                    </p>
-                  </div>
+            {organization && !isHorizontalScroll && (
+              <Link
+                href={`/organization_profile/${organization.id}`}
+                className={`font-Montserrat text-sm hover:underline underline-offset-2 ${
+                  darkMode ? 'text-white/60' : 'text-[#507380]'
+                }`}
+              >
+                {getOrganizationDisplayName(
+                  organization.display_name || '',
+                  organizationNames,
+                  language
                 )}
-                {event.type_of_location && (
-                  <div className="flex flex-row gap-2">
-                    <Image
-                      src={darkMode ? LocationLightIcon : LocationDarkIcon}
-                      width={isMobile ? 16 : 24}
-                      height={isMobile ? 16 : 24}
-                      alt={pageContent['alt-location'] || 'Location icon, view location details'}
-                    />
-                    <p
-                      className={`font-extrabold ${
-                        darkMode ? 'text-white' : 'text-[#507380]'
-                      } ${isMobile ? 'text-sm' : 'text-md'}`}
-                    >
-                      {event.type_of_location === 'virtual'
-                        ? 'Online event'
-                        : event.type_of_location === 'in_person'
-                          ? 'In-person event'
-                          : 'Hybrid event'}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-4 mb-2">
-                {event.related_skills && (
-                  <div className="flex flex-row gap-2">
-                    <Image
-                      src={darkMode ? EmojiObjectsLightIcon : EmojiObjectsDarkIcon}
-                      width={isMobile ? 16 : 24}
-                      height={isMobile ? 16 : 24}
-                      alt={
-                        pageContent['alt-capacity'] || 'Capacity icon, view skills and abilities'
-                      }
-                    />
-                    <p
-                      className={`font-extrabold ${
-                        darkMode ? 'text-white' : 'text-[#507380]'
-                      } ${isMobile ? 'text-sm' : 'text-md'}`}
-                    >
-                      {pageContent['events-available-capacities'] || 'Available capacities'}
-                    </p>
-                  </div>
-                )}
-                <div className="flex flex-row gap-2 justify-between min-h-[30px]">
-                  <div
-                    ref={capacitiesContainerRef}
-                    className={`flex flex-row flex-wrap gap-2 overflow-hidden ${
-                      showAllCapacities ? '' : 'max-h-[40px]'
-                    }`}
-                  >
-                    {(isMobile || isHorizontalScroll) &&
-                      event.related_skills &&
-                      event.related_skills
-                        .slice(
-                          0,
-                          showAllCapacities ? event.related_skills.length : visibleCapacities
-                        )
-                        .map(skill => (
-                          <p
-                            key={skill}
-                            className={`text-sm px-2 py-1 rounded-[4px] ${
-                              darkMode
-                                ? 'bg-capx-dark-bg text-white'
-                                : 'bg-capx-dark-box-bg text-white'
-                            } rounded-[8px] w-fit ${isMobile ? 'text-xs' : 'text-sm'}`}
-                          >
-                            {getCapacityName(skill)}
-                          </p>
-                        ))}
-
-                    {!isMobile &&
-                      !isHorizontalScroll &&
-                      event.related_skills &&
-                      event.related_skills.map(skill => (
-                        <p
-                          key={skill}
-                          className={`text-sm px-2 py-1 rounded-[4px] ${
-                            darkMode
-                              ? 'bg-capx-dark-bg text-white'
-                              : 'bg-capx-dark-box-bg text-white'
-                          } rounded-[8px] w-fit ${isMobile ? 'text-xs' : 'text-sm'}`}
-                        >
-                          {getCapacityName(skill)}
-                        </p>
-                      ))}
-                  </div>
-                  {(isMobile || isHorizontalScroll) &&
-                    event.related_skills &&
-                    (event.related_skills.length > visibleCapacities || overflowing) && (
-                      <button
-                        onClick={toggleCapacitiesView}
-                        className="flex items-center w-fit mr-8"
-                      >
-                        <Image
-                          src={darkMode ? MoreHorizLightIcon : MoreHorizIcon}
-                          alt={
-                            showAllCapacities
-                              ? pageContent['alt-collapse-capacities'] || 'Show fewer capacities'
-                              : pageContent['alt-expand-capacities'] || 'Show more capacities'
-                          }
-                          className="cursor-pointer"
-                        />
-                      </button>
-                    )}
-                </div>
-
-                <div className={`flex flex-col gap-2 ${showEventDetails ? 'min-h-[100px]' : ''}`}>
-                  <button
-                    className="flex flex-row gap-2 justify-between mr-4"
-                    onClick={() => handleDetailsEvent(!showEventDetails)}
-                  >
-                    <p
-                      className={`font-extrabold ${
-                        darkMode ? 'text-white' : 'text-[#507380]'
-                      } ${isMobile ? 'text-sm' : 'text-md'}`}
-                    >
-                      {pageContent['events-details-of-event'] || 'Details of event'}
-                    </p>
-                    <Image
-                      src={ArrowDropDownIcon}
-                      alt={pageContent['alt-expand'] || 'Expand to show more details'}
-                      style={{
-                        transform: showEventDetails ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease',
-                      }}
-                    />
-                  </button>
-                  {showEventDetails && event.description && (
-                    <div
-                      className={`flex flex-col gap-4 mt-2 ${
-                        darkMode ? 'bg-capx-dark-bg bg-opacity-10' : 'bg-white bg-opacity-10'
-                      } rounded`}
-                    >
-                      <p
-                        className={`text-sm ${
-                          darkMode ? 'text-white' : 'text-[#507380]'
-                        } ${isMobile ? 'text-xs' : 'text-sm'}`}
-                      >
-                        {event.description}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+              </Link>
+            )}
           </div>
-          {onEdit && onDelete && onChoose && (
-            <div className="flex flex-col gap-2 mt-auto mr-2">
-              <BaseButton
-                label={pageContent['organization-profile-edit-event'] || 'Edit'}
-                onClick={() => onEdit(event as Event)}
-                customClass={`py-2 px-3 rounded-md text-md font-extrabold border ${
-                  darkMode
-                    ? 'border-white text-white hover:bg-capx-dark-bg'
-                    : 'border-capx-dark-box-bg text-capx-dark-box-bg hover:opacity-90'
-                } text-start bg-transparent flex flex-row items-center !mb-0 transition-opacity !pb-2 ${
-                  isMobile ? 'text-xs' : 'text-md'
-                }`}
-                imageUrl={darkMode ? EditIconLight : EditIcon}
-                imageAlt={pageContent['alt-edit-event'] || 'Edit event'}
-                imageWidth={isMobile ? 16 : 24}
-                imageHeight={isMobile ? 16 : 24}
-              />
 
-              <BaseButton
-                label={
-                  isSelected
-                    ? pageContent['organization-profile-hide-event'] || 'Hide event'
-                    : pageContent['organization-profile-choose-event'] || 'Choose event'
-                }
-                onClick={() => handleChoose(event as Event)}
-                customClass={`${
-                  isSelected
-                    ? darkMode
-                      ? 'bg-transparent border border-white text-white hover:bg-capx-dark-bg'
-                      : 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
-                    : darkMode
-                      ? 'bg-capx-dark-bg text-white hover:bg-capx-dark-box-bg'
-                      : 'bg-capx-dark-box-bg text-white'
-                } py-2 px-3 rounded-md text-md font-extrabold text-start flex flex-row items-center transition-opacity !pb-2 !mb-0 ${
-                  isMobile ? 'text-xs' : 'text-md'
+          {/* Date and location info */}
+          <div className="flex flex-wrap items-center gap-2">
+            {event.time_begin && (
+              <span
+                className={`font-Montserrat text-sm font-medium ${
+                  darkMode ? 'text-white/70' : 'text-capx-dark-box-bg/70'
                 }`}
-                imageUrl={isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight}
-                imageAlt={
-                  isSelected
-                    ? pageContent['alt-checked'] || 'Option is selected'
-                    : pageContent['alt-unchecked'] || 'Option is not selected'
-                }
-                imageWidth={isMobile ? 16 : 24}
-                imageHeight={isMobile ? 16 : 24}
-              />
+              >
+                {formatDate(event.time_begin)}
+                {event.time_end && ` – ${formatDate(event.time_end)}`}
+              </span>
+            )}
+            {loc && (
+              <span className="font-Montserrat text-xs font-extrabold px-2 py-1 rounded-[8px] bg-capx-dark-box-bg text-white">
+                {locationLabel}
+              </span>
+            )}
+          </div>
 
-              <BaseButton
-                label={pageContent['organization-profile-delete-event'] || 'Delete'}
-                onClick={handleDeleteClick}
-                customClass={`py-2 px-3 rounded-md text-md bg-capx-primary-orange flex flex-row items-center !mb-0 text-start text-white font-extrabold hover:opacity-90 transition-opacity !pb-2 ${
-                  isMobile ? 'text-xs' : 'text-md'
+          {/* Time range */}
+          {event.time_begin && event.time_end && !isHorizontalScroll && (
+            <p
+              className={`font-Montserrat text-sm ${darkMode ? 'text-white/50' : 'text-[#507380]'}`}
+            >
+              {formatTimeRange(event.time_begin, event.time_end)}
+            </p>
+          )}
+
+          {/* Capacities */}
+          {event.related_skills && event.related_skills.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p
+                className={`font-Montserrat text-md font-extrabold ${
+                  darkMode ? 'text-white' : 'text-[#507380]'
                 }`}
-                imageUrl={DeleteIcon}
-                imageAlt={pageContent['alt-delete-event'] || 'Delete event'}
-                imageWidth={isMobile ? 16 : 24}
-                imageHeight={isMobile ? 16 : 24}
-              />
+              >
+                {pageContent['events-available-capacities'] || 'Available capacities'}
+              </p>
+              <div className="flex flex-row gap-2 items-start">
+                <div
+                  ref={capacitiesContainerRef}
+                  className={`flex flex-row flex-wrap gap-2 overflow-hidden flex-1 ${
+                    showAllSkills ? '' : 'max-h-[30px]'
+                  }`}
+                >
+                  {event.related_skills
+                    .slice(0, showAllSkills ? event.related_skills.length : visibleCapacities)
+                    .map(skill => (
+                      <span
+                        key={skill}
+                        className="font-Montserrat text-sm px-2 py-1 rounded-[8px] text-white bg-capx-dark-box-bg w-fit whitespace-nowrap"
+                      >
+                        {getCapacityName(skill)}
+                      </span>
+                    ))}
+                </div>
+                {(isMobile || isHorizontalScroll) &&
+                  event.related_skills &&
+                  (event.related_skills.length > visibleCapacities || overflowing) && (
+                    <button
+                      onClick={toggleCapacitiesView}
+                      className="flex items-center shrink-0 pt-0.5"
+                    >
+                      <Image
+                        src={darkMode ? MoreHorizIconLight : MoreHorizIcon}
+                        alt={showAllCapacities ? 'Show less' : 'Show more'}
+                        className="cursor-pointer"
+                        width={24}
+                        height={24}
+                      />
+                    </button>
+                  )}
+              </div>
             </div>
           )}
 
+          {/* Description */}
+          {!isHorizontalScroll && event.description && (
+            <p
+              className={`font-Montserrat text-sm leading-relaxed ${
+                darkMode ? 'text-white/60' : 'text-[#507380]'
+              }`}
+            >
+              {event.description}
+            </p>
+          )}
+
+          {/* Action buttons */}
           {!isHorizontalScroll && (
-            <div className="flex flex-row gap-2 my-4">
-              <BaseButton
-                onClick={handleContactClick}
-                customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg text-white font-extrabold rounded-lg ${
-                  organization?.email
-                    ? darkMode
-                      ? 'bg-capx-dark-bg hover:bg-white hover:text-capx-dark-bg'
-                      : 'bg-capx-dark-box-bg'
-                    : 'bg-gray-400 cursor-not-allowed'
-                } text-center not-italic leading-[normal] ${isMobile ? 'text-[14px]' : 'text-lg'}`}
-                label={organization?.email ? 'Contact' : 'No contact email available'}
-                disabled={!organization?.email}
-              />
+            <div className="flex flex-row gap-2 mt-auto">
+              {organization?.email && (
+                <BaseButton
+                  label={pageContent['events-contact'] || 'Contact'}
+                  onClick={handleContactClick}
+                  customClass={`flex justify-center items-center gap-2 px-4 py-3 rounded-[8px] font-Montserrat font-extrabold text-md transition-opacity hover:opacity-90 flex-1 ${
+                    darkMode
+                      ? 'bg-transparent border border-white text-white'
+                      : 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
+                  }`}
+                />
+              )}
               <BaseButton
                 onClick={() => event.url && window.open(event.url as string, '_blank')}
-                customClass={`flex justify-center items-center gap-2 px-8 py-4 rounded-lg ${
-                  darkMode
-                    ? 'bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-capx-dark-bg'
-                    : 'bg-capx-secondary-purple hover:bg-capx-primary-green text-[#F6F6F6] hover:text-capx-dark-bg'
-                } font-extrabold text-3.5 sm:text-3.5 rounded-lg text-center not-italic leading-[normal] ${
-                  isMobile ? 'text-[14px]' : 'text-lg'
-                }`}
+                customClass="flex justify-center items-center gap-2 px-4 py-3 rounded-[8px] bg-capx-secondary-purple hover:bg-capx-primary-green text-white hover:text-capx-dark-bg font-Montserrat font-extrabold text-md transition-colors flex-1"
                 label={pageContent['organization-profile-view-event'] || 'View Event'}
               />
             </div>

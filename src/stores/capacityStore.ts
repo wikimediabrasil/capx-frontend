@@ -3,7 +3,26 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { QueryClient } from '@tanstack/react-query';
-import { getCapacityColor, getCapacityIcon } from '@/lib/utils/capacitiesUtils';
+import {
+  applyWikidataNameFallback,
+  getCapacityColor,
+  getCapacityIcon,
+  isInvalidCapacityLabel,
+  sanitizeCapacityName,
+} from '@/lib/utils/capacitiesUtils';
+
+const resolveCapacityDisplayName = (
+  translationName: string | undefined,
+  currentName: string | undefined,
+  code: number
+): string => {
+  for (const candidate of [translationName, currentName]) {
+    if (candidate && !isInvalidCapacityLabel(candidate)) {
+      return candidate;
+    }
+  }
+  return sanitizeCapacityName(currentName ?? translationName, code);
+};
 import { capacityService } from '@/services/capacityService';
 import { CapacityStore, CapacityData, UnifiedCache } from './types';
 
@@ -61,10 +80,13 @@ export const useCapacityStore = create<CapacityStore>()(
         // Getter methods
         getName: (code: number): string => {
           const capacity = get().capacities[code];
-          if (capacity?.name) {
-            return capacity.name.charAt(0).toUpperCase() + capacity.name.slice(1).toLowerCase();
+          if (!capacity?.name) {
+            return `Capacity ${code}`;
           }
-          return `Capacity ${code}`;
+          if (isInvalidCapacityLabel(capacity.name)) {
+            return sanitizeCapacityName(capacity.name, code);
+          }
+          return capacity.name.charAt(0).toUpperCase() + capacity.name.slice(1).toLowerCase();
         },
 
         getDescription: (code: number): string => {
@@ -119,8 +141,15 @@ export const useCapacityStore = create<CapacityStore>()(
 
           const state = get();
 
-          // Check if already loaded for this language
-          if (state.language === newLanguage && Object.keys(state.capacities).length > 0) {
+          // Check if already loaded for this language (re-fetch if cache has URI/QID labels)
+          const hasInvalidCachedNames = Object.values(state.capacities).some(cap =>
+            isInvalidCapacityLabel(cap.name)
+          );
+          if (
+            state.language === newLanguage &&
+            Object.keys(state.capacities).length > 0 &&
+            !hasInvalidCachedNames
+          ) {
             if (!state.isLoaded) {
               set({ isLoaded: true });
             }
@@ -141,9 +170,13 @@ export const useCapacityStore = create<CapacityStore>()(
                 const cached = localStorage.getItem('capx-unified-cache');
                 if (cached) {
                   const parsed = JSON.parse(cached);
+                  const parsedHasInvalidNames = Object.values(parsed.capacities || {}).some(
+                    (cap: { name?: string }) => isInvalidCapacityLabel(cap.name)
+                  );
                   if (
                     parsed.language === newLanguage &&
-                    Object.keys(parsed.capacities).length > 0
+                    Object.keys(parsed.capacities).length > 0 &&
+                    !parsedHasInvalidNames
                   ) {
                     set({
                       capacities: parsed.capacities,
@@ -186,7 +219,7 @@ export const useCapacityStore = create<CapacityStore>()(
 
               newCache.capacities[capacity.code] = {
                 code: capacity.code,
-                name: capacity.name,
+                name: sanitizeCapacityName(capacity.name, capacity.code),
                 description: capacity.description || '',
                 wd_code: capacity.wd_code || '',
                 metabase_code: capacity.metabase_code || '',
@@ -222,10 +255,10 @@ export const useCapacityStore = create<CapacityStore>()(
                     const childCodeNum = parseInt(childCode, 10);
                     const hierarchyInfo = getHierarchyInfo(Number(rootCapacity.code));
 
-                    const childName =
-                      typeof childData === 'string'
-                        ? childData
-                        : (childData as any)?.name || `Capacity ${childCode}`;
+                    const childName = sanitizeCapacityName(
+                      typeof childData === 'string' ? childData : (childData as any)?.name || '',
+                      childCodeNum
+                    );
 
                     newCache.capacities[childCodeNum] = {
                       code: childCodeNum,
@@ -270,10 +303,12 @@ export const useCapacityStore = create<CapacityStore>()(
 
                           for (const [grandchildCode, grandchildData] of grandchildrenEntries) {
                             const grandchildCodeNum = parseInt(grandchildCode, 10);
-                            const grandchildName =
+                            const grandchildName = sanitizeCapacityName(
                               typeof grandchildData === 'string'
                                 ? grandchildData
-                                : (grandchildData as any)?.name || `Capacity ${grandchildCode}`;
+                                : (grandchildData as any)?.name || '',
+                              grandchildCodeNum
+                            );
 
                             newCache.capacities[grandchildCodeNum] = {
                               code: grandchildCodeNum,
@@ -333,20 +368,40 @@ export const useCapacityStore = create<CapacityStore>()(
                 );
                 if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
                   const currentCapacity = newCache.capacities[matchingCapacity.code];
+                  const mergedName = resolveCapacityDisplayName(
+                    translation.name,
+                    currentCapacity.name,
+                    matchingCapacity.code
+                  );
                   newCache.capacities[matchingCapacity.code] = {
                     ...currentCapacity,
-                    name:
-                      currentCapacity.level === 1
-                        ? translation.name || currentCapacity.name
-                        : translation.name && translation.name !== currentCapacity.name
-                          ? translation.name
-                          : currentCapacity.name,
+                    name: mergedName,
                     isFallbackLabel: translation.isFallbackLabel || false,
                     isFallbackDescription: translation.isFallbackDescription || false,
                     isFallbackTranslation: translation.isFallbackTranslation || false,
                     description: translation.description || currentCapacity.description,
                     metabase_code: translation.metabase_code || currentCapacity.metabase_code,
                   };
+                }
+              });
+            }
+
+            // Final pass: resolve any remaining URI/QID labels via Wikidata
+            const stillInvalid = Object.values(newCache.capacities).filter(
+              cap => isInvalidCapacityLabel(cap.name) && cap.wd_code?.trim()
+            );
+            if (stillInvalid.length > 0) {
+              const resolved = await applyWikidataNameFallback(
+                stillInvalid.map(cap => ({
+                  code: cap.code,
+                  wd_code: cap.wd_code!,
+                  name: cap.name,
+                })),
+                newLanguage
+              );
+              resolved.forEach(item => {
+                if (newCache.capacities[item.code as number]) {
+                  newCache.capacities[item.code as number].name = item.name;
                 }
               });
             }

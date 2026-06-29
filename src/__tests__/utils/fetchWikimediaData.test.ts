@@ -5,6 +5,13 @@ const assertFallback = (res: any) => {
   return expect(typeof res?.src).toBe('string');
 };
 
+const testThumbPhpGeneration = (fileType: string, url: string, expectedFilename: string) => {
+  const out = formatWikiImageUrl(url);
+  expect(out).toContain('commons.wikimedia.org/w/thumb.php');
+  expect(out).toContain(`f=${expectedFilename}`);
+  expect(out).toContain('page=1');
+};
+
 describe('formatWikiImageUrl', () => {
   it('returns fallback icon for empty input', () => {
     const res1 = formatWikiImageUrl('');
@@ -24,13 +31,6 @@ describe('formatWikiImageUrl', () => {
     expect(out).toContain('commons.wikimedia.org/wiki/Special:FilePath/Example.jpg');
     expect(out).toContain('width=');
   });
-
-  const testThumbPhpGeneration = (fileType: string, url: string, expectedFilename: string) => {
-    const out = formatWikiImageUrl(url);
-    expect(out).toContain('commons.wikimedia.org/w/thumb.php');
-    expect(out).toContain(`f=${expectedFilename}`);
-    expect(out).toContain('page=1');
-  };
 
   it('builds thumb.php for PDF with page=1', () => {
     testThumbPhpGeneration(

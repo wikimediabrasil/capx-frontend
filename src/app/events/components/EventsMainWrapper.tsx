@@ -1,17 +1,14 @@
 'use client';
 
 import Banner from '@/components/Banner';
-import CapacitySelectionModal from '@/components/CapacitySelectionModal';
-import LoadingState from '@/components/LoadingState';
 import { PaginationButtons } from '@/components/PaginationButtons';
+import { EventCardSkeleton } from '@/components/skeletons';
 import { useEvents } from '@/hooks/useEvents';
-import { addUniqueCapacities } from '@/lib/utils/capacitiesUtils';
 import CapxPersonEvent from '@/public/static/images/capx_person_events.svg';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import FilterIcon from '@/public/static/images/filter_icon.svg';
 import FilterIconWhite from '@/public/static/images/filter_icon_white.svg';
-import { Capacity } from '@/types/capacity';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -32,7 +29,7 @@ export default function EventsMainWrapper() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Number of events per page
+  const itemsPerPage = 6;
 
   // Search mode state
   const [isSearchMode, setIsSearchMode] = useState(false);
@@ -49,17 +46,9 @@ export default function EventsMainWrapper() {
     dateRange: undefined,
     organizationId: organizationId ? Number(organizationId) : undefined,
   });
-  const [showSkillModal, setShowSkillModal] = useState(false);
 
-  // Log when activeFilters change
-  useEffect(() => {
-    // No need to log active filters
-  }, [activeFilters]);
-
-  // Calculate offset based on current page
   const offset = (currentPage - 1) * itemsPerPage;
 
-  // Search events from API with pagination - only used when NOT in search mode
   const {
     events,
     count: eventsCount,
@@ -67,40 +56,29 @@ export default function EventsMainWrapper() {
     error: eventsError,
   } = useEvents(
     session?.user?.token || '',
-    itemsPerPage, // Limit the quantity per page
-    offset, // Use offset for pagination with the server
+    itemsPerPage,
+    offset,
     organizationId ? Number(organizationId) : undefined,
-    activeFilters // Passar os filtros para a API
+    activeFilters
   );
 
-  // Calculate events to display and total pages
   const displayedEvents = isSearchMode
     ? searchResults.slice(offset, offset + itemsPerPage)
     : events || [];
 
   const totalItems = isSearchMode ? searchResults.length : eventsCount || 0;
-
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
-  // Reset to the first page when changing mode or filters
   useEffect(() => {
     setCurrentPage(1);
   }, [isSearchMode, organizationId, activeFilters]);
 
-  // Initialize organizationId in filters when URL param changes
   useEffect(() => {
     setActiveFilters(prev => ({
       ...prev,
       organizationId: organizationId ? Number(organizationId) : undefined,
     }));
   }, [organizationId]);
-
-  const handleCapacitySelect = (capacities: Capacity[]) => {
-    setActiveFilters(prev => ({
-      ...prev,
-      capacities: addUniqueCapacities(prev.capacities, capacities),
-    }));
-  };
 
   const handleRemoveCapacity = (capacityCode: number) => {
     setActiveFilters(prev => ({
@@ -109,14 +87,11 @@ export default function EventsMainWrapper() {
     }));
 
     const urlCapacityId = searchParams?.get('capacityId');
-
-    // If the capacity removed is the same as the URL, update the URL
     if (urlCapacityId && urlCapacityId.toString() === capacityCode.toString()) {
       router.replace('/events', { scroll: false });
     }
   };
 
-  // Functions to control the search
   const handleSearchStart = useCallback(() => {
     setIsSearching(true);
   }, []);
@@ -127,14 +102,13 @@ export default function EventsMainWrapper() {
 
   const handleSearchResults = useCallback(results => {
     setSearchResults(results || []);
-    setCurrentPage(1); // Return to the first page when receiving search results
+    setCurrentPage(1);
   }, []);
 
   const handleSearchStatusChange = useCallback(isActive => {
     setIsSearchMode(isActive);
-
     if (!isActive) {
-      setSearchResults([]); // Clear search results when leaving search mode
+      setSearchResults([]);
     }
   }, []);
 
@@ -142,7 +116,7 @@ export default function EventsMainWrapper() {
     newPage => {
       if (newPage >= 1 && newPage <= totalPages) {
         setCurrentPage(newPage);
-        window.scrollTo(0, 0); // Scroll to the top
+        window.scrollTo(0, 0);
       }
     },
     [totalPages]
@@ -153,7 +127,28 @@ export default function EventsMainWrapper() {
     setShowFilters(false);
   };
 
-  // Render the component
+  const hasActiveFilters =
+    activeFilters.capacities.length > 0 ||
+    activeFilters.locationType !== EventLocationType.All ||
+    activeFilters.dateRange?.startDate ||
+    activeFilters.dateRange?.endDate;
+
+  const activeFilterCount =
+    activeFilters.capacities.length +
+    (activeFilters.locationType !== EventLocationType.All ? 1 : 0) +
+    (activeFilters.dateRange?.startDate ? 1 : 0) +
+    (activeFilters.dateRange?.endDate ? 1 : 0);
+
+  const isInitialLoading = isEventsLoading && !isSearchMode && displayedEvents.length === 0;
+
+  if (isInitialLoading) {
+    return (
+      <section className="w-full flex flex-col min-h-screen pt-24 md:pt-8 gap-4 mx-auto md:max-w-[1200px]">
+        <EventCardSkeleton />
+      </section>
+    );
+  }
+
   return (
     <section className="w-full flex flex-col min-h-screen pt-24 md:pt-8 gap-4 mx-auto md:max-w-[1200px]">
       <Banner
@@ -161,10 +156,11 @@ export default function EventsMainWrapper() {
         title={pageContent['events-banner-title']}
         alt={pageContent['events-banner-alt']}
       />
-      <div className="flex flex-col min-h-screen">
-        <div className="w-full max-w-screen-xl mx-auto p-4">
-          {/* Search and Filters Container */}
-          <div className="flex gap-2 mb-6">
+
+      <div className="flex flex-col flex-1">
+        <div className="w-full max-w-screen-xl mx-auto px-4">
+          {/* Search + Filter bar */}
+          <div className="flex gap-2 items-stretch mb-4">
             <div className="flex-1">
               <EventsSearch
                 onSearchStart={handleSearchStart}
@@ -175,15 +171,15 @@ export default function EventsMainWrapper() {
               />
             </div>
 
-            {/* Filters Button */}
             <button
               onClick={() => setShowFilters(true)}
               className={`
-                w-16 h-16 flex-shrink-0 rounded-lg flex items-center justify-center
+                relative w-14 h-14 flex-shrink-0 rounded-xl flex items-center justify-center
+                transition-colors duration-150
                 ${
                   darkMode
-                    ? 'bg-capx-dark-box-bg text-white hover:bg-gray-700'
-                    : 'bg-white border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-capx-dark-box-bg border border-white/10 hover:border-white/20'
+                    : 'bg-white border border-capx-dark-box-bg/10 hover:border-capx-dark-box-bg/20'
                 }
               `}
               aria-label="Open filters"
@@ -191,125 +187,124 @@ export default function EventsMainWrapper() {
               <Image
                 src={darkMode ? FilterIconWhite : FilterIcon}
                 alt={pageContent['filters-icon'] || 'Filters'}
-                width={24}
-                height={24}
+                width={20}
+                height={20}
               />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-capx-secondary-purple text-white text-[10px] font-bold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
           </div>
 
-          {/* Filter chips */}
-          {activeFilters.capacities.length > 0 && (
+          {/* Active filter chips */}
+          {(hasActiveFilters || isSearchMode) && (
             <div className="flex flex-wrap gap-2 mb-4 items-center">
+              {/* Location type chip */}
+              {activeFilters.locationType !== EventLocationType.All && (
+                <span
+                  className={`
+                    inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+                    bg-capx-secondary-purple/10 text-capx-secondary-purple
+                  `}
+                >
+                  {activeFilters.locationType === EventLocationType.Online
+                    ? pageContent['filters-location-online'] || 'Online'
+                    : activeFilters.locationType === EventLocationType.InPerson
+                      ? pageContent['filters-location-in-person'] || 'In-person'
+                      : pageContent['filters-location-hybrid'] || 'Hybrid'}
+                </span>
+              )}
+
+              {/* Capacity chips */}
               {activeFilters.capacities.map((capacity, index) => (
                 <span
                   key={capacity.code + index}
                   className={`
-                    inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm max-w-[200px]
-                    ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}
+                    inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium max-w-[200px]
+                    ${
+                      darkMode
+                        ? 'bg-white/10 text-white/80'
+                        : 'bg-capx-dark-box-bg/5 text-capx-dark-box-bg'
+                    }
                   `}
                 >
                   <span className="truncate">{capacity.name}</span>
                   <button
                     onClick={() => handleRemoveCapacity(capacity.code)}
-                    className="hover:opacity-80 flex-shrink-0"
+                    className="hover:opacity-60 flex-shrink-0 transition-opacity"
                   >
                     <Image
                       src={darkMode ? CloseIconWhite : CloseIcon}
                       alt={pageContent['filters-remove-item-alt-icon'] || 'Remove'}
-                      width={16}
-                      height={16}
+                      width={14}
+                      height={14}
                     />
                   </button>
                 </span>
               ))}
+
+              {/* Search results count */}
+              {isSearchMode && (
+                <span
+                  className={`text-xs font-medium ${
+                    darkMode ? 'text-white/50' : 'text-capx-dark-box-bg/50'
+                  }`}
+                >
+                  {searchResults.length}{' '}
+                  {searchResults.length === 1
+                    ? pageContent['events-search-results-singular'] || 'event found'
+                    : pageContent['events-search-results-plural'] || 'events found'}
+                </span>
+              )}
             </div>
           )}
 
-          <CapacitySelectionModal
-            isOpen={showSkillModal}
-            onClose={() => setShowSkillModal(false)}
-            onSelect={handleCapacitySelect}
-            title={pageContent['select-capacity'] || 'Selecionar capacidade'}
-          />
-
-          {/* Applied filters summary */}
-          {(activeFilters.locationType !== EventLocationType.All ||
-            activeFilters.dateRange?.startDate ||
-            activeFilters.dateRange?.endDate ||
-            activeFilters.organizationId) && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-md">
-              <p className="text-blue-800 font-medium">
-                {pageContent['events-filters-applied'] || 'Filters applied:'}
-                {activeFilters.locationType !== EventLocationType.All && (
-                  <span className="ml-2 inline-block">
-                    {activeFilters.locationType === EventLocationType.Online
-                      ? pageContent['filters-location-online'] || 'Online'
-                      : activeFilters.locationType === EventLocationType.InPerson
-                        ? pageContent['filters-location-in-person'] || 'In-person'
-                        : pageContent['filters-location-hybrid'] || 'Hybrid'}
-                  </span>
-                )}
-                {activeFilters.dateRange?.startDate && (
-                  <span className="ml-2 inline-block">
-                    {pageContent['filters-from-date'] || 'From:'}{' '}
-                    {activeFilters.dateRange.startDate}
-                  </span>
-                )}
-                {activeFilters.dateRange?.endDate && (
-                  <span className="ml-2 inline-block">
-                    {pageContent['filters-to-date'] || 'To:'} {activeFilters.dateRange.endDate}
-                  </span>
-                )}
-              </p>
-            </div>
-          )}
-
-          {isSearchMode && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-md">
-              <p>
-                {pageContent['events-search-results'] || 'Showing search results:'}{' '}
-                {searchResults.length}{' '}
-                {searchResults.length === 1
-                  ? pageContent['events-search-results-singular'] || 'event found'
-                  : pageContent['events-search-results-plural'] || 'events found'}
-              </p>
-            </div>
-          )}
-
-          {(isEventsLoading && !isSearchMode) || isSearching ? (
-            <div className="flex justify-center items-center py-10">
-              <LoadingState />
+          {/* Content area */}
+          {isSearching ? (
+            <div className="flex flex-col gap-4">
+              <EventCardSkeleton />
             </div>
           ) : eventsError && !isSearchMode ? (
-            <div className="text-center py-8">
-              <div className="text-red-500 mb-2">
+            <div
+              className={`flex flex-col items-center justify-center py-16 rounded-2xl ${
+                darkMode ? 'bg-white/[0.02]' : 'bg-capx-dark-box-bg/[0.02]'
+              }`}
+            >
+              <p
+                className={`text-sm font-medium mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}
+              >
                 {pageContent['events-search-results-error'] || 'Error loading events'}
-              </div>
-              <div className="text-gray-600">{eventsError.message || 'Try again later'}</div>
+              </p>
+              <p
+                className={`text-xs mb-4 ${
+                  darkMode ? 'text-white/40' : 'text-capx-dark-box-bg/40'
+                }`}
+              >
+                {eventsError.message || 'Try again later'}
+              </p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-5 py-2 bg-capx-secondary-purple text-white text-sm font-bold rounded-lg hover:bg-capx-primary-green hover:text-black transition-colors duration-150"
               >
                 {pageContent['events-main-wrapper-try-again'] || 'Try again'}
               </button>
             </div>
           ) : displayedEvents.length === 0 ? (
-            <div className="text-center py-8">
-              {isSearchMode
-                ? pageContent['events-search-results-no-results'] || 'No events found'
-                : Object.keys(activeFilters).some(
-                      key =>
-                        (key === 'capacities' && activeFilters.capacities.length > 0) ||
-                        (key === 'locationType' &&
-                          activeFilters.locationType !== EventLocationType.All) ||
-                        (key === 'dateRange' &&
-                          (activeFilters.dateRange?.startDate ||
-                            activeFilters.dateRange?.endDate)) ||
-                        (key === 'organizationId' && activeFilters.organizationId)
-                    )
-                  ? pageContent['events-no-results-with-filters'] ||
-                    'No events correspond to the selected filters. Try removing some filters.'
-                  : pageContent['events-no-results'] || 'No events available'}
+            <div
+              className={`flex flex-col items-center justify-center py-16 rounded-2xl ${
+                darkMode ? 'bg-white/[0.02]' : 'bg-capx-dark-box-bg/[0.02]'
+              }`}
+            >
+              <p className={`text-sm ${darkMode ? 'text-white/40' : 'text-capx-dark-box-bg/40'}`}>
+                {isSearchMode
+                  ? pageContent['events-search-results-no-results'] || 'No events found'
+                  : hasActiveFilters
+                    ? pageContent['events-no-results-with-filters'] ||
+                      'No events correspond to the selected filters. Try removing some filters.'
+                    : pageContent['events-no-results'] || 'No events available'}
+              </p>
             </div>
           ) : (
             <>

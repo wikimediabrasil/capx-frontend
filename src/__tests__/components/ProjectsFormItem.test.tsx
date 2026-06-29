@@ -63,6 +63,10 @@ jest.mock('next/image', () => ({
   ),
 }));
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('ProjectFormItem', () => {
   const mockPageContent = {
     'organization-profile-project-name': 'Project Name',
@@ -97,10 +101,6 @@ describe('ProjectFormItem', () => {
     (stores.useLanguage as jest.Mock).mockReturnValue('en');
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   it('renders project form item with all inputs', () => {
     renderWithProviders(<ProjectFormItem {...mockProps} />);
@@ -257,9 +257,9 @@ describe('ProjectFormItem', () => {
     renderWithProviders(<ProjectFormItem {...mockProps} project={emptyProject} />);
 
     const inputs = screen.getAllByRole('textbox');
-    inputs.forEach(input => {
+    for (const input of inputs) {
       expect(input).toHaveValue('');
-    });
+    }
   });
 
   it('handles null project fields', () => {
@@ -273,9 +273,9 @@ describe('ProjectFormItem', () => {
     renderWithProviders(<ProjectFormItem {...mockProps} project={nullProject} />);
 
     const inputs = screen.getAllByRole('textbox');
-    inputs.forEach(input => {
+    for (const input of inputs) {
       expect(input).toHaveValue('');
-    });
+    }
   });
 
   it('uses dark mode delete icon when dark mode is enabled', () => {

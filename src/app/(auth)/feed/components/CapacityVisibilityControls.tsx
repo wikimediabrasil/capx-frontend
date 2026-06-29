@@ -8,23 +8,29 @@ import EmojiIcon from '@/public/static/images/emoji_objects.svg';
 import EmojiIconWhite from '@/public/static/images/emoji_objects_white.svg';
 import NeurologyIcon from '@/public/static/images/neurology.svg';
 import NeurologyIconWhite from '@/public/static/images/neurology_white.svg';
+import AccountCircleIcon from '@/public/static/images/account_circle.svg';
+import AccountCircleIconWhite from '@/public/static/images/account_circle_white.svg';
 
 interface CapacityVisibilityControlsProps {
   showWanted: boolean;
   showAvailable: boolean;
   showKnown: boolean;
+  includeIncompleteProfiles: boolean;
   onToggleWanted: () => void;
   onToggleAvailable: () => void;
   onToggleKnown: () => void;
+  onToggleIncludeIncompleteProfiles: () => void;
 }
 
 export function CapacityVisibilityControls({
   showWanted,
   showAvailable,
   showKnown,
+  includeIncompleteProfiles,
   onToggleWanted,
   onToggleAvailable,
   onToggleKnown,
+  onToggleIncludeIncompleteProfiles,
 }: CapacityVisibilityControlsProps) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -113,6 +119,39 @@ export function CapacityVisibilityControls({
           </div>
           <div className="ml-auto">
             <input type="checkbox" checked={showKnown} readOnly className="h-4 w-4" />
+          </div>
+        </button>
+
+        <button
+          onClick={onToggleIncludeIncompleteProfiles}
+          className={`flex-1 p-3 rounded-lg border flex justify-between items-center transition-colors ${
+            includeIncompleteProfiles
+              ? darkMode
+                ? 'bg-capx-dark-box-bg border-orange-500'
+                : 'bg-orange-50 border-orange-500'
+              : darkMode
+                ? 'bg-capx-dark-box-bg border-gray-700'
+                : 'bg-white border-gray-300'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Image
+              src={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
+              alt={pageContent['alt-icon-generic'] || 'Incomplete profiles icon'}
+              width={20}
+              height={20}
+            />
+            <span className={`text-left ${darkMode ? 'text-white' : 'text-black'}`}>
+              {pageContent['feed-toggle-incomplete-profiles'] || 'Incomplete profiles'}
+            </span>
+          </div>
+          <div className="ml-auto shrink-0">
+            <input
+              type="checkbox"
+              checked={includeIncompleteProfiles}
+              readOnly
+              className="h-4 w-4"
+            />
           </div>
         </button>
       </div>

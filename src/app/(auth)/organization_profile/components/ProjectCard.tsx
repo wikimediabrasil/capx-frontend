@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import BaseButton from '@/components/BaseButton';
-import { CompactLoading } from '@/components/LoadingStateWithFallback';
+import { ProjectCardSkeleton } from '@/components/skeletons';
 import { useProject } from '@/hooks/useProjects';
 
 import { useDarkMode, usePageContent } from '@/stores';
@@ -20,7 +20,7 @@ export const ProjectCard = ({
   const pageContent = usePageContent();
 
   if (isLoading) {
-    return <CompactLoading />;
+    return <ProjectCardSkeleton />;
   }
 
   if (!isLoading && (error || !project || !project.url)) {

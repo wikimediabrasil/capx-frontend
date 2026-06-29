@@ -13,11 +13,11 @@ const TestComponent = () => {
   );
 };
 
-describe('SnackbarProvider', () => {
-  const renderWithProvider = (component: React.ReactNode) => {
-    return render(<SnackbarProvider>{component}</SnackbarProvider>);
-  };
+const renderWithProvider = (component: React.ReactNode) => {
+  return render(<SnackbarProvider>{component}</SnackbarProvider>);
+};
 
+describe('SnackbarProvider', () => {
   beforeEach(() => {
     // Mock window.innerWidth for mobile detection
     Object.defineProperty(window, 'innerWidth', {
@@ -95,7 +95,7 @@ describe('SnackbarProvider', () => {
     });
 
     // Trigger resize event
-    window.dispatchEvent(new Event('resize'));
+    globalThis.dispatchEvent(new Event('resize'));
 
     renderWithProvider(<TestComponent />);
 

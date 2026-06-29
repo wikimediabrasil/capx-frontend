@@ -13,6 +13,8 @@ export interface UserFilters {
   has_skills_wanted?: boolean;
   has_skills_available?: boolean;
   has_skills_known?: boolean;
+  /** Backend: at least one of wanted / available / known */
+  has_any_skills?: boolean;
 }
 
 export interface FetchAllUsersParams {
@@ -32,8 +34,11 @@ export const userService = {
         headers: { Authorization: `Token ${token}` },
       });
       return response.data;
-    } catch (error) {
-      console.error(`Error fetching user profile with ID ${userId}:`, error);
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      console.warn(
+        `[userService.fetchUserProfile] userId=${userId}${status != null ? ` http=${status}` : ''}`
+      );
       return null;
     }
   },
@@ -92,6 +97,10 @@ export const userService = {
 
     if (queryParams?.filters?.has_skills_known === true) {
       params.append('has_skills_known', 'true');
+    }
+
+    if (queryParams?.filters?.has_any_skills === true) {
+      params.append('has_any_skills', 'true');
     }
 
     if (queryParams?.limit) {

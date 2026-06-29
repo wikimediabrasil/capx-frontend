@@ -1,7 +1,7 @@
 'use client';
 
 import BaseInput from '@/components/BaseInput';
-import LoadingState from '@/components/LoadingState';
+import { SkeletonBase } from '@/components/skeletons';
 import { useIsMobile, usePageContent, useDarkMode, useCapacityStore } from '@/stores';
 import SearchIcon from '@/public/static/images/search.svg';
 import SearchIconWhite from '@/public/static/images/search_icon_white.svg';
@@ -260,7 +260,16 @@ export function CapacitySearch({
 
       {(isLoading || processedResults.length > 0) && (
         <div className={`mt-4 w-full ${compact ? 'space-y-2' : 'grid gap-4'}`}>
-          {isLoading && <LoadingState />}
+          {isLoading && (
+            <div className="flex flex-col gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <SkeletonBase className="w-3 h-3 rounded-full flex-shrink-0" />
+                  <SkeletonBase className={`h-5 ${i % 2 === 0 ? 'w-48' : 'w-36'}`} />
+                </div>
+              ))}
+            </div>
+          )}
           {!isLoading && compact && (
             // Compact view for filters
             <>

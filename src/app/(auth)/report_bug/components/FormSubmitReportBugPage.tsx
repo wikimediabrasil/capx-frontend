@@ -70,7 +70,7 @@ export default function FormSubmitReportBugPage() {
       <div className="flex items-start gap-2 text-left">
         <Image
           src={darkMode ? IconBugWhite : IconBug}
-          alt={pageContent['report-bug-icon']}
+          alt={pageContent['report-bug-icon'] || 'Bug icon'}
           className="w-4 h-5 md:w-[42px] md:h-[42px]"
         />
         <h1

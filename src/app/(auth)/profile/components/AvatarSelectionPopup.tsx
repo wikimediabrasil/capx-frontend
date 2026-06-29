@@ -1,5 +1,5 @@
 import BaseButton from '@/components/BaseButton';
-import { CompactLoading } from '@/components/LoadingStateWithFallback';
+import { SkeletonBase } from '@/components/skeletons';
 import { getDefaultAvatar } from '@/constants/images';
 import { useAvatars } from '@/hooks/useAvatars';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
@@ -58,7 +58,15 @@ export default function AvatarSelectionPopup({
   };
 
   if (isLoading) {
-    return <CompactLoading />;
+    return (
+      <div className="flex items-center justify-center py-4">
+        <div className="grid grid-cols-2 gap-4 p-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonBase key={i} className="w-20 h-20 rounded-full" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (isMobile) {

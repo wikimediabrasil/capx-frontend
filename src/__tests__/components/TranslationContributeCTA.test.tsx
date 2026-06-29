@@ -63,6 +63,10 @@ jest.mock('next/image', () => ({
   },
 }));
 
+const renderWithProviders = (component: React.ReactNode) => {
+  return render(<>{component}</>);
+};
+
 describe('TranslationContributeCTA', () => {
   const mockPageContent = {
     'translation-contribute-compact': 'Help translate this capacity',
@@ -83,10 +87,6 @@ describe('TranslationContributeCTA', () => {
     (stores.useDarkMode as jest.Mock).mockReturnValue(false);
     (stores.useIsMobile as jest.Mock).mockReturnValue(false);
   });
-
-  const renderWithProviders = (component: React.ReactNode) => {
-    return render(<>{component}</>);
-  };
 
   describe('Language Detection', () => {
     it('does not render when language is English', () => {

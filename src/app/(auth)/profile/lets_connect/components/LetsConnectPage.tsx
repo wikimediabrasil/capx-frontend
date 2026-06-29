@@ -4,7 +4,7 @@ import { useSnackbar } from '@/app/providers/SnackbarProvider';
 import ActionButtons from '@/components/ActionButton';
 import Banner from '@/components/Banner';
 import BaseButton from '@/components/BaseButton';
-import LoadingState from '@/components/LoadingState';
+import { ProfileEditSkeleton } from '@/components/skeletons';
 import Popup from '@/components/Popup';
 import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 import { useLetsConnect } from '@/hooks/useLetsConnectProfile';
@@ -152,7 +152,7 @@ export default function LetsConnectPage() {
   }, [pageContent]);
 
   if (isLoading) {
-    return <LoadingState fullScreen={true} />;
+    return <ProfileEditSkeleton />;
   }
 
   const genderOptions = [

@@ -1,7 +1,7 @@
 'use client';
 
 import Banner from '@/components/Banner';
-import LoadingState from '@/components/LoadingState';
+import { AnalyticsDashboardSkeleton, SkeletonBase } from '@/components/skeletons';
 import { useAggregatedTerritoryData } from '@/hooks/useAggregatedTerritoryData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useStatistics } from '@/hooks/useStatistics';
@@ -19,6 +19,8 @@ import ArrowDownIcon from '@/public/static/images/keyboard_arrow_down_light_mode
 import LanguageIcon from '@/public/static/images/language.svg';
 import LanguageIconWhite from '@/public/static/images/language_white.svg';
 import learner from '@/public/static/images/learner_icon_white.svg';
+import AddIcon from '@/public/static/images/add_dark.svg';
+import AddIconWhite from '@/public/static/images/add.svg';
 import TerritoryIcon from '@/public/static/images/territory.svg';
 import TerritoryIconWhite from '@/public/static/images/territory_white.svg';
 import technology from '@/public/static/images/wifi_tethering.svg';
@@ -123,8 +125,8 @@ function StatCard({ title, value, subtitle, subtitleColor, darkMode }: Readonly<
 
 // Component: Dropdown Section Header
 interface DropdownHeaderProps {
-  readonly icon: any;
-  readonly iconWhite: any;
+  readonly icon?: any;
+  readonly iconWhite?: any;
   readonly title: string;
   readonly isOpen: boolean;
   readonly onToggle: () => void;
@@ -140,7 +142,8 @@ function DropdownHeader({
   darkMode,
 }: Readonly<DropdownHeaderProps>) {
   const arrowIcon = darkMode ? ArrowDownIconWhite : ArrowDownIcon;
-  const sectionIcon = darkMode ? iconWhite : icon;
+  const hasSectionIcon = icon != null;
+  const sectionIcon = hasSectionIcon ? (darkMode && iconWhite != null ? iconWhite : icon) : null;
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -158,20 +161,26 @@ function DropdownHeader({
       aria-expanded={isOpen}
     >
       <div className="flex items-center gap-2">
-        <Image
-          src={sectionIcon}
-          alt="Section icon"
-          width={20}
-          height={20}
-          className="block md:hidden"
-        />
-        <Image
-          src={sectionIcon}
-          alt="Section icon"
-          width={48}
-          height={48}
-          className="hidden md:block"
-        />
+        {sectionIcon != null && (
+          <>
+            <Image
+              src={sectionIcon}
+              alt=""
+              width={20}
+              height={20}
+              className="block md:hidden"
+              aria-hidden
+            />
+            <Image
+              src={sectionIcon}
+              alt=""
+              width={48}
+              height={48}
+              className="hidden md:block"
+              aria-hidden
+            />
+          </>
+        )}
         <h2
           className={`font-[Montserrat] text-[18px] md:text-[24px] font-bold ${darkMode ? 'text-white' : 'text-[#053749]'}`}
         >
@@ -229,6 +238,7 @@ export default function AnalyticsDashboardPage() {
   const [openTerritories, setOpenTerritories] = useState(false);
   const [openCapacities, setOpenCapacities] = useState(false);
   const [visibleLanguagesCount, setVisibleLanguagesCount] = useState(8);
+  const [openMoreStats, setOpenMoreStats] = useState(false);
   const [mapViewMode, setMapViewMode] = useState<'users' | 'languages' | 'capacities'>('users');
 
   const sortedTerritories = territories
@@ -250,8 +260,9 @@ export default function AnalyticsDashboardPage() {
 
   const availableCount = data?.skill_available_user_counts;
   const wantedCount = data?.skill_wanted_user_counts;
+  const knownCount = data?.skill_known_user_counts;
 
-  if (!data) return <LoadingState fullScreen />;
+  if (!data) return <AnalyticsDashboardSkeleton />;
 
   return (
     <section className="w-full flex flex-col min-h-screen gap-4 pt-24 md:pt-8 mx-auto md:max-w-[1200px]">
@@ -316,7 +327,7 @@ export default function AnalyticsDashboardPage() {
         </div>
         <div className={`w-full rounded-lg p-4 ${darkMode ? 'bg-capx-dark-box-bg' : 'bg-white'}`}>
           {isAggregatedDataLoading ? (
-            <LoadingState />
+            <SkeletonBase className="w-full h-[280px] md:h-[450px] rounded-lg" />
           ) : (
             <SVGWorldMap
               languageUserCounts={data?.language_user_counts}
@@ -470,6 +481,10 @@ export default function AnalyticsDashboardPage() {
                           titleCard: pageContent['analytics-bashboard-capacities-card-sharers'],
                           value: availableCount?.[id] || 0,
                         },
+                        {
+                          titleCard: pageContent['analytics-bashboard-capacities-card-known'],
+                          value: knownCount?.[id] || 0,
+                        },
                       ]}
                     />
                   );
@@ -478,6 +493,129 @@ export default function AnalyticsDashboardPage() {
           )}
         </div>
       )}
+
+      {/* Additional statistics — accordion like Languages / Territory; below Capacities when that block is shown */}
+      <div className="flex flex-col px-4 w-full gap-2 mt-[40px]">
+        <DropdownHeader
+          icon={AddIcon}
+          iconWhite={AddIconWhite}
+          title={
+            pageContent['analytics-bashboard-database-details-section-title'] ||
+            pageContent['analytics-bashboard-load-more-stats']
+          }
+          isOpen={openMoreStats}
+          onToggle={() => setOpenMoreStats(!openMoreStats)}
+          darkMode={darkMode}
+        />
+
+        {openMoreStats && (
+          <div
+            className={`mt-8 gap-4 ${
+              darkMode ? 'bg-[#053749] text-white' : 'bg-white text-[#053749]'
+            } overflow-hidden`}
+          >
+            {(
+              [
+                {
+                  id: 'users-with-territory',
+                  label: pageContent['analytics-bashboard-users-with-territory'],
+                  value: data.users_with_territory ?? 0,
+                  hint: pageContent['analytics-bashboard-users-with-territory-sub'],
+                },
+                {
+                  id: 'users-with-language',
+                  label: pageContent['analytics-bashboard-users-with-language'],
+                  value: data.users_with_language ?? 0,
+                  hint: pageContent['analytics-bashboard-users-with-language-sub'],
+                },
+                {
+                  id: 'users-with-capacities',
+                  label: pageContent['analytics-bashboard-users-with-capacities'],
+                  value: data.users_with_capacities ?? 0,
+                  hint: pageContent['analytics-bashboard-users-with-capacities-sub'],
+                },
+                {
+                  id: 'active-users',
+                  label: pageContent['analytics-bashboard-active-users'],
+                  value: data.active_users ?? 0,
+                  hint: pageContent['analytics-bashboard-active-users-sub'],
+                },
+                {
+                  id: 'new-messages',
+                  label: pageContent['analytics-bashboard-new-messages'],
+                  value: data.new_messages ?? 0,
+                  hint: pageContent['analytics-bashboard-new-messages-sub'],
+                },
+                {
+                  id: 'total-capacities',
+                  label: pageContent['analytics-bashboard-total-capacities'],
+                  value: data.total_capacities ?? 0,
+                  hint: pageContent['analytics-bashboard-total-capacities-sub'],
+                },
+                {
+                  id: 'new-capacities',
+                  label: pageContent['analytics-bashboard-new-capacities'],
+                  value: data.new_capacities ?? 0,
+                  hint: pageContent['analytics-bashboard-new-capacities-sub'],
+                },
+                {
+                  id: 'total-organizations',
+                  label: pageContent['analytics-bashboard-total-organizations'],
+                  value: data.total_organizations ?? 0,
+                  hint: pageContent['analytics-bashboard-total-organizations-sub'],
+                },
+                {
+                  id: 'new-organizations',
+                  label: pageContent['analytics-bashboard-new-organizations'],
+                  value: data.new_organizations ?? 0,
+                  hint: pageContent['analytics-bashboard-new-organizations-sub'],
+                },
+              ] as const
+            ).map(row => (
+              <div
+                key={row.id}
+                className="flex flex-col md:flex-row md:justify-between md:items-start gap-1 md:gap-4"
+              >
+                <div
+                  className={`font-[Montserrat] text-[12px] md:text-[24px] font-bold min-w-0 md:max-w-[50%] ${
+                    darkMode ? 'text-white' : 'text-[#053749]'
+                  }`}
+                >
+                  {row.label}
+                </div>
+                <div
+                  className={`font-[Montserrat] mb-4 mr-[80px] md:mb-4 min-w-0 md:max-w-[45%] flex flex-col gap-0.5 md:items-end md:text-right ${
+                    darkMode ? 'text-white' : 'text-[#053749]'
+                  }`}
+                >
+                  <span className="text-[12px] md:text-[24px] font-bold tabular-nums">
+                    {formatNumber(row.value)}
+                  </span>
+                  <span
+                    className={`text-[11px] md:text-[12px] font-normal leading-snug ${
+                      darkMode ? 'text-gray-300' : 'text-[#053749]/80'
+                    }`}
+                  >
+                    {row.hint}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setOpenMoreStats(false)}
+              className={`w-full md:w-auto mx-auto flex items-center justify-center gap-2 px-4 py-2 border-2 rounded-lg text-[12px] md:text-[24px] font-bold transition mt-2 mb-2 ${
+                darkMode
+                  ? 'text-white border-white hover:bg-[#0A4C5A]'
+                  : 'text-[#053749] border-[#053749] hover:bg-[#EFEFEF]'
+              }`}
+            >
+              {pageContent['analytics-bashboard-show-less-stats']}
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

@@ -11,7 +11,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useEffect, useMemo, useState } from 'react';
 
 import Banner from '@/components/Banner';
-import LoadingState from '@/components/LoadingState';
+import { FeedPageSkeleton } from '@/components/skeletons';
 import OrgListBanner from '@/public/static/images/organization_list.svg';
 
 import { usePageContent } from '@/stores';
@@ -38,6 +38,7 @@ export default function OrganizationList() {
     ] as ProfileCapacityType[],
     territories: [] as string[],
     languages: [] as string[],
+    includeIncompleteProfiles: true,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,6 +70,7 @@ export default function OrganizationList() {
     profileCapacityTypes: [],
     territories: activeFilters.territories,
     languages: activeFilters.languages,
+    includeIncompleteProfiles: activeFilters.includeIncompleteProfiles,
     // Don't send name - backend doesn't support it
   });
 
@@ -219,12 +221,31 @@ export default function OrganizationList() {
     }
   };
 
-  // Only show full loading on initial load, not during search
-  const shouldShowFullLoading =
-    (!hasLoadedOnce && isAllOrganizationsLoading) || isLoadingTranslations || isLanguageChanging;
+  const isInitialLoading = !hasLoadedOnce && isAllOrganizationsLoading;
+  const isTranslationLoading = isLoadingTranslations || isLanguageChanging;
 
-  if (shouldShowFullLoading) {
-    return <LoadingState fullScreen={true} />;
+  if (isInitialLoading) {
+    return (
+      <div className="w-full flex flex-col items-center pt-24 md:pt-8">
+        <div className="container mx-auto px-4 w-full max-w-full">
+          <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
+            <FeedPageSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isTranslationLoading) {
+    return (
+      <div className="w-full flex flex-col items-center pt-24 md:pt-8">
+        <div className="container mx-auto px-4 w-full max-w-full">
+          <div className="md:max-w-[1200px] w-full max-w-sm mx-auto space-y-6">
+            <FeedPageSkeleton />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
