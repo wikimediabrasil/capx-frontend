@@ -634,6 +634,45 @@ export async function fetchLocationByOSMId(osmId: string): Promise<any | null> {
  * Fetches comprehensive data from a Wikimedia page using multiple APIs
  */
 
+// Parse the first page object from a settled MediaWiki "query" response
+async function firstQueryPage(settled: PromiseSettledResult<Response>): Promise<any | null> {
+  if (settled.status !== 'fulfilled' || !settled.value.ok) return null;
+  const data = await settled.value.json();
+  const pages = data.query?.pages;
+  if (!pages) return null;
+  const pageId = Object.keys(pages)[0];
+  return pages[pageId] ?? null;
+}
+
+async function extractPageContent(
+  settled: PromiseSettledResult<Response>
+): Promise<string | undefined> {
+  const page = await firstQueryPage(settled);
+  return page?.extract || undefined;
+}
+
+async function extractWikidataQid(
+  settled: PromiseSettledResult<Response>
+): Promise<string | undefined> {
+  const page = await firstQueryPage(settled);
+  return page?.pageprops?.wikibase_item || undefined;
+}
+
+async function extractInfobox(settled: PromiseSettledResult<Response>): Promise<any> {
+  const page = await firstQueryPage(settled);
+  const wikitext = page?.revisions?.[0]?.['*'];
+  return wikitext ? extractInfoboxFromWikitext(wikitext) : null;
+}
+
+async function extractRenderedText(
+  settled: PromiseSettledResult<Response>
+): Promise<string | undefined> {
+  if (settled.status !== 'fulfilled' || !settled.value.ok) return undefined;
+  const data = await settled.value.json();
+  const html = data.parse?.text?.['*'];
+  return html ? stripHtmlTags(html) : undefined;
+}
+
 async function fetchWikimediaPageData(url: string): Promise<{
   content?: string;
   wikidata_qid?: string;
@@ -673,61 +712,12 @@ async function fetchWikimediaPageData(url: string): Promise<{
       ),
     ]);
 
-    let content: string | undefined = undefined;
-    let wikidata_qid: string | undefined = undefined;
-    let infobox = null;
-    let categories: string[] = [];
-    let renderedText: string | undefined = undefined;
-
-    // Process content
-    if (contentData.status === 'fulfilled' && contentData.value.ok) {
-      const data = await contentData.value.json();
-      const pages = data.query?.pages;
-      if (pages) {
-        const pageId = Object.keys(pages)[0];
-        content = pages[pageId]?.extract || null;
-      }
-    }
-
-    // Process Wikidata QID
-    if (wikidataData.status === 'fulfilled' && wikidataData.value.ok) {
-      const data = await wikidataData.value.json();
-      const pages = data.query?.pages;
-      if (pages) {
-        const pageId = Object.keys(pages)[0];
-        const pageprops = pages[pageId]?.pageprops;
-        wikidata_qid = pageprops?.wikibase_item || null;
-      }
-    }
-
-    // Process infobox data
-    if (infoboxData.status === 'fulfilled' && infoboxData.value.ok) {
-      const data = await infoboxData.value.json();
-      const pages = data.query?.pages;
-      if (pages) {
-        const pageId = Object.keys(pages)[0];
-        const wikitext = pages[pageId]?.revisions?.[0]?.['*'];
-        if (wikitext) {
-          infobox = extractInfoboxFromWikitext(wikitext);
-        }
-      }
-    }
-
-    // Process rendered HTML (resolves template transclusions)
-    if (parsedData.status === 'fulfilled' && parsedData.value.ok) {
-      const data = await parsedData.value.json();
-      const html = data.parse?.text?.['*'];
-      if (html) {
-        renderedText = stripHtmlTags(html);
-      }
-    }
-
     return {
-      content,
-      wikidata_qid,
-      infobox,
-      categories,
-      renderedText,
+      content: await extractPageContent(contentData),
+      wikidata_qid: await extractWikidataQid(wikidataData),
+      infobox: await extractInfobox(infoboxData),
+      categories: [],
+      renderedText: await extractRenderedText(parsedData),
     };
   } catch (error) {
     console.error('Error fetching Wikimedia page data:', error);
@@ -1055,9 +1045,134 @@ function stripHtmlTags(html: string): string {
  *   "19 February – 22 February 2026" (day month – day month year)
  * Returns { start_date, end_date } in YYYY-MM-DD format or null.
  */
-function extractDatesFromRenderedText(
-  text: string
-): { start_date: string; end_date?: string } | null {
+type ParsedEventDate = { start_date: string; end_date?: string };
+
+const padDay = (n: number) => n.toString().padStart(2, '0');
+const lookupMonth = (name: string) => MULTILINGUAL_MONTHS[name.toLowerCase()];
+const isValidEventYear = (y: number) => y >= 2020 && y <= 2035;
+
+// CJK range: "YYYY年M月D日 – YYYY年M月D日"
+function parseCjkRange(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const [, sy, sm, sd, ey, em, ed] = match.map(Number);
+  if (isValidEventYear(sy) && isValidEventYear(ey)) {
+    return {
+      start_date: `${sy}-${padDay(sm)}-${padDay(sd)}`,
+      end_date: `${ey}-${padDay(em)}-${padDay(ed)}`,
+    };
+  }
+  return null;
+}
+
+// "DD Month – DD Month YYYY" (cross-month range)
+function parseCrossMonthRange(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const startDay = Number(match[1]);
+  const startMonth = lookupMonth(match[2]);
+  const endDay = Number(match[3]);
+  const endMonth = lookupMonth(match[4]);
+  const year = Number(match[5]);
+  if (startMonth && endMonth && isValidEventYear(year)) {
+    return {
+      start_date: `${year}-${padDay(startMonth)}-${padDay(startDay)}`,
+      end_date: `${year}-${padDay(endMonth)}-${padDay(endDay)}`,
+    };
+  }
+  return null;
+}
+
+// "Month DD – Month DD, YYYY"
+function parseCrossMonthRangeEnglish(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const startMonth = lookupMonth(match[1]);
+  const startDay = Number(match[2]);
+  const endMonth = lookupMonth(match[3]);
+  const endDay = Number(match[4]);
+  const year = Number(match[5]);
+  if (startMonth && endMonth && isValidEventYear(year)) {
+    return {
+      start_date: `${year}-${padDay(startMonth)}-${padDay(startDay)}`,
+      end_date: `${year}-${padDay(endMonth)}-${padDay(endDay)}`,
+    };
+  }
+  return null;
+}
+
+// "DD – DD Month YYYY" (same-month range)
+function parseSameMonthRange(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const startDay = Number(match[1]);
+  const endDay = Number(match[2]);
+  const month = lookupMonth(match[3]);
+  const year = Number(match[4]);
+  if (month && isValidEventYear(year)) {
+    return {
+      start_date: `${year}-${padDay(month)}-${padDay(startDay)}`,
+      end_date: `${year}-${padDay(month)}-${padDay(endDay)}`,
+    };
+  }
+  return null;
+}
+
+// "Month DD – DD, YYYY" (same-month range, English)
+function parseSameMonthRangeEnglish(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const month = lookupMonth(match[1]);
+  const startDay = Number(match[2]);
+  const endDay = Number(match[3]);
+  const year = Number(match[4]);
+  if (month && isValidEventYear(year)) {
+    return {
+      start_date: `${year}-${padDay(month)}-${padDay(startDay)}`,
+      end_date: `${year}-${padDay(month)}-${padDay(endDay)}`,
+    };
+  }
+  return null;
+}
+
+// "DD Month YYYY" (single date)
+function parseSingleDayMonthYear(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const day = Number(match[1]);
+  const month = lookupMonth(match[2]);
+  const year = Number(match[3]);
+  if (month && isValidEventYear(year)) {
+    return { start_date: `${year}-${padDay(month)}-${padDay(day)}` };
+  }
+  return null;
+}
+
+// "Month DD, YYYY" (single date, English)
+function parseSingleMonthDayYear(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const month = lookupMonth(match[1]);
+  const day = Number(match[2]);
+  const year = Number(match[3]);
+  if (month && isValidEventYear(year)) {
+    return { start_date: `${year}-${padDay(month)}-${padDay(day)}` };
+  }
+  return null;
+}
+
+// CJK single date: "YYYY年M月D日"
+function parseCjkSingle(text: string, pattern: RegExp): ParsedEventDate | null {
+  const match = pattern.exec(text);
+  if (!match) return null;
+  const [, y, m, d] = match.map(Number);
+  if (isValidEventYear(y)) {
+    return { start_date: `${y}-${padDay(m)}-${padDay(d)}` };
+  }
+  return null;
+}
+
+function extractDatesFromRenderedText(text: string): ParsedEventDate | null {
   if (!text) return null;
 
   // Build a regex alternation from all known month names (sorted longest-first to avoid partial matches)
@@ -1098,116 +1213,17 @@ function extractDatesFromRenderedText(
   const pattern7 = /(\d{4})年(\d{1,2})月(\d{1,2})日\s*[–\-−~]\s*(\d{4})年(\d{1,2})月(\d{1,2})日/;
   const pattern7single = /(\d{4})年(\d{1,2})月(\d{1,2})日/;
 
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  const lookupMonth = (name: string) => MULTILINGUAL_MONTHS[name.toLowerCase()];
-  const isValidYear = (y: number) => y >= 2020 && y <= 2035;
-
-  // Try CJK range first
-  let match = pattern7.exec(text);
-  if (match) {
-    const [, sy, sm, sd, ey, em, ed] = match.map(Number);
-    if (isValidYear(sy) && isValidYear(ey)) {
-      return {
-        start_date: `${sy}-${pad(sm)}-${pad(sd)}`,
-        end_date: `${ey}-${pad(em)}-${pad(ed)}`,
-      };
-    }
-  }
-
-  // Pattern 3: DD Month – DD Month YYYY
-  match = pattern3.exec(text);
-  if (match) {
-    const startDay = Number(match[1]);
-    const startMonth = lookupMonth(match[2]);
-    const endDay = Number(match[3]);
-    const endMonth = lookupMonth(match[4]);
-    const year = Number(match[5]);
-    if (startMonth && endMonth && isValidYear(year)) {
-      return {
-        start_date: `${year}-${pad(startMonth)}-${pad(startDay)}`,
-        end_date: `${year}-${pad(endMonth)}-${pad(endDay)}`,
-      };
-    }
-  }
-
-  // Pattern 4: Month DD – Month DD, YYYY
-  match = pattern4.exec(text);
-  if (match) {
-    const startMonth = lookupMonth(match[1]);
-    const startDay = Number(match[2]);
-    const endMonth = lookupMonth(match[3]);
-    const endDay = Number(match[4]);
-    const year = Number(match[5]);
-    if (startMonth && endMonth && isValidYear(year)) {
-      return {
-        start_date: `${year}-${pad(startMonth)}-${pad(startDay)}`,
-        end_date: `${year}-${pad(endMonth)}-${pad(endDay)}`,
-      };
-    }
-  }
-
-  // Pattern 1: DD – DD Month YYYY
-  match = pattern1.exec(text);
-  if (match) {
-    const startDay = Number(match[1]);
-    const endDay = Number(match[2]);
-    const month = lookupMonth(match[3]);
-    const year = Number(match[4]);
-    if (month && isValidYear(year)) {
-      return {
-        start_date: `${year}-${pad(month)}-${pad(startDay)}`,
-        end_date: `${year}-${pad(month)}-${pad(endDay)}`,
-      };
-    }
-  }
-
-  // Pattern 2: Month DD – DD, YYYY
-  match = pattern2.exec(text);
-  if (match) {
-    const month = lookupMonth(match[1]);
-    const startDay = Number(match[2]);
-    const endDay = Number(match[3]);
-    const year = Number(match[4]);
-    if (month && isValidYear(year)) {
-      return {
-        start_date: `${year}-${pad(month)}-${pad(startDay)}`,
-        end_date: `${year}-${pad(month)}-${pad(endDay)}`,
-      };
-    }
-  }
-
-  // Pattern 5: DD Month YYYY (single)
-  match = pattern5.exec(text);
-  if (match) {
-    const day = Number(match[1]);
-    const month = lookupMonth(match[2]);
-    const year = Number(match[3]);
-    if (month && isValidYear(year)) {
-      return { start_date: `${year}-${pad(month)}-${pad(day)}` };
-    }
-  }
-
-  // Pattern 6: Month DD, YYYY (single)
-  match = pattern6.exec(text);
-  if (match) {
-    const month = lookupMonth(match[1]);
-    const day = Number(match[2]);
-    const year = Number(match[3]);
-    if (month && isValidYear(year)) {
-      return { start_date: `${year}-${pad(month)}-${pad(day)}` };
-    }
-  }
-
-  // CJK single date
-  match = pattern7single.exec(text);
-  if (match) {
-    const [, y, m, d] = match.map(Number);
-    if (isValidYear(y)) {
-      return { start_date: `${y}-${pad(m)}-${pad(d)}` };
-    }
-  }
-
-  return null;
+  // Try each pattern in priority order; first match wins.
+  return (
+    parseCjkRange(text, pattern7) ??
+    parseCrossMonthRange(text, pattern3) ??
+    parseCrossMonthRangeEnglish(text, pattern4) ??
+    parseSameMonthRange(text, pattern1) ??
+    parseSameMonthRangeEnglish(text, pattern2) ??
+    parseSingleDayMonthYear(text, pattern5) ??
+    parseSingleMonthDayYear(text, pattern6) ??
+    parseCjkSingle(text, pattern7single)
+  );
 }
 
 /**
@@ -1395,6 +1411,40 @@ function createFallbackEventData(pageTitle: string, url: string): Partial<Event>
   return null;
 }
 
+// Fallback: fill an event's dates from rendered HTML when it has no start time yet
+function applyRenderedDates(target: Partial<Event>, renderedText: string | undefined): void {
+  if (target.time_begin || !renderedText) return;
+  const renderedDates = extractDatesFromRenderedText(renderedText);
+  if (!renderedDates) return;
+  target.time_begin = `${renderedDates.start_date}T00:00:00.000Z`;
+  if (renderedDates.end_date) {
+    target.time_end = `${renderedDates.end_date}T23:59:59.000Z`;
+  }
+}
+
+// Build event data from a Wikidata entity, enriching it with page data
+async function buildEventFromWikidata(
+  wikidataQid: string,
+  url: string,
+  pageData: { content?: string; renderedText?: string } | null
+): Promise<Partial<Event> | null> {
+  const wikidataResult = await fetchEventFromWikidata(wikidataQid);
+  if (!wikidataResult) return null;
+
+  wikidataResult.url = url;
+  // Use the page intro as description if Wikidata only has a short tagline
+  if (
+    pageData?.content &&
+    (!wikidataResult.description || wikidataResult.description.length < 80)
+  ) {
+    wikidataResult.description = extractDescriptionFromContent(pageData.content);
+  }
+  // Fallback: if Wikidata has no dates, try rendered HTML
+  applyRenderedDates(wikidataResult, pageData?.renderedText);
+
+  return wikidataResult;
+}
+
 export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial<Event> | null> {
   const pageTitle = extractWikimediaTitleFromURL(url);
 
@@ -1410,28 +1460,8 @@ export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial
     const wikidataQid = pageData?.wikidata_qid || (await findWikidataQIDByMetaWikiTitle(pageTitle));
 
     if (wikidataQid) {
-      const wikidataResult = await fetchEventFromWikidata(wikidataQid);
-      if (wikidataResult) {
-        wikidataResult.url = url;
-        // Use the page intro as description if Wikidata only has a short tagline
-        if (
-          pageData?.content &&
-          (!wikidataResult.description || wikidataResult.description.length < 80)
-        ) {
-          wikidataResult.description = extractDescriptionFromContent(pageData.content);
-        }
-        // Fallback: if Wikidata has no dates, try rendered HTML
-        if (!wikidataResult.time_begin && pageData?.renderedText) {
-          const renderedDates = extractDatesFromRenderedText(pageData.renderedText);
-          if (renderedDates) {
-            wikidataResult.time_begin = `${renderedDates.start_date}T00:00:00.000Z`;
-            if (renderedDates.end_date) {
-              wikidataResult.time_end = `${renderedDates.end_date}T23:59:59.000Z`;
-            }
-          }
-        }
-        return wikidataResult;
-      }
+      const fromWikidata = await buildEventFromWikidata(wikidataQid, url, pageData);
+      if (fromWikidata) return fromWikidata;
     }
 
     const extractedYear = extractYearFromText(pageTitle) || extractYearFromText(url);
@@ -1449,15 +1479,7 @@ export async function fetchEventDataByWikimediaURL(url: string): Promise<Partial
     }
 
     // Fallback: extract dates from rendered HTML (resolves template transclusions)
-    if (!eventData.time_begin && pageData?.renderedText) {
-      const renderedDates = extractDatesFromRenderedText(pageData.renderedText);
-      if (renderedDates) {
-        eventData.time_begin = `${renderedDates.start_date}T00:00:00.000Z`;
-        if (renderedDates.end_date) {
-          eventData.time_end = `${renderedDates.end_date}T23:59:59.000Z`;
-        }
-      }
-    }
+    applyRenderedDates(eventData, pageData?.renderedText);
 
     determineEventTypeAndLocation(pageTitle, extractedYear, eventData);
 
