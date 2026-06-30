@@ -23,6 +23,145 @@ interface MentorshipProgramCardProps {
   onSubscribe?: (programId: number, role: 'mentor' | 'mentee') => void;
 }
 
+function getStatusColor(status: string): string {
+  if (status === 'open') return 'bg-capx-primary-green text-white';
+  if (status === 'upcoming') return 'bg-yellow-500 text-white';
+  return 'bg-capx-primary-red text-white';
+}
+
+function getFormatLabel(format: string): string {
+  if (format === 'in-person') return 'In person';
+  if (format === 'online') return 'Online event';
+  return 'Hybrid';
+}
+
+function formatRegistrationPeriod(program: MentorshipProgram): string | null | undefined {
+  if (program.openDate && program.closeDate) return `${program.openDate} → ${program.closeDate}`;
+  return program.openDate || program.closeDate;
+}
+
+// Labelled chip list with an optional "show more/less" toggle (shared by capacities + languages)
+function ChipListSection({
+  title,
+  items,
+  showAll,
+  onToggle,
+  renderLabel,
+  getKey,
+  darkMode,
+  pageContent,
+}: {
+  title: string;
+  items: any[];
+  showAll: boolean;
+  onToggle: () => void;
+  renderLabel: (item: any, index: number) => string;
+  getKey: (item: any, index: number) => string | number;
+  darkMode: boolean;
+  pageContent: any;
+}) {
+  if (items.length === 0) return null;
+  const visible = showAll ? items : items.slice(0, 8);
+
+  return (
+    <div className="mb-1">
+      <span
+        className={`block text-xs font-semibold mb-1 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}
+      >
+        {title}
+      </span>
+      <div className="flex flex-wrap gap-2">
+        {visible.map((item, index) => (
+          <span
+            key={getKey(item, index)}
+            className="inline-flex px-3 py-1 rounded-md bg-capx-primary-green text-white text-xs md:text-sm"
+          >
+            {renderLabel(item, index)}
+          </span>
+        ))}
+      </div>
+      {items.length > 8 && (
+        <button
+          type="button"
+          className={`mt-1 text-xs font-semibold underline ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
+          onClick={onToggle}
+        >
+          {showAll
+            ? pageContent['capacity-list-scroll-previous'] || 'Show less'
+            : pageContent['capacity-list-scroll-next'] || 'Show more'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ProgramModals({
+  program,
+  showRoleModal,
+  onCloseRoleModal,
+  onRoleSelect,
+  showForm,
+  selectedRole,
+  onCloseForm,
+  onFormSubmit,
+  submitting,
+  showConfirmation,
+  onCloseConfirmation,
+}: {
+  program: MentorshipProgram;
+  showRoleModal: boolean;
+  onCloseRoleModal: () => void;
+  onRoleSelect: (role: 'mentor' | 'mentee', program: MentorshipProgram) => void;
+  showForm: boolean;
+  selectedRole: 'mentor' | 'mentee' | null;
+  onCloseForm: () => void;
+  onFormSubmit: (data: Record<string, unknown>) => void;
+  submitting: boolean;
+  showConfirmation: boolean;
+  onCloseConfirmation: () => void;
+}) {
+  const activeForm = showForm && selectedRole ? program.forms?.[selectedRole] : undefined;
+
+  return (
+    <>
+      <RoleSelectionModal
+        isOpen={showRoleModal}
+        onClose={onCloseRoleModal}
+        onSelect={onRoleSelect}
+        program={program}
+      />
+
+      {activeForm &&
+        (activeForm.rawJson?.length ? (
+          <NativeFormRenderModal
+            form={activeForm}
+            programName={program.name}
+            programLogo={program.logo}
+            onSubmit={onFormSubmit}
+            onClose={onCloseForm}
+            submitting={submitting}
+          />
+        ) : (
+          <DynamicForm
+            form={activeForm}
+            programName={program.name}
+            programLogo={program.logo}
+            onSubmit={onFormSubmit}
+            onClose={onCloseForm}
+            submitting={submitting}
+          />
+        ))}
+
+      <ConfirmationModal
+        isOpen={showConfirmation}
+        onClose={onCloseConfirmation}
+        programName={program.name}
+        programLogo={program.logo}
+      />
+    </>
+  );
+}
+
 export default function MentorshipProgramCard({
   program,
   onSubscribe,
@@ -88,6 +227,19 @@ export default function MentorshipProgramCard({
     setShowForm(true);
   };
 
+  const notifyApplicationSubmitted = () => {
+    setShowForm(false);
+    setShowConfirmation(true);
+    if (onSubscribe && selectedRole) {
+      onSubscribe(program.id, selectedRole);
+    }
+    showSnackbar(
+      pageContent['mentorship-application-forwarded'] ||
+        'Application submitted. The program will contact you directly soon.',
+      'success'
+    );
+  };
+
   const handleFormSubmit = async (data: Record<string, unknown>) => {
     const form = selectedRole ? program.forms?.[selectedRole] : undefined;
     const formId = form && 'formId' in form ? (form as { formId: number }).formId : undefined;
@@ -109,53 +261,31 @@ export default function MentorshipProgramCard({
       return;
     }
 
-    if (formId != null) {
-      setSubmitting(true);
-      try {
-        if (selectedRole === 'mentor') {
-          await mentorshipService.submitMentorResponse(formId, data, token);
-        } else {
-          await mentorshipService.submitMenteeResponse(formId, data, token);
-        }
-        setShowForm(false);
-        setShowConfirmation(true);
-        if (onSubscribe && selectedRole) {
-          onSubscribe(program.id, selectedRole);
-        }
-        showSnackbar(
-          pageContent['mentorship-application-forwarded'] ||
-            'Application submitted. The program will contact you directly soon.',
-          'success'
-        );
-      } catch (err: unknown) {
-        const message =
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-          (err as Error)?.message ||
-          'Failed to submit application';
-        showSnackbar(message, 'error');
-      } finally {
-        setSubmitting(false);
+    if (formId == null) {
+      notifyApplicationSubmitted();
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      if (selectedRole === 'mentor') {
+        await mentorshipService.submitMentorResponse(formId, data, token);
+      } else {
+        await mentorshipService.submitMenteeResponse(formId, data, token);
       }
-    } else {
-      setShowForm(false);
-      setShowConfirmation(true);
-      if (onSubscribe && selectedRole) {
-        onSubscribe(program.id, selectedRole);
-      }
-      showSnackbar(
-        pageContent['mentorship-application-forwarded'] ||
-          'Application submitted. The program will contact you directly soon.',
-        'success'
-      );
+      notifyApplicationSubmitted();
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        (err as Error)?.message ||
+        'Failed to submit application';
+      showSnackbar(message, 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const statusColor =
-    program.status === 'open'
-      ? 'bg-capx-primary-green text-white'
-      : program.status === 'upcoming'
-        ? 'bg-yellow-500 text-white'
-        : 'bg-capx-primary-red text-white';
+  const statusColor = getStatusColor(program.status);
 
   const statusLabelMap: Record<string, string> = {
     open: pageContent['mentorship-status-open'] || 'Open',
@@ -163,12 +293,8 @@ export default function MentorshipProgramCard({
     closed: pageContent['mentorship-status-closed'] || 'Closed',
   };
 
-  const formatLabel =
-    program.format === 'in-person'
-      ? 'In person'
-      : program.format === 'online'
-        ? 'Online event'
-        : 'Hybrid';
+  const formatLabel = getFormatLabel(program.format);
+  const registrationPeriod = formatRegistrationPeriod(program);
 
   return (
     <>
@@ -230,7 +356,7 @@ export default function MentorshipProgramCard({
         </div>
 
         {/* Registration period */}
-        {(program.openDate || program.closeDate) && (
+        {registrationPeriod && (
           <div className="mb-3">
             <span
               className={`block text-xs font-semibold ${
@@ -240,11 +366,7 @@ export default function MentorshipProgramCard({
               Registration period
             </span>
             <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              {program.openDate && program.closeDate
-                ? `${program.openDate} → ${program.closeDate}`
-                : program.openDate
-                  ? program.openDate
-                  : program.closeDate}
+              {registrationPeriod}
             </span>
           </div>
         )}
@@ -281,86 +403,30 @@ export default function MentorshipProgramCard({
           </div>
 
           {/* Capacities (skills) */}
-          {program.capacities.length > 0 && (
-            <div className="mb-1">
-              <span
-                className={`block text-xs font-semibold mb-1 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-800'
-                }`}
-              >
-                {pageContent['filters-capacities'] || 'Capacities'}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {(showAllCapacities ? program.capacities : program.capacities.slice(0, 8)).map(
-                  (capacity, index) => {
-                    const code = Number(capacity);
-                    const label = Number.isNaN(code) ? String(capacity) : getName(code);
-                    return (
-                      <span
-                        key={index}
-                        className="inline-flex px-3 py-1 rounded-md bg-capx-primary-green text-white text-xs md:text-sm"
-                      >
-                        {label}
-                      </span>
-                    );
-                  }
-                )}
-              </div>
-              {program.capacities.length > 8 && (
-                <button
-                  type="button"
-                  className={`mt-1 text-xs font-semibold underline ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                  onClick={() => setShowAllCapacities(prev => !prev)}
-                >
-                  {showAllCapacities
-                    ? pageContent['capacity-list-scroll-previous'] || 'Show less'
-                    : pageContent['capacity-list-scroll-next'] || 'Show more'}
-                </button>
-              )}
-            </div>
-          )}
+          <ChipListSection
+            title={pageContent['filters-capacities'] || 'Capacities'}
+            items={program.capacities}
+            showAll={showAllCapacities}
+            onToggle={() => setShowAllCapacities(prev => !prev)}
+            renderLabel={capacity => {
+              const code = Number(capacity);
+              return Number.isNaN(code) ? String(capacity) : getName(code);
+            }}
+            getKey={(_capacity, index) => index}
+            darkMode={darkMode}
+            pageContent={pageContent}
+          />
 
-          {program.languageIds.length > 0 && (
-            <div className="mb-1">
-              <span
-                className={`block text-xs font-semibold mb-1 ${
-                  darkMode ? 'text-gray-200' : 'text-gray-800'
-                }`}
-              >
-                {pageContent['body-profile-languages-title'] || 'Languages'}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {(showAllLanguages ? program.languageIds : program.languageIds.slice(0, 8)).map(
-                  (languageId, index) => {
-                    const label = availableLanguages[String(languageId)] ?? '…';
-                    return (
-                      <span
-                        key={`${languageId}-${index}`}
-                        className="inline-flex px-3 py-1 rounded-md bg-capx-primary-green text-white text-xs md:text-sm"
-                      >
-                        {label}
-                      </span>
-                    );
-                  }
-                )}
-              </div>
-              {program.languageIds.length > 8 && (
-                <button
-                  type="button"
-                  className={`mt-1 text-xs font-semibold underline ${
-                    darkMode ? 'text-gray-300' : 'text-gray-600'
-                  }`}
-                  onClick={() => setShowAllLanguages(prev => !prev)}
-                >
-                  {showAllLanguages
-                    ? pageContent['capacity-list-scroll-previous'] || 'Show less'
-                    : pageContent['capacity-list-scroll-next'] || 'Show more'}
-                </button>
-              )}
-            </div>
-          )}
+          <ChipListSection
+            title={pageContent['body-profile-languages-title'] || 'Languages'}
+            items={program.languageIds}
+            showAll={showAllLanguages}
+            onToggle={() => setShowAllLanguages(prev => !prev)}
+            renderLabel={languageId => availableLanguages[String(languageId)] ?? '…'}
+            getKey={(languageId, index) => `${languageId}-${index}`}
+            darkMode={darkMode}
+            pageContent={pageContent}
+          />
 
           {/* Subscribers */}
           <div className="flex items-center gap-2">
@@ -415,50 +481,24 @@ export default function MentorshipProgramCard({
         </div>
       </div>
 
-      <RoleSelectionModal
-        isOpen={showRoleModal}
-        onClose={() => setShowRoleModal(false)}
-        onSelect={handleRoleSelect}
+      <ProgramModals
         program={program}
-      />
-
-      {showForm &&
-        selectedRole &&
-        program.forms?.[selectedRole] &&
-        (program.forms[selectedRole].rawJson?.length ? (
-          <NativeFormRenderModal
-            form={program.forms[selectedRole]}
-            programName={program.name}
-            programLogo={program.logo}
-            onSubmit={handleFormSubmit}
-            onClose={() => {
-              setShowForm(false);
-              setSelectedRole(null);
-            }}
-            submitting={submitting}
-          />
-        ) : (
-          <DynamicForm
-            form={program.forms[selectedRole]}
-            programName={program.name}
-            programLogo={program.logo}
-            onSubmit={handleFormSubmit}
-            onClose={() => {
-              setShowForm(false);
-              setSelectedRole(null);
-            }}
-            submitting={submitting}
-          />
-        ))}
-
-      <ConfirmationModal
-        isOpen={showConfirmation}
-        onClose={() => {
+        showRoleModal={showRoleModal}
+        onCloseRoleModal={() => setShowRoleModal(false)}
+        onRoleSelect={handleRoleSelect}
+        showForm={showForm}
+        selectedRole={selectedRole}
+        onCloseForm={() => {
+          setShowForm(false);
+          setSelectedRole(null);
+        }}
+        onFormSubmit={handleFormSubmit}
+        submitting={submitting}
+        showConfirmation={showConfirmation}
+        onCloseConfirmation={() => {
           setShowConfirmation(false);
           setSelectedRole(null);
         }}
-        programName={program.name}
-        programLogo={program.logo}
       />
     </>
   );
