@@ -21,25 +21,29 @@ export const CAPACITY_CACHE_KEYS = {
   allHierarchy: (language: string) => ['capacities', 'hierarchy', language] as const,
 };
 
+// Capacity color by code prefix, evaluated in order ('10' intentionally before '106')
+const COLOR_BY_CODE_PREFIX: ReadonlyArray<[string, string]> = [
+  ['10', 'organizational'],
+  ['36', 'communication'],
+  ['50', 'learning'],
+  ['56', 'community'],
+  ['65', 'social'],
+  ['74', 'strategic'],
+  ['106', 'technology'],
+];
+
+const getCapacityColorFromCode = (baseCode: string): string => {
+  for (const [prefix, color] of COLOR_BY_CODE_PREFIX) {
+    if (baseCode.startsWith(prefix)) return color;
+  }
+  return 'gray-200';
+};
+
 // Helper function to convert CapacityResponse to Capacity
 const convertToCapacity = (response: CapacityResponse, parentCode?: string): Capacity => {
   const code = typeof response.code === 'string' ? Number(response.code) : response.code;
   const baseCode = code.toString();
-  const color = baseCode.startsWith('10')
-    ? 'organizational'
-    : baseCode.startsWith('36')
-      ? 'communication'
-      : baseCode.startsWith('50')
-        ? 'learning'
-        : baseCode.startsWith('56')
-          ? 'community'
-          : baseCode.startsWith('65')
-            ? 'social'
-            : baseCode.startsWith('74')
-              ? 'strategic'
-              : baseCode.startsWith('106')
-                ? 'technology'
-                : 'gray-200';
+  const color = getCapacityColorFromCode(baseCode);
 
   // Convert baseCode to number for getCapacityIcon
   // We use the numeric code for icon lookup
@@ -55,6 +59,22 @@ const convertToCapacity = (response: CapacityResponse, parentCode?: string): Cap
     skill_type: parentCode ? Number(parentCode) : code,
     skill_wikidata_item: '',
   };
+};
+
+// Helper to cache individual capacity children returned for a root capacity
+const cacheCapacityChildren = (
+  queryClient: any,
+  children: Record<string, any>,
+  language: string
+) => {
+  Object.entries(children).forEach(([childId, childName]) => {
+    if (childId) {
+      queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId), language), {
+        code: childId,
+        name: childName,
+      });
+    }
+  });
 };
 
 /**
@@ -96,14 +116,7 @@ export function prefetchAllCapacityData(
             );
 
             // Store individual capacities in the cache as well
-            Object.entries(children).forEach(([childId, childName]) => {
-              if (childId) {
-                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId), language), {
-                  code: childId,
-                  name: childName,
-                });
-              }
-            });
+            cacheCapacityChildren(queryClient, children, language);
 
             return children;
           },

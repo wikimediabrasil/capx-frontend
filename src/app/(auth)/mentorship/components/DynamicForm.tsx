@@ -31,6 +31,74 @@ function sanitizeDateTimeValue(value: string | undefined): string {
   return `${String(year).padStart(4, '0')}-${match[2]}-${match[3]}T${match[4]}`;
 }
 
+const validateStringConstraints = (field: MentorshipFormField, value: string): string | null => {
+  const { minLength, maxLength, pattern } = field.validation ?? {};
+  if (minLength && value.length < minLength) {
+    return `${field.label} must be at least ${minLength} characters`;
+  }
+  if (maxLength && value.length > maxLength) {
+    return `${field.label} must be at most ${maxLength} characters`;
+  }
+  if (pattern && !new RegExp(pattern).test(value)) {
+    return `${field.label} format is invalid`;
+  }
+  return null;
+};
+
+const validateNumberConstraints = (field: MentorshipFormField, value: number): string | null => {
+  const { min, max } = field.validation ?? {};
+  if (min !== undefined && value < min) {
+    return `${field.label} must be at least ${min}`;
+  }
+  if (max !== undefined && value > max) {
+    return `${field.label} must be at most ${max}`;
+  }
+  return null;
+};
+
+// Shared input className: red border on error, otherwise theme-aware colors
+const fieldInputClass = (error: string | undefined, darkMode: boolean): string =>
+  `w-full px-4 py-3 rounded-lg border ${
+    error
+      ? 'border-red-500'
+      : darkMode
+        ? 'bg-gray-700 border-gray-600 text-white'
+        : 'bg-white border-gray-300 text-gray-900'
+  } focus:outline-none focus:ring-2 focus:ring-[#053749]`;
+
+// Shared field wrapper: label + control (children) + error + hint
+function FieldShell({
+  field,
+  error,
+  darkMode,
+  children,
+}: {
+  field: MentorshipFormField;
+  error: string | undefined;
+  darkMode: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-4">
+      <label
+        className={`block mb-2 text-sm font-semibold ${
+          darkMode ? 'text-white' : 'text-capx-dark-box-bg'
+        }`}
+      >
+        {field.label}
+        {field.required !== false && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {children}
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {field.hint && (
+        <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          {field.hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
 interface DynamicFormProps {
   form: MentorshipForm;
   programName: string;
@@ -94,34 +162,10 @@ export default function DynamicForm({
     }
 
     if (isEmpty(value, field) && !required) return null;
+    if (!field.validation) return null;
 
-    if (field.validation) {
-      const { min, max, minLength, maxLength, pattern } = field.validation;
-
-      if (typeof value === 'string') {
-        if (minLength && value.length < minLength) {
-          return `${field.label} must be at least ${minLength} characters`;
-        }
-        if (maxLength && value.length > maxLength) {
-          return `${field.label} must be at most ${maxLength} characters`;
-        }
-        if (pattern) {
-          const regex = new RegExp(pattern);
-          if (!regex.test(value)) {
-            return `${field.label} format is invalid`;
-          }
-        }
-      }
-
-      if (typeof value === 'number') {
-        if (min !== undefined && value < min) {
-          return `${field.label} must be at least ${min}`;
-        }
-        if (max !== undefined && value > max) {
-          return `${field.label} must be at most ${max}`;
-        }
-      }
-    }
+    if (typeof value === 'string') return validateStringConstraints(field, value);
+    if (typeof value === 'number') return validateNumberConstraints(field, value);
 
     return null;
   };
@@ -151,64 +195,32 @@ export default function DynamicForm({
     const value =
       field.type === 'multiselect' ? (Array.isArray(rawValue) ? rawValue : []) : (rawValue ?? '');
     const error = errors[field.id];
+    const inputClass = fieldInputClass(error, darkMode);
+    const shellProps = { field, error, darkMode };
 
     switch (field.type) {
       case 'textarea':
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <textarea
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
               placeholder={field.placeholder}
               required={field.required !== false}
               rows={4}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                error
-                  ? 'border-red-500'
-                  : darkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+              className={inputClass}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
 
       case 'select':
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <select
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
               required={field.required !== false}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                error
-                  ? 'border-red-500'
-                  : darkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+              className={inputClass}
             >
               <option value="">{field.placeholder || 'Select...'}</option>
               {field.options?.map(option => (
@@ -217,30 +229,17 @@ export default function DynamicForm({
                 </option>
               ))}
             </select>
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
 
       case 'multiselect':
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <div className="space-y-2">
               {field.options?.map((option, optIndex) => {
                 const optValue = String(option.value);
                 const isChecked = value.some(v => String(v) === optValue);
+                const valueWithoutOption = value.filter(v => String(v) !== optValue);
                 return (
                   <label
                     key={`${field.id}-opt-${optIndex}`}
@@ -252,9 +251,7 @@ export default function DynamicForm({
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => {
-                        const newValue = isChecked
-                          ? value.filter(v => String(v) !== optValue)
-                          : [...value, option.value];
+                        const newValue = isChecked ? valueWithoutOption : [...value, option.value];
                         handleChange(field.id, newValue);
                       }}
                       className="w-4 h-4 rounded border-gray-400 text-[#053749] focus:ring-[#053749]"
@@ -269,59 +266,25 @@ export default function DynamicForm({
                 No options defined for this field.
               </p>
             )}
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
 
       case 'time':
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <input
               type="time"
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
               required={field.required !== false}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                error
-                  ? 'border-red-500'
-                  : darkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+              className={inputClass}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
 
       case 'date':
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <input
               type="date"
               min="1000-01-01"
@@ -329,34 +292,14 @@ export default function DynamicForm({
               value={sanitizeDateValue(value)}
               onChange={e => handleChange(field.id, sanitizeDateValue(e.target.value))}
               required={field.required !== false}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                error
-                  ? 'border-red-500'
-                  : darkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+              className={inputClass}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
 
       case 'datetime':
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <input
               type="datetime-local"
               min="1000-01-01T00:00"
@@ -364,55 +307,23 @@ export default function DynamicForm({
               value={sanitizeDateTimeValue(value)}
               onChange={e => handleChange(field.id, sanitizeDateTimeValue(e.target.value))}
               required={field.required !== false}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                error
-                  ? 'border-red-500'
-                  : darkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+              className={inputClass}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
 
       default:
         return (
-          <div key={field.id} className="mb-4">
-            <label
-              className={`block mb-2 text-sm font-semibold ${
-                darkMode ? 'text-white' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {field.label}
-              {field.required !== false && <span className="text-red-500 ml-1">*</span>}
-            </label>
+          <FieldShell key={field.id} {...shellProps}>
             <input
               type={field.type}
               value={value}
               onChange={e => handleChange(field.id, e.target.value)}
               placeholder={field.placeholder}
               required={field.required !== false}
-              className={`w-full px-4 py-3 rounded-lg border ${
-                error
-                  ? 'border-red-500'
-                  : darkMode
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-[#053749]`}
+              className={inputClass}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-            {field.hint && (
-              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                {field.hint}
-              </p>
-            )}
-          </div>
+          </FieldShell>
         );
     }
   };

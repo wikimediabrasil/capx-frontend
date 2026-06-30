@@ -24,6 +24,261 @@ import ProfileQrCodeModal from './ProfileQrCodeModal';
 import { getPublicProfileUrl } from '@/lib/utils/profilePublicUrl';
 const DEFAULT_AVATAR = '/static/images/person.svg';
 
+const MOBILE_BUTTON_BASE =
+  'w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ';
+const DESKTOP_BUTTON_BASE =
+  'w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ';
+
+// Resolve the avatar URL for the header (Wikidata image, avatar system, or default)
+async function resolveAvatarUrl(
+  avatar: number | undefined,
+  wikidataQid: string | undefined,
+  getAvatarById: (id: number) => Promise<any>
+): Promise<string> {
+  if (shouldUseWikidataImage(avatar, wikidataQid)) {
+    const wikidataImage = await fetchWikidataImage(wikidataQid!);
+    return wikidataImage || DEFAULT_AVATAR;
+  }
+
+  if (typeof avatar === 'number' && avatar > 0) {
+    try {
+      const avatarData = await getAvatarById(avatar);
+      if (avatarData?.avatar_url) {
+        return avatarData.avatar_url;
+      }
+    } catch (error) {
+      console.error('Error fetching avatar:', error);
+    }
+  }
+
+  return DEFAULT_AVATAR;
+}
+
+// Pick the image src given the (already loaded) avatarUrl and the avatar list
+function resolveAvatarSrc(
+  avatarUrl: string | null,
+  avatar: number | undefined,
+  avatars: any[] | undefined
+): string {
+  if (avatarUrl) {
+    return avatarUrl;
+  }
+  if (avatar && avatar > 0) {
+    const avatarData = avatars?.find(a => a.id === avatar);
+    return avatarData?.avatar_url || DEFAULT_AVATAR;
+  }
+  return DEFAULT_AVATAR;
+}
+
+function getBookmarkIcon(isSaved: boolean, darkMode: boolean) {
+  if (isSaved) {
+    return darkMode ? BookmarkFilledWhite : BookmarkFilled;
+  }
+  return darkMode ? BookmarkWhite : Bookmark;
+}
+
+function getAvatarAlt(isDefaultAvatar: boolean, pageContent: any): string {
+  return isDefaultAvatar
+    ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
+    : pageContent['navbar-user-profile'] || 'User profile';
+}
+
+interface ProfileActions {
+  darkMode: boolean;
+  pageContent: any;
+  isSaved: boolean;
+  canShowSaveButton: boolean;
+  isSameUser: boolean;
+  onCopyLink: () => void;
+  onShowQr: () => void;
+  onToggleSaved: () => void;
+  onEdit: () => void;
+}
+
+function ProfileActionButtons({
+  variant,
+  darkMode,
+  pageContent,
+  isSaved,
+  canShowSaveButton,
+  isSameUser,
+  onCopyLink,
+  onShowQr,
+  onToggleSaved,
+  onEdit,
+}: ProfileActions & { variant: 'mobile' | 'desktop' }) {
+  const base = variant === 'mobile' ? MOBILE_BUTTON_BASE : DESKTOP_BUTTON_BASE;
+  const imageSize = variant === 'mobile' ? 20 : 42;
+  const colorClass = darkMode
+    ? 'text-capx-light-bg border-capx-light-bg'
+    : 'text-capx-dark-box-bg border-capx-dark-box-bg';
+  const customClass = `${base}${colorClass}`;
+  const wrapperClass =
+    variant === 'mobile' ? 'flex flex-col gap-2' : 'flex flex-col gap-2 w-full max-w-full';
+
+  return (
+    <div className={wrapperClass}>
+      <BaseButton
+        onClick={onCopyLink}
+        label={pageContent['body-profile-copy-link']}
+        customClass={customClass}
+        imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
+        imageAlt="Copy link"
+        imageWidth={imageSize}
+        imageHeight={imageSize}
+      />
+
+      <BaseButton
+        onClick={onShowQr}
+        label={pageContent['body-profile-qr-code']}
+        customClass={customClass}
+        imageUrl={darkMode ? QrCodeIconWhite : QrCodeIcon}
+        imageAlt="QR code"
+        imageWidth={imageSize}
+        imageHeight={imageSize}
+      />
+
+      {canShowSaveButton && (
+        <BaseButton
+          onClick={onToggleSaved}
+          label={
+            isSaved
+              ? pageContent['saved-profiles-saved-profile'] || 'Saved'
+              : pageContent['edit-profile-save'] || 'Save profile'
+          }
+          customClass={customClass}
+          imageUrl={getBookmarkIcon(isSaved, darkMode)}
+          imageAlt="Save profile"
+          imageWidth={imageSize}
+          imageHeight={imageSize}
+        />
+      )}
+
+      {isSameUser && (
+        <BaseButton
+          onClick={onEdit}
+          label={pageContent['body-profile-edit-user-button']}
+          customClass={customClass}
+          imageUrl={darkMode ? EditIconWhite : EditIcon}
+          imageAlt="Edit icon"
+          imageWidth={imageSize}
+          imageHeight={imageSize}
+        />
+      )}
+    </div>
+  );
+}
+
+interface ProfileHeaderViewProps {
+  imageSrc: string;
+  isDefaultAvatar: boolean;
+  username: string;
+  actions: ProfileActions;
+}
+
+function ProfileHeaderMobile({
+  imageSrc,
+  isDefaultAvatar,
+  username,
+  actions,
+}: ProfileHeaderViewProps) {
+  const { darkMode, pageContent } = actions;
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="relative w-[100px] h-[100px]">
+        <Image
+          priority
+          src={imageSrc}
+          alt={getAvatarAlt(isDefaultAvatar, pageContent)}
+          fill
+          className="object-cover border rounded-[4px]"
+          unoptimized
+          onError={e => {
+            console.error('Error fetching avatar:', e);
+            e.currentTarget.src = DEFAULT_AVATAR;
+          }}
+        />
+      </div>
+      <h1
+        className={` text-[24px] font-[Montserrat] font-normal ${
+          darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
+        }`}
+      >
+        {pageContent['edit-profile-welcome']}
+      </h1>
+      <div className="flex items-center gap-2">
+        <Image
+          src={darkMode ? UserCircleIconWhite : UserCircleIcon}
+          alt={pageContent['navbar-user-profile']}
+          width={20}
+          height={20}
+        />
+        <span
+          className={`text-[20px] font-[Montserrat] font-bold ${
+            darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
+          }`}
+        >
+          {username || pageContent['loading']}
+        </span>
+      </div>
+      <ProfileActionButtons variant="mobile" {...actions} />
+    </div>
+  );
+}
+
+function ProfileHeaderDesktop({
+  imageSrc,
+  isDefaultAvatar,
+  username,
+  actions,
+}: ProfileHeaderViewProps) {
+  const { darkMode, pageContent } = actions;
+  return (
+    <div className="flex flex-row gap-8 md:gap-12 lg:gap-[96px] mb-8 md:mb-12 lg:mb-[96px] flex-wrap">
+      <div className="relative w-[200px] h-[200px] md:w-[250px] md:h-[250px] flex-shrink-0">
+        <Image
+          priority
+          src={imageSrc}
+          alt={getAvatarAlt(isDefaultAvatar, pageContent)}
+          fill
+          className="object-cover"
+          unoptimized
+          onError={e => {
+            console.error('Error fetching avatar:', e);
+            e.currentTarget.src = DEFAULT_AVATAR;
+          }}
+        />
+      </div>
+      <div className="flex flex-col gap-6 flex-1 min-w-0">
+        <h1
+          className={`text-[32px] md:text-[40px] lg:text-[48px] font-[Montserrat] font-normal break-words ${
+            darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
+          }`}
+        >
+          {pageContent['edit-profile-welcome']}
+        </h1>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Image
+            src={darkMode ? UserCircleIconWhite : UserCircleIcon}
+            alt={pageContent['navbar-user-profile']}
+            width={42}
+            height={42}
+            className="flex-shrink-0"
+          />
+          <span
+            className={`text-[20px] md:text-[22px] lg:text-[24px] font-[Montserrat] font-bold break-words ${
+              darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
+            }`}
+          >
+            {username || 'Loading...'}
+          </span>
+        </div>
+        <ProfileActionButtons variant="desktop" {...actions} />
+      </div>
+    </div>
+  );
+}
+
 interface ProfileHeaderProps {
   userId: number;
   username: string;
@@ -53,44 +308,12 @@ export default function ProfileHeader({
   const [showQrModal, setShowQrModal] = useState(false);
 
   const loadAvatar = useCallback(async () => {
-    // If avatar is null or 0 and we have a Wikidata QID, fetch the Wikidata image
-    if (shouldUseWikidataImage(avatar, wikidataQid)) {
-      const wikidataImage = await fetchWikidataImage(wikidataQid!);
-      setAvatarUrl(wikidataImage || DEFAULT_AVATAR);
-      return;
-    }
-
-    // If avatar > 0, fetch from avatar system
-    if (typeof avatar === 'number' && avatar > 0) {
-      try {
-        const avatarData = await getAvatarById(avatar);
-        if (avatarData?.avatar_url) {
-          setAvatarUrl(avatarData.avatar_url);
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching avatar:', error);
-      }
-    }
-
-    // Default: person avatar
-    setAvatarUrl(DEFAULT_AVATAR);
+    setAvatarUrl(await resolveAvatarUrl(avatar, wikidataQid, getAvatarById));
   }, [avatar, wikidataQid, getAvatarById]);
 
   useEffect(() => {
     loadAvatar();
   }, [loadAvatar]);
-
-  const getCorrectImage = () => {
-    if (avatarUrl) {
-      return avatarUrl;
-    }
-    if (avatar && avatar > 0) {
-      const avatarData = avatars?.find(a => a.id === avatar);
-      return avatarData?.avatar_url || DEFAULT_AVATAR;
-    }
-    return DEFAULT_AVATAR;
-  };
 
   const handleCopyLink = async () => {
     try {
@@ -130,253 +353,38 @@ export default function ProfileHeader({
     return null;
   }
 
-  const imageSrc = getCorrectImage();
+  const imageSrc = resolveAvatarSrc(avatarUrl, avatar, avatars);
   const isDefaultAvatar = imageSrc === DEFAULT_AVATAR;
 
-  if (isMobile) {
-    return (
-      <>
-        <div className="flex flex-col gap-4">
-          <div className="relative w-[100px] h-[100px]">
-            <Image
-              priority
-              src={imageSrc}
-              alt={
-                isDefaultAvatar
-                  ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
-                  : pageContent['navbar-user-profile'] || 'User profile'
-              }
-              fill
-              className="object-cover border rounded-[4px]"
-              unoptimized
-              onError={e => {
-                console.error('Error fetching avatar:', e);
-                e.currentTarget.src = DEFAULT_AVATAR;
-              }}
-            />
-          </div>
-          <h1
-            className={` text-[24px] font-[Montserrat] font-normal ${
-              darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {pageContent['edit-profile-welcome']}
-          </h1>
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? UserCircleIconWhite : UserCircleIcon}
-              alt={pageContent['navbar-user-profile']}
-              width={20}
-              height={20}
-            />
-            <span
-              className={`text-[20px] font-[Montserrat] font-bold ${
-                darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {username || pageContent['loading']}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <BaseButton
-              onClick={handleCopyLink}
-              label={pageContent['body-profile-copy-link']}
-              customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                darkMode
-                  ? 'text-capx-light-bg border-capx-light-bg'
-                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-              }`}
-              imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
-              imageAlt="Copy link"
-              imageWidth={20}
-              imageHeight={20}
-            />
-
-            <BaseButton
-              onClick={() => setShowQrModal(true)}
-              label={pageContent['body-profile-qr-code']}
-              customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                darkMode
-                  ? 'text-capx-light-bg border-capx-light-bg'
-                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-              }`}
-              imageUrl={darkMode ? QrCodeIconWhite : QrCodeIcon}
-              imageAlt="QR code"
-              imageWidth={20}
-              imageHeight={20}
-            />
-
-            {canShowSaveButton && (
-              <BaseButton
-                onClick={handleToggleSaved}
-                label={
-                  isSaved
-                    ? pageContent['saved-profiles-saved-profile'] || 'Saved'
-                    : pageContent['edit-profile-save'] || 'Save profile'
-                }
-                customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                  darkMode
-                    ? 'text-capx-light-bg border-capx-light-bg'
-                    : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-                }`}
-                imageUrl={
-                  isSaved
-                    ? darkMode
-                      ? BookmarkFilledWhite
-                      : BookmarkFilled
-                    : darkMode
-                      ? BookmarkWhite
-                      : Bookmark
-                }
-                imageAlt="Save profile"
-                imageWidth={20}
-                imageHeight={20}
-              />
-            )}
-
-            {isSameUser && (
-              <BaseButton
-                onClick={() => router.push('/profile/edit')}
-                label={pageContent['body-profile-edit-user-button']}
-                customClass={`w-full font-[Montserrat] text-[14px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                  darkMode
-                    ? 'text-capx-light-bg border-capx-light-bg'
-                    : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-                }`}
-                imageUrl={darkMode ? EditIconWhite : EditIcon}
-                imageAlt="Edit icon"
-                imageWidth={20}
-                imageHeight={20}
-              />
-            )}
-          </div>
-        </div>
-        <ProfileQrCodeModal
-          isOpen={showQrModal}
-          onClose={() => setShowQrModal(false)}
-          username={username}
-        />
-      </>
-    );
-  }
+  const actions: ProfileActions = {
+    darkMode,
+    pageContent,
+    isSaved,
+    canShowSaveButton,
+    isSameUser,
+    onCopyLink: handleCopyLink,
+    onShowQr: () => setShowQrModal(true),
+    onToggleSaved: handleToggleSaved,
+    onEdit: () => router.push('/profile/edit'),
+  };
 
   return (
     <>
-      <div className="flex flex-row gap-8 md:gap-12 lg:gap-[96px] mb-8 md:mb-12 lg:mb-[96px] flex-wrap">
-        <div className="relative w-[200px] h-[200px] md:w-[250px] md:h-[250px] flex-shrink-0">
-          <Image
-            priority
-            src={imageSrc}
-            alt={
-              isDefaultAvatar
-                ? pageContent['alt-profile-picture-default'] || 'Default user profile picture'
-                : pageContent['navbar-user-profile'] || 'User profile'
-            }
-            fill
-            className="object-cover"
-            unoptimized
-            onError={e => {
-              console.error('Error fetching avatar:', e);
-              e.currentTarget.src = DEFAULT_AVATAR;
-            }}
-          />
-        </div>
-        <div className="flex flex-col gap-6 flex-1 min-w-0">
-          <h1
-            className={`text-[32px] md:text-[40px] lg:text-[48px] font-[Montserrat] font-normal break-words ${
-              darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
-            }`}
-          >
-            {pageContent['edit-profile-welcome']}
-          </h1>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Image
-              src={darkMode ? UserCircleIconWhite : UserCircleIcon}
-              alt={pageContent['navbar-user-profile']}
-              width={42}
-              height={42}
-              className="flex-shrink-0"
-            />
-            <span
-              className={`text-[20px] md:text-[22px] lg:text-[24px] font-[Montserrat] font-bold break-words ${
-                darkMode ? 'text-capx-light-bg' : 'text-capx-dark-box-bg'
-              }`}
-            >
-              {username || 'Loading...'}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2 w-full max-w-full">
-            <BaseButton
-              onClick={handleCopyLink}
-              label={pageContent['body-profile-copy-link']}
-              customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                darkMode
-                  ? 'text-capx-light-bg border-capx-light-bg'
-                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-              }`}
-              imageUrl={darkMode ? CopyLinkIconWhite : CopyLinkIcon}
-              imageAlt="Copy link"
-              imageWidth={42}
-              imageHeight={42}
-            />
-            <BaseButton
-              onClick={() => setShowQrModal(true)}
-              label={pageContent['body-profile-qr-code']}
-              customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                darkMode
-                  ? 'text-capx-light-bg border-capx-light-bg'
-                  : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-              }`}
-              imageUrl={darkMode ? QrCodeIconWhite : QrCodeIcon}
-              imageAlt="QR code"
-              imageWidth={42}
-              imageHeight={42}
-            />
-            {canShowSaveButton && (
-              <BaseButton
-                onClick={handleToggleSaved}
-                label={
-                  isSaved
-                    ? pageContent['saved-profiles-saved-profile'] || 'Saved'
-                    : pageContent['edit-profile-save'] || 'Save profile'
-                }
-                customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                  darkMode
-                    ? 'text-capx-light-bg border-capx-light-bg'
-                    : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-                }`}
-                imageUrl={
-                  isSaved
-                    ? darkMode
-                      ? BookmarkFilledWhite
-                      : BookmarkFilled
-                    : darkMode
-                      ? BookmarkWhite
-                      : Bookmark
-                }
-                imageAlt="Save profile"
-                imageWidth={42}
-                imageHeight={42}
-              />
-            )}
-            {isSameUser && (
-              <BaseButton
-                onClick={() => router.push('/profile/edit')}
-                label={pageContent['body-profile-edit-user-button']}
-                customClass={`w-full max-w-full font-[Montserrat] text-[20px] md:text-[22px] lg:text-[24px] not-italic font-extrabold leading-[normal] inline-flex px-[13px] py-[6px] pb-[6px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border-[2px] border-[solid]  ${
-                  darkMode
-                    ? 'text-capx-light-bg border-capx-light-bg'
-                    : 'text-capx-dark-box-bg border-capx-dark-box-bg'
-                }`}
-                imageUrl={darkMode ? EditIconWhite : EditIcon}
-                imageAlt="Edit icon"
-                imageWidth={42}
-                imageHeight={42}
-              />
-            )}
-          </div>
-        </div>
-      </div>
+      {isMobile ? (
+        <ProfileHeaderMobile
+          imageSrc={imageSrc}
+          isDefaultAvatar={isDefaultAvatar}
+          username={username}
+          actions={actions}
+        />
+      ) : (
+        <ProfileHeaderDesktop
+          imageSrc={imageSrc}
+          isDefaultAvatar={isDefaultAvatar}
+          username={username}
+          actions={actions}
+        />
+      )}
       <ProfileQrCodeModal
         isOpen={showQrModal}
         onClose={() => setShowQrModal(false)}

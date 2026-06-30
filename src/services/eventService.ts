@@ -7,58 +7,61 @@ interface EventsResponse {
   count: number;
 }
 
+// Translate pagination + filter state into the query params the API expects
+function buildEventQueryParams(limit?: number, offset?: number, filters?: EventFilterState): any {
+  const params: any = {};
+
+  // Adicionar parâmetros de paginação
+  if (limit !== undefined) params.limit = limit;
+  if (offset !== undefined) params.offset = offset;
+
+  if (!filters) return params;
+
+  // Add capacities as query string
+  if (filters.capacities && filters.capacities.length > 0) {
+    // Convert codes to string for the API
+    params.related_skills = filters.capacities.map(cap => cap.code.toString()).join(',');
+  }
+
+  // Add territories
+  if (filters.territories && filters.territories.length > 0) {
+    params.territories = filters.territories.join(',');
+  }
+
+  // Add location type filter (online, physical, hybrid)
+  if (filters.locationType && filters.locationType !== EventLocationType.All) {
+    if (filters.locationType === EventLocationType.InPerson) {
+      params.type_of_location = 'in_person';
+    } else if (filters.locationType === EventLocationType.Hybrid) {
+      params.type_of_location = 'hybrid';
+    } else if (filters.locationType === EventLocationType.Online) {
+      params.type_of_location = 'virtual';
+    }
+  }
+
+  // Add date filters
+  if (filters.dateRange?.startDate) {
+    params.start_date = filters.dateRange.startDate;
+  }
+  if (filters.dateRange?.endDate) {
+    params.end_date = filters.dateRange.endDate;
+  }
+
+  // Add organization filter
+  if (filters.organizationId) {
+    params.organization_id = filters.organizationId;
+  }
+
+  return params;
+}
+
 export const eventsService = {
   async getEvents(
     limit?: number,
     offset?: number,
     filters?: EventFilterState
   ): Promise<EventsResponse> {
-    const params: any = {};
-
-    // Adicionar parâmetros de paginação
-    if (limit !== undefined) params.limit = limit;
-    if (offset !== undefined) params.offset = offset;
-
-    // Add filters if present
-    if (filters) {
-      // Add capacities as query string
-      if (filters.capacities && filters.capacities.length > 0) {
-        // Convert codes to string for the API
-        const capacityCodes = filters.capacities.map(cap => cap.code.toString()).join(',');
-        params.related_skills = capacityCodes;
-      }
-
-      // Add territories
-      if (filters.territories && filters.territories.length > 0) {
-        params.territories = filters.territories.join(',');
-      }
-
-      // Add location type filter (online, physical, hybrid)
-      if (filters.locationType && filters.locationType !== EventLocationType.All) {
-        if (filters.locationType === EventLocationType.InPerson) {
-          params.type_of_location = 'in_person';
-        } else if (filters.locationType === EventLocationType.Hybrid) {
-          params.type_of_location = 'hybrid';
-        } else if (filters.locationType === EventLocationType.Online) {
-          params.type_of_location = 'virtual';
-        }
-      }
-
-      // Add start date filter
-      if (filters.dateRange?.startDate) {
-        params.start_date = filters.dateRange.startDate;
-      }
-
-      // Add end date filter
-      if (filters.dateRange?.endDate) {
-        params.end_date = filters.dateRange.endDate;
-      }
-
-      // Add organization filter
-      if (filters.organizationId) {
-        params.organization_id = filters.organizationId;
-      }
-    }
+    const params = buildEventQueryParams(limit, offset, filters);
 
     try {
       const response = await axios.get('/api/events/', {

@@ -132,15 +132,16 @@ export default function AnalyticsCallToActionSection() {
   useEffect(() => {
     if (statistics.length <= 1) return; // No need to rotate if only one or no statistics
 
+    // After fade out completes, change index and fade in
+    const advanceToNextStatistic = () => {
+      setCurrentIndex(prevIndex => (prevIndex + 1) % statistics.length);
+      setIsVisible(true);
+    };
+
     const interval = setInterval(() => {
       // Fade out
       setIsVisible(false);
-
-      // After fade out completes, change index and fade in
-      timeoutRef.current = setTimeout(() => {
-        setCurrentIndex(prevIndex => (prevIndex + 1) % statistics.length);
-        setIsVisible(true);
-      }, 500); // Match transition duration
+      timeoutRef.current = setTimeout(advanceToNextStatistic, 500); // Match transition duration
     }, 5000);
 
     return () => {

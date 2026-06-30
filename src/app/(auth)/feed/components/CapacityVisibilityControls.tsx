@@ -22,6 +22,58 @@ interface CapacityVisibilityControlsProps {
   onToggleIncludeIncompleteProfiles: () => void;
 }
 
+interface VisibilityToggleProps {
+  active: boolean;
+  activeDarkClass: string;
+  activeLightClass: string;
+  iconLight: any;
+  iconDark: any;
+  alt: string;
+  label: string;
+  darkMode: boolean;
+  onClick: () => void;
+  labelClassName?: string;
+  checkboxWrapperClassName?: string;
+}
+
+function VisibilityToggle({
+  active,
+  activeDarkClass,
+  activeLightClass,
+  iconLight,
+  iconDark,
+  alt,
+  label,
+  darkMode,
+  onClick,
+  labelClassName = '',
+  checkboxWrapperClassName = 'ml-auto',
+}: VisibilityToggleProps) {
+  let stateClass: string;
+  if (active) {
+    stateClass = darkMode ? activeDarkClass : activeLightClass;
+  } else {
+    stateClass = darkMode ? 'bg-capx-dark-box-bg border-gray-700' : 'bg-white border-gray-300';
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 p-3 rounded-lg border flex justify-between items-center transition-colors ${stateClass}`}
+    >
+      <div className="flex items-center gap-2">
+        <Image src={darkMode ? iconDark : iconLight} alt={alt} width={20} height={20} />
+        <span className={`${labelClassName} ${darkMode ? 'text-white' : 'text-black'}`.trim()}>
+          {label}
+        </span>
+      </div>
+      <div className={checkboxWrapperClassName}>
+        <input type="checkbox" checked={active} readOnly className="h-4 w-4" />
+      </div>
+    </button>
+  );
+}
+
 export function CapacityVisibilityControls({
   showWanted,
   showAvailable,
@@ -38,122 +90,55 @@ export function CapacityVisibilityControls({
   return (
     <div className="w-full mb-4">
       <div className="flex flex-col md:flex-row gap-2 md:gap-3">
-        <button
+        <VisibilityToggle
+          active={showWanted}
           onClick={onToggleWanted}
-          className={`flex-1 p-3 rounded-lg border flex justify-between items-center transition-colors ${
-            showWanted
-              ? darkMode
-                ? 'bg-capx-dark-box-bg border-orange-500'
-                : 'bg-orange-100 border-orange-500'
-              : darkMode
-                ? 'bg-capx-dark-box-bg border-gray-700'
-                : 'bg-white border-gray-300'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? TargetIconWhite : TargetIcon}
-              alt={pageContent['alt-icon-generic'] || 'Wanted capacities icon'}
-              width={20}
-              height={20}
-            />
-            <span className={darkMode ? 'text-white' : 'text-black'}>
-              {pageContent['body-profile-wanted-capacities-title'] || 'Wanted capacities'}
-            </span>
-          </div>
-          <div className="ml-auto">
-            <input type="checkbox" checked={showWanted} readOnly className="h-4 w-4" />
-          </div>
-        </button>
+          activeDarkClass="bg-capx-dark-box-bg border-orange-500"
+          activeLightClass="bg-orange-100 border-orange-500"
+          iconLight={TargetIcon}
+          iconDark={TargetIconWhite}
+          alt={pageContent['alt-icon-generic'] || 'Wanted capacities icon'}
+          label={pageContent['body-profile-wanted-capacities-title'] || 'Wanted capacities'}
+          darkMode={darkMode}
+        />
 
-        <button
+        <VisibilityToggle
+          active={showAvailable}
           onClick={onToggleAvailable}
-          className={`flex-1 p-3 rounded-lg border flex justify-between items-center transition-colors ${
-            showAvailable
-              ? darkMode
-                ? 'bg-capx-dark-box-bg border-green-500'
-                : 'bg-green-100 border-green-500'
-              : darkMode
-                ? 'bg-capx-dark-box-bg border-gray-700'
-                : 'bg-white border-gray-300'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? EmojiIconWhite : EmojiIcon}
-              alt={pageContent['alt-icon-generic'] || 'Available capacities icon'}
-              width={20}
-              height={20}
-            />
-            <span className={darkMode ? 'text-white' : 'text-black'}>
-              {pageContent['body-profile-available-capacities-title'] || 'Available capacities'}
-            </span>
-          </div>
-          <div className="ml-auto">
-            <input type="checkbox" checked={showAvailable} readOnly className="h-4 w-4" />
-          </div>
-        </button>
+          activeDarkClass="bg-capx-dark-box-bg border-green-500"
+          activeLightClass="bg-green-100 border-green-500"
+          iconLight={EmojiIcon}
+          iconDark={EmojiIconWhite}
+          alt={pageContent['alt-icon-generic'] || 'Available capacities icon'}
+          label={pageContent['body-profile-available-capacities-title'] || 'Available capacities'}
+          darkMode={darkMode}
+        />
 
-        <button
+        <VisibilityToggle
+          active={showKnown}
           onClick={onToggleKnown}
-          className={`flex-1 p-3 rounded-lg border flex justify-between items-center transition-colors ${
-            showKnown
-              ? darkMode
-                ? 'bg-capx-dark-box-bg border-blue-500'
-                : 'bg-blue-100 border-blue-500'
-              : darkMode
-                ? 'bg-capx-dark-box-bg border-gray-700'
-                : 'bg-white border-gray-300'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? NeurologyIconWhite : NeurologyIcon}
-              alt={pageContent['alt-icon-generic'] || 'Known capacities icon'}
-              width={20}
-              height={20}
-            />
-            <span className={darkMode ? 'text-white' : 'text-black'}>
-              {pageContent['body-profile-known-capacities-title'] || 'Known capacities'}
-            </span>
-          </div>
-          <div className="ml-auto">
-            <input type="checkbox" checked={showKnown} readOnly className="h-4 w-4" />
-          </div>
-        </button>
+          activeDarkClass="bg-capx-dark-box-bg border-blue-500"
+          activeLightClass="bg-blue-100 border-blue-500"
+          iconLight={NeurologyIcon}
+          iconDark={NeurologyIconWhite}
+          alt={pageContent['alt-icon-generic'] || 'Known capacities icon'}
+          label={pageContent['body-profile-known-capacities-title'] || 'Known capacities'}
+          darkMode={darkMode}
+        />
 
-        <button
+        <VisibilityToggle
+          active={includeIncompleteProfiles}
           onClick={onToggleIncludeIncompleteProfiles}
-          className={`flex-1 p-3 rounded-lg border flex justify-between items-center transition-colors ${
-            includeIncompleteProfiles
-              ? darkMode
-                ? 'bg-capx-dark-box-bg border-orange-500'
-                : 'bg-orange-50 border-orange-500'
-              : darkMode
-                ? 'bg-capx-dark-box-bg border-gray-700'
-                : 'bg-white border-gray-300'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Image
-              src={darkMode ? AccountCircleIconWhite : AccountCircleIcon}
-              alt={pageContent['alt-icon-generic'] || 'Incomplete profiles icon'}
-              width={20}
-              height={20}
-            />
-            <span className={`text-left ${darkMode ? 'text-white' : 'text-black'}`}>
-              {pageContent['feed-toggle-incomplete-profiles'] || 'Incomplete profiles'}
-            </span>
-          </div>
-          <div className="ml-auto shrink-0">
-            <input
-              type="checkbox"
-              checked={includeIncompleteProfiles}
-              readOnly
-              className="h-4 w-4"
-            />
-          </div>
-        </button>
+          activeDarkClass="bg-capx-dark-box-bg border-orange-500"
+          activeLightClass="bg-orange-50 border-orange-500"
+          iconLight={AccountCircleIcon}
+          iconDark={AccountCircleIconWhite}
+          alt={pageContent['alt-icon-generic'] || 'Incomplete profiles icon'}
+          label={pageContent['feed-toggle-incomplete-profiles'] || 'Incomplete profiles'}
+          darkMode={darkMode}
+          labelClassName="text-left"
+          checkboxWrapperClassName="ml-auto shrink-0"
+        />
       </div>
     </div>
   );

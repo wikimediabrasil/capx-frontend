@@ -15,6 +15,58 @@ export interface UseAllUsersParams {
   includeUsersWithoutSkills?: boolean;
 }
 
+interface BuildUserFiltersInput {
+  capacitiesCodes: number[];
+  territories: string[];
+  languages: string[];
+  name?: string;
+  affiliations: string[];
+  hasSharer: boolean;
+  hasLearner: boolean;
+  hasKnown: boolean;
+  includeUsersWithoutSkills?: boolean;
+}
+
+// Assemble the UserFilters payload for the all-users query
+function buildUserFilters(input: BuildUserFiltersInput): UserFilters {
+  const {
+    capacitiesCodes,
+    territories,
+    languages,
+    name,
+    affiliations,
+    hasSharer,
+    hasLearner,
+    hasKnown,
+    includeUsersWithoutSkills,
+  } = input;
+
+  const filters: UserFilters = {
+    ...(capacitiesCodes.length > 0 && {
+      skills_available: hasSharer ? capacitiesCodes : undefined,
+      skills_wanted: hasLearner ? capacitiesCodes : undefined,
+      skills_known: hasKnown ? capacitiesCodes : undefined,
+    }),
+    ...(territories.length > 0 && {
+      territory: territories,
+    }),
+    ...(languages.length > 0 && {
+      language: languages,
+    }),
+    ...(name && { name }),
+    ...(affiliations.length > 0 && { affiliations }),
+  };
+
+  if (!includeUsersWithoutSkills) {
+    filters.has_any_skills = true;
+    if (hasSharer) filters.has_skills_available = true;
+    if (hasLearner) filters.has_skills_wanted = true;
+    if (hasKnown) filters.has_skills_known = true;
+  }
+
+  return filters;
+}
+
 export function useUserProfile() {
   const { data: session } = useSession();
   const {
@@ -133,28 +185,17 @@ export function useAllUsers(params: UseAllUsersParams) {
 
       setIsLoading(true);
       try {
-        const filters: UserFilters = {
-          ...(capacitiesCodes.length > 0 && {
-            skills_available: hasSharer ? capacitiesCodes : undefined,
-            skills_wanted: hasLearner ? capacitiesCodes : undefined,
-            skills_known: hasKnown ? capacitiesCodes : undefined,
-          }),
-          ...(territories.length > 0 && {
-            territory: territories,
-          }),
-          ...(languages.length > 0 && {
-            language: languages,
-          }),
-          ...(name && { name }),
-          ...(affiliations.length > 0 && { affiliations }),
-        };
-
-        if (!params.includeUsersWithoutSkills) {
-          filters.has_any_skills = true;
-          if (hasSharer) filters.has_skills_available = true;
-          if (hasLearner) filters.has_skills_wanted = true;
-          if (hasKnown) filters.has_skills_known = true;
-        }
+        const filters = buildUserFilters({
+          capacitiesCodes,
+          territories,
+          languages,
+          name,
+          affiliations,
+          hasSharer,
+          hasLearner,
+          hasKnown,
+          includeUsersWithoutSkills: params.includeUsersWithoutSkills,
+        });
 
         const data = await userService.fetchAllUsers({
           token: session.user.token,

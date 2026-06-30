@@ -295,6 +295,43 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
     const allNodes: NodeDatum[] = [];
     const allLinks: LinkDatum[] = [];
 
+    // Place a child's grandchildren around it (kept out of the nested loops above
+    // to limit function nesting depth)
+    const pushGrandchildren = (
+      child: D3Capacity,
+      cX: number,
+      cY: number,
+      cAngle: number,
+      rootColor: string | null,
+      rootId: string
+    ) => {
+      if (!expandedNodes.has(child.id) || !child.children?.length) return;
+
+      const nGc = child.children.length;
+      const gcFanHalf = nGc === 1 ? 0 : Math.min(Math.PI * 0.4, (nGc - 1) * 0.24 + 0.14);
+
+      child.children.forEach((gc, gci) => {
+        const gcAngle = nGc === 1 ? cAngle : cAngle - gcFanHalf + (gci / (nGc - 1)) * 2 * gcFanHalf;
+        const gcX = cX + GC_RADIUS * Math.cos(gcAngle);
+        const gcY = cY + GC_RADIUS * Math.sin(gcAngle);
+        allNodes.push({
+          x: gcX,
+          y: gcY,
+          depth: 2,
+          data: gc,
+          rootColor,
+          angle: gcAngle,
+          rootId,
+        });
+        allLinks.push({
+          source: { x: cX, y: cY },
+          target: { x: gcX, y: gcY },
+          rootId,
+          depth: 2,
+        });
+      });
+    };
+
     // Center logo node
     allNodes.push({
       x: CX,
@@ -353,32 +390,7 @@ export default function D3TreeVisualization({ data }: Readonly<D3TreeVisualizati
           depth: 1,
         });
 
-        if (!expandedNodes.has(child.id) || !child.children?.length) return;
-
-        const nGc = child.children.length;
-        const gcFanHalf = nGc === 1 ? 0 : Math.min(Math.PI * 0.4, (nGc - 1) * 0.24 + 0.14);
-
-        child.children.forEach((gc, gci) => {
-          const gcAngle =
-            nGc === 1 ? cAngle : cAngle - gcFanHalf + (gci / (nGc - 1)) * 2 * gcFanHalf;
-          const gcX = cX + GC_RADIUS * Math.cos(gcAngle);
-          const gcY = cY + GC_RADIUS * Math.sin(gcAngle);
-          allNodes.push({
-            x: gcX,
-            y: gcY,
-            depth: 2,
-            data: gc,
-            rootColor,
-            angle: gcAngle,
-            rootId: cap.id,
-          });
-          allLinks.push({
-            source: { x: cX, y: cY },
-            target: { x: gcX, y: gcY },
-            rootId: cap.id,
-            depth: 2,
-          });
-        });
+        pushGrandchildren(child, cX, cY, cAngle, rootColor, cap.id);
       });
     });
 

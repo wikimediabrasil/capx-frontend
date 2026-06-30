@@ -47,6 +47,249 @@ const getHierarchyInfo = (code: number) => {
   };
 };
 
+// Build a CapacityData entry for a child/grandchild from API response data
+const buildCapacityData = (
+  codeNum: number,
+  data: any,
+  level: number,
+  hierarchyInfo: ReturnType<typeof getHierarchyInfo>,
+  parentCapacity: any
+): CapacityData => {
+  const isObj = typeof data === 'object';
+  return {
+    code: codeNum,
+    name: sanitizeCapacityName(typeof data === 'string' ? data : data?.name || '', codeNum),
+    description: isObj ? data?.description || '' : '',
+    wd_code: isObj ? data?.wd_code || '' : '',
+    metabase_code: isObj ? data?.metabase_code || '' : '',
+    color: hierarchyInfo.color,
+    icon: hierarchyInfo.icon,
+    hasChildren: false,
+    level,
+    skill_type: codeNum,
+    skill_wikidata_item: '',
+    parentCapacity,
+    category: hierarchyInfo.category,
+    isFallbackTranslation: false,
+  };
+};
+
+// Add root (level 1) capacities to the cache
+const addRootCapacitiesToCache = (newCache: UnifiedCache, rootCapacities: any[]): void => {
+  rootCapacities.forEach((capacity: any) => {
+    const hierarchyInfo = getHierarchyInfo(capacity.code);
+
+    newCache.capacities[capacity.code] = {
+      code: capacity.code,
+      name: sanitizeCapacityName(capacity.name, capacity.code),
+      description: capacity.description || '',
+      wd_code: capacity.wd_code || '',
+      metabase_code: capacity.metabase_code || '',
+      color: hierarchyInfo.color,
+      icon: hierarchyInfo.icon,
+      hasChildren: capacity.hasChildren !== false,
+      level: capacity.level || 1,
+      skill_type: capacity.skill_type,
+      skill_wikidata_item: capacity.skill_wikidata_item,
+      parentCapacity: capacity.parentCapacity,
+      category: hierarchyInfo.category,
+      isFallbackTranslation: false,
+    };
+  });
+};
+
+// Fetch grandchildren (level 3) for a single child and add them to the cache
+const fetchAndAddGrandchildren = async (
+  newCache: UnifiedCache,
+  childCodeNum: number,
+  childCode: string,
+  hierarchyInfo: ReturnType<typeof getHierarchyInfo>,
+  token: string,
+  newLanguage: string
+): Promise<void> => {
+  try {
+    const grandchildrenResponse = await capacityService.fetchCapacitiesByType(
+      childCode,
+      { headers: { Authorization: `Token ${token}` } },
+      newLanguage
+    );
+
+    if (!grandchildrenResponse || typeof grandchildrenResponse !== 'object') return;
+
+    const grandchildrenEntries = Object.entries(grandchildrenResponse as Record<string, any>);
+    if (grandchildrenEntries.length === 0) return;
+
+    newCache.capacities[childCodeNum].hasChildren = true;
+    newCache.children[childCodeNum] = grandchildrenEntries.map(([code]) => parseInt(code, 10));
+
+    for (const [grandchildCode, grandchildData] of grandchildrenEntries) {
+      const grandchildCodeNum = parseInt(grandchildCode, 10);
+      newCache.capacities[grandchildCodeNum] = buildCapacityData(
+        grandchildCodeNum,
+        grandchildData,
+        3,
+        hierarchyInfo,
+        newCache.capacities[childCodeNum]
+      );
+    }
+  } catch {
+    // Silently continue if grandchildren fetch fails
+  }
+};
+
+// Fetch children (level 2) and their grandchildren for a single root capacity
+const fetchAndAddChildren = async (
+  newCache: UnifiedCache,
+  rootCapacity: any,
+  token: string,
+  newLanguage: string
+): Promise<void> => {
+  try {
+    const childrenResponse = await capacityService.fetchCapacitiesByType(
+      rootCapacity.code.toString(),
+      { headers: { Authorization: `Token ${token}` } },
+      newLanguage
+    );
+
+    if (!childrenResponse || typeof childrenResponse !== 'object') return;
+
+    const childrenEntries = Object.entries(childrenResponse as Record<string, any>);
+    newCache.children[rootCapacity.code] = childrenEntries.map(([code]) => parseInt(code, 10));
+
+    const hierarchyInfo = getHierarchyInfo(Number(rootCapacity.code));
+    for (const [childCode, childData] of childrenEntries) {
+      const childCodeNum = parseInt(childCode, 10);
+      newCache.capacities[childCodeNum] = buildCapacityData(
+        childCodeNum,
+        childData,
+        2,
+        hierarchyInfo,
+        rootCapacity
+      );
+
+      await fetchAndAddGrandchildren(
+        newCache,
+        childCodeNum,
+        childCode,
+        hierarchyInfo,
+        token,
+        newLanguage
+      );
+    }
+  } catch {
+    // Silently continue if children fetch fails
+  }
+};
+
+// Fetch SPARQL translations and merge them into the cached capacities
+const applyTranslations = async (newCache: UnifiedCache, newLanguage: string): Promise<void> => {
+  const allCodesNeedingTranslations = Object.values(newCache.capacities)
+    .filter(cap => cap.wd_code && cap.level && cap.level <= 3 && cap.wd_code.trim() !== '')
+    .map(cap => ({ code: cap.code, wd_code: cap.wd_code! }));
+
+  if (allCodesNeedingTranslations.length === 0) return;
+
+  const { fetchCapacitiesWithFallback } = await import('@/lib/utils/capacitiesUtils');
+  const translations = await fetchCapacitiesWithFallback(allCodesNeedingTranslations, newLanguage);
+
+  translations.forEach((translation: any) => {
+    const matchingCapacity = Object.values(newCache.capacities).find(
+      cap => cap.wd_code === translation.wd_code
+    );
+    if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
+      const currentCapacity = newCache.capacities[matchingCapacity.code];
+      const mergedName = resolveCapacityDisplayName(
+        translation.name,
+        currentCapacity.name,
+        matchingCapacity.code
+      );
+      newCache.capacities[matchingCapacity.code] = {
+        ...currentCapacity,
+        name: mergedName,
+        isFallbackLabel: translation.isFallbackLabel || false,
+        isFallbackDescription: translation.isFallbackDescription || false,
+        isFallbackTranslation: translation.isFallbackTranslation || false,
+        description: translation.description || currentCapacity.description,
+        metabase_code: translation.metabase_code || currentCapacity.metabase_code,
+      };
+    }
+  });
+};
+
+// Final pass: resolve any remaining URI/QID labels via Wikidata
+const resolveRemainingInvalidLabels = async (
+  newCache: UnifiedCache,
+  newLanguage: string
+): Promise<void> => {
+  const stillInvalid = Object.values(newCache.capacities).filter(
+    cap => isInvalidCapacityLabel(cap.name) && cap.wd_code?.trim()
+  );
+  if (stillInvalid.length === 0) return;
+
+  const resolved = await applyWikidataNameFallback(
+    stillInvalid.map(cap => ({ code: cap.code, wd_code: cap.wd_code!, name: cap.name })),
+    newLanguage
+  );
+  resolved.forEach(item => {
+    if (newCache.capacities[item.code as number]) {
+      newCache.capacities[item.code as number].name = item.name;
+    }
+  });
+};
+
+// Mark capacities as fallback for non-English when translation data is missing
+const markFallbackForNonEnglish = (newCache: UnifiedCache, newLanguage: string): void => {
+  if (newLanguage === 'en') return;
+
+  Object.values(newCache.capacities).forEach(capacity => {
+    // Capacities without wd_code can't be translated via SPARQL
+    if (
+      (capacity.isFallbackTranslation === undefined || capacity.isFallbackTranslation === false) &&
+      (!capacity.wd_code || capacity.wd_code.trim() === '')
+    ) {
+      newCache.capacities[capacity.code].isFallbackTranslation = true;
+    }
+    // Capacities with wd_code that were never processed by SPARQL translations
+    // (isFallbackLabel is still undefined) — their labels may come from the backend
+    // API already translated, but the description may be untranslated
+    if (
+      capacity.wd_code &&
+      capacity.wd_code.trim() !== '' &&
+      capacity.isFallbackLabel === undefined &&
+      capacity.isFallbackDescription === undefined
+    ) {
+      newCache.capacities[capacity.code].isFallbackTranslation = true;
+      newCache.capacities[capacity.code].isFallbackLabel = true;
+      newCache.capacities[capacity.code].isFallbackDescription = true;
+    }
+  });
+};
+
+// Try to load a matching, valid unified cache from localStorage
+const loadCacheFromLocalStorage = (newLanguage: string): UnifiedCache | null => {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const cached = localStorage.getItem('capx-unified-cache');
+    if (!cached) return null;
+
+    const parsed = JSON.parse(cached);
+    const parsedHasInvalidNames = Object.values(parsed.capacities || {}).some(
+      (cap: { name?: string }) => isInvalidCapacityLabel(cap.name)
+    );
+    if (
+      parsed.language === newLanguage &&
+      Object.keys(parsed.capacities).length > 0 &&
+      !parsedHasInvalidNames
+    ) {
+      return parsed as UnifiedCache;
+    }
+  } catch {
+    // Silently handle cache loading errors
+  }
+  return null;
+};
+
 // Get initial language from localStorage
 const getInitialLanguage = (): string => {
   if (typeof window !== 'undefined') {
@@ -165,33 +408,17 @@ export const useCapacityStore = create<CapacityStore>()(
 
           try {
             // Try to load from localStorage first
-            if (typeof window !== 'undefined') {
-              try {
-                const cached = localStorage.getItem('capx-unified-cache');
-                if (cached) {
-                  const parsed = JSON.parse(cached);
-                  const parsedHasInvalidNames = Object.values(parsed.capacities || {}).some(
-                    (cap: { name?: string }) => isInvalidCapacityLabel(cap.name)
-                  );
-                  if (
-                    parsed.language === newLanguage &&
-                    Object.keys(parsed.capacities).length > 0 &&
-                    !parsedHasInvalidNames
-                  ) {
-                    set({
-                      capacities: parsed.capacities,
-                      children: parsed.children,
-                      language: parsed.language,
-                      timestamp: parsed.timestamp,
-                      isLoadingTranslations: false,
-                      isLoaded: true,
-                    });
-                    return;
-                  }
-                }
-              } catch {
-                // Silently handle cache loading errors
-              }
+            const cachedCache = loadCacheFromLocalStorage(newLanguage);
+            if (cachedCache) {
+              set({
+                capacities: cachedCache.capacities,
+                children: cachedCache.children,
+                language: cachedCache.language,
+                timestamp: cachedCache.timestamp,
+                isLoadingTranslations: false,
+                isLoaded: true,
+              });
+              return;
             }
 
             // Fetch root capacities
@@ -213,225 +440,16 @@ export const useCapacityStore = create<CapacityStore>()(
               timestamp: Date.now(),
             };
 
-            // Add root capacities to cache
-            rootCapacities.forEach((capacity: any) => {
-              const hierarchyInfo = getHierarchyInfo(capacity.code);
-
-              newCache.capacities[capacity.code] = {
-                code: capacity.code,
-                name: sanitizeCapacityName(capacity.name, capacity.code),
-                description: capacity.description || '',
-                wd_code: capacity.wd_code || '',
-                metabase_code: capacity.metabase_code || '',
-                color: hierarchyInfo.color,
-                icon: hierarchyInfo.icon,
-                hasChildren: capacity.hasChildren !== false,
-                level: capacity.level || 1,
-                skill_type: capacity.skill_type,
-                skill_wikidata_item: capacity.skill_wikidata_item,
-                parentCapacity: capacity.parentCapacity,
-                category: hierarchyInfo.category,
-                isFallbackTranslation: false,
-              };
-            });
+            addRootCapacitiesToCache(newCache, rootCapacities);
 
             // Fetch all children and grandchildren for each root capacity
             for (const rootCapacity of rootCapacities) {
-              try {
-                const childrenResponse = await capacityService.fetchCapacitiesByType(
-                  rootCapacity.code.toString(),
-                  { headers: { Authorization: `Token ${token}` } },
-                  newLanguage
-                );
-
-                if (childrenResponse && typeof childrenResponse === 'object') {
-                  const childrenEntries = Object.entries(childrenResponse as Record<string, any>);
-
-                  newCache.children[rootCapacity.code] = childrenEntries.map(([code]) =>
-                    parseInt(code, 10)
-                  );
-
-                  for (const [childCode, childData] of childrenEntries) {
-                    const childCodeNum = parseInt(childCode, 10);
-                    const hierarchyInfo = getHierarchyInfo(Number(rootCapacity.code));
-
-                    const childName = sanitizeCapacityName(
-                      typeof childData === 'string' ? childData : (childData as any)?.name || '',
-                      childCodeNum
-                    );
-
-                    newCache.capacities[childCodeNum] = {
-                      code: childCodeNum,
-                      name: childName,
-                      description:
-                        typeof childData === 'object' ? (childData as any)?.description || '' : '',
-                      wd_code:
-                        typeof childData === 'object' ? (childData as any)?.wd_code || '' : '',
-                      metabase_code:
-                        typeof childData === 'object'
-                          ? (childData as any)?.metabase_code || ''
-                          : '',
-                      color: hierarchyInfo.color,
-                      icon: hierarchyInfo.icon,
-                      hasChildren: false,
-                      level: 2,
-                      skill_type: childCodeNum,
-                      skill_wikidata_item: '',
-                      parentCapacity: rootCapacity,
-                      category: hierarchyInfo.category,
-                      isFallbackTranslation: false,
-                    };
-
-                    // Try to fetch grandchildren
-                    try {
-                      const grandchildrenResponse = await capacityService.fetchCapacitiesByType(
-                        childCode,
-                        { headers: { Authorization: `Token ${token}` } },
-                        newLanguage
-                      );
-
-                      if (grandchildrenResponse && typeof grandchildrenResponse === 'object') {
-                        const grandchildrenEntries = Object.entries(
-                          grandchildrenResponse as Record<string, any>
-                        );
-
-                        if (grandchildrenEntries.length > 0) {
-                          newCache.capacities[childCodeNum].hasChildren = true;
-                          newCache.children[childCodeNum] = grandchildrenEntries.map(([code]) =>
-                            parseInt(code, 10)
-                          );
-
-                          for (const [grandchildCode, grandchildData] of grandchildrenEntries) {
-                            const grandchildCodeNum = parseInt(grandchildCode, 10);
-                            const grandchildName = sanitizeCapacityName(
-                              typeof grandchildData === 'string'
-                                ? grandchildData
-                                : (grandchildData as any)?.name || '',
-                              grandchildCodeNum
-                            );
-
-                            newCache.capacities[grandchildCodeNum] = {
-                              code: grandchildCodeNum,
-                              name: grandchildName,
-                              description:
-                                typeof grandchildData === 'object'
-                                  ? (grandchildData as any)?.description || ''
-                                  : '',
-                              wd_code:
-                                typeof grandchildData === 'object'
-                                  ? (grandchildData as any)?.wd_code || ''
-                                  : '',
-                              metabase_code:
-                                typeof grandchildData === 'object'
-                                  ? (grandchildData as any)?.metabase_code || ''
-                                  : '',
-                              color: hierarchyInfo.color,
-                              icon: hierarchyInfo.icon,
-                              hasChildren: false,
-                              level: 3,
-                              skill_type: grandchildCodeNum,
-                              skill_wikidata_item: '',
-                              parentCapacity: newCache.capacities[childCodeNum],
-                              category: hierarchyInfo.category,
-                              isFallbackTranslation: false,
-                            };
-                          }
-                        }
-                      }
-                    } catch {
-                      // Silently continue if grandchildren fetch fails
-                    }
-                  }
-                }
-              } catch {
-                // Silently continue if children fetch fails
-              }
+              await fetchAndAddChildren(newCache, rootCapacity, token, newLanguage);
             }
 
-            // Get all capacity codes that need translations
-            const allCodesNeedingTranslations = Object.values(newCache.capacities)
-              .filter(
-                cap => cap.wd_code && cap.level && cap.level <= 3 && cap.wd_code.trim() !== ''
-              )
-              .map(cap => ({ code: cap.code, wd_code: cap.wd_code! }));
-
-            if (allCodesNeedingTranslations.length > 0) {
-              const { fetchCapacitiesWithFallback } = await import('@/lib/utils/capacitiesUtils');
-              const translations = await fetchCapacitiesWithFallback(
-                allCodesNeedingTranslations,
-                newLanguage
-              );
-
-              translations.forEach((translation: any) => {
-                const matchingCapacity = Object.values(newCache.capacities).find(
-                  cap => cap.wd_code === translation.wd_code
-                );
-                if (matchingCapacity && newCache.capacities[matchingCapacity.code]) {
-                  const currentCapacity = newCache.capacities[matchingCapacity.code];
-                  const mergedName = resolveCapacityDisplayName(
-                    translation.name,
-                    currentCapacity.name,
-                    matchingCapacity.code
-                  );
-                  newCache.capacities[matchingCapacity.code] = {
-                    ...currentCapacity,
-                    name: mergedName,
-                    isFallbackLabel: translation.isFallbackLabel || false,
-                    isFallbackDescription: translation.isFallbackDescription || false,
-                    isFallbackTranslation: translation.isFallbackTranslation || false,
-                    description: translation.description || currentCapacity.description,
-                    metabase_code: translation.metabase_code || currentCapacity.metabase_code,
-                  };
-                }
-              });
-            }
-
-            // Final pass: resolve any remaining URI/QID labels via Wikidata
-            const stillInvalid = Object.values(newCache.capacities).filter(
-              cap => isInvalidCapacityLabel(cap.name) && cap.wd_code?.trim()
-            );
-            if (stillInvalid.length > 0) {
-              const resolved = await applyWikidataNameFallback(
-                stillInvalid.map(cap => ({
-                  code: cap.code,
-                  wd_code: cap.wd_code!,
-                  name: cap.name,
-                })),
-                newLanguage
-              );
-              resolved.forEach(item => {
-                if (newCache.capacities[item.code as number]) {
-                  newCache.capacities[item.code as number].name = item.name;
-                }
-              });
-            }
-
-            // Mark capacities as fallback for non-English when translation data is missing
-            if (newLanguage !== 'en') {
-              Object.values(newCache.capacities).forEach(capacity => {
-                // Capacities without wd_code can't be translated via SPARQL
-                if (
-                  (capacity.isFallbackTranslation === undefined ||
-                    capacity.isFallbackTranslation === false) &&
-                  (!capacity.wd_code || capacity.wd_code.trim() === '')
-                ) {
-                  newCache.capacities[capacity.code].isFallbackTranslation = true;
-                }
-                // Capacities with wd_code that were never processed by SPARQL translations
-                // (isFallbackLabel is still undefined) — their labels may come from the backend
-                // API already translated, but the description may be untranslated
-                if (
-                  capacity.wd_code &&
-                  capacity.wd_code.trim() !== '' &&
-                  capacity.isFallbackLabel === undefined &&
-                  capacity.isFallbackDescription === undefined
-                ) {
-                  newCache.capacities[capacity.code].isFallbackTranslation = true;
-                  newCache.capacities[capacity.code].isFallbackLabel = true;
-                  newCache.capacities[capacity.code].isFallbackDescription = true;
-                }
-              });
-            }
+            await applyTranslations(newCache, newLanguage);
+            await resolveRemainingInvalidLabels(newCache, newLanguage);
+            markFallbackForNonEnglish(newCache, newLanguage);
 
             // Update state
             set({

@@ -62,7 +62,3 @@ export { default as WikiIconWhite } from '@/public/static/images/wikimedia_logo_
 // Desktop specific icons
 export { default as ExpandIcon } from '@/public/static/images/expand_all.svg';
 export { default as ExpandIconWhite } from '@/public/static/images/expand_all_white.svg';
-export { default as LetsConect } from '@/public/static/images/lets_connect_desktop.svg';
-export { default as LetsConectText } from '@/public/static/images/lets_connect_text_desktop.svg';
-export { default as LetsConectTitle } from '@/public/static/images/lets_connect_title.svg';
-export { default as LetsConectTitleLight } from '@/public/static/images/lets_connect_title_light.svg';

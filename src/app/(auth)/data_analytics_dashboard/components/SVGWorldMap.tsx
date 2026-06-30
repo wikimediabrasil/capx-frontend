@@ -565,7 +565,7 @@ export default function SVGWorldMap({
 
         element.addEventListener('click', e => {
           e.stopPropagation();
-          setSelectedTerritory(prev => (prev?.id === territory.id ? null : territory));
+          setSelectedTerritory(selectedTerritory?.id === territory.id ? null : territory);
         });
       }
     });

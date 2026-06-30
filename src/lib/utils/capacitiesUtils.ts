@@ -348,46 +348,87 @@ export const fetchWikidata = async (codes: any, language: string) => {
   }
 };
 
+const isMetabaseBindingValid = (mbItem: any): boolean =>
+  mbItem.item && mbItem.item.value && mbItem.itemLabel && mbItem.itemLabel.value && mbItem.value;
+
+// Convert a single SPARQL binding into our Capacity-shaped result
+const mapMetabaseBinding = (mbItem: any, codes: any, language: string) => {
+  // Extract the Metabase ID from the item URI
+  const itemUri = mbItem.item.value;
+  const metabaseCode = itemUri.split('/').slice(-1)[0];
+
+  // Check the language of the returned label
+  const labelLanguage = mbItem.itemLabel?.['xml:lang'] || mbItem.itemLabel?.lang || 'en';
+  const descriptionLanguage =
+    mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
+
+  // If we requested a specific language but got English back, it's a fallback
+  // Also treat missing/empty descriptions as fallback since there's nothing translated
+  const isLabelFallback = language !== 'en' && labelLanguage === 'en';
+  const descriptionValue = mbItem.itemDescription?.value || '';
+  const isDescriptionFallback =
+    language !== 'en' && (descriptionLanguage === 'en' || descriptionValue.trim() === '');
+
+  const rawLabel = mbItem.itemLabel.value;
+  const wd_code = mbItem.value.value;
+  const codeEntry = codes.find(
+    (c: { wd_code: string }) => c.wd_code?.toUpperCase() === wd_code?.toUpperCase()
+  );
+
+  return {
+    code: codeEntry?.code,
+    wd_code,
+    name: isInvalidCapacityLabel(rawLabel) ? '' : rawLabel,
+    description: mbItem.itemDescription?.value || '',
+    item: mbItem.item.value,
+    metabase_code: metabaseCode,
+    // Track if this result is using English fallback
+    isFallbackLabel: isLabelFallback,
+    isFallbackDescription: isDescriptionFallback,
+    isFallbackTranslation: isLabelFallback || isDescriptionFallback,
+  };
+};
+
+// Split large requests into batches to avoid URL length limits
+const fetchMetabaseInBatches = async (
+  codes: any,
+  language: string,
+  batchSize: number
+): Promise<Capacity[]> => {
+  const batchedResults: Capacity[] = [];
+  for (let i = 0; i < codes.length; i += batchSize) {
+    const batch = codes.slice(i, i + batchSize);
+    try {
+      const batchResults = await fetchMetabase(batch, language);
+      if (batchResults && batchResults.length > 0) {
+        batchedResults.push(...batchResults);
+      }
+    } catch {
+      // Continue with next batch instead of failing completely
+    }
+  }
+  return batchedResults;
+};
+
 export const fetchMetabase = async (codes: any, language: string): Promise<Capacity[]> => {
   try {
     if (!codes || codes.length === 0) {
       return [];
     }
 
-    // Validate all codes have wd_code
-    const invalidCodes = codes.filter(
-      (code: any) => !code.wd_code || typeof code.wd_code !== 'string'
+    // Keep only codes that carry a valid wd_code
+    const validCodes = codes.filter(
+      (code: any) => code.wd_code && typeof code.wd_code === 'string'
     );
-    if (invalidCodes.length > 0) {
-      // Filter out invalid codes and continue with valid ones
-      const validCodes = codes.filter(
-        (code: any) => code.wd_code && typeof code.wd_code === 'string'
-      );
-      if (validCodes.length === 0) {
-        return [];
-      }
-      codes = validCodes; // Update codes to only valid ones
+    if (validCodes.length === 0) {
+      return [];
     }
+    codes = validCodes;
 
     // Handle large requests by batching to avoid URL length limits
     const BATCH_SIZE = 20; // Limit batch size to prevent URL length issues
-
     if (codes.length > BATCH_SIZE) {
-      const batchedResults: Capacity[] = [];
-      for (let i = 0; i < codes.length; i += BATCH_SIZE) {
-        const batch = codes.slice(i, i + BATCH_SIZE);
-
-        try {
-          const batchResults = await fetchMetabase(batch, language);
-          if (batchResults && batchResults.length > 0) {
-            batchedResults.push(...batchResults);
-          }
-        } catch {
-          // Continue with next batch instead of failing completely
-        }
-      }
-
-      return batchedResults;
+      return await fetchMetabaseInBatches(codes, language, BATCH_SIZE);
     }
 
     const mbQueryText = `PREFIX wbt:<https://metabase.wikibase.cloud/prop/direct/>
@@ -413,54 +454,9 @@ export const fetchMetabase = async (codes: any, language: string): Promise<Capac
     }
 
     // Process the raw results to a consistent format
-    const results = (response.data.results.bindings || [])
-      .filter(
-        (mbItem: any) =>
-          mbItem.item &&
-          mbItem.item.value &&
-          mbItem.itemLabel &&
-          mbItem.itemLabel.value &&
-          mbItem.value
-      )
-      .map((mbItem: any) => {
-        // Extract the Metabase ID from the item URI
-        const itemUri = mbItem.item.value;
-        const metabaseCode = itemUri.split('/').slice(-1)[0];
-
-        // Check the language of the returned label
-        const labelLanguage = mbItem.itemLabel?.['xml:lang'] || mbItem.itemLabel?.lang || 'en';
-        const descriptionLanguage =
-          mbItem.itemDescription?.['xml:lang'] || mbItem.itemDescription?.lang || 'en';
-
-        // If we requested a specific language but got English back, it's a fallback
-        // Also treat missing/empty descriptions as fallback since there's nothing translated
-        const isLabelFallback = language !== 'en' && labelLanguage === 'en';
-        const descriptionValue = mbItem.itemDescription?.value || '';
-        const isDescriptionFallback =
-          language !== 'en' && (descriptionLanguage === 'en' || descriptionValue.trim() === '');
-
-        const rawLabel = mbItem.itemLabel.value;
-        const wd_code = mbItem.value.value;
-        const codeEntry = codes.find(
-          (c: { wd_code: string }) => c.wd_code?.toUpperCase() === wd_code?.toUpperCase()
-        );
-        const result = {
-          code: codeEntry?.code,
-          wd_code,
-          name: isInvalidCapacityLabel(rawLabel) ? '' : rawLabel,
-          description: mbItem.itemDescription?.value || '',
-          item: mbItem.item.value,
-          metabase_code: metabaseCode,
-          // Track if this result is using English fallback
-          isFallbackLabel: isLabelFallback,
-          isFallbackDescription: isDescriptionFallback,
-          isFallbackTranslation: isLabelFallback || isDescriptionFallback,
-        };
-
-        return result;
-      });
-
-    return results;
+    return (response.data.results.bindings || [])
+      .filter(isMetabaseBindingValid)
+      .map((mbItem: any) => mapMetabaseBinding(mbItem, codes, language));
   } catch {
     // Silently handle errors
 

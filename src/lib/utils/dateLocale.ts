@@ -176,7 +176,7 @@ export function applyLocaleToDateInput(element: HTMLInputElement, language: stri
 
     // Temporarily change the type to force re-rendering
     element.type = 'text';
-    void element.offsetHeight; // Trigger reflow
+    element.getBoundingClientRect(); // Trigger reflow
     element.type = currentType;
     element.value = currentValue;
 
@@ -188,8 +188,8 @@ export function applyLocaleToDateInput(element: HTMLInputElement, language: stri
 
   // Strategy 3: Define additional attributes that can help
   try {
-    element.setAttribute('data-locale', locale);
-    element.setAttribute('data-language', language);
+    element.dataset.locale = locale;
+    element.dataset.language = language;
   } catch (error) {
     console.warn('Could not set additional locale attributes:', error);
   }

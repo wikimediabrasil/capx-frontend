@@ -7,7 +7,6 @@ export interface Profile {
   avatar: number | null | undefined;
   contact?: string;
   display_name?: string;
-  automated_lets_connect?: boolean;
   language: LanguageProficiency[];
   pronoun?: string;
   skills_known: number[];
@@ -28,15 +27,4 @@ export interface Profile {
   wikidata_qid?: string;
   wikimedia_project?: string[];
   about_language?: number | null;
-}
-
-export interface LetsConnectProfile {
-  username: string;
-  username_org: string;
-  reconciled_affiliation: string;
-  reconciled_territory: string;
-  reconciled_languages: string[];
-  reconciled_projects: string[];
-  reconciled_want_to_learn: string[];
-  reconciled_want_to_share: string[];
 }
