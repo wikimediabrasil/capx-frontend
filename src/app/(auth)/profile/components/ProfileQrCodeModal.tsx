@@ -10,7 +10,10 @@ const QR_EXPORT_SCALE = 2;
 
 function sanitizeProfileQrFilename(username: string): string {
   const base = username.trim() || 'profile';
-  const safe = base.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+  const safe = base
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/^-{1,100}/, '')
+    .replace(/-{1,100}$/, '');
   return safe || 'profile';
 }
 

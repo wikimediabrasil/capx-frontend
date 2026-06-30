@@ -17,21 +17,6 @@ import {
   setupRecommendationCardMocks,
 } from '../helpers/recommendationTestHelpers';
 
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock({
-    pageContent: {
-      'add-to-profile': 'Add to Profile',
-      added: 'Added',
-      view: 'View',
-      loading: 'Loading...',
-      'capacity-added-success': 'Capacity added to profile',
-      'capacity-icon': 'Capacity icon',
-    },
-    capacityStore: true,
-  });
-});
-
 jest.mock('next-auth/react', () => require('../helpers/homeTestMocks').nextAuthMock);
 jest.mock('@/app/providers/SnackbarProvider');
 jest.mock('@tanstack/react-query', () => require('../helpers/homeTestMocks').reactQueryCardMock());

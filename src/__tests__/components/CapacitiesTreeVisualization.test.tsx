@@ -15,29 +15,6 @@ jest.mock('@/components/skeletons', () => ({
   CapacitiesTreeSkeleton: () => <div data-testid="tree-skeleton">Loading tree...</div>,
 }));
 
-jest.mock('@/stores', () => {
-  const { createStoresMock, createCapacityState } = require('../helpers/componentTestHelpers');
-  const base = createStoresMock();
-  const defaultState = createCapacityState({
-    getRootCapacities: jest.fn(() => [
-      { code: 10, name: 'organizational', color: 'organizational' },
-      { code: 36, name: 'communication', color: 'communication' },
-    ]),
-  });
-  base.useCapacityStore = Object.assign(
-    jest.fn((selector?: any) => (selector ? selector(defaultState) : defaultState)),
-    {
-      getState: () => ({
-        capacities: {},
-        isLoaded: true,
-        isLoadingTranslations: false,
-        language: 'en',
-      }),
-    }
-  );
-  return base;
-});
-
 function mockStoreState(overrides: Record<string, any> = {}) {
   const { createCapacityState } = require('../helpers/componentTestHelpers');
   const stores = jest.requireMock('@/stores');

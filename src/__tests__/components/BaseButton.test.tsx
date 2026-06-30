@@ -2,23 +2,6 @@ import { screen, fireEvent } from '@testing-library/react';
 import BaseButton from '../../components/BaseButton';
 import { renderWithProviders } from '../utils/test-helpers';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-}));
-
 // Mock do Next.js Router
 jest.mock('next/navigation', () => ({
   useRouter() {

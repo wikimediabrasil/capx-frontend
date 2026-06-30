@@ -6,19 +6,6 @@ const mockSubmitBugReport = jest.fn();
 const mockShowSnackbar = jest.fn();
 let mockIsSubmitting = false;
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useIsMobile: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn(() => ({ isMobile: false, language: 'en', pageContent: {} })),
-    { getState: () => ({ isMobile: false, language: 'en', pageContent: {} }) }
-  ),
-}));
-
 jest.mock('@/app/providers/SnackbarProvider', () => ({
   useSnackbar: () => ({ showSnackbar: mockShowSnackbar }),
 }));

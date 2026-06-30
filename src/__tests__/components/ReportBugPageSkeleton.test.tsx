@@ -2,11 +2,6 @@ import { render } from '@testing-library/react';
 import ReportBugPageSkeleton from '@/components/skeletons/ReportBugPageSkeleton';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-}));
-
 describe('ReportBugPageSkeleton', () => {
   beforeEach(() => {
     jest.clearAllMocks();

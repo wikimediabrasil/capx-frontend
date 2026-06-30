@@ -2,26 +2,6 @@ import TranslateCapacityModal from '@/app/(auth)/capacity/components/TranslateCa
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import React from 'react';
 
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  const base = createStoresMock();
-  const capacityState = {
-    capacities: {},
-    isLoaded: true,
-    isLoadingTranslations: false,
-    language: 'en',
-    getName: jest.fn(() => ''),
-    getDescription: jest.fn(() => ''),
-    updateCapacityTranslation: jest.fn(),
-    isFallbackTranslation: jest.fn(() => false),
-  };
-  base.useCapacityStore = Object.assign(
-    jest.fn((selector?: any) => (selector ? selector(capacityState) : capacityState)),
-    { getState: () => ({ capacities: {}, isLoaded: true }) }
-  );
-  return base;
-});
-
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({
     data: { user: { id: '1', token: 'test-token' } },

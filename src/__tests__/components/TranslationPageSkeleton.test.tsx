@@ -2,11 +2,6 @@ import { render } from '@testing-library/react';
 import TranslationPageSkeleton from '@/components/skeletons/TranslationPageSkeleton';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-}));
-
 describe('TranslationPageSkeleton', () => {
   beforeEach(() => {
     jest.clearAllMocks();

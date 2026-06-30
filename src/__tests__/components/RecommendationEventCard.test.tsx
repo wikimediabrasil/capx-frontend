@@ -5,15 +5,6 @@ import { EventRecommendation } from '@/types/recommendation';
 import { useSession } from 'next-auth/react';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => {
-  const { createStoresMock } = require('../helpers/componentTestHelpers');
-  return createStoresMock({
-    pageContent: {
-      'view-event': 'View Event',
-    },
-  });
-});
-
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));

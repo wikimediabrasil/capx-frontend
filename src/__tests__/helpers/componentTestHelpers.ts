@@ -5,10 +5,6 @@
  * transform, so ES imports are not available inside jest.mock() factories.
  * Use require() to pull these helpers in at runtime:
  *
- *   jest.mock('@/stores', () => {
- *     const { createStoresMock } = require('../helpers/componentTestHelpers');
- *     return createStoresMock({ pageContent: { 'key': 'value' } });
- *   });
  *
  * or with capacityStore:
  *

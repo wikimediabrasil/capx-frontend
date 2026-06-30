@@ -126,11 +126,8 @@ export default function ProfilePage({ isSameUser, profile }: Readonly<ProfilePag
     ? 'flex flex-col max-w-[600px] mx-auto gap-6'
     : 'flex flex-col mx-auto gap-6 w-full max-w-full';
 
-  const MainWrapper = isMobile ? 'div' : 'main';
-  const mainProps = isMobile ? {} : { className: 'flex-grow overflow-x-hidden' };
-
   return (
-    <MainWrapper {...mainProps}>
+    <main className={isMobile ? undefined : 'flex-grow overflow-x-hidden'}>
       <div className={containerClass}>
         <section className={sectionClass}>
           <div className={contentClass}>
@@ -296,6 +293,6 @@ export default function ProfilePage({ isSameUser, profile }: Readonly<ProfilePag
           </div>
         </section>
       </div>
-    </MainWrapper>
+    </main>
   );
 }

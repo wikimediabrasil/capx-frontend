@@ -1,62 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import CallToActionSection from '@/components/CallToActionSection';
 import * as stores from '@/stores';
-
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-  useSetDarkMode: jest.fn(() => jest.fn()),
-  useThemeStore: Object.assign(
-    jest.fn(() => ({ darkMode: false, setDarkMode: jest.fn(), mounted: true, hydrate: jest.fn() })),
-    {
-      getState: () => ({
-        darkMode: false,
-        setDarkMode: jest.fn(),
-        mounted: true,
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-  useIsMobile: jest.fn(() => false),
-  usePageContent: jest.fn(() => ({})),
-  useLanguage: jest.fn(() => 'en'),
-  useMobileMenuStatus: jest.fn(() => false),
-  useAppStore: Object.assign(
-    jest.fn((selector?: any) => {
-      const state = {
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      };
-      return selector ? selector(state) : state;
-    }),
-    {
-      getState: () => ({
-        isMobile: false,
-        mobileMenuStatus: false,
-        language: 'en',
-        pageContent: {},
-        session: null,
-        mounted: true,
-        setMobileMenuStatus: jest.fn(),
-        setLanguage: jest.fn(),
-        setPageContent: jest.fn(),
-        setSession: jest.fn(),
-        setIsMobile: jest.fn(),
-        hydrate: jest.fn(),
-      }),
-    }
-  ),
-}));
+// renderWithProviders not needed here; using render directly
 
 // Next.js Router mock
 jest.mock('next/navigation', () => ({
@@ -85,10 +30,6 @@ jest.mock('next-auth/react', () => ({
   SessionProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-const renderWithProviders = (component: React.ReactElement) => {
-  return render(<>{component}</>);
-};
-
 describe('CallToActionSection', () => {
   it('renders main content correctly', () => {
     (stores.usePageContent as jest.Mock).mockReturnValue({
@@ -98,7 +39,7 @@ describe('CallToActionSection', () => {
       'body-home-section01-call-to-action-button02': 'Create Account',
     });
 
-    renderWithProviders(<CallToActionSection />);
+    render(<CallToActionSection />);
 
     expect(screen.getByText('Join the Exchange')).toBeInTheDocument();
     expect(screen.getByText('Connect with peers')).toBeInTheDocument();
@@ -107,7 +48,7 @@ describe('CallToActionSection', () => {
   });
 
   it('applies light mode styles', () => {
-    const { container } = renderWithProviders(<CallToActionSection />);
+    const { container } = render(<CallToActionSection />);
 
     const section = container.querySelector('section');
     expect(section).toHaveClass('bg-capx-light-bg');
@@ -122,7 +63,7 @@ describe('CallToActionSection', () => {
       'body-home-section01-call-to-action-button02': 'Create Account',
     });
 
-    const { container } = renderWithProviders(<CallToActionSection />);
+    const { container } = render(<CallToActionSection />);
 
     expect(container.querySelector('.flex-col')).toBeInTheDocument();
   });

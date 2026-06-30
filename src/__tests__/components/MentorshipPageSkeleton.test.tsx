@@ -2,11 +2,6 @@ import { render } from '@testing-library/react';
 import MentorshipPageSkeleton from '@/components/skeletons/MentorshipPageSkeleton';
 import * as stores from '@/stores';
 
-jest.mock('@/stores', () => ({
-  ...jest.requireActual('@/stores'),
-  useDarkMode: jest.fn(() => false),
-}));
-
 describe('MentorshipPageSkeleton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
