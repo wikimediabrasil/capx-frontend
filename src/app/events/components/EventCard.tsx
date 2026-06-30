@@ -31,6 +31,152 @@ interface EventCardProps {
   error?: boolean;
 }
 
+function getEventLocationLabel(loc: string | undefined, pageContent: any): string {
+  if (loc === 'virtual') return pageContent['events-location-online'] || 'Online';
+  if (loc === 'in_person') return pageContent['events-location-in-person'] || 'In-person';
+  return pageContent['events-location-hybrid'] || 'Hybrid';
+}
+
+function EventAdminControls({
+  darkMode,
+  isSelected,
+  pageContent,
+  onEdit,
+  onChoose,
+  onDelete,
+}: {
+  darkMode: boolean;
+  isSelected: boolean;
+  pageContent: any;
+  onEdit: () => void;
+  onChoose: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="flex gap-2 mb-3 flex-wrap">
+      <BaseButton
+        label={pageContent['organization-profile-edit-event'] || 'Edit'}
+        onClick={onEdit}
+        customClass={`font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold flex flex-row items-center gap-1 !mb-0 transition-opacity hover:opacity-90 ${
+          darkMode
+            ? 'bg-transparent border border-white/20 text-white'
+            : 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
+        }`}
+        imageUrl={darkMode ? EditIconLight : EditIcon}
+        imageAlt={pageContent['alt-edit-event'] || 'Edit event'}
+        imageWidth={16}
+        imageHeight={16}
+      />
+      <BaseButton
+        label={
+          isSelected
+            ? pageContent['organization-profile-hide-event'] || 'Hide'
+            : pageContent['organization-profile-choose-event'] || 'Feature'
+        }
+        onClick={onChoose}
+        customClass={`font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold flex flex-row items-center gap-1 !mb-0 transition-opacity hover:opacity-90 ${
+          isSelected
+            ? 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
+            : 'bg-capx-dark-box-bg text-white'
+        }`}
+        imageUrl={isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight}
+        imageAlt={
+          isSelected
+            ? pageContent['alt-checked'] || 'Option is selected'
+            : pageContent['alt-unchecked'] || 'Option is not selected'
+        }
+        imageWidth={16}
+        imageHeight={16}
+      />
+      <BaseButton
+        label={pageContent['organization-profile-delete-event'] || 'Delete'}
+        onClick={onDelete}
+        customClass="font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold bg-red-500 hover:bg-red-600 flex flex-row items-center gap-1 !mb-0 text-white transition-colors"
+        imageUrl={DeleteIcon}
+        imageAlt={pageContent['alt-delete-event'] || 'Delete event'}
+        imageWidth={16}
+        imageHeight={16}
+      />
+    </div>
+  );
+}
+
+interface EventCapacitiesProps {
+  event: Partial<Event>;
+  darkMode: boolean;
+  pageContent: any;
+  showAllSkills: boolean;
+  showAllCapacities: boolean;
+  isMobile: boolean;
+  isHorizontalScroll?: boolean;
+  overflowing: boolean;
+  visibleCapacities: number;
+  getCapacityName: (skill: number) => string;
+  containerRef: React.RefObject<HTMLDivElement>;
+  onToggle: () => void;
+}
+
+function EventCapacities({
+  event,
+  darkMode,
+  pageContent,
+  showAllSkills,
+  showAllCapacities,
+  isMobile,
+  isHorizontalScroll,
+  overflowing,
+  visibleCapacities,
+  getCapacityName,
+  containerRef,
+  onToggle,
+}: EventCapacitiesProps) {
+  if (!event.related_skills || event.related_skills.length === 0) return null;
+
+  const showToggle =
+    (isMobile || isHorizontalScroll) &&
+    (event.related_skills.length > visibleCapacities || overflowing);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p
+        className={`font-Montserrat text-md font-extrabold ${darkMode ? 'text-white' : 'text-[#507380]'}`}
+      >
+        {pageContent['events-available-capacities'] || 'Available capacities'}
+      </p>
+      <div className="flex flex-row gap-2 items-start">
+        <div
+          ref={containerRef}
+          className={`flex flex-row flex-wrap gap-2 overflow-hidden flex-1 ${
+            showAllSkills ? '' : 'max-h-[30px]'
+          }`}
+        >
+          {event.related_skills
+            .slice(0, showAllSkills ? event.related_skills.length : visibleCapacities)
+            .map(skill => (
+              <span
+                key={skill}
+                className="font-Montserrat text-sm px-2 py-1 rounded-[8px] text-white bg-capx-dark-box-bg w-fit whitespace-nowrap"
+              >
+                {getCapacityName(skill)}
+              </span>
+            ))}
+        </div>
+        {showToggle && (
+          <button onClick={onToggle} className="flex items-center shrink-0 pt-0.5">
+            <Image
+              src={darkMode ? MoreHorizIconLight : MoreHorizIcon}
+              alt={showAllCapacities ? 'Show less' : 'Show more'}
+              className="cursor-pointer"
+              width={24}
+              height={24}
+            />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function EventCard({
   event,
   isHorizontalScroll,
@@ -158,12 +304,7 @@ export default function EventCard({
 
   const loc = event.type_of_location;
 
-  const locationLabel =
-    loc === 'virtual'
-      ? pageContent['events-location-online'] || 'Online'
-      : loc === 'in_person'
-        ? pageContent['events-location-in-person'] || 'In-person'
-        : pageContent['events-location-hybrid'] || 'Hybrid';
+  const locationLabel = getEventLocationLabel(loc, pageContent);
 
   const showAllSkills = showAllCapacities || (!isMobile && !isHorizontalScroll);
 
@@ -178,51 +319,14 @@ export default function EventCard({
       >
         {/* Admin controls */}
         {onEdit && onDelete && onChoose && (
-          <div className="flex gap-2 mb-3 flex-wrap">
-            <BaseButton
-              label={pageContent['organization-profile-edit-event'] || 'Edit'}
-              onClick={() => onEdit(event as Event)}
-              customClass={`font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold flex flex-row items-center gap-1 !mb-0 transition-opacity hover:opacity-90 ${
-                darkMode
-                  ? 'bg-transparent border border-white/20 text-white'
-                  : 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
-              }`}
-              imageUrl={darkMode ? EditIconLight : EditIcon}
-              imageAlt={pageContent['alt-edit-event'] || 'Edit event'}
-              imageWidth={16}
-              imageHeight={16}
-            />
-            <BaseButton
-              label={
-                isSelected
-                  ? pageContent['organization-profile-hide-event'] || 'Hide'
-                  : pageContent['organization-profile-choose-event'] || 'Feature'
-              }
-              onClick={() => handleChoose(event as Event)}
-              customClass={`font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold flex flex-row items-center gap-1 !mb-0 transition-opacity hover:opacity-90 ${
-                isSelected
-                  ? 'bg-transparent border border-capx-dark-box-bg text-capx-dark-box-bg'
-                  : 'bg-capx-dark-box-bg text-white'
-              }`}
-              imageUrl={isSelected ? CheckBoxIcon : CheckBoxOutlineBlankIconLight}
-              imageAlt={
-                isSelected
-                  ? pageContent['alt-checked'] || 'Option is selected'
-                  : pageContent['alt-unchecked'] || 'Option is not selected'
-              }
-              imageWidth={16}
-              imageHeight={16}
-            />
-            <BaseButton
-              label={pageContent['organization-profile-delete-event'] || 'Delete'}
-              onClick={handleDeleteClick}
-              customClass="font-Montserrat py-1.5 px-3 rounded-[8px] text-sm font-extrabold bg-red-500 hover:bg-red-600 flex flex-row items-center gap-1 !mb-0 text-white transition-colors"
-              imageUrl={DeleteIcon}
-              imageAlt={pageContent['alt-delete-event'] || 'Delete event'}
-              imageWidth={16}
-              imageHeight={16}
-            />
-          </div>
+          <EventAdminControls
+            darkMode={darkMode}
+            isSelected={isSelected}
+            pageContent={pageContent}
+            onEdit={() => onEdit(event as Event)}
+            onChoose={() => handleChoose(event as Event)}
+            onDelete={handleDeleteClick}
+          />
         )}
 
         {/* Card content */}
@@ -284,52 +388,20 @@ export default function EventCard({
           )}
 
           {/* Capacities */}
-          {event.related_skills && event.related_skills.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <p
-                className={`font-Montserrat text-md font-extrabold ${
-                  darkMode ? 'text-white' : 'text-[#507380]'
-                }`}
-              >
-                {pageContent['events-available-capacities'] || 'Available capacities'}
-              </p>
-              <div className="flex flex-row gap-2 items-start">
-                <div
-                  ref={capacitiesContainerRef}
-                  className={`flex flex-row flex-wrap gap-2 overflow-hidden flex-1 ${
-                    showAllSkills ? '' : 'max-h-[30px]'
-                  }`}
-                >
-                  {event.related_skills
-                    .slice(0, showAllSkills ? event.related_skills.length : visibleCapacities)
-                    .map(skill => (
-                      <span
-                        key={skill}
-                        className="font-Montserrat text-sm px-2 py-1 rounded-[8px] text-white bg-capx-dark-box-bg w-fit whitespace-nowrap"
-                      >
-                        {getCapacityName(skill)}
-                      </span>
-                    ))}
-                </div>
-                {(isMobile || isHorizontalScroll) &&
-                  event.related_skills &&
-                  (event.related_skills.length > visibleCapacities || overflowing) && (
-                    <button
-                      onClick={toggleCapacitiesView}
-                      className="flex items-center shrink-0 pt-0.5"
-                    >
-                      <Image
-                        src={darkMode ? MoreHorizIconLight : MoreHorizIcon}
-                        alt={showAllCapacities ? 'Show less' : 'Show more'}
-                        className="cursor-pointer"
-                        width={24}
-                        height={24}
-                      />
-                    </button>
-                  )}
-              </div>
-            </div>
-          )}
+          <EventCapacities
+            event={event}
+            darkMode={darkMode}
+            pageContent={pageContent}
+            showAllSkills={showAllSkills}
+            showAllCapacities={showAllCapacities}
+            isMobile={isMobile}
+            isHorizontalScroll={isHorizontalScroll}
+            overflowing={overflowing}
+            visibleCapacities={visibleCapacities}
+            getCapacityName={getCapacityName}
+            containerRef={capacitiesContainerRef}
+            onToggle={toggleCapacitiesView}
+          />
 
           {/* Description */}
           {!isHorizontalScroll && event.description && (
