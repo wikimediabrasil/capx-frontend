@@ -1,8 +1,6 @@
 'use client';
 
 import BadgeSelectionModal from '@/components/BadgeSelectionModal';
-import Banner from '@/components/Banner';
-import BaseButton from '@/components/BaseButton';
 import { useBadgesStore } from '@/stores';
 import {
   addAffiliationToFormData,
@@ -39,7 +37,6 @@ import { WikidataItemSection } from './ProfileEditView/WikidataItemSection';
 import { WikimediaProjectsSection } from './ProfileEditView/WikimediaProjectsSection';
 import { useAvatarManagement } from './ProfileEditView/useAvatarManagement';
 import { useThemeConfig } from './ProfileEditView/useThemeConfig';
-import { getUserCheckIcon } from './ProfileEditView/themeHelpers';
 
 import { useIsMobile, usePageContent } from '@/stores';
 interface ProfileEditViewProps {
@@ -65,9 +62,7 @@ interface ProfileEditViewProps {
   readonly profile: Profile;
   readonly avatars: any[] | undefined;
   readonly refetch: () => Promise<any>;
-  readonly goTo: (path: string) => void;
   readonly isImageLoading: boolean;
-  readonly hasLetsConnectAccount: boolean;
   readonly setIsImageLoading: (loading: boolean) => void;
 }
 
@@ -92,9 +87,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
     wikimediaProjects,
     profile,
     refetch,
-    goTo,
     isImageLoading,
-    hasLetsConnectAccount,
   } = props;
 
   const handleDirectCapacityAdd = (
@@ -123,24 +116,11 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
   const avatarUrl = useAvatarManagement(profile);
 
   // Theme configuration (consolidated)
-  const {
-    bgColor,
-    topMargin,
-    contentMargin,
-    titleColor,
-    accountIcon,
-    iconSize,
-    letsConnect,
-    darkMode,
-  } = useThemeConfig();
-
-  // Icon selections
-  const userCheckIconSrc = getUserCheckIcon(darkMode);
+  const { bgColor, topMargin, contentMargin, titleColor, accountIcon, darkMode } = useThemeConfig();
 
   // Named event handlers (extracted from inline)
   const handleNavigateBack = () => router.back();
   const handleShowDeletePopup = () => setShowDeleteProfilePopup(true);
-  const handleNavigateToLetsConnect = () => goTo('/profile/lets_connect');
   const handleWikiAltChange = (value: string) => {
     setFormData({ ...formData, wiki_alt: value });
   };
@@ -356,55 +336,6 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 wikimediaProjects={wikimediaProjects}
                 addProjectToFormData={addProjectToFormData}
               />
-            </div>
-
-            {/* Let's Connect Section */}
-            <div className="flex flex-col">
-              <div className="w-[300px] md:w-[580px] h-auto">
-                <Image
-                  src={letsConnect.titleImage}
-                  alt="Let's Connect"
-                  className="w-full h-auto"
-                  priority
-                />
-              </div>
-              <p
-                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mb-4 ${letsConnect.textColor}`}
-              >
-                {pageContent['lets-connect-edit-user-info-1']}
-              </p>
-              <div className={letsConnect.bgClass}>
-                <Banner
-                  image={letsConnect.banner}
-                  alt={pageContent['lets-connect-alt-banner']}
-                  title={{
-                    mobile: letsConnect.titleImageMobile,
-                    desktop: letsConnect.titleImageDesktop,
-                  }}
-                  customClass={{
-                    background: 'bg-[#EFEFEF]',
-                    wrapper: isMobile ? '' : 'mb-0',
-                  }}
-                />
-              </div>
-              <BaseButton
-                onClick={handleNavigateToLetsConnect}
-                label={
-                  hasLetsConnectAccount
-                    ? pageContent['lets-connect-form-user-button-update-profile']
-                    : pageContent['lets-connect-form-user-edit']
-                }
-                customClass={`w-full md:w-1/2 flex ${letsConnect.buttonClass} rounded-md py-2 font-[Montserrat] text-[14px] md:text-[24px] not-italic font-extrabold leading-[normal] mb-0 pb-[6px] px-[13px] py-[6px] md:px-8 md:py-4 items-center gap-[4px]`}
-                imageUrl={userCheckIconSrc.src}
-                imageAlt="Add project"
-                imageWidth={iconSize}
-                imageHeight={iconSize}
-              />
-              <p
-                className={`text-[12px] md:text-[20px] font-[Montserrat] not-italic font-normal leading-[15px] md:leading-[30px] mt-4 ${letsConnect.textColor}`}
-              >
-                {pageContent['lets-connect-edit-user-info-2']}
-              </p>
             </div>
 
             {/* Action Buttons - Bottom (Mobile and Desktop) */}

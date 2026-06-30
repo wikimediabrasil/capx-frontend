@@ -58,6 +58,15 @@ export default function FeedPage() {
 
   const { savedItems, createSavedItem, deleteSavedItem } = useSavedItems();
 
+  // Capacity filters can only match profiles that have capacities, so incomplete profiles
+  // are only blended in when no capacity filter is active.
+  const hasCapacityFilter = (activeFilters.capacities?.length ?? 0) > 0;
+  const showIncomplete = activeFilters.includeIncompleteProfiles && !hasCapacityFilter;
+
+  // The backend's `display_priority` ordering does the prioritisation for us: complete profiles
+  // (with capacities) first and incomplete ones last; within each of those, profiles with a
+  // Wikidata image first, then a chosen avatar, then no image — with `-last_update` breaking
+  // ties. That keeps newly-created empty profiles at the end without any client-side stitching.
   const {
     allUsers,
     count: totalRecords,
@@ -66,8 +75,8 @@ export default function FeedPage() {
     limit: itemsPerPage,
     offset,
     activeFilters,
-    ordering: '-last_update',
-    includeUsersWithoutSkills: activeFilters.includeIncompleteProfiles,
+    ordering: 'display_priority,-last_update',
+    includeUsersWithoutSkills: showIncomplete,
   });
 
   // Mark as loaded once data is fetched
@@ -83,18 +92,17 @@ export default function FeedPage() {
     return savedItems.some(item => item.entity_id === profileId && item.entity === 'user');
   };
 
-  // Create profiles (to create cards) from users — includes incomplete profiles (no capacities)
+  // Create profiles (to create cards) from users. The list order is already determined
+  // upstream: complete profiles first (each sorted by most-recent update), then incomplete
+  // ones — so no client-side reordering is needed here.
   const filteredProfiles = useMemo(() => {
     if (!allUsers?.length) return [];
 
-    return createUnifiedProfiles(allUsers)
-      .map(profile => ({
-        ...profile,
-        isSaved: isProfileSaved(profile.id),
-      }))
-      .filter(profile => activeFilters.includeIncompleteProfiles || !profile.hasIncompleteProfile)
-      .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
-  }, [allUsers, savedItems, activeFilters.includeIncompleteProfiles]);
+    return createUnifiedProfiles(allUsers).map(profile => ({
+      ...profile,
+      isSaved: isProfileSaved(profile.id),
+    }));
+  }, [allUsers, savedItems]);
 
   // Calculate total of pages based on total profiles
   const numberOfPages = Math.ceil(totalRecords / itemsPerPage) || 1;

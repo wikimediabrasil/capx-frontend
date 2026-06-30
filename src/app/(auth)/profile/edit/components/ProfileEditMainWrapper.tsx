@@ -23,7 +23,6 @@ import CapacityDebug from './CapacityDebug';
 import DebugPanel from './DebugPanel';
 import ProfileEditView from './ProfileEditView';
 
-import { useLetsConnectExists } from '@/hooks/useLetsConnectExists';
 import {
   getCapacityValidationErrorMessage,
   isCapacityValidationError,
@@ -157,7 +156,6 @@ export default function EditProfilePage() {
   });
   const [isWikidataSelected, setIsWikidataSelected] = useState(false);
   const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
-  const { hasLetsConnectAccount } = useLetsConnectExists();
   const [formData, setFormData] = useState<Partial<Profile>>({
     about: '',
     affiliation: [],
@@ -630,19 +628,12 @@ export default function EditProfilePage() {
     }));
   };
 
-  const goTo = (path: string) => {
-    // Save unsaved data before navigating
-    setUnsavedData(formData);
-    router.push(path);
-  };
-
   const ViewProps: any = {
     selectedAvatar: {
       id: selectedAvatar.id,
       src: selectedAvatar.src || DEFAULT_AVATAR,
     },
     handleAvatarSelect,
-    hasLetsConnectAccount,
     showAvatarPopup,
     setShowAvatarPopup,
     handleWikidataClick,
@@ -663,7 +654,6 @@ export default function EditProfilePage() {
     avatars,
     profile,
     refetch,
-    goTo,
     isImageLoading,
     setIsImageLoading,
   };
