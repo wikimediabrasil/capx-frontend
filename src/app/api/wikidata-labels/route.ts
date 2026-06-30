@@ -10,6 +10,7 @@ const isInvalidCapacityLabel = (name: string | undefined): boolean => {
 };
 
 type WikidataLabelMap = Record<string, { value?: string }>;
+type EntityData = { labels?: WikidataLabelMap; descriptions?: WikidataLabelMap };
 
 const pickLabelFromEntity = (
   entityLabels: WikidataLabelMap | undefined,
@@ -86,6 +87,42 @@ const fetchEntityViaEntityData = async (
   return entity as { labels?: WikidataLabelMap; descriptions?: WikidataLabelMap };
 };
 
+// Resolve a single id to its label/description, falling back to EntityData when needed
+const resolveLabelForId = async (
+  wd_code: string,
+  entities: Record<string, EntityData>,
+  languageCandidates: string[]
+): Promise<{ wd_code: string; name: string; description: string } | null> => {
+  let entity: EntityData | undefined =
+    entities[wd_code] ??
+    entities[wd_code.toUpperCase()] ??
+    (Object.entries(entities).find(([k]) => k.toUpperCase() === wd_code.toUpperCase())?.[1] as
+      | EntityData
+      | undefined);
+
+  if (!entity || (entity as { missing?: string }).missing !== undefined) {
+    entity = (await fetchEntityViaEntityData(wd_code)) ?? undefined;
+  }
+
+  let name = pickLabelFromEntity(entity?.labels, languageCandidates);
+
+  if (!name) {
+    const entityData = await fetchEntityViaEntityData(wd_code);
+    if (entityData) {
+      entity = entityData;
+      name = pickLabelFromEntity(entityData.labels, languageCandidates);
+    }
+  }
+
+  if (!name) return null;
+
+  return {
+    wd_code,
+    name,
+    description: pickDescriptionFromEntity(entity?.descriptions, languageCandidates),
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -110,8 +147,7 @@ export async function GET(request: NextRequest) {
     }
 
     const languageCandidates = languagesParam.split('|').filter(Boolean);
-    const entities: Record<string, { labels?: WikidataLabelMap; descriptions?: WikidataLabelMap }> =
-      {};
+    const entities: Record<string, EntityData> = {};
 
     // Batch request via wbgetentities
     const wbResponse = await fetch(
@@ -139,36 +175,8 @@ export async function GET(request: NextRequest) {
     const labels: Array<{ wd_code: string; name: string; description: string }> = [];
 
     for (const wd_code of ids) {
-      type EntityData = { labels?: WikidataLabelMap; descriptions?: WikidataLabelMap };
-
-      let entity: EntityData | undefined =
-        entities[wd_code] ??
-        entities[wd_code.toUpperCase()] ??
-        (Object.entries(entities).find(([k]) => k.toUpperCase() === wd_code.toUpperCase())?.[1] as
-          | EntityData
-          | undefined);
-
-      if (!entity || (entity as { missing?: string }).missing !== undefined) {
-        entity = (await fetchEntityViaEntityData(wd_code)) ?? undefined;
-      }
-
-      let name = pickLabelFromEntity(entity?.labels, languageCandidates);
-
-      if (!name) {
-        const entityData = await fetchEntityViaEntityData(wd_code);
-        if (entityData) {
-          entity = entityData;
-          name = pickLabelFromEntity(entityData.labels, languageCandidates);
-        }
-      }
-
-      if (!name) continue;
-
-      labels.push({
-        wd_code,
-        name,
-        description: pickDescriptionFromEntity(entity?.descriptions, languageCandidates),
-      });
+      const label = await resolveLabelForId(wd_code, entities, languageCandidates);
+      if (label) labels.push(label);
     }
 
     return NextResponse.json({ labels });
