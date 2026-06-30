@@ -25,6 +25,32 @@ export interface FetchAllUsersParams {
   ordering?: string;
 }
 
+// Translate a fetchAllUsers query into URL search params
+function buildUsersSearchParams(queryParams: FetchAllUsersParams): URLSearchParams {
+  const params = new URLSearchParams();
+  const filters = queryParams?.filters;
+
+  filters?.territory?.forEach(t => params.append('territory', t));
+  filters?.language?.forEach(t => params.append('language', t));
+  filters?.affiliations?.forEach(a => params.append('affiliation', a));
+  filters?.skills_available?.forEach(c => params.append('skills_available', c.toString()));
+  filters?.skills_wanted?.forEach(c => params.append('skills_wanted', c.toString()));
+  filters?.skills_known?.forEach(c => params.append('skills_known', c.toString()));
+
+  if (filters?.has_skills_available === true) params.append('has_skills_available', 'true');
+  if (filters?.has_skills_wanted === true) params.append('has_skills_wanted', 'true');
+  if (filters?.has_skills_known === true) params.append('has_skills_known', 'true');
+  if (filters?.has_any_skills === true) params.append('has_any_skills', 'true');
+
+  if (queryParams?.limit) params.append('limit', queryParams.limit.toString());
+  if (queryParams?.offset) params.append('offset', queryParams.offset.toString());
+  if (filters?.name) params.append('name', filters.name);
+  if (filters?.username) params.append('username', filters.username);
+  if (queryParams?.ordering) params.append('ordering', queryParams.ordering);
+
+  return params;
+}
+
 export const userService = {
   async fetchUserProfile(userId: number, token: string): Promise<UserProfile | null> {
     if (!token || !userId) return null;
@@ -59,69 +85,7 @@ export const userService = {
   async fetchAllUsers(queryParams: FetchAllUsersParams) {
     if (!queryParams.token) return { count: 0, results: [] };
 
-    const params = new URLSearchParams();
-
-    if (queryParams?.filters?.territory?.length) {
-      queryParams.filters.territory.forEach(t => params.append('territory', t));
-    }
-
-    if (queryParams?.filters?.language?.length) {
-      queryParams.filters.language.forEach(t => params.append('language', t));
-    }
-
-    if (queryParams?.filters?.affiliations?.length) {
-      queryParams.filters.affiliations.forEach(a => params.append('affiliation', a));
-    }
-
-    if (queryParams?.filters?.skills_available?.length) {
-      queryParams.filters.skills_available.forEach(c =>
-        params.append('skills_available', c.toString())
-      );
-    }
-
-    if (queryParams?.filters?.skills_wanted?.length) {
-      queryParams.filters.skills_wanted.forEach(c => params.append('skills_wanted', c.toString()));
-    }
-
-    if (queryParams?.filters?.skills_known?.length) {
-      queryParams.filters.skills_known.forEach(c => params.append('skills_known', c.toString()));
-    }
-
-    if (queryParams?.filters?.has_skills_available === true) {
-      params.append('has_skills_available', 'true');
-    }
-
-    if (queryParams?.filters?.has_skills_wanted === true) {
-      params.append('has_skills_wanted', 'true');
-    }
-
-    if (queryParams?.filters?.has_skills_known === true) {
-      params.append('has_skills_known', 'true');
-    }
-
-    if (queryParams?.filters?.has_any_skills === true) {
-      params.append('has_any_skills', 'true');
-    }
-
-    if (queryParams?.limit) {
-      params.append('limit', queryParams.limit.toString());
-    }
-
-    if (queryParams?.offset) {
-      params.append('offset', queryParams.offset.toString());
-    }
-
-    if (queryParams?.filters?.name) {
-      params.append('name', queryParams.filters.name);
-    }
-
-    if (queryParams?.filters?.username) {
-      params.append('username', queryParams.filters.username);
-    }
-
-    if (queryParams?.ordering) {
-      params.append('ordering', queryParams.ordering);
-    }
+    const params = buildUsersSearchParams(queryParams);
 
     try {
       const response = await axios.get(`/api/users/`, {
