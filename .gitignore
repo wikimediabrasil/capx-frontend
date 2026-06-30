@@ -44,3 +44,6 @@ next-env.d.ts
 
 # jscpd duplication reports
 /jscpd-report
+
+# local capture artifacts (recordings + auth state)
+/scripts/capture
