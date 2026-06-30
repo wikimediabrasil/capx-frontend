@@ -27,6 +27,81 @@ const globalCache: GlobalCache = {
   pendingRequests: {},
 };
 
+// Capacity color by code prefix, evaluated in order ('10' intentionally before '106')
+const COLOR_BY_CODE_PREFIX: ReadonlyArray<[string, string]> = [
+  ['10', 'organizational'],
+  ['36', 'communication'],
+  ['50', 'learning'],
+  ['56', 'community'],
+  ['65', 'social'],
+  ['74', 'strategic'],
+  ['106', 'technology'],
+];
+
+const getCapacityColorFromCode = (baseCode: string): string => {
+  for (const [prefix, color] of COLOR_BY_CODE_PREFIX) {
+    if (baseCode.startsWith(prefix)) return color;
+  }
+  return 'gray-200';
+};
+
+// Resolve a capacity's parent given its skill_type (parent) code
+const findParentByCode = (
+  parentCode: string,
+  rootCapacities: Capacity[],
+  childrenCapacities: Record<string, Capacity[]>
+): any => {
+  // Check if parent is a root capacity
+  const rootParent = rootCapacities.find(root => root.code.toString() === parentCode);
+  if (rootParent) return rootParent;
+
+  // Check if parent is in children capacities
+  for (const rootCode in childrenCapacities) {
+    const children = childrenCapacities[rootCode] || [];
+    const childParent = children.find(child => child.code.toString() === parentCode);
+    if (childParent) {
+      const grandparent = rootCapacities.find(root => root.code.toString() === rootCode);
+      if (grandparent) {
+        return {
+          ...childParent,
+          parentCapacity: grandparent,
+          color: childParent.color || grandparent.color,
+          icon: childParent.icon || grandparent.icon,
+        };
+      }
+      return childParent;
+    }
+  }
+  return undefined;
+};
+
+// Resolve a capacity's parent by scanning grandchildren when skill_type didn't match
+const findGrandparentForChild = (
+  childCode: string,
+  rootCapacities: Capacity[],
+  childrenCapacities: Record<string, Capacity[]>
+): any => {
+  for (const rootCode in childrenCapacities) {
+    const children = childrenCapacities[rootCode] || [];
+    for (const child of children) {
+      const grandChildren = childrenCapacities[child.code.toString()] || [];
+      const grandChild = grandChildren.find(gc => gc.code.toString() === childCode);
+      if (grandChild) {
+        const grandparent = rootCapacities.find(root => root.code.toString() === rootCode);
+        if (grandparent) {
+          return {
+            ...child,
+            parentCapacity: grandparent,
+            color: grandparent.color,
+            icon: grandparent.icon,
+          };
+        }
+      }
+    }
+  }
+  return undefined;
+};
+
 export function useCapacityList(token?: string, language: string = 'en') {
   const [rootCapacities, setRootCapacities] = useState<Capacity[]>(globalCache.rootCapacities);
   const [childrenCapacities, setChildrenCapacities] = useState<Record<string, Capacity[]>>(
@@ -76,21 +151,7 @@ export function useCapacityList(token?: string, language: string = 'en') {
             wd_code: item.wd_code,
             code: baseCode,
             name: item.name,
-            color: baseCode.startsWith('10')
-              ? 'organizational'
-              : baseCode.startsWith('36')
-                ? 'communication'
-                : baseCode.startsWith('50')
-                  ? 'learning'
-                  : baseCode.startsWith('56')
-                    ? 'community'
-                    : baseCode.startsWith('65')
-                      ? 'social'
-                      : baseCode.startsWith('74')
-                        ? 'strategic'
-                        : baseCode.startsWith('106')
-                          ? 'technology'
-                          : 'gray-200',
+            color: getCapacityColorFromCode(baseCode),
             icon: getCapacityIcon(baseCode),
             hasChildren: true,
             skill_type: Number(baseCode),
@@ -339,57 +400,11 @@ export function useCapacityList(token?: string, language: string = 'en') {
         (childCapacity as { skill_type?: number }).skill_type?.toString();
 
       if (parentCode) {
-        // Check if parent is a root capacity
-        const parent = rootCapacities.find(root => root.code.toString() === parentCode);
-
-        if (parent) {
-          return parent;
-        }
-
-        // Check if parent is in children capacities
-        for (const rootCode in childrenCapacities) {
-          const children = childrenCapacities[rootCode] || [];
-          const parent = children.find(child => child.code.toString() === parentCode);
-
-          if (parent) {
-            const grandparent = rootCapacities.find(root => root.code.toString() === rootCode);
-
-            if (grandparent) {
-              return {
-                ...parent,
-                parentCapacity: grandparent,
-                color: parent.color || grandparent.color,
-                icon: parent.icon || grandparent.icon,
-              };
-            }
-            return parent;
-          }
-        }
+        const byParentCode = findParentByCode(parentCode, rootCapacities, childrenCapacities);
+        if (byParentCode) return byParentCode;
       }
 
-      for (const rootCode in childrenCapacities) {
-        const children = childrenCapacities[rootCode] || [];
-        for (const child of children) {
-          const grandChildren = childrenCapacities[child.code.toString()] || [];
-
-          const grandChild = grandChildren.find(gc => gc.code.toString() === childCode);
-
-          if (grandChild) {
-            const grandparent = rootCapacities.find(root => root.code.toString() === rootCode);
-
-            if (grandparent) {
-              return {
-                ...child,
-                parentCapacity: grandparent,
-                color: grandparent.color,
-                icon: grandparent.icon,
-              };
-            }
-          }
-        }
-      }
-
-      return undefined;
+      return findGrandparentForChild(childCode, rootCapacities, childrenCapacities);
     },
     [rootCapacities, childrenCapacities]
   );
