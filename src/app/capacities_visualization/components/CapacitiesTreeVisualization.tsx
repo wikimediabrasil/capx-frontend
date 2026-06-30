@@ -33,35 +33,22 @@ export default function CapacitiesTreeVisualization() {
   const capacitiesData = useCapacityStore(state => state.capacities);
 
   const d3Data = useMemo<D3Capacity[]>(() => {
-    const roots = getRootCapacities();
-    return roots.map(root => ({
-      id: root.code.toString(),
-      code: root.code,
-      name: getName(root.code) || root.name,
-      color: getColor(root.code),
-      description: getDescription(root.code),
-      wd_code: getWdCode(root.code),
-      metabase_code: getMetabaseCode(root.code),
-      children: getChildren(root.code).map(child => ({
-        id: child.code.toString(),
-        code: child.code,
-        name: getName(child.code) || child.name,
-        color: getColor(child.code),
-        description: getDescription(child.code),
-        wd_code: getWdCode(child.code),
-        metabase_code: getMetabaseCode(child.code),
-        children: getChildren(child.code).map(grandchild => ({
-          id: grandchild.code.toString(),
-          code: grandchild.code,
-          name: getName(grandchild.code) || grandchild.name,
-          color: getColor(grandchild.code),
-          description: getDescription(grandchild.code),
-          wd_code: getWdCode(grandchild.code),
-          metabase_code: getMetabaseCode(grandchild.code),
-          children: [],
-        })),
-      })),
-    }));
+    const mapNode = (cap: { code: number; name: string }, children: D3Capacity[]): D3Capacity => ({
+      id: cap.code.toString(),
+      code: cap.code,
+      name: getName(cap.code) || cap.name,
+      color: getColor(cap.code),
+      description: getDescription(cap.code),
+      wd_code: getWdCode(cap.code),
+      metabase_code: getMetabaseCode(cap.code),
+      children,
+    });
+    const mapGrandchild = (grandchild: { code: number; name: string }) => mapNode(grandchild, []);
+    const mapChild = (child: { code: number; name: string }) =>
+      mapNode(child, getChildren(child.code).map(mapGrandchild));
+    const mapRoot = (root: { code: number; name: string }) =>
+      mapNode(root, getChildren(root.code).map(mapChild));
+    return getRootCapacities().map(mapRoot);
   }, [capacitiesData]);
 
   if (isLoadingTranslations || !isLoaded) {

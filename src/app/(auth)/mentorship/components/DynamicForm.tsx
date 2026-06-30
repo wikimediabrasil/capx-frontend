@@ -241,6 +241,7 @@ export default function DynamicForm({
               {field.options?.map((option, optIndex) => {
                 const optValue = String(option.value);
                 const isChecked = value.some(v => String(v) === optValue);
+                const valueWithoutOption = value.filter(v => String(v) !== optValue);
                 return (
                   <label
                     key={`${field.id}-opt-${optIndex}`}
@@ -252,9 +253,7 @@ export default function DynamicForm({
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => {
-                        const newValue = isChecked
-                          ? value.filter(v => String(v) !== optValue)
-                          : [...value, option.value];
+                        const newValue = isChecked ? valueWithoutOption : [...value, option.value];
                         handleChange(field.id, newValue);
                       }}
                       className="w-4 h-4 rounded border-gray-400 text-[#053749] focus:ring-[#053749]"

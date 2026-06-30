@@ -19,6 +19,13 @@ function getToken(session: ReturnType<typeof useSession>['data']): string | unde
   return (session?.user as { token?: string } | undefined)?.token;
 }
 
+// Promote a row from "pending" to "saved" after the refresh delay
+function markRowSaved(items: EditableCapacityItem[], qid: string): EditableCapacityItem[] {
+  return items.map(i =>
+    i.qid === qid && i.rowStatus === 'pending' ? { ...i, rowStatus: 'saved' } : i
+  );
+}
+
 export default function TranslationWorkspace() {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -248,11 +255,7 @@ export default function TranslationWorkspace() {
           )
         );
         setTimeout(() => {
-          setItems(prev =>
-            prev.map(i =>
-              i.qid === qid && i.rowStatus === 'pending' ? { ...i, rowStatus: 'saved' } : i
-            )
-          );
+          setItems(prev => markRowSaved(prev, qid));
         }, PENDING_REFRESH_DELAY_MS);
       } catch (err: unknown) {
         const apiDetail =

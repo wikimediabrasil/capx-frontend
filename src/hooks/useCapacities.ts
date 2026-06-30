@@ -57,6 +57,22 @@ const convertToCapacity = (response: CapacityResponse, parentCode?: string): Cap
   };
 };
 
+// Helper to cache individual capacity children returned for a root capacity
+const cacheCapacityChildren = (
+  queryClient: any,
+  children: Record<string, any>,
+  language: string
+) => {
+  Object.entries(children).forEach(([childId, childName]) => {
+    if (childId) {
+      queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId), language), {
+        code: childId,
+        name: childName,
+      });
+    }
+  });
+};
+
 /**
  * Prefetch and configure all capacity data when the app initializes
  * Called in the top-level provider to ensure data is available
@@ -96,14 +112,7 @@ export function prefetchAllCapacityData(
             );
 
             // Store individual capacities in the cache as well
-            Object.entries(children).forEach(([childId, childName]) => {
-              if (childId) {
-                queryClient.setQueryData(CAPACITY_CACHE_KEYS.byId(Number(childId), language), {
-                  code: childId,
-                  name: childName,
-                });
-              }
-            });
+            cacheCapacityChildren(queryClient, children, language);
 
             return children;
           },

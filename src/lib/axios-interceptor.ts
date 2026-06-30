@@ -5,12 +5,12 @@ let isLoggedOut = false; // Flag to prevent multiple simultaneous logouts
 
 // Function to check if we are in an OAuth login process
 const isInOAuthLoginProcess = (): boolean => {
-  if (typeof window === 'undefined') return false;
+  if (typeof globalThis === 'undefined') return false;
 
   return (
-    window.location.pathname.includes('/oauth') ||
-    window.location.search.includes('oauth_token') ||
-    window.location.search.includes('oauth_verifier')
+    globalThis.location.pathname.includes('/oauth') ||
+    globalThis.location.search.includes('oauth_token') ||
+    globalThis.location.search.includes('oauth_verifier')
   );
 };
 
@@ -39,7 +39,7 @@ const setupAxiosInterceptor = () => {
           (responseData?.error === 'Token expirado' && responseData?.shouldLogout === true);
 
         // If the response indicates token expired and we're on the client side
-        if (isInvalidToken && typeof window !== 'undefined' && !isLoggedOut) {
+        if (isInvalidToken && typeof globalThis !== 'undefined' && !isLoggedOut) {
           isLoggedOut = true; // Prevent multiple simultaneous logouts
 
           console.warn('Token expirado detectado. Fazendo logout automático...');
@@ -67,12 +67,12 @@ const setupAxiosInterceptor = () => {
               });
             } else {
               // Fallback se não conseguir importar signOut
-              window.location.href = '/';
+              globalThis.location.href = '/';
             }
           } catch (signOutError) {
             console.error('Erro durante logout automático:', signOutError);
             // If signOut fails, manually redirect
-            window.location.href = '/';
+            if (typeof globalThis !== 'undefined') globalThis.location.href = '/';
           } finally {
             // Reset the flag after enough time for the redirect to complete
             setTimeout(() => {
@@ -82,7 +82,7 @@ const setupAxiosInterceptor = () => {
         }
       }
 
-      return Promise.reject(error);
+      throw error;
     }
   );
 };

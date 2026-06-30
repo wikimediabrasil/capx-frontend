@@ -3,6 +3,10 @@ import { eventsService } from '@/services/eventService';
 import { Event } from '@/types/event';
 import { useEffect, useState } from 'react';
 
+function eventMatchesCapacities(event: Event, capacityCodes: number[]): boolean {
+  return Boolean(event.related_skills?.some(skillId => capacityCodes.includes(skillId)));
+}
+
 export function useEvent(eventId?: number, token?: string) {
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -137,10 +141,8 @@ export function useEvents(
 
         if (filters?.capacities && filters.capacities.length > 0) {
           const capacityCodes = filters.capacities.map(c => c.code);
-          eventsData = eventsData.filter(
-            (event: Event) =>
-              event.related_skills &&
-              event.related_skills.some(skillId => capacityCodes.includes(skillId))
+          eventsData = eventsData.filter((event: Event) =>
+            eventMatchesCapacities(event, capacityCodes)
           );
         }
 

@@ -84,9 +84,13 @@ const initializeDocuments = (
 
   return organization.documents.map(docId => ({
     id: docId,
-    url: documents?.find(d => d.id === docId)?.url || '',
+    url: findDocumentUrl(documents, docId),
   }));
 };
+
+// Helper to resolve a document URL by its id
+const findDocumentUrl = (documents: OrganizationDocument[] | undefined, docId: number): string =>
+  documents?.find(d => d && d.id === docId)?.url || '';
 
 // Helper function to initialize contacts
 const initializeContacts = (organization: Organization): Contacts => {
@@ -388,7 +392,7 @@ export default function EditOrganizationProfilePage() {
 
           const existingDocuments = validDocIds.map(docId => ({
             id: docId,
-            url: documents?.find(d => d && d.id === docId)?.url || '',
+            url: findDocumentUrl(documents, docId),
           }));
           setDocumentsData(existingDocuments);
         } catch (error) {
