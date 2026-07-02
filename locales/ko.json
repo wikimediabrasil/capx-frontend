@@ -210,7 +210,7 @@
 	"privacy-policy-private-information-topic02": "로그인한 사용자: 위키미디어 계정에 부분적으로 접근할 수 있게 하는 $1 자격 증명;",
 	"privacy-policy-private-information-topic02-link": "OAuth",
 	"privacy-policy-private-information-topic03": "프로필에 직접 작성하는 개인 간단 자기소개로, 위키미디어 여정에 관한 흥미롭고 중요한 정보를 공개하기 위한 것입니다. 선택 사항이며 원하지 않으면 비워 둘 수 있습니다.",
-	"privacy-policy-private-information-text01": "원하는 경우 사용자 프로필 편집 페이지에서 빨간색 버튼 \"프로필 삭제\"를 클릭해 자신에 대한 정보를 삭제할 수 있습니다.",
+	"privacy-policy-private-information-text01": "원하는 경우 사용자 프로필 편집 페이지에서 빨간색 버튼 \"프로필 삭제\"를 클릭해 자신에 대한 정보를 제거할 수 있습니다.",
 	"privacy-policy-private-information-text02": "조직의 관리자이고 그 프로필을 편집할 권한이 있는 경우, 조직 프로필을 편집하고 모든 필드를 비워 데이터를 지울 수 있습니다. 프로필 관리자 역할에서 제거되려면 팀에 이메일을 보낼 수 있습니다. 관리자로 연결된 사람이 더 이상 없으면 해당 프로필은 조직 목록에 더 이상 표시되지 않습니다.",
 	"privacy-policy-private-information-text03": "데이터 사용 및 보존은 $1의 적용을 받습니다. 이 도구는 GPDR을 준수합니다.",
 	"capacity-selection-modal-select-capacity": "역량 선택",
