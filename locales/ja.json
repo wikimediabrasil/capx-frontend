@@ -6,6 +6,7 @@
 			"Omotecho",
 			"RhAnish",
 			"Shirayuki",
+			"Tensama0415",
 			"YeBoy371"
 		]
 	},
@@ -817,7 +818,10 @@
 	"suggest-capacity-cancel": "中止",
 	"suggest-capacity-description-label": "説明",
 	"suggest-capacity-description-placeholder": "その技能を追加するとよい理由を説明……",
+	"suggest-capacity-error": "提案の送信に失敗しました。もう一度お試しください。",
 	"suggest-capacity-modal-title": "新しい技能を提案",
+	"suggest-capacity-submit": "送信",
+	"suggest-capacity-submitting": "送信中...",
 	"suggest-capacity-success": "技能の提案をきちんと提出しました！",
 	"suggest-capacity-title-label": "タイトル",
 	"suggest-capacity-title-placeholder": "例：データ可視化"
