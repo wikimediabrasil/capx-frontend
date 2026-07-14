@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useCapacityStore } from '@/stores';
+import { isAllowedRedirectTarget } from '@/lib/utils/oauthRedirect';
 
 const ALLOWED_REDIRECT_HOSTS = ['capx.toolforge.org', 'capx-test.toolforge.org'];
 function getAllowedHosts(): string[] {
@@ -142,9 +143,7 @@ function OAuthContent() {
             }
           } else {
             const allowedHosts = getAllowedHosts();
-            const isAllowed = allowedHosts.some(
-              h => result.extra === h || result.extra.startsWith(`${h}:`)
-            );
+            const isAllowed = isAllowedRedirectTarget(result.extra, allowedHosts);
             if (!isAllowed) {
               console.error('Blocked redirect to untrusted host:', result.extra);
               router.push('/');
