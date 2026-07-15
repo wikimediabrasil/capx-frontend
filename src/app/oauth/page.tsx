@@ -8,7 +8,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useCapacityStore } from '@/stores';
 import { isAllowedRedirectTarget } from '@/lib/utils/oauthRedirect';
 
-const ALLOWED_REDIRECT_HOSTS = ['capx.toolforge.org', 'capx-test.toolforge.org'];
+const ALLOWED_REDIRECT_HOSTS = ['capx.toolforge.org', 'capx-test.toolforge.org', 'capx-backend.toolforge.org'];
 function getAllowedHosts(): string[] {
   const env = getCurrentEnvironment();
   return env !== 'production' ? [...ALLOWED_REDIRECT_HOSTS, 'localhost'] : ALLOWED_REDIRECT_HOSTS;
