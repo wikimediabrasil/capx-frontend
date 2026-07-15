@@ -1,10 +1,10 @@
 export function isAllowedRedirectTarget(
   target: string | null | undefined,
   allowedHosts: string[] = [
-    'capx.toolforge.org', 
-    'capx-test.toolforge.org', 
-    'capx-backend.toolforge.org', 
-    'localhost'
+    'capx.toolforge.org',
+    'capx-test.toolforge.org',
+    'capx-backend.toolforge.org',
+    'localhost',
   ]
 ): boolean {
   if (!target) {
