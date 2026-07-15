@@ -4,7 +4,7 @@
  */
 
 import type { StaticImageData } from 'next/image';
-import { getAccountIcon, getLetsConnectConfig, type LetsConnectConfig } from './themeHelpers';
+import { getAccountIcon } from './themeHelpers';
 import { ICON_SIZES, RESPONSIVE_SPACING, THEME_COLORS } from './utils';
 
 import { useDarkMode, useIsMobile } from '@/stores';
@@ -22,9 +22,6 @@ export interface ThemeConfig {
   accountIcon: StaticImageData;
   iconSize: number;
 
-  // Let's Connect configuration
-  letsConnect: LetsConnectConfig;
-
   // Theme state
   darkMode: boolean;
   isMobile: boolean;
@@ -41,12 +38,11 @@ export interface ThemeConfig {
  * @example
  * ```tsx
  * function ProfileEditView() {
- *   const { bgColor, accountIcon, iconSize, letsConnect } = useThemeConfig();
+ *   const { bgColor, accountIcon, iconSize } = useThemeConfig();
  *
  *   return (
  *     <div className={bgColor}>
  *       <Image src={accountIcon} width={iconSize} height={iconSize} />
- *       <Image src={letsConnect.banner} alt="Let's Connect" />
  *     </div>
  *   );
  * }
@@ -66,9 +62,6 @@ export function useThemeConfig(): ThemeConfig {
     // Icons
     accountIcon: getAccountIcon(darkMode),
     iconSize: isMobile ? ICON_SIZES.mobile : ICON_SIZES.desktop,
-
-    // Let's Connect configuration
-    letsConnect: getLetsConnectConfig(isMobile, darkMode),
 
     // Theme state (exposed for conditional rendering)
     darkMode,
