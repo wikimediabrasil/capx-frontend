@@ -66,7 +66,7 @@ export default function FeedPage() {
     limit: itemsPerPage,
     offset,
     activeFilters,
-    ordering: '-last_update',
+    ordering: 'display_priority,-last_update',
     includeUsersWithoutSkills: activeFilters.includeIncompleteProfiles,
   });
 
@@ -87,13 +87,22 @@ export default function FeedPage() {
   const filteredProfiles = useMemo(() => {
     if (!allUsers?.length) return [];
 
-    return createUnifiedProfiles(allUsers)
-      .map(profile => ({
-        ...profile,
-        isSaved: isProfileSaved(profile.id),
-      }))
-      .filter(profile => activeFilters.includeIncompleteProfiles || !profile.hasIncompleteProfile)
-      .sort((a, b) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
+    return (
+      createUnifiedProfiles(allUsers)
+        .map(profile => ({
+          ...profile,
+          isSaved: isProfileSaved(profile.id),
+        }))
+        .filter(profile => activeFilters.includeIncompleteProfiles || !profile.hasIncompleteProfile)
+        // Mirror the backend "display_priority,-last_update" ordering: keep incomplete
+        // profiles after complete ones, then most recently updated first within each group.
+        .sort((a, b) => {
+          if (a.hasIncompleteProfile !== b.hasIncompleteProfile) {
+            return a.hasIncompleteProfile ? 1 : -1;
+          }
+          return new Date(b.last_update).getTime() - new Date(a.last_update).getTime();
+        })
+    );
   }, [allUsers, savedItems, activeFilters.includeIncompleteProfiles]);
 
   // Calculate total of pages based on total profiles
