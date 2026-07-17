@@ -115,18 +115,19 @@ const Popup = ({
 
   return createPortal(
     <div className={customClass}>
-      {/* Backdrop overlay */}
-      <div
+      {/* Native <dialog> used as the backdrop overlay. We deliberately avoid
+          showModal(): on iOS Safari a top-layer dialog stays trapped inside any
+          ancestor with a `transform` (the Framer Motion mobile menu), so we
+          render it as a portaled overlay shown via `flex` instead. */}
+      <dialog
+        open
+        aria-modal="true"
+        aria-labelledby="popup-title"
+        aria-describedby={children ? 'popup-content' : undefined}
         className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black bg-opacity-50"
-        onClick={onCloseTab}
       >
         {/* Modal container */}
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="popup-title"
-          aria-describedby={children ? 'popup-content' : undefined}
-          onClick={event => event.stopPropagation()}
           className={`relative
             w-[85%] max-w-[calc(100vw-24px)] md:w-[700px] md:max-w-[90vw]
             ${minHeight} max-h-[90vh] md:max-h-[95vh]
@@ -205,7 +206,7 @@ const Popup = ({
             </div>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>,
     document.body
   );
