@@ -1,6 +1,7 @@
 import { useDarkMode, usePageContent } from '@/stores';
 import Image, { StaticImageData } from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import BaseButton from './BaseButton';
 
 interface PopupProps {
@@ -39,37 +40,42 @@ const Popup = ({
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const [isOpen, setIsOpen] = useState(true);
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  // Guard against SSR: createPortal needs the DOM.
+  const [mounted, setMounted] = useState(false);
   const noop = () => {};
 
   const onCloseTab = () => {
     setIsOpen(false);
-    dialogRef.current?.close();
     onClose?.();
   };
 
-  // Handle dialog open/close
   useEffect(() => {
-    if (isOpen && dialogRef.current) {
-      dialogRef.current.showModal();
-      document.body.style.overflow = 'hidden';
-      document.body.style.overflowX = 'hidden';
-      document.documentElement.style.overflowX = 'hidden';
-    } else if (!isOpen && dialogRef.current) {
-      dialogRef.current.close();
-      document.body.style.overflow = 'unset';
-      document.body.style.overflowX = 'unset';
-      document.documentElement.style.overflowX = 'unset';
-    }
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll while the popup is open.
+  // We use a portaled overlay instead of the native <dialog>/showModal() because
+  // iOS Safari keeps a top-layer <dialog> trapped inside any ancestor that has a
+  // `transform` (e.g. the Framer Motion mobile menu), leaving the popup invisible.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousOverflowX = document.body.style.overflowX;
+    const previousHtmlOverflowX = document.documentElement.style.overflowX;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.overflowX = 'hidden';
+    document.documentElement.style.overflowX = 'hidden';
 
     return () => {
-      document.body.style.overflow = 'unset';
-      document.body.style.overflowX = 'unset';
-      document.documentElement.style.overflowX = 'unset';
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overflowX = previousOverflowX;
+      document.documentElement.style.overflowX = previousHtmlOverflowX;
     };
   }, [isOpen]);
 
-  // Handle escape key (dialog handles this natively, but we keep it for consistency)
+  // Handle escape key.
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -103,20 +109,29 @@ const Popup = ({
     w-full md:w-auto md:min-w-[150px] md:flex-none
   `;
 
-  return (
+  if (!mounted || !isOpen) {
+    return null;
+  }
+
+  return createPortal(
     <div className={customClass}>
-      {isOpen && (
-        <dialog
-          ref={dialogRef}
-          className={`fixed inset-0 z-50 m-auto
+      {/* Native <dialog> used as the backdrop overlay. We deliberately avoid
+          showModal(): on iOS Safari a top-layer dialog stays trapped inside any
+          ancestor with a `transform` (the Framer Motion mobile menu), so we
+          render it as a portaled overlay shown via `flex` instead. */}
+      <dialog
+        open
+        aria-modal="true"
+        aria-labelledby="popup-title"
+        aria-describedby={children ? 'popup-content' : undefined}
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black bg-opacity-50"
+      >
+        {/* Modal container */}
+        <div
+          className={`relative
             w-[85%] max-w-[calc(100vw-24px)] md:w-[700px] md:max-w-[90vw]
             ${minHeight} max-h-[90vh] md:max-h-[95vh]
-            rounded-3xl shadow-xl overflow-hidden overflow-x-hidden box-border ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}
-            border-0 p-0 backdrop:bg-black backdrop:bg-opacity-50`}
-          aria-modal="true"
-          aria-labelledby="popup-title"
-          aria-describedby={children ? 'popup-content' : undefined}
-          onClose={onCloseTab}
+            rounded-3xl shadow-xl overflow-hidden overflow-x-hidden box-border ${darkMode ? 'bg-[#04222F]' : 'bg-[#FFFFFF]'}`}
         >
           <div
             className="flex flex-col h-full max-h-[90vh] md:max-h-[95vh] min-h-0 box-border"
@@ -190,9 +205,10 @@ const Popup = ({
               </div>
             </div>
           </div>
-        </dialog>
-      )}
-    </div>
+        </div>
+      </dialog>
+    </div>,
+    document.body
   );
 };
 

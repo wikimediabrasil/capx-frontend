@@ -1,6 +1,6 @@
 {
   "name": "capx-frontend",
-  "version": "2.2.20",
+  "version": "2.2.21",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -25,14 +25,14 @@
     "@tanstack/react-query-devtools": "^5.60.6",
     "@tanstack/react-query-persist-client": "^5.76.1",
     "@types/d3": "^7.4.3",
-    "axios": "^1.15.2",
+    "axios": "^1.18.0",
     "d3": "^7.9.0",
     "dotenv": "^17.2.1",
     "formBuilder": "^3.21.1",
     "framer-motion": "^11.1.7",
     "jquery": "^3.7.1",
     "lodash": "^4.18.1",
-    "next": "^15.5.18",
+    "next": "^15.5.21",
     "next-auth": "^4.24.12",
     "path": "^0.12.7",
     "react": "^18.3.1",
@@ -50,7 +50,7 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.6",
+    "@babel/core": "^7.29.7",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
@@ -102,6 +102,7 @@
     "postcss": "^8.5.14",
     "picomatch": "^4.0.4",
     "serialize-javascript": "^7.0.0",
+    "sharp": "^0.35.3",
     "uuid": "^14.0.0"
   },
   "packageManager": "yarn@4.14.1",

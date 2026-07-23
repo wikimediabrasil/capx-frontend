@@ -239,11 +239,9 @@ describe('ProfileDeletedSuccessPopup', () => {
   it('should have accessible dialog attributes', () => {
     const onClose = jest.fn();
 
-    const { container } = renderWithThemeApp(
-      <ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />
-    );
+    renderWithThemeApp(<ProfileDeletedSuccessPopup isOpen={true} onClose={onClose} />);
 
-    const dialog = container.querySelector('dialog');
+    const dialog = screen.getByRole('dialog');
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveAttribute('aria-labelledby', 'popup-title');
