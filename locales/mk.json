@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Bjankuloski06"
+			"Bjankuloski06",
+			"Vlad5250"
 		]
 	},
 	"empty-field": "Сè уште не сте го пополниле ова поле",
@@ -111,6 +112,7 @@
 	"body-profile-copy-link": "Копирај врска",
 	"body-profile-copy-link-success": "Врската до профилот е прекопирана во меѓускладот!",
 	"body-profile-copy-link-error": "Не успеав да ја прекопирам врската до профилот",
+	"body-profile-qr-code-close": "Затвори",
 	"body-profile-choose-skills": "Изберете ги вештините што можете да ги споделите од вашите познати капацитети.",
 	"aria-label-video-player": "Воведно видео за Размената на капацитети",
 	"video-fallback-message": "Вашиот прелистувач не ја поддржува видеоознаката. Користете современ прелистувач за да го погледате видеото.",
@@ -129,7 +131,7 @@
 	"edit-profile-use-wikidata-photograph": "Прикажувај слика од мојот предмет на Википодатоците во профилот",
 	"edit-profile-use-wikidata-item": "Прикажувај го мојот предмет на Википодатоците на профилот",
 	"edit-profile-consent-wikidata-link": "Правилата за значајност на Википодатоците",
-	"edit-profile-consent-wikidata-before-link": "Стискајќи овде се согласувам мојата слика од предмет на Википодатоците да се прикажува во мојот профил на CapX. Алатката ќе побара QID на Википодатоците поврзан со вашето корисничко име и ќе го прикаже ако го најде. За да имате предмет на Википодатоците, мора да ги задоволувате условите на",
+	"edit-profile-consent-wikidata-before-link": "Стискајќи овде се согласувам мојата слика од предмет на Википодатоците да се прикажува во мојот профил на CapX. Алатката ќе побара QID на Википодатоците поврзан со вашето корисничко име и ќе го прикаже ако го најде. За да имате предмет на Википодатоците, мора да ги задоволувате условите на $1.",
 	"edit-profile-delete-profile": "Избриши профил",
 	"edit-profile-save": "Зачувај профил",
 	"edit-profile-cancel": "Откажи уредување",
@@ -328,6 +330,7 @@
 	"message-form-email-sender-not-configured": "Испраќањето на е-пошта е недостапно. Ќе треба овозможите е-пошта во вашите нагодувања на Мета.",
 	"message-form-email-unavailable": "недостапна",
 	"message-form-method-unavailable": "недостапна",
+	"message-form-user-not-found": "Корисникот не е пронајден",
 	"message-error-no-email-body": "Корисникот кој се обидувате да го конрактирате нема поврзано е-пошта со неговата сметка на Викимедија. Пишете му на разговорната страница.",
 	"message-button-confirme-and-send": "Потврди/Испрати",
 	"message-button-cancel-message": "Откажи",
@@ -360,7 +363,7 @@
 	"event-form-wikidata-loading": "Пребарувам податоци за настанот...",
 	"event-form-wikidata-not-found": "Не можев да најдам податоци за настанот од оваа URL",
 	"event-form-wikidata-error": "Се појави грешка при пребарувањето на податоци за настан",
-	"badges-back-to-user-profile": "Назад на корисничкиот профил",
+	"badges-back-to-user-profile": "Назад",
 	"badge-selection-modal-title": "Изберете кои значки да се прикажуваат на вашиот профил",
 	"body-profile-badges-edit-your-badges": "Уреди мои значки",
 	"body-profile-badges-no-badges": "Засега немате ниедна активна значка.",
@@ -499,5 +502,11 @@
 	"analytics-bashboard-capacities-card-community-health-initiative": "Иницијатива за здравје на заедницата",
 	"analytics-bashboard-capacities-card-social-skill": "Друштвени вештини",
 	"analytics-bashboard-capacities-card-strategic-management": "Стратешко управување",
-	"analytics-bashboard-capacities-card-technology": "Технологија"
+	"analytics-bashboard-capacities-card-technology": "Технологија",
+	"home-carousel-suggestions-description-no-capacities-button": "Уреди профил",
+	"organization-logo": "Лого на организацијата",
+	"profile-picture": "Профилна слика",
+	"save": "Зачувај",
+	"view-event": "Погл. настан",
+	"view-profile": "Погл. профил"
 }
