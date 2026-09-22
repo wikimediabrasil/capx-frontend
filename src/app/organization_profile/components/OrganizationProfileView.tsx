@@ -32,7 +32,7 @@ import EventsSection from './EventsSection';
 import { NewsSection } from './NewsSection';
 import ProjectsList from './ProjectsList';
 
-import { useLanguage } from '@/stores';
+import { useCapacityStore, useLanguage } from '@/stores';
 function HeaderSection({
   pageContent,
   darkMode,
@@ -169,6 +169,9 @@ function ReportActivitySection({ organization, pageContent }) {
 }
 
 function CapacitiesSection({ organization, pageContent, darkMode, getCapacityName }) {
+  const { isLoadingTranslations, getIsLoaded } = useCapacityStore();
+  const isCapacitiesLoading = !getIsLoaded() || isLoadingTranslations;
+
   return (
     <div className="space-y-6 mt-4">
       <ProfileItem
@@ -179,6 +182,7 @@ function CapacitiesSection({ organization, pageContent, darkMode, getCapacityNam
         customClass={`font-[Montserrat] text-sm md:text-[24px] not-italic font-extrabold leading-[normal] md:leading-[29px] ${
           darkMode ? 'text-white' : 'text-capx-dark-box-bg'
         }`}
+        isLoading={isCapacitiesLoading}
       />
       <ProfileItem
         items={organization?.available_capacities || []}
@@ -189,6 +193,7 @@ function CapacitiesSection({ organization, pageContent, darkMode, getCapacityNam
  md:text-[24px] not-italic font-extrabold leading-[normal] md:leading-[29px] ${
    darkMode ? 'text-white' : 'text-capx-dark-box-bg'
  }`}
+        isLoading={isCapacitiesLoading}
       />
       <ProfileItem
         items={organization?.wanted_capacities || []}
@@ -198,6 +203,7 @@ function CapacitiesSection({ organization, pageContent, darkMode, getCapacityNam
         customClass={`font-[Montserrat] text-sm md:text-[24px] not-italic font-extrabold leading-[normal] md:leading-[29px] ${
           darkMode ? 'text-white' : 'text-capx-dark-box-bg'
         }`}
+        isLoading={isCapacitiesLoading}
       />
     </div>
   );

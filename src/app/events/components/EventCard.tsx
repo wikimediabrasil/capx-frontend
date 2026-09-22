@@ -62,8 +62,10 @@ export default function EventCard({
 
   const visibleCapacities = 3;
 
+  // Capacity data is public, so this also runs for signed-out visitors on the
+  // public /events page.
   useEffect(() => {
-    if (language && token) updateLanguage(language, token);
+    if (language) updateLanguage(language, token);
   }, [language, token, updateLanguage]);
 
   useEffect(() => {

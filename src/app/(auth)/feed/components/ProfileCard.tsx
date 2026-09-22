@@ -106,7 +106,8 @@ export const ProfileCard = ({
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const router = useRouter();
-  const { getName, preloadCapacities } = useCapacityStore();
+  const { getName, preloadCapacities, isLoadingTranslations, getIsLoaded } = useCapacityStore();
+  const areCapacitiesReady = getIsLoaded() && !isLoadingTranslations;
   const { data: session } = useSession();
   const token = session?.user?.token;
   const { languages: availableLanguages } = useLanguage(token);
@@ -134,7 +135,8 @@ export const ProfileCard = ({
   const isMultiType = Array.isArray(type) && type.length > 1;
   const primaryType = Array.isArray(type) ? type[0] : type;
 
-  // Preload capacities to ensure they're available in the cache
+  // Preload capacities to ensure they're available in the cache. Capacity data is
+  // public, so this also runs for signed-out visitors (e.g. on organization_list).
   useEffect(() => {
     const allCapacities = [
       ...capacities,
@@ -142,7 +144,7 @@ export const ProfileCard = ({
       ...availableCapacities,
       ...knownCapacities,
     ];
-    if (allCapacities.length > 0 && token) {
+    if (allCapacities.length > 0) {
       preloadCapacities(token);
     }
   }, [
@@ -292,6 +294,7 @@ export const ProfileCard = ({
           showEmptyDataText={false}
           getItemName={id => getName(Number(id))}
           customClass={capacityItemClass}
+          isLoading={!areCapacitiesReady}
         />
       );
     }
@@ -307,6 +310,7 @@ export const ProfileCard = ({
           showEmptyDataText={false}
           getItemName={id => getName(Number(id))}
           customClass={capacityItemClass}
+          isLoading={!areCapacitiesReady}
         />
       );
     }
@@ -322,6 +326,7 @@ export const ProfileCard = ({
           showEmptyDataText={false}
           getItemName={id => getName(Number(id))}
           customClass={capacityItemClass}
+          isLoading={!areCapacitiesReady}
         />
       );
     }
@@ -356,6 +361,7 @@ export const ProfileCard = ({
         showEmptyDataText={false}
         getItemName={id => getName(Number(id))}
         customClass={capacityItemClass}
+        isLoading={!areCapacitiesReady}
       />
     );
   };

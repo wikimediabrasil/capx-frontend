@@ -41,10 +41,11 @@ export default function OrganizationProfilePage() {
     [capacityCache]
   );
 
-  // Monitor language changes and update capacity cache
+  // Monitor language changes and update capacity cache. Capacity data is public,
+  // so this also runs for signed-out visitors viewing this page.
   useEffect(() => {
     const updateCacheLanguage = async () => {
-      if (language && token) {
+      if (language) {
         try {
           await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
