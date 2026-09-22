@@ -37,7 +37,9 @@ export const useDocument = (token?: string, id?: number, limit?: number, offset?
   };
 
   const fetchSingleDocument = async () => {
-    if (!token || !id) return;
+    // A single document is public profile content (shown on the organization
+    // profile page), so this also runs for signed-out visitors.
+    if (!id) return;
 
     setLoading(true);
     try {

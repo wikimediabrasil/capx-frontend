@@ -1,3 +1,4 @@
+import { NewsSectionSkeleton } from '@/components/skeletons';
 import { useTagDiff } from '@/hooks/useTagDiff';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
@@ -13,11 +14,18 @@ export const NewsSection = ({ ids }: NewsProps) => {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const { data: session } = useSession();
+  // Tags and news are public profile content, so this also runs for
+  // signed-out visitors.
   const { fetchSingleTag } = useTagDiff(session?.user?.token);
 
   useEffect(() => {
+    if (!ids?.length) {
+      setPosts([]);
+      setIsLoading(false);
+      return;
+    }
+
     const fetchNews = async () => {
-      if (!ids?.length || !session?.user?.token) return;
       try {
         setIsLoading(true);
         const tagsPromises = ids.map(id => fetchSingleTag(id));
@@ -60,13 +68,11 @@ export const NewsSection = ({ ids }: NewsProps) => {
       }
     };
 
-    if (ids?.length) {
-      fetchNews();
-    }
+    fetchNews();
   }, [ids, session?.user?.token]);
 
   if (isLoading) {
-    return <div>{pageContent['edit-profile-loading-news']}</div>;
+    return <NewsSectionSkeleton />;
   }
 
   return (
