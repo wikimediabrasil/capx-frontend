@@ -1,5 +1,5 @@
 import { screen, fireEvent, act } from '@testing-library/react';
-import NewsFormItem from '@/app/(auth)/organization_profile/components/NewsFormItem';
+import NewsFormItem from '@/app/organization_profile/components/NewsFormItem';
 import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({

@@ -1,4 +1,4 @@
-import { ContactsSection } from '@/app/(auth)/organization_profile/components/ContactsSection';
+import { ContactsSection } from '@/app/organization_profile/components/ContactsSection';
 import { render, screen } from '@testing-library/react';
 import * as stores from '@/stores';
 

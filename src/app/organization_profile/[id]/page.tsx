@@ -1,4 +1,5 @@
 'use client';
+import BaseWrapper from '@/components/BaseWrapper';
 import { OrganizationProfileSkeleton } from '@/components/skeletons';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useTerritories } from '@/hooks/useTerritories';
@@ -73,19 +74,25 @@ export default function OrganizationProfilePage() {
   }, [error]);
 
   if (isOrganizationLoading || isLoadingTranslations) {
-    return <OrganizationProfileSkeleton />;
+    return (
+      <BaseWrapper>
+        <OrganizationProfileSkeleton />
+      </BaseWrapper>
+    );
   }
 
   return (
-    <OrganizationProfileView
-      pageContent={pageContent}
-      darkMode={darkMode}
-      organization={organization}
-      organizationId={organizationId}
-      token={token}
-      isOrgManager={isOrgManager}
-      getCapacityName={getCapacityName}
-      territories={territories}
-    />
+    <BaseWrapper>
+      <OrganizationProfileView
+        pageContent={pageContent}
+        darkMode={darkMode}
+        organization={organization}
+        organizationId={organizationId}
+        token={token}
+        isOrgManager={isOrgManager}
+        getCapacityName={getCapacityName}
+        territories={territories}
+      />
+    </BaseWrapper>
   );
 }

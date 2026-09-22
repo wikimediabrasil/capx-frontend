@@ -1,4 +1,4 @@
-import DocumentFormItem from '@/app/(auth)/organization_profile/components/DocumentFormItem';
+import DocumentFormItem from '@/app/organization_profile/components/DocumentFormItem';
 import { SnackbarProvider } from '@/app/providers/SnackbarProvider';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';

@@ -63,9 +63,9 @@ export const organizationProfileService = {
     }
   },
 
-  async getOrganizationById(token: string, id: number) {
+  async getOrganizationById(token: string | undefined, id: number) {
     const response = await axios.get(`/api/organizations/${id}/`, {
-      headers: { Authorization: `Token ${token}` },
+      headers: token ? { Authorization: `Token ${token}` } : undefined,
     });
     return response.data;
   },
