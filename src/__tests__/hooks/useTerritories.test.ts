@@ -29,23 +29,25 @@ describe('useTerritories', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('returns empty state and loading false when no token', () => {
+  it('returns empty state and loading true initially when no token', () => {
+    mockFetchTerritories.mockResolvedValue(mockTerritories);
     const { result } = renderHook(() => useTerritories(undefined));
 
     expect(result.current.territories).toEqual([]);
     expect(result.current.territoriesMap).toEqual({});
-    expect(result.current.loading).toBe(true); // initial state before useEffect skips
+    expect(result.current.loading).toBe(true);
     expect(result.current.error).toBeNull();
   });
 
-  it('does not fetch when token is undefined', async () => {
+  it('fetches territories even when token is undefined (anonymous visitors)', async () => {
+    mockFetchTerritories.mockResolvedValue(mockTerritories);
+
     const { result } = renderHook(() => useTerritories(undefined));
 
-    // Wait a tick to ensure effects have run
-    await new Promise(r => setTimeout(r, 0));
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(mockFetchTerritories).not.toHaveBeenCalled();
-    expect(result.current.territories).toEqual([]);
+    expect(mockFetchTerritories).toHaveBeenCalledWith(undefined);
+    expect(result.current.territories).toEqual(mockTerritories);
   });
 
   it('fetches territories when token is provided', async () => {

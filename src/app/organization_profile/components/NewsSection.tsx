@@ -41,15 +41,29 @@ export const NewsSection = ({ ids }: NewsProps) => {
 
         const allPosts = await Promise.all(
           validTags.map(async tag => {
-            const formattedTag = tag.toLowerCase().replace(/\s+/g, '-');
-            const url = `/api/news/${encodeURIComponent(formattedTag)}`;
+            // Some orgs pasted a specific Diff article link instead of a
+            // category keyword - fetch that article's own preview instead of
+            // searching for it as a (non-existent) category tag.
+            const trimmedTag = tag.trim();
+            const isArticleUrl = /^https?:\/\//i.test(trimmedTag);
+            const url = isArticleUrl
+              ? `/api/news/article?url=${encodeURIComponent(trimmedTag)}`
+              : `/api/news/${encodeURIComponent(trimmedTag.toLowerCase().replace(/\s+/g, '-'))}`;
             try {
               const response = await fetch(url);
               const contentType = response.headers.get('content-type') || '';
 
-              // Guard against non-JSON responses (e.g. a routing error returning
-              // an HTML error page) so one bad tag doesn't throw a SyntaxError
-              // and take down the whole news section.
+              // A 404 just means Diff has no category matching this tag (e.g. an
+              // org's "tag" is actually a post URL or a keyword that was never
+              // used as a category) - that's a normal empty result, not a bug,
+              // so skip it quietly instead of logging an error.
+              if (response.status === 404) {
+                return [];
+              }
+
+              // Guard against other non-JSON responses (e.g. a routing error
+              // returning an HTML error page) so one bad tag doesn't throw a
+              // SyntaxError and take down the whole news section.
               if (!response.ok || !contentType.includes('application/json')) {
                 console.error(`Unexpected response fetching news for tag "${tag}":`, {
                   status: response.status,

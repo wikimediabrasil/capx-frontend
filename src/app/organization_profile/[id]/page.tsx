@@ -18,7 +18,7 @@ export default function OrganizationProfilePage() {
   const token = session?.user?.token;
   const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
-  const { territoriesMap: territories } = useTerritories(token);
+  const { territoriesMap: territories, loading: isTerritoriesLoading } = useTerritories(token);
 
   const params = useParams();
   const organizationId = Number(params?.id);
@@ -93,6 +93,7 @@ export default function OrganizationProfilePage() {
         isOrgManager={isOrgManager}
         getCapacityName={getCapacityName}
         territories={territories}
+        isTerritoriesLoading={isTerritoriesLoading}
       />
     </BaseWrapper>
   );

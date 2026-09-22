@@ -3,7 +3,7 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
   images: {
-    domains: ["commons.wikimedia.org", "upload.wikimedia.org", "thumb.wikimedia.org", "api.badgr.io", "badges.parchment.com"],
+    domains: ["commons.wikimedia.org", "upload.wikimedia.org", "thumb.wikimedia.org", "diff.wikimedia.org", "api.badgr.io", "badges.parchment.com"],
     remotePatterns: [
       { protocol: "http", hostname: "commons.wikimedia.org" },
       { protocol: "https", hostname: "commons.wikimedia.org" },
@@ -11,6 +11,7 @@ const nextConfig = {
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "http", hostname: "thumb.wikimedia.org" },
       { protocol: "https", hostname: "thumb.wikimedia.org" },
+      { protocol: "https", hostname: "diff.wikimedia.org" },
       { protocol: "https", hostname: "api.badgr.io" },
       { protocol: "https", hostname: "badges.parchment.com" },
     ],
