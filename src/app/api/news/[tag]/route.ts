@@ -6,7 +6,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { tag } = await params;
     const formattedTag = tag.toLowerCase().replace(/\s+/g, '-');
-    const url = `https://diffapi.toolforge.org/tags/${formattedTag}/`;
+    const url = `https://diffapi.toolforge.org/tags/${encodeURIComponent(formattedTag)}/`;
 
     const response = await fetch(url);
 
