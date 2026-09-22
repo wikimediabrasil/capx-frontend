@@ -1,6 +1,5 @@
 'use client';
 import CapXLogo from '@/public/static/images/capx_minimalistic_logo.svg';
-import { getCurrentEnvironment } from '@/lib/utils/environment';
 import { SessionProvider, signIn, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,15 +7,17 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useCapacityStore } from '@/stores';
 import { isAllowedRedirectTarget } from '@/lib/utils/oauthRedirect';
 
+// The redirect target ("extra") isn't user-supplied here: it's whatever host the
+// backend recorded when the login was started for this specific oauth_token, so
+// it's safe to always include 'localhost' — this only matters when a developer's
+// local frontend uses a shared (e.g. production) backend and the OAuth provider's
+// callback lands them back on that shared host instead of their dev server.
 const ALLOWED_REDIRECT_HOSTS = [
   'capx.toolforge.org',
   'capx-test.toolforge.org',
   'capx-backend.toolforge.org',
+  'localhost',
 ];
-function getAllowedHosts(): string[] {
-  const env = getCurrentEnvironment();
-  return env !== 'production' ? [...ALLOWED_REDIRECT_HOSTS, 'localhost'] : ALLOWED_REDIRECT_HOSTS;
-}
 
 function OAuthContent() {
   const router = useRouter();
@@ -146,8 +147,7 @@ function OAuthContent() {
               router.push('/home');
             }
           } else {
-            const allowedHosts = getAllowedHosts();
-            const isAllowed = isAllowedRedirectTarget(result.extra, allowedHosts);
+            const isAllowed = isAllowedRedirectTarget(result.extra, ALLOWED_REDIRECT_HOSTS);
             if (!isAllowed) {
               console.error('Blocked redirect to untrusted host:', result.extra);
               router.push('/');
