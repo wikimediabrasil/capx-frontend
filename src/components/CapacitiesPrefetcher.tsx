@@ -40,10 +40,11 @@ const CapacitiesPrefetcherInternal = () => {
   // Check if we should skip prefetching based on the current path
   const shouldSkipPrefetch = pathname && EXCLUDED_PATHS.some(path => pathname.includes(path));
 
-  // Prefetch when we have a session, not already loading, and either not yet loaded
-  // or the cached language differs from the current app language.
+  // Prefetch when not already loading, and either not yet loaded or the cached
+  // language differs from the current app language. Capacity data is public, so
+  // this also runs for signed-out visitors on public pages (e.g. organization_list).
   useEffect(() => {
-    if (!token || shouldSkipPrefetch || isLoadingTranslations) {
+    if (shouldSkipPrefetch || isLoadingTranslations) {
       return;
     }
 

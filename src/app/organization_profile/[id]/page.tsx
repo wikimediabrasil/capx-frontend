@@ -1,4 +1,5 @@
 'use client';
+import BaseWrapper from '@/components/BaseWrapper';
 import { OrganizationProfileSkeleton } from '@/components/skeletons';
 import { useOrganization } from '@/hooks/useOrganizationProfile';
 import { useTerritories } from '@/hooks/useTerritories';
@@ -17,7 +18,7 @@ export default function OrganizationProfilePage() {
   const token = session?.user?.token;
   const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
-  const { territoriesMap: territories } = useTerritories(token);
+  const { territoriesMap: territories, loading: isTerritoriesLoading } = useTerritories(token);
 
   const params = useParams();
   const organizationId = Number(params?.id);
@@ -40,10 +41,11 @@ export default function OrganizationProfilePage() {
     [capacityCache]
   );
 
-  // Monitor language changes and update capacity cache
+  // Monitor language changes and update capacity cache. Capacity data is public,
+  // so this also runs for signed-out visitors viewing this page.
   useEffect(() => {
     const updateCacheLanguage = async () => {
-      if (language && token) {
+      if (language) {
         try {
           await useCapacityStore.getState().updateLanguage(language, token);
         } catch (error) {
@@ -73,19 +75,26 @@ export default function OrganizationProfilePage() {
   }, [error]);
 
   if (isOrganizationLoading || isLoadingTranslations) {
-    return <OrganizationProfileSkeleton />;
+    return (
+      <BaseWrapper>
+        <OrganizationProfileSkeleton />
+      </BaseWrapper>
+    );
   }
 
   return (
-    <OrganizationProfileView
-      pageContent={pageContent}
-      darkMode={darkMode}
-      organization={organization}
-      organizationId={organizationId}
-      token={token}
-      isOrgManager={isOrgManager}
-      getCapacityName={getCapacityName}
-      territories={territories}
-    />
+    <BaseWrapper>
+      <OrganizationProfileView
+        pageContent={pageContent}
+        darkMode={darkMode}
+        organization={organization}
+        organizationId={organizationId}
+        token={token}
+        isOrgManager={isOrgManager}
+        getCapacityName={getCapacityName}
+        territories={territories}
+        isTerritoriesLoading={isTerritoriesLoading}
+      />
+    </BaseWrapper>
   );
 }

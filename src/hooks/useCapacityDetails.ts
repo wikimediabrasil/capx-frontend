@@ -2,7 +2,6 @@ import { capacityService } from '@/services/capacityService';
 import { useAppStore } from '@/stores';
 import { CapacityResponse } from '@/types/capacity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CAPACITY_CACHE_KEYS } from './useCapacities';
 
@@ -25,12 +24,9 @@ const FALLBACK_NAMES = {
  * Completamente redesenhado para priorizar segurança e evitar erros.
  */
 export function useCapacityDetails(capacityIds: any = [], language: string = 'en') {
-  // Declaração segura para evitar erros em qualquer contexto
-  const safeSession = useSession();
-  const session = safeSession?.data;
+  // Capacity data is public and doesn't require a session/token to fetch.
   const pageContent = useAppStore.getState().pageContent || {};
   const queryClient = useQueryClient();
-  const token = session?.user?.token;
 
   // Armazenar nomes das capacidades
   const [capacityNames, setCapacityNames] = useState<Record<string, string>>({});
@@ -80,7 +76,9 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
   const { data: capacityData, isLoading } = useQuery({
     queryKey: ['capacities', 'batch', capacityIdsKey, language],
     queryFn: async () => {
-      if (!token || !uniqueCapacityIds.length) return {};
+      // Capacity data is public - this endpoint doesn't require a token, so it
+      // also works for signed-out visitors (e.g. on the public organization profile page).
+      if (!uniqueCapacityIds.length) return {};
 
       const results: Record<string, string> = {};
 
@@ -141,7 +139,7 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
 
       return results;
     },
-    enabled: !!token && uniqueCapacityIds.length > 0,
+    enabled: uniqueCapacityIds.length > 0,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchOnWindowFocus: false, // Avoid refetching when window gains focus
@@ -269,12 +267,10 @@ export function useCapacityDetails(capacityIds: any = [], language: string = 'en
 }
 
 export function useCapacity(capacityId?: string | null, language: string = 'en') {
-  const safeSession = useSession();
-  const session = safeSession?.data;
   const safeLanguage = useAppStore.getState().language || language;
-  const token = session?.user?.token;
 
-  const enabled = Boolean(capacityId && token);
+  // Capacity data is public and doesn't require a session/token to fetch.
+  const enabled = Boolean(capacityId);
 
   // Usar React Query para buscar e cachear a capacidade
   const {

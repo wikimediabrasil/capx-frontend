@@ -1,3 +1,4 @@
+import { NewsSectionSkeleton } from '@/components/skeletons';
 import { useTagDiff } from '@/hooks/useTagDiff';
 import WikimediaIcon from '@/public/static/images/wikimedia_logo_black.svg';
 import WikimediaIconWhite from '@/public/static/images/wikimedia_logo_white.svg';
@@ -13,11 +14,18 @@ export const NewsSection = ({ ids }: NewsProps) => {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
   const { data: session } = useSession();
+  // Tags and news are public profile content, so this also runs for
+  // signed-out visitors.
   const { fetchSingleTag } = useTagDiff(session?.user?.token);
 
   useEffect(() => {
+    if (!ids?.length) {
+      setPosts([]);
+      setIsLoading(false);
+      return;
+    }
+
     const fetchNews = async () => {
-      if (!ids?.length || !session?.user?.token) return;
       try {
         setIsLoading(true);
         const tagsPromises = ids.map(id => fetchSingleTag(id));
@@ -33,12 +41,43 @@ export const NewsSection = ({ ids }: NewsProps) => {
 
         const allPosts = await Promise.all(
           validTags.map(async tag => {
-            const formattedTag = tag.toLowerCase().replace(/\s+/g, '-');
-            const url = `/api/news/${formattedTag}`;
-            const response = await fetch(url);
-            const data = await response.json();
+            // Some orgs pasted a specific Diff article link instead of a
+            // category keyword - fetch that article's own preview instead of
+            // searching for it as a (non-existent) category tag.
+            const trimmedTag = tag.trim();
+            const isArticleUrl = /^https?:\/\//i.test(trimmedTag);
+            const url = isArticleUrl
+              ? `/api/news/article?url=${encodeURIComponent(trimmedTag)}`
+              : `/api/news/${encodeURIComponent(trimmedTag.toLowerCase().replace(/\s+/g, '-'))}`;
+            try {
+              const response = await fetch(url);
+              const contentType = response.headers.get('content-type') || '';
 
-            return data.posts || [];
+              // A 404 just means Diff has no category matching this tag (e.g. an
+              // org's "tag" is actually a post URL or a keyword that was never
+              // used as a category) - that's a normal empty result, not a bug,
+              // so skip it quietly instead of logging an error.
+              if (response.status === 404) {
+                return [];
+              }
+
+              // Guard against other non-JSON responses (e.g. a routing error
+              // returning an HTML error page) so one bad tag doesn't throw a
+              // SyntaxError and take down the whole news section.
+              if (!response.ok || !contentType.includes('application/json')) {
+                console.error(`Unexpected response fetching news for tag "${tag}":`, {
+                  status: response.status,
+                  contentType,
+                });
+                return [];
+              }
+
+              const data = await response.json();
+              return data.posts || [];
+            } catch (tagError) {
+              console.error(`Error fetching news for tag "${tag}":`, tagError);
+              return [];
+            }
           })
         );
 
@@ -60,19 +99,17 @@ export const NewsSection = ({ ids }: NewsProps) => {
       }
     };
 
-    if (ids?.length) {
-      fetchNews();
-    }
+    fetchNews();
   }, [ids, session?.user?.token]);
 
   if (isLoading) {
-    return <div>{pageContent['edit-profile-loading-news']}</div>;
+    return <NewsSectionSkeleton />;
   }
 
   return (
     <section className="w-full max-w-screen-xl py-8">
       <div className="flex flex-row pl-0 pr-[13px] py-[6px] items-center gap-4 rounded-[8px] mb-6">
-        <div className="relative w-[20px] h-[20px] md:w-[42px] md:h-[48px]">
+        <div className="relative w-[20px] h-[20px] md:w-[42px] md:h-[42px]">
           <Image
             src={darkMode ? WikimediaIconWhite : WikimediaIcon}
             alt="Wikimedia"
