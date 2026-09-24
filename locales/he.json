@@ -39,5 +39,6 @@
 	"mentorship-application-forwarded": "הבקשה שלך הועברה לתוכנית החונכות. הם ייצרו איתך קשר ישירות בעתיד הקרוב.",
 	"mentorship-status-open": "פתוחה",
 	"mentorship-status-closed": "סגורה",
-	"mentorship-close": "סגירה"
+	"mentorship-close": "סגירה",
+	"suggest-capacity-title-placeholder": "למשל המחשת נתונים"
 }
