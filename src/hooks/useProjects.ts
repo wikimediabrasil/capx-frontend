@@ -9,7 +9,9 @@ export function useProject(projectId: number, token?: string) {
 
   useEffect(() => {
     const fetchProject = async () => {
-      if (!token || !projectId) return;
+      // A single project is public profile content (shown on the organization
+      // profile page), so this also runs for signed-out visitors.
+      if (!projectId) return;
 
       setIsLoading(true);
       try {

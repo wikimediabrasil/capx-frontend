@@ -3,11 +3,11 @@ import { OrganizationDocument } from '@/types/document';
 
 export const documentService = {
   async fetchAllDocuments(
-    token: string,
+    token: string | undefined,
     limit?: number,
     offset?: number
   ): Promise<OrganizationDocument[]> {
-    const headers = { Authorization: `Token ${token}` };
+    const headers = token ? { Authorization: `Token ${token}` } : undefined;
     const params = { limit, offset };
     const response = await axios.get<OrganizationDocument[]>('/api/documents', {
       headers,
@@ -16,10 +16,10 @@ export const documentService = {
     return response.data;
   },
 
-  async fetchSingleDocument(token: string, id: number): Promise<OrganizationDocument> {
+  async fetchSingleDocument(token: string | undefined, id: number): Promise<OrganizationDocument> {
     const response = await axios.get<OrganizationDocument>(`/api/documents/${id}`, {
       headers: {
-        Authorization: `Token ${token}`,
+        ...(token ? { Authorization: `Token ${token}` } : {}),
         'Content-Type': 'application/json',
       },
     });

@@ -136,9 +136,7 @@ export const useCapacityStore = create<CapacityStore>()(
         },
 
         // Actions
-        updateLanguage: async (newLanguage: string, token: string) => {
-          if (!token) return;
-
+        updateLanguage: async (newLanguage: string, token?: string) => {
           const state = get();
 
           // Check if already loaded for this language (re-fetch if cache has URI/QID labels)
@@ -194,10 +192,12 @@ export const useCapacityStore = create<CapacityStore>()(
               }
             }
 
-            // Fetch root capacities
+            // Fetch root capacities. These endpoints don't actually require auth on the
+            // backend, so this also works for anonymous visitors on public pages.
+            const authHeaders = token ? { Authorization: `Token ${token}` } : undefined;
             const rootCapacities = await capacityService.fetchCapacities({
               params: { language: newLanguage },
-              headers: { Authorization: `Token ${token}` },
+              headers: authHeaders,
             });
 
             if (!rootCapacities || rootCapacities.length === 0) {
@@ -240,7 +240,7 @@ export const useCapacityStore = create<CapacityStore>()(
               try {
                 const childrenResponse = await capacityService.fetchCapacitiesByType(
                   rootCapacity.code.toString(),
-                  { headers: { Authorization: `Token ${token}` } },
+                  { headers: authHeaders },
                   newLanguage
                 );
 
@@ -286,7 +286,7 @@ export const useCapacityStore = create<CapacityStore>()(
                     try {
                       const grandchildrenResponse = await capacityService.fetchCapacitiesByType(
                         childCode,
-                        { headers: { Authorization: `Token ${token}` } },
+                        { headers: authHeaders },
                         newLanguage
                       );
 
@@ -448,7 +448,7 @@ export const useCapacityStore = create<CapacityStore>()(
           }
         },
 
-        preloadCapacities: async (token: string) => {
+        preloadCapacities: async (token?: string) => {
           const { language, updateLanguage } = get();
           await updateLanguage(language, token);
         },

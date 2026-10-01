@@ -10,12 +10,10 @@ export const projectsService = {
     return response.data;
   },
 
-  async getProjectById(projectId: number, token: string): Promise<Project> {
+  async getProjectById(projectId: number, token?: string): Promise<Project> {
     try {
       const response = await axios.get(`/api/projects/${projectId}`, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
+        headers: token ? { Authorization: `Token ${token}` } : undefined,
       });
       return response.data;
     } catch (error) {

@@ -15,6 +15,7 @@ export { default as MessageListSkeleton } from './MessageListSkeleton';
 export { default as ProjectCardSkeleton } from './ProjectCardSkeleton';
 export { default as DocumentCardSkeleton } from './DocumentCardSkeleton';
 export { default as EventsSectionSkeleton } from './EventsSectionSkeleton';
+export { default as NewsSectionSkeleton } from './NewsSectionSkeleton';
 export { default as SavedItemsSkeleton } from './SavedItemsSkeleton';
 export { default as ProfileEditSkeleton } from './ProfileEditSkeleton';
 export { default as AnalyticsDashboardSkeleton } from './AnalyticsDashboardSkeleton';

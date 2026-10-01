@@ -2,9 +2,9 @@ import { tagDiff } from '@/types/tagDiff';
 import axios from 'axios';
 
 export const tagDiffService = {
-  async fetchSingleNews(token: string, id: number): Promise<tagDiff> {
+  async fetchSingleNews(token: string | undefined, id: number): Promise<tagDiff> {
     const response = await axios.get<tagDiff>(`/api/tag_diff/${id}/`, {
-      headers: { Authorization: `Token ${token}` },
+      headers: token ? { Authorization: `Token ${token}` } : undefined,
     });
     return response.data;
   },

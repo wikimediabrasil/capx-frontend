@@ -82,8 +82,11 @@ jest.mock('@/stores', () => ({
         getRootCapacities: jest.fn(() => []),
         hasChildren: jest.fn(() => false),
         isFallbackTranslation: jest.fn(() => false),
-        getIsLoaded: jest.fn(() => false),
-        getIsDescriptionsReady: jest.fn(() => false),
+        // Names above are already resolvable, so the cache is considered loaded
+        // (ProfileItem/ProfileCard use this to decide whether to render real
+        // names or loading-skeleton placeholders).
+        getIsLoaded: jest.fn(() => true),
+        getIsDescriptionsReady: jest.fn(() => true),
         updateLanguage: jest.fn(),
         preloadCapacities: jest.fn(),
         clearCache: jest.fn(),

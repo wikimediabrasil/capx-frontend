@@ -54,8 +54,8 @@ export interface CapacityStoreActions {
   getIsDescriptionsReady: () => boolean;
 
   // Actions
-  updateLanguage: (newLanguage: string, token: string) => Promise<void>;
-  preloadCapacities: (token: string) => Promise<void>;
+  updateLanguage: (newLanguage: string, token?: string) => Promise<void>;
+  preloadCapacities: (token?: string) => Promise<void>;
   clearCache: () => void;
   setCache: (cache: UnifiedCache) => void;
   updateCapacityTranslation: (

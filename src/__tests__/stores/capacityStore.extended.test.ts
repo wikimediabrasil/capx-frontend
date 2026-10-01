@@ -305,12 +305,30 @@ describe('capacityStore - extended', () => {
   // updateLanguage
   // -------------------------------------------------------------------------
   describe('updateLanguage', () => {
-    it('does nothing when token is empty', async () => {
+    it('fetches capacities even when no token is provided (public data, e.g. anonymous visitors)', async () => {
+      mockedCapacityService.fetchCapacities.mockResolvedValue([]);
+
       await act(async () => {
-        await useCapacityStore.getState().updateLanguage('en', '');
+        await useCapacityStore.getState().updateLanguage('en', undefined);
       });
 
-      expect(mockedCapacityService.fetchCapacities).not.toHaveBeenCalled();
+      expect(mockedCapacityService.fetchCapacities).toHaveBeenCalledWith({
+        params: { language: 'en' },
+        headers: undefined,
+      });
+    });
+
+    it('sends an Authorization header when a token is provided', async () => {
+      mockedCapacityService.fetchCapacities.mockResolvedValue([]);
+
+      await act(async () => {
+        await useCapacityStore.getState().updateLanguage('en', 'my-token');
+      });
+
+      expect(mockedCapacityService.fetchCapacities).toHaveBeenCalledWith({
+        params: { language: 'en' },
+        headers: { Authorization: 'Token my-token' },
+      });
     });
 
     it('does nothing when already loading translations', async () => {

@@ -169,7 +169,6 @@
 	"edit-profile-add-more-links": "リンクを追加",
 	"edit-profile-add-diff-tags": "差分タグを追加",
 	"edit-profile-news": "ニュース",
-	"edit-profile-loading-news": "ニュースを読み込み中……",
 	"edit-profile-enter-diff-tags": "このグループ関連の差分タグを記入。",
 	"edit-profile-display-events": "所属する組織の主要イベントを表示。ウィキメディアのリンクを4件以内、その説明画像へのリンクとともにウィキメディア・コモンズに共有。<!-- CapX プロフィールを作成すると、ウィキメディア・イベントを最大4件、表示できます。表示したいイベントを選ぶには、「イベントを選択」と「イベントを非表示」ボタンを使ってください。どのイベントも、「イベント」ページのメニュー欄からアクセスして表示できます。 -->",
 	"edit-profile-share-documents-tooltop": "ご自身のグループに関する解説文のリンクを、ウィキメディア・コモンズから最大4件、共有してください。",

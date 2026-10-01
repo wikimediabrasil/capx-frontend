@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Hide on Rosé",
-			"SongNgu.xyz"
+			"SongNgu.xyz",
+			"Veritas Sapientiae"
 		]
 	},
 	"empty-field": "Bạn chưa thêm thông tin này",
@@ -135,7 +136,6 @@
 	"edit-profile-add-more-links": "Thêm liên kết",
 	"edit-profile-add-diff-tags": "Thêm thẻ Diff",
 	"edit-profile-news": "Tin tức",
-	"edit-profile-loading-news": "Đang tải tin tức...",
 	"edit-profile-enter-diff-tags": "Nhập các thẻ Diff liên quan đến tổ chức của bạn.",
 	"edit-profile-display-events": "Hiển thị các sự kiện chính do tổ chức của bạn tổ chức. Chia sẻ tối đa bốn liên kết Wikimedia và các liên kết hình ảnh minh họa tương ứng trên Wikimedia Commons.",
 	"edit-profile-share-documents-tooltop": "Bạn có thể chia sẻ tối đa bốn liên kết tài liệu của tổ chức mình từ Wikimedia Commons.",

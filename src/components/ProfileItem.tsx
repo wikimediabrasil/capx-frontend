@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 
+import { SkeletonBase } from '@/components/skeletons';
 import { useDarkMode, usePageContent } from '@/stores';
 const CAPACITY_STYLES = {
   known: {
@@ -47,6 +48,12 @@ interface ProfileItemProps {
   getItemName: (id: string | number) => string;
   itemCustomClass?: string;
   useDefaultStyle?: boolean;
+  /**
+   * When true, the item names aren't resolvable yet (e.g. the capacity name
+   * cache is still fetching). Renders skeleton placeholders instead of calling
+   * getItemName, so callers never flash a fallback like "Capacity {id}".
+   */
+  isLoading?: boolean;
 }
 
 export function ProfileItem({
@@ -58,6 +65,7 @@ export function ProfileItem({
   getItemName,
   itemCustomClass = '',
   useDefaultStyle = true,
+  isLoading = false,
 }: Readonly<ProfileItemProps>) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -99,6 +107,13 @@ export function ProfileItem({
     // Reset local names
     setLocalNames({});
 
+    // Names aren't resolvable yet (e.g. capacity cache is still fetching) -
+    // skip the fallback-timeout logic until loading finishes, so we never
+    // cache a "Capacity {id}" placeholder as if it were the real name.
+    if (isLoading) {
+      return;
+    }
+
     // Set up new timeouts for each item
     if (items && items.length > 0) {
       items.forEach(id => {
@@ -124,7 +139,7 @@ export function ProfileItem({
         clearTimeout(timeout);
       });
     };
-  }, [items, getItemName, pageContent]);
+  }, [items, getItemName, pageContent, isLoading]);
 
   const needsToggle = items.length > 8;
 
@@ -214,51 +229,65 @@ export function ProfileItem({
         {/* Items Container */}
         <div className="flex flex-wrap gap-2 flex-1">
           {items.length > 0 ? (
-            <>
-              {/* Only show the first 8 items */}
-              {(isExpanded || !needsToggle ? items : items.slice(0, 8)).map((item, _index) => {
-                const name = getDisplayName(item);
-                return (
-                  <div
-                    key={item.toString()}
-                    className={[
-                      'capacity-item',
-                      'rounded-[8px]',
-                      'inline-flex',
-                      'px-[4px]',
-                      'py-[6px]',
-                      'items-center',
-                      'gap-[8px]',
-                      useDefaultStyle ? capacityStyle.backgroundColor : '',
-                      useDefaultStyle ? capacityStyle.textColor : '',
-                    ].join(' ')}
-                  >
-                    <h2
-                      className={
-                        useDefaultStyle
-                          ? `font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`
-                          : itemCustomClass
-                      }
-                    >
-                      {name}
-                    </h2>
-                  </div>
-                );
-              })}
-
-              {/* Show total of hidden items */}
-              {!isExpanded && needsToggle && items.length > 8 && (
+            isLoading ? (
+              // Names aren't resolved yet - show placeholder pills instead of
+              // flashing a fallback like "Capacity {id}".
+              (isExpanded || !needsToggle ? items : items.slice(0, 8)).map(item => (
                 <div
-                  className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}`}
+                  key={`skeleton-${item.toString()}`}
+                  className="capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px]"
+                  aria-hidden="true"
                 >
-                  <p
-                    className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
-                  >
-                    +{items.length - 8} {pageContent['profile-item-more'] || 'more'}
-                  </p>
+                  <SkeletonBase className="h-[20px] md:h-[32px] w-16 md:w-24" />
                 </div>
-              )}
-            </>
+              ))
+            ) : (
+              <>
+                {/* Only show the first 8 items */}
+                {(isExpanded || !needsToggle ? items : items.slice(0, 8)).map((item, _index) => {
+                  const name = getDisplayName(item);
+                  return (
+                    <div
+                      key={item.toString()}
+                      className={[
+                        'capacity-item',
+                        'rounded-[8px]',
+                        'inline-flex',
+                        'px-[4px]',
+                        'py-[6px]',
+                        'items-center',
+                        'gap-[8px]',
+                        useDefaultStyle ? capacityStyle.backgroundColor : '',
+                        useDefaultStyle ? capacityStyle.textColor : '',
+                      ].join(' ')}
+                    >
+                      <h2
+                        className={
+                          useDefaultStyle
+                            ? `font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`
+                            : itemCustomClass
+                        }
+                      >
+                        {name}
+                      </h2>
+                    </div>
+                  );
+                })}
+
+                {/* Show total of hidden items */}
+                {!isExpanded && needsToggle && items.length > 8 && (
+                  <div
+                    className={`capacity-item rounded-[8px] inline-flex px-[4px] py-[6px] items-center gap-[8px] ${capacityStyle.backgroundColor} ${capacityStyle.textColor}`}
+                  >
+                    <p
+                      className={`font-normal text-sm md:text-[24px] p-1 ${capacityStyle.textColor}`}
+                    >
+                      +{items.length - 8} {pageContent['profile-item-more'] || 'more'}
+                    </p>
+                  </div>
+                )}
+              </>
+            )
           ) : showEmptyDataText ? (
             <p
               className={`

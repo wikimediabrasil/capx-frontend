@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import ProjectFormItem from '@/app/(auth)/organization_profile/components/ProjectsFormItem';
+import ProjectFormItem from '@/app/organization_profile/components/ProjectsFormItem';
 import * as stores from '@/stores';
 
 jest.mock('@/stores', () => ({

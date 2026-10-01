@@ -27,8 +27,10 @@ export const useTagDiff = (token?: string, id?: number, limit?: number, offset?:
   };
 
   const fetchSingleTag = async (id: number) => {
-    if (!token || !id) {
-      console.error('fetchSingleNews: Missing token or id');
+    // A single tag is public profile content (used to resolve an organization's
+    // news topics), so this also runs for signed-out visitors.
+    if (!id) {
+      console.error('fetchSingleNews: Missing id');
       return;
     }
     try {

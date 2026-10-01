@@ -20,9 +20,11 @@ export const useLanguageSync = () => {
 
   const [isLanguageChanging, setIsLanguageChanging] = useState(false);
 
-  // Detect when app language changes and update capacity cache
+  // Detect when app language changes and update capacity cache. Capacity data is
+  // public, so this runs for signed-out visitors too (token is passed through when
+  // available, but isn't required by the underlying endpoints).
   useEffect(() => {
-    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage && token) {
+    if (appLanguage && cacheLanguage && appLanguage !== cacheLanguage) {
       setIsLanguageChanging(true);
       store.updateLanguage(appLanguage, token);
     }

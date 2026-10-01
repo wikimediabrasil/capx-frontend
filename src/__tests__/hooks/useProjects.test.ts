@@ -53,12 +53,17 @@ describe('useProject', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('does not fetch when no token', () => {
+  it('fetches project even when no token is provided (public profile content, e.g. anonymous visitors)', async () => {
+    mockProjectsService.getProjectById.mockResolvedValue(mockProject as any);
+
     const { result } = renderHook(() => useProject(1));
 
-    // isLoading stays true because effect returns early without setting it
-    expect(result.current.isLoading).toBe(true);
-    expect(mockProjectsService.getProjectById).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(mockProjectsService.getProjectById).toHaveBeenCalledWith(1, undefined);
+    expect(result.current.project).toEqual(mockProject);
   });
 
   it('does not fetch when no projectId', () => {

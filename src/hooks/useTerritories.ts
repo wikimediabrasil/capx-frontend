@@ -8,8 +8,6 @@ export const useTerritories = (token: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
-
     const loadTerritories = async () => {
       setLoading(true);
       setError(null);

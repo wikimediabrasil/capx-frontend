@@ -38,7 +38,9 @@ export function useOrganization(token?: string, specificOrgId?: number) {
   }, []);
 
   const fetchData = useCallback(async () => {
-    if (!token) {
+    // With no token and no specific org to look up, there's nothing a
+    // signed-out viewer can fetch (managed organizations require auth).
+    if (!token && !specificOrgId) {
       setIsLoading(false);
       return;
     }
@@ -47,14 +49,15 @@ export function useOrganization(token?: string, specificOrgId?: number) {
     setIsPermissionsLoaded(false);
 
     try {
-      // First, fetch the IDs of the managed organizations
-      const managedIds = await fetchUserProfile(token);
+      // Manager permissions are only meaningful (and fetchable) for a signed-in user.
+      const managedIds = token ? await fetchUserProfile(token) : [];
       setManagedOrganizationIds(managedIds);
       setIsPermissionsLoaded(true);
 
       // Then, fetch the organizations
       if (specificOrgId) {
         try {
+          // A specific organization's public profile can be fetched without a token.
           const orgData = await organizationProfileService.getOrganizationById(
             token,
             specificOrgId
@@ -66,7 +69,7 @@ export function useOrganization(token?: string, specificOrgId?: number) {
           console.error(`Error fetching organization ${specificOrgId}:`, err);
           setOrganizations([]);
         }
-      } else if (managedIds.length > 0) {
+      } else if (managedIds.length > 0 && token) {
         const orgsData = await fetchOrganizations(token, managedIds);
         setOrganizations(orgsData);
       }
