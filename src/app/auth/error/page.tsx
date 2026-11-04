@@ -2,10 +2,12 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { usePageContent } from '@/stores';
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pageContent = usePageContent();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -19,21 +21,33 @@ function AuthErrorContent() {
   };
 
   const getErrorMessage = (error: string | null) => {
-    if (!error) return 'An error occurred during authentication.';
+    if (!error)
+      return pageContent['auth-error-default'] || 'An error occurred during authentication.';
 
     if (error.includes('400')) {
-      return 'Authentication request error. Please try logging in again.';
+      return (
+        pageContent['auth-error-bad-request'] ||
+        'Authentication request error. Please try logging in again.'
+      );
     }
 
     if (error.includes('401')) {
-      return 'Unauthorized. Your credentials may have expired.';
+      return (
+        pageContent['auth-error-unauthorized'] || 'Unauthorized. Your credentials may have expired.'
+      );
     }
 
     if (error.includes('Request failed')) {
-      return 'Communication failure with the server. Check your connection and try again.';
+      return (
+        pageContent['auth-error-connection-failure'] ||
+        'Communication failure with the server. Check your connection and try again.'
+      );
     }
 
-    return `Authentication error: ${error}`;
+    return (pageContent['auth-error-with-details'] || 'Authentication error: $1').replace(
+      '$1',
+      error
+    );
   };
 
   return (
@@ -51,7 +65,7 @@ function AuthErrorContent() {
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Authentication Error
+            {pageContent['auth-error-title'] || 'Authentication Error'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">{getErrorMessage(error)}</p>
         </div>
@@ -61,11 +75,14 @@ function AuthErrorContent() {
             onClick={handleReturnHome}
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Return to Home
+            {pageContent['auth-error-return-home'] || 'Return to Home'}
           </button>
 
           <div className="text-center">
-            <p className="text-xs text-gray-500">If the problem persists, contact support.</p>
+            <p className="text-xs text-gray-500">
+              {pageContent['auth-error-contact-support'] ||
+                'If the problem persists, contact support.'}
+            </p>
           </div>
         </div>
 

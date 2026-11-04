@@ -150,7 +150,12 @@ export default function SectionRecommendationsCarousel() {
               />
             ))
           ) : (
-            <CardNoCapacities alt="No profiles to share with" />
+            <CardNoCapacities
+              alt={
+                pageContent['recommendations-no-profiles-to-share-with'] ||
+                'No profiles to share with'
+              }
+            />
           )}
         </RecommendationCarousel>
 
@@ -172,7 +177,12 @@ export default function SectionRecommendationsCarousel() {
               />
             ))
           ) : (
-            <CardNoCapacities alt="No profiles to learn from" />
+            <CardNoCapacities
+              alt={
+                pageContent['recommendations-no-profiles-to-learn-from'] ||
+                'No profiles to learn from'
+              }
+            />
           )}
         </RecommendationCarousel>
 
@@ -194,7 +204,12 @@ export default function SectionRecommendationsCarousel() {
               />
             ))
           ) : (
-            <CardNoCapacities alt="No same language speakers" />
+            <CardNoCapacities
+              alt={
+                pageContent['recommendations-no-same-language-speakers'] ||
+                'No same language speakers'
+              }
+            />
           )}
         </RecommendationCarousel>
 

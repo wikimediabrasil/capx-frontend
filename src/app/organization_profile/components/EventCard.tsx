@@ -152,7 +152,11 @@ export function EventCard({ event, isEditMode = false, onChoose }: EventCardProp
                     >
                       <Image
                         src={darkMode ? MoreHorizIconLight : MoreHorizIcon}
-                        alt={showAllCapacities ? 'Show less' : 'Show more'}
+                        alt={
+                          showAllCapacities
+                            ? pageContent['alt-collapse'] || 'Show less'
+                            : pageContent['alt-expand'] || 'Show more'
+                        }
                         className="cursor-pointer"
                         width={24}
                         height={24}

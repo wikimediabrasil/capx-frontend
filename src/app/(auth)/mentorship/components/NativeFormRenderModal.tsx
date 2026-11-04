@@ -148,7 +148,9 @@ export default function NativeFormRenderModal({
                 darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {form.role === 'mentor' ? 'Mentor form' : 'Mentee form'}
+              {form.role === 'mentor'
+                ? pageContent['mentorship-form-mentor'] || 'Mentor form'
+                : pageContent['mentorship-form-mentee'] || 'Mentee form'}
             </h2>
           </div>
 

@@ -100,7 +100,9 @@ export default function EventsSection({
             ))}
           </>
         ) : error ? (
-          <p className="text-center py-4 text-red-500">{error}</p>
+          <p className="text-center py-4 text-red-500">
+            {pageContent['organization-profile-events-error-loading'] || 'Failed to load events'}
+          </p>
         ) : events && events.length > 0 ? (
           events.map(event => (
             <EventCard

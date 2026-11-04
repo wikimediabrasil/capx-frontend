@@ -1,11 +1,14 @@
 'use client';
 
 import CardNoRecommendations from '@/app/(auth)/home/components/CardNoRecommendations';
-import { useIsMobile, useDarkMode } from '@/stores';
+import { useIsMobile, useDarkMode, usePageContent } from '@/stores';
 
 export default function SectionNoRecommendations() {
   const isMobile = useIsMobile();
   const darkMode = useDarkMode();
+  const pageContent = usePageContent();
+  const illustrationAlt =
+    pageContent['home-no-recommendations-illustration-alt'] || 'Contacts illustration';
 
   const noCapacitesSection = isMobile ? (
     //Mobile
@@ -16,7 +19,7 @@ export default function SectionNoRecommendations() {
     >
       <div className="flex flex-col items-center justify-center w-full gap-16">
         <div className="flex items-center w-full">
-          <CardNoRecommendations alt="Imagem de produto de contatos" />
+          <CardNoRecommendations alt={illustrationAlt} />
         </div>
       </div>
     </section>
@@ -27,7 +30,7 @@ export default function SectionNoRecommendations() {
     >
       <div className="flex flex-col items-center justify-between w-full py-16 gap-16">
         <div className="flex items-center w-full">
-          <CardNoRecommendations alt="Imagem de produto de contatos" />
+          <CardNoRecommendations alt={illustrationAlt} />
         </div>
       </div>
     </section>

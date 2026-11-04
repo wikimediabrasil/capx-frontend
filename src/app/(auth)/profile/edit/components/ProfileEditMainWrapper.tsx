@@ -564,7 +564,11 @@ export default function EditProfilePage() {
           setFormData(updatedFormData);
           setUnsavedData(updatedFormData); // Important: also update the unsavedData
         } else {
-          showSnackbar('Wikidata information not found for this username', 'error');
+          showSnackbar(
+            pageContent['edit-profile-wikidata-not-found'] ||
+              'Wikidata information not found for this username',
+            'error'
+          );
         }
       } else {
         // When unselecting the Wikidata option

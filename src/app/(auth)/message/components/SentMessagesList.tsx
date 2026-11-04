@@ -48,7 +48,7 @@ export default function SentMessagesList({ setCurrentView }: SentMessagesListPro
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div>{pageContent['message-error-loading'] || 'Could not load messages.'}</div>;
   }
 
   return (

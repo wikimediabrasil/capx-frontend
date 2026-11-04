@@ -1,7 +1,7 @@
 'use client';
 
 import { CapacitiesTreeSkeleton } from '@/components/skeletons';
-import { useCapacityStore } from '@/stores';
+import { useCapacityStore, usePageContent } from '@/stores';
 import { useMemo } from 'react';
 import D3TreeVisualization from './D3TreeVisualization';
 
@@ -17,6 +17,7 @@ interface D3Capacity {
 }
 
 export default function CapacitiesTreeVisualization() {
+  const pageContent = usePageContent();
   const {
     getRootCapacities,
     getChildren,
@@ -71,7 +72,9 @@ export default function CapacitiesTreeVisualization() {
   if (d3Data.length === 0) {
     return (
       <div className="flex justify-center items-center h-[200px]">
-        <p className="text-gray-600">Nenhuma capacidade encontrada.</p>
+        <p className="text-gray-600">
+          {pageContent['capacities-visualization-no-capacities'] || 'No capacities found.'}
+        </p>
       </div>
     );
   }

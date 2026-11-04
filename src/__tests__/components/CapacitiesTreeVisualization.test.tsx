@@ -78,7 +78,7 @@ describe('CapacitiesTreeVisualization', () => {
   it('shows empty state message when no root capacities exist', () => {
     mockStoreState();
     render(<CapacitiesTreeVisualization />);
-    expect(screen.getByText('Nenhuma capacidade encontrada.')).toBeInTheDocument();
+    expect(screen.getByText('No capacities found.')).toBeInTheDocument();
   });
 
   it('passes the correct number of root capacities to D3TreeVisualization', () => {

@@ -215,7 +215,7 @@ export default function MentorshipProgramCard({
             <div className="relative w-4 h-4">
               <Image
                 src={darkMode ? TerritoryIconWhite : TerritoryIcon}
-                alt="Location"
+                alt={pageContent['mentorship-location'] || 'Location'}
                 fill
                 className="object-contain"
               />
@@ -237,7 +237,7 @@ export default function MentorshipProgramCard({
                 darkMode ? 'text-gray-200' : 'text-gray-800'
               }`}
             >
-              Registration period
+              {pageContent['mentorship-registration-period'] || 'Registration period'}
             </span>
             <span className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {program.openDate && program.closeDate

@@ -234,7 +234,7 @@ function CapacityInfoPanel({
         <button
           onClick={onClose}
           className="text-[#032430] opacity-60 hover:opacity-100 transition-opacity text-xl leading-none"
-          aria-label="Close"
+          aria-label={pageContent['close'] || 'Close'}
         >
           ✕
         </button>
@@ -412,6 +412,7 @@ function CategoryCard({
   capacities: CapacityData[];
   description: string;
 }>) {
+  const pageContent = usePageContent();
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCapacity, setSelectedCapacity] = useState<CapacityData | null>(null);
   const isMobile = useIsMobile();
@@ -433,7 +434,10 @@ function CategoryCard({
   const capacityInfoPanel = (
     <div className="flex flex-col gap-4 flex-1 min-w-0">
       {capacities.length === 0 ? (
-        <p className="text-[#032430] text-sm py-2">No capacities found for this category.</p>
+        <p className="text-[#032430] text-sm py-2">
+          {pageContent['capacity-selection-modal-no-capacities-found'] ||
+            'No capacities found for this category'}
+        </p>
       ) : (
         <>
           {selectedCapacity && (
@@ -470,7 +474,7 @@ function CategoryCard({
             <button
               onClick={() => scrollChips('left')}
               className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors"
-              aria-label="Scroll left"
+              aria-label={pageContent['capacity-list-scroll-left'] || 'Scroll left'}
             >
               <MaskedIcon src={ArrowDownIcon as StaticImageData} size={20} rotate={90} />
             </button>
@@ -488,7 +492,7 @@ function CategoryCard({
             <button
               onClick={() => scrollChips('right')}
               className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors"
-              aria-label="Scroll right"
+              aria-label={pageContent['capacity-list-scroll-right'] || 'Scroll right'}
             >
               <MaskedIcon src={ArrowDownIcon as StaticImageData} size={20} rotate={270} />
             </button>

@@ -131,7 +131,11 @@ export default function FormMessage() {
       formData.receiver.length >= 1
     ) {
       setFormData({ ...formData, method: MessageMethod.TALKPAGE });
-      showSnackbar('Email unavailable. Switched to Talk Page method.', 'error');
+      showSnackbar(
+        pageContent['message-form-email-unavailable-switched'] ||
+          'Email unavailable. Switched to Talk Page method.',
+        'error'
+      );
     }
   }, [emailCheckResult, formData.method, formData.receiver]);
 
@@ -180,7 +184,11 @@ export default function FormMessage() {
         } catch (error: any) {
           setIsCheckingEmail(false);
           console.error('Error checking email availability:', error);
-          showSnackbar('Failed to verify email availability. Please try again.', 'error');
+          showSnackbar(
+            pageContent['message-form-email-check-failed'] ||
+              'Failed to verify email availability. Please try again.',
+            'error'
+          );
           return;
         }
         setIsCheckingEmail(false);
@@ -233,7 +241,7 @@ export default function FormMessage() {
       setEmailCheckResult(null);
     } catch (error) {
       console.error('Error sending message:', error);
-      showSnackbar('Failed to send message', 'error');
+      showSnackbar(pageContent['message-form-send-failed'] || 'Failed to send message', 'error');
     }
   };
 
