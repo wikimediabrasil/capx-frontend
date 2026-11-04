@@ -31,7 +31,11 @@ interface EventsFiltersProps {
   initialFilters: EventFilterState;
 }
 
-export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Readonly<EventsFiltersProps>) {
+export function EventsFilters({
+  onClose,
+  onApplyFilters,
+  initialFilters,
+}: Readonly<EventsFiltersProps>) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
 
