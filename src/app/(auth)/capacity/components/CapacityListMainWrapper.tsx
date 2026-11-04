@@ -26,6 +26,27 @@ import Image from 'next/image';
 import { Typewriter } from 'react-simple-typewriter';
 
 type VisualizationMode = 'cards' | 'tree' | 'categories';
+
+const visualizationOptions: {
+  mode: VisualizationMode;
+  labelKey: string;
+  fallback: string;
+  iconSize: string;
+}[] = [
+  {
+    mode: 'cards',
+    labelKey: 'capacity-list-view-cards',
+    fallback: 'Cards view',
+    iconSize: 'w-5 h-5',
+  },
+  { mode: 'tree', labelKey: 'capacity-list-view-tree', fallback: 'Tree view', iconSize: 'w-5 h-5' },
+  {
+    mode: 'categories',
+    labelKey: 'capacity-list-view-other',
+    fallback: 'Other view',
+    iconSize: 'w-[10px] h-[17px]',
+  },
+];
 // This component is no longer needed as descriptions are handled by the consolidated cache
 
 // Component for child capacities
@@ -380,45 +401,21 @@ function CapacityListContent() {
         <div
           className={`flex items-center justify-evenly rounded-[16px] p-2 w-full ${darkMode ? 'bg-capx-dark-bg' : 'bg-[#F6F6F6]'}`}
         >
-          <button
-            onClick={() => setVisualizationMode('cards')}
-            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('cards')}`}
-            aria-label={pageContent['capacity-list-view-cards'] || 'Cards view'}
-          >
-            <div className="relative w-5 h-5">
-              <Image
-                src={getVisualizationIcon('cards')}
-                alt={pageContent['capacity-list-view-cards'] || 'Cards view'}
-                fill
-              />
-            </div>
-          </button>
-          <button
-            onClick={() => setVisualizationMode('tree')}
-            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('tree')}`}
-            aria-label={pageContent['capacity-list-view-tree'] || 'Tree view'}
-          >
-            <div className="relative w-5 h-5">
-              <Image
-                src={getVisualizationIcon('tree')}
-                alt={pageContent['capacity-list-view-tree'] || 'Tree view'}
-                fill
-              />
-            </div>
-          </button>
-          <button
-            onClick={() => setVisualizationMode('categories')}
-            className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('categories')}`}
-            aria-label={pageContent['capacity-list-view-other'] || 'Other view'}
-          >
-            <div className="relative w-[10px] h-[17px]">
-              <Image
-                src={getVisualizationIcon('categories')}
-                alt={pageContent['capacity-list-view-other'] || 'Other view'}
-                fill
-              />
-            </div>
-          </button>
+          {visualizationOptions.map(({ mode, labelKey, fallback, iconSize }) => {
+            const label = pageContent[labelKey] || fallback;
+            return (
+              <button
+                key={mode}
+                onClick={() => setVisualizationMode(mode)}
+                className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg(mode)}`}
+                aria-label={label}
+              >
+                <div className={`relative ${iconSize}`}>
+                  <Image src={getVisualizationIcon(mode)} alt={label} fill />
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
 
