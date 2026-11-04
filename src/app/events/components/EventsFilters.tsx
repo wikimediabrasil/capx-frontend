@@ -124,7 +124,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? CapxIconWhite : CapxIcon}
-                  alt="Capacities"
+                  alt={pageContent['filters-capacities'] || 'Capacities'}
                   width={24}
                   height={24}
                 />
@@ -148,7 +148,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? LocationIconWhite : LocationIcon}
-                  alt="Territory"
+                  alt={pageContent['filters-territory'] || 'Territory'}
                   width={24}
                   height={24}
                 />
@@ -187,7 +187,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                 >
                   <Image
                     src={darkMode ? AddIconWhite : AddIcon}
-                    alt="Add"
+                    alt={pageContent['add'] || 'Add'}
                     width={20}
                     height={20}
                   />
@@ -214,7 +214,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                       >
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt="Remove"
+                          alt={pageContent['filters-remove-item-alt-icon'] || 'Remove'}
                           width={16}
                           height={16}
                         />
@@ -230,7 +230,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? LocationIconWhite : LocationIcon}
-                  alt="Event format"
+                  alt={pageContent['filters-event-format'] || 'Event format'}
                   width={24}
                   height={24}
                 />
@@ -259,21 +259,31 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     </span>
                     {filters.locationType === EventLocationType.All ? (
                       darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIcon}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       )
                     ) : darkMode ? (
                       <Image
                         src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
                     ) : (
                       <Image
                         src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
@@ -300,21 +310,31 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     </span>
                     {filters.locationType === EventLocationType.Online ? (
                       darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIcon}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       )
                     ) : darkMode ? (
                       <Image
                         src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
                     ) : (
                       <Image
                         src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
@@ -341,21 +361,31 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     </span>
                     {filters.locationType === EventLocationType.InPerson ? (
                       darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIcon}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       )
                     ) : darkMode ? (
                       <Image
                         src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
                     ) : (
                       <Image
                         src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
@@ -382,21 +412,31 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                     </span>
                     {filters.locationType === EventLocationType.Hybrid ? (
                       darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIconWhite}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
+                        <Image
+                          src={CheckBoxIcon}
+                          alt={pageContent['alt-checked'] || 'Checked'}
+                          width={24}
+                          height={24}
+                        />
                       )
                     ) : darkMode ? (
                       <Image
                         src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />
                     ) : (
                       <Image
                         src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
+                        alt={pageContent['alt-unchecked'] || 'Unchecked'}
                         width={24}
                         height={24}
                       />

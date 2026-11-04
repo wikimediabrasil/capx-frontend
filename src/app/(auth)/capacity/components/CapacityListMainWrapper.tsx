@@ -383,28 +383,40 @@ function CapacityListContent() {
           <button
             onClick={() => setVisualizationMode('cards')}
             className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('cards')}`}
-            aria-label="Cards view"
+            aria-label={pageContent['capacity-list-view-cards'] || 'Cards view'}
           >
             <div className="relative w-5 h-5">
-              <Image src={getVisualizationIcon('cards')} alt="Cards view" fill />
+              <Image
+                src={getVisualizationIcon('cards')}
+                alt={pageContent['capacity-list-view-cards'] || 'Cards view'}
+                fill
+              />
             </div>
           </button>
           <button
             onClick={() => setVisualizationMode('tree')}
             className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('tree')}`}
-            aria-label="Tree view"
+            aria-label={pageContent['capacity-list-view-tree'] || 'Tree view'}
           >
             <div className="relative w-5 h-5">
-              <Image src={getVisualizationIcon('tree')} alt="Tree view" fill />
+              <Image
+                src={getVisualizationIcon('tree')}
+                alt={pageContent['capacity-list-view-tree'] || 'Tree view'}
+                fill
+              />
             </div>
           </button>
           <button
             onClick={() => setVisualizationMode('categories')}
             className={`flex-1 flex items-center justify-center h-[52px] rounded-[12px] transition-colors ${getVisualizationBg('categories')}`}
-            aria-label="Other view"
+            aria-label={pageContent['capacity-list-view-other'] || 'Other view'}
           >
             <div className="relative w-[10px] h-[17px]">
-              <Image src={getVisualizationIcon('categories')} alt="Other view" fill />
+              <Image
+                src={getVisualizationIcon('categories')}
+                alt={pageContent['capacity-list-view-other'] || 'Other view'}
+                fill
+              />
             </div>
           </button>
         </div>
@@ -542,7 +554,7 @@ class CapacityErrorBoundary extends React.Component<
             onClick={() => globalThis.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Try again
+            {this.props.pageContent?.['error-fallback-try-again'] || 'Try again'}
           </button>
         </div>
       );

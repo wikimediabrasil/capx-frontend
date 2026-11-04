@@ -124,7 +124,13 @@ export default function MentorshipPage() {
 
   const handleSubscribe = (programId: number, role: 'mentor' | 'mentee') => {
     const program = programs.find(p => p.id === programId);
-    showSnackbar(`Successfully subscribed to ${program?.name} as ${role}`, 'success');
+    const roleLabel = pageContent[role] || role;
+    showSnackbar(
+      (pageContent['mentorship-subscribe-success'] || 'Successfully subscribed to $1 as $2')
+        .replace('$1', program?.name ?? '')
+        .replace('$2', roleLabel),
+      'success'
+    );
     console.log('Subscribe:', { programId, role });
   };
 

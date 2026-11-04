@@ -182,7 +182,7 @@ export default function EventsMainWrapper() {
                     : 'bg-white border border-capx-dark-box-bg/10 hover:border-capx-dark-box-bg/20'
                 }
               `}
-              aria-label="Open filters"
+              aria-label={pageContent['events-open-filters'] || 'Open filters'}
             >
               <Image
                 src={darkMode ? FilterIconWhite : FilterIcon}

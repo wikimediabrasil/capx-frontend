@@ -118,7 +118,9 @@ export default function RecommendationProfileCard({
     profileTypeIcon = darkMode ? AccountCircleWhite : AccountCircle;
   }
 
-  const profileTypeAlt = isOrganization ? 'Organization profile icon' : 'User profile icon';
+  const profileTypeAlt = isOrganization
+    ? pageContent['alt-organization-profile-icon'] || 'Organization profile icon'
+    : pageContent['alt-user-profile-icon'] || 'User profile icon';
 
   let saveButtonStyle: string;
   if (isSaved) {

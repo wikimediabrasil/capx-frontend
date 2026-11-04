@@ -134,7 +134,7 @@ export default function BadgesCarousel({
           <button
             onClick={handlePrevious}
             disabled={!canGoPrevious}
-            aria-label="Badge anterior"
+            aria-label={pageContent['badges-carousel-previous'] || 'Previous badge'}
             className={`
               absolute left-0 top-1/2 -translate-y-1/2 z-10
               p-2 rounded-full
@@ -169,7 +169,7 @@ export default function BadgesCarousel({
           <button
             onClick={handleNext}
             disabled={!canGoNext}
-            aria-label="Próximo badge"
+            aria-label={pageContent['badges-carousel-next'] || 'Next badge'}
             className={`
               absolute right-0 top-1/2 -translate-y-1/2 z-10
               p-2 rounded-full

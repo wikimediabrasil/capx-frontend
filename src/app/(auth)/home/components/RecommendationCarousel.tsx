@@ -184,7 +184,7 @@ export default function RecommendationCarousel({
               <button
                 onClick={scrollLeft}
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-gray-200 hover:bg-gray-300"
-                aria-label="Previous"
+                aria-label={pageContent['pagination-previous'] || 'Previous'}
               >
                 <div className="relative w-6 h-6">
                   <Image src={ArrowBackIcon} alt="" fill className="object-contain" />
@@ -196,7 +196,7 @@ export default function RecommendationCarousel({
               <button
                 onClick={scrollRight}
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-gray-200 hover:bg-gray-300"
-                aria-label="Next"
+                aria-label={pageContent['pagination-next'] || 'Next'}
               >
                 <div className="relative w-6 h-6 rotate-180">
                   <Image src={ArrowBackIcon} alt="" fill className="object-contain" />
