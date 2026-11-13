@@ -1,0 +1,109 @@
+name: Issue Work Log
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  log-work:
+    # Only run on issue comments (not PRs) that start with /log
+    if: ${{ !github.event.issue.pull_request && startsWith(github.event.comment.body, '/log ') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse work log and update issue description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body.trim();
+            const user = context.payload.comment.user.login;
+            const date = new Date().toISOString().split('T')[0];
+
+            // Match formats like: /log 2h 30m Optional note, /log 1.5h, /log 45m
+            const match = comment.match(/^\/log\s+(?:(\d+(?:\.\d+)?)h)?\s*(?:(\d+)m)?(?:\s+(.*))?$/i);
+
+            if (!match || (!match[1] && !match[2])) {
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'confused'
+              });
+              return;
+            }
+
+            const hours = parseFloat(match[1] || 0);
+            const mins = parseInt(match[2] || 0, 10);
+            const totalMinutes = Math.round(hours * 60 + mins);
+            const note = (match[3] || '-').replace(/\|/g, '\\|');
+
+            const formatDuration = (m) => {
+              const h = Math.floor(m / 60);
+              const rem = m % 60;
+              return [h > 0 ? `${h}h` : '', rem > 0 ? `${rem}m` : ''].filter(Boolean).join(' ') || '0m';
+            };
+
+            const issue = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            let body = issue.data.body || '';
+            const startTag = '<!-- WORKLOG_START -->';
+            const endTag = '<!-- WORKLOG_END -->';
+            const newRow = `| ${date} | @${user} | ${formatDuration(totalMinutes)} | ${note} |`;
+
+            let rows = [];
+            let existingMinutes = 0;
+
+            if (body.includes(startTag) && body.includes(endTag)) {
+              const section = body.split(startTag)[1].split(endTag)[0];
+              const lines = section.split('\n').map(l => l.trim()).filter(l => l.startsWith('|'));
+              // Skip header, separator, and total row
+              rows = lines.slice(2, -1);
+
+              for (const row of rows) {
+                const cols = row.split('|').map(c => c.trim());
+                const dur = cols[3] || '';
+                const hMatch = dur.match(/(\d+)h/);
+                const mMatch = dur.match(/(\d+)m/);
+                existingMinutes += (hMatch ? parseInt(hMatch[1], 10) * 60 : 0) + (mMatch ? parseInt(mMatch[1], 10) : 0);
+              }
+            }
+
+            rows.push(newRow);
+            const grandTotal = formatDuration(existingMinutes + totalMinutes);
+
+            const worklogBlock = [
+              startTag,
+              '### ⏱️ Work Log',
+              '| Date | User | Time Spent | Note |',
+              '| :--- | :--- | :--- | :--- |',
+              ...rows,
+              `| **Total** | | **${grandTotal}** | |`,
+              endTag
+            ].join('\n');
+
+            if (body.includes(startTag) && body.includes(endTag)) {
+              body = body.replace(new RegExp(`${startTag}[\\s\\S]*?${endTag}`), worklogBlock);
+            } else {
+              body = `${body}\n\n${worklogBlock}`.trim();
+            }
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+            // Add a thumbs-up reaction to confirm the log was recorded
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: '+1'
+            });
