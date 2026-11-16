@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Ahmed-Najib-Biabani-Ibrahimkhel",
+			"باران",
 			"شاه زمان پټان"
 		]
 	},
@@ -78,7 +79,7 @@
 	"body-profile-edit-organization-button": "د سازمان پېژنيال سمول",
 	"body-profile-edit-user-button": "د کارن پېژنيال سمول",
 	"logo-not-available": "نښان شتون نلري",
-	"body-profile-section-title-wanted-capacity": "غوښتلذشوې وړتياوې",
+	"body-profile-section-title-wanted-capacity": "غوښتل‌شوې وړتياوې",
 	"body-profile-section-title-known-capacity": "پېژندل‌شوې وړتياوې",
 	"body-profile-section-title-available-capacity": "شته وړتياوې",
 	"body-profile-section-title-contact": "اړيکه",

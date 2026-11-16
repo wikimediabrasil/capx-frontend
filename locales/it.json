@@ -216,7 +216,6 @@
 	"privacy-policy-private-information-text03-link": "Termini di utilizzo del servizio cloud Wikimedia",
 	"filters-location-online": "In linea",
 	"filters-location-hybrid": "Ibrido",
-	"filters-onsite-event": "Evento in loco",
 	"filters-location-in-person": "Di persona",
 	"filters-learners": "Principianti",
 	"filters-sharers": "Condivisori",
@@ -374,9 +373,6 @@
 	"delete-confirmation-close-tab": "Chiudi scheda",
 	"delete-confirmation-capacities": "Competenze disponibili",
 	"delete-confirmation-description": "Descrizione evento",
-	"filters-hybrid-event": "Evento ibrido",
-	"filters-online-event": "Evento online",
-	"filters-all-formats": "Tutti i formati",
 	"message-sent-back-to-home": "Torna alla pagina principale",
 	"message-form-informative-text": "Utilizza questo spazio per scrivere il tuo messaggio. Puoi iniziare con un saluto e una breve presentazione prima di passare all'argomento. Riceverai una copia del messaggio se lo invii via e-mail.",
 	"error-fallback-title": "Ops! Qualcosa è andato storto.",
@@ -668,5 +664,10 @@
 	"suggest-capacity-description-placeholder": "Descrivi la competenze e il motivo per cui dovrebbe essere aggiunta...",
 	"suggest-capacity-submit": "Invia",
 	"suggest-capacity-submitting": "Invio in corso...",
-	"suggest-capacity-title-label": "Titolo"
+	"suggest-capacity-title-label": "Titolo",
+	"not-found-title": "Pagina non trovata",
+	"capacities-visualization-no-capacities": "Nessuna competenza trovata.",
+	"message-form-email-unavailable-switched": "Indirizzo email non disponibile. Passaggio alla pagina di discussione.",
+	"edit-profile-add-capacities-placeholder": "Aggiungi competenze +",
+	"date-picker-minute": "Min"
 }

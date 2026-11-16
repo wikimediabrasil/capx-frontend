@@ -221,7 +221,6 @@
 	"privacy-policy-private-information-text03-link": "ویکیمیڈیا کلاؤڈ سروس دیاں شرائطِ استعمال",
 	"filters-location-online": "آن لائن",
 	"filters-location-hybrid": "رلوݨاں",
-	"filters-onsite-event": "آن سائٹ تقریب",
 	"filters-location-in-person": "آمنے سامنے",
 	"filters-learners": "سکھݨ آلے",
 	"filters-sharers": "شیئر کرݨ آلے",
@@ -385,9 +384,6 @@
 	"delete-confirmation-close-tab": "ٹیب بند کرو",
 	"delete-confirmation-capacities": "دستیاب صلاحیتاں",
 	"delete-confirmation-description": "ایونٹ تفصیل",
-	"filters-hybrid-event": "ہائبرڈ ایونٹ",
-	"filters-online-event": "آن لائن تقریب",
-	"filters-all-formats": "سارے فارمیٹ",
 	"message-sent-back-to-home": "واپس  گھر تے ون٘ڄو",
 	"message-form-informative-text": "اپݨا پیغام لکھݨ کیتے اے جاہ ورتو۔ موضوع تے آوݨ توں پہلاں تساں سلام تے مختصر تعارف نال شروع کر سڳدے وے۔ جے پیغام ای میل دے ذریعے بھیجیا ونڄے تاں تساں کوں اپݨے پیغام دی ہک نقل ملسی۔",
 	"error-fallback-title": "اوپ۔ کچھ خراب تھی گئے!",
@@ -758,5 +754,8 @@
 	"suggest-capacity-submitting": "جمع کریندا پئے۔۔۔",
 	"suggest-capacity-success": "صلاحیت دی تجویز کامیابی نال جمع تھی ڳئی!",
 	"suggest-capacity-title-label": "عنوان",
-	"suggest-capacity-title-placeholder": "مثلاً: ڈیٹا ویزولائزیشن"
+	"suggest-capacity-title-placeholder": "مثلاً: ڈیٹا ویزولائزیشن",
+	"profile-error-loading": "پروفائل لوڈ کرݨ وچ غلطی۔ مہربانی کر کے ولدا کوشش کرو۔",
+	"date-picker-hour": "گھنٹہ",
+	"date-picker-minute": "منٹ"
 }
