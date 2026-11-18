@@ -54,14 +54,27 @@ export interface MentorshipFormMenteeApi {
   created_at: string;
 }
 
+export interface FormBuilderLabelTranslation {
+  lang: string;
+  value: string;
+}
+
+export interface FormBuilderOptionSchema {
+  label: string;
+  value: string;
+  'label-translations'?: FormBuilderLabelTranslation[];
+  [key: string]: unknown;
+}
+
 // jQuery formBuilder field schema (stored in backend)
 export interface FormBuilderFieldSchema {
   type: string;
   label?: string;
+  'label-translations'?: FormBuilderLabelTranslation[];
   name?: string;
   className?: string;
   subtype?: string;
-  values?: Array<{ label: string; value: string }>;
+  values?: FormBuilderOptionSchema[];
   required?: boolean;
   placeholder?: string;
   [key: string]: unknown;
