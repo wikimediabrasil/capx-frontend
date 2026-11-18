@@ -6,6 +6,12 @@ import BaseButton from '@/components/BaseButton';
 import { MentorshipForm } from '@/types/mentorship';
 import { formatWikiImageUrl } from '@/lib/utils/fetchWikimediaData';
 import { useDarkMode, usePageContent } from '@/stores';
+import {
+  DEFAULT_FORM_LANGUAGE,
+  FORM_RESPONSE_LANGUAGE_FIELD,
+  formBuilderSchemaForLanguage,
+  getFormBuilderLanguages,
+} from '@/utils/formBuilderToMentorshipForm';
 
 interface NativeFormRenderModalProps {
   form: MentorshipForm;
@@ -38,6 +44,16 @@ function appendValue(target: Record<string, unknown>, key: string, value: unknow
   target[normalizedKey] = normalizedValue;
 }
 
+function getLanguageLabel(language: string): string {
+  try {
+    const locale = typeof navigator === 'undefined' ? 'en' : navigator.language;
+    const name = new Intl.DisplayNames([locale], { type: 'language' }).of(language);
+    return `${name || language} (${language})`;
+  } catch {
+    return language;
+  }
+}
+
 export default function NativeFormRenderModal({
   form,
   programName,
@@ -50,8 +66,21 @@ export default function NativeFormRenderModal({
   const pageContent = usePageContent();
   const [isReady, setIsReady] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState(DEFAULT_FORM_LANGUAGE);
   const formContainerRef = useRef<HTMLDivElement | null>(null);
   const nativeFormRef = useRef<HTMLFormElement | null>(null);
+  const supportedLanguages = useMemo(
+    () => getFormBuilderLanguages(form.rawJson || []),
+    [form.rawJson]
+  );
+  const localizedSchema = useMemo(
+    () => formBuilderSchemaForLanguage(form.rawJson || [], selectedLanguage),
+    [form.rawJson, selectedLanguage]
+  );
+
+  useEffect(() => {
+    setSelectedLanguage(DEFAULT_FORM_LANGUAGE);
+  }, [form.rawJson]);
 
   const normalizedLogo = useMemo(
     () => (programLogo && programLogo.trim() !== '' ? formatWikiImageUrl(programLogo) : null),
@@ -65,7 +94,7 @@ export default function NativeFormRenderModal({
       setIsReady(false);
       setRenderError(null);
 
-      if (!form.rawJson || form.rawJson.length === 0) {
+      if (localizedSchema.length === 0) {
         setRenderError('No form schema available');
         return;
       }
@@ -85,7 +114,7 @@ export default function NativeFormRenderModal({
         const $container = $(formContainerRef.current);
         $container.empty();
         $container.formRender({
-          formData: JSON.stringify(form.rawJson),
+          formData: JSON.stringify(localizedSchema),
           dataType: 'json',
         });
 
@@ -104,7 +133,7 @@ export default function NativeFormRenderModal({
     return () => {
       cancelled = true;
     };
-  }, [form.rawJson]);
+  }, [localizedSchema]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,6 +148,7 @@ export default function NativeFormRenderModal({
       appendValue(data, key, value);
     }
 
+    data[FORM_RESPONSE_LANGUAGE_FIELD] = selectedLanguage;
     onSubmit(data);
   };
 
@@ -153,6 +183,35 @@ export default function NativeFormRenderModal({
                 : pageContent['mentorship-form-mentee'] || 'Mentee form'}
             </h2>
           </div>
+
+          {supportedLanguages.length > 1 && (
+            <div className="mb-4">
+              <label
+                htmlFor="mentorship-form-language"
+                className={`block mb-1 text-sm font-semibold ${
+                  darkMode ? 'text-gray-200' : 'text-gray-800'
+                }`}
+              >
+                {pageContent['mentorship-form-language'] || 'Answer in'}
+              </label>
+              <select
+                id="mentorship-form-language"
+                value={selectedLanguage}
+                onChange={event => setSelectedLanguage(event.target.value)}
+                className={`w-full rounded-lg border px-3 py-2 ${
+                  darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                {supportedLanguages.map(language => (
+                  <option key={language} value={language}>
+                    {getLanguageLabel(language)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {renderError ? (
             <p className="mb-4 text-sm text-red-600">{renderError}</p>
