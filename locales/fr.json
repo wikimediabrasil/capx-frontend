@@ -18,6 +18,7 @@
 			"McDutchie",
 			"Méthodes Bulebe Hangi",
 			"Network traveller",
+			"Uriel",
 			"VIGNERON"
 		]
 	},
@@ -769,5 +770,9 @@
 	"suggest-capacity-submitting": "Soumission en cours...",
 	"suggest-capacity-success": "Suggestion de capacité soumise avec succès !",
 	"suggest-capacity-title-label": "Titre",
-	"suggest-capacity-title-placeholder": "ex. Visualisation de données"
+	"suggest-capacity-title-placeholder": "ex. Visualisation de données",
+	"auth-error-title": "Erreur d'authentification",
+	"auth-error-default": "Une erreur s'est produite lors de l'authentification.",
+	"auth-error-bad-request": "Erreur lors de l'authentification. Veuillez essayer à nouveau de vous connecter.",
+	"auth-error-unauthorized": "Accès non autorisé. Vos identifiants ont peut-être expiré."
 }
