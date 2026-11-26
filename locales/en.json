@@ -236,6 +236,7 @@
   "filters-search-by-username": "Search by username",
   "filters-affiliations": "Affiliations",
   "filters-add-affiliation": "Add affiliation",
+  "searchable-select-no-results": "No results found",
   "feed-toggle-incomplete-profiles": "Incomplete profiles",
   "feed-no-data-message": "No data found",
   "feed-no-data-description": "Try adjusting the filters or come back later",

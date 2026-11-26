@@ -1,9 +1,10 @@
 import Image from 'next/image';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
+import { SearchableSelect } from '@/components/SearchableSelect';
 import { FormSelect } from './FormSelect';
 import { ResponsiveIcon } from './ResponsiveIcon';
-import { RESPONSIVE_TEXT_SIZES } from './utils';
+import { RESPONSIVE_BORDER_RADIUS, RESPONSIVE_TEXT_SIZES } from './utils';
 
 import { useDarkMode, useIsMobile } from '@/stores';
 interface SelectionSectionProps {
@@ -16,6 +17,7 @@ interface SelectionSectionProps {
   readonly onAdd: (value: string) => void;
   readonly helpText: string;
   readonly placeholder: string;
+  readonly searchable?: boolean;
 }
 
 export function SelectionSection({
@@ -28,6 +30,7 @@ export function SelectionSection({
   onAdd,
   helpText,
   placeholder,
+  searchable = false,
 }: SelectionSectionProps) {
   const darkMode = useDarkMode();
   const isMobile = useIsMobile();
@@ -76,16 +79,32 @@ export function SelectionSection({
       </div>
 
       {/* Add Item Select */}
-      <FormSelect
-        value=""
-        onChange={value => {
-          if (value) {
-            onAdd(value);
-          }
-        }}
-        options={availableOptions}
-        placeholder={placeholder}
-      />
+      {searchable ? (
+        <SearchableSelect
+          options={Object.entries(availableOptions).map(([id, name]) => ({ id, name }))}
+          excludeIds={selectedItems}
+          onSelect={onAdd}
+          placeholder={placeholder}
+          ariaLabel={title}
+          iconSize={isMobile ? 20 : 24}
+          inputClassName={`px-4 py-2 ${RESPONSIVE_BORDER_RADIUS.small} font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} border ${
+            darkMode
+              ? 'bg-[#053749] border-white text-white placeholder-white/50'
+              : 'bg-white border-[#053749] text-[#053749] placeholder-[#829BA4]'
+          }`}
+        />
+      ) : (
+        <FormSelect
+          value=""
+          onChange={value => {
+            if (value) {
+              onAdd(value);
+            }
+          }}
+          options={availableOptions}
+          placeholder={placeholder}
+        />
+      )}
 
       <span
         className={`${RESPONSIVE_TEXT_SIZES.small} font-[Montserrat] not-italic font-normal leading-[15px] md:leading-normal ${
