@@ -502,9 +502,11 @@ const EventsForm = memo(
             value={localLocationType}
             onChange={handleLocationTypeChange}
           >
-            <option value="virtual">Virtual</option>
-            <option value="in_person">In person</option>
-            <option value="hybrid">Hybrid</option>
+            <option value="virtual">{pageContent['events-location-online'] || 'Online'}</option>
+            <option value="in_person">
+              {pageContent['events-location-in-person'] || 'In-person'}
+            </option>
+            <option value="hybrid">{pageContent['events-location-hybrid'] || 'Hybrid'}</option>
           </select>
         </div>
 

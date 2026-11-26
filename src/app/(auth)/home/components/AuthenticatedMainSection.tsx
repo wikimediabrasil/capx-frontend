@@ -583,7 +583,7 @@ export default function AuthenticatedMainSection({
       <div className={`${bgClass} flex items-center justify-center gap-4 py-4 w-full`}>
         <button
           onClick={prevSlide}
-          aria-label="Previous slide"
+          aria-label={pageContent['carousel-previous-slide'] || 'Previous slide'}
           className={
             (darkMode ? 'text-[#FFF] hover:bg-white/10' : 'text-[#053749] hover:bg-black/5') +
             ' rounded-full p-2 transition-colors duration-200'
@@ -612,7 +612,7 @@ export default function AuthenticatedMainSection({
 
         <button
           onClick={nextSlide}
-          aria-label="Next slide"
+          aria-label={pageContent['carousel-next-slide'] || 'Next slide'}
           className={
             (darkMode ? 'text-[#FFF] hover:bg-white/10' : 'text-[#053749] hover:bg-black/5') +
             ' rounded-full p-2 transition-colors duration-200'

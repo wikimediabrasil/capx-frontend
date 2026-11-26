@@ -234,7 +234,7 @@ export function CapacitySearch({
               <button
                 onClick={() => handleRemoveCapacity(capacity.code)}
                 className="hover:opacity-70 transition-opacity"
-                aria-label="Remove capacity"
+                aria-label={pageContent['capacity-search-remove-capacity'] || 'Remove capacity'}
               >
                 ✕
               </button>

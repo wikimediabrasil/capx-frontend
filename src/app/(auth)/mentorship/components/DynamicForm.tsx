@@ -266,7 +266,7 @@ export default function DynamicForm({
             </div>
             {!field.options?.length && (
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                No options defined for this field.
+                {pageContent['mentorship-form-no-options'] || 'No options defined for this field.'}
               </p>
             )}
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
@@ -448,7 +448,9 @@ export default function DynamicForm({
                 darkMode ? 'text-white' : 'text-capx-dark-box-bg'
               }`}
             >
-              {form.role === 'mentor' ? 'Mentor form' : 'Mentee form'}
+              {form.role === 'mentor'
+                ? pageContent['mentorship-form-mentor'] || 'Mentor form'
+                : pageContent['mentorship-form-mentee'] || 'Mentee form'}
             </h2>
           </div>
 

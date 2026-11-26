@@ -3,6 +3,7 @@ import ArrowDownIcon from '@/public/static/images/arrow_drop_down_circle.svg';
 import ArrowDownIconWhite from '@/public/static/images/arrow_drop_down_circle_white.svg';
 import CloseIcon from '@/public/static/images/close_mobile_menu_icon_light_mode.svg';
 import CloseIconWhite from '@/public/static/images/close_mobile_menu_icon_dark_mode.svg';
+import { SearchableSelect } from '@/components/SearchableSelect';
 
 import { useDarkMode, usePageContent } from '@/stores';
 interface SelectListProps {
@@ -14,6 +15,7 @@ interface SelectListProps {
   onSelect: (item: string | number) => void;
   placeholder?: string;
   multiple?: boolean;
+  searchable?: boolean;
 }
 
 export function SelectList({
@@ -25,6 +27,7 @@ export function SelectList({
   onSelect,
   placeholder,
   multiple = false,
+  searchable = false,
 }: SelectListProps) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
@@ -68,11 +71,20 @@ export function SelectList({
       )}
 
       {/* Select/Search Input */}
-      <div className="relative">
-        <select
-          value=""
-          onChange={e => onSelect(e.target.value)}
-          className={`
+      {searchable ? (
+        <SearchableSelect
+          options={items.map(item => ({ id: String(item.id), name: item.name }))}
+          excludeIds={selectedItems.map(String)}
+          onSelect={onSelect}
+          placeholder={placeholder}
+          ariaLabel={title}
+        />
+      ) : (
+        <div className="relative">
+          <select
+            value=""
+            onChange={e => onSelect(e.target.value)}
+            className={`
             w-full px-4 py-2 rounded-lg appearance-none border
             ${
               darkMode
@@ -80,23 +92,24 @@ export function SelectList({
                 : 'bg-white border-gray-300 text-gray-900'
             }
           `}
-        >
-          <option value="">{placeholder || pageContent['edit-profile-insert-item']}</option>
-          {items.map(item => (
-            <option key={item.id} value={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <Image
-            src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
-            alt={pageContent['filters-select-alt-icon']}
-            width={20}
-            height={20}
-          />
+          >
+            <option value="">{placeholder || pageContent['edit-profile-insert-item']}</option>
+            {items.map(item => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+            <Image
+              src={darkMode ? ArrowDownIconWhite : ArrowDownIcon}
+              alt={pageContent['filters-select-alt-icon']}
+              width={20}
+              height={20}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"A100Star",
 			"Amire80",
 			"Freddy9",
 			"YaronSh"
@@ -15,12 +16,12 @@
 	"auth-dialog-button-close": "סגירת לשונית",
 	"navbar-link-organizations": "רשימת ארגונים",
 	"navbar-link-profiles": "הפרופילים שלי",
-	"navbar-link-capacities": "מדריך יכולות",
+	"navbar-link-capacities": "מאגר היכולות",
 	"navbar-link-events": "אירועים",
-	"navbar-link-reports": "דיווחים",
+	"navbar-link-reports": "דיווחי תקלות",
 	"body-home-section01-title-carousel": "יכולת, ידע, מיומנויות, שירותים",
-	"body-home-section01-description": "התחברות לעמיתים, למידה ושיתוף יכולת בפלטפורמה שנוצרה עבור ועל־ידי תנועת ויקימדיה.",
-	"body-home-section01-button": "הצטרפות להחלפת יכולות!",
+	"body-home-section01-description": "יצירת קשר עם עמיתים, למידה ושיתוף מיומנויות בפלטפורמה שנוצרה על־ידי תנועת ויקימדיה ולמענה.",
+	"body-home-section01-button": "הצטרפות לחילופי יכולות!",
 	"body-home-section01-about-button": "אודות CapX",
 	"body-loggedin-home-main-section-button02": "הפרופיל שלי",
 	"body-profile-box-title-wikidata-item": "פריט ויקינתונים",
@@ -28,7 +29,7 @@
 	"body-profile-section-title-territory": "אזור",
 	"body-profile-section-title-affiliation": "השתייכות",
 	"body-profile-section-title-wanted-capacity": "יכולות מבוקשות",
-	"body-profile-section-title-known-capacity": "יכולות מוכרות",
+	"body-profile-section-title-known-capacity": "יכולות קיימות",
 	"body-profile-section-title-available-capacity": "יכולות זמינות",
 	"footer-link-documentation": "תיעוד",
 	"footer-message": "עבור ומאת תנועת ויקימדיה",

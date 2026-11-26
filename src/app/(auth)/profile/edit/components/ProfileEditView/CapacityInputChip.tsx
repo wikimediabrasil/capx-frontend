@@ -1,6 +1,6 @@
 'use client';
 
-import { useCapacityStore, useDarkMode, useIsMobile } from '@/stores';
+import { useCapacityStore, useDarkMode, useIsMobile, usePageContent } from '@/stores';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { RESPONSIVE_TEXT_SIZES } from './utils';
 
@@ -37,6 +37,8 @@ export function CapacityInputChip({
   const inputRef = useRef<HTMLInputElement>(null);
   const darkMode = useDarkMode();
   const isMobile = useIsMobile();
+  const pageContent = usePageContent();
+  const placeholder = pageContent['edit-profile-add-capacities-placeholder'] || 'Add capacities +';
   const { getRootCapacities, getChildren, getName } = useCapacityStore();
 
   const getAllCapacities = useCallback(() => {
@@ -137,8 +139,8 @@ export function CapacityInputChip({
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add capacities +"
-          size={inputValue.length > 0 ? inputValue.length + 1 : 'Add capacities +'.length}
+          placeholder={placeholder}
+          size={inputValue.length > 0 ? inputValue.length + 1 : placeholder.length}
           className={`bg-transparent outline-none font-[Montserrat] ${RESPONSIVE_TEXT_SIZES.medium} not-italic font-normal leading-[normal] ${textColor} placeholder-gray-400`}
         />
       </div>

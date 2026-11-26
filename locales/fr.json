@@ -9,6 +9,7 @@
 			"Cquoi",
 			"Derugon",
 			"EPorto (WMB)",
+			"Eihel",
 			"EmDashUser002",
 			"EricLaporte",
 			"Feldo",
@@ -18,6 +19,7 @@
 			"McDutchie",
 			"Méthodes Bulebe Hangi",
 			"Network traveller",
+			"Uriel",
 			"VIGNERON"
 		]
 	},
@@ -236,7 +238,6 @@
 	"privacy-policy-private-information-text03-link": "Conditions d’utilisation du service Cloud Wikimédia",
 	"filters-location-online": "En ligne",
 	"filters-location-hybrid": "Hybride",
-	"filters-onsite-event": "Sur site",
 	"filters-location-in-person": "En personne",
 	"filters-learners": "Apprenants",
 	"filters-sharers": "Partageurs",
@@ -400,9 +401,6 @@
 	"delete-confirmation-close-tab": "Fermer l’onglet",
 	"delete-confirmation-capacities": "Capacités disponibles",
 	"delete-confirmation-description": "Description de l’événement",
-	"filters-hybrid-event": "Événement hybride",
-	"filters-online-event": "Événement en ligne",
-	"filters-all-formats": "Tous les formats",
 	"message-sent-back-to-home": "Revenir à l’accueil",
 	"message-form-informative-text": "Utilisez cet espace pour rédiger votre message. Vous pouvez commencer par des salutations et une brève introduction avant de rentrer dans le sujet. Vous recevrez une copie de votre message par courriel.",
 	"error-fallback-title": "Oups ! Quelque chose s’est mal passé.",
@@ -773,5 +771,9 @@
 	"suggest-capacity-submitting": "Soumission en cours...",
 	"suggest-capacity-success": "Suggestion de capacité soumise avec succès !",
 	"suggest-capacity-title-label": "Titre",
-	"suggest-capacity-title-placeholder": "ex. Visualisation de données"
+	"suggest-capacity-title-placeholder": "ex. Visualisation de données",
+	"auth-error-title": "Erreur d’authentification",
+	"auth-error-default": "Une erreur s’est produite lors de l’authentification.",
+	"auth-error-bad-request": "Erreur lors de la tentative d’authentification. Veuillez essayer de vous connecter à nouveau.",
+	"auth-error-unauthorized": "Accès non autorisé. Vos identifiants ont peut-être expiré."
 }

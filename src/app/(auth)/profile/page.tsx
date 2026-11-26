@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 
-import { useLanguage, useCapacityStore } from '@/stores';
+import { useLanguage, useCapacityStore, usePageContent } from '@/stores';
 export default function ProfileByUserName() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
@@ -19,6 +19,7 @@ export default function ProfileByUserName() {
   const capacityCache = useCapacityStore();
   const { isLoadingTranslations } = capacityCache;
   const language = useLanguage();
+  const pageContent = usePageContent();
 
   // Monitor language changes and update capacity cache
   useEffect(() => {
@@ -51,12 +52,14 @@ export default function ProfileByUserName() {
     console.error('Error loading profile:', error);
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <p className="text-xl text-red-500">Error loading profile. Please try again.</p>
+        <p className="text-xl text-red-500">
+          {pageContent['profile-error-loading'] || 'Error loading profile. Please try again.'}
+        </p>
         <button
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
           onClick={() => router.push('/')}
         >
-          Go back
+          {pageContent['badges-back-to-user-profile'] || 'Go back'}
         </button>
       </div>
     );

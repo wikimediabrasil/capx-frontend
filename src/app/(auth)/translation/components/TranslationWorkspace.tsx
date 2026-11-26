@@ -658,7 +658,7 @@ function Pagination({ page, totalPages, onPageChange, darkMode, pageContent }: P
         className={`${btnBase} ${btnInactive}`}
         disabled={page === 1}
         onClick={() => onPageChange(page - 1)}
-        aria-label="Previous page"
+        aria-label={pageContent['pagination-previous'] || 'Previous page'}
       >
         ←
       </button>
@@ -684,7 +684,7 @@ function Pagination({ page, totalPages, onPageChange, darkMode, pageContent }: P
         className={`${btnBase} ${btnInactive}`}
         disabled={page === totalPages}
         onClick={() => onPageChange(page + 1)}
-        aria-label="Next page"
+        aria-label={pageContent['pagination-next'] || 'Next page'}
       >
         →
       </button>

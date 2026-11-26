@@ -1,29 +1,41 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { EventFilterState, EventFilterType, EventLocationType } from '../types';
+import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
+import BaseButton from '@/components/BaseButton';
 import ArrowBackIcon from '@/public/static/images/arrow_back_icon.svg';
 import ArrowBackIconWhite from '@/public/static/images/arrow_back_icon_white.svg';
 import CapxIcon from '@/public/static/images/capx_icon.svg';
 import CapxIconWhite from '@/public/static/images/capx_icon_white.svg';
-import LocationIcon from '@/public/static/images/location_on_dark.svg';
-import LocationIconWhite from '@/public/static/images/location_on.svg';
-import CheckBoxOutlineBlankIcon from '@/public/static/images/check_box_outline_blank.svg';
-import CheckBoxOutlineBlankIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
 import CheckBoxIcon from '@/public/static/images/check_box.svg';
 import CheckBoxIconWhite from '@/public/static/images/check_box_light.svg';
-import BaseButton from '@/components/BaseButton';
-import { CapacitySearch } from '@/app/(auth)/capacity/components/CapacitySearch';
+import CheckBoxOutlineBlankIcon from '@/public/static/images/check_box_outline_blank.svg';
+import CheckBoxOutlineBlankIconWhite from '@/public/static/images/check_box_outline_blank_light.svg';
+import LocationIconWhite from '@/public/static/images/location_on.svg';
+import LocationIcon from '@/public/static/images/location_on_dark.svg';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { EventFilterState, EventFilterType, EventLocationType } from '../types';
 
 import { useDarkMode, usePageContent } from '@/stores';
+
+const eventFormatOptions = [
+  { type: EventLocationType.All, labelKey: 'filters-all-formats', fallback: 'All formats' },
+  { type: EventLocationType.Online, labelKey: 'filters-online-event', fallback: 'Online event' },
+  { type: EventLocationType.InPerson, labelKey: 'filters-onsite-event', fallback: 'On-site event' },
+  { type: EventLocationType.Hybrid, labelKey: 'filters-hybrid-event', fallback: 'Hybrid event' },
+];
+
 interface EventsFiltersProps {
   onClose: () => void;
   onApplyFilters: (filters: EventFilterState) => void;
   initialFilters: EventFilterState;
 }
 
-export function EventsFilters({ onClose, onApplyFilters, initialFilters }: EventsFiltersProps) {
+export function EventsFilters({
+  onClose,
+  onApplyFilters,
+  initialFilters,
+}: Readonly<EventsFiltersProps>) {
   const darkMode = useDarkMode();
   const pageContent = usePageContent();
 
@@ -47,6 +59,11 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
       territories: prev.territories.filter((t) => t !== territoryToRemove),
     }));
   }; */
+
+  const getCheckboxIcon = (checked: boolean) => {
+    if (checked) return darkMode ? CheckBoxIconWhite : CheckBoxIcon;
+    return darkMode ? CheckBoxOutlineBlankIconWhite : CheckBoxOutlineBlankIcon;
+  };
 
   const handleEventFormatChange = (format: EventLocationType) => {
     setFilters(prev => ({
@@ -124,7 +141,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? CapxIconWhite : CapxIcon}
-                  alt="Capacities"
+                  alt={pageContent['filters-capacities'] || 'Capacities'}
                   width={24}
                   height={24}
                 />
@@ -148,7 +165,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? LocationIconWhite : LocationIcon}
-                  alt="Territory"
+                  alt={pageContent['filters-territory'] || 'Territory'}
                   width={24}
                   height={24}
                 />
@@ -187,7 +204,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                 >
                   <Image
                     src={darkMode ? AddIconWhite : AddIcon}
-                    alt="Add"
+                    alt={pageContent['add'] || 'Add'}
                     width={20}
                     height={20}
                   />
@@ -214,7 +231,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
                       >
                         <Image
                           src={darkMode ? CloseIconWhite : CloseIcon}
-                          alt="Remove"
+                          alt={pageContent['filters-remove-item-alt-icon'] || 'Remove'}
                           width={16}
                           height={16}
                         />
@@ -230,7 +247,7 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               <div className="flex items-center gap-2">
                 <Image
                   src={darkMode ? LocationIconWhite : LocationIcon}
-                  alt="Event format"
+                  alt={pageContent['filters-event-format'] || 'Event format'}
                   width={24}
                   height={24}
                 />
@@ -240,169 +257,41 @@ export function EventsFilters({ onClose, onApplyFilters, initialFilters }: Event
               </div>
 
               <div className="space-y-2">
-                <button
-                  onClick={() => handleEventFormatChange(EventLocationType.All)}
-                  className={`
-                    w-full p-3 border rounded-lg flex items-center
-                    ${
-                      filters.locationType === EventLocationType.All
-                        ? 'border-blue-600'
-                        : darkMode
-                          ? 'border-gray-700'
-                          : 'border-gray-300'
-                    }
-                  `}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
-                      {pageContent['filters-all-formats'] || 'All formats'}
-                    </span>
-                    {filters.locationType === EventLocationType.All ? (
-                      darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
-                      ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
-                      )
-                    ) : darkMode ? (
-                      <Image
-                        src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    ) : (
-                      <Image
-                        src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    )}
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => handleEventFormatChange(EventLocationType.Online)}
-                  className={`
-                    w-full p-3 border rounded-lg flex items-center
-                    ${
-                      filters.locationType === EventLocationType.Online
-                        ? 'border-blue-600'
-                        : darkMode
-                          ? 'border-gray-700'
-                          : 'border-gray-300'
-                    }
-                  `}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
-                      {pageContent['filters-online-event'] || 'Online event'}
-                    </span>
-                    {filters.locationType === EventLocationType.Online ? (
-                      darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
-                      ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
-                      )
-                    ) : darkMode ? (
-                      <Image
-                        src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    ) : (
-                      <Image
-                        src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    )}
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => handleEventFormatChange(EventLocationType.InPerson)}
-                  className={`
-                    w-full p-3 border rounded-lg flex items-center
-                    ${
-                      filters.locationType === EventLocationType.InPerson
-                        ? 'border-blue-600'
-                        : darkMode
-                          ? 'border-gray-700'
-                          : 'border-gray-300'
-                    }
-                  `}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
-                      {pageContent['filters-onsite-event'] || 'On-site event'}
-                    </span>
-                    {filters.locationType === EventLocationType.InPerson ? (
-                      darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
-                      ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
-                      )
-                    ) : darkMode ? (
-                      <Image
-                        src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    ) : (
-                      <Image
-                        src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    )}
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => handleEventFormatChange(EventLocationType.Hybrid)}
-                  className={`
-                    w-full p-3 border rounded-lg flex items-center
-                    ${
-                      filters.locationType === EventLocationType.Hybrid
-                        ? 'border-blue-600'
-                        : darkMode
-                          ? 'border-gray-700'
-                          : 'border-gray-300'
-                    }
-                  `}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
-                      {pageContent['filters-hybrid-event'] || 'Hybrid event'}
-                    </span>
-                    {filters.locationType === EventLocationType.Hybrid ? (
-                      darkMode ? (
-                        <Image src={CheckBoxIconWhite} alt="Checked" width={24} height={24} />
-                      ) : (
-                        <Image src={CheckBoxIcon} alt="Checked" width={24} height={24} />
-                      )
-                    ) : darkMode ? (
-                      <Image
-                        src={CheckBoxOutlineBlankIconWhite}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    ) : (
-                      <Image
-                        src={CheckBoxOutlineBlankIcon}
-                        alt="Unchecked"
-                        width={24}
-                        height={24}
-                      />
-                    )}
-                  </div>
-                </button>
+                {eventFormatOptions.map(({ type, labelKey, fallback }) => {
+                  const isSelected = filters.locationType === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => handleEventFormatChange(type)}
+                      className={`
+                        w-full p-3 border rounded-lg flex items-center
+                        ${
+                          isSelected
+                            ? 'border-blue-600'
+                            : darkMode
+                              ? 'border-gray-700'
+                              : 'border-gray-300'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className={`${darkMode ? 'text-white' : 'text-black'}`}>
+                          {pageContent[labelKey] || fallback}
+                        </span>
+                        <Image
+                          src={getCheckboxIcon(isSelected)}
+                          alt={
+                            isSelected
+                              ? pageContent['alt-checked'] || 'Checked'
+                              : pageContent['alt-unchecked'] || 'Unchecked'
+                          }
+                          width={24}
+                          height={24}
+                        />
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -217,7 +217,7 @@ export default function TranslateCapacityModal({
             className={`text-xl opacity-60 hover:opacity-100 transition-opacity flex-shrink-0 ${
               darkMode ? 'text-white' : 'text-gray-800'
             }`}
-            aria-label="Close"
+            aria-label={pageContent['close'] || 'Close'}
           >
             ✕
           </button>
@@ -369,7 +369,7 @@ export default function TranslateCapacityModal({
                   setOauthIframeUrl(null);
                 }}
                 className="text-gray-500 hover:text-gray-800 text-xl transition-colors"
-                aria-label="Close"
+                aria-label={pageContent['close'] || 'Close'}
               >
                 ✕
               </button>

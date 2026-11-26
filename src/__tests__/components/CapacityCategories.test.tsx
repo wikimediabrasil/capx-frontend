@@ -251,7 +251,7 @@ describe('CapacityCategories', () => {
     it('shows "No capacities found" message for empty categories', () => {
       render(<CapacityCategories />);
 
-      const noCapacitiesMessages = screen.getAllByText('No capacities found for this category.');
+      const noCapacitiesMessages = screen.getAllByText('No capacities found for this category');
       expect(noCapacitiesMessages.length).toBeGreaterThan(0);
     });
 

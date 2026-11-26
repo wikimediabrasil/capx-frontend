@@ -224,7 +224,6 @@
 	"privacy-policy-private-information-text03-link": "위키미디어 클라우드 서비스 이용 약관",
 	"filters-location-online": "온라인",
 	"filters-location-hybrid": "하이브리드",
-	"filters-onsite-event": "현장 이벤트",
 	"filters-location-in-person": "대면",
 	"filters-learners": "학습자",
 	"filters-sharers": "공유자",
@@ -388,9 +387,6 @@
 	"delete-confirmation-close-tab": "탭 닫기",
 	"delete-confirmation-capacities": "제공 가능한 역량",
 	"delete-confirmation-description": "이벤트 설명",
-	"filters-hybrid-event": "하이브리드 이벤트",
-	"filters-online-event": "온라인 이벤트",
-	"filters-all-formats": "모든 형식",
 	"message-sent-back-to-home": "홈으로 돌아가기",
 	"message-form-informative-text": "이 공간에 메시지를 작성해 주세요. 인사말과 간단한 소개로 시작한 후 본론으로 들어가시면 됩니다. 이메일로 전송하시면 작성하신 메시지 사본을 받으실 수 있습니다.",
 	"error-fallback-title": "앗! 무언가 잘못되었습니다.",
@@ -761,5 +757,6 @@
 	"suggest-capacity-submitting": "제출 중...",
 	"suggest-capacity-success": "역량 제안이 성공적으로 제출되었습니다!",
 	"suggest-capacity-title-label": "제목",
-	"suggest-capacity-title-placeholder": "예: 데이터 시각화"
+	"suggest-capacity-title-placeholder": "예: 데이터 시각화",
+	"edit-profile-organization-logo-placeholder": "위키미디어 공용 이미지 링크 (예: File:Example.jpg)"
 }

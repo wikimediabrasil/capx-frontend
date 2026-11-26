@@ -348,7 +348,9 @@ export default function CustomDatePicker({
                 <div className="flex items-center justify-center space-x-4">
                   {/* Hour */}
                   <div className="flex flex-col items-center">
-                    <label className="text-xs mb-1">Hora</label>
+                    <label className="text-xs mb-1">
+                      {pageContent['date-picker-hour'] || 'Hour'}
+                    </label>
                     <select
                       value={currentValue?.hour || 12}
                       onChange={e => updateTime('hour', parseInt(e.target.value))}
@@ -370,7 +372,9 @@ export default function CustomDatePicker({
 
                   {/* Minute */}
                   <div className="flex flex-col items-center">
-                    <label className="text-xs mb-1">Min</label>
+                    <label className="text-xs mb-1">
+                      {pageContent['date-picker-minute'] || 'Min'}
+                    </label>
                     <select
                       value={currentValue?.minute || 0}
                       onChange={e => updateTime('minute', parseInt(e.target.value))}

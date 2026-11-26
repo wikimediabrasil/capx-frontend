@@ -35,6 +35,7 @@ export function AffiliationSelector({
       onSelect={onSelectAffiliation}
       placeholder={placeholder}
       multiple
+      searchable
     />
   );
 }

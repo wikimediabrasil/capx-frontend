@@ -330,7 +330,10 @@ export default function OrganizationProfileEditView({
             <div className={`flex flex-col gap-4 ${darkMode ? 'text-white' : 'text-[#053749]'}`}>
               <input
                 type="text"
-                placeholder="Wikimedia Commons image's link (ex: File:Example.jpg)"
+                placeholder={
+                  pageContent['edit-profile-organization-logo-placeholder'] ||
+                  "Wikimedia Commons image's link (ex: File:Example.jpg)"
+                }
                 className={`w-full p-2 md:p-3 text-xs md:text-[24px] border rounded-md ${
                   darkMode
                     ? 'bg-transparent border-white text-white placeholder-gray-400'
@@ -374,7 +377,7 @@ export default function OrganizationProfileEditView({
                   <div className="flex flex-col items-center justify-center">
                     <Image
                       src={getDefaultOrganizationLogo(darkMode)}
-                      alt="Sem imagem"
+                      alt={pageContent['edit-profile-no-image'] || 'No image selected'}
                       width={60}
                       height={60}
                       className="opacity-50 md:w-[100px] md:h-[100px]"

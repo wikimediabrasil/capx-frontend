@@ -41,7 +41,7 @@ export default function SubmissionsList() {
         <div
           className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-white' : 'bg-red-100 text-red-800'}`}
         >
-          {error}
+          {pageContent['bug-report-error-loading'] || 'Could not load reports.'}
         </div>
       ) : paginatedReports.length === 0 ? (
         <div
