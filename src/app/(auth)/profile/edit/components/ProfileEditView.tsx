@@ -309,6 +309,7 @@ export default function ProfileEditView(props: ProfileEditViewProps) {
                 onAdd={handleAffiliationAdd}
                 helpText={pageContent['body-profile-section-affiliation-dropdown-menu']}
                 placeholder={pageContent['edit-profile-insert-item']}
+                searchable
               />
 
               {/* Territory */}
