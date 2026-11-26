@@ -1,11 +1,15 @@
 import {
   FormBuilderFieldSchema,
+  FormBuilderLabelTranslation,
   FormFieldType,
   MentorshipForm,
   MentorshipFormField,
   MentorshipRole,
   FormFieldOption,
 } from '@/types/mentorship';
+
+export const DEFAULT_FORM_LANGUAGE = 'en';
+export const FORM_RESPONSE_LANGUAGE_FIELD = '__form_language';
 
 const TYPE_MAP: Record<string, FormFieldType> = {
   text: 'text',
@@ -49,6 +53,54 @@ function valuesToOptions(values: FormBuilderFieldSchema['values']): FormFieldOpt
     }
     seen.add(valueStr);
     return { label, value };
+  });
+}
+
+function getTranslation(
+  translations: FormBuilderLabelTranslation[] | undefined,
+  language: string
+): string | undefined {
+  return translations?.find(translation => translation.lang === language)?.value;
+}
+
+export function getFormBuilderLanguages(json: FormBuilderFieldSchema[]): string[] {
+  const languages = new Set<string>([DEFAULT_FORM_LANGUAGE]);
+  if (!Array.isArray(json)) return Array.from(languages);
+
+  json.forEach(field => {
+    field['label-translations']?.forEach(translation => {
+      if (translation.lang) languages.add(translation.lang);
+    });
+    field.values?.forEach(option => {
+      option['label-translations']?.forEach(translation => {
+        if (translation.lang) languages.add(translation.lang);
+      });
+    });
+  });
+
+  return Array.from(languages);
+}
+
+export function formBuilderSchemaForLanguage(
+  json: FormBuilderFieldSchema[],
+  language: string
+): FormBuilderFieldSchema[] {
+  if (!Array.isArray(json)) return [];
+
+  return json.map(field => {
+    const localizedField = { ...field };
+    delete localizedField['label-translations'];
+    localizedField.label = getTranslation(field['label-translations'], language) ?? field.label;
+    if (field.values) {
+      localizedField.values = field.values.map(option => {
+        const localizedOption = { ...option };
+        delete localizedOption['label-translations'];
+        localizedOption.label =
+          getTranslation(option['label-translations'], language) ?? option.label;
+        return localizedOption;
+      });
+    }
+    return localizedField;
   });
 }
 
